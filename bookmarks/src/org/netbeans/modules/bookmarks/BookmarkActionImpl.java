@@ -19,6 +19,8 @@ import java.awt.event.ActionEvent;
 
 import org.openide.util.NbBundle;
 import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
+import org.openide.DialogDisplayer;
 
 import org.netbeans.api.bookmarks.*;
 import org.netbeans.api.registry.*;
@@ -57,8 +59,13 @@ public class BookmarkActionImpl extends AbstractAction {
         if (path.length() > 0 && path.charAt(0) == '/') {
             path = path.substring(1);
         }
-        String name = getBookmark().getName();
-        putValue(NAME, name);
+        Bookmark b = getBookmark();
+        if (b != null) {
+            String name = b.getName();
+            putValue(NAME, name);
+        } else {
+            putValue(NAME, NbBundle.getBundle(BookmarkActionImpl.class).getString("LBL_Invalid_Bookmark"));
+        }
     }
     
     public BookmarkActionImpl(String p, Bookmark b) {
@@ -74,7 +81,16 @@ public class BookmarkActionImpl extends AbstractAction {
      * Implementing the javax.swing.Action interface.
      */
     public void actionPerformed(ActionEvent e) {
-        getBookmark().invoke();
+        Bookmark b = getBookmark();
+        if (b != null) {
+            b.invoke();
+        } else {
+            NotifyDescriptor.Message warning = 
+                new NotifyDescriptor.Message(
+                    NbBundle.getBundle(BookmarkActionImpl.class).getString("WARN_Bookmark_Deleted"),
+                    NotifyDescriptor.WARNING_MESSAGE);
+            DialogDisplayer.getDefault().notify(warning);
+        }
     }
    
     public String getPath() {
@@ -82,7 +98,8 @@ public class BookmarkActionImpl extends AbstractAction {
     }
     
     /**
-     * Locates the bookmark using path variable.
+     * Locates the bookmark using path variable. If the bookmark
+     * is not found returns null.
      */
     Bookmark getBookmark() {
         int lastSlash = path.lastIndexOf('/');
@@ -99,7 +116,8 @@ public class BookmarkActionImpl extends AbstractAction {
         if (obj instanceof Bookmark) {
             return (Bookmark)obj;
         }
-        throw new IllegalStateException("Bookmark not found with path " + path + " object == " + obj); // NOI18N
+//        throw new IllegalStateException("Bookmark not found with path " + path + " object == " + obj); // NOI18N
+        return null;
     }
     
     /**
@@ -118,8 +136,13 @@ public class BookmarkActionImpl extends AbstractAction {
      */
     private void readProperties(Properties p) {
         path = p.getProperty(PROP_PATH);
-        String name = getBookmark().getName();
-        putValue(NAME, name);
+        Bookmark b = getBookmark();
+        if (b != null) {
+            String name = b.getName();
+            putValue(NAME, name);
+        } else {
+            putValue(NAME, NbBundle.getBundle(BookmarkActionImpl.class).getString("LBL_Invalid_Bookmark"));
+        }
     }
     
     /**

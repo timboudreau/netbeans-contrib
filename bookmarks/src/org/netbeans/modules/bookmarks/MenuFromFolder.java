@@ -88,12 +88,14 @@ public class MenuFromFolder implements Runnable {
      * @return array of actions
      */
     public JMenu getMenu() {
-        String s = path;
-        StringTokenizer tok = new StringTokenizer(path, "/"); // NOI18N
-        while (tok.hasMoreTokens()) {
-            s = tok.nextToken();
+        if ((path.length() > 0) && (path.charAt(0) == '/')) {
+            path = path.substring(1);
         }
-        // now there is last token from the path in variable s --> name of the folder
+        String s = path.substring(path.lastIndexOf('/')+1);
+        Context ctx = Context.getDefault().getSubcontext(path);
+        if (ctx != null) {
+            s = ctx.getAttribute(null, org.openide.nodes.Node.PROP_DISPLAY_NAME, s);
+        }
         if (menu == null) {
             menu = new MyMenu(s);
         } else {

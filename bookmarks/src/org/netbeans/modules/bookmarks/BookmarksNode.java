@@ -48,7 +48,7 @@ public class BookmarksNode extends AbstractNode {
      * as its parameter.
      */
     public BookmarksNode(Bookmark b, String path) {
-        super(Children.LEAF, Lookups.singleton(b));
+        super(Children.LEAF, Lookups.fixed(new Object[] { b, path } ));
         this.bookmark = b;
         this.path = path;
         setIconBase("org/netbeans/modules/bookmarks/resources/BookmarksRootNodeIcon.gif"); // NOI18N
@@ -93,11 +93,28 @@ public class BookmarksNode extends AbstractNode {
     }
 
     public String getName() {
+        int lastSlash = path.lastIndexOf('/');
+        if (lastSlash >= 0) {
+            Context c = Context.getDefault().getSubcontext(path.substring(0, lastSlash));
+            if (c != null) {
+                String storedDisplayName = c.getAttribute(path.substring(lastSlash+1), PROP_DISPLAY_NAME, null);
+                if (storedDisplayName != null) {
+                    return storedDisplayName;
+                }
+            }
+        }
         return bookmark.getName();
     }
     
     public void setName(String newName) {
-        // TODO:
+        int lastSlash = path.lastIndexOf('/');
+        if (lastSlash >= 0) {
+            Context c = Context.getDefault().getSubcontext(path.substring(0, lastSlash));
+            if (c != null) {
+                c.setAttribute(path.substring(lastSlash+1), PROP_DISPLAY_NAME, newName);
+            }
+        }
+        super.setName(newName);
     }
     
     /**

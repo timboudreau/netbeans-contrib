@@ -10,6 +10,4 @@ OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.20
 OpenIDE-Module-Display-Category: Infrastructure
 OpenIDE-Module-Name: bookmarks
 
-Name: org/netbeans/modules/bookmarks/BookmarkImpl.class
-NetBeans-Simply-Convertible: {http://www.netbeans.org/namespace/bookmarks/bookmarkImpl}bookmarkImpl
 

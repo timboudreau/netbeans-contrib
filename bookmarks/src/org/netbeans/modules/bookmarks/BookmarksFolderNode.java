@@ -138,12 +138,16 @@ public class BookmarksFolderNode extends AbstractNode {
     }
     
     public String getName() {
+        String storedDisplayName = context.getAttribute(null, PROP_DISPLAY_NAME, null);
+        if (storedDisplayName != null) {
+            return storedDisplayName;
+        }
         return context.getContextName();
     }
     
     public void setName(String newName) {
-    // TODO: 
-        
+        context.setAttribute(null, PROP_DISPLAY_NAME, newName);
+        super.setName(newName);
     }
     
     /* List new types that can be created in this node.
@@ -159,7 +163,7 @@ public class BookmarksFolderNode extends AbstractNode {
                     String name = NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder");
                     
                     // find an unique name
-                    String resName = name;
+                    String resName = "Folder"; // NOI18N
                     Collection childrenNames = context.getBindingNames();
                     int i = 0;
                     while (childrenNames.contains(resName)) {
@@ -167,7 +171,8 @@ public class BookmarksFolderNode extends AbstractNode {
                     }
                     // create the folder with the found name
                     try {
-                        context.createSubcontext(resName);
+                        Context c = context.createSubcontext(resName);
+                        c.setAttribute(null, PROP_DISPLAY_NAME, name);
                     } catch (ContextException ce) {
                         ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce); // NOI18N
                     }
@@ -192,14 +197,17 @@ public class BookmarksFolderNode extends AbstractNode {
         }
         if (n != null) {
             final Bookmark b = (Bookmark)n.getLookup().lookup(Bookmark.class);
+            Context c = null;
+            String bookmarkLocation = null;
             if (b == null) {
-                return;
+                c = (Context)n.getLookup().lookup(Context.class);
             }
-            Context con = null;
-            if (moving) {
-                con = (Context)n.getLookup().lookup(Context.class);
+            if (moving && b != null) {
+                bookmarkLocation = (String)n.getLookup().lookup(String.class);
             }
-            final Context whereToDelete = con;
+            final String whereToDelete = bookmarkLocation;
+            final Context con = c;
+            final boolean move = moving;
             if (b != null) {
                 l.add(new PasteType() {
                     public String getName() {
@@ -207,14 +215,31 @@ public class BookmarksFolderNode extends AbstractNode {
                     }
                     public Transferable paste() throws IOException {
 //                        try {
-                            String safeName = BookmarkServiceImpl.findUnusedName(context, b.getName());
-                            
-                            // following line will save the bookmark to the system file system
-                            context.putObject(safeName, b);
+                            if (b != null) {
+                                String safeName = BookmarkServiceImpl.findUnusedName(context, b.getName());
+
+                                // following line will save the bookmark to the system file system
+                                context.putObject(safeName, b);
+                            }
+                            if (con != null) {
+                            }
+                            if (move) {
+                                if ( (b != null) && (whereToDelete != null)) {
+                                    // moving bookmark
+                                    int lastSlash = whereToDelete.lastIndexOf('/');
+                                    if (lastSlash >= 0) {
+                                        Context c = Context.getDefault().getSubcontext(whereToDelete.substring(0, lastSlash));
+                                        if (c != null) {
+                                            c.putObject(whereToDelete.substring(lastSlash+1), null);
+                                        }
+                                    } else {
+                                        Context.getDefault().putObject(whereToDelete, null);
+                                    }
+                                }
                                 
-                            if (whereToDelete != null) {
-                                // if this is the move operation:
-                                
+                                if (con != null) {
+                                    // moving folder
+                                }
                             }
                             return ExTransferable.EMPTY;
 //                        } catch (ContextException x) {

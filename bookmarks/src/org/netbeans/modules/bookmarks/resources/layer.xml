@@ -78,8 +78,8 @@
                     <attr methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
                     <!--XMLProperties convertor provided by the settings module-->
                     <attr methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/>
-                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.bookmarks.BookmarkActionImpl"/>
-                    <attr name="settings.instanceOf" stringvalue="javax.swing.Action,org.netbeans.modules.bookmarks.BookmarkActionImpl"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.bookmarks.BookmarkImpl"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.api.bookmarks.Bookmark,org.openide.util.actions.Presenter$Toolbar,org.openide.util.actions.Presenter$Menu,org.netbeans.modules.bookmarks.BookmarkImpl"/>
                     <attr name="xmlproperties.ignoreChanges" stringvalue="AcceleratorKey"/>
                 </file>
             </folder>
@@ -90,7 +90,7 @@
                     <folder name="modules">
                         <folder name="bookmarks">
                             <!--allows to create .settings file from memory via InstanceDataObject.create-->
-                            <file name="BookmarkActionImpl">
+                            <file name="BookmarkImpl">
                                 <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_bookmarks/DTD_Bookmark_1_0.instance"/>
                             </file>
                         </folder>

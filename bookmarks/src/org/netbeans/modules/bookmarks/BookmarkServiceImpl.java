@@ -67,6 +67,18 @@ public class BookmarkServiceImpl extends BookmarkService {
      * the garbage collection.
      */
     private Listener listener;
+
+    /**
+     * We hold a reference to the context for preventing
+     * the garbage collection.
+     */
+    private Context bookmarksFolderContext;
+    
+    /**
+     * We hold a reference to the context for preventing
+     * the garbage collection.
+     */
+    private Context bookmarksToolbarContext;
     
     /**
      * Prevent the listeners to be attached more than once.
@@ -204,13 +216,13 @@ public class BookmarkServiceImpl extends BookmarkService {
      */
     private void checkActionsFolderNow() {
         try {
-            Context con1 = Context.getDefault().createSubcontext(BOOKMARKS_FOLDER);
-            Context con2 = Context.getDefault().createSubcontext(BOOKMARKS_TOOLBAR);
+            bookmarksFolderContext = Context.getDefault().createSubcontext(BOOKMARKS_FOLDER);
+            bookmarksToolbarContext = Context.getDefault().createSubcontext(BOOKMARKS_TOOLBAR);
             if (!listenersAttached) {
-                ContextListener l1 = getContextListener(con1);
-                ContextListener l2 = getContextListener(con2);
-                con1.addContextListener(l1); 
-                con2.addContextListener(l2); // NOI18N
+                ContextListener l1 = getContextListener(bookmarksFolderContext);
+                ContextListener l2 = getContextListener(bookmarksToolbarContext);
+                bookmarksFolderContext.addContextListener(l1); 
+                bookmarksToolbarContext.addContextListener(l2); // NOI18N
                 listenersAttached = true;
             }
             
@@ -222,7 +234,6 @@ public class BookmarkServiceImpl extends BookmarkService {
                 String name = (String)it.next();
                 Object obj = con3.getObject(name, null);
                 if (obj instanceof BookmarkActionImpl) {
-                    
                     if ( ! checkBookmarkAction((BookmarkActionImpl)obj)) {
                         toDelete.add(name);
                     }
@@ -233,8 +244,8 @@ public class BookmarkServiceImpl extends BookmarkService {
                 con3.putObject((String)i.next(), null);
             }
             // create new items in the Actions/Bookmarks folder
-            ensureAllBookmarksHaveActions(con1);
-            ensureAllBookmarksHaveActions(con2);
+            ensureAllBookmarksHaveActions(bookmarksFolderContext);
+            ensureAllBookmarksHaveActions(bookmarksToolbarContext);
             // after the action has been updated force the reload
             // of active shortcuts
             refreshShortcutsFolder();
@@ -393,18 +404,12 @@ public class BookmarkServiceImpl extends BookmarkService {
      * in the shortcuts folder.
      */
     private void refreshShortcutsFolder() {
-//        try {
-//            FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource(SHORTCUTS_FOLDER);
-//            DataFolder dfo = DataFolder.findFolder(fo);
-//            DataObject ch[] = dfo.getChildren();
-//            // following line is the main heck: it should not do anything but
-//            // as a side effect the folder fires property change that is caught
-//            // in the FolderInstance subclass in core (ShortcutsFolder) and causes
-//            // the refresh of the active shortcuts
-//            dfo.setOrder(ch);
-//        } catch (java.io.IOException ioe) {
-//            ErrorManager.getDefault().notify(ioe);
-//        }
+        try {
+            Context c = Context.getDefault().createSubcontext(SHORTCUTS_FOLDER);
+            // TODO: what to do?
+        } catch (ContextException ce)  {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce); // NOI18N
+        }
     }
     
     /**
