@@ -15,7 +15,7 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcsgeneric/profiles/teamware" default="netbeans" basedir=".">
     <import file="../../../nbbuild/templates/projectized.xml"/>
 
-  <target name="reload" depends="jars">
+  <target name="reload" depends="jar">
     <mkdir dir="module-test"/>
     <copy file="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/${teamware.jar}"
         tofile="module-test/${teamware.jar}"/>
