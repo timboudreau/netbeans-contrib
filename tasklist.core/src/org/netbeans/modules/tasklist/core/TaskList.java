@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.netbeans.modules.tasklist.core.translators.XMLTranslator;
+import org.netbeans.modules.tasklist.core.translators.HTMLSupport;
+import org.netbeans.modules.tasklist.core.translators.FormatTranslator;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 
