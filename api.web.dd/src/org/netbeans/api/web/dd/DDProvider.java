@@ -163,6 +163,16 @@ public final class DDProvider {
         return createWebApp(new FileInputStream(f), getVersion(new FileInputStream(f)));
     }
     
+    // PENDING j2eeserver needs BaseBean - this is a temporary workaround to avoid dependency of web project on DD impl
+    /**  Convenient method for getting the BaseBean object from CommonDDBean object
+     * @deprecated DO NOT USE - TEMPORARY WORKAROUND !!!!
+     */
+    public org.netbeans.modules.schema2beans.BaseBean getBaseBean(org.netbeans.api.web.dd.common.CommonDDBean bean) {
+        if (bean instanceof org.netbeans.modules.schema2beans.BaseBean) return (org.netbeans.modules.schema2beans.BaseBean)bean;
+        else if (bean instanceof WebAppProxy) return (org.netbeans.modules.schema2beans.BaseBean) ((WebAppProxy)bean).getOriginal();
+        return null;
+    }
+
     private static WebApp createWebApp(java.io.InputStream is, String version) throws java.io.IOException {
         if (WebApp.VERSION_2_3.equals(version)) {
             return org.netbeans.modules.web.dd.impl.model_2_3.WebApp.createGraph(is);
