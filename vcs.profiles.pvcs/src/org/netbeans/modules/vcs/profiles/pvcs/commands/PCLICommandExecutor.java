@@ -74,6 +74,7 @@ public class PCLICommandExecutor implements Runnable {
     private volatile PCLICommand commandToProcess;
     /** This is set to true after we have ">" prompt. */
     private boolean[] canSendInput = new boolean[] { false };
+    private volatile boolean destroyed = false; // When the executor is destroyed and will not execute any more commands.
     
     /** Creates a new instance of PCLICommandExecutor */
     private PCLICommandExecutor() {
@@ -144,6 +145,10 @@ public class PCLICommandExecutor implements Runnable {
     }
     
     public synchronized boolean runCommand(PCLICommand commandToProcess) throws InterruptedException {
+        if (destroyed) {
+            commandToProcess.setFailed();
+            return false;
+        }
         if (!isPCLIProcessLoopRunning()) {
             startPCLIProcessLoop();
         }
@@ -181,18 +186,26 @@ public class PCLICommandExecutor implements Runnable {
         runScript();
     }
     
-    private void stopPCLIProcessLoop() {
-        if (pcliThread != null) {
+    private void stopPCLIProcessLoop() throws InterruptedException {
+        if (pcliThread[0] != null) {
             synchronized (canSendInput) {
                 if (!canSendInput[0]) {
                     try {
-                        canSendInput.wait();
+                        canSendInput.wait(5000);
                     } catch (InterruptedException iex) {}
                 }
+                if (canSendInput[0]) {
+                    cmd.sendInput("exit\n");
+                }
             }
-            cmd.sendInput("exit\n");
         }
-        pcliTask.waitFinished();
+        for (int i = 0; i < 10 && isPCLIProcessLoopRunning(); i++) {
+            Thread.currentThread().sleep(100); // Give it some time (in case of standard exit).
+            if (!isPCLIProcessLoopRunning()) break;
+        }
+        if (isPCLIProcessLoopRunning()) {
+            kill();
+        }
     }
     
     private void kill() {
@@ -200,6 +213,18 @@ public class PCLICommandExecutor implements Runnable {
             if (pcliThread[0] != null) {
                 pcliThread[0].interrupt();
             }
+        }
+        // The interrupt might take some time...
+        try {
+            for (int i = 0; i < 50 && isPCLIProcessLoopRunning(); i++) {
+                Thread.currentThread().sleep(10);
+                if (!isPCLIProcessLoopRunning()) break;
+            }
+        } catch (InterruptedException iex) {
+            Thread.currentThread().interrupt();
+        }
+        if (commandToProcess != null) {
+            commandToProcess.setFailed();
         }
     }
     
@@ -224,6 +249,7 @@ public class PCLICommandExecutor implements Runnable {
             synchronized (pcliThread) {
                 pcliThread[0] = null;
             }
+            cmd = null;
         }
     }
     
@@ -387,16 +413,10 @@ public class PCLICommandExecutor implements Runnable {
     private static class ShutdownHook extends Thread {
         
         public void run() {
-            Thread stopThread = new Thread() {
-                public void run() {
-                    PCLICommandExecutor.getDefault().stopPCLIProcessLoop();
-                }
-            };
-            stopThread.start();
+            PCLICommandExecutor.getDefault().destroyed = true;// No more commands will be executed.
             try {
-                stopThread.join(5000);
-            } catch (InterruptedException iex) {}
-            if (stopThread.isAlive()) {
+                PCLICommandExecutor.getDefault().stopPCLIProcessLoop();
+            } catch (InterruptedException iex) {
                 PCLICommandExecutor.getDefault().kill();
             }
         }
