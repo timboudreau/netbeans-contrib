@@ -76,8 +76,7 @@ final class SourceElementImpl extends MemberElementImpl
         this.cdo = cdo;
     }
         
-    public void setClassObject(ClassFile data) {
-        ClassFile oldData = (ClassFile)this.data;
+    public void setResource(Resource data) {
         int oldStatus;
         int newStatus;
 
@@ -354,7 +353,7 @@ final class SourceElementImpl extends MemberElementImpl
             throw new IllegalStateException("Cannot load classfile without "
                 + "the DataObject");
         }
-        setClassObject(cdo.getClassFile());
+        setResource(null);
     }
     
     public void taskFinished(Task task) {

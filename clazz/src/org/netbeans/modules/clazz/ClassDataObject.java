@@ -208,7 +208,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
         CookieSet s = getCookieSet();
         InstanceCookie prevCookie;
     
-        prevCookie = (InstanceCookie)getCookie(InstanceCookie.class);
+        prevCookie = instanceSupport;
         synchronized (this) {
             instanceSupport = null;
             mainClass = null;
@@ -226,7 +226,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             SourceCookie sc = (SourceCookie)getCookie(SourceCookie.class);
             SourceElementImpl impl = (SourceElementImpl)sc.getSource().getCookie(SourceElement.Impl.class);
             if (impl != null)
-                impl.setClassObject(getClassFile());
+                impl.setResource(null);
         }
     }
     
