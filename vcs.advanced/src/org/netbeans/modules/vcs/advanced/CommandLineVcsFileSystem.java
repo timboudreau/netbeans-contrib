@@ -56,7 +56,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
     public static final String TEMPORARY_CONFIG_FILE_NAME = "tmp"; // NOI18N
 
-    private String config = "Empty"; // NOI18N
+    private String config = "Empty (Unix)"; // NOI18N
 
     private Debug D = new Debug ("CommandLineVcsFileSystem", true); // NOI18N
     private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
