@@ -926,7 +926,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         deserialized = false;
         info = this;
         change = this;
-        DefaultAttributes a = new DefaultAttributes (info, change, this);
+        VcsAttributes a = new VcsAttributes (info, change, this, this);
         attr = a;
         list = a;
         setRefreshTime (0); // due to customization
