@@ -48,7 +48,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      */
     static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
-    /** Set&lt;TaskListener> */  // replacement for above attribute
+    /** Set&lt;TaskListener> */
     private Set listeners = new HashSet(2);
 
     private boolean visitable;
@@ -69,7 +69,10 @@ public class Task extends Suggestion implements Cloneable, Cookie {
 
     /** When true, this item has been removed from a list.
         The old list reference is still kept around so that
-        we can use it to search for a reincarnation of the task. */
+        we can use it to search for a reincarnation of the task.
+
+        @deprecated duplicates isValid property
+     */
     private boolean zombie = false;
 
     public Task() {

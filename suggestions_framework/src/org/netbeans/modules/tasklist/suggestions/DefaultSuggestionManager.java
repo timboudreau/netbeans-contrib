@@ -226,7 +226,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
             if (category != null) {
                 currnum = category.subtasksCount();
             } else {
-                Iterator it = tasklist.getRoot().subtasksIterator();
+                Iterator it = tasklist.getTasks().iterator();
                 while (it.hasNext()) {
                     SuggestionImpl s = (SuggestionImpl) it.next();
                     if (s.getSType() == type) {
@@ -254,7 +254,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
                         }
                         if (currnum - remnum > 0) {
                             leftover = new ArrayList(currnum);
-                            Iterator it = tasklist.getRoot().subtasksIterator();
+                            Iterator it = tasklist.getTasks().iterator();
                             while (it.hasNext()) {
                                 SuggestionImpl s = (SuggestionImpl) it.next();
                                 if ((s.getSType() == type) &&

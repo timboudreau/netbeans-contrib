@@ -309,13 +309,6 @@ public final class Bug extends Task {
     }
 
     /**
-     * Get rid of the children/subtasks associated with this task
-     */
-    void dropSubtasks() {
-        subtasks = null;
-    }
-
-    /**
      * View the particular bug in current view
      */
     void view() {

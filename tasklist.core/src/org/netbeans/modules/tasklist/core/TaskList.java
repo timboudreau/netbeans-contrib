@@ -15,10 +15,7 @@ package org.netbeans.modules.tasklist.core;
 
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 import org.netbeans.modules.tasklist.core.translators.XMLTranslator;
 import org.netbeans.modules.tasklist.core.translators.HTMLSupport;
@@ -84,6 +81,11 @@ public class TaskList implements ObservableList, TaskListener {
             root.addTaskListener(this);
         }
         return root;
+    }
+
+    /** Access tasks held by this list. */
+    public final List getTasks() {
+        return getRoot().getSubtasks();
     }
 
     /** Add a list of tasks to the tasklist, and remove a list of

@@ -641,7 +641,7 @@ err.log("Couldn't find current nodes...");
                         clones.add(next.cloneTask());
                     }
 
-                    List previous = new ArrayList(getCurrentSuggestionsList().getRoot().getSubtasks());
+                    List previous = new ArrayList(getCurrentSuggestionsList().getTasks());
                     getCurrentSuggestionsList().addRemove(clones, previous, false, null, null);
 
                 }
@@ -680,12 +680,11 @@ err.log("Couldn't find current nodes...");
         // to just reuse it, since the document must not have been edited!
 
         SuggestionList tasklist = getCurrentSuggestionsList();
-        Task root = tasklist.getRoot();
-        if (root.subtasksCount() == 0) {
+        if (tasklist.getTasks().size() == 0) {
             return;
         }
-        Iterator it = root.subtasksIterator();
-        List sgs = new ArrayList(root.subtasksCount());
+        Iterator it = tasklist.getTasks().iterator();
+        List sgs = new ArrayList(tasklist.getTasks().size());
         while (it.hasNext()) {
             SuggestionImpl s = (SuggestionImpl) it.next();
             Object seed = s.getSeed();

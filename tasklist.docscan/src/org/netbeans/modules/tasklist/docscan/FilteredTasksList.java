@@ -64,6 +64,10 @@ final class FilteredTasksList implements ObservableList {
         return root;
     }
 
+    public List getTasks() {
+        return getRoot().getSubtasks();
+    }
+
     public synchronized void addTaskListener(TaskListener l) {
         // we do not add directly to peer
         // because we filter fired events
@@ -141,7 +145,7 @@ final class FilteredTasksList implements ObservableList {
      */
     private class EventHandler implements TaskListener {
         public void selectedTask(Task t) {
-            if (getRoot().containsSubtask(t)) {
+            if (getTasks().contains(t)) {
                 Iterator it = listeners.iterator();
                 while (it.hasNext()) {
                     TaskListener listener = (TaskListener) it.next();
@@ -185,7 +189,7 @@ final class FilteredTasksList implements ObservableList {
                     // find pairing task by key identity
                     Object key = t.getKey();
                     Task remove = null;
-                    Iterator it = getRoot().subtasksIterator();
+                    Iterator it = getTasks().iterator();
                     while (it.hasNext()) {
                         Task task = (Task) it.next();
                         if (key == task.getKey()) {

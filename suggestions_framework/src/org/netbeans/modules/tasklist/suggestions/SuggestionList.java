@@ -165,7 +165,7 @@ public class SuggestionList extends TaskList {
     SuggestionImpl findAfter(SuggestionType type) {
         SuggestionImpl after = null;
         int pos = type.getPosition();
-        Iterator it = getRoot().subtasksIterator();
+        Iterator it = getTasks().iterator();
         while (it.hasNext()) {
             SuggestionImpl s = (SuggestionImpl)it.next();
             int spos = s.getSType().getPosition();
@@ -191,12 +191,11 @@ public class SuggestionList extends TaskList {
     }
 
     synchronized void removeCategory(SuggestionType type) {
-        Task root = getRoot();
-        if (root.subtasksCount() == 0) {
+        if (getTasks().size() == 0) {
             categoryTasks = null;
             return;
         }
-        Iterator ti = root.subtasksIterator();
+        Iterator ti = getTasks().iterator();
         ArrayList removeTasks = new ArrayList(50);
         while (ti.hasNext()) {
             SuggestionImpl suggestion = (SuggestionImpl)ti.next();

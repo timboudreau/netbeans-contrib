@@ -94,10 +94,7 @@ public class BugList extends TaskList { // XXX remove the publicness
 
     /** Update the contents to show the given list */
     public void setBugs(List issues) {
-        Bug parent = (Bug)getRoot();
-        parent.dropSubtasks();
-
-        addRemove(issues, null, false, null, null);
+        addRemove(issues, getTasks(), false, null, null);
     }
     
 //    public void addBug(List issue) {

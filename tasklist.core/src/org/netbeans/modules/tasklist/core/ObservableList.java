@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.tasklist.core;
 
+import java.util.List;
+
 /**
  * Readonly live tasklist interface.
  *
@@ -30,8 +32,17 @@ public interface ObservableList {
      * holder is impl issue and clients
      * use mutation methods using writeable
      * tasklist interface
+     *
+     * @deprecated by {@link #getTasks}
      */
     Task getRoot();
+
+    /**
+     * Access top level tasks in the list.
+     *
+     * @return List&lt;Task> never <code>null</code>
+     */
+    List getTasks();
 
     /**
      * The listener is notifiead about list modifications
