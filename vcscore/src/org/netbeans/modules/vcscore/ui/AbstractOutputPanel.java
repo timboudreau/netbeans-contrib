@@ -211,6 +211,9 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     private void saveToFile() {
         SaveToFilePanel pnl = new SaveToFilePanel();
         pnl.setCurrentPanel(btnStd.isSelected() ? 0 : (btnErr.isSelected() ? 1 : 0));//jTabbedPane1.getSelectedIndex());
+        for (int i = 0; i < 4; i++) {
+            pnl.setEnabledOutput(i, outputCollector.isCmdOutput(i));
+        }
         java.io.File file = null;
         NotifyDescriptor descriptor = new DialogDescriptor(pnl, NbBundle.getBundle(SaveToFilePanel.class).getString("SaveToFile.title"));//NOI18N
         boolean ok = false;

@@ -217,11 +217,35 @@ public class SaveToFilePanel extends javax.swing.JPanel {
                 break;
             }
             case DATOUT_INDEX : {
-                cbStdOut.setSelected(true);
+                cbDataOut.setSelected(true);
                 break;
             } 
         }
-    }    
+    }
+    
+    /**
+     * Set whether the output of a given index is enabled or not.
+     */
+    public void setEnabledOutput(int outputIndex, boolean enabled) {
+        switch (outputIndex) {
+            case STDOUT_INDEX : {
+                cbStdOut.setEnabled(enabled);
+                break;
+            }
+            case STDERR_INDEX : {
+                cbStdErr.setEnabled(enabled);
+                break;
+            }
+            case DATERR_INDEX : {
+                cbDataErr.setEnabled(enabled);
+                break;
+            }
+            case DATOUT_INDEX : {
+                cbDataOut.setEnabled(enabled);
+                break;
+            } 
+        }
+    }
     
     private void disSelectAll() {
         cbDataErr.setSelected(false);
