@@ -57,7 +57,7 @@ public class IDLOperationNode extends AbstractNode {
       });
       ss.put (new PropertySupport.ReadOnly ("result", String.class, "result", "type of result") {
 	 public Object getValue () {
-	    return _operation.getReturnType ();
+	    return _operation.getReturnType ().getName ();
 	 }
       });
       ss.put (new PropertySupport.ReadOnly ("attribute", String.class, "attribute", 
@@ -84,7 +84,8 @@ public class IDLOperationNode extends AbstractNode {
 		     case 1: attr = "inout"; break;
 		     case 2: attr = "out"; break;
 		     }
-		  params = params + attr + " " + param.getType () + " " + param.getName () + ", ";
+		  params = params + attr + " " + param.getType ().getName () + " " 
+		    + param.getName () + ", ";
 	       }
 	       // if operation has some parameters we will destroy last ", "
 	       if (!params.equals (""))

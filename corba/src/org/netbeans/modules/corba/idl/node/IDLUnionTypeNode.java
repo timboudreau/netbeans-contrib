@@ -28,9 +28,10 @@ public class IDLUnionTypeNode extends IDLTypeNode {
       "com/netbeans/enterprise/modules/corba/idl/node/union";
      
    private UnionTypeElement _union_type;
-   public IDLUnionTypeNode (UnionTypeElement value) {
+
+   public IDLUnionTypeNode (TypeElement value) {
       super (value);
-      _union_type = value;
+      _union_type = (UnionTypeElement) value;
       setIconBase (UNION_ICON_BASE);
    }
 
@@ -44,7 +45,7 @@ public class IDLUnionTypeNode extends IDLTypeNode {
       });
       ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
 	 public Object getValue () {
-	    return _type.getType ();
+	    return _type.getType ().getName ();
 	 }
       });
       ss.put (new PropertySupport.ReadOnly ("switch type", String.class, "switch type", 

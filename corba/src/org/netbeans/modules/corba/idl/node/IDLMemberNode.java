@@ -27,8 +27,10 @@ public class IDLMemberNode extends AbstractNode {
    MemberElement _member;
    String name;
 
-   private static final String MEMBER_ICON_BASE =
-      "com/netbeans/enterprise/modules/corba/idl/node/member";
+  //private static final String MEMBER_ICON_BASE =
+  //   "com/netbeans/enterprise/modules/corba/idl/node/member";
+  private static final String MEMBER_ICON_BASE =
+    "com/netbeans/enterprise/modules/corba/idl/node/declarator";
 
    public IDLMemberNode (MemberElement value) {
       //super (new IDLDocumentChildren ((SimpleNode)value));

@@ -70,7 +70,7 @@ public class IDLDeclaratorNode extends AbstractNode {
       });
       ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of declarator") {
 	 public Object getValue () {
-	    return _declarator.getType ();
+	    return _declarator.getType ().getName ();
 	 }
       });
       ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension", 

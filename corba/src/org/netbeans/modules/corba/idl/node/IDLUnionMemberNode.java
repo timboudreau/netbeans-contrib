@@ -70,7 +70,7 @@ public class IDLUnionMemberNode extends AbstractNode {
       });
       ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of union member") {
 	 public Object getValue () {
-	    return _unionmember.getType ();
+	    return _unionmember.getType ().getName ();
 	 }
       });
       ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension", 

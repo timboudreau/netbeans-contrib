@@ -26,72 +26,74 @@ import com.netbeans.enterprise.modules.corba.idl.src.*;
  */
 public class IDLAttributeNode extends AbstractNode {
 
-   AttributeElement _attribute;
-   private static final String ATTRIBUTE_ICON_BASE =
-      "com/netbeans/enterprise/modules/corba/idl/node/attribute";
+  AttributeElement _attribute;
+  private static final String ATTRIBUTE_ICON_BASE =
+    "com/netbeans/enterprise/modules/corba/idl/node/attribute";
 
-   public IDLAttributeNode (AttributeElement value) {
-      //super (new IDLDocumentChildren ((SimpleNode)value));
-      super (Children.LEAF);
-      setIconBase (ATTRIBUTE_ICON_BASE);
-      _attribute = value;
-   }
+  public IDLAttributeNode (AttributeElement value) {
+    //super (new IDLDocumentChildren ((SimpleNode)value));
+    super (Children.LEAF);
+    setIconBase (ATTRIBUTE_ICON_BASE);
+    _attribute = value;
+  }
 
-   public String getDisplayName () {
-      if (_attribute != null) {
-	 //return ((Identifier)_attribute.getMember (0)).getName ();
-	 return _attribute.getName ();
+  public String getDisplayName () {
+    if (_attribute != null) {
+      //return ((Identifier)_attribute.getMember (0)).getName ();
+      return _attribute.getName ();
+    }
+    else 
+      return "NoName :)";
+  }
+
+  public String getName () {
+    return "attribute";
+  }
+
+  protected Sheet createSheet () {
+    Sheet s = Sheet.createDefault ();
+    Sheet.Set ss = s.get (Sheet.PROPERTIES);
+    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of attribute") {
+      public Object getValue () {
+	return _attribute.getName ();
+      }
+    });
+    ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of attribute") {
+      public Object getValue () {
+	return (_attribute.getType ()).getName ();
+      }
+    });
+    /*
+      ss.put (new PropertySupport.ReadOnly ("other", String.class, "other", 
+      "other attribute whith same type") {
+      public Object getValue () {
+      String other;
+      if (_attribute.getOther () != null) 
+      if (_attribute.getOther ().size () > 0) {
+      other = (String)_attribute.getOther ().elementAt (0);
+      for (int i=1; i<_attribute.getOther ().size (); i++)
+      other = other + ", " + (String)_attribute.getOther ().elementAt (i);
+      return other;
       }
       else 
-	 return "NoName :)";
-   }
+      return "";
+      else
+      return "";
+      }
+      });
+    */
+    ss.put (new PropertySupport.ReadOnly ("readonly", String.class, "readonly", 
+					  "readonly attribute") {
+      public Object getValue () {
+	if (_attribute.getReadOnly ())
+	  return "yes";
+	else
+	  return "no";
+      }
+    });
 
-   public String getName () {
-      return "attribute";
-   }
-
-   protected Sheet createSheet () {
-      Sheet s = Sheet.createDefault ();
-      Sheet.Set ss = s.get (Sheet.PROPERTIES);
-      ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of attribute") {
-	 public Object getValue () {
-	    return _attribute.getName ();
-	 }
-      });
-      ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of attribute") {
-	 public Object getValue () {
-	    return _attribute.getType ();
-	 }
-      });
-      ss.put (new PropertySupport.ReadOnly ("other", String.class, "other", 
-					    "other attribute whith same type") {
-	 public Object getValue () {
-	    String other;
-	    if (_attribute.getOther () != null) 
-	       if (_attribute.getOther ().size () > 0) {
-		  other = (String)_attribute.getOther ().elementAt (0);
-		  for (int i=1; i<_attribute.getOther ().size (); i++)
-		     other = other + ", " + (String)_attribute.getOther ().elementAt (i);
-		  return other;
-	       }
-	       else 
-		  return "";
-	    else
-	       return "";
-	 }
-      });
-      ss.put (new PropertySupport.ReadOnly ("readonly", String.class, "readonly", 
-					    "readonly attribute") {
-	 public Object getValue () {
-	    if (_attribute.getReadOnly ())
-	       return "yes";
-	    else
-	       return "no";
-	 }
-      });
-
-      return s;
-   }
+    return s;
+  }
 	    
 
 }

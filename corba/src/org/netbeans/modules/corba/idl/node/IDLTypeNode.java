@@ -24,47 +24,47 @@ import com.netbeans.enterprise.modules.corba.idl.src.*;
  */
 public class IDLTypeNode extends AbstractNode {
 
-   TypeElement _type;
-   private static final String TYPE_ICON_BASE =
-      "com/netbeans/enterprise/modules/corba/idl/node/type";
+  TypeElement _type;
+  private static final String TYPE_ICON_BASE =
+    "com/netbeans/enterprise/modules/corba/idl/node/type";
 
-   String name;
+  String name;
 
-   public IDLTypeNode (TypeElement value) {
-      super (new IDLDocumentChildren ((IDLElement)value));
-      setIconBase (TYPE_ICON_BASE);
-      _type = value;
-      if (_type != null) {
-	 name = _type.getName ();
-	 //name = _type.getType ();
+  public IDLTypeNode (TypeElement value) {
+    super (new IDLDocumentChildren ((IDLElement)value));
+    setIconBase (TYPE_ICON_BASE);
+    _type = value;
+    if (_type != null) {
+      name = _type.getName ();
+      //name = _type.getType ();
+    }
+    else 
+      name = "NoName :)";
+  }
+
+  public String getDisplayName () {
+    return name;
+  }
+
+  public String getName () {
+    return "type";
+  }
+
+  protected Sheet createSheet () {
+    Sheet s = Sheet.createDefault ();
+    Sheet.Set ss = s.get (Sheet.PROPERTIES);
+    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of typedef") {
+      public Object getValue () {
+	return _type.getName ();
       }
-      else 
-	 name = "NoName :)";
-   }
-
-   public String getDisplayName () {
-      return name;
-   }
-
-   public String getName () {
-      return "type";
-   }
-
-   protected Sheet createSheet () {
-      Sheet s = Sheet.createDefault ();
-      Sheet.Set ss = s.get (Sheet.PROPERTIES);
-      ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of typedef") {
-	 public Object getValue () {
-	    return _type.getName ();
-	 }
-      });
-      ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
-	 public Object getValue () {
-	    return _type.getType ();
-	 }
-      });
-      return s;
-   }
+    });
+    ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
+      public Object getValue () {
+	return _type.getType ().getName ();
+      }
+    });
+    return s;
+  }
 	    
 
 
