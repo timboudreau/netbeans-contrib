@@ -40,6 +40,11 @@ import org.netbeans.modules.vcscore.util.Table;
 public class VcsAttributes extends DefaultAttributes {
     
     /**
+     * The name of attribute, that contains the java.io.File object for
+     * the given FileObject
+     */
+    public static final String FILE_ATTRIBUTE = "java.io.File";
+    /**
      * Attribute name for a VCS action.
      */
     public static final String VCS_ACTION = "VCS_ACTION";
@@ -155,6 +160,9 @@ public class VcsAttributes extends DefaultAttributes {
      *         of the file is returned.
      */
     public Object readAttribute(String name, String attrName) {
+        if (FILE_ATTRIBUTE.equals(name)) {
+            return fileSystem.getFile(name);
+        }
         if (VCS_STATUS.equals(attrName)) {
             if (!fileSystem.getFile(name).exists()) return VCS_STATUS_MISSING;
             FileStatusProvider statusProvider = fileSystem.getStatusProvider();
