@@ -137,7 +137,8 @@ public class EJBProjectNature implements ProjectNature {
             new ProxyEjbJarImplementation(project, projectHelper, projectEvaluator),
             new EJBModules(project, projectHelper, projectEvaluator), // EJBModuleProvider, ClassPathProvider
             new PrivilegedTemplatesImpl(), // List of templates in New action popup
-            new EnterpriseReferenceContainerImpl(project, projectHelper)
+            new EnterpriseReferenceContainerImpl(project, projectHelper),
+            new EjbFreeFormActionProvider(project, projectHelper, aux),
         });
     }
     
