@@ -133,6 +133,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     private String refreshFilesMustStartWith = null;
     
+    /**
+     * Whether to merge the error output into the standard output stream.
+     */
+    private boolean mergeOutputStreams = false;
+    
     private boolean substituteStatuses = false;
     private Pattern[] substituitionRegExps;
     private String[] substituitionStatuses;
@@ -756,8 +761,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //ec.setTimeout(cmd.getTimeout());
         ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT),
                     VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_INPUT_REPEAT));
-        boolean mergeStreams = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_MERGE_ERROR_TO_STANDARD_OUTPUT);
-        ec.setMergeOutputStreams(mergeStreams);
+        ec.setMergeOutputStreams(mergeOutputStreams);
         String dynamicEnv = (String) getVariables().get("DYNAMIC_ENVIRONMENT_VARS");
         if (dynamicEnv != null && dynamicEnv.length() > 0) {
             ec.setEnv(getEnvironmentFromVars(getVariables()));
@@ -788,15 +792,19 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         return VcsUtilities.getEnvString(env);
     }
     
-    protected void printOutput(String line) {
+    protected final void printOutput(String line) {
         for (Iterator it = textOutputListeners.iterator(); it.hasNext(); ) {
             ((TextOutputListener) it.next()).outputLine(line);
         }
     }
 
-    protected void printErrorOutput(String line) {
-        for (Iterator it = textErrorListeners.iterator(); it.hasNext(); ) {
-            ((TextOutputListener) it.next()).outputLine(line);
+    protected final void printErrorOutput(String line) {
+        if (mergeOutputStreams) {
+            printOutput(line);
+        } else {
+            for (Iterator it = textErrorListeners.iterator(); it.hasNext(); ) {
+                ((TextOutputListener) it.next()).outputLine(line);
+            }
         }
     }
 
@@ -992,6 +1000,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         // Initialize refreshFilesBase and refreshFilesMustStartWith fields:
         createRefreshFilesBase();
+        
+        mergeOutputStreams = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_MERGE_ERROR_TO_STANDARD_OUTPUT);
         
         boolean checkForModification = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)
                                        && (fileSystem != null);
