@@ -22,6 +22,8 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.Timer;
+
+import org.openide.ErrorManager;
 import org.openide.awt.HtmlBrowser;
 
 public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkListener { 
@@ -32,8 +34,6 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
     private Timer scrollTimer = null;
     // html rendering pane
     protected JEditorPane html;
-    // URL input field - not necessary for being used in the component
-    protected JTextField  inputURL;
     
     public HtmlBrowserWithScrollPosition() {
         setLayout(new BorderLayout());
@@ -44,21 +44,6 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
         html.setEditable(false);
         html.addHyperlinkListener(this);
 
-        // construct URL input field - not necessary for the component
-        inputURL = new JTextField();
-        inputURL.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionevent) {      
-                 try {
-                     setURL(new URL(inputURL.getText()));
-                 } catch (MalformedURLException e) {
-                     System.out.println("malformed url"); // NOI18N
-                     //ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                 }
-                 
-            }
-        });
-        // only for testing with main()
-        // add(inputURL, BorderLayout.NORTH);
         add(new JScrollPane(html), BorderLayout.CENTER); 
 		
 	}
@@ -72,45 +57,20 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
  
     protected void setURL(URL u) {
         if (u!=null) {
-        String protocol = u.getProtocol();
-        // spawn the external browser for these types of links
-        if (protocol.equals("http") || protocol.equals("https")) {
-            displayer.showURL(u);
-        } else {
-            inputURL.setText(u.toString());
-            Cursor c = html.getCursor();
-            Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-            html.setCursor(waitCursor);
-            SwingUtilities.invokeLater(new HtmlLoader(u, c));
-        }
-        }
-    } 
-
-    // Mostly copied from swing sample - this class may need to be synchronized
-    class HtmlLoader implements Runnable {
-        URL url;
-        Cursor cursor; 
-
-        HtmlLoader(URL u, Cursor c) {
-            url = u;
-            cursor = c;
-        } 
-
-        public void run() {
-            if (url == null) {
-                html.setCursor(cursor);
-                Container parent = html.getParent();
-                parent.repaint();
+            String protocol = u.getProtocol();
+            // spawn the external browser for these types of links
+            if (protocol != null && (protocol.equals("http") || protocol.equals("https"))) {
+                displayer.showURL(u);
             } else {
-                Document doc = html.getDocument();
+                Cursor currentC = html.getCursor();
+                Cursor busyC = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
+                html.setCursor(busyC);
                 try {
-                    html.setPage(url);
+                    html.setPage(u);
                 } catch (IOException e) {
-                    html.setDocument(doc);
-                    System.out.println("IOException" + e); // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
                 } finally {
-                    url = null;
-                    SwingUtilities.invokeLater(this);
+                    html.setCursor(currentC);
                 }
             }
         }
