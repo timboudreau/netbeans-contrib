@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.ArrayList;
 import org.openide.ErrorManager;
 import org.openide.explorer.view.*;
-
+import org.openide.util.Utilities;
 
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
@@ -175,6 +175,11 @@ public class TidySuggester extends DocumentSuggestionProvider
         if (line != -1) {
             Line l = TLUtils.getLineByNumber(parseObject, line);
             s.setLine(l);
+        }
+        if (error) {
+            Image taskIcon = Utilities.loadImage("org/netbeans/modules/tasklist/html/error.gif"); // NOI18N
+            s.setIcon(taskIcon);
+            s.setPriority(SuggestionPriority.HIGH);
         }
         if (parseTasks == null) {
             parseTasks = new ArrayList(30);

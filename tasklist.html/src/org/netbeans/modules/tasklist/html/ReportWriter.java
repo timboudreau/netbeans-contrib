@@ -56,13 +56,15 @@ class ReportWriter extends PrintWriter {
         }
 
         public void print(String msg) {
-            /* Leave Error: prefixes around. Draws attention.
-            if (msg.equals("Error: ")) { // from TidyMessages.properties
+            if (msg.startsWith("Error: ")) { // from TidyMessages.properties
                 warning = false;
-                return;
-            }
-            */
-            if (msg.startsWith("Warning: ")) { // from TidyMessages.properties
+                /* Leave Error prefix around: gives more weight to these
+                if (msg.length() == 7) {
+                    return;
+                }
+                msg = msg.substring(7); // Chop off Warning prefix
+                */
+            } else if (msg.startsWith("Warning: ")) { // from TidyMessages.properties
                 warning = true;
                 if (msg.length() == 8) {
                     return;
