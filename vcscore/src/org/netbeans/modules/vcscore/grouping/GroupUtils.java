@@ -137,8 +137,7 @@ public class GroupUtils {
                         oldShadow.delete();
                         obj.createShadow(group);
                     } catch (IOException exc) {
-                        //TODO warning..
-                        System.out.println("operation could not be completed.");
+                        ErrorManager.getDefault().annotate(exc, NbBundle.getBundle(GroupUtils.class).getString("GroupUtils.Error.CannotAddToGroup"));
                     }
                 }
             }
@@ -149,8 +148,7 @@ public class GroupUtils {
                 DataObject obj = (DataObject)it.next();
                 DataShadow shadow = obj.createShadow(group);
             } catch (java.io.IOException exc) {
-                //TODO warning
-                System.out.println("cannot create shadow");
+                ErrorManager.getDefault().annotate(exc, NbBundle.getBundle(GroupUtils.class).getString("GroupUtils.Error.CannotAddToGroup"));
             }
         }
     }    
