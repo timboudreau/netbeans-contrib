@@ -391,7 +391,33 @@ public class VariableInputComponent extends Object {
             items.append(VariableInputDescriptor.INPUT_STR_ARG_OPEN);
             items.append('\"');
             items.append(variable);
-            items.append("\", ");
+            items.append("\"");
+            if (VariableInputDescriptor.INPUT_TEXT == component) {
+                Dimension d = getDimension();
+                int grid = d.width;
+                int gridwidth = d.height;
+                if (isMultiLine()) {
+                    items.append(", ");
+                    items.append(Integer.toString(grid));
+                    items.append(", ");
+                    items.append(Integer.toString(gridwidth));
+                    items.append(", ");
+                    items.append("LINE_MULTI");
+                } else {
+                    if (gridwidth != 3) {
+                        items.append(", ");
+                        items.append(Integer.toString(grid));
+                        items.append(", ");
+                        items.append(Integer.toString(gridwidth));
+                    } else if (grid != 0) {
+                        items.append(", ");
+                        items.append(Integer.toString(grid));
+                    }
+                }
+                items.append(")");
+                return items.toString();
+            }
+            items.append(", ");
         }
         items.append('\"');
         items.append(label);
