@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.awt.Image;
 import javax.swing.Action;
@@ -63,6 +64,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.ProxyLookup;
 import org.openide.util.lookup.Lookups;
 
 import org.w3c.dom.Element;
@@ -132,6 +134,24 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     }
     
     public Node findPath(Node root, Object target) {
+        if (root.getLookup().lookup(LaTeXGUIProject.class) != this)
+            return null;
+        
+        Lookup.Template sourceNodeTagTemplate = new Lookup.Template(null, null, SOURCE_NODE_TAG);
+        Node[] secondLevelNodes = root.getChildren().getNodes(true);
+        
+        for (int secondLevelCntr = 0; secondLevelCntr < secondLevelNodes.length; secondLevelCntr++) {
+            if (secondLevelNodes[secondLevelCntr].getLookup().lookup(sourceNodeTagTemplate).allInstances().size() > 0) { //!!!
+                Node[] files = secondLevelNodes[secondLevelCntr].getChildren().getNodes(true);
+                Lookup.Template searchingTemplate= new Lookup.Template(null, null, target);
+                
+                for (int cntr = 0; cntr < files.length; cntr++) {
+                    if (files[cntr].getLookup().lookup(searchingTemplate).allInstances().size() > 0)
+                        return files[cntr];
+                }
+            }
+        }
+        
         return null;
     }
     
@@ -139,10 +159,13 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         return source;
     }
     
+    private static final String SOURCE_NODE_NAME = "Sources";
+    private static final Object SOURCE_NODE_TAG  = new Object();
+    
     private Node createSourcesNode() {
-        AbstractNode an = new AbstractNode(new LaTeXChildren());
+        AbstractNode an = new AbstractNode(new LaTeXChildren(), Lookups.singleton(SOURCE_NODE_TAG));
         
-        an.setDisplayName("Sources");
+        an.setDisplayName(SOURCE_NODE_NAME);
         
         return an;
     }
@@ -281,7 +304,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
             try {
             DataObject od = DataObject.find((FileObject) key);
             
-            return new Node[] {new SourceFileNode(od.getNodeDelegate())};
+            return new Node[] {new SourceFileNode(od.getNodeDelegate(), (FileObject) key)};
             } catch (DataObjectNotFoundException e) {
                 ErrorManager.getDefault().notify(e);
                 return new Node[0];
@@ -303,8 +326,8 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     }
     
     private static class SourceFileNode extends FilterNode {
-        public SourceFileNode(Node shadow) {
-            super(shadow, Children.LEAF);
+        public SourceFileNode(Node shadow, FileObject file) {
+            super(shadow, Children.LEAF, new ProxyLookup(new Lookup[] {shadow.getLookup(), Lookups.singleton(file)}));
         }
         
         public String getHtmlDisplayName() {

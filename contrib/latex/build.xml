@@ -18,6 +18,7 @@ Microsystems, Inc. All Rights Reserved.
     
     <target name="clean-modules">
         <ant dir="ant" target="clean" />
+        <ant dir="ant/antint" target="clean" />
         <ant dir="auted" target="clean" />
         <ant dir="bibtex" target="clean" />
         <ant dir="branding" target="clean" />
@@ -33,6 +34,7 @@ Microsystems, Inc. All Rights Reserved.
     
     <target name="build-modules">
 	<ant dir="../nbbuild" target="all-latex/auted" />
+	<ant dir="../nbbuild" target="all-latex/ant/antint" />
 	<ant dir="../nbbuild" target="all-latex/bibtex" />
 	<ant dir="../nbbuild" target="all-latex/branding" />
 	<ant dir="../nbbuild" target="all-latex/core" />
@@ -61,8 +63,20 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="test-modules">
-        <ant dir="bibtex/test" />
-        <ant dir="test" />
+	<ant antfile="../xtest/lib/harness.xml" target="runtests">
+	   <property name="xtest.instance.master-config" location="master-config.xml" />
+	   <property name="xtest.instance.name" value="LaTeX tests" />
+	   <property name="xtest.home" location="../xtest" />
+	   <property name="xtest.basedir" location=".." />
+	   <property name="xtest.config" value="latex-tests" />
+	</ant>
+    </target>
+    
+    <target name="clean-build">
+        <delete  dir="results" />
+        <antcall target="clean-modules" />
+        <antcall target="build-modules" />
+        <antcall target="test-modules" />
     </target>
 
 </project>

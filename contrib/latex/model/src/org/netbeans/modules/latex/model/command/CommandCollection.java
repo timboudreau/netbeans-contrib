@@ -127,11 +127,17 @@ public class CommandCollection {
     
     public void addCommand(Command cmd) {
         commands.put(cmd.getCommand(), cmd);
+    }
+    
+    public void addCommandContent(Command cmd) {
         addContentImpl(cmd);
     }
     
     public void addEnvironment(Environment env) {
         environments.put(env.getName(), env);
+    }
+    
+    public void addEnvironmentContent(Environment env) {
         addContentImpl(env);
     }
     

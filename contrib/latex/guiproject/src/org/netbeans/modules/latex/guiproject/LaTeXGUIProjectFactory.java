@@ -53,11 +53,11 @@ public class LaTeXGUIProjectFactory implements ProjectFactory {
     }
     
     private FileObject getMasterFile(FileObject projectDirectory) {
-        System.err.println("getMasterFile(" + projectDirectory + ")");
+//        System.err.println("getMasterFile(" + projectDirectory + ")");
         try {
             FileObject settings = projectDirectory.getFileObject("build-settings.properties");
             
-            System.err.println("settings = " + settings );
+//            System.err.println("settings = " + settings );
             if (settings == null)
                 return null;
             
@@ -69,20 +69,20 @@ public class LaTeXGUIProjectFactory implements ProjectFactory {
             if (mainFileName == null)
                 return null;
             
-            System.err.println("mainFileName = " + mainFileName );
+//            System.err.println("mainFileName = " + mainFileName );
             
             File projectDirectoryFile = FileUtil.toFile(projectDirectory);
             File mainFile = new File(projectDirectoryFile, mainFileName); //TODO: well, this forces projectDirectory to have File.
             
-            System.err.println("mainFile = " + mainFile );
-            System.err.println("mainFile = " + mainFile.exists() );
+//            System.err.println("mainFile = " + mainFile );
+//            System.err.println("mainFile = " + mainFile.exists() );
             if (!mainFile.exists())
                 mainFile = new File(mainFileName);
             
             mainFile = mainFile.getCanonicalFile();
-            System.err.println("mainFile = " + mainFile );
-            System.err.println("mainFile = " + mainFile.exists() );
-            System.err.println("mainFile = " + FileUtil.toFileObject(mainFile) );
+//            System.err.println("mainFile = " + mainFile );
+//            System.err.println("mainFile = " + mainFile.exists() );
+//            System.err.println("mainFile = " + FileUtil.toFileObject(mainFile) );
             return FileUtil.toFileObject(mainFile);
         } catch (IOException e) {
             return null;
@@ -104,7 +104,7 @@ public class LaTeXGUIProjectFactory implements ProjectFactory {
     
     public void saveProject(Project project) throws IOException, ClassCastException {
 //        throw new ClassCastException("xxx");
-        System.err.println("saveProject called, project=" + project);
+//        System.err.println("saveProject called, project=" + project);
     }
     
 }

@@ -48,6 +48,9 @@ import org.openide.util.WeakListeners;
  */
 public class BiBTeXModelImpl extends BiBTeXModel implements PropertyChangeListener, DocumentListener {
     
+    private static final boolean debug = Boolean.getBoolean("netbeans.latex.bibtex.incremental.debug");
+    private static final boolean removeDebug = Boolean.getBoolean("netbeans.latex.bibtex.incremental.remove.debug") || debug;
+    
     private Object file;
     private SortedSet entries;
     private boolean upToDate;
@@ -131,7 +134,7 @@ public class BiBTeXModelImpl extends BiBTeXModel implements PropertyChangeListen
         while (currentOffset < doc.getLength() && (entry = parser.parseEntry(doc, currentOffset)) != null) {
             //                System.err.println("entry = " + entry );
             entries.add(entry);
-            currentOffset = entry.getEndPosition().getOffsetValue() + 1;
+            currentOffset = entry.getEndPosition().getOffsetValue();// + 1;
         }
         
         return entries;
@@ -557,6 +560,11 @@ public class BiBTeXModelImpl extends BiBTeXModel implements PropertyChangeListen
             int changeStart = ev.getOffset();
             int changeEnd   = ev.getOffset() + ev.getLength();
             
+            if (removeDebug) {
+                System.err.println("changeStart = " + changeStart );
+                System.err.println("changeEnd = " + changeEnd );
+            }
+                
             List toRemove = new ArrayList();
             
             //TODO: faster, binary search or similar:
@@ -568,6 +576,18 @@ public class BiBTeXModelImpl extends BiBTeXModel implements PropertyChangeListen
                 
                 int start = e.getStartPosition().getOffsetValue();
                 int end   = e.getEndPosition().getOffsetValue();
+                
+                if (start >= changeStart) {
+                    //TODO: verify and explain:
+                    start += ev.getLength();
+                    end   += ev.getLength();
+                }
+                
+                if (removeDebug) {
+                    System.err.println("e: " + e.toString());
+                    System.err.println("start = " + start );
+                    System.err.println("end = " + end );
+                }
                 
                 if (end < changeStart || start > changeEnd) {
                     //This entry is not directly affected by the removed text, skipping...
@@ -619,7 +639,16 @@ public class BiBTeXModelImpl extends BiBTeXModel implements PropertyChangeListen
             }
             
             if (toRemove.size() > 0) {
-                entries.removeAll(toRemove);
+                //It is not possible to do: entries.removeAll(toRemove), as entries
+                //use a special comparator that is not consistent with Entry.equals
+                //(and it is probably not possible to make it consistent).
+                for (Iterator i = entries.iterator(); i.hasNext(); ) {
+                    Entry entry = (Entry) i.next();
+                    
+                    if (toRemove.contains(entry)) {
+                        i.remove();
+                    }
+                }
                 fireEntriesRemoved(toRemove);
             }
         } finally {

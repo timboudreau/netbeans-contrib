@@ -684,7 +684,7 @@ public class CommandParser {
         
         if (env != null) {
             CommandCollection coll = new CommandCollection();
-            coll.addEnvironment(env);
+            coll.addEnvironmentContent(env);
             bni.setCommandCollection(coll);
             currentCommandDefiningNode = bni;
         }

@@ -46,7 +46,7 @@ public class IncrementalParserTest extends TestCase {
     }
     
     private URL getTestFile() throws MalformedURLException {
-        URL file = IncrementalParserTest.class.getClassLoader().getResource("org/netbeans/modules/latex/bibtex/test.bib");
+        URL file = IncrementalParserTest.class.getResource("data/test.bib");
         
         if (file == null) {
             throw new NullPointerException("The given resource not found!");
@@ -92,6 +92,11 @@ public class IncrementalParserTest extends TestCase {
     }
     
     public void testCopyPaste1() throws Exception {
+        Validator pasteValidator = new ProxyValidator(new Validator[] {
+            IncrementalParserTestStub.DEFAULT_VALIDATOR,
+            new TagValidator(new String[] {"FB01", "FB03", "FB05"}),
+        }
+        );
         performTest(getTestFile(),
         new Description(
 "%d\n@INPROCEEDINGS{FB03,\n" +
@@ -107,14 +112,14 @@ public class IncrementalParserTest extends TestCase {
 "    journal = \"test - journal\",\n"+
 "    author = \"test\",\n"+
 "}\n", new Change[] {
-        new PasteChange(IncrementalParserTestStub.DEFAULT_VALIDATOR, "@INPROCEEDINGS{FB03", "@INPROCEEDINGS{FB03,\n" +
+        new PasteChange(pasteValidator, "@INPROCEEDINGS{FB03", "@INPROCEEDINGS{FB01,\n" +
 "    year = \"2003\",\n" +
 "    pages = \"142-143\",\n"+
 "    title = \"Do anything:\" # test # \" Continued\",\n"+
 "    booktitle = \"Proc. of the 3rd Conference on LaTeX editors\",\n"+
 "    author = \"X. Foo and Y. Bar\",\n"+
 "}"),
-        new DeleteChange(IncrementalParserTestStub.DEFAULT_VALIDATOR, "@INPROCEEDINGS{FB03", ("@INPROCEEDINGS{FB03,\n" +
+        new DeleteChange(IncrementalParserTestStub.DEFAULT_VALIDATOR, "@INPROCEEDINGS{FB01", ("@INPROCEEDINGS{FB01,\n" +
 "    year = \"2003\",\n" +
 "    pages = \"142-143\",\n"+
 "    title = \"Do anything:\" # test # \" Continued\",\n"+

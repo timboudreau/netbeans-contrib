@@ -1,0 +1,11 @@
+<testconfig>
+
+  <config name="latex-tests">
+        <module name="latex/core" testtypes="unit" attributes="stable"/>
+        <module name="latex/bibtex" testtypes="unit" attributes="stable"/>
+        <module name="latex/project" testtypes="unit" attributes="stable"/>
+        <module name="latex/guiproject" testtypes="unit" attributes="stable"/>
+        <module name="latex" testtypes="qa-functional" attributes="completion"/>
+  </config>
+			    
+</testconfig>

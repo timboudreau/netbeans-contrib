@@ -13,116 +13,42 @@
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.guiproject;
+
+import java.beans.PropertyVetoException;
 import java.io.File;
-import java.io.FileOutputStream;
-
-
 import java.io.IOException;
-import java.io.PrintStream;
-
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
-
-
-
-
-
 import org.netbeans.junit.NbTestCase;
-import org.netbeans.api.project.TestUtil;
-import org.netbeans.modules.latex.model.Utilities;
+import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
-
-
 import org.openide.filesystems.FileLock;
-
-
 import org.openide.filesystems.FileObject;
-
 import org.openide.filesystems.FileUtil;
-
-import org.openide.filesystems.Repository;
-
-import org.openide.filesystems.XMLFileSystem;
-
 import org.xml.sax.SAXException;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class LaTeXFileOwnerQueryTest extends NbTestCase {
+public class LaTeXFileOwnerQueryTest extends ProjectTestCase {
     
     /** Creates a new instance of LaTeXFileOwnerQueryTest */
     public LaTeXFileOwnerQueryTest(String name) {
         super(name);
     }
     
-    private void copyFile(String resource, FileObject dest) throws IOException {
-        FileLock lock = null;
-        
-        try {
-            lock = dest.lock();
-            FileUtil.copy(this.getClass().getResourceAsStream(resource), dest.getOutputStream(lock));
-        } finally {
-            if (lock != null)
-                lock.releaseLock();
-        }
-    }
+//    static {
+//        Class c = UnitUtilities.class;
+//    }
     
-    private void copyFile(String resource, FileObject dir, String name, String ext) throws IOException {
-        copyFile(resource, dir.createData(name, ext));
-    }
-    
-    private FileObject main1;
-    private FileObject main2;
-    private FileObject prj1;
-    private FileObject prj2;
-    
-    public void setUp() throws IOException, SAXException {
-        TestUtil.setLookup(new Object[] {
-            new Repository(new XMLFileSystem(this.getClass().getResource("/org/netbeans/modules/latex/guiproject/resources/mf-layer.xml"))),
-            new LaTeXGUIProjectFactory(),
-            new LaTeXGUIProjectFactorySourceFactory(),
-        }, this.getClass().getClassLoader());
-        System.setErr(new PrintStream(new FileOutputStream("/tmp/unit-test-log.txt")));
-        getRef().println("asdfasdf");
-	getLog().println("setUp");
-        getLog().flush();
-//        clearWorkDir();
+//        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/guiproject/resources/mf-layer.xml"}, new Object[] {
+//            new LaTeXGUIProjectFactory(),
+//            new LaTeXGUIProjectFactorySourceFactory(),
+//	    new LaTeXFileOwnerQuery(),
+//        });
         
-        FileObject testDir = TestUtil.makeScratchDir(this);
-        File workdir = FileUtil.toFile(testDir);
-        File project1 = new File(workdir, "1");
-        File project2 = new File(workdir, "2");
-        
-        FileObject prj1Impl = CreateNewLaTeXProject.getDefault().createProject(new File(project1, "tex-project-1"), new File(project1, "main1.tex"));
-        
-        prj1 = prj1Impl.getParent();
-        
-        ProjectManager.getDefault().findProject(prj1Impl);
-        
-        FileObject prj2Impl = CreateNewLaTeXProject.getDefault().createProject(new File(project2, "tex-project-2"), new File(project2, "main2.tex"));
-        
-        prj2 = prj2Impl.getParent();
-        
-        ProjectManager.getDefault().findProject(prj2Impl);
-        
-        copyFile("data/main1.tex", main1 = prj1.getFileObject("main1", "tex"));
-        copyFile("data/included1a.tex", prj1, "included1a", "tex");
-        copyFile("data/included1b.tex", prj1, "included1b", "tex");
-        copyFile("data/bibdatabase1a.bib", prj1, "bibdatabase1a", "bib");
-        copyFile("data/bibdatabase1b.bib", prj1, "bibdatabase1b", "bib");
-        copyFile("data/main2.tex", main2 = prj2.getFileObject("main2", "tex"));
-        copyFile("data/included2a.tex", prj2, "included2a", "tex");
-        copyFile("data/included2b.tex", prj2, "included2b", "tex");
-        copyFile("data/bibdatabase2a.bib", prj2, "bibdatabase2a", "bib");
-        copyFile("data/bibdatabase2b.bib", prj2, "bibdatabase2b", "bib");
-        
-        parseProject(prj1Impl);
-        parseProject(prj2Impl);
-    }
-    
     private void checkFile(FileObject prj, FileObject mainFile, String name) {
         FileObject file = prj.getFileObject(name);
         
@@ -132,7 +58,7 @@ public class LaTeXFileOwnerQueryTest extends NbTestCase {
         Project p = FileOwnerQuery.getOwner(file);
         
         if (p == null)
-            fail("No project corresponding to file: " + name + " not found.");
+            fail("No project corresponding to file: " + name + " found.");
         
         LaTeXSource source = (LaTeXSource) p.getLookup().lookup(LaTeXSource.class);
         
@@ -142,23 +68,48 @@ public class LaTeXFileOwnerQueryTest extends NbTestCase {
         assertTrue("Incorrect project found!", source.getMainFile() /*!!*/ == /*!!*/ mainFile);
     }
     
-    public void testLaTeXFileAreCorrect() {
-        checkFile(prj1, main1, "included1a.tex");
-        checkFile(prj2, main2, "included1a.tex");
-        checkFile(prj1, main1, "included1b.tex");
-        checkFile(prj2, main2, "included1b.tex");
+    public void test_main1_tex_File() {
+        checkFile(prj1, main1, "main1.tex");
     }
     
-    private void parseProject(FileObject prj) throws IOException {
-        LaTeXSource source = ((LaTeXSource) ProjectManager.getDefault().findProject(prj).getLookup().lookup(LaTeXSource.class));
-        LaTeXSource.Lock lock = null;
-        
-        try {
-            lock = source.lock(true);
-        } finally  {
-            if (lock != null)
-                source.unlock(lock);
-        }
-        
+    public void test_included1a_tex_File() {
+        checkFile(prj1, main1, "included1a.tex");
     }
+    
+    public void test_main2_tex_File() {
+        checkFile(prj2, main2, "main2.tex");
+    }
+    
+    public void test_included2a_tex_File() {
+        checkFile(prj2, main2, "included2a.tex");
+    }
+    
+    public void test_included1b_tex_File() {
+        checkFile(prj1, main1, "included1b.tex");
+    }
+    
+    public void test_included2b_tex_File() {
+        checkFile(prj2, main2, "included2b.tex");
+    }
+
+    public void test_bibdatabase1a_bib_File() {
+        checkFile(prj1, main1, "bibdatabase1a.bib");
+    }
+
+    public void test_bibdatabase1b_bib_File() {
+        checkFile(prj1, main1, "bibdatabase1b.bib");
+    }
+
+    public void test_bibdatabase2a_bib_File() {
+        checkFile(prj2, main2, "bibdatabase2a.bib");
+    }
+
+    public void test_bibdatabase2b_bib_File() {
+        checkFile(prj2, main2, "bibdatabase2b.bib");
+    }
+    
+    public void testShouldNotBeFound() {
+        assertNull("Some project found for file outside of all projects.", FileOwnerQuery.getOwner(notIncluded));
+    }
+    
 }
