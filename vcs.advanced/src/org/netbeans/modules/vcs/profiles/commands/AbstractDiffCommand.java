@@ -86,6 +86,7 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
         vars.put("REVISION", varRevision); // NOI18N
         vars.put("TEMPDIR", tmpDir); // NOI18N
         Hashtable newVars = new Hashtable(vars);
+        fileSystem.getVarValueAdjustment().revertAdjustedVarValues(newVars);
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, newVars);
         fileSystem.getCommandsPool().preprocessCommand(vce, newVars, fileSystem);
         fileSystem.getCommandsPool().startExecutor(vce);
@@ -106,6 +107,7 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
         else vars.put("REVISION2", ""); // Put an empty variable to disable the error output about undefined variables // NOI18N
         //System.out.println("diff command: "+cmd); // NOI18N
         Hashtable newVars = new Hashtable(vars);
+        fileSystem.getVarValueAdjustment().revertAdjustedVarValues(newVars);
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, newVars);
         vce.addDataOutputListener(this);
         fileSystem.getCommandsPool().preprocessCommand(vce, newVars, fileSystem);
