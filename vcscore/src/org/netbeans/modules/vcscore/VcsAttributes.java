@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore;
 
 import java.beans.FeatureDescriptor;
 import java.beans.PropertyVetoException;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -23,6 +24,8 @@ import org.openide.filesystems.DefaultAttributes;
 import org.openide.filesystems.FileObject;
 import org.openide.util.RequestProcessor;
 import org.openide.loaders.DataObject;
+
+import org.netbeans.modules.masterfs.providers.Attributes;
 
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
@@ -50,7 +53,7 @@ import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
  * the DefaultAttributes, but are interpreted as VCS commands.
  * @author  Martin Entlicher
  */
-public class VcsAttributes extends DefaultAttributes {
+public class VcsAttributes extends Attributes {
     
     /**
      * The name of attribute, that contains the java.io.File object for
@@ -177,9 +180,9 @@ public class VcsAttributes extends DefaultAttributes {
     static final long serialVersionUID = 8084585278800267078L;
     
     /** Creates new VcsAttributes */
-    public VcsAttributes(AbstractFileSystem.Info info, AbstractFileSystem.Change change,
+    public VcsAttributes(File mountPoint, AbstractFileSystem.Info info, AbstractFileSystem.Change change,
                          AbstractFileSystem.List list, VcsFileSystem fileSystem, VcsActionSupporter supp) {
-        super(info, change, list);
+        super(mountPoint, info, change, list);
         this.fileSystem = fileSystem;
         supporter = supp;
         commandsProvider = fileSystem.getCommandsProvider();

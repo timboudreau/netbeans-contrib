@@ -1748,7 +1748,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         info = this;
         change = this;
         actionSupporter = new VcsActionSupporter();
-        VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
+        VcsAttributes a = new VcsAttributes (rootFile, info, change, this, this, actionSupporter);
         attr = a;
         list = a;
         vcsList = new VcsList();
@@ -1873,7 +1873,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         refresher = new VcsRefreshRequest (this, 0, this);
         actionSupporter = new VcsActionSupporter();
         if (!(attr instanceof VcsAttributes)) {
-            VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
+            VcsAttributes a = new VcsAttributes (rootFile, info, change, this, this, actionSupporter);
             attr = a;
             list = a;
         } else {
@@ -2910,7 +2910,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
             // When we change the root, we have to create new attributes,
             // that are with respect to the new root.
-            VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
+            VcsAttributes a = new VcsAttributes (rootFile, info, change, this, this, actionSupporter);
             VcsAttributes oldAttrs = getVcsAttributes();
             if (oldAttrs != null) {
                 a.setRuntimeCommandsProvider(oldAttrs.getRuntimeCommandsProvider());
