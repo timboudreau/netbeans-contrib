@@ -40,10 +40,10 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
                 new PropertyDescriptor(GeneralVcsSettings.PROP_OFFLINE, GeneralVcsSettings.class),    // [1]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_AUTO_REFRESH, GeneralVcsSettings.class), // [2]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_HOME, GeneralVcsSettings.class), // [3]
-                new PropertyDescriptor(GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, GeneralVcsSettings.class), // [4]
-                new PropertyDescriptor(GeneralVcsSettings.PROP_LAST_DIRECTORIES, GeneralVcsSettings.class), // [5]
-                new PropertyDescriptor(GeneralVcsSettings.PROP_CVS_COMMAND_PATH, GeneralVcsSettings.class), // [6]
-                new PropertyDescriptor(GeneralVcsSettings.PROP_SH_COMMAND_PATH, GeneralVcsSettings.class),  // [7]
+                //new PropertyDescriptor(GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, GeneralVcsSettings.class), // [4]
+                new PropertyDescriptor(GeneralVcsSettings.PROP_LAST_DIRECTORIES, GeneralVcsSettings.class), // [4]
+                new PropertyDescriptor(GeneralVcsSettings.PROP_CVS_COMMAND_PATH, GeneralVcsSettings.class), // [5]
+                new PropertyDescriptor(GeneralVcsSettings.PROP_SH_COMMAND_PATH, GeneralVcsSettings.class),  // [6]
             };
             properties[0].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_useGlobal"));
             properties[0].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_useGlobal"));
@@ -54,17 +54,17 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
             properties[2].setPropertyEditorClass(RefreshModePropertyEditor.class);
             properties[3].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_home"));
             properties[3].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_home"));
-            properties[4].setDisplayName(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class, "PROP_hideShadowFiles"));
-            properties[4].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class, "HINT_hideShadowFiles"));
-            properties[5].setDisplayName(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"PROP_WizardDir"));
-            properties[5].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_WizardDir"));
+            //properties[4].setDisplayName(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class, "PROP_hideShadowFiles"));
+            //properties[4].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class, "HINT_hideShadowFiles"));
+            properties[4].setDisplayName(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"PROP_WizardDir"));
+            properties[4].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_WizardDir"));
+            properties[4].setHidden(true);
+            properties[5].setDisplayName(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"PROP_WizardCvsCommandPath"));
+            properties[5].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_WizardCvsCommandPath"));
             properties[5].setHidden(true);
-            properties[6].setDisplayName(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"PROP_WizardCvsCommandPath"));
-            properties[6].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_WizardCvsCommandPath"));
+            properties[6].setDisplayName(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"PROP_WizardShellCommandPath"));
+            properties[6].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_WizardShellCommandPath"));
             properties[6].setHidden(true);
-            properties[7].setDisplayName(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"PROP_WizardShellCommandPath"));
-            properties[7].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_WizardShellCommandPath"));
-            properties[7].setHidden(true);
         } catch (java.beans.IntrospectionException intrexc) {
             org.openide.TopManager.getDefault().getErrorManager().notify();
         }
