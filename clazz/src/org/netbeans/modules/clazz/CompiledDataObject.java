@@ -88,7 +88,7 @@ public class CompiledDataObject extends ClassDataObject {
             cs.add(InstanceCookie.Origin.class, this);
             cs.add(createInstanceSupport());
         }
-        cs.add(ExecCookie.class, this);
+        cs.add(ExecSupport.class, this);
     }
     
     protected ExecSupport createExecSupport() {
@@ -102,7 +102,7 @@ public class CompiledDataObject extends ClassDataObject {
     }
     
     public Node.Cookie createCookie(Class c) {
-        if (c == ExecCookie.class) {
+        if (ExecCookie.class.isAssignableFrom(c)) {
             return createExecSupport();
         }
         return super.createCookie(c);
