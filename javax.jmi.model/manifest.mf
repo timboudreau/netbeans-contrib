@@ -1,4 +1,4 @@
 OpenIDE-Module-Specification-Version: 1.1
 OpenIDE-Module: javax.jmi.model/1
-OpenIDE-Module-Localizing-Bundle: Bundle.properties
+OpenIDE-Module-Localizing-Bundle: javax/jmi/model/resources/Bundle.properties
 Class-Path: ext/mof.jar

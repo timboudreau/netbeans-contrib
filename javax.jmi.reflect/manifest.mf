@@ -1,5 +1,5 @@
 OpenIDE-Module-Specification-Version: 1.1
 OpenIDE-Module: javax.jmi.reflect/1
-OpenIDE-Module-Localizing-Bundle: Bundle.properties
+OpenIDE-Module-Localizing-Bundle: javax/jmi/reflect/resources/Bundle.properties
 Class-Path: ext/jmi.jar
 
