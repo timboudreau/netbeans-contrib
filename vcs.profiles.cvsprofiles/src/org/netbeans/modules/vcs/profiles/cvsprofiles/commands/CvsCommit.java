@@ -311,11 +311,19 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             //buff.delete(0, buff.length());
             String templateContent = (String) vars.get("ORIGINAL_TEMPLATE_CONTENT");
             if (templateContent == null) templateContent = "";
-            ArrayList filesCommited;
+            ArrayList filesCommited = null;
             if ("-f".equals(vars.get("FORCE"))) {
                 filesCommited = new ArrayList(filePaths);
             } else {
-                filesCommited = getCommitedFiles(fsRoot, relativePath, templateContent, ps);
+                if (filePaths.size() == 1) {
+                    FileObject fo = fileSystem.findResource((String) filePaths.get(0));
+                    if (fo != null && fo.isData()) {
+                        filesCommited = new ArrayList(filePaths);
+                    }
+                }
+                if (filesCommited == null) {
+                    filesCommited = getCommitedFiles(fsRoot, relativePath, templateContent, ps);
+                }
             }
             //buffered = addMessageComment(vars, buffered);
             //vars.put("FILE_TEMPLATE", fileOutput(buffered));
