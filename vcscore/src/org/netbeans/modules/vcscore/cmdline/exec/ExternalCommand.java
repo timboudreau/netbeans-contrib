@@ -288,10 +288,10 @@ public class ExternalCommand {
 
             if (inputData != null) {
                 try{
-                    DataOutputStream os=new DataOutputStream(proc.getOutputStream());
+                    OutputStreamWriter os=new OutputStreamWriter(proc.getOutputStream());
                     //D.deb("stdin>>"+inputData); // NOI18N
                     //System.out.println("stdin>>"+inputData);
-                    os.writeChars(inputData);
+                    os.write(inputData);
                     os.flush();
                     os.close();
                 }
