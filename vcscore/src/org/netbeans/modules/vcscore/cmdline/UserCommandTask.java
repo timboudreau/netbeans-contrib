@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.SwingUtilities;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -449,12 +450,20 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         CommandExecutorSupport.postprocessCommand(executionContext, executor);
     }
     
-    private void printErrorOutput(final CommandExecutionContext executionContext) {
-        //final VcsFileSystem fileSystem = getVcsFileSystem();
+    private void printErrorOutput(final CommandExecutionContext executionContext) {        
         if (executionContext == null) return ;
-        executionContext.debugErr(g("MSG_Check_whole_output"));
-        //CommandOutputCollector collector = (CommandOutputCollector) outputContainers.get(vce);
-        final boolean isErrorOutput[] = { false };
+        //executionContext.debugErr(g("MSG_Check_whole_output"));
+        if(visualizerGUI == null && visualizerText == null){
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run(){
+                    getVisualizer(false).open(null);                    
+                    visualizerText.setExitStatus(1);   
+                }
+            });
+            
+        }        
+        
+      /*  final boolean isErrorOutput[] = { false };
         outputCollector.addTextErrorListener(new TextOutputListener() {
             public void outputLine(String line) {
                 isErrorOutput[0] = true;
@@ -463,7 +472,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         });
         if (!isErrorOutput[0]) {
             executionContext.debugErr(g("MSG_No_error_output"));
-        }
+        }*/
     }
     
     /** Get the VCS commands provider, that provided this Command or CommandTask.
