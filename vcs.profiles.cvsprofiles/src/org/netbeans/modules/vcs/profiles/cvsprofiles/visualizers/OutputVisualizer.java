@@ -134,6 +134,7 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     private static String getFileName(String filePath) {
         String fileName = filePath;
         int nameIndex = filePath.lastIndexOf('/');
+        if (nameIndex < 0) nameIndex = filePath.lastIndexOf(File.separatorChar);
         if (nameIndex >= 0) {
             fileName = filePath.substring(nameIndex + 1);
         }
