@@ -152,6 +152,36 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setFilterBackupFiles(true);
     }
 
+    protected java.lang.ref.Reference createReference(final FileObject fo) {
+        java.lang.ref.Reference ref = super.createReference(fo);
+        setVirtualDataLoader(fo);
+        return ref;
+    }
+    
+    /**
+     * Perform the check of whether the file is or is not still virtual. This
+     * method is called on every file status change with the set of potentially
+     * changed files.
+     * @param the set of FileObjects whose status was changed
+     */
+    protected void checkVirtualFiles(Set foSet) {
+        Set reloadFoSet = new HashSet();
+        for (Iterator foIt = foSet.iterator(); foIt.hasNext(); ) {
+            FileObject fo = (FileObject) foIt.next();
+            if (setVirtualDataLoader(fo)) {
+                reloadFoSet.add(fo);
+            }
+        }
+        for (Iterator foIt = reloadFoSet.iterator(); foIt.hasNext(); ) {
+            FileObject fo = (FileObject) foIt.next();
+            try {
+                DataObject dob = DataObject.find(fo);
+                dob.setValid(false);
+            } catch (DataObjectNotFoundException de) {
+            } catch (PropertyVetoException exc2) {}
+        }
+    }
+    
     public VcsFactory getVcsFactory () {
         return new CommandLineVcsFactory (this);
     }
