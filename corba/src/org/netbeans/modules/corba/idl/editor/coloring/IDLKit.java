@@ -38,10 +38,16 @@ import org.netbeans.modules.editor.NbEditorKit;
 public class IDLKit extends NbEditorKit {
 
     static final long serialVersionUID =-64995352874400403L;
+    
+    public static final String IDL_CONTENT_TYPE = "text/x-idl";
 
     /** Create new instance of syntax coloring parser */
     public Syntax createSyntax (Document document) {
         return new IDLSyntax ();
+    }
+    
+    public String getContentType () {
+        return IDL_CONTENT_TYPE;
     }
 
 }
