@@ -133,8 +133,10 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         tableLabel.setLabelFor(treeTableView1);
         tableLabel.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.lblVersionedDirs"));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 2, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel1.add(tableLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -151,15 +153,17 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
 
         newButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_btnNew_mnc").charAt(0));
         newButton.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.btnNew"));
+        newButton.setToolTipText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("New_btn_tooltip"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(8, 12, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(21, 12, 0, 0);
         jPanel4.add(newButton, gridBagConstraints);
 
         removeButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_VcsManager.btnRemove_mnc").charAt(0));
         removeButton.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.btnRemove"));
+        removeButton.setToolTipText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("Remove_btn_tootip"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -169,6 +173,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
 
         editButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_VcsManager.lblEdit_mnc").charAt(0));
         editButton.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.btnEdit"));
+        editButton.setToolTipText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("Edit_btn_tooltip"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
