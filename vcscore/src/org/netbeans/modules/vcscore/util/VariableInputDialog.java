@@ -1007,11 +1007,19 @@ public class VariableInputDialog extends javax.swing.JPanel {
      */
     
     private static void setA11y(javax.swing.JComponent jComponent, VariableInputDescriptor descriptor) {
-        setA11y(jComponent, descriptor.getA11yName(), descriptor.getA11yDescription());
+        String a11yName = descriptor.getA11yName();
+        if (a11yName == null) {
+            a11yName = descriptor.getLabel();
+        }
+        setA11y(jComponent, a11yName, descriptor.getA11yDescription());
     }
     
     private static void setA11y(javax.swing.JComponent jComponent, VariableInputComponent component) {
-        setA11y(jComponent, component.getA11yName(), component.getA11yDescription());
+        String a11yName = component.getA11yName();
+        if (a11yName == null) {
+            a11yName = component.getLabel();
+        }
+        setA11y(jComponent, a11yName, component.getA11yDescription());
     }
     
     private static void setA11y(javax.swing.JComponent jComponent, String a11yName, String a11yDescription) {
