@@ -42,42 +42,6 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JRadioButton" name="appRadio">
-          <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
-              <ResourceString bundle="org/netbeans/modules/corba/wizard/panels/Bundle.properties" key="TXT_Application"/>
-            </Property>
-            <Property name="actionCommand" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="clientSelected"/>
-          </Properties>
-
-          <Events>
-            <EventHandler event="actionPerformed" handler="clientAction"/>
-          </Events>
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints anchor="18" fill="0" gridHeight="1" gridWidth="0" gridX="-1" gridY="-1" insetsBottom="4" insetsLeft="8" insetsRight="8" insetsTop="8" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
-            </Constraint>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout" value="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout$FlowConstraintsDescription"/>
-          </Constraints>
-        </Component>
-        <Component class="javax.swing.JRadioButton" name="idlRadio">
-          <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
-              <ResourceString bundle="org/netbeans/modules/corba/wizard/panels/Bundle.properties" key="TXT_Idl"/>
-            </Property>
-            <Property name="actionCommand" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="idlSelected"/>
-          </Properties>
-
-          <Events>
-            <EventHandler event="actionPerformed" handler="idlAction"/>
-          </Events>
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints anchor="18" fill="0" gridHeight="1" gridWidth="0" gridX="0" gridY="3" insetsBottom="8" insetsLeft="8" insetsRight="8" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
-            </Constraint>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout" value="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout$FlowConstraintsDescription"/>
-          </Constraints>
-        </Component>
         <Component class="javax.swing.JCheckBox" name="client">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
@@ -86,7 +50,7 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints anchor="10" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="1" insetsBottom="4" insetsLeft="8" insetsRight="8" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+              <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="0" gridY="2" insetsBottom="4" insetsLeft="8" insetsRight="8" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
             </Constraint>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout" value="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout$FlowConstraintsDescription"/>
           </Constraints>
@@ -99,9 +63,33 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints anchor="10" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="2" insetsBottom="4" insetsLeft="8" insetsRight="8" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+              <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="0" gridY="3" insetsBottom="4" insetsLeft="8" insetsRight="8" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
             </Constraint>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout" value="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout$FlowConstraintsDescription"/>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="impl">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+              <ResourceString bundle="org/netbeans/modules/corba/wizard/panels/Bundle.properties" key="TXT_Generate"/>
+            </Property>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="0" gridY="1" insetsBottom="4" insetsLeft="8" insetsRight="8" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="idl">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+              <ResourceString bundle="org/netbeans/modules/corba/wizard/panels/Bundle.properties" key="TXT_Idl"/>
+            </Property>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="-1" gridY="-1" insetsBottom="4" insetsLeft="8" insetsRight="8" insetsTop="8" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
           </Constraints>
         </Component>
       </SubComponents>
