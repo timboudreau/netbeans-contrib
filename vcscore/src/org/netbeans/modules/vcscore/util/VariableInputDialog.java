@@ -1888,6 +1888,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 initArea(area, component.getHistoryValue(index2));
             }
         });
+        FocusListener l = new FocusListener() {
+            public void focusGained(FocusEvent fevt) {}
+            public void focusLost(FocusEvent fevt) {
+                writeFileContents(area, component.getValue(), promptAreaNum);
+            }
+        };
+        focusListenersToCallBeforeValidate.add(l);
     }
 
     private int addSelectRadio(final VariableInputComponent component, int gridy,

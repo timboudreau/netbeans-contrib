@@ -76,7 +76,43 @@ public class VariableInputValidator extends Object {
             message = g("VariableInputValidator.NotEmpty", component.getLabel());
             variable = component.getVariable();
         } else {
-            valid = true;
+            if (component.getComponent() == VariableInputDescriptor.INPUT_PROMPT_AREA) {
+                valid = checkNonEmptyFile(component);
+            } else {
+                valid = true;
+            }
+        }
+    }
+    
+    private boolean checkNonEmptyFile(VariableInputComponent component) {
+        String path = component.getValue();
+        java.io.File file = new java.io.File(path);
+        if (!file.exists()) {
+            message = g("VariableInputValidator.FileDoesNotExist", component.getLabel(), file.getPath());
+            variable = component.getVariable();
+            return false;
+        } else {
+            java.io.Reader r = null;
+            try {
+                r = new java.io.FileReader(file);
+                if (r.read() >= 0) {
+                    return true;
+                } else {
+                    message = g("VariableInputValidator.NotEmpty", component.getLabel());
+                    variable = component.getVariable();
+                    return false;
+                }
+            } catch (java.io.IOException ioex) {
+                message = ioex.getLocalizedMessage();
+                variable = component.getVariable();
+                return false;
+            } finally {
+                if (r != null) {
+                    try {
+                        r.close();
+                    } catch (java.io.IOException ioex) {}
+                }
+            }
         }
     }
 
