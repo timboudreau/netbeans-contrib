@@ -50,6 +50,18 @@ public class MountWizardData {
     javax.swing.JPanel getEnvironmentPanel() {
         return customizer.getEnvironmentPanel();
     }
+    
+    boolean isNoneProfileSelected() {
+        return customizer.isNoneProfileSelected();
+    }
+    
+    void addProfileChangeListener(java.beans.PropertyChangeListener l) {
+        customizer.addPropertyChangeListener(VcsCustomizer.PROP_PROFILE_SELECTION_CHANGED, l);
+    }
+    
+    void removeProfileChangeListener(java.beans.PropertyChangeListener l) {
+        customizer.removePropertyChangeListener(VcsCustomizer.PROP_PROFILE_SELECTION_CHANGED, l);
+    }
 
     /** Getter for property workingDir.
      * @return Value of property workingDir.

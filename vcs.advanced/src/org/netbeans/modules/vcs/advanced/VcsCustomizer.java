@@ -56,6 +56,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
      * fill in VCS configuartion, when it can be obtained from local configuration files.
      */
     public static final String VAR_AUTO_FILL = "AUTO_FILL_VARS";
+    
+    public static final String PROP_PROFILE_SELECTION_CHANGED = "profileSelectionChanged";
 
     private HashMap autoFillVars = new HashMap();
     
@@ -1209,6 +1211,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     
                 configCombo.removeItemAt(0);
                 promptForConfigComboChange = false;
+                firePropertyChange(PROP_PROFILE_SELECTION_CHANGED, null, null);
             }
 
             if( oldIndex==selectedIndex ){
@@ -1234,6 +1237,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 promptForConfigComboChange = true;
                 loadConfig(selectedLabel);
                 oldIndex=selectedIndex;
+                firePropertyChange(PROP_PROFILE_SELECTION_CHANGED, null, selectedLabel);
             } else{
                 //D.deb("no"); // NOI18N
                 //String oldLabel=(String)configCombo.getItemAt(oldIndex);
@@ -1327,6 +1331,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private boolean isRootNotSetDlg = true;
     private TableSorter envTableModel;
     private TableSorter systemEnvTableModel;
+
+    /**
+     * @return true if no profile is selected
+     */
+    public boolean isNoneProfileSelected() {
+        return (noProfileSelectedLabel != null &&
+                noProfileSelectedLabel.equals(configCombo.getItemAt(0)));
+    }
     
     /**
      * @deprecated It's only for a temporary use by the wizard.
