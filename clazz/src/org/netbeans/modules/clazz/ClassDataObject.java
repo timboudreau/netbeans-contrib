@@ -305,6 +305,12 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   }
 
   public String getClassName () {
+    try {
+      return instanceSupport.instanceClass ().getName ();
+    } catch (Exception e) {
+      // ignore and return the instance name from the InstanceSupport, 
+      // which is by default the file name of the original instance
+    }
     return instanceSupport.instanceName ();
   }
 
@@ -526,6 +532,9 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  24   Gandalf   1.23        7/25/99  Ian Formanek    Fixed bug #2745 - 
+ *       Property "Class Name" of serialized prototypes displays the file name 
+ *       rather than the name of the class that is serialized in it.
  *  23   Gandalf   1.22        7/16/99  Petr Jiricka    Fixed bug that classes 
  *       without main couldn't be executed
  *  22   Gandalf   1.21        7/9/99   Petr Hrebejk    Add/emove mehods made 
