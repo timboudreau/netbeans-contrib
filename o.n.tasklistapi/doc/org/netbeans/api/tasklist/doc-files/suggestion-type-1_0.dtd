@@ -1,0 +1,11 @@
+<!--
+-//NetBeans//DTD suggestion type 1.0//EN
+http://www.netbeans.org/dtds/suggestion-type-1_0.dtd
+Document type declaration for SuggestionType.
+-->
+
+<!ELEMENT type EMPTY>
+<!ATTLIST type name CDATA #REQUIRED>
+<!ATTLIST type localizing_bundle CDATA #REQUIRED>
+<!ATTLIST type description_key CDATA #REQUIRED>
+<!ATTLIST type icon CDATA #IMPLIED>

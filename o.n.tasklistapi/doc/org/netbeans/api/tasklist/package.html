@@ -44,7 +44,7 @@ as follows:
           }
         <i>(two more methods here, both returning null)</i>
       );
-      suggestion.setPriority(1);
+      suggestion.setPriority(Suggestion.PRIORITY_MIN);
    </pre>
   <li> Register the suggestion with the SuggestionManager:
    <pre>
@@ -53,29 +53,41 @@ as follows:
   <li> You also need to register the Suggestion type for this
      suggestion with the system. We used <code>suggestionTypeId</code>
      above; this is just a string with some unique Id, let's say
-     "myid".  We need to register this in the module's layer XML
+     "CopyrightCheck".  We need to register this in the module's layer XML
      file:
 <pre>
- &lt;folder name="Suggestions"&gt;
-   &lt;folder name="Types"&gt;
-      &lt;file name="myid"&gt;
-        &lt;attr name="SystemFileSystem.localizingBundle"
-         stringvalue="com.foo.bar.my.package.Bundle"/&gt;
-      &lt;/file&gt;
-   &lt;/folder&gt;
- &lt;/folder&gt;
+    &lt;folder name="Suggestions"&gt; 
+        &lt;folder name="Types"&gt; 
+            &lt;file name="copyrightcheck.xml" url="copyrightcheck.xml"/&gt;
+        &lt;/folder&gt;
+    &lt;/folder&gt;
 </pre>
+and then the file copyrightcheck.xml in your module (in the same
+directory as your layer file) contains something like this:
+<pre>
+&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE type PUBLIC "-//NetBeans//DTD suggestion type 1.0//EN" "http://www.netbeans.org/dtds/suggestion-type-1_0.dtd"&gt;
+&lt;type
+    name='CopyrightCheck'
+    description_key='HINT_COPYRIGHT'
+    localizing_bundle='com.foo.bar.Bundle'
+    icon='nbresloc:/com/foo/bar/copyrightCheck.gif'
+/&gt;
+</pre>
+The DTD referenced above can be 
+<a href="doc-files/suggestion-type-1_0.dtd">found here</a>.
+
  <p>
 Then in your Bundle file identified above, add an entry like:
 <pre>
-    Suggestions/Types/myid=My Suggestion Type
+    HINT_COPYRIGHT=Copyright Problems
 </pre>
 
 </ol>
 Done! Obviously, you also have to add a dependency on
 the tasklist-api in your module's manifest file:
 <pre>
-OpenIDE-Module-Module-Dependencies: org.netbeans.api.tasklist/1 > 0.8.6
+OpenIDE-Module-Module-Dependencies: org.netbeans.api.tasklist/1 > 1.0
 </pre>
 If you are writing code which needs to add suggestions based on 
 the current document in the editor, or based on the current node,
@@ -90,17 +102,17 @@ So here's what a complete code segment might look like:
       mgr.isObserved()) {
      String summary = "Ring the system bell to annoy others";
      SuggestionPerformer performer = new SuggestionPerformer() {
-        public void perform(Suggestion s, JPanel customizer) {
+        public void perform(Suggestion s) {
             beep(); beep(); beep();
         }
-        public JPanel getConfirmationPanel(Suggestion s) {
+        public Component getConfirmationComponent(Suggestion s) {
             return null;
         }
         public String getConfirmationDescription(Suggestion s) {
             return "Ring the system bell 3 times, then quit. Will echo \007.";
         }
      });
-     Suggestion s = new Suggestion(suggestionType, summary, perfomer);
+     Suggestion s = manager.createSuggestion(suggestionType, summary, performer);
      mgr.add(s);
   }
 </pre>
