@@ -75,9 +75,9 @@ public class GeneralCommandAction extends NodeAction {
     static final long serialVersionUID = 5771601379701397185L;    
     
     
-    private static HashMap suppMap;
+    private static transient HashMap suppMap;
     
-    private static WeakReference nodesRef;
+    private static transient WeakReference nodesRef;
 
     
     protected GeneralCommandAction() {
@@ -91,7 +91,7 @@ public class GeneralCommandAction extends NodeAction {
      */
     protected void performAction (Node[] nodes) {
         if (nodes == null || nodes.length == 0) return;
-        HashMap suppMap;
+//        HashMap suppMap;
         suppMap = this.getSupporterMap(nodes);
         if (suppMap == null) return;
         Iterator it = suppMap.keySet().iterator();
@@ -124,7 +124,7 @@ public class GeneralCommandAction extends NodeAction {
             wasReset = true;
             return false;
         }
-        HashMap suppMap = null;
+//        HashMap suppMap = null;
         suppMap = this.getSupporterMap(nodes);
         
         if (suppMap == null) { 
