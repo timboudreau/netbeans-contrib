@@ -106,7 +106,7 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
         commandSupportsByNames = new HashMap();
         commandSupportsByClasses = new HashMap();
         fillCommands(commands);
-        commandNames = (String[]) commandSupportsByNames.keySet().toArray(new String[commandSupportsByNames.size()]);
+        commandNames = (String[]) commandSupportsByNames.keySet().toArray(new String[0]);
         changeSupport.firePropertyChange(CommandsTree.Provider.PROP_COMMANDS, null, commands);
     }
     
