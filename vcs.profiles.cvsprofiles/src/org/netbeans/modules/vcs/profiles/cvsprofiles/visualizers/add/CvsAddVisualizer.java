@@ -23,6 +23,7 @@ import javax.swing.SwingUtilities;
 
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualizer;
 import org.netbeans.modules.vcscore.commands.*;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -48,17 +49,7 @@ public class CvsAddVisualizer extends OutputVisualizer {
     private static final String RESURRECTED = ", resurrected"; //NOI18N
     private static final String RESUR_VERSION = ", version "; //NOI18N
     
-    /** Maximum number of characters to keep in the buffer */
-    private static final int MAX_BUFFER_SIZE = 3000*80;
-    /** When both the buffer and the text area are full, replace only this part
-     * of the buffer */
-    private static final int FAST_APPEND_SIZE = 100*80;
-    /** The maximum number of characters to keep in the text area */
-    private static final int MAX_AREA_SIZE = MAX_BUFFER_SIZE - FAST_APPEND_SIZE;
-    
     private String filePath;
-    private static Hashtable outputDisplayStuff;
-    private static RequestProcessor outputDisplayRequestProcessor;   
     private AddInformation fileInfoContainer;
     
     /**
@@ -70,18 +61,14 @@ public class CvsAddVisualizer extends OutputVisualizer {
     private int exit = Integer.MIN_VALUE; // unset exit status
     private List outputInfosToShow; // cached information when the command is providing
     // output sooner then the GUI is created.
-    private List errorOutputToShow; // cached error output when the command is providing
-    // output sooner then the GUI is created.
+    private Object outputAccessLock = new Object();
+    private CommandOutputTextProcessor.TextOutput errOutput;
+    private CommandOutputTextProcessor.TextOutput stdDataOutput;
+    private CommandOutputTextProcessor.TextOutput errDataOutput;
     
     /** Creates new CvsAddVisualizer */
     public CvsAddVisualizer() {
         super();
-        synchronized (CommandOutputVisualizer.class) {
-            if (outputDisplayRequestProcessor == null) {
-                outputDisplayRequestProcessor = new RequestProcessor("Output Display Request Processor");
-                outputDisplayRequestProcessor.post(new OutputDisplayer());
-            }
-        }
     }
     
     public Map getOutputPanels() {
@@ -96,6 +83,17 @@ public class CvsAddVisualizer extends OutputVisualizer {
             setExitStatus(exit);
         }
         output.put("",contentPane);//TODO - what's right name?
+        synchronized (outputAccessLock) {
+            if (errOutput != null) {
+                errOutput.setTextArea(contentPane.getErrOutputArea());
+            }
+            if (stdDataOutput != null) {
+                stdDataOutput.setTextArea(contentPane.getDataStdOutputArea());
+            }
+            if (errDataOutput != null) {
+                errDataOutput.setTextArea(contentPane.getDataErrOutputArea());
+            }
+        }
         return output;
     }
     
@@ -288,14 +286,6 @@ public class CvsAddVisualizer extends OutputVisualizer {
                 }
                 outputInfosToShow = null;
             }
-            if (errorOutputToShow != null) {                
-                javax.swing.JTextArea area = contentPane.getErrOutputArea();
-                for (Iterator it = errorOutputToShow.iterator(); it.hasNext(); ) {
-                    String line = (String) it.next();
-                    appendLineToArea(area, line);
-                }
-                errorOutputToShow = null;
-            }
         }
         
         if (fileInfoContainer != null) {            
@@ -323,7 +313,7 @@ public class CvsAddVisualizer extends OutputVisualizer {
         //System.out.println("setExitStatus("+this.hashCode()+") ("+exit+"), cp = "+(contentPane != null));
         this.exit = exit;
         if (contentPane != null) { // Check whether we have the GUI created
-            if (outputInfosToShow != null || errorOutputToShow != null) {
+            if (outputInfosToShow != null) {
                 outputDone(); // show cached infos
             }
             if(exit == 0)
@@ -333,126 +323,50 @@ public class CvsAddVisualizer extends OutputVisualizer {
         }
     }
     
-    private void appendTextToArea(javax.swing.JTextArea area, String text) {
-        synchronized (outputDisplayStuff) {
-            StringBuffer buffer = (StringBuffer) outputDisplayStuff.get(area);
-            if (buffer == null) {
-                buffer = new StringBuffer(text);
-                synchronized (outputDisplayStuff) {
-                    outputDisplayStuff.put(area, buffer);
-                    if (outputDisplayStuff.size() == 1) {
-                        outputDisplayStuff.notify(); // it was empty before!
-                    }
-                }
-            } else {
-                buffer.append(text);
-                if (buffer.length() > MAX_BUFFER_SIZE) {
-                    buffer.delete(0, buffer.length() - MAX_AREA_SIZE  - 1);
-                }
-            }
-        }
-    }
-    
-    private void appendLineToArea(javax.swing.JTextArea area, String line) {
-        appendTextToArea(area, line + '\n');
-    }
-    
     /**
      * Receive a line of error output.
      */
     public void errOutputLine(final String line) {
         stdOutputLine(line); //redirect err output to std output
         // to prevent deadlocks, append output in the AWT thread
-        if (contentPane != null) {
-            if (errorOutputToShow != null) {
-                javax.swing.JTextArea area = contentPane.getErrOutputArea();
-                for (Iterator it = errorOutputToShow.iterator(); it.hasNext(); ) {
-                    String l = (String) it.next();
-                    appendLineToArea(area, l);
+        synchronized (outputAccessLock) {
+            if (errOutput == null) {
+                errOutput = CommandOutputTextProcessor.getDefault().createOutput();
+                if (contentPane != null) {
+                    errOutput.setTextArea(contentPane.getErrOutputArea());
                 }
-                errorOutputToShow = null;
             }
-            appendLineToArea(contentPane.getErrOutputArea(), line);
-        } else {
-            if (errorOutputToShow == null) {
-                errorOutputToShow = new LinkedList();
-            }
-            errorOutputToShow.add(line);
+            errOutput.addText(line+'\n');
         }
-        
     }
     
-    private static class OutputDisplayer extends Object implements Runnable {
-        
-        private java.util.Random random;
-        
-        public OutputDisplayer() {
-            outputDisplayStuff = new Hashtable();
-            random = new java.util.Random();
-        }
-        
-        public void run() {
-            if (SwingUtilities.isEventDispatchThread()) {
-                int index = random.nextInt(outputDisplayStuff.size());
-                java.util.Enumeration keysEnum = outputDisplayStuff.keys();
-                javax.swing.JTextArea area;
-                do {
-                    area = (javax.swing.JTextArea) keysEnum.nextElement();
-                } while (--index >= 0);
-                String append;
-                String replace;
-                int start;
-                int end = area.getDocument().getLength();
-                synchronized (outputDisplayStuff) {
-                    StringBuffer buffer = (StringBuffer) outputDisplayStuff.get(area);
-                    if (buffer.length() >= MAX_AREA_SIZE) {
-                        append = null;
-                        replace = buffer.substring(buffer.length() - FAST_APPEND_SIZE, buffer.length()).toString();
-                        buffer.delete(0, replace.length());
-                        start = end - replace.length();
-                        if (start < 0) start = 0;
-                    } else {
-                        buffer = (StringBuffer) outputDisplayStuff.remove(area);
-                        append = buffer.toString();
-                        start = 0;
-                        end += append.length();
-                        if (end < MAX_AREA_SIZE) end = 0;
-                        else end = end - MAX_AREA_SIZE + FAST_APPEND_SIZE;
-                        replace = null;
-                    }
+    /**
+     * Receive the data output.
+     */
+    public void stdOutputData(final String[] data) {
+        synchronized (outputAccessLock) {
+            if (stdDataOutput == null) {
+                stdDataOutput = CommandOutputTextProcessor.getDefault().createOutput();
+                if (contentPane != null) {
+                    stdDataOutput.setTextArea(contentPane.getDataStdOutputArea());
                 }
-                if (append != null) {
-                    area.append(append);
-                }
-                if (end > 0) {
-                    area.replaceRange(replace, start, end);
-                }
-            } else {
-                do {
-                    synchronized (outputDisplayStuff) {
-                        if (outputDisplayStuff.size() == 0) {
-                            try {
-                                outputDisplayStuff.wait();
-                            } catch (InterruptedException iexc) {
-                                break;
-                            }
-                        }
-                    }
-                    do {
-                        try {
-                            SwingUtilities.invokeAndWait(this);
-                            // Let the AWT to catch it's breath
-                            Thread.currentThread().yield();
-                            Thread.currentThread().sleep(250);
-                        } catch (InterruptedException iexc) {
-                            break;
-                        } catch (java.lang.reflect.InvocationTargetException itexc) {
-                            org.openide.ErrorManager.getDefault().notify(itexc);
-                            break;
-                        }
-                    } while (outputDisplayStuff.size() > 0);
-                } while (true);
             }
+            stdDataOutput.addText(VcsUtilities.arrayToString(data)+'\n');
+        }
+    }
+    
+    /**
+     * Receive the error data output.
+     */
+    public void errOutputData(final String[] data) {
+        synchronized (outputAccessLock) {
+            if (errDataOutput == null) {
+                errDataOutput = CommandOutputTextProcessor.getDefault().createOutput();
+                if (contentPane != null) {
+                    errDataOutput.setTextArea(contentPane.getDataErrOutputArea());
+                }
+            }
+            errDataOutput.addText(VcsUtilities.arrayToString(data)+'\n');
         }
     }
     
