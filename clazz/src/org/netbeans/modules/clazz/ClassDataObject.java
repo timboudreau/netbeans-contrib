@@ -411,6 +411,8 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
 
     static NodeFactoryPool createFactoryPool(String folderName, ElementNodeFactory def) {
         FileObject f = ((Repository)Lookup.getDefault().lookup(Repository.class)).findResource(folderName);
+	if (f == null)
+    	    return null;
         try {
             DataFolder folder = (DataFolder)DataObject.find(f).getCookie(DataFolder.class);
             return new NodeFactoryPool(folder, def);
