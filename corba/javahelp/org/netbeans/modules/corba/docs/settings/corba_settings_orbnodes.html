@@ -11,35 +11,28 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+>   *     Use is subject to license terms.
+>   *
+>   *     Copyright 2001 Sun Microsystems, Inc. Tous droits réservés.
+>   *     L'utilisation est régie par les termes de cette licence.
+>   *
+>   *
+> -->
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="lastupdated" content="29aug2000">
-   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
-   <title>ORB Product Subnode Settings</title>
-<!--       
- *        Copyright (C) 2000  Sun Microsystems, Inc
- *                    All rights reserved.
- *          Notice of copyright on this source code 
- *          product does not indicate publication. 
- * 
- * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
- * the U.S. Government is subject to restrictions as set forth 
- * in subparagraph (c)(1)(ii) of the Rights in Technical Data
- * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
- * and FAR 52.227-19 (c) (June 1988).
- *
- *    Sun Microsystems, Inc., 901 San Antonio Road,
- *    Palo Alto, California 94303 U.S.A.
- *
--->
+<meta name="lastupdated" content="18apr2001">
+<title>ORB Product Subnode Settings</title>
+<link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
-<body bgcolor="#FFFFFF">
+<body bgcolor="#ffffff">
+
 
 <h2>
 ORB Product Subnode Settings</h2>
-These properties appear when you select a subnode of the "CORBA Settings"
+These properties appear when you select a subnode of the CORBA Settings
 node.
 <h3>
 Properties Tab</h3>
@@ -50,27 +43,27 @@ Use this property to specify what kind of code should be generated for
 binding the client to a server.
 <ul>
 <li>
-Naming Service -- Generate client code that will obtain a server reference
+Naming Service -- Generate client code that obtains a server reference
 from a naming service.</li>
 
 <li>
-IOR From File -- Generate client code that will read a server reference
+IOR From File -- Generate client code that reads a server reference
 from a file.</li>
 
 <li>
-IOR From Standard Input -- Generate client&nbsp; code that will read a
+IOR From Standard Input -- Generate client&nbsp; code that reads a
 server reference from standard input.</li>
 
 <li>
-Proprietary Binder -- Generate&nbsp; client&nbsp; code that will work with
+Proprietary Binder -- Generate&nbsp; client&nbsp; code that works with
 the proprietary binding methods defined by the ORB vendor. This is available
 when you are using OrbixWeb 3.2, Orbacus for Java 3.1.x, and VisiBroker
 for Java.</li>
 </ul>
 When you are developing both the client and the server, you should use
 the same binding type for both the client and server sides. If you are
-developing a client that will use an existing server, you have to choose
-the type of binding that will work with the server.
+developing a client that uses an existing server, you have to choose
+the type of binding that works with the server.
 <h4>
 Generated Skeletons</h4>
 Use this property to specify whether the skeleton code generated from your
@@ -87,7 +80,7 @@ Tie Based -- The implementation class has no direct relationship with the
 skeleton class, as in:</li>
 
 <ul>class HelloImplTIE implements _HelloOperations</ul>
-In this case a tie class, such as _HelloTie, establishes the relationship
+In this case, a tie class, such as _HelloTie, establishes the relationship
 between the implementation class and the skeleton class.</ul>
 
 <h4>
@@ -97,7 +90,7 @@ generated for operations (methods) declared in your IDL file:
 <ul>
 <li>
 Generate Nothing -- Generate empty method bodies for operations (methods)
-declared in the IDL</li>
+declared in the IDL.</li>
 
 <li>
 Generate Exception -- In each method body, generate a statement that throws
@@ -115,8 +108,8 @@ from you IDL by the IDL compiler will be visible in the IDE.
 <ul>
 <li>
 True -- The stub and skeleton files are not visible in the Explorer window.
-Since you rarely edit these files or reference them directly in your code
-you may prefer that they are invisible.</li>
+Since you rarely edit these files or reference them directly in your code,
+you might prefer that they be invisible.</li>
 
 <li>
 False -- The stub and skeleton files are visible in the Explorer window.</li>
@@ -124,8 +117,8 @@ False -- The stub and skeleton files are visible in the Explorer window.</li>
 
 <h4>
 Parameters for IDL compiler</h4>
-Use this property to set up any parameters you wish to pass to the IDL
-compiler. Anything you type in this property will be passed to the IDL
+Use this property to set up any parameters you want to pass to the IDL
+compiler. Anything you type in this property is passed to the IDL
 compiler when it is executed.
 <h4>
 Server binding</h4>
@@ -134,19 +127,19 @@ server side for preparing a reference to the implementation instance/servant
 object:
 <ul>
 <li>
-Naming Service -- Generate server code that will register a reference to
+Naming Service -- Generate server code that registers a reference to
 the implementation instance/servant object with a naming service.</li>
 
 <li>
-IOR From File -- Generate server code that will write a reference to the
+IOR From File -- Generate server code that writes a reference to the
 implementation instance/servant object to a file.</li>
 
 <li>
-IOR To Standard OutPut -- Generate server code that will write the IOR
+IOR To Standard OutPut -- Generate server code that writes the IOR
 for the implementation instance/servant object to standard output.</li>
 
 <li>
-Proprietary Binder -- Generate server code that will work with the proprietary
+Proprietary Binder -- Generate server code that works with the proprietary
 binding methods defined by the ORB vendor. This is available when you are
 using OrbixWeb 3.2, Orbacus for Java 3.1.x, and VisiBroker for Java.</li>
 </ul>
@@ -157,19 +150,19 @@ service.
 <h4>
 Synchronization</h4>
 Use this property to specify how the IDE should behave when you modify
-an IDL definition. Depending on the setting, the IDE will prompt you with
-a dialog that allows you to synchronize IDL and implementation:
+an IDL definition. Depending on the setting, the IDE displays
+a dialog box that enables you to synchronize IDL and implementation:
 <ul>
 <li>
 Disabled -- The IDE will not prompt you to synchronize IDL and implementation.</li>
 
 <li>
-On Update -- When you edit an IDL file, open its context menu, and choose
-either the "Update Implementation" or "Update and Generate Implementation"
-command, you will be prompted to synchronize the IDL and its implementation.
-(If you modify an IDL&nbsp; interface, the context menu will have the "Update
-Implementation" command; if you add a new interface to the IDL file, the
-context menu will have the "Update and Generate Implementation" command.)</li>
+On Update -- When you edit an IDL file, open its contextual menu, and choose
+either the Update Implementation or Update and Generate Implementation
+command, you are prompted to synchronize the IDL and its implementation.
+(If you modify an IDL&nbsp; interface, the contextual menu will have the Update
+Implementation command; if you add a new interface to the IDL file, the
+contextual menu will have the Update and Generate Implementation command.)</li>
 
 <li>
 On Save Action -- When you edit and then save an IDL file, you will be
