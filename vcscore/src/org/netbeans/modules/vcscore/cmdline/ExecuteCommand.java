@@ -860,6 +860,15 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             //vars.put("TIMEOUT", new Long(cmd.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmd.getName()));
             try {
+                if (execCommand instanceof VcsAdditionalCommand.ImmediateOutput) {
+                    VcsAdditionalCommand.ImmediateOutput io = (VcsAdditionalCommand.ImmediateOutput) execCommand;
+                    for (Iterator it = immediateOutputListeners.iterator(); it.hasNext(); ) {
+                        io.addImmediateTextOutputListener((TextOutputListener) it.next());
+                    }
+                    for (Iterator it = immediateErrorListeners.iterator(); it.hasNext(); ) {
+                        io.addImmediateTextErrorListener((TextOutputListener) it.next());
+                    }
+                }
                 success = execCommand.exec(vars, args,
                                        new CommandOutputListener() {
                                            public void outputLine(String line) {

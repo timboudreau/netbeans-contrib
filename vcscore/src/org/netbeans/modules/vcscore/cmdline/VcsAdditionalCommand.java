@@ -19,6 +19,8 @@ import org.openide.util.*;
 
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
+import org.netbeans.modules.vcscore.commands.TextErrorListener;
+import org.netbeans.modules.vcscore.commands.TextOutputListener;
 
 /**
  *
@@ -46,4 +48,28 @@ public interface VcsAdditionalCommand {
                         CommandOutputListener stderrListener,
                         CommandDataOutputListener stdoutDataListener, String dataRegex,
                         CommandDataOutputListener stderrDataListener, String errorRegex);
+    
+    
+    /**
+     * When the command supports an immediate output (output of partial lines),
+     * it should implement this interface and allow to add text listeners that
+     * are called with the immediate text output.
+     */
+    public static interface ImmediateOutput {
+        
+        /**
+         * Add an immediate text listener to the standard output.
+         * The String passed to this listener will not correspond
+         * with lines terminated by newline character.
+         */
+        void addImmediateTextOutputListener(TextOutputListener tol);
+        
+        /**
+         * Add an immediate text listener to the error output.
+         * The String passed to this listener will not correspond
+         * with lines terminated by newline character.
+         */
+        void addImmediateTextErrorListener(TextOutputListener tel);
+        
+    }
 }
