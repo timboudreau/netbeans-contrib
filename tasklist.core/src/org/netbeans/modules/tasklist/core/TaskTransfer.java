@@ -141,11 +141,7 @@ public final class TaskTransfer implements ExClipboard.Convertor {
         public Transferable paste() throws IOException {
             try {
                 Task item = (Task)t.getTransferData(TODO_FLAVOR);
-                if (after.getParent() == null) {
-                    after.addSubtask(item);
-                } else {
-                    after.getParent().addSubtask(item, after);
-                }
+                after.addSubtask(item);
             } catch (UnsupportedFlavorException ufe) {
                 // Should not happen.
                 IOException ioe = new IOException(ufe.toString());

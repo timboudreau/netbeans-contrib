@@ -120,8 +120,7 @@ public class Task extends Suggestion implements Cloneable {
      */
     public static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
-    protected final PropertyChangeSupport supp =
-        new PropertyChangeSupport(this);
+    protected final PropertyChangeSupport supp = new PropertyChangeSupport(this);
     
     protected ObservableList list;
     protected boolean visitable;
@@ -232,6 +231,23 @@ public class Task extends Suggestion implements Cloneable {
         this.visitable = visitable;
     }
 
+    /**
+     * Fires a PropertyChangeEvent 
+     *
+     * @param propertyName changed property
+     * @param oldValue old value (may be null)
+     * @param newValue new value (may be null)
+     */
+    protected void firePropertyChange(String propertyName, Object oldValue,
+    Object newValue) {
+        if (!silentUpdate) {
+            supp.firePropertyChange(propertyName, oldValue, newValue);
+            if (getList() instanceof TaskListener) {
+                ((TaskListener) getList()).changedTask(this);
+            }
+        }
+    }
+    
     protected void updatedValues() {
         if (!silentUpdate) {
             supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
@@ -385,10 +401,9 @@ public class Task extends Suggestion implements Cloneable {
         if (subtasks == null) {
             subtasks = new LinkedList();
         }
-        if (subtasks.contains(subtask)) {
-            // XXX shoudl be catched earlier
-            return;
-        }
+        
+        assert !subtasks.contains(subtask);
+        
         if (append) {
             subtasks.addLast(subtask);
         } else {
