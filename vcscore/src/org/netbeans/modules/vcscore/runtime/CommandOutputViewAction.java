@@ -42,7 +42,7 @@ public class CommandOutputViewAction extends NodeAction {
     /**
      * @return false to run in AWT thread.
      */
-    public boolean asynchronous() {
+    protected boolean asynchronous() {
         return false;
     }
     
