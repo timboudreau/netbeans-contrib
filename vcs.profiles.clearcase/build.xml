@@ -54,6 +54,7 @@ Microsystems, Inc. All Rights Reserved.
        <include name="org/netbeans/modules/vcs/profiles/clearcase/config/*.*"/>
        <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/*_ja.*"/>
        <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/*_XX.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/.nbattrs"/>
        <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/Bundle.properties"/>
        <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/Bundle_*.properties"/>
     </makelayer>
@@ -107,13 +108,17 @@ Microsystems, Inc. All Rights Reserved.
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
-        <include name="org/netbeans/modules/vcs/profile/clearcase/layer-include*.xml"/>
+        <include name="org/netbeans/modules/vcs/profiles/clearcase/layer-include*.xml"/>
       </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="clearcase-profile.nbm"/>
     <delete dir="netbeans"/>
     <delete dir="Info"/>
+  </target>
+
+  <target depends="jars" name="install">
+   <nbinstaller action="reinstall" module="netbeans/modules/clearcase-profile.jar"/>
   </target>
 
 </project>
