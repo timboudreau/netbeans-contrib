@@ -54,7 +54,12 @@ public abstract class RuntimeCommandsProvider {
      * Find the runtime commands provider for a FileSystem.
      */
     public static RuntimeCommandsProvider findProvider(FileSystem fs) {
+        try {
         return (RuntimeCommandsProvider) fs.getRoot().getAttribute(FO_ATTRIBUTE);
+        } catch (NullPointerException npe) {
+            throw (NullPointerException) org.openide.TopManager.getDefault().getErrorManager().annotate(npe, "fs = "+fs+"\n"+
+                "fs.getRoot() = "+((fs != null) ? ""+fs.getRoot() : "null"));
+        }
     }
     
     protected void register() {

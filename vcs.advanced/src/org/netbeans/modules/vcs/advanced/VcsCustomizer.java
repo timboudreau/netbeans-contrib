@@ -2346,6 +2346,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 public void commandPreprocessing(VcsCommandExecutor vce) {
                 }
                 
+                public void commandPreprocessed(VcsCommandExecutor vce, boolean status) {
+                }
+                
                 public void commandStarted(VcsCommandExecutor vce) {
                 }
                 

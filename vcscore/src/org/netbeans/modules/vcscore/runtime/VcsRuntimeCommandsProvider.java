@@ -138,6 +138,27 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
         }
         
         /**
+         * Called when the preprocessing of the command finished.
+         * @param cmd The command which was preprocessed.
+         * @param status The status of preprocessing. If false, the command is not executed.
+         */
+        public void commandPreprocessed(VcsCommandExecutor vce, boolean status) {
+            if (status == false) {
+                VcsFileSystem fs = cpool.getFileSystemForExecutor(vce);
+                if (VcsRuntimeCommandsProvider.this.fs == fs ||
+                    VcsRuntimeCommandsProvider.this.equals(RuntimeCommandsProvider.findProvider(fs))) {
+                    
+                    VcsRuntimeCommand cmd = new VcsRuntimeCommand(vce);
+                    synchronized (VcsRuntimeCommandsProvider.this) {
+                        commands.remove(cmd);
+                        runtimeCommandsForExecutors.remove(vce);
+                    }
+                    firePropertyChange(PROP_CHILDREN, null, null);
+                }
+            }
+        }
+        
+        /**
          * This method is called when the command is just to be started.
          */
         public void commandStarted(VcsCommandExecutor vce) {

@@ -239,6 +239,13 @@ public class CommandsPool extends Object /*implements CommandListener */{
             if (fileSystem != null) {
                 fileSystem.debug(g("MSG_Command_canceled", name));
             }
+            for(Iterator it = listenersToNotify.iterator(); it.hasNext(); ) {
+                ((CommandListener) it.next()).commandPreprocessed(vce, false);
+            }
+        } else if (askForEachFile == null || askForEachFile[0] == false) {
+            for(Iterator it = listenersToNotify.iterator(); it.hasNext(); ) {
+                ((CommandListener) it.next()).commandPreprocessed(vce, true);
+            }
         }
         return preprocessStatus;
     }
