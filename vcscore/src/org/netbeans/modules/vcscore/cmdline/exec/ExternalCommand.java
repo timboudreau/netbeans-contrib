@@ -58,6 +58,9 @@ public class ExternalCommand {
     private Object stdErrLock = new Object();
     private ArrayList stdOutListeners = new ArrayList();
     private ArrayList stdErrListeners = new ArrayList();
+    
+    // The environment variables
+    private String[] envp = null;
 
     /*
     private volatile Vector commandOutput = null;
@@ -103,6 +106,10 @@ public class ExternalCommand {
      */
     public void setInput(String inputData) {
         this.inputData = inputData;
+    }
+    
+    public void setEnv(String[] envp) {
+        this.envp = envp;
     }
 
 
@@ -253,7 +260,11 @@ public class ExternalCommand {
         }
             */
             try{
-                proc=Runtime.getRuntime().exec(commandArr);
+                if (envp == null) {
+                    proc = Runtime.getRuntime().exec(commandArr);
+                } else {
+                    proc = Runtime.getRuntime().exec(commandArr, envp);
+                }
             }
             catch (IOException e){
                 E.err("Runtime.exec failed."); // NOI18N
@@ -269,19 +280,11 @@ public class ExternalCommand {
             //}
             //D.deb("New WatchDog with timeout = "+timeoutMilis); // NOI18N
 
-            stdoutGrabber = new StdoutGrabber(proc.getInputStream());
-            stdoutThread = new Thread(stdoutGrabber,"VCS-StdoutGrabber"); // NOI18N
-
-            stderrGrabber = new StderrGrabber(proc.getErrorStream());
-            stderrThread = new Thread(stderrGrabber,"VCS-StderrGrabber"); // NOI18N
-
-            stdoutThread.start();
-            stderrThread.start();
-
             if (inputData != null) {
                 try{
                     DataOutputStream os=new DataOutputStream(proc.getOutputStream());
                     //D.deb("stdin>>"+inputData); // NOI18N
+                    //System.out.println("stdin>>"+inputData);
                     os.writeChars(inputData);
                     os.flush();
                     os.close();
@@ -290,6 +293,15 @@ public class ExternalCommand {
                     E.err(e,"writeBytes("+inputData+") failed"); // NOI18N
                 }
             }
+
+            stdoutGrabber = new StdoutGrabber(proc.getInputStream());
+            stdoutThread = new Thread(stdoutGrabber,"VCS-StdoutGrabber"); // NOI18N
+
+            stderrGrabber = new StderrGrabber(proc.getErrorStream());
+            stderrThread = new Thread(stderrGrabber,"VCS-StderrGrabber"); // NOI18N
+
+            stdoutThread.start();
+            stderrThread.start();
 
             int exit = proc.waitFor();
             //D.deb("process exit="+exit); // NOI18N
