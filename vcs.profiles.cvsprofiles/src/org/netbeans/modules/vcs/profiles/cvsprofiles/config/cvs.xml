@@ -1144,6 +1144,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.AddCommand</value>
         </property>
+        <property name="preCommands">
+            <value>ADD_LOCAL_PARENTS</value>
+        </property>
         <property name="commandsAfterSuccess">
           <value>$[? DO_COMMIT] [COMMIT][]</value>
         </property>
