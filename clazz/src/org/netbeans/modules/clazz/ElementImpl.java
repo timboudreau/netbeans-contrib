@@ -21,6 +21,7 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 
 import org.openide.ErrorManager;
+import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.src.Element;
 import org.openide.src.SourceException;
@@ -79,7 +80,7 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
     public Node.Cookie getCookie (Class type) {
         return null;
     }
-
+    
     /** Mark the current element in the context of this element.
     * The current element means the position for inserting new elements.
     * @param beforeAfter <CODE>true</CODE> means that new element is inserted before
