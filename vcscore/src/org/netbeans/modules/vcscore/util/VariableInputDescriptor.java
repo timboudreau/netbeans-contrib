@@ -361,6 +361,10 @@ public class VariableInputDescriptor extends Object {
                 } else {
                     component.setValue(component.getValueUnselected());
                 }
+            } else {
+                if (!Boolean.TRUE.toString().equalsIgnoreCase(component.getValue())) {
+                    component.setValue(""); // NOI18N
+                }
             }
         }
         if (len > argNum && inputArgs[argNum].indexOf(INPUT_STR_ENABLE) == 0) {
