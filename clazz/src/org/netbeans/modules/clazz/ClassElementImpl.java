@@ -250,7 +250,7 @@ final class ClassElementImpl extends MemberElementImpl
     Field[] reflFields = ((Class)data).getDeclaredFields();
     // create map
     FieldElement curFE = null;
-    Map result = new HashMap();
+    Map result = new HashMap(reflFields.length);
     for (int i = 0; i < reflFields.length; i++) {
       curFE = new FieldElement(new FieldElementImpl(reflFields[i]),
                                (ClassElement)element);
@@ -266,7 +266,7 @@ final class ClassElementImpl extends MemberElementImpl
     Class[] reflInners = ((Class)data).getClasses();
     // create map
     ClassElement curCE = null;
-    Map result = new HashMap();
+    Map result = new HashMap(reflInners.length);
     for (int i = 0; i < reflInners.length; i++) {
       if (reflInners[i].isInterface()) continue;
       curCE = new ClassElement(new ClassElementImpl(reflInners[i]),
@@ -283,7 +283,7 @@ final class ClassElementImpl extends MemberElementImpl
     Constructor[] reflCons = ((Class)data).getDeclaredConstructors();
     // create map
     ConstructorElement curCE = null;
-    Map result = new HashMap();
+    Map result = new HashMap(reflCons.length);
     for (int i = 0; i < reflCons.length; i++) {
       curCE = new ConstructorElement(new ConstructorElementImpl(reflCons[i]),
                                (ClassElement)element);
@@ -299,7 +299,7 @@ final class ClassElementImpl extends MemberElementImpl
     Method[] reflMethods = ((Class)data).getDeclaredMethods();
     // create map
     MethodElement curME = null;
-    Map result = new HashMap();
+    Map result = new HashMap(reflMethods.length);
     for (int i = 0; i < reflMethods.length; i++) {
       curME = new MethodElement(new MethodElementImpl(reflMethods[i]),
                                 (ClassElement)element);
@@ -313,6 +313,7 @@ final class ClassElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  2    src-jtulach1.1         1/29/99  David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $
 */
