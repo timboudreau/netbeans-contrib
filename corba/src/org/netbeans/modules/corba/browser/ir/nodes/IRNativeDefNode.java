@@ -130,6 +130,10 @@ public class IRNativeDefNode extends IRLeafNode implements Node.Cookie, Generata
         out.println (hierarchy);
     }
     
+    public org.omg.CORBA.IRObject getIRObject () {
+        return this._native;
+    }
+    
     private String generateHierarchy () {
         Node node = this.getParentNode();
         String code ="";

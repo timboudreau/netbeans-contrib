@@ -189,8 +189,11 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
         return s;
     }
 
-    public void generateCode() {
-     
+    public org.omg.CORBA.IRObject getIRObject () {
+        return this._constant;
+    }
+    
+    public void generateCode() {     
         ExClipboard clipboard = TopManager.getDefault().getClipboard();
         StringSelection genCode = new StringSelection ( this.generateHierarchy ());
         clipboard.setContents(genCode,genCode);

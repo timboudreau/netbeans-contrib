@@ -18,9 +18,9 @@ import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.util.IRDelegate;
 
-
-public class IROperationDefNode extends IRLeafNode {
+public class IROperationDefNode extends IRLeafNode implements IRDelegate {
 
     private OperationDef _operation;
     private static final String OPERATION_ICON_BASE =
@@ -183,6 +183,10 @@ public class IROperationDefNode extends IRLeafNode {
                 }
             });
         return s;
+    }
+    
+    public org.omg.CORBA.IRObject getIRObject () {
+        return this._operation;
     }
     
     private String pm2Str(ParameterMode pm) {

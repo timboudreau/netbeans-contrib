@@ -30,7 +30,7 @@ import org.netbeans.modules.corba.settings.*;
  * @author Karel Gardas
  */
 
-public class ObjectNode extends AbstractNode implements Node.Cookie {
+public class ObjectNode extends NamingServiceNode implements Node.Cookie {
 
     static final String ICON_BASE
     = "org/netbeans/modules/corba/browser/ns/resources/interface";
@@ -38,11 +38,7 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
     public static final boolean DEBUG = false;
     //public static final boolean DEBUG = true;
 
-    //private ORB orb;
     private Binding binding;
-    private String name;
-    private String kind;
-    private String ior;
 
     public ObjectNode () {
         super (Children.LEAF);
@@ -51,11 +47,11 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
     }
 
     public ObjectNode (Binding b, String ref) {
-        super (Children.LEAF);
+        super (new ObjectNodeChildren());
         binding = b;
         setName (binding.binding_name[0].id);
         setKind (binding.binding_name[0].kind);
-        ior = ref;
+        setIOR (ref);
         init ();
     }
 
@@ -64,9 +60,6 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
             System.out.println ("ObjectNode () :-)");
         setDisplayName (getName ());
         setIconBase (ICON_BASE);
-        //CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-        //   (CORBASupportSettings.class, true);
-        //orb = css.getORB ();
 
         systemActions = new SystemAction[] {
                             SystemAction.get (org.netbeans.modules.corba.browser.ns.UnbindObject.class),
@@ -85,22 +78,6 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
             return super.getCookie(c);
     }
 
-    public void setName (String n) {
-        name = n;
-    }
-
-    public String getName () {
-        return name;
-    }
-
-    public void setKind (String n) {
-        kind = n;
-    }
-
-    public String getKind () {
-        return kind;
-    }
-
     public void unbind () {
         NameComponent name_component = new NameComponent (getName (), getKind ()); // name, kind
         NameComponent[] context_name = new NameComponent[1];
@@ -112,27 +89,17 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
             TopManager.getDefault().notify (new NotifyDescriptor.Message (e.toString(), NotifyDescriptor.Message.ERROR_MESSAGE));
         }
     }
-
-    protected Sheet createSheet () {
-        Sheet s = Sheet.createDefault ();
-        Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("Name", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_Name"), NbBundle.getBundle(ContextNode.class).getString("TIP_ObjectName")) {
-                    public java.lang.Object getValue () {
-                        return name;
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("Kind", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_Kind"), NbBundle.getBundle(ContextNode.class).getString("TIP_ObjectKind")) {
-                    public java.lang.Object getValue () {
-                        return getKind ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("IOR", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_IOR"), NbBundle.getBundle(ContextNode.class).getString("TIP_ObjectIOR")) {
-                    public java.lang.Object getValue () {
-                        return ior;
-                    }
-                });
-
-        return s;
+    
+    public org.omg.CORBA.InterfaceDef createInterface () {
+        try {
+            if (this.getIOR() != null) {
+                org.omg.CORBA.Object ref = this.getORB().string_to_object (getIOR());
+                return org.omg.CORBA.InterfaceDefHelper.narrow (ref._get_interface_def ());
+            }
+            return null;
+        }catch (Exception e) {
+            return null;
+        }
     }
 
 }
@@ -141,5 +108,3 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
  * $Log
  * $
  */
-
-

@@ -221,4 +221,9 @@ public class IRUnionDefNode extends IRContainerNode {
     public org.omg.CORBA.Contained getOwner () {
         return this._union;
     }
+    
+    public org.omg.CORBA.IRObject getIRObject() {
+        return this._union;
+    }
+    
 }

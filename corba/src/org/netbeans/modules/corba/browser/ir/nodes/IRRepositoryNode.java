@@ -194,6 +194,9 @@ public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Re
         return null;
     }
     
+    public org.omg.CORBA.IRObject getIRObject() {
+        return this.repository;
+    }    
     
 }
 

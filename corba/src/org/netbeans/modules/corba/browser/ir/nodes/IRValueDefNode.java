@@ -286,4 +286,8 @@ public class IRValueDefNode extends IRContainerNode {
         return this._value;
     }
     
+    public org.omg.CORBA.IRObject getIRObject() {
+        return this._value;
+    }    
+    
 }

@@ -174,5 +174,5 @@ public class IRUnionMemberNode extends IRLeafNode {
     public org.omg.CORBA.TypeCode getTypeCode () {
         return this._mbr.type;
     }
-
+    
 }

@@ -18,9 +18,9 @@ import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.util.IRDelegate;
 
-
-public class IRPrimitiveNode extends IRLeafNode {
+public class IRPrimitiveNode extends IRLeafNode implements IRDelegate {
   
     private static final String PRIMITIVE_ICON_BASE=
         "org/netbeans/modules/corba/idl/node/declarator";
@@ -57,9 +57,9 @@ public class IRPrimitiveNode extends IRLeafNode {
     }
 
     /** Creates new IRPrimitiveNode */
-    public IRPrimitiveNode(IDLType tc, String name) {
+    public IRPrimitiveNode(IDLType baseType, String name) {
         this.name = name;
-        this.tc = tc;
+        this.tc = baseType;
         this.setIconBase(PRIMITIVE_ICON_BASE);
         this.getCookieSet().add (new PrimitiveCodeGenerator());
     }
@@ -98,4 +98,9 @@ public class IRPrimitiveNode extends IRLeafNode {
     public TypeCode getTypeCode () {
         return tc.type();
     }
+    
+    public org.omg.CORBA.IRObject getIRObject() {
+        return this.tc;
+    }
+    
 }

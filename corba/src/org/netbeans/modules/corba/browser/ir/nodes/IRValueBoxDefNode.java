@@ -138,6 +138,10 @@ public class IRValueBoxDefNode extends IRLeafNode implements Node.Cookie, Genera
         out.println (hierarchy);
     }
     
+    public org.omg.CORBA.IRObject getIRObject() {
+        return this._valuebox;
+    }
+    
     private String generateHierarchy () {
         Node node = this.getParentNode();
         String code ="";
@@ -161,4 +165,5 @@ public class IRValueBoxDefNode extends IRLeafNode implements Node.Cookie, Genera
         return code;
     }
 
+    
 }

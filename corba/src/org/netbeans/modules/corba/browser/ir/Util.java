@@ -20,7 +20,7 @@ import org.netbeans.modules.corba.browser.ir.util.AssertException;
 
 
 /*
- * @author Karel Gardas
+ * @author Tomas Zezula, Karel Gardas
  */
 
 public class Util {
@@ -237,7 +237,7 @@ public class Util {
                         return suffix;  // We can not procede, we return at least part of name, can be OK
                     String preffix= myContainer.absolute_name();
                     String absName;
-                    if (parent == null) {
+                    if (parent == null || parent.def_kind().value() == DefinitionKind._dk_Repository) {
                         absName = "";
                     }
                     else {

@@ -21,7 +21,6 @@ import java.io.*;
 import java.net.*;
 import java.util.Vector;
 import java.util.HashMap;
-import java.util.ResourceBundle;
 
 import org.openide.*;
 import org.openide.nodes.*;
@@ -36,7 +35,7 @@ import org.netbeans.modules.corba.browser.ir.util.FromInitialReferencesCookie;
  * @author Karel Gardas, Tomas Zezula
  */
 
-public class ContextNode extends AbstractNode implements Node.Cookie, FromInitialReferencesCookie {
+public class ContextNode extends NamingServiceNode implements Node.Cookie, FromInitialReferencesCookie {
 
     static final String ICON_BASE
     = "org/netbeans/modules/corba/browser/ns/resources/folder";
@@ -54,13 +53,9 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
 
     final static String NAME_SERVICE = "NameService";
 
-    private ResourceBundle bundle;
     private static ContextNode singletonInstance;
-    private ORB orb;
     private NamingContext context;
     private Binding binding;
-    private String name;
-    private String kind;
 
     private boolean _root = false;
     private boolean _loaded = false;
@@ -68,8 +63,6 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
     private Vector contexts;
     private Vector naming_children;
 
-
-    private CORBASupportSettings css;
 
     private static HashMap localNameServices;
     private boolean valid;
@@ -84,11 +77,9 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
 	public void performInteractive () {
             final StartPanel panel = new StartPanel ();
             panel.setPort ((short)900);
-            ContextNode.this.initBundle();
-            panel.setName (ContextNode.this.bundle.getString("VAL_Local"));
-	    panel.setKind (ContextNode.this.bundle.getString
-			   ("VAL_LocalKind"));
-            DialogDescriptor dd = new DialogDescriptor (panel, ContextNode.this.bundle.getString("TXT_LocalNS"),true,DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, DialogDescriptor.BOTTOM_ALIGN, null, null);
+            panel.setName (ContextNode.this.getLocalizedString("VAL_Local"));
+	    panel.setKind (ContextNode.this.getLocalizedString ("VAL_LocalKind"));
+            DialogDescriptor dd = new DialogDescriptor (panel, ContextNode.this.getLocalizedString("TXT_LocalNS"),true,DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, DialogDescriptor.BOTTOM_ALIGN, null, null);
             Dialog dlg = TopManager.getDefault().createDialog(dd);
             dlg.setVisible(true);
             if (dd.getValue() == DialogDescriptor.OK_OPTION) {
@@ -107,8 +98,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
                 org.netbeans.modules.corba.browser.ns.wrapper.AbstractWrapper wrapper;
                 wrapper =  (org.netbeans.modules.corba.browser.ns.wrapper.AbstractWrapper)localNameServices.get( new Short (port));
 		if (wrapper != null) {
-					initBundle();
-                    DialogDescriptor.Message dd = new DialogDescriptor.Message (ContextNode.this.bundle.getString("TXT_AlreadyRunning"));
+                    DialogDescriptor.Message dd = new DialogDescriptor.Message (ContextNode.this.getLocalizedString("TXT_AlreadyRunning"));
                     TopManager.getDefault().notify(dd);
                     if (dd.getValue() != DialogDescriptor.OK_OPTION) {
                         return;
@@ -140,8 +130,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
                                     wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.Sun14Wrapper();
 				wrapper.start(port);
                             } catch (ClassNotFoundException cnfe3) {
-								initBundle();
-                                TopManager.getDefault().notify ( new NotifyDescriptor.Message (ContextNode.this.bundle.getString("TXT_ClassNotFound"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                                TopManager.getDefault().notify ( new NotifyDescriptor.Message (ContextNode.this.getLocalizedString("TXT_ClassNotFound"),NotifyDescriptor.Message.ERROR_MESSAGE));
 				//cnfe3.printStackTrace ();
 				return;
                             }
@@ -151,7 +140,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
             	String ior = wrapper.getIOR();
                 if (ior == null) {
                     //Error while startinf NS
-                    TopManager.getDefault().notify(new NotifyDescriptor.Message (java.text.MessageFormat.format (ContextNode.this.bundle.getString("TXT_BadPort"),new java.lang.Object[]{new Short (port)}),NotifyDescriptor.Message.ERROR_MESSAGE));
+                    TopManager.getDefault().notify(new NotifyDescriptor.Message (java.text.MessageFormat.format (ContextNode.this.getLocalizedString("TXT_BadPort"),new java.lang.Object[]{new Short (port)}),NotifyDescriptor.Message.ERROR_MESSAGE));
                     return;
 		}		
 		ContextNode.this.bind_new_context (name, __kind, "",ior, false);
@@ -169,8 +158,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
     public ContextNode () {
         super (new ContextChildren ());
         //super (Children.LEAF);
-        initBundle();
-        setName (this.bundle.getString("CTL_CORBANamingService")); 
+        setName (this.getLocalizedString("CTL_CORBANamingService")); 
         _root = true;
         singletonInstance = this;
         init ();
@@ -261,8 +249,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
     public void restore () {
         if (DEBUG)
             System.out.println ("load from storage :-))");
-        if (css == null)
-            lazyInit();
+        CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
         naming_children = css.getNamingServiceChildren ();
         if (DEBUG) {
             for (int i = 0; i< naming_children.size(); i++)
@@ -291,22 +278,6 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
             System.out.println ("on end of restore - loaded?: " + loaded ());
     }
 
-    public void setName (String n) {
-        name = n;
-    }
-
-    public String getName () {
-        return name;
-    }
-
-    public void setKind (String n) {
-        kind = n;
-    }
-
-    public String getKind () {
-        return kind;
-    }
-
     public Vector getContexts () {
         return contexts;
     }
@@ -317,12 +288,6 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
     
     public boolean isValid () {
         return this.valid;
-    }
-
-    public ORB getORB () {
-        if (orb == null)
-            lazyInit();
-        return orb;
     }
 
     public boolean root () {
@@ -359,13 +324,10 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
             BufferedReader in =
                 new BufferedReader(new InputStreamReader(uc.openStream ()));
             ref = in.readLine();
-            if (orb == null)
-                lazyInit();
-            org.omg.CORBA.Object o = orb.string_to_object (ref);
+            org.omg.CORBA.Object o = this.getORB().string_to_object (ref);
             nc = NamingContextHelper.narrow (o);
             if (nc == null) {
-				initBundle();
-                TopManager.getDefault().notify ( new NotifyDescriptor.Message (this.bundle.getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                TopManager.getDefault().notify ( new NotifyDescriptor.Message (this.getLocalizedString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
 			}
             //setName (name);
             //setKind ("");
@@ -378,18 +340,14 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
         }
 
         else if (!ior.equals ("")) { 
-            if (orb == null)
-                lazyInit();
-            org.omg.CORBA.Object o = orb.string_to_object (ior);
+            org.omg.CORBA.Object o = this.getORB().string_to_object (ior);
             nc = NamingContextHelper.narrow (o);
             if (nc == null) {
-				initBundle();
-                TopManager.getDefault().notify ( new NotifyDescriptor.Message (this.bundle.getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
-			}
+                TopManager.getDefault().notify ( new NotifyDescriptor.Message (this.getLocalizedString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
+            }
         }
         else {
-			initBundle();
-            TopManager.getDefault().notify ( new NotifyDescriptor.Message (this.bundle.getString ("CTL_InvalidParams"), NotifyDescriptor.Message.ERROR_MESSAGE));
+            TopManager.getDefault().notify ( new NotifyDescriptor.Message (this.getLocalizedString ("CTL_InvalidParams"), NotifyDescriptor.Message.ERROR_MESSAGE));
             return;
         }
 
@@ -469,8 +427,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
                 else {
                     // is root
                     ((ContextNode)getParentNode ()).getContexts ().remove (this);
-                    if (css == null)
-                        lazyInit();
+                    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
                     for (int i=0; i<css.getNamingServiceChildren ().size (); i++) {
                         NamingServiceChild child
                         = (NamingServiceChild)css.getNamingServiceChildren ().elementAt (i);
@@ -514,23 +471,17 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
             BufferedReader __in =
                 new BufferedReader(new InputStreamReader(__uc.openStream ()));
             __ref = __in.readLine();
-            if (orb == null)
-                this.lazyInit();
-            __obj = orb.string_to_object (__ref);
+            __obj = getORB().string_to_object (__ref);
             if (__obj == null) {
-				initBundle ();
-                TopManager.getDefault().notify( new NotifyDescriptor.Message(this.bundle.getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
-			}
+                TopManager.getDefault().notify( new NotifyDescriptor.Message(this.getLocalizedString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
+            }
         }
 
         if (!__ior.equals ("")) {
-            if (orb == null)
-                this.lazyInit();
-            __obj = orb.string_to_object (__ior);
+            __obj = getORB().string_to_object (__ior);
             if (__obj == null) {
-				initBundle();
-                TopManager.getDefault().notify( new NotifyDescriptor.Message(this.bundle.getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
-			}
+                TopManager.getDefault().notify( new NotifyDescriptor.Message(this.getLocalizedString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
+            }
         }
 
         if (context != null) {
@@ -556,74 +507,40 @@ public class ContextNode extends AbstractNode implements Node.Cookie, FromInitia
         return singletonInstance;
     }
 
-
-    protected Sheet createSheet () {
-        if (this.context == null) {
-            return super.createSheet();
-		}
-        else {
-            Sheet s = Sheet.createDefault ();
-            Sheet.Set ss = s.get (Sheet.PROPERTIES);
-			this.initBundle();
-            ss.put (new PropertySupport.ReadOnly ("Name", String.class, this.bundle.getString("CTL_Name"), this.bundle.getString("TIP_Name")) {
-                        public java.lang.Object getValue () {
-                            return name;
-                        }
-                    });
-            ss.put (new PropertySupport.ReadOnly ("Kind", String.class, this.bundle.getString("CTL_Kind"), this.bundle.getString("TIP_Kind")) {
-                        public java.lang.Object getValue () {
-                            return getKind ();
-                        }
-                    });
-            ss.put (new PropertySupport.ReadOnly ("IOR", String.class, this.bundle.getString("CTL_IOR"), this.bundle.getString("TIP_IOR")) {
-                        public java.lang.Object getValue () {
-                            if (orb == null)
-                                lazyInit();
-                            return context != null ? orb.object_to_string (context) : ContextNode.this.bundle.getString("TXT_Unknown");
-                        }
-                    });
-
-            return s;
-        }
-    }
-    
-    private void lazyInit () {
-        css = (CORBASupportSettings) CORBASupportSettings.findObject
-              (CORBASupportSettings.class, true);
-        orb = css.getORB ();
+    /** overloaded getIOR 
+     *   gets IOR form Namingontext instance
+     */
+    public String getIOR() {
+        return context != null ? this.getORB().object_to_string(context) : ContextNode.this.getLocalizedString("TXT_Unknown");
     }
     
     public void fromInitialReferences() {
         try {
-			initBundle();
-            NotifyDescriptor.InputLine desc = new NotifyDescriptor.InputLine (this.bundle.getString("CTL_LabelName"),this.bundle.getString("TXT_FromInitialReferencesDlgTitle"));
-            desc.setInputText (this.bundle.getString("TXT_NameService"));
+            NotifyDescriptor.InputLine desc = new NotifyDescriptor.InputLine (this.getLocalizedString("CTL_LabelName"),this.getLocalizedString("TXT_FromInitialReferencesDlgTitle"));
+            desc.setInputText (this.getLocalizedString("TXT_NameService"));
             TopManager.getDefault().notify (desc);
             if (desc.getValue() == DialogDescriptor.OK_OPTION) {
                 String name = desc.getInputText();
                 if (name == null || name.length()==0) {
-                    TopManager.getDefault().notify( new NotifyDescriptor.Message (this.bundle.getString("TXT_ObligatoryName"),NotifyDescriptor.ERROR_MESSAGE));
+                    TopManager.getDefault().notify( new NotifyDescriptor.Message (this.getLocalizedString("TXT_ObligatoryName"),NotifyDescriptor.ERROR_MESSAGE));
                     return;
                 }
-                if (this.orb == null)
-                    lazyInit();
-                org.omg.CORBA.Object ref = this.orb.resolve_initial_references (NAME_SERVICE);
-                String ior = this.orb.object_to_string (ref);
+                org.omg.CORBA.Object ref = this.getORB().resolve_initial_references (NAME_SERVICE);
+                String ior = this.getORB().object_to_string (ref);
                 this.bind_new_context (name,"","",ior);
             }
         }catch (org.omg.CORBA.ORBPackage.InvalidName invalidName) {
             TopManager.getDefault().getErrorManager().log (invalidName.toString());
-            TopManager.getDefault().notify (new NotifyDescriptor.Message (this.bundle.getString("TXT_NoInitialReference"),NotifyDescriptor.ERROR_MESSAGE));
+            TopManager.getDefault().notify (new NotifyDescriptor.Message (this.getLocalizedString("TXT_NoInitialReference"),NotifyDescriptor.ERROR_MESSAGE));
         }
         catch (Exception generalException) {
             TopManager.getDefault().getErrorManager().log (generalException.toString());
-            TopManager.getDefault().notify (new NotifyDescriptor.Message (this.bundle.getString("TXT_InitialReferencesException"),NotifyDescriptor.ERROR_MESSAGE));
+            TopManager.getDefault().notify (new NotifyDescriptor.Message (this.getLocalizedString("TXT_InitialReferencesException"),NotifyDescriptor.ERROR_MESSAGE));
         }
     }
     
-    private void initBundle () {
-        if (this.bundle == null)
-            this.bundle = NbBundle.getBundle (ContextNode.class);
+    protected org.omg.CORBA.InterfaceDef createInterface() {
+        return null;
     }
     
 }

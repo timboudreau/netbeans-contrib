@@ -18,9 +18,9 @@ import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.util.IRDelegate;
 
-
-public class IRAttributeDefNode extends IRLeafNode {
+public class IRAttributeDefNode extends IRLeafNode implements IRDelegate {
 
     private AttributeDef _attribute;
     private static final String ATTRIBUTE_ICON_BASE =
@@ -125,6 +125,10 @@ public class IRAttributeDefNode extends IRLeafNode {
                 }
             });
         return s;
+    }
+    
+    public org.omg.CORBA.IRObject getIRObject () {
+        return this._attribute;
     }
   
 }

@@ -128,8 +128,11 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
         return s;
     }
   
-    public void generateCode(){
-      
+    public org.omg.CORBA.IRObject getIRObject () {
+        return this._alias;
+    }
+    
+    public void generateCode() {  
         ExClipboard clipboard = TopManager.getDefault().getClipboard();
         StringSelection genCode = new StringSelection ( this.generateHierarchy ());
         clipboard.setContents(genCode,genCode);

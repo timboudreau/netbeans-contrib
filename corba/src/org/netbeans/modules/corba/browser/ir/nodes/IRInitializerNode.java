@@ -25,7 +25,6 @@ import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
-
 /**
  *
  * @author  tzezula

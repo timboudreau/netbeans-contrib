@@ -29,12 +29,13 @@ import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.Generatable;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupportFactory;
+import org.netbeans.modules.corba.browser.ir.util.IRDelegate;
 /**
  *
  * @author  tzezula
  * @version 
  */
-public class IRValueMemberDefNode extends IRLeafNode implements Node.Cookie {
+public class IRValueMemberDefNode extends IRLeafNode implements Node.Cookie, IRDelegate {
     
     private static final String ICON_BASE = 
         "org/netbeans/modules/corba/idl/node/declarator";
@@ -135,9 +136,12 @@ public class IRValueMemberDefNode extends IRLeafNode implements Node.Cookie {
                         return "unknown";
                 }
             }
-        });
-        
+        }); 
         return s;
     }
 
+    public org.omg.CORBA.IRObject getIRObject() {
+        return this._member;
+    }
+    
 }

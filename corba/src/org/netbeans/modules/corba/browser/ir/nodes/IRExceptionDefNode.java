@@ -168,5 +168,9 @@ public class IRExceptionDefNode extends IRContainerNode {
     public org.omg.CORBA.Contained getOwner () {
         return this._exception;
     }
+    
+    public org.omg.CORBA.IRObject getIRObject() {
+        return this._exception;
+    }    
   
 }

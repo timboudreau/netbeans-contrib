@@ -190,6 +190,10 @@ public class IRInterfaceDefNode extends IRContainerNode {
         return this._interface;
     }
     
+    public org.omg.CORBA.IRObject getIRObject() {
+        return this._interface;
+    }    
+    
     /** This method is a hack to simulate the is_abstract InterfaceDef's
      * operation which was added to some CORBA implementation and is not 
      * in specification. This method calls the operation by DII to avoid
@@ -214,7 +218,6 @@ public class IRInterfaceDefNode extends IRContainerNode {
             return false;  // In case of exception we suppose not abstract
         }
     }
-    
 
 }
 

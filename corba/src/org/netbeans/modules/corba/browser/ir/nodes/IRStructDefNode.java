@@ -20,7 +20,7 @@ import org.openide.nodes.Node;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
-public class IRStructDefNode extends IRContainerNode{
+public class IRStructDefNode extends IRContainerNode {
 
     private StructDef _struct;
     private static final String STRUCT_ICON_BASE =
@@ -158,5 +158,8 @@ public class IRStructDefNode extends IRContainerNode{
         return this._struct;
     }
   
+    public org.omg.CORBA.IRObject getIRObject() {
+        return this._struct;
+    }    
   
 }

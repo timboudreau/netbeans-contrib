@@ -115,5 +115,9 @@ public class IREnumDefNode extends IRContainerNode {
     public org.omg.CORBA.Contained getOwner () {
         return this._enum;
     }
+    
+    public org.omg.CORBA.IRObject getIRObject () {
+        return this._enum;
+    }
 
 }
