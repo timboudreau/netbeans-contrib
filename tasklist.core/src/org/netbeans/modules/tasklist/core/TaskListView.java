@@ -23,8 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -34,12 +32,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Map;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JToolBar;
-import javax.swing.JTree;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
@@ -74,6 +67,7 @@ import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
 import org.openide.windows.WindowManager;
 import org.openide.util.actions.CallbackSystemAction;
+import org.openide.util.actions.Presenter;
 
 
 /** View showing the todo list items
@@ -465,6 +459,7 @@ public abstract class TaskListView extends ExplorerPanel
     
     protected void componentActivated() {
         super.componentActivated();
+        assert initialized : "Dangling componentActivated event, no componentOpened() called at " + this;
         installJumpActions(true);
         RemoveFilterAction removeFilter = 
             (RemoveFilterAction)SystemAction.get(RemoveFilterAction.class);
@@ -474,6 +469,7 @@ public abstract class TaskListView extends ExplorerPanel
     
     protected void componentDeactivated() {
         super.componentDeactivated();
+        assert initialized : "Dangling componentDeactivated event, no componentOpened() called at " + this;
         ColumnsConfiguration columns = getDefaultColumns();
         columns.loadFrom(this);
     }

@@ -44,7 +44,7 @@ import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
  * actions, coookies, properties, clipboard operations and
  * children (at root represents all tasks in list).
  *
- *
+ * XXX unused there is missing hook
  * @author Petr Kuzel
  */
 final class SourceTaskNode extends TaskNode {

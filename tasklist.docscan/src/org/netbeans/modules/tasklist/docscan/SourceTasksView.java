@@ -17,13 +17,13 @@ import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.ColumnProperty;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.TaskList;
-import org.netbeans.modules.tasklist.suggestions.SuggestionsView;
-import org.netbeans.modules.tasklist.suggestions.SuggestionImpl;
-import org.netbeans.modules.tasklist.suggestions.SuggestionNode;
-import org.netbeans.modules.tasklist.suggestions.SuggestionList;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
+import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
+import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.api.tasklist.SuggestionPriority;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.actions.SystemAction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -76,8 +76,8 @@ final class SourceTasksView extends TaskListView {
     }
 
     protected TaskNode createRootNode() {
-        SourceTask root = (SourceTask) tasklist.getRoot();
-        return new SourceTaskNode(root, root.getSubtasks());
+        SuggestionImpl root = (SuggestionImpl) tasklist.getRoot();
+        return new SuggestionNode(root, root.getSubtasks());
     }
 
     protected ColumnProperty[] createColumns() {
@@ -167,6 +167,14 @@ final class SourceTasksView extends TaskListView {
         setNorthComponentVisible(true);
     }
 
+    public SystemAction[] getToolBarActions() {
+        return new SystemAction[] {
+            SystemAction.get(ShowSuggestionAction.class),
+            SystemAction.get(FilterAction.class),
+            SystemAction.get(RemoveFilterAction.class)
+        };
+    }
+
 //    protected Component createNorthComponent() {
 //        JPanel panel = new JPanel();
 //        panel.setLayout(new FlowLayout());
@@ -183,5 +191,9 @@ final class SourceTasksView extends TaskListView {
 
     public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
         // TODO super.readExternal(objectInput);
+    }
+
+    public String toString() {
+        return "SourceTasksView@" + hashCode();
     }
 }
