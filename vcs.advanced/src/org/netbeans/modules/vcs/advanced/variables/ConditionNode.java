@@ -416,7 +416,9 @@ public class ConditionNode extends AbstractNode {
         
         public void negate() {
             negateNode(this);
-            enclosingCondition.addVar(var, !enclosingCondition.isPositiveTest(var));
+            if (enclosingCondition != null) {
+                enclosingCondition.addVar(var, !enclosingCondition.isPositiveTest(var));
+            }
         }
     }
     
@@ -488,13 +490,21 @@ public class ConditionNode extends AbstractNode {
         }
     
         protected SystemAction [] createActions() {
-            return new SystemAction[] {
-                SystemAction.get(NegationAction.class),
-                null,
-                SystemAction.get(PasteAction.class),
-                null,
-                SystemAction.get(NewAction.class)
-            };
+            if (enclosingCondition == null) {
+                return new SystemAction[] {
+                    SystemAction.get(PasteAction.class),
+                    null,
+                    SystemAction.get(NewAction.class)
+                };
+            } else {
+                return new SystemAction[] {
+                    SystemAction.get(NegationAction.class),
+                    null,
+                    SystemAction.get(PasteAction.class),
+                    null,
+                    SystemAction.get(NewAction.class)
+                };
+            }
         }
 
         public Sheet createSheet() {
