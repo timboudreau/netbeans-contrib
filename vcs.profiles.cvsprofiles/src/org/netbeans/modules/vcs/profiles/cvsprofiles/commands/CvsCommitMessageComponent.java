@@ -19,6 +19,7 @@ import org.netbeans.modules.vcscore.commands.PreCommandPerformer;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.openide.util.UserCancelException;
 import org.openide.util.RequestProcessor;
+import org.openide.util.NbBundle;
 import org.openide.ErrorManager;
 
 import javax.swing.*;
@@ -61,13 +62,16 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         this.nest = container;
         setLayout(new BorderLayout());
 
-        label.setText("Commit message:");
+        label.setText(getString("COMMAND_COMMIT_Reason"));
+        label.setLabelFor(textArea);
+        loadButton.setMnemonic(getString("COMMAND_COMMIT_Reason_mne").charAt(0));
         add(label, BorderLayout.NORTH);
 
         textArea.setWrapStyleWord(true);
         textArea.setLineWrap(true);
         textArea.setColumns(80);
         textArea.setRows(8);
+        textArea.setToolTipText(getString("COMMAND_COMMIT_Reason_desc"));
         Font font = textArea.getFont();
         textArea.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));  // NOI18N
         textArea.getDocument().addDocumentListener(new DocumentListener() {
@@ -85,12 +89,14 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         JScrollPane scrollableTextArea = new JScrollPane(textArea);
         add(scrollableTextArea, BorderLayout.CENTER);
 
-        loadButton.setText("Load from template");
+        loadButton.setText(getString("COMMAND_COMMIT_tg"));
+        loadButton.setToolTipText(getString("COMMAND_COMMIT_tg_desc"));
+        loadButton.setMnemonic(getString("COMMAND_COMMIT_tg_mne").charAt(0));
         loadButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 textArea.setEditable(false);
                 updateValidity();
-                textArea.setText("Loading...");
+                textArea.setText(getString("COMMAND_COMMIT_tl"));
                 loadButton.setEnabled(false);
                 //loadButton.setText("Cancel Loading");
                 TemplateFetcher fetcher = new TemplateFetcher(nest.getCommandExecutionContext(), nest.getCommandHashtable());
@@ -125,7 +131,7 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
                 }
             } catch (IOException e) {
                 ErrorManager err = ErrorManager.getDefault();
-                err.annotate(e, "Cannot write commit message tmp file");
+                err.annotate(e, getString("COMMAND_COMMIT_ex"));
                 err.notify(e);
             }
         }
@@ -137,9 +143,9 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         if (validityCheck()) {
             return null;
         } else if (loadingInProgress()) {
-            return "A commit message template is just being loaded";
+            return getString("COMMAND_COMMIT_val_l");
         } else {
-            return "A commit message is required";
+            return getString("COMMAND_COMMIT_val_m");
         }
     }
 
@@ -192,6 +198,11 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
     public void leaveNest() {
         nest = null;
         if (fetcherTask != null) fetcherTask.cancel();
+    }
+
+    /** Seeks for loacalized string */
+    private static String getString(String key) {
+        return NbBundle.getMessage(CvsCommitMessageComponent.class, key);
     }
 
     /** Asynchronously loads template from the server. */
