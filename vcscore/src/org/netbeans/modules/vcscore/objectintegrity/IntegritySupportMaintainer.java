@@ -17,15 +17,23 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import org.openide.filesystems.FileObject;
 
+import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListener;
 
@@ -42,6 +50,7 @@ public final class IntegritySupportMaintainer extends Object
                                                          Runnable {
     private static Map VOISMap = new WeakHashMap();
     private static final int SAVER_SCHEDULE_TIME = 500;
+    private static final String DB_FILE_NAME = ".nbintdb"; // NOI18N
     
     private FileSystem fileSystem;
     private VcsOISActivator objectIntegrityActivator;
@@ -146,10 +155,32 @@ public final class IntegritySupportMaintainer extends Object
         for (Iterator it = toSave.keySet().iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
             VcsObjectIntegritySupport vois = (VcsObjectIntegritySupport) toSave.get(fo);
-            try {
-                fo.setAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME, vois);
-            } catch (java.io.IOException ioex) {
-                org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, ioex);
+            //fo.setAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME, vois);
+            File folder = FileUtil.toFile(fo);
+            if (folder != null) {
+                File dbFile = new File(folder, DB_FILE_NAME);
+                /*
+                if (!dbFile.exists()) {
+                    dbFile.createNewFile();
+                }
+                if (dbFile.canWrite()) {
+                 */
+                    ObjectOutputStream oout = null;
+                    try {
+                        oout = new ObjectOutputStream(new FileOutputStream(dbFile));
+                        oout.writeObject(vois);
+                    } catch (java.io.IOException ioex) {
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+                    } finally {
+                        if (oout != null) {
+                            try {
+                                oout.close();
+                            } catch (IOException ioex) {
+                                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+                            }
+                        }
+                    }
+                //}
             }
         }
     }
@@ -163,7 +194,33 @@ public final class IntegritySupportMaintainer extends Object
         }
         
         public Object run() {
-            return rootFO.getAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME);
+            File folder = FileUtil.toFile(rootFO);
+            if (folder != null) {
+                File dbFile = new File(folder, DB_FILE_NAME);
+                if (dbFile.exists() && dbFile.canRead()) {
+                    ObjectInputStream oin = null;
+                    Object vois = null;
+                    try {
+                        oin = new ObjectInputStream(new FileInputStream(dbFile));
+                        vois = oin.readObject();
+                    } catch (IOException ioex) {
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+                        // The vois will remain null
+                    } catch (ClassNotFoundException cnfex) {
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, cnfex);
+                        // The vois will remain null
+                    } finally {
+                        if (oin != null) {
+                            try {
+                                oin.close();
+                            } catch (IOException ioex) {}
+                        }
+                    }
+                    return vois;
+                }
+            }
+            return null;
+            //return rootFO.getAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME);
         }
         
     }
