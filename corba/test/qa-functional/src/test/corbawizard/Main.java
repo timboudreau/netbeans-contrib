@@ -133,8 +133,10 @@ public class Main extends JellyTestCase {
 
     public void printTreePath (TreePath tp, PrintStream out) {
         out.print ("Path: ");
-        if (tp == null)
+        if (tp == null) {
             out.println ("<NULL>");
+            return;
+        }
         for (int a = 2; a < tp.getPathCount(); a ++)
             out.print ("|" + tp.getPathComponent(a).toString ());
         out.println ();
