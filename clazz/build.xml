@@ -12,7 +12,8 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="clazz" default="nbm" basedir=".">
+<project name="clazz" default="netbeans" basedir=".">
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM"/>
   <target name="compile">
     <javac srcdir="src" destdir="src">
       <classpath>
@@ -30,8 +31,19 @@ Microsystems, Inc. All Rights Reserved.
 	 excludesfile="../nbbuild/standard-jar-excludes.txt"
 	 compress="false"/>
   </target>
-  <target name="nbm" depends="jars">
-    <zip zipfile="clazz.nbm" includes="netbeans/" basedir="."/>
+  <target name="netbeans" depends="jars"/>
+  <target name="nbm" depends="netbeans">
+    <makenbm file="clazz.nbm"
+             topdir="."
+	     manifest="manifest-subst.mf"
+	     homepage="http://clazz.netbeans.org/"
+	     distribution="http://www.netbeans.org/downloads/nbms/40/clazz.nbm">
+      <license file="../nbbuild/standard-nbm-license.txt"/>
+      <description>
+        Sourceless Java classes and serialized JavaBeans components.
+      </description>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
+    </makenbm>
   </target>
   <target name="clean">
     <delete dir="src">
@@ -40,5 +52,6 @@ Microsystems, Inc. All Rights Reserved.
     <delete file="manifest-subst.mf"/>
     <delete file="clazz.nbm"/>
     <deltree dir="netbeans"/>
+    <deltree dir="Info"/>
   </target>
 </project>
