@@ -8,142 +8,19 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="tasklist/usertasks" default="netbeans" basedir=".">
-
-    <import file="../../nbbuild/default.xml"/>
-
     <property file="../version.properties"/>
-    <property file="build.ant.properties"/>
-
-    <target name="init" depends="default.init">
-      <patternset id="tasklist/usertasks.files">
-        <include name="${nb.modules.dir}/tasklist-usertasks.jar"/>
-      </patternset>
-      <path id="cp">
-        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
-        <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
-<!--        <pathelement path="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>-->
-        <pathelement path="${tasklist/core.dir}/${nb.modules/autoload.dir}/tasklist-core.jar"/>
-        <pathelement location="${core/settings.dir}/${nb.modules.dir}/org-netbeans-modules-settings.jar"/>
-      </path>
-    </target>
-  
-    <target name="compile" depends="init">
-        <mkdir dir="build/classes"/>
-        <javac srcdir="src" destdir="build/classes" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
-            <classpath refID="cp"/>
-        </javac>
-    </target>
-
-    <target name="jars" depends="compile">
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
+    <property name="manifest.mf" location="manifest-subst.mf"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+    
+    <target name="jar-prep" depends="projectized.jar-prep">
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../version.properties"/>
         <filter token="tl.usertasks.spec" value="${tl.usertasks.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/tasklist-usertasks.jar"
-             manifest="manifest-subst.mf"
-             basedir="build/classes"
-	     excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	     compress="false">
-             <fileset dir="src"/>
-        </jar>
-    </target>
-
-    <target name="netbeans" depends="jars, simulate_module_autorecognition">
-        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/tasklist-usertasks.jar">
-            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-                <patternset refID="tasklist/usertasks.files"/>
-           </fileset>
-        </genlist>
-    </target>
-
-    <!--
-        NetBeans 4.0 is not able to generate this information in runtime anymore.
-        Missing information confuses system (and users).
-        It's done for standard distribution on centralized place in nbbuild/build.xml.
-    -->
-    <target name="simulate_module_autorecognition">
-
-        <echo message="Simulating module autorecognition in ${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules ..."/>
-
-        <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="../../nbbuild/nbantext.jar"/>
-
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules"/>
-        <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
-          <!--enabled dir="${netbeans.dest.dir}/${one.cluster.dir}">
-            <include name="${nb.modules.dir}/*.jar"/>
-          </enabled>
-          <autoload dir="${netbeans.dest.dir}/${one.cluster.dir}">
-            <include name="${nb.modules/autoload.dir}/*.jar"/>
-          </autoload-->
-          <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
-            <include name="${nb.modules.dir}/tasklist-usertasks.jar"/>
-          </enabled>
-        </createmodulexml>
-    </target>
-
-    <target name="nbm" depends="netbeans">
-        <echo message="nb.modules.dir = ${nb.modules.dir}"/>
-        <echo message="cluster.dir = ${cluster.dir}"/>
-        <echo message="netbeans.dest.dir = ${netbeans.dest.dir}"/>
-        <makenbm file="tasklist-usertasks.nbm"
-                 module="${nb.modules.dir}/tasklist-usertasks.jar"
-                 productdir="${netbeans.dest.dir}/${cluster.dir}"                 
-                 homepage="http://tasklist.${homepage.base}/updates/tasklist-usertasks.html"
-                 distribution="http://${dist.base}/tasklist-usertasks.nbm"
-                 needsrestart="false">
-            <license file="${license.file}"/>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-        </makenbm>
-    </target>
- 
-    <target name="changelog">
-        <style in="module-updates.xml" out="../www/updates/tasklist-usertasks.html" style="../www/updates/updates.xsl"/>
-    </target>
- 
-    <target name="clean" depends="init">
-        <delete dir="build"/>
-        <delete>
-            <fileset dir="." includes="**/*.class"/>
-        </delete>
-        <delete>
-            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-               <patternset refID="tasklist/usertasks.files"/>
-            </fileset>
-        </delete>
-        <delete file="manifest-subst.mf"/>
-        <delete file="tasklist-usertasks.nbm"/>
-        <delete dir="netbeans"/>
-        <delete dir="Info"/>
-        <delete dir="javadoc"/>
-    </target>
-
-    <target name="release">
-    </target>
-
-    <target name="javahelp">
-    </target>
-
-    <!-- This target will only work *inside* the IDE! -->
-    <target name= "test" depends="jars" description="Test the module inside the running IDE." >
-       <nbinstaller action="reinstall" module="netbeans/modules/tasklist-usertasks.jar"/>
-    </target>
-
-    <target name="parser">
-        <echo message="${javacchome}"/>
-        <jjtree target="src/org/netbeans/modules/tasklist/usertasks/ics/parser/ics.jjt" 
-            outputdirectory="src/org/netbeans/modules/tasklist/usertasks/ics/parser"
-            javacchome="${javacchome}"
-            static="false"/>
-        <javacc target="src/org/netbeans/modules/tasklist/usertasks/ics/parser/ics.jj" 
-            outputdirectory="src/org/netbeans/modules/tasklist/usertasks/ics/parser"
-            buildparser="true"
-            static="false"
-            javacchome="${javacchome}"/>
     </target>
 </project>

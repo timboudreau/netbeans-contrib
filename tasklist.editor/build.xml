@@ -30,7 +30,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
         <pathelement location="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
         <pathelement location="${tasklist/core.dir}/${nb.modules/autoload.dir}/tasklist-core.jar"/>
-        <pathelement location="${tasklist/usertasks.dir}/${nb.modules.dir}/tasklist-usertasks.jar"/>
+        <pathelement location="${tasklist/usertasks.dir}/${nb.modules.dir}/org-netbeans-modules-tasklist-usertasks.jar"/>
 
         <!-- CCDB -->
         <pathelement location="${editor.dir}/${nb.modules.dir}/org-netbeans-modules-editor-lib.jar"/>
