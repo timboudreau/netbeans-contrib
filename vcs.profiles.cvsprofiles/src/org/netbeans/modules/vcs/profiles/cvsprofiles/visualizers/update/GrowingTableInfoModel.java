@@ -29,11 +29,16 @@ public class GrowingTableInfoModel extends TableInfoModel {
       public GrowingTableInfoModel() {
           super();
       }
-      
+
+    public GrowingTableInfoModel(int estimatedSize) {
+        super(estimatedSize);
+    }
+
+
       public void addElement(Object object)
       {
           super.addElement(object);
-          fireTableRowsInserted(list.size(), list.size());
+          fireTableRowsInserted(getRowCount(), getRowCount());
       }      
       
       public void prependElement(Object object) {

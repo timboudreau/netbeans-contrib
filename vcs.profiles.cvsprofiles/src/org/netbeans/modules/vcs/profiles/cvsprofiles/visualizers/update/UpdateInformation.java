@@ -21,13 +21,15 @@ import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.FileInfoContain
  *
  * @author  Thomas Singer
  */
-public class UpdateInformation extends FileInfoContainer {
+public class UpdateInformation extends FileInfoContainer implements Serializable {
 
     public static final String PERTINENT_STATE = "Y"; //NOI18N
     public static final String MERGED_FILE = "G"; //NOI18N
     private File file;
 
     private String type;
+
+    private static final long serialVersionUID = 1L;
 
     public UpdateInformation() {
     }

@@ -16,6 +16,8 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcsgeneric/profiles/cvsprofiles" default="netbeans" basedir=".">
   <import file="../../../nbbuild/default.xml"/>
 
+  <property name="build.compiler.debug" value="on"/>
+
   <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
 
   <target name="init" depends="default.init">

@@ -68,19 +68,8 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
     
     protected JComponent getStdComponent(){
         if(tblUpdates == null){
-            tblUpdates = new JTable();
-            tblUpdates.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-            ));
-            model = new GrowingTableInfoModel();
+            tblUpdates = new JTable(1,3);
+            model = new GrowingTableInfoModel(300);  // XXX can we estimate dynamically?
             Class classa = UpdateInformation.class;
             String  column1 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.type"); // NOI18N
             String  column2 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.fileName"); // NOI18N
@@ -140,7 +129,7 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
         displayFrameWork();
     }
     
-    public void displayFrameWork() {
+    private void displayFrameWork() {
         tblUpdates.setModel(model);
         TableColumn col = tblUpdates.getColumnModel().getColumn(0);
         col.setMaxWidth(40);

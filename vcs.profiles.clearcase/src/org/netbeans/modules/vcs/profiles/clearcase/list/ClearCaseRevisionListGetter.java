@@ -27,8 +27,6 @@ import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
-import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem;
-import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 public class ClearCaseRevisionListGetter implements VcsAdditionalCommand
