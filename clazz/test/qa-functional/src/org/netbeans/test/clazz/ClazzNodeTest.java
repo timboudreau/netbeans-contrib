@@ -149,6 +149,8 @@ public class ClazzNodeTest extends JellyTestCase {
         srcNode.cut();
         
         dstNode = new FolderNode(testFSName + "|" + SRC_PACKAGE.replace('.', '|'));
+        dstNode.select();
+        new EventTool().waitNoEvent(1000);
         dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste"));
         srcNode.waitNotPresent();
         new EventTool().waitNoEvent(1000);
