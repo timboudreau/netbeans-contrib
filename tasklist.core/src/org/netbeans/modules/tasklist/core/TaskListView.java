@@ -71,11 +71,9 @@ import org.openide.util.actions.CallbackSystemAction;
 /**
  * View showing the task list items
  * @author Tor Norbye, Tim Lebedkov, Trond Norbye
- * @todo Figure out why the window system sometimes creates multiple objects
- *       from this class
  */
 public abstract class TaskListView extends TopComponent
-        implements TaskListener, PropertyChangeListener, ExplorerManager.Provider, Lookup.Provider, TaskSelector {
+        implements TaskListener, ExplorerManager.Provider, Lookup.Provider, TaskSelector {
     private static final Logger LOGGER = TLUtils.getLogger(TaskListView.class);
     
     static {
@@ -558,7 +556,7 @@ public abstract class TaskListView extends TopComponent
      */
     protected void storeColumnsConfiguration() {
         ColumnsConfiguration columns = getDefaultColumns();
-        TLUtils.loadColumnsFrom(this, columns);
+        ColumnsConfiguration.loadColumnsFrom(this, columns);
     }
 
     /**
@@ -566,7 +564,7 @@ public abstract class TaskListView extends TopComponent
      */
     protected void loadColumnsConfiguration() {
         ColumnsConfiguration cc = getDefaultColumns();
-        TLUtils.configureColumns(this, cc);
+        ColumnsConfiguration.configureColumns(this, cc);
     }
 
     /** Create the root node to be used in this view */
@@ -1527,9 +1525,6 @@ for (int i = 0; i < columns.length; i++) {
     protected void componentHidden() {
         hideTask();
 
-        // Stop listening for node activation
-        getExplorerManager().removePropertyChangeListener(this);
-
         // Remove jump actions
         // Cannot do this, because componentHidden can be called
         // after another TaskListView is shown (for example when you
@@ -1539,31 +1534,6 @@ for (int i = 0; i < columns.length; i++) {
         // According to issue #37367 hidden and activated events works
         // together smmothly to get desired result
         installJumpActions(false);
-    }
-
-    protected void componentShowing() {
-        // Listen for node activation
-        getExplorerManager().addPropertyChangeListener(this);
-    }
-
-    public void propertyChange(PropertyChangeEvent ev) {
-        // Display selected node's summary in the status line
-        if (ev.getPropertyName() == ExplorerManager.PROP_SELECTED_NODES) {
-            Node[] sel = getExplorerManager().getSelectedNodes();
-            if ((sel != null) && (sel.length == 1)) {
-                Task task = TaskNode.getTask(sel[0]);
-                if (task != null) {
-                    StatusDisplayer.getDefault().setStatusText(task.getSummary());
-                }
-            }
-        } else if (ExplorerManager.PROP_SELECTED_NODES.equals(
-                ev.getPropertyName())) {
-            // internal error
-            ErrorManager.getDefault().log(
-                    "Option property name " + // NOI18N
-                    ev.getPropertyName() +
-                    " was not interned."); // NOI18N
-        }
     }
 
     /** Return true iff the given node is expanded */
