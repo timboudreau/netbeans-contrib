@@ -20,9 +20,7 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Versioning">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
       <file name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance" />
-      <attr name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance/vcs-explorer-sep-1[javax-swing-JSeparator].instance" boolvalue="true"/>
-      <file name="vcs-explorer-sep-1[javax-swing-JSeparator].instance" />
-      <attr name="vcs-explorer-sep-1[javax-swing-JSeparator].instance/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
+      <attr name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
       <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" /> 
     </folder>
   </folder>
