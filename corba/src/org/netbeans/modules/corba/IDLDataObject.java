@@ -566,6 +566,9 @@ public class IDLDataObject extends MultiDataObject {
       src = null;
     } catch (java.io.FileNotFoundException e) {
       e.printStackTrace ();
+    } catch (Exception ex) {
+      System.out.println ("IDLParser exception in " + this.getPrimaryFile ());
+      ex.printStackTrace ();
     }
   }
    
@@ -636,6 +639,8 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  20   Gandalf   1.19        11/9/99  Karel Gardas    - better exception 
+ *       handling for CORBA 2.3 types
  *  19   Gandalf   1.18        11/4/99  Karel Gardas    - update from CVS
  *  18   Gandalf   1.17        11/4/99  Karel Gardas    update from CVS
  *  17   Gandalf   1.16        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
