@@ -41,13 +41,14 @@ public class BundleLookup {
     static Method matches;
     static final Integer CASE_SENSITIVE=new Integer(0);
     static Integer CASE_INSENSITIVE;
+    static boolean run;
     static {
         try {
-            Class pattern=Class.forName("java.util.regex.Pattern");
-            compile=pattern.getDeclaredMethod("compile", new Class[]{String.class,Integer.TYPE});
-            matcher=pattern.getDeclaredMethod("matcher", new Class[]{Class.forName("java.lang.CharSequence")});
-            CASE_INSENSITIVE=(Integer)pattern.getDeclaredField("CASE_INSENSITIVE").get(null);
-            matches=Class.forName("java.util.regex.Matcher").getDeclaredMethod("matches",null);
+            Class pattern=Class.forName("java.util.regex.Pattern"); // NOI18N
+            compile=pattern.getDeclaredMethod("compile", new Class[]{String.class,Integer.TYPE}); // NOI18N
+            matcher=pattern.getDeclaredMethod("matcher", new Class[]{Class.forName("java.lang.CharSequence")}); // NOI18N
+            CASE_INSENSITIVE=(Integer)pattern.getDeclaredField("CASE_INSENSITIVE").get(null); // NOI18N
+            matches=Class.forName("java.util.regex.Matcher").getDeclaredMethod("matches",null); // NOI18N
         } catch (Exception e) {}
     }
     
@@ -56,7 +57,7 @@ public class BundleLookup {
         public Regex(String s, boolean cs, boolean sub) {
             try {
                 if (sub)
-                    s=".*"+s+".*";
+                    s=".*"+s+".*"; // NOI18N
                 if (cs)
                     regex=compile.invoke(null, new Object[]{s, CASE_SENSITIVE});
                 else
@@ -117,15 +118,17 @@ public class BundleLookup {
     }
 
     /** Method performing lookup through all .properties files in all mounted filesystems
+     * @param regexText boolean true if text is regular expression
+     * @param regexBundle boolean true if bundle name is regular expression
      * @param table DefaultTableModel showing the results
      * @param text text to search for
      * @param caseSensitiveText case sensitive switch
      * @param substringText substring switch
      * @param bundle resource bundle filter
      * @param caseSensitiveBundle case sensitive filter switch
-     * @param substringBundle substring filter switch
-     */    
+     * @param substringBundle substring filter switch */    
     public static void lookupText(DefaultTableModel table, String text, boolean caseSensitiveText, boolean substringText, boolean regexText, String bundle, boolean caseSensitiveBundle, boolean substringBundle, boolean regexBundle) {
+        run=true;
         Enumeration filesystems=Repository.getDefault().getFileSystems();
         FileObject fo;
         ArrayList queue=new ArrayList();
@@ -143,10 +146,10 @@ public class BundleLookup {
                 queue.add(fo);
             }
         }
-        while (!queue.isEmpty()) {
+        while (run && !queue.isEmpty()) {
             Thread.yield();
             fo=(FileObject)queue.remove(0);
-            if ("properties".equalsIgnoreCase(fo.getExt())) {
+            if ("properties".equalsIgnoreCase(fo.getExt())) { // NOI18N
                 name=fo.getPackageName('.');
                 try {
                     if (_bundle.equals(name)) {
@@ -172,4 +175,8 @@ public class BundleLookup {
         }
     }
 
+    /** stops search (if running) */    
+    public static void stop() {
+        run=false;
+    }
 }

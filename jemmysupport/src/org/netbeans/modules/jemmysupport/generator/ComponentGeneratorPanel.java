@@ -13,48 +13,34 @@
 
 package org.netbeans.modules.jemmysupport.generator;
 
+import org.openide.nodes.Node;
+
 /*
  * ComponentGeneratorPanel.java
  *
  * Created on February 7, 2002, 10:34 AM
  */
-import java.util.ArrayList;
-import java.util.Properties;
-import java.lang.ref.*;
-import java.beans.*;
-import java.awt.event.ActionListener;
-import java.awt.Dialog;
-import javax.swing.JLabel;
-import java.lang.reflect.UndeclaredThrowableException;
 
-import org.openide.TopManager;
-import org.openide.filesystems.Repository;
-import org.openide.DialogDescriptor;
-import org.openide.loaders.*;
-import org.openide.nodes.*;
-import org.openide.explorer.view.*;
-import org.openide.explorer.ExplorerManager;
-import org.openide.filesystems.*;
 
 /** Component Generator panel
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
  * @version 0.2
  */
-public class ComponentGeneratorPanel extends javax.swing.JPanel implements DataFilter, VetoableChangeListener, PropertyChangeListener {
+public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.beans.PropertyChangeListener, java.beans.VetoableChangeListener, org.openide.loaders.DataFilter {
 
     /** root node */
     private Node rootNode;
-    private static Dialog dialog;
+    private static java.awt.Dialog dialog;
     private String packageName;
     private String directory;
     private Thread thread;
-    private Properties props;
+    private java.util.Properties props;
     
     /** creates ans shows Component Generator dialog
      */    
     public static void showDialog(){
         if (dialog==null) {
-            dialog = TopManager.getDefault().createDialog(new DialogDescriptor(new ComponentGeneratorPanel(), "Jemmy Component Generator", false, new Object[0], null, DialogDescriptor.BOTTOM_ALIGN, null, null));
+            dialog = org.openide.TopManager.getDefault().createDialog(new org.openide.DialogDescriptor(new ComponentGeneratorPanel(), "Jemmy Component Generator", false, new Object[0], null, org.openide.DialogDescriptor.BOTTOM_ALIGN, null, null));
         }
         dialog.show();
     }
@@ -73,28 +59,28 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements DataF
     /** Creates node that displays all packages.
     */
     private Node createPackagesNode () {
-        Node orig = TopManager.getDefault().getPlaces().nodes ().repository(this);
+        Node orig = org.openide.TopManager.getDefault().getPlaces().nodes ().repository(this);
         return orig;
     }
 
     void loadProperties() {
-        props = new Properties();
+        props = new java.util.Properties();
         try {
-            props.load( Repository.getDefault().getDefaultFileSystem().findResource("jemmysupport/ComponentGenerator.properties").getInputStream());
+            props.load( org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("jemmysupport/ComponentGenerator.properties").getInputStream());
         } catch (Exception e1) {
             try {
                 props.load( this.getClass().getClassLoader().getResourceAsStream("org/netbeans/modules/jemmysupport/generator/ComponentGenerator.properties"));
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new UndeclaredThrowableException(e, "Properties file not loaded!");
+                throw new java.lang.reflect.UndeclaredThrowableException(e, "Properties file not loaded!");
             }
         }
     }
     
     void saveProperties() {
         try {
-            FileObject fo=Repository.getDefault().getDefaultFileSystem().getRoot();
-            FileObject fo2=fo.getFileObject("jemmysupport");
+            org.openide.filesystems.FileObject fo=org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().getRoot();
+            org.openide.filesystems.FileObject fo2=fo.getFileObject("jemmysupport");
             if (fo2==null) {
                 fo2=fo.createFolder("jemmysupport");
             }
@@ -104,7 +90,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements DataF
             }
             props.store(fo.getOutputStream(fo.lock()),"Jemmy Support Module - Component Generator - User Properties File");
         } catch (Exception e) {
-                throw new UndeclaredThrowableException(e, "Properties file not saved!");
+                throw new java.lang.reflect.UndeclaredThrowableException(e, "Properties file not saved!");
         }
     }
     
@@ -305,8 +291,8 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements DataF
     * @return <CODE>true</CODE> if the object should be displayed,
     *    <CODE>false</CODE> otherwise
     */
-    public boolean acceptDataObject(DataObject obj) {
-        Object o = obj.getCookie(DataFolder.class);
+    public boolean acceptDataObject(org.openide.loaders.DataObject obj) {
+        Object o = obj.getCookie(org.openide.loaders.DataFolder.class);
         if (o == null) {
             return false;
         }
@@ -317,12 +303,11 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements DataF
      * @param ev PropertyChangeEvent
      * @throws PropertyVetoException PropertyVetoException
      */
-    public void vetoableChange(PropertyChangeEvent ev)
-    throws PropertyVetoException {
-        if (ExplorerManager.PROP_SELECTED_NODES.equals (ev.getPropertyName ())) {
+    public void vetoableChange(java.beans.PropertyChangeEvent ev) throws java.beans.PropertyVetoException {
+        if (org.openide.explorer.ExplorerManager.PROP_SELECTED_NODES.equals (ev.getPropertyName ())) {
             Node n[] = (Node[])ev.getNewValue();
             if (n.length > 1 ) {
-                throw new PropertyVetoException ("Only single selection allowed", ev); // NOI18N
+                throw new java.beans.PropertyVetoException ("Only single selection allowed", ev); // NOI18N
             } 
         }
     }
@@ -330,19 +315,19 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements DataF
     /** Changes in selected node in packages.
      * @param ev PropertyChangeEvent
      */
-    public void propertyChange (PropertyChangeEvent ev) {
-        if (ExplorerManager.PROP_SELECTED_NODES.equals (ev.getPropertyName ())) {
+    public void propertyChange(java.beans.PropertyChangeEvent ev) {
+        if (org.openide.explorer.ExplorerManager.PROP_SELECTED_NODES.equals (ev.getPropertyName ())) {
             startButton.setEnabled(false);
             Node[] arr = packagesPanel.getExplorerManager ().getSelectedNodes ();
             if (arr.length == 1) {
-                DataFolder df = (DataFolder)arr[0].getCookie (DataFolder.class);
+                org.openide.loaders.DataFolder df = (org.openide.loaders.DataFolder)arr[0].getCookie (org.openide.loaders.DataFolder.class);
                 try {
                     if ((df != null) && (!df.getPrimaryFile().getFileSystem().isReadOnly())) {
                         startButton.setEnabled(true);
                         packageName = df.getPrimaryFile().getPackageName('.');
-                        directory = FileUtil.toFile(df.getPrimaryFile()).getAbsolutePath();
+                        directory = org.openide.filesystems.FileUtil.toFile(df.getPrimaryFile()).getAbsolutePath();
                     }
-                } catch (FileStateInvalidException e) {}
+                } catch (org.openide.filesystems.FileStateInvalidException e) {}
             }
         }
     }
@@ -350,7 +335,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements DataF
     /** returns JLabel used as status line
      * @return JLabel used as status line
      */    
-    public JLabel getHelpLabel() {
+    public javax.swing.JLabel getHelpLabel() {
         return helpLabel;
     }
 

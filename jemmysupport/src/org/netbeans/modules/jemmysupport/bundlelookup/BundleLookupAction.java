@@ -30,7 +30,7 @@ public class BundleLookupAction extends NodeAction {
      * @param nodes selected nodes
      */    
     protected void performAction(Node[] nodes) {
-        new BundleLookupPanel().open();
+        BundleLookupPanel.openPanel();
     }
     
     /** action is enabled for any selected node
@@ -45,14 +45,14 @@ public class BundleLookupAction extends NodeAction {
      * @return String name of the action
      */    
     public String getName() {
-        return "Resource Bundle Lookup";
+        return NbBundle.getMessage(BundleLookupAction.class, "Title"); // NOI18N
     }
 
     /** method returning icon for the action
      * @return String path to action icon
      */    
     protected String iconResource() {
-       return "/org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif"; 
+       return "/org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif"; // NOI18N
     }
     
     /** method returning action Help Context

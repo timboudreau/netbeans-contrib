@@ -34,7 +34,18 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.AreaAveragingScaleFilter;
+import java.beans.EventSetDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.beans.SimpleBeanInfo;
 import javax.swing.JComponent;
+import javax.swing.JTree;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 /** Jemmy Tools Component Generator class generates source code from given Container (Frame, Dialog ...) according to its visible structure.
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -52,6 +63,33 @@ public class ComponentGenerator {
     String _package;
     boolean _grabIcons = false;
     Robot robot = null;
+        
+    /** Utility field holding list of ChangeListeners. */
+    private transient ChangeListener changeListener;
+        
+    /** Registers PropertyChangeListener to receive events.
+     * @param listener The listener to register.
+     */
+    public synchronized void addChangeListener(ChangeListener listener) {
+        changeListener = listener;
+    }
+
+    /** Removes ChangeListener from the list of listeners.
+     * @param listener The listener to remove.
+     */
+    public synchronized void removeChangeListener(ChangeListener listener) {
+        changeListener = null;
+    }
+
+    /** Notifies all registered listeners about the event.
+     */
+    void fireStateChanged(Object source) {
+        ChangeEvent e = new ChangeEvent(source);
+        try {
+            if (changeListener != null) 
+                changeListener.stateChanged(e);
+        } catch (Exception ex) {}
+    }
     
     /** class holding all informations about knonw operator
      */    
@@ -141,10 +179,10 @@ public class ComponentGenerator {
             return _operatorClass;
         }
     }
-        
     /** class holding all informations about single component
      */    
     public class ComponentRecord extends Object {
+       
         OperatorRecord _operator;
         String _identification;
         String _uniqueName;
@@ -154,6 +192,9 @@ public class ComponentGenerator {
         String _shortName;
         String _smallName;
         Icon _icon;
+        ComponentRecord _parent;
+        ComponentOperator _componentOperator;
+        DefaultMutableTreeNode _node = null;
         
         /** creates new record of component
          * @param internalLabels String[] set of components internal labels used for internal logic generation
@@ -163,7 +204,7 @@ public class ComponentGenerator {
          * @param index index used for component search inside container
          * @param componentClass compoennt's real class name
          */        
-        public ComponentRecord( OperatorRecord operator, String identification, String uniqueName, int index, String componentClass, String[] internalLabels, Icon icon ) {
+        public ComponentRecord( OperatorRecord operator, String identification, String uniqueName, int index, String componentClass, String[] internalLabels, Icon icon, ComponentOperator componentOperator, ComponentRecord parent ) {
             _icon = icon;
             _operator = operator;
             if (identification==null) {
@@ -188,9 +229,11 @@ public class ComponentGenerator {
                 _uniqueName+=String.valueOf(_index);
             }
             int i = _uniqueName.lastIndexOf(_operator.getInstanceSuffix());
-            _shortName = _uniqueName.substring(_operator.getInstancePrefix().length(), i);
-            _shortName += _uniqueName.substring(i+_operator.getInstanceSuffix().length());
+            _shortName = _uniqueName.substring(_operator.getInstancePrefix().length(), i) +
+                         _uniqueName.substring(i+_operator.getInstanceSuffix().length());
             _smallName = Character.toLowerCase(_shortName.charAt(0))+_shortName.substring(1);
+            _parent = parent;
+            _componentOperator = componentOperator;
         }
         
         /** return component's operator class name
@@ -198,6 +241,14 @@ public class ComponentGenerator {
          */        
         public String getOperatorClass() {
             return _operator.getOperatorClass();
+        }
+        
+        public boolean getRecursion() {
+            return _operator.getRecursion();
+        }
+        
+        public ComponentOperator getComponentOperator() {
+            return _componentOperator;
         }
         
         /** returns identification string
@@ -241,6 +292,10 @@ public class ComponentGenerator {
         public String getComponentClass() {
             return _componentClass;
         }
+
+        public String getParentGetter() {
+            return _parent==null? "this" : _parent.getUniqueName()+"()";
+        }
         
         /** returns formated component code with given index, formating means replacing keywords with real values
          * @param i index into component's code set
@@ -254,7 +309,7 @@ public class ComponentGenerator {
          * @param i index of internal label
          * @return String internal label
          */        
-        public String getInternalLabel(int i) {
+        public String getInternalLabels(int i) {
             if ((null!=_internalLabels) && (i>=0) && (i<_internalLabels.length) && (null!=_internalLabels[i])) {
                 return _internalLabels[i];
             } else {
@@ -266,7 +321,7 @@ public class ComponentGenerator {
          * @param i index of internal label
          * @param label String internal label text
          */
-        public void setInternalLabel(int i, String label) {
+        public void setInternalLabels(int i, String label) {
             if (i>=_internalLabels.length) {
                 String labs[] = new String [i];
                 for(int j=0;j<_internalLabels.length;j++) {
@@ -277,11 +332,11 @@ public class ComponentGenerator {
             _internalLabels[i] = label;
         }
         
-        public String[] getInternalLabel() {
+        public String[] getInternalLabels() {
             return _internalLabels;
         }
         
-        public void setInternalLabel(String[] labels) {
+        public void setInternalLabels(String[] labels) {
             _internalLabels = labels;
         }
         
@@ -292,7 +347,7 @@ public class ComponentGenerator {
         public String getInternalLogicCode(int i) {
             StringBuffer sb=new StringBuffer();
             for (int j=0;j<_internalLabels.length;j++) {
-                sb.append(formate(_operator.getInternalLogicCode(i),getInternalLabel(j)));
+                sb.append(formate(_operator.getInternalLogicCode(i),getInternalLabels(j)));
             }
             return sb.toString();
         }
@@ -326,6 +381,7 @@ public class ComponentGenerator {
          * __COMPONENT__     - real class name
          * __INTERNALLABEL__ - internal label real text
          * __SHORTLABEL__    - internal label text converted to Java identifier
+         * __PARENTGETTER__  - code returning parent container operator
          * __BIGLABEL__      - upper case version of short label</pre>
          * @return formated string
          * @param internalLabel real internal label text
@@ -346,6 +402,7 @@ public class ComponentGenerator {
             replace(sb, "__INTERNALLABEL__", internalLabel);
             replace(sb, "__SHORTLABEL__", toJavaID(internalLabel));
             replace(sb, "__BIGLABEL__", toBigJavaID(internalLabel));
+            replace(sb, "__PARENTGETTER__", getParentGetter());
             return sb.toString();
         }
         
@@ -356,37 +413,43 @@ public class ComponentGenerator {
             return getUniqueName()+" ("+getOperatorClass()+")";
         }
         
-        /** Setter for property uniqueName.
-         * @param uniqueName New value of property uniqueName.
-         */
-        public void setUniqueName(String uniqueName) {
-            if (uniqueName!=null)
-                _uniqueName = uniqueName;
-        }
-        
-        /** Setter for property smallName.
-         * @param smallName New value of property smallName.
-         */
-        public void setSmallName(String smallName) {
-            if (smallName!=null)
-                _smallName = smallName;
-        }
-        
         /** Setter for property shortName.
          * @param shortName New value of property shortName.
          */
         public void setShortName(String shortName) {
-            if (shortName!=null)
-                _shortName = shortName;
+            if (shortName!=null && shortName.length()>0) {
+                _shortName = Character.toUpperCase(shortName.charAt(0))+shortName.substring(1);
+                _smallName = Character.toLowerCase(shortName.charAt(0))+shortName.substring(1);
+                setUniqueName(_operator.getInstancePrefix() + _shortName + _operator.getInstanceSuffix());
+            }
+        }
+        
+        public void setUniqueName(String name) {
+            if (name!=null) {
+                String old = _uniqueName;
+                _uniqueName = name;
+                fireStateChanged(this);
+            }
         }
         
         public Icon getIcon() {
             return _icon;
         }
         
+        public DefaultMutableTreeNode getNode() {
+            if (_node==null) {
+                _node=new DefaultMutableTreeNode(this);
+                if (_parent!=null) {
+                    _parent.getNode().add(_node);
+                } else if (this!=_container) {
+                    _container.getNode().add(_node);
+                }
+            }
+            return _node;
+        }
+        
     }        
     
-
     /** creates new ComponentGenerator with configuration from given properties
      * @param props configuration properties
      */   
@@ -568,7 +631,7 @@ public class ComponentGenerator {
     String[] getInternalLabels( Component component ) {
         ArrayList s=new ArrayList();
         ArrayList a=new ArrayList();
-        AccessibleContext c=component.getAccessibleContext();
+/*        AccessibleContext c=component.getAccessibleContext();
         s.add(c);
         while (s.size()>0) {
             c=(AccessibleContext)s.remove(0);
@@ -581,13 +644,13 @@ public class ComponentGenerator {
                 }
             }
         }
-        return (String[])a.toArray(new String[a.size()]);
+*/        return (String[])a.toArray(new String[a.size()]);
     }
     
-    boolean addComponent( ComponentOperator componentOperator, ContainerOperator containerOperator ) {
+    ComponentRecord addComponent( ComponentOperator componentOperator, ContainerOperator containerOperator, ComponentRecord parentComponent ) {
         String className = componentOperator.getClass().getName();
         OperatorRecord operatorRecord = (OperatorRecord) operators.get( className.substring(className.lastIndexOf('.')+1,className.length()) );
-        if ( null==operatorRecord ) return true;
+        if ( null==operatorRecord ) return null;
         className = componentOperator.getSource().getClass().getName();
         className = className.substring(className.lastIndexOf('.')+1,className.length());
         String identification = execMethod( componentOperator, operatorRecord.getIdMethod());
@@ -610,14 +673,21 @@ public class ComponentGenerator {
             } catch (Exception e) {}
         }
         if (componentOperator.getSource()!=containerOperator.getSource()) {
-            int index = searchForIndex( componentOperator, containerOperator, identification );
+            int index;
+            if (parentComponent==null) {
+                index = searchForIndex( componentOperator, containerOperator, identification );
+            } else {
+                index = searchForIndex( componentOperator, (ContainerOperator)parentComponent.getComponentOperator(), identification );
+            }
             if (index>=0) {
-                components.put( uniqueName, new ComponentRecord( operatorRecord, identification, uniqueName, index, className, getInternalLabels(componentOperator.getSource()), icon));
+                ComponentRecord record = new ComponentRecord( operatorRecord, identification, uniqueName, index, className, getInternalLabels(componentOperator.getSource()), icon, componentOperator, parentComponent);
+                components.put( uniqueName, record);
+                return record;
             }
         } else {
-            _container = new ComponentRecord( operatorRecord, identification, uniqueName, 0, className, null, icon );
+            _container = new ComponentRecord( operatorRecord, identification, uniqueName, 0, className, null, icon, componentOperator, null );
         }
-        return operatorRecord.getRecursion();
+        return null;
     }
     
     /** grabs given visible container identified by ContainerOperator
@@ -630,18 +700,25 @@ public class ComponentGenerator {
         this._grabIcons = _grabIcons;
         components = new Hashtable();
         ArrayList queue = new ArrayList();
+        ArrayList parentQueue = new ArrayList();
         _container = null;
         queue.add(container);
+        parentQueue.add(null);
         ComponentOperator component;
         Component comps[];
+        ComponentRecord record, parent;
         int i;
         while (queue.size()>0) {
             component = (ComponentOperator)queue.remove(0);
+            parent = (ComponentRecord)parentQueue.remove(0);
             if (component.isShowing()) {
-                if (addComponent(component, container) && (component instanceof ContainerOperator)) {
+                record = addComponent(component, container, parent);
+                if ((record==null || record.getRecursion()) && (component instanceof ContainerOperator)) {
+                    if (record==null) record = parent;
                     comps = ((ContainerOperator)component).getComponents();
                     for (i=0; i<comps.length; i++) {
                         queue.add(Operator.createOperator(comps[i]));
+                        parentQueue.add(record);
                     }
                 }
             }
@@ -708,8 +785,12 @@ public class ComponentGenerator {
             _container.setUniqueName(name);
     }
     
-    ComponentRecord getRoot() {
-        return _container;
+    TreeNode getRootNode() {
+        Iterator it=components.values().iterator();
+        while (it.hasNext()) {
+            ((ComponentRecord)it.next()).getNode();
+        }
+        return _container.getNode();
     }
     
     Collection getNodes() {

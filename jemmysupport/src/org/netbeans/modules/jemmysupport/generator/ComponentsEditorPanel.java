@@ -36,13 +36,16 @@ import javax.swing.JPopupMenu;
 import javax.swing.tree.TreePath;
 import java.util.Collection;
 import java.awt.Component;
+import java.util.Enumeration;
 import javax.swing.Icon;
+import javax.swing.event.ChangeListener;
+import javax.swing.tree.TreeNode;
 
 /** class with panel used for edit found components before generation
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
  * @version 0.1
  */
-public class ComponentsEditorPanel extends javax.swing.JPanel {
+public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeListener {
     
     static ImageIcon rootIcon;
     static ImageIcon nodeIcon;
@@ -84,10 +87,11 @@ public class ComponentsEditorPanel extends javax.swing.JPanel {
     }
     
     /** Creates new form ComponentsEditorPanel */
-    public ComponentsEditorPanel(Object root, Collection nodes) {
-        this.nodes = nodes;
+    public ComponentsEditorPanel(ComponentGenerator gen) {
+        TreeNode rootNode=gen.getRootNode();
+        this.nodes = gen.getNodes();
+        gen.addChangeListener(this);
         initComponents();
-        propertySheet.setDisplayWritableOnly(true);
         if ((rootIcon!=null)&&(nodeIcon!=null)) {
             MyCellRenderer rend = new MyCellRenderer();
             rend.setClosedIcon(rootIcon);
@@ -95,25 +99,27 @@ public class ComponentsEditorPanel extends javax.swing.JPanel {
             rend.setLeafIcon(nodeIcon);
             tree.setCellRenderer(rend);
         }
-        DefaultMutableTreeNode rootNode = new JTree.DynamicUtilTreeNode(root, nodes.toArray());
         tree.getSelectionModel().setSelectionMode(javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION); 
         tree.setModel(new DefaultTreeModel(rootNode));
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
-                TreePath path = e.getNewLeadSelectionPath();
-                if (path==null) {
-                    propertySheet.setNodes(null);
-                } else {
-                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-                    try {
-                        propertySheet.setNodes(new Node[]{new BeanNode(node.getUserObject())});
-                    } catch (IntrospectionException ex) {
-                        propertySheet.setNodes(null);
-                    }
-                }
+                nodeChanged(e.getNewLeadSelectionPath());
             }
         });
     }
+    
+    void nodeChanged(TreePath path) {
+        if (path==null) {
+            propertySheet.setNodes(new Node[0]);
+        } else {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+            try {
+                propertySheet.setNodes(new Node[]{new BeanNode(node.getUserObject())});
+            } catch (IntrospectionException ex) {
+                propertySheet.setNodes(new Node[0]);
+            }
+        }
+    }        
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -175,8 +181,11 @@ public class ComponentsEditorPanel extends javax.swing.JPanel {
     
     void DeleteActionPerformed() {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)tree.getSelectionPath().getLastPathComponent();
+        Enumeration enum=node.postorderEnumeration();
+        while (enum.hasMoreElements()) {
+            nodes.remove(((DefaultMutableTreeNode)enum.nextElement()).getUserObject());
+        }
         ((DefaultTreeModel)tree.getModel()).removeNodeFromParent(node);
-        nodes.remove(node.getUserObject());
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -186,9 +195,16 @@ public class ComponentsEditorPanel extends javax.swing.JPanel {
     private org.openide.explorer.propertysheet.PropertySheet propertySheet;
     // End of variables declaration//GEN-END:variables
     
-    public static boolean showDialog(Object root, Collection nodes) {
-        DialogDescriptor desc = new DialogDescriptor(new ComponentsEditorPanel(root, nodes), "Components Editor", true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null);
+    public static boolean showDialog(ComponentGenerator gen) {
+        DialogDescriptor desc = new DialogDescriptor(new ComponentsEditorPanel(gen), "Components Editor", true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null);
         TopManager.getDefault().createDialog(desc).show();
         return desc.getValue()==DialogDescriptor.OK_OPTION;
     }
+    
+    public void stateChanged(javax.swing.event.ChangeEvent changeEvent) {
+        DefaultTreeModel model=(DefaultTreeModel)tree.getModel();
+        model.nodeChanged(((ComponentGenerator.ComponentRecord)changeEvent.getSource()).getNode());
+        nodeChanged(tree.getSelectionPath());
+    }
+    
 }
