@@ -160,6 +160,14 @@ class EditTaskPanel extends JPanel implements ActionListener {
     }    
     
     /**
+     * Transfers the focus into the summary text field
+     */
+    public void focusSummary() {
+        jTabbedPane.setSelectedIndex(0);
+        descriptionTextField.requestFocus();
+    }
+    
+    /**
      * Fills the panel with the values of a user task
      *
      * @param item a user task
@@ -185,7 +193,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         setDueDate(item.getDueDate());
 
         // Initialize the Categories list
-        String[] categories = UserTaskList.getCategories(item);
+        String[] categories = item.getList().getCategories();
         if (categories.length > 0) {
             DefaultComboBoxModel model = new DefaultComboBoxModel(categories);
             categoryCombo.setModel(model);
@@ -337,7 +345,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent actionEvent) {
         Object source = actionEvent.getSource();
         if (source == addSourceButton) {
-            HelpCtx help = new HelpCtx("NewTask"); // NOI18N
+            HelpCtx help = new HelpCtx("org.netbeans.modules.tasklist.usertasks.AddTask"); // NOI18N
             
             // This copied from openide/deprecated/.../TopManager.showHelp:
             
@@ -381,7 +389,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         effortButtonGroup = new javax.swing.ButtonGroup();
         buttonGroupProgress = new javax.swing.ButtonGroup();
         buttonGroupSpent = new javax.swing.ButtonGroup();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jTabbedPane = new javax.swing.JTabbedPane();
         jPanelGeneral = new javax.swing.JPanel();
         descLabel = new javax.swing.JLabel();
         categoryCombo = new javax.swing.JComboBox();
@@ -470,7 +478,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     jPanelGeneral.add(addLabel, gridBagConstraints);
 
     /*
-    beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
+    org.openide.awt.Mnemonics.setLocalizedText(beginningToggle, NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
     */
     addButtonGroup.add(beginningToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -492,7 +500,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     jPanelGeneral.add(detailsLabel, gridBagConstraints);
 
     /*
-    endToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
+    org.openide.awt.Mnemonics.setLocalizedText(endToggle, NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
     */
     addButtonGroup.add(endToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -621,7 +629,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanelGeneral.add(prioLabel, gridBagConstraints);
 
-    jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "General"), jPanelGeneral);
+    jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "General"), jPanelGeneral);
 
     jPanel3.setLayout(new java.awt.GridBagLayout());
 
@@ -850,9 +858,9 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanel3.add(jPanel7, gridBagConstraints);
 
-    jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "TimeRelated"), jPanel3);
+    jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "TimeRelated"), jPanel3);
 
-    add(jTabbedPane1, java.awt.BorderLayout.CENTER);
+    add(jTabbedPane, java.awt.BorderLayout.CENTER);
 
     }//GEN-END:initComponents
 
@@ -1043,7 +1051,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JRadioButton jRadioButtonEffort;
     private javax.swing.JRadioButton jRadioButtonProgress;
     private javax.swing.JRadioButton jRadioButtonSpent;
-    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTabbedPane jTabbedPane;
     private javax.swing.JLabel lineLabel;
     private javax.swing.JTextField lineTextField;
     private javax.swing.JLabel prioLabel;

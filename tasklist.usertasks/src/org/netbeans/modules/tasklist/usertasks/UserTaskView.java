@@ -57,6 +57,7 @@ import org.openide.awt.MouseUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
 import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
@@ -88,8 +89,17 @@ public class UserTaskView extends TaskListView implements TaskListener {
     private static final long serialVersionUID = 1;
 
     private static UserTaskView defview = null;
+    
+    /** contains also the default view */
+    private static ArrayList views = null; // leak??? YES! Remove in componentClosed!
 
-    static UserTaskView getDefault() {
+    /** 
+     * Returns the view with the default task list. The view will be opened if
+     * it was not.
+     *
+     * @return the default view
+     */
+    public static UserTaskView getDefault() {
 	if (defview == null) {
 	    defview = new UserTaskView();
 	
@@ -105,16 +115,15 @@ public class UserTaskView extends TaskListView implements TaskListener {
 	return defview;
     }
 
-    private static ArrayList views = null; // leak??? YES! Remove in componentClosed!
-
     /** Return true iff the default view has been created already */
     static boolean defaultViewCreated() {
         return defview != null;
     }
     
     /** 
-     * Return the currently active user task view, or the default
-     * one if none are active 
+     * Return the currently active user task view, or null
+     *
+     * @return current view
      */
     public static TaskListView getCurrent() {
 	// Try to figure out which view is current. If none is found to
@@ -470,4 +479,8 @@ public class UserTaskView extends TaskListView implements TaskListener {
         return TopComponent.PERSISTENCE_ONLY_OPENED;
     }
     
+    public org.openide.util.HelpCtx getHelpCtx() {
+        return new HelpCtx(
+            "org.netbeans.modules.tasklist.usertasks.HOMEID"); // NOI18N
+    }    
 }
