@@ -760,7 +760,8 @@ public class VariableInputDescriptor extends Object {
         grabDefaultsToMap(defaults);
         if (defaults.size() == 0) return;  // do not create empty files
 
-        setValuesAsDefault(defaults, components());
+        Set parentVariables = new HashSet();
+        setValuesAsDefault(defaults, components(), parentVariables);
         try {
             writeDefaultsToDisk(defaults, commandName, commandProvider);
         } catch (IOException ex) {
@@ -857,15 +858,19 @@ public class VariableInputDescriptor extends Object {
         }
     }
 
-    private void setValuesAsDefault(Map defaults, VariableInputComponent[] comps) {
+    private void setValuesAsDefault(Map defaults, VariableInputComponent[] comps, Set parentVariables) {
         for (int i = 0; i < comps.length; i++) {
-            String value = (String) defaults.get(comps[i].getVariable());
-            if (value != null) {
-                comps[i].setDefaultValue(value);
+            String name = comps[i].getVariable();
+            if (!parentVariables.contains(name)) {
+                parentVariables.add(name);
+                String value = (String) defaults.get(comps[i].getVariable());
+                if (value != null) {
+                    comps[i].setDefaultValue(value);
+                }
             }
             VariableInputComponent[] subComponents = comps[i].subComponents();
             if (subComponents != null) {
-                setValuesAsDefault(defaults, subComponents);
+                setValuesAsDefault(defaults, subComponents, parentVariables);
             }
         }
     }
