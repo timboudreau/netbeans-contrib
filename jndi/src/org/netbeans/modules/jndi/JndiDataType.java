@@ -25,7 +25,8 @@ import org.openide.util.datatransfer.*;
 import org.openide.*;
 import org.openide.nodes.*;
 import com.netbeans.enterprise.modules.jndi.settings.JndiSystemOption;
-
+import com.netbeans.enterprise.modules.jndi.gui.TimeOutPanel;
+import com.netbeans.enterprise.modules.jndi.gui.NotFoundPanel;
 
 /** This class represents Datatype for JNDI Nodes
  *  It is responsible for adding of new contexts and creating subdirs in Jndi tree
@@ -45,9 +46,10 @@ final class JndiDataType extends NewType {
   /** State of connect Thread*/
   private short state;
   /** Values of state*/
-  private final short IN_PROGRESS=0;
-  private final short DONE = 1;
-  private final short FAILED = 2;
+
+  private final short IN_PROGRESS=(short)0;
+  private final short DONE = (short)1;
+  private final short FAILED = (short)2;
 
   /** Constructor
    *  @param node the Jndi root node
@@ -103,17 +105,30 @@ final class JndiDataType extends NewType {
               Runnable run = new Runnable() {
                 public void run() {
                   try {
+                    // Here we have to check the context, if it works
+                    // because all ehe operation starting with addContext
+                    // are asynchronous to AWT Thread
                     Class.forName(panel.getFactory());
-                    ((JndiRootNode) node).addContext(
-                      panel.getLabel(),
-                      panel.getFactory(),
-                      panel.getContext(),
-                      panel.getRoot(),
-                      panel.getAuthentification(),
-                      panel.getPrincipal(),
-                      panel.getCredentials(),
-                      panel.getAditionalProperties()
-                    );
+                    String root = panel.getRoot();
+                    Hashtable env = ((JndiRootNode)node).createContextProperties(
+                           panel.getLabel(),
+                           panel.getFactory(),
+                           panel.getContext(),
+                           root,
+                           panel.getAuthentification(),
+                           panel.getPrincipal(),
+                           panel.getCredentials(),
+                           panel.getAditionalProperties());
+                    Context ctx = new JndiDirContext(env);
+                    if (root != null && root.length() > 0){
+                      ctx  = (Context) ctx.lookup(root);
+                    }
+                    else{
+                      // If we don't perform lookup
+                      // we should check the context
+                      ((JndiDirContext)ctx).checkContext();
+                    }
+                    ((JndiRootNode)node).addContext(ctx);
                     JndiDataType.this.setActionState(DONE);
                   }catch (ClassNotFoundException cnfe){
                     Runnable r = new Runnable(){

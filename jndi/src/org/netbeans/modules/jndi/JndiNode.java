@@ -39,7 +39,6 @@ import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.ExClipboard;
 import org.openide.DialogDescriptor;
 import com.netbeans.enterprise.modules.jndi.utils.Refreshable;
-import com.netbeans.enterprise.modules.jndi.utils.AttributeManager;
 import com.netbeans.enterprise.modules.jndi.gui.AttributePanel;
 
 
@@ -47,12 +46,15 @@ import com.netbeans.enterprise.modules.jndi.gui.AttributePanel;
  *
  *  @author Ales Novak, Tomas Zezula
  */
-public final class JndiNode extends JndiObjectNode implements Refreshable, AttributeManager, Node.Cookie{
+public final class JndiNode extends JndiObjectNode implements Refreshable, Node.Cookie{
 
   /** Is this node root of context*/
   private boolean isRoot;
   /** NewType for this node*/
-  private NewType[] jndinewtypes;  
+  private NewType[] jndinewtypes;
+
+  /** Needs this node to be refreshed*/
+    private boolean needRefresh;
   
   /** Holder for dialogs*/
   private transient Dialog dlg;
@@ -61,7 +63,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Attri
    * @param ctx DirContext which this node represents
    */
   public JndiNode(Context ctx) throws NamingException {
-    this (ctx, 
+    this (null, ctx, 
           new CompositeName(), 
           (String) ctx.getEnvironment().get(JndiRootNode.NB_LABEL));
     isRoot = true;
@@ -72,8 +74,9 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Attri
    *  parent_name offset of parent directory
    *  my_name	name of this directory
    */
-  public JndiNode(Context ctx, CompositeName parentName, String myName) throws NamingException {
-    super (new JndiChildren(ctx, parentName), myName);
+  public JndiNode(Object key, Context ctx, CompositeName parentName, String myName){
+    super (key, new JndiChildren(ctx, parentName), myName);
+    needRefresh = false;
     isRoot = false;
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName("javax.naming.Context"));
     getCookieSet().add(this);
@@ -131,7 +134,6 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Attri
     return new SystemAction[] {
       SystemAction.get(LookupCopyAction.class),
       SystemAction.get(BindingCopyAction.class),
-      SystemAction.get(EditPropertyAction.class),
       null,
       SystemAction.get(RefreshAction.class),
       SystemAction.get(DeleteAction.class),
@@ -146,11 +148,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Attri
   /** Refreshes this node. 
    */
   public final void refresh() {
-    try {
       ((JndiChildren) getChildren()).prepareKeys();
-    } catch (NamingException e) {
-      JndiRootNode.notifyForeignException(e);
-    }
   }
   
   /** Copy the binding code*/
@@ -194,22 +192,43 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Attri
   public String getClassName(){
     return "javax.naming.Context";
   }
-
   
-  public void editAttribute(){
-    final AttributePanel panel = new AttributePanel((DirContext)this.getContext(),getOffset());
-    DialogDescriptor dd = new DialogDescriptor(panel,JndiRootNode.getLocalizedString("TITLE_AttributeList"),
-        true,
-        DialogDescriptor.OK_CANCEL_OPTION,
-        DialogDescriptor.CANCEL_OPTION,
-        new ActionListener(){
-          public void actionPerformed(ActionEvent event){
-              JndiNode.this.dlg.setVisible(false);
-              JndiNode.this.createSheet();
-          }
-        });
-    dlg = TopManager.getDefault().createDialog(dd);
-    dlg.setVisible(true);
+  
+  /** Refresh property Sheets
+   */
+  public void updateData(){
+    createSheet();
+  }
+
+  /** Needs the node to be refreshed by Refreshd
+   *  @return true if the node has children, that for any reason failed to open
+   *  @see com.netbeans.enterprise.modules.jndi.utils.Refreshd
+   *  @see com.netbeans.enterprise.modules.jndi.JndiChildren
+   */
+  public boolean needRefresh(){
+    return this.needRefresh;
+  }
+
+  /** Clears the flag that the node needs to be refreshed
+   */
+  public void clearRefresh(){
+    this.needRefresh = false;
+  }
+
+  /** Sets the flag that the node needs to be refreshed
+   */
+  public void setRefresh(){
+    this.needRefresh = true;
+  }
+  
+  /** The node supports customizer */
+  public boolean hasCustomizer(){
+    return true;
+  }
+  
+  /** Returns Customizer */
+  public java.awt.Component getCustomizer(){
+    return new AttributePanel((DirContext)this.getContext(),getOffset(),this);
   }
   
 }

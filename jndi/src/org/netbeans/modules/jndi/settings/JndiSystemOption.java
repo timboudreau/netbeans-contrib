@@ -23,7 +23,7 @@ import java.util.Hashtable;
 
 
 /** 
- *
+ * This class is a cyctem option for Jndi module
  * @author  tzezula
  * @version 
  */
@@ -36,20 +36,32 @@ public class JndiSystemOption extends SystemOption {
     this.timeOut=4000;
   }
   
+  /** Returns the value of timeout for connect operation
+   *  @return int time out
+   */
   public int getTimeOut(){
     return this.timeOut;
   }
   
+  /** Sets time out for connect operation
+   *  @param int timeOut
+   */
   public void setTimeOut (int timeOut) {
     int oldTimeOut = this.timeOut;
     this.timeOut = timeOut;
     firePropertyChange("timeOut",new Integer(oldTimeOut),new Integer(timeOut));
   }
   
+  /** Returns the dusplay name of this setting
+   *  @return String display name
+   */
   public String displayName() {
     return JndiRootNode.getLocalizedString("Module_Name");
   }
   
+  /** Reads Jndi module settings
+   *  @input ObjectInput in
+   */
   public void readExternal (java.io.ObjectInput in){
     try {
       timeOut = ((Integer)in.readObject()).intValue();
@@ -60,6 +72,9 @@ public class JndiSystemOption extends SystemOption {
     catch (java.lang.ClassNotFoundException cnfe) {timeOut=4000;}
   }
   
+  /** Stors the settings for Jndi module
+   *  @param ObjectOutput out
+   */
   public void writeExternal (java.io.ObjectOutput out){
     JndiRootNode node = JndiRootNode.getDefault();
     ArrayList array = null;
@@ -79,5 +94,13 @@ public class JndiSystemOption extends SystemOption {
       out.writeObject( new Integer(timeOut));
       if (array != null) out.writeObject( array);
     }catch (java.io.IOException ioe) {}
+  }
+  
+  
+  /** Per project option
+   *  @return boolean false
+   */
+  public final boolean isGlobal(){
+    return false;
   }
 }

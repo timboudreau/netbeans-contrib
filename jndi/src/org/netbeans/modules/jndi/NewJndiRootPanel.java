@@ -69,7 +69,6 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
   public NewJndiRootPanel(Hashtable providers) {
     super();
     String className = null;
-    NotFoundPanel panel = null;
     this.providers=providers;
     java.util.Enumeration enum = this.providers.keys ();
     while (enum.hasMoreElements () ) {

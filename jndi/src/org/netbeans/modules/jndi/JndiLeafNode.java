@@ -47,8 +47,8 @@ class JndiLeafNode extends JndiObjectNode {
    *  @param name name of this node
    *  @param classname name of Class represented by this name
    */ 
-  public JndiLeafNode(Context ctx, CompositeName parentOffset, String name, String classname) throws NamingException {
-    super(Children.LEAF, name);
+  public JndiLeafNode(Object key, Context ctx, CompositeName parentOffset, String name, String classname){
+    super(key,Children.LEAF, name);
     this.ctx = ctx;
     this.offset = parentOffset;
     this.className=classname;

@@ -29,9 +29,10 @@ import javax.swing.event.ListSelectionEvent;
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import com.netbeans.enterprise.modules.jndi.JndiRootNode;
+import com.netbeans.enterprise.modules.jndi.JndiNode;
 import com.netbeans.enterprise.modules.jndi.utils.SimpleListModel;
 /** 
- *
+ * This class represents the Customizer for properties of jndi objects
  * @author  tzezula
  * @version 
  */
@@ -41,10 +42,13 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
   private DirContext ctx;
   private CompositeName offset;
   private SimpleListModel model;
+  private JndiNode owner;
+  
   /** Creates new form AttributePanel */
-  public AttributePanel(DirContext ctx, CompositeName offset) {
+  public AttributePanel(DirContext ctx, CompositeName offset, JndiNode owner) {
     this.ctx=ctx;
     this.offset = offset;
+    this.owner = owner;
     initComponents ();
     addButton.addActionListener(this);
     removeButton.setEnabled(false);
@@ -53,8 +57,8 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
     editButton.addActionListener(this);
     attrList.addListSelectionListener(this);
     model = new SimpleListModel();
+    attrList.setPrototypeCellValue("012345678901234567890123456789");
     attrList.setModel(model);
-    
     initData();
   }
 
@@ -116,8 +120,7 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
     add (jPanel1, gridBagConstraints1);
 
 
-      attrList.setPreferredSize (new java.awt.Dimension(80, 80));
-      attrList.setMinimumSize (new java.awt.Dimension(80, 80));
+      attrList.setValueIsAdjusting (true);
   
       jScrollPane1.setViewportView (attrList);
   
@@ -154,6 +157,8 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
   private javax.swing.JLabel jLabel1;
   // End of variables declaration//GEN-END:variables
 
+  /** Sets the data
+   */
   private void initData(){
     try{
       Attributes attrs = this.ctx.getAttributes(this.offset);
@@ -167,7 +172,10 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
     }catch(NamingException ne){}
   }
   
-  public void valueChanged(final javax.swing.event.ListSelectionEvent p1) {
+  /** Context sensitive button handling
+   *  @param ListSelectionEvent event
+   */
+  public void valueChanged(final javax.swing.event.ListSelectionEvent event) {
     if (this.attrList.getSelectedIndex()!=-1){
       this.removeButton.setEnabled(true);
       this.editButton.setEnabled(true);
@@ -178,6 +186,9 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
     }   
   }
   
+  /** Action performed
+   *  @param ActionEvent event
+   */
   public void actionPerformed(final ActionEvent event){
     if (event.getSource()==this.addButton){
       final CreateAttributePanel p = new CreateAttributePanel();
@@ -194,6 +205,7 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
                 attrs.put(attr);
                 AttributePanel.this.ctx.modifyAttributes(AttributePanel.this.offset,DirContext.ADD_ATTRIBUTE,attrs);
                 AttributePanel.this.model.addElement(p.getName()+"="+p.getValue());
+                AttributePanel.this.owner.updateData();
               }catch(NamingException ne){
                 JndiRootNode.notifyForeignException(ne);
               }   
@@ -215,6 +227,7 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
           attrs.put(attr);
           this.ctx.modifyAttributes(this.offset,DirContext.REMOVE_ATTRIBUTE,attrs);
           AttributePanel.this.model.removeElementAt(AttributePanel.this.attrList.getSelectedIndex());
+          AttributePanel.this.owner.updateData();
         }catch(NamingException ne){
           JndiRootNode.notifyForeignException(ne);
         }
@@ -225,8 +238,10 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
       String item = (String)AttributePanel.this.attrList.getSelectedValue();
       if (item != null){
         StringTokenizer tk = new StringTokenizer(item,"=");
-        p.setName(tk.nextToken());
-        p.setValue(tk.nextToken());
+        final String name = tk.nextToken();
+        final String value = tk.nextToken();
+        p.setName(name);
+        p.setValue(value);
        DialogDescriptor dd = new DialogDescriptor(p,JndiRootNode.getLocalizedString("TITLE_ModifyAttribute"),
          true,
          DialogDescriptor.OK_CANCEL_OPTION,
@@ -235,12 +250,21 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
            public void actionPerformed(ActionEvent event){
             if (event.getSource() == DialogDescriptor.OK_OPTION){
                try{
-                 BasicAttributes attrs = new BasicAttributes();
-                 BasicAttribute attr = new BasicAttribute(p.getName(),p.getValue());
+                 BasicAttributes attrs;
+                 BasicAttribute attr;
+                 if (!p.getName().equals(name)){
+                  attrs = new BasicAttributes();
+                  attr = new BasicAttribute(name,value);
+                  attrs.put(attr);
+                  AttributePanel.this.ctx.modifyAttributes(AttributePanel.this.offset,DirContext.REMOVE_ATTRIBUTE,attrs);
+                 }
+                 attrs = new BasicAttributes();
+                 attr = new BasicAttribute(p.getName(),p.getValue());
                  attrs.put(attr);
                  AttributePanel.this.ctx.modifyAttributes(AttributePanel.this.offset,DirContext.REPLACE_ATTRIBUTE,attrs);
                  AttributePanel.this.model.removeElementAt(AttributePanel.this.attrList.getSelectedIndex());
                  AttributePanel.this.model.addElement(p.getName()+"="+p.getValue());
+                 AttributePanel.this.owner.updateData();
                 }catch(NamingException ne){
                  JndiRootNode.notifyForeignException(ne);
                 }   

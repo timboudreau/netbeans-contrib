@@ -15,6 +15,10 @@ package com.netbeans.enterprise.modules.jndi;
 
 import java.util.Vector;
 import java.io.IOException;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.naming.Context;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
@@ -178,10 +182,150 @@ public class ProviderNode extends AbstractNode implements Cookie{
     }
   }
   
+  
+  /** Opens the add context dialog with prefilled fields
+   */
   public void connectUsing() {
     try{
       ((JndiDataType)JndiRootNode.getDefault().jndinewtypes[0]).create(name);
     }catch(java.io.IOException ioe){/** Should never happend*/}
   }
+  
+  
+  /** Returns the customizer of this node
+   *  @return Component customizer
+   */
+  public java.awt.Component getCustomizer(){
+    Customizer p = new Customizer(((JndiProvidersNode)this.getParentNode()).providers.get (this.name));
+    return p;
+  }
+  
+  
+  /** Returns true, this node support its own customizer
+   *  @return boolean trye
+   */
+  public boolean hasCustomizer(){
+    return true;
+  }
+  
+  /** Fires the propertyChangeEvent to notify about chages
+   *  @param String name, name of changed property 
+   *  @param Object oldv, old value of property
+   *  @param Object newv, new value of property
+   */
+  public void updateData(String name, Object oldv, Object newv){
+    this.firePropertyChange(name,oldv,newv);
+  }
+  
+  /** Customizer for this node*/
+  class Customizer extends NewProviderPanel implements FocusListener, ListDataListener {
+    private ProviderProperties target;
+    
+    Customizer (final java.lang.Object target){
+      super();
+      this.target = (ProviderProperties)target;
+      this.factory.setText(this.target.getFactory());
+      this.context.setText(this.target.getContext());
+      this.context.addFocusListener(this);
+      this.root.setText(this.target.getRoot());
+      this.root.addFocusListener(this);
+      this.authentification.setText(this.target.getAuthentification());
+      this.authentification.addFocusListener(this);
+      this.principal.setText(this.target.getPrincipal());
+      this.principal.addFocusListener(this);
+      this.credentials.setText(this.target.getCredentials());
+      this.credentials.addFocusListener(this);
+      this.properties.setData(this.target.getAdditional());
+      this.properties.addListDataListener(this);
+      this.factory.setEnabled(false);
+    }
+  
+    /** Handles action fired when field is changed in customizer
+     *  @param FocusEvent event
+     */
+    public void focusLost(FocusEvent event){
+      String newv;
+      String oldv;
+      
+      if (event.getSource()==this.context){
+        newv = this.context.getText();
+        oldv = this.target.getContext();
+        if (!newv.equals(oldv)){
+          this.target.setContext(this.context.getText());
+          ProviderNode.this.updateData(Context.INITIAL_CONTEXT_FACTORY,oldv,newv);
+        }
+      }
+      else if (event.getSource()==this.authentification){
+        newv = this.authentification.getText();
+        oldv = this.target.getAuthentification();
+        if (!newv.equals(oldv)){
+          this.target.setAuthentification(this.authentification.getText());
+          ProviderNode.this.updateData(Context.SECURITY_AUTHENTICATION,oldv,newv);
+        }
+      }
+      else if (event.getSource()==this.credentials){
+        newv = this.credentials.getText();
+        oldv = this.target.getCredentials();
+        if (!newv.equals(oldv)){
+          this.target.setCredentials(this.credentials.getText());
+          ProviderNode.this.updateData(Context.SECURITY_CREDENTIALS,oldv,newv);
+        }
+      }
+      else if (event.getSource()==this.principal){
+        newv = this.principal.getText();
+        oldv = this.target.getPrincipal();
+        if (!newv.equals(oldv)){
+          this.target.setPrincipal(this.principal.getText());
+          ProviderNode.this.updateData(Context.SECURITY_PRINCIPAL,oldv,newv);
+        }
+      }
+      else if (event.getSource()==this.root){
+        newv = this.root.getText();
+        oldv = this.target.getRoot();
+        if (!newv.equals(oldv)){
+          this.target.setRoot(this.root.getText());
+          ProviderNode.this.updateData(JndiRootNode.NB_ROOT,oldv,newv);
+        }
+      }
+    }
+  
+    public void focusGained(final java.awt.event.FocusEvent event) {
+    }
+  
+  
+    /** Handles action fired when additional properties are changed in customizer
+     *  @param ListDataEvent event
+     */
+    public void intervalAdded(final javax.swing.event.ListDataEvent event) {
+      if (event.getSource()==this.properties){
+        Vector newv = properties.asVector();
+        this.target.setAdditional(newv);
+        ProviderNode.this.updateData(ProviderProperties.ADDITIONAL,newv,null);
+      }
+    }
+
+    /** Handles action fired when additional properties are changed in customizer
+     *  @param ListDataEvent event
+     */
+    public void intervalRemoved(final javax.swing.event.ListDataEvent event) {
+      if (event.getSource()==this.properties){
+        Vector newv = properties.asVector();
+        this.target.setAdditional(newv);
+        ProviderNode.this.updateData(ProviderProperties.ADDITIONAL,newv,null);
+      }
+    }
+
+    /** Handles action fired when additional properties are changed in customizer
+     *  @param ListDataEvent event
+     */
+    public void contentsChanged(final javax.swing.event.ListDataEvent event) {
+      if (event.getSource()==this.properties){
+        Vector newv = properties.asVector();
+        this.target.setAdditional(newv);
+        ProviderNode.this.updateData(ProviderProperties.ADDITIONAL,newv,null);
+      }
+    }
+  }
+  
   
 }

@@ -42,7 +42,7 @@ import org.openide.nodes.Sheet;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
-
+import com.netbeans.enterprise.modules.jndi.utils.Refreshd;
 
 /** Top Level JNDI Node
  *
@@ -61,6 +61,9 @@ public final class JndiRootNode extends AbstractNode{
   
   /** The holder of an instance of this class*/
   private static JndiRootNode instance = null;
+  
+  /** The asynchronous refresher*/
+  Refreshd refresher;
 
   
   /** Constructor
@@ -68,6 +71,8 @@ public final class JndiRootNode extends AbstractNode{
   public JndiRootNode() {
     super(new Children.Array());
     instance = this;
+    this.refresher = new Refreshd();
+    this.refresher.start();
     setName("JNDI");
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiRootNode.NB_ROOT));
     JndiProvidersNode drivers = new JndiProvidersNode();
@@ -186,9 +191,49 @@ public final class JndiRootNode extends AbstractNode{
    *  @param credentials credentials for naming system
    *  @param prop vector type java.lang.String, additional properties in form key=value
    */
-  public void addContext(String label, String factory, String context, String root, String authentification, String principal, String credentials, Vector prop)
-    throws NamingException {
-      if (label==null || factory==null || label.equals("") || factory.equals("")) throw new JndiException("Arguments missing");
+  public void addContext(String label, String factory, String context, String root, String authentification, String principal, String credentials, Vector prop) throws NamingException {
+      Properties env = createContextProperties(label,factory,context,root, authentification, principal, credentials, prop);
+      this.addContext (env);
+  }
+  
+  /** This method adds new Context
+   *  @param Hashtable properties of context
+   **/
+  void addContext (Hashtable properties) throws NamingException {
+      JndiDirContext ctx = new JndiDirContext(properties);
+      String root = (String)properties.get(NB_ROOT);
+      Context rootedCtx;
+      if (root != null){
+        rootedCtx = (Context) ctx.lookup(root);
+      }
+      else{
+        rootedCtx = ctx;
+      }
+      addContext(rootedCtx);
+  }
+  
+  /** This methods adds new Context
+   *  @param javax.naming.Context context
+   *  @exception java.naming.NamingException
+   */
+  void addContext (Context rootedCtx) throws NamingException {
+      JndiNode[] nodes = new JndiNode[1];
+      nodes[0]= new JndiNode(rootedCtx);
+      this.getChildren().add(nodes);
+  }
+  
+  /** This method transforms parameters to properties for Context
+   *  @param label name of node
+   *  @param factory JndiFactory
+   *  @param context starting Context
+   *  @param authentification authentification to naming system
+   *  @param principals principals for naming system
+   *  @param credentials credentials for naming system
+   *  @param prop vector type java.lang.String, additional properties in form key=value
+   *  @exception JndiException
+   */
+   final Properties createContextProperties (String label, String factory, String context, String root, String authentification, String principal, String credentials, Vector prop) throws JndiException{
+    if (label==null || factory==null || label.equals("") || factory.equals("")) throw new JndiException("Arguments missing");
       Properties env = new Properties();
       env.put(JndiRootNode.NB_LABEL,label);
       env.put(Context.INITIAL_CONTEXT_FACTORY,factory);
@@ -220,42 +265,13 @@ public final class JndiRootNode extends AbstractNode{
           env.put(path, tk.nextToken());
         }
       }
-      this.addContext (env);
+      return env;
   }
-  
-  /** This method adds new Context
-   *  @param Hashtable properties of context
-   **/
-  void addContext (Hashtable properties) throws NamingException {
-      JndiDirContext ctx = new JndiDirContext(properties);
-      String root = (String) properties.get(NB_ROOT);
-      Context rootedCtx;
-      if (root != null){
-        rootedCtx = (Context) ctx.lookup(root);
-      }
-      else{
-        rootedCtx = ctx;
-      }
-      JndiNode[] nodes = new JndiNode[1];
-      nodes[0]= new JndiNode(rootedCtx);
-      this.getChildren().add(nodes);
-  }
-  
-  
-  /** This method adds an disabled Context
-   *  @param Hashtable properties of Context
-   */
-  public void addDisabledContext ( Hashtable properties) {
-    Node[] nodes = new Node[1];
-    nodes[0]= new JndiDisabledNode(properties);
-    this.getChildren().add(nodes);
-  }
-  
   
   /**This function takes a string and converts it to set of properties
    * @return Properties set of properties if Ok, null on error
    */ 
-  protected Properties parseStartContext(String ident) throws NamingException {
+  private Properties parseStartContext(String ident) throws NamingException {
     StringTokenizer tk = new StringTokenizer(ident,"|");
     Properties env = new Properties();
     
@@ -281,6 +297,16 @@ public final class JndiRootNode extends AbstractNode{
       // no more elements
     }
     return env;
+  }
+  
+  
+  /** This method adds an disabled Context
+   *  @param Hashtable properties of Context
+   */
+  public final void addDisabledContext ( Hashtable properties) {
+    Node[] nodes = new Node[1];
+    nodes[0]= new JndiDisabledNode(properties);
+    this.getChildren().add(nodes);
   }
   
   

@@ -98,5 +98,5 @@ public class SimpleListModel extends javax.swing.AbstractListModel {
   public int getSize(){
     return this.data.size();
   }
-  
+    
 }

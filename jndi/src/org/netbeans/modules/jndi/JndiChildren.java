@@ -15,14 +15,15 @@ package com.netbeans.enterprise.modules.jndi;
 
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.naming.CompositeName;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NameClassPair;
 import javax.naming.Context;
-
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import com.netbeans.enterprise.modules.jndi.utils.APCTarget;
 
 /** Children class for Directories in JNDI tree.
  *  It's responsible for lazy initialization as well
@@ -30,7 +31,7 @@ import org.openide.nodes.Node;
  *
  *  @author Ales Novak, Tomas Zezula 
  */
-final class JndiChildren extends Children.Keys {
+public final class JndiChildren extends Children.Keys implements APCTarget {
 
   /** This constant represents the name of context class */  
   public final static String CONTEXT_CLASS_NAME = "javax.naming.Context";
@@ -42,17 +43,34 @@ final class JndiChildren extends Children.Keys {
   private final Context parentContext;
 
   /** Offset in Initial Directory context */
-  private final CompositeName offset;	
-  
+  private final CompositeName offset;
+ 
+  /** The shadow key list for merginag and handling errors*/
+  private ArrayList keys;
   
   /** Constructor
    *  @param parentContext the initial context
    *  @param offset the relative offset of Node in context
    */
-  public JndiChildren(Context parentContext, CompositeName offset) throws NamingException {
+  public JndiChildren(Context parentContext, CompositeName offset){
     this.parentContext = parentContext;
     this.offset = offset;
+    this.keys = new ArrayList();
+  }
+  
+  /** Called when node is being opened
+   */
+  protected void addNotify(){
+    //Construct WaitNode key
+    JndiKey waitKey = new JndiKey();
+    setKeys (new Object[]{waitKey});
     prepareKeys();
+  }
+  
+  /** Called when node is not being used any more
+   */
+  protected void removeNotify(){
+    setKeys (Collections.EMPTY_SET);
   }
   
   /** Returns actual offset
@@ -72,45 +90,48 @@ final class JndiChildren extends Children.Keys {
   /** This method creates keys
    *  exception NamingException if Context.list() failed
    */
-  public void prepareKeys() throws NamingException {
-    NamingEnumeration ne = parentContext.list(offset);
-    if (ne == null) return;
-    ArrayList v = new ArrayList();
-    while (ne.hasMore()) {
-      v.add(ne.next());
-     }
-     JndiChildren.this.setKeys(v);
+  public void prepareKeys(){
+    JndiRootNode.getDefault().refresher.addNewItem(this);
   }
   
   /** Creates Node for key
    *  @param key the key for which the Node should be created
    *  @return the array of created Nodes
    */
-  public Node[] createNodes(Object key) {
+  public Node[] createNodes(Object key) {   
     NameClassPair np = null;
     String objName = null;
     CompositeName newName = null;
-    try {
-      if (key == null) {
-        return null;
-      }
-      if (! (key instanceof NameClassPair)) {
-        return null;
-      }
-
-      np = (NameClassPair) key;
+    if (key == null) {
+      return null;
+    }
+    if (! (key instanceof JndiKey)) {
+      return null;
+    }
+    if (((JndiKey)key).wait){
+      // Temporary Wait Node
+      // This Node has no data part, has to be handled here
+      return new Node[]{new WaitNode()};
+    }
+    try{
+      np =  ((JndiKey)key).name;
       objName = np.getName();
       newName = (CompositeName) ((CompositeName) offset.clone()).add(objName);
-      
-      if (isContext(np.getClassName())) {
-        return new Node[] {new JndiNode(parentContext, newName, objName)};
-      } else {
-        return new Node[] {new JndiLeafNode(parentContext, newName, objName, np.getClassName())};
+      if (((JndiKey)key).failed){
+        // Failed Node
+        return new Node[] {new JndiFailedNode(key, parentContext, newName, objName, np.getClassName())};
       }
-    } catch (NamingException ne) {
-      try{
-        return new Node[] {new JndiFailedNode(parentContext, newName, objName, np.getClassName())};
-      }catch(NamingException ne2) {return new Node[0];}
+      else if (isContext(np.getClassName())) {
+        // Contex Node 
+        return new Node[] {new JndiNode(key, parentContext, newName, objName)};
+      }else{
+        // Leaf Node
+        return new Node[] {new JndiLeafNode(key, parentContext, newName, objName, np.getClassName())};
+      }
+    }catch (NamingException ne){
+      // Any of the context operations failed
+      // try to add at least Failed Node
+        return new Node[] {new JndiFailedNode(key, parentContext, newName, objName, np.getClassName())};
     }
   }
 
@@ -166,11 +187,54 @@ final class JndiChildren extends Children.Keys {
     }
     return ctxClass;
   }
+  
+  /** This method is called by Refreshd thread before performing
+   *  main action
+   */
+  public void preAction() throws Exception{
+  }
+  
+  /** This is the main action called by Refreshd
+   */
+  public void performAction() throws Exception{
+    NamingEnumeration ne = parentContext.list(offset);
+    this.keys.clear();
+    if (ne == null)
+      return;
+    int i=0;
+    while (ne.hasMore()){
+      this.keys.add(new JndiKey((NameClassPair)ne.next()));
+      i++;
+     }
+  }
+  
+  
+  /** This action is called by Refreshd after performing main action
+   */
+  public void postAction() throws Exception{
+    JndiChildren.this.setKeys(this.keys);
+  }
+  
+  /** public method that returns the node for which the Children is created
+   *  @return Node
+   */
+  public final Node getOwner(){
+    return this.getNode();
+  }
+  
+  /** This method calls the refreshKey method of Children,
+   *  used by Refreshd for changing the failed nodes
+   * @see com.netbeans.enterprise.modules.jndi.utils.Refreshd
+   */
+  public void updateKey(Object key){
+    this.refreshKey(key);
+  }
 }
 
 
 /*
  * <<Log>>
+ *  13   Gandalf-post-FCS1.11.2.0    2/24/00  Ian Formanek    Post FCS changes
  *  12   Gandalf   1.11        1/14/00  Tomas Zezula    
  *  11   Gandalf   1.10        12/17/99 Tomas Zezula    
  *  10   Gandalf   1.9         12/15/99 Tomas Zezula    

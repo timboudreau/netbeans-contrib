@@ -21,6 +21,8 @@ package com.netbeans.enterprise.modules.jndi;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeSupport;
+import java.util.Vector;
 /** 
  *
  * @author  tzezula
@@ -29,10 +31,12 @@ import java.awt.*;
 public class NewProviderPanel extends AbstractNewPanel {
 
   JTextField factory;
+  private PropertyChangeSupport listeners;
   
   /** Creates new NewProviderPanel */
   public NewProviderPanel() {
     super();
+    this.listeners = new PropertyChangeSupport(this);
   }
   
     /** Accessor for Factory

@@ -21,7 +21,7 @@ import javax.naming.NamingException;
  *
  *  @author Tomas Zezula 
  */
-final class JndiException extends NamingException {
+public final class JndiException extends NamingException {
   
   /** Constructor*/
   public JndiException() {

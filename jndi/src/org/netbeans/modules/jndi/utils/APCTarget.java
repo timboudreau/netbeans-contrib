@@ -19,7 +19,7 @@ package com.netbeans.enterprise.modules.jndi.utils;
  * @version 
  */
 public interface APCTarget {
-  public void preAction();
+  public void preAction() throws Exception;
   public void performAction() throws Exception;
-  public void postAction();
+  public void postAction() throws Exception;
 }

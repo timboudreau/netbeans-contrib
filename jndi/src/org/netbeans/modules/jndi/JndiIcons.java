@@ -16,6 +16,7 @@ package com.netbeans.enterprise.modules.jndi;
 import java.util.Hashtable;
 import javax.naming.NameClassPair;
 
+
 /** This class is an icon holder.
  *   
  * @author Tomas Zezula
@@ -31,6 +32,7 @@ abstract class JndiIcons extends Object {
                                               ProviderNode.DRIVER,"driver",
                                               ProviderNode.DISABLED_DRIVER,"disableddriver",
                                               JndiDisabledNode.DISABLED_CONTEXT_ICON,"disabled",
+                                              WaitNode.WAIT_ICON,"wait",
                                               "javax.naming.Context","folder",
                                               "java.io.File","file"};
   /** Hashtable with Class name as key, Icon name as value*/

@@ -15,6 +15,7 @@ package com.netbeans.enterprise.modules.jndi;
 
 import java.util.Hashtable;
 import javax.naming.NamingException;
+import javax.naming.Context;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
@@ -69,11 +70,27 @@ public class JndiDisabledNode extends JndiAbstractNode implements Refreshable, N
     };
   }
   
+  /** Refreshs the node
+   *  If the node is failed, and the preconditions required by the context
+   *  of this node are satisfied, than change the node to JndiNode
+   */
   public void refresh() {
     try{
       JndiRootNode root = JndiRootNode.getDefault();
-      root.addContext(this.properties);
-      this.destroy();
+      // We create the Context manually not by JndiRootNode factory
+      // because we have to check if the context is in order,
+      // if not than we do nothing.
+      Context ctx = new JndiDirContext(this.properties);
+      String startOffset = (String) this.properties.get(JndiRootNode.NB_ROOT);
+      if (startOffset != null && startOffset.length() > 0){
+        ctx  = (Context) ctx.lookup(startOffset);
+       }else{
+         // If we don't perform lookup
+         // we should check the context
+             ((JndiDirContext)ctx).checkContext();
+       }
+       root.addContext(ctx);
+       this.destroy();
     }catch(NamingException ne){
       // If exception was thrown than we don't
       // remove the node

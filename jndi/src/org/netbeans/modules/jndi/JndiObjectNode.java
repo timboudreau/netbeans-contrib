@@ -45,13 +45,26 @@ import com.netbeans.enterprise.modules.jndi.utils.JndiPropertyMutator;
 */
 abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, TemplateCreator, JndiPropertyMutator{   
 
+  
+  private Object key;
+  
   /**
   * @param children
   * @param name
   */
-  public JndiObjectNode(Children children, String name) {
+  public JndiObjectNode(Object key, Children children, String name) {
     super (children,name);
+    this.key = key;
     getCookieSet().add(this);
+  }
+  
+  
+  /** Returns the key for which this node was created or
+   *  null for root of the naming system
+   *  @return Object key
+   */
+  public Object getKey(){
+    return this.key;
   }
   
   /** @return true */
@@ -206,6 +219,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
 
 /*
 * <<Log>>
+*  12   Gandalf-post-FCS1.10.2.0    2/24/00  Ian Formanek    Post FCS changes
 *  11   Gandalf   1.10        1/14/00  Tomas Zezula    
 *  10   Gandalf   1.9         1/14/00  Tomas Zezula    
 *  9    Gandalf   1.8         12/17/99 Tomas Zezula    
