@@ -16,6 +16,7 @@ package org.netbeans.modules.vcscore;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.ObjectInputStream;
+import java.io.StringBufferInputStream;
 import java.io.IOException;
 import java.io.NotActiveException;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
+import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.versioning.RevisionChildren;
@@ -554,7 +556,26 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         }
         
         public java.io.InputStream inputStream(String name, String revision) throws java.io.FileNotFoundException {
-            return fileSystem.inputStream(name);
+            VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_REVISION_OPEN);
+            if (cmd == null) return null;
+            //VcsCommandExecutor vce = getVcsFactory().getCommandExecutor(cmd, getVariablesAsHashtable());
+            Table files = new Table();
+            files.put(name, fileSystem.findFileObject(name));
+            final StringBuffer fileBuffer = new StringBuffer();
+            CommandOutputListener fileListener = new CommandOutputListener() {
+                public void outputLine(String line) {
+                    if (line != null) {
+                        fileBuffer.append(line + "\n");
+                    }
+                }
+            };
+            Hashtable additionalVars = new Hashtable();
+            additionalVars.put("REVISION", revision);
+            VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, additionalVars, fileSystem, fileListener, null, null, null);
+            for (int i = 0; i < vces.length; i++) {
+                fileSystem.getCommandsPool().waitToFinish(vces[i]);
+            }
+            return new StringBufferInputStream(fileBuffer.toString());
         }
     }
 
