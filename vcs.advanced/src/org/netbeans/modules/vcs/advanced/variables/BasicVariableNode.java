@@ -512,8 +512,13 @@ public class BasicVariableNode extends AbstractNode {
                     //cmd.fireChanged();
                 }
                 
+                private PropertyEditor cachedPropertyEditor;
+                
                 public PropertyEditor getPropertyEditor() {
-                    return new ConditionedString.ConditionedStringPropertyEditor();
+                    if (cachedPropertyEditor == null) {
+                        cachedPropertyEditor = new ConditionedString.ConditionedStringPropertyEditor();
+                    }
+                    return cachedPropertyEditor;
                 }
             });
         } else {

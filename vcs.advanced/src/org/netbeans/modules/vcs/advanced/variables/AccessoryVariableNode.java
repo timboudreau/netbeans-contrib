@@ -373,8 +373,13 @@ public class AccessoryVariableNode extends AbstractNode {
                     return cs;
                 }
 
+                private PropertyEditor cachedPropertyEditor;
+                
                 public PropertyEditor getPropertyEditor() {
-                    return new ConditionedString.ConditionedStringPropertyEditor();
+                    if (cachedPropertyEditor == null) {
+                        cachedPropertyEditor = new ConditionedString.ConditionedStringPropertyEditor();
+                    }
+                    return cachedPropertyEditor;
                 }
             });
         } else {
@@ -428,8 +433,13 @@ public class AccessoryVariableNode extends AbstractNode {
                     cs = (ConditionedString) value;
                 }
                 
+                private PropertyEditor cachedPropertyEditor;
+                
                 public PropertyEditor getPropertyEditor() {
-                    return new ConditionedString.ConditionedStringPropertyEditor();
+                    if (cachedPropertyEditor == null) {
+                        cachedPropertyEditor = new ConditionedString.ConditionedStringPropertyEditor();
+                    }
+                    return cachedPropertyEditor;
                 }
             });
         } else {
