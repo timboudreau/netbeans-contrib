@@ -55,6 +55,11 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     
     public RelativeMountPanel(String label, char labelMnc, String moduleLabel, char moduleMnc) {
         initComponents ();
+        if (System.getProperty("java.version").startsWith("1.3")
+            && UIManager.getSystemLookAndFeelClassName().equals("com.sun.java.swing.plaf.windows.WindowsLookAndFeel")) {
+            //workaround for WindowsLookAndFeel error.  see issue 29753. dnoyeb@users.sourceforge.net
+            trRelMount.setLargeModel(false);
+        }
         resultRelativePaths = true;
         if (label != null) {
             lbRmpSelect.setText(label);
