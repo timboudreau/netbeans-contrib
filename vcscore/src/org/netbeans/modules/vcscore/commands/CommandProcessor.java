@@ -749,11 +749,12 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                     err = tderr;
                 } catch (Throwable t) {
                     ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
+                } finally {
+                    threadTaskInfo.set(null);
+                    cw.setRunningThread(null);
+                    commandDone(cw);
+                    //System.out.println("FINISHED: "+cw.getTask().getName()+", ID = "+cw.getCommandID()+", thread = "+Thread.currentThread()+", hash = "+Thread.currentThread().hashCode());
                 }
-                threadTaskInfo.set(null);
-                cw.setRunningThread(null);
-                commandDone(cw);
-                //System.out.println("FINISHED: "+cw.getTask().getName()+", ID = "+cw.getCommandID()+", thread = "+Thread.currentThread()+", hash = "+Thread.currentThread().hashCode());
                 if (err != null) throw err;
             }
         //}).start();
@@ -771,6 +772,8 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                         //System.out.println("CommandProcessor: CAN RUN: "+cwTest.getTask().getName()+" ("+cwTest.getCommandID()+")");
                         cw = cwTest;
                         break;
+                    } else {
+                        //System.out.println("CommandProcessor: CAN NOT RUN: "+cwTest.getTask().getName()+" ("+cwTest.getCommandID()+")");
                     }
                 }
                 if (cw != null) {
@@ -933,7 +936,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     private synchronized boolean canRun(CommandTaskInfo cw) {
         // at first check for the maximum number of running commands
         CommandTask task = cw.getTask();
-        //System.out.println("canRun("+cmd.getName()+")");
+        //System.out.println("canRun("+task.getName()+")");
         if (tasksRunning.size() >= MAX_NUM_RUNNING_COMMANDS ||
             task.getPriority() == 0 && numRunningNormalPriority >= MAX_NORMAL_PRIORITY ||
             isListCommandTask(task) && numRunningListCommands >= MAX_NUM_RUNNING_LISTS) {
@@ -1103,6 +1106,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             if (t != null) t.interrupt();
             else {
                 taskWaitQueue.remove(cw);
+                cw.cancel();
                 cw.setInterrupted(true);
                 commandDone(cw);
             }

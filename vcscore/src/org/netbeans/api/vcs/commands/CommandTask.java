@@ -127,6 +127,23 @@ public abstract class CommandTask extends Task {
         //outputListeners = null;
     }
     
+    final void cancel() {
+        if (status == STATUS_NOT_STARTED) {
+            try {
+                notifyRunning();
+            } finally {
+                status = STATUS_INTERRUPTED;
+                try {
+                    notifyFinished();
+                } finally {
+                    synchronized (notifyLock) {
+                        notifyLock.notifyAll();
+                    }
+                }
+            }
+        }
+    }
+    
     /**
      * Put the actual execution of this task here.
      * This method will be called automatically after process() call. Do NOT call this

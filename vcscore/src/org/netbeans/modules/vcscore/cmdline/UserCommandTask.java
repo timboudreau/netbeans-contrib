@@ -89,6 +89,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     private VcsRuntimeCommand runtimeCommand;
     private VcsCommandVisualizer visualizerGUI;
     private VcsCommandVisualizer visualizerText;
+    private boolean parentGUIVisualizer;
     private File spawnRefreshFile;
     private boolean spawnRefreshRecursively;
     
@@ -115,6 +116,23 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             ((ExecuteCommand) this.executor).setTask(this);
         }
         outputCollector = new CommandOutputCollector(this, cmdSupport.getExecutionContext().getCommandsProvider());
+        addTaskListener(new TaskListener() {
+            public void taskFinished(Task task) {
+                synchronized (pendingTasks) {
+                    pendingTasks.remove(task); // It finished, it can not be pending. It might be canceled.
+                }
+                synchronized (runningTasks) {
+                    runningTasks.remove(task); // for sure. If canRun() returns true, but the task is canceled.
+                }
+                if (visualizerGUI != null && !parentGUIVisualizer) {
+                    visualizerGUI.setExitStatus(getExitStatus());
+                }
+                if (visualizerText != null) {
+                    visualizerText.setExitStatus(getExitStatus());
+                }
+                UserCommandTask.this.removeTaskListener(this);
+            }
+        });
     }
     
     private VcsCommandExecutor createExecutor() {
@@ -363,6 +381,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                 UserCommandTask parentTask = (UserCommandTask) CommandProcessor.getInstance().getParentTask(this);
                 if (parentTask != null) {
                     visualizerGUI = parentTask.getVisualizerGUI();
+                    parentGUIVisualizer = true;
                 }
             }
             if (visualizerGUI == null) {
@@ -404,17 +423,6 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
 
     protected int execute() {
         int status = STATUS_SUCCEEDED;
-        addTaskListener(new TaskListener() {
-            public void taskFinished(Task task) {
-                if (visualizerGUI != null) {
-                    visualizerGUI.setExitStatus(getExitStatus());
-                }
-                if (visualizerText != null) {
-                    visualizerText.setExitStatus(getExitStatus());
-                }
-                UserCommandTask.this.removeTaskListener(this);
-            }
-        });
         try {
             //runningTasks.add(this);//, Thread.currentThread());
             // Task is added as running when canRun() returns true. It's too late to do it here!
@@ -509,7 +517,6 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                 
             }
         }
-    
     }
     
     /*
@@ -611,9 +618,11 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
      * @return true if the command can be run in the current monitor lock, false otherwise.
      */
     private boolean canRun(UserCommandTask task) {
-        if (!pendingTasks.contains(task)) {
-            pendingTasks.add(task);
-            //System.out.println("PENDING TASK ADDED: "+task);
+        synchronized (pendingTasks) {
+            if (!pendingTasks.contains(task)) {
+                pendingTasks.add(task);
+                //System.out.println("PENDING TASK ADDED: "+task);
+            }
         }
         VcsCommandExecutor vce = task.getExecutor();
         VcsCommand cmd = vce.getCommand();
@@ -650,12 +659,14 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             }
             if ((concurrency & VcsCommand.EXEC_SERIAL_WITH_PENDING) != 0) {
                 //tasksToTest = new HashSet(runningTasks);
-                for (Iterator pendingIt = pendingTasks.iterator(); pendingIt.hasNext(); ) {
-                    UserCommandTask pendingTask = (UserCommandTask) pendingIt.next();
-                    if (pendingTask != task) {
-                        tasksToTest.add(pendingTask);
-                    } else {
-                        break;
+                synchronized (pendingTasks) {
+                    for (Iterator pendingIt = pendingTasks.iterator(); pendingIt.hasNext(); ) {
+                        UserCommandTask pendingTask = (UserCommandTask) pendingIt.next();
+                        if (pendingTask != task) {
+                            tasksToTest.add(pendingTask);
+                        } else {
+                            break;
+                        }
                     }
                 }
             }
@@ -705,8 +716,10 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                 runningTasks.add(task);
                 //System.out.println("RUNNING TASK ADDED: "+task);
             }
-            pendingTasks.remove(task);
-            //System.out.println("PENDING TASK REMOVED: "+task);
+            synchronized (pendingTasks) {
+                pendingTasks.remove(task);
+                //System.out.println("PENDING TASK REMOVED: "+task);
+            }
         }
         return !haveToWait;
     }

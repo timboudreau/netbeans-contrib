@@ -40,4 +40,8 @@ class CommandTaskInfoImpl extends org.netbeans.modules.vcscore.commands.CommandT
         task.runCommandTask();
     }
     
+    protected void cancel() {
+        task.cancel();
+    }
+    
 }

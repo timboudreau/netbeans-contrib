@@ -91,6 +91,8 @@ public abstract class CommandTaskInfo {
         return interrupted;
     }
     
+    protected abstract void cancel();
+    
     void setStartTime(long startTime) {
         this.startTime = startTime;
     }
