@@ -238,6 +238,9 @@ public class CommandExecutorSupport extends Object {
                     exec = exec.substring(0, index) + glInput + exec.substring(index + search.length());
                     pos = index + search.length();
                 }
+                synchronized (vars) {
+                    vars.put(USER_GLOBAL_PARAM, glInput); // Put it as a variable, so that it can be used in sub-commands.
+                }
             }
         }
         return exec;
