@@ -43,7 +43,7 @@ public class ForwardAction extends AbstractAction implements ChangeListener, Hel
      */
     public ForwardAction() {
         putValue(Action.NAME, getName());
-        putValue(Action.SMALL_ICON, getIcon());
+        Utilities.setActionIcons(this, "org/netbeans/modules/bookmarks/resources/forward.gif");
         navigationService.addChangeListener(
             WeakListener.change(this, navigationService));
         setEnabled(navigationService.canNavigateForward());
@@ -54,13 +54,6 @@ public class ForwardAction extends AbstractAction implements ChangeListener, Hel
      */
     public String getName() {
         return NbBundle.getBundle(ForwardAction.class).getString("Forward");
-    }
-    
-    /**
-     * @returns icon for the action
-     */
-    public Icon getIcon() {
-        return new ImageIcon(Utilities.loadImage("org/netbeans/modules/bookmarks/resources/forward.gif"));
     }
     
     /**

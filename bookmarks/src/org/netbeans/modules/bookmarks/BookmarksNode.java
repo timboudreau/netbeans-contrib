@@ -13,14 +13,20 @@
 
 package org.netbeans.modules.bookmarks;
 
+import java.awt.Image;
 import java.io.IOException;
+import javax.swing.Icon;
 
+import org.openide.ErrorManager;
 import org.openide.nodes.*;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
+import org.openide.cookies.InstanceCookie;
 import org.openide.actions.*;
 import org.openide.loaders.DataFolder;
+
+import org.netbeans.api.bookmarks.Bookmark;
 
 /**
  * The nodes that serve for the bookmarks customization
@@ -72,6 +78,7 @@ public class BookmarksNode extends FilterNode {
     public SystemAction[] getActions () {
         if (canCopy) {
             return new SystemAction[] {
+                SystemAction.get(NewAction.class),
                 SystemAction.get(CutAction.class),
                 SystemAction.get(CopyAction.class),
                 SystemAction.get(PasteAction.class),
@@ -90,6 +97,49 @@ public class BookmarksNode extends FilterNode {
         }
     }
     
+    /**
+     * Computes the icon from the associated Bookmark object. The icon
+     * is extracted from the bookmark using 
+     * <code>getMenuPresenter().getIcon()</code>.
+     */
+    public Image getIcon (int type) {
+        InstanceCookie.Of icof = (InstanceCookie.Of)getLookup().lookup(InstanceCookie.Of.class);
+        if (icof != null) {
+            if (! icof.instanceOf(Bookmark.class)) {
+                return super.getIcon (type);
+            }
+        }
+        try {
+            InstanceCookie ic = (InstanceCookie)getLookup().lookup(InstanceCookie.class);
+            if (ic == null) {
+                return super.getIcon (type);
+            }
+            Class actualClass = ic.instanceClass ();
+            if (! Bookmark.class.isAssignableFrom (actualClass)) {
+                return super.getIcon (type);
+            }
+
+            // ok - now we know that this node represents a bookmark
+            Bookmark b = (Bookmark)ic.instanceCreate();
+            if (b == null) {
+                return super.getIcon(type);
+            }
+            Icon icon = b.getMenuPresenter().getIcon();
+            if (icon == null) {
+                return super.getIcon(type);
+            }
+            Image res = createBufferedImage(icon.getIconWidth(), icon.getIconHeight());
+            icon.paintIcon(null, res.getGraphics(), 0, 0);
+            return res;
+        } catch (IOException ioe) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+        } catch (ClassNotFoundException cnfe) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, cnfe);
+        }
+        return super.getIcon(type);
+    }
+
+
     /* List new types that can be created in this node.
      * @return new types
      */
@@ -165,4 +215,14 @@ public class BookmarksNode extends FilterNode {
             return new BookmarksNode(child, true);
         }
     }
+    
+    /** Creates BufferedImage 16x16 and Transparency.BITMASK */
+    private static final java.awt.image.BufferedImage createBufferedImage(int width, int height) {
+        java.awt.image.ColorModel model = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().
+                                          getDefaultScreenDevice().getDefaultConfiguration().getColorModel(java.awt.Transparency.BITMASK);
+        java.awt.image.BufferedImage buffImage = new java.awt.image.BufferedImage(model,
+                model.createCompatibleWritableRaster(width, height), model.isAlphaPremultiplied(), null);
+        return buffImage;
+    }
+
 }

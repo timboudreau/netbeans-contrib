@@ -38,7 +38,7 @@ public class AddBookmarkAction extends AbstractAction implements HelpCtx.Provide
      */
     public AddBookmarkAction() {
         putValue(Action.NAME, getName());
-        putValue(Action.SMALL_ICON, getIcon());
+        Utilities.setActionIcons(this, "org/netbeans/modules/bookmarks/resources/add.gif");
         TopComponent.Registry reg = WindowManager.getDefault().getRegistry();
         reg.addPropertyChangeListener(
             WeakListener.propertyChange(this, reg));
@@ -53,13 +53,6 @@ public class AddBookmarkAction extends AbstractAction implements HelpCtx.Provide
         return NbBundle.getBundle(AddBookmarkAction.class).getString("AddBookmark");
     }
     
-    /**
-     * @returns icon for the action
-     */
-    public Icon getIcon() {
-        return new ImageIcon(Utilities.loadImage("org/netbeans/modules/bookmarks/resources/add.gif"));
-    }
-
     /**
      * Method implementint interface HelpCtx.Provider.
      * The ID for the help is created from the class name of this class.
