@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
 import org.openide.util.NbBundle;
 import org.openide.filesystems.*;
 
-import org.netbeans.modules.vcscore.settings.VcsSettings;
+import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.settings.RefreshModePropertyEditor;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 
@@ -80,16 +80,16 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             acceptUserParams = new PropertyDescriptor
                                (VcsFileSystem.PROP_EXPERT_MODE, CommandLineVcsFileSystem.class, "isExpertMode", "setExpertMode"); // NOI18N
             runRefreshCommand = new PropertyDescriptor
-                               (VcsSettings.PROP_OFFLINE, CommandLineVcsFileSystem.class, "isOffLine", "setOffLine"); // NOI18N
+                               (GeneralVcsSettings.PROP_OFFLINE, CommandLineVcsFileSystem.class, "isOffLine", "setOffLine"); // NOI18N
             annotationPattern = new PropertyDescriptor
                                (VcsFileSystem.PROP_ANNOTATION_PATTERN, CommandLineVcsFileSystem.class, "getAnnotationPattern", "setAnnotationPattern"); // NOI18N
             autoRefresh = new PropertyDescriptor
-                               (VcsSettings.PROP_AUTO_REFRESH, CommandLineVcsFileSystem.class, "getAutoRefresh", "setAutoRefresh"); // NOI18N
+                               (GeneralVcsSettings.PROP_AUTO_REFRESH, CommandLineVcsFileSystem.class, "getAutoRefresh", "setAutoRefresh"); // NOI18N
             autoRefresh.setPropertyEditorClass(RefreshModePropertyEditor.class);
             notification = new PropertyDescriptor
                                (VcsFileSystem.PROP_COMMAND_NOTIFICATION, CommandLineVcsFileSystem.class, "isCommandNotification", "setCommandNotification"); // NOI18N
             hideShadowFiles = new PropertyDescriptor
-                               (VcsSettings.PROP_HIDE_SHADOW_FILES, CommandLineVcsFileSystem.class, "isHideShadowFiles", "setHideShadowFiles"); // NOI18N
+                               (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, CommandLineVcsFileSystem.class, "isHideShadowFiles", "setHideShadowFiles"); // NOI18N
 
 
             desc = new PropertyDescriptor[] {
@@ -99,7 +99,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
-            ResourceBundle bundleSettings = NbBundle.getBundle (VcsSettings.class);
+            ResourceBundle bundleSettings = NbBundle.getBundle (GeneralVcsSettings.class);
 
             rootDirectory.setDisplayName      (bundle.getString("PROP_rootDirectory"));
             rootDirectory.setShortDescription (bundle.getString("HINT_rootDirectory"));
