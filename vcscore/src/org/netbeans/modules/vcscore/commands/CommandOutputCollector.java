@@ -184,7 +184,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
         if (vce == null || !vce.equals(this.vce)) return ;
         synchronized (CommandOutputCollector.class) {
             if (collectorsFreeTask == null) {
-                collectorsFreeTask = new RequestProcessor().create(new Runnable() {
+                collectorsFreeTask = RequestProcessor.getDefault().create(new Runnable() {
                     public void run() {
                         synchronized (CommandOutputCollector.class) {
                             for (Iterator it = outputCollectorsToFree.iterator(); it.hasNext(); ) {

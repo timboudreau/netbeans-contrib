@@ -77,10 +77,10 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     
     protected void addNotify() {
         if (list == null && initProcess != null) {
-            org.openide.util.RequestProcessor.postRequest(initProcess);
+            org.openide.util.RequestProcessor.getDefault().post(initProcess);
             initProcess = null;
         }
-        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+        org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 ArrayList notifList;
                 synchronized (notificationListeners) {
@@ -96,7 +96,7 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     }
     
     protected void removeNotify() {
-        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+        org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 ArrayList notifList;
                 synchronized (notificationListeners) {

@@ -397,7 +397,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
     }
     
     protected void refreshExistingFolders() {
-        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+        org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 Enumeration e = existingFileObjects(getRoot());
                 while (e.hasMoreElements()) {

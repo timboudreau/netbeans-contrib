@@ -314,7 +314,7 @@ public class VcsAttributes extends DefaultAttributes {
             // The scheduling is started. When all scheduling actions are done, a refresh is introduced.
             startFileScheduling(name);
             final FileObject primaryFO = primary;
-            RequestProcessor.postRequest(new Runnable() {
+            RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     scheduleSecondaryFOVcsAction(name, (String) value, fo, primaryFO);
                 }

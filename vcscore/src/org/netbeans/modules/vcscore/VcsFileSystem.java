@@ -654,7 +654,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     protected void refreshExistingFolders(final String name) {
-        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+        org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 FileObject root;
                 if (name == null) {
@@ -1660,7 +1660,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
         }
         if (isCreateVersioningSystem()) {
-            org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     //VersioningExplorer.getRevisionExplorer().open();
                     if (versioningSystem == null) {
@@ -1683,7 +1683,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         disableRefresh();
         //System.out.println("fileSystem Removed("+this+")");
         if (versioningSystem != null) {
-            org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     if (versioningSystem == null) return ;
                     removeVersioningFileSystem();
@@ -3966,7 +3966,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         D.deb("fileChanged("+name+")");
         if (statusProvider != null) {
             // Fire the change asynchronously to prevent deadlocks.
-            org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     String oldStatus = statusProvider.getFileStatus(name);
                     if (!notModifiableStatuses.contains(oldStatus)) {
