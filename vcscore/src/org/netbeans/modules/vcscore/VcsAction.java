@@ -1095,11 +1095,15 @@ public class VcsAction extends NodeAction implements ActionListener {
             CacheDir cDir = cacheProvider.getDir(fullName);
             if (cDir != null) {
                 vars.put("CACHED_ATTR", cDir.getAttr());
+            } else {
+                vars.remove("CACHED_ATTR");
             }
         } else {
             CacheFile cFile = cacheProvider.getFile(fullName);
             if (cFile != null) {
                 vars.put("CACHED_ATTR", cFile.getAttr());
+            } else {
+                vars.remove("CACHED_ATTR");
             }
         }
         vars.put("FILE_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// the FILE is a folder // NOI18N
