@@ -2494,7 +2494,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
             if (propName.startsWith(PROP_VAR_CHANGED)) {
                 propName = propName.substring(PROP_VAR_CHANGED.length());
                 String value = (String) evt.getNewValue();
-                vars.put(propName, value);
+                if (value == null) {
+                    vars.remove(propName);
+                } else {
+                    vars.put(propName, value);
+                }
                 enableSelectors(vars);
             }
         }
