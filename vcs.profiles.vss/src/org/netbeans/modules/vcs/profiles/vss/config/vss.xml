@@ -738,7 +738,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="EDIT">
 	<property name="exec">
-	  <value>${RUN} checkout ${OPTIONS} ${QFILE} ${NUR}</value>
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -te CHECKOUT_CONFIRM CHECKOUT_CONFIRMED</value>
 	</property>
 	<property name="data.regex">
 	  <value>(.*$)</value>
@@ -753,7 +753,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="concurrentExec">
-          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+          <value>-1</value> <!-- INERT -->
         </property>
       </command>
       <command name="GET_CONFIRM">
