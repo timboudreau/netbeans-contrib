@@ -19,6 +19,7 @@ import java.util.Hashtable;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.openide.filesystems.FileUtil;
 
 /**
  * After Import and before Checkout is executed, it's necessary to move
@@ -57,8 +58,9 @@ public class MoveImportedFolder extends Object implements VcsAdditionalCommand {
 
         String rootPath = (String) vars.get("ROOTDIR");
         String checkoutPath = (String) vars.get("CHECKOUT_ROOTDIR");
-        File root = new File(rootPath);
-        File checkoutRoot = new File(checkoutPath);
+        String reposDir = (String) vars.get("REPOS_DIR");
+        File root = FileUtil.normalizeFile(new File(rootPath));
+        File checkoutRoot = FileUtil.normalizeFile(new File(checkoutPath, reposDir));
         if (!root.equals(checkoutRoot)) {
             // Nothing will be moved when the checkout folder is different
             vars.put("IMPORTED_ORIG_FOLDER", root.getAbsolutePath());

@@ -17,16 +17,20 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+
 import org.netbeans.lib.cvsclient.CVSRoot;
+
 import org.netbeans.modules.vcs.advanced.globalcommands.GlobalExecutionContext;
 import org.netbeans.modules.vcs.advanced.recognizer.CommandLineVcsFileSystemInfo;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
-
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
+import org.netbeans.modules.vcscore.turbo.TurboUtil;
+
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
@@ -64,10 +68,28 @@ public class CvsGlobalRegister extends Object implements VcsAdditionalCommand {
         if ((dirName == null) || (dirName.length() ==0))
             return false;
         File dir = new File(dirName);
-        FSRegistry registry = FSRegistry.getDefault();               
+        FileObject fo;
+        try {
+            fo = FileUtil.toFileObject(dir);
+        } catch (IllegalArgumentException iaex) {
+            fo = null;
+        }
+        FSRegistry registry = FSRegistry.getDefault();
         FSInfo[] registeredInfos = registry.getRegistered();
         for (int i = 0; i < registeredInfos.length; i++) {
-            if (dir.equals(registeredInfos[i].getFSRoot())) {
+            File fsRoot = registeredInfos[i].getFSRoot();
+            FileObject fsfo;
+            try {
+                fsfo = FileUtil.toFileObject(fsRoot);
+            } catch (IllegalArgumentException iaex) {
+                fsfo = null;
+            }
+            boolean haveFOs = fo != null && fsfo != null;
+            if ((haveFOs && (fsfo.equals(fo) || FileUtil.isParentOf(fsfo, fo))) ||
+                (!haveFOs && dir.equals(fsRoot))) {
+                if (fo != null) {
+                    TurboUtil.refreshRecursively(fo);
+                }
                 return true; // It's already registered
             }
         }
