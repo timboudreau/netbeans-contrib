@@ -171,16 +171,13 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     Object newValue) {
         if (!silentUpdate) {
             supp.firePropertyChange(propertyName, oldValue, newValue);
-            if (getList() instanceof TaskListener) {
-                ((TaskListener) getList()).changedTask(this);
-            }
         }
     }
 
     protected final void fireStructureChanged() {
         if (!silentUpdate) {
-            if (getList() instanceof TaskListener) {
-                ((TaskListener) getList()).structureChanged(this);
+            if (getList() instanceof TaskList) {
+                ((TaskList) getList()).fireStructureChanged(this);
             }
             if (this instanceof TaskListener) {
                 ((TaskListener) this).structureChanged(this);
@@ -195,8 +192,8 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      */
     protected final void fireAddedTask(Task t) {
         if (!silentUpdate) {
-            if (getList() instanceof TaskListener) {
-                ((TaskListener) getList()).addedTask(t);
+            if (getList() instanceof TaskList) {
+                ((TaskList) getList()).fireAdded(t);
             }
             if (this instanceof TaskListener) {
                 ((TaskListener) this).addedTask(t);
@@ -212,8 +209,8 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      */
     protected final void fireRemovedTask(Task t) {
         if (!silentUpdate) {
-            if (getList() instanceof TaskListener) {
-                ((TaskListener) getList()).removedTask(this, t);
+            if (getList() instanceof TaskList) {
+                ((TaskList) getList()).fireRemoved(this, t);
             }
             if (this instanceof TaskListener) {
                 ((TaskListener) this).removedTask(this, t);

@@ -139,10 +139,6 @@ public class TaskChildren extends Children.Keys {
             }
         }
 
-        public void changedTask(Task t) {
-            // it's node job
-        }
-
         public void structureChanged(Task t) {
             if (t.isParentOf(parent)) {
                 refreshKeys();

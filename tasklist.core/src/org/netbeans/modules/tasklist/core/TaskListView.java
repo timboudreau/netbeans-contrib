@@ -348,14 +348,6 @@ public abstract class TaskListView extends TopComponent
         return null;
     }
 
-    public void changedTask(Task task) {
-        // Part of fix for #27670
-        // It leads to an exception after editing task's description
-        // directly in the treetable (see bugzilla)
-        //if(filter != null)
-        //setRoot();
-    }
-
     /**
      * Returns the <code>TableColumnModel</code> that contains all column information
      * of the table header.

@@ -32,7 +32,7 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-public class TaskList implements ObservableList, TaskListener {
+public class TaskList implements ObservableList {
 
     // List category
     final static String USER_CATEGORY = "usertasks"; // NOI18N
@@ -166,16 +166,6 @@ public class TaskList implements ObservableList, TaskListener {
         save();
     }
 
-    /**
-     * Mark this list as changed.
-     *
-     * @param task a task that was changed.
-     * @deprecated use changedTask(Task)
-     */
-    void markChanged(Task task) {
-        changedTask(task);
-    }
-
     /** Write tasks out to disk */
     public void save() {
         needSave = false;
@@ -228,19 +218,8 @@ public class TaskList implements ObservableList, TaskListener {
         listeners.remove(listener);
     }
 
-    /** Fire TaskListener.changedTask */
-    private void notifyChanged(Task task) {
-        if (listeners != null) {
-            int n = listeners.size();
-            for (int i = 0; i < n; i++) {
-                TaskListener tl = (TaskListener) listeners.get(i);
-                tl.changedTask(task);
-            }
-        }
-    }
-
     /** Fire TaskListener.addedTask */
-    protected void notifyAdded(Task task) {
+    protected void fireAdded(Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
@@ -279,7 +258,7 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     /** Fire TaskListener.structureChanged */
-    protected final void fireStructureChanged(Task task) {
+    protected void fireStructureChanged(Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
@@ -290,7 +269,7 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     /** Fire TaskListener.removedTask */
-    protected final void fireRemoved(Task pt, Task task) {
+    protected void fireRemoved(Task pt, Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
@@ -336,38 +315,6 @@ public class TaskList implements ObservableList, TaskListener {
      */
     public List getTasks() {
         return getRoot().getSubtasks();
-    }
-
-    // TaskListener implementation delegates events
-
-    /**
-     * @deprecated
-     */
-    public void selectedTask(Task task) {
-        notifySelected(task);
-    }
-    
-    /**
-     * @deprecated
-     */
-    public void warpedTask(Task task) {
-        notifyWarped(task);
-    }
-
-    public void addedTask(Task task) {
-        notifyAdded(task);
-    }
-    
-    public void removedTask(Task pt, Task task) {
-        fireRemoved(pt, task);
-    }
-
-    public void changedTask(Task task) {
-        notifyChanged(task);
-    }
-
-    public void structureChanged(Task task) {
-        fireStructureChanged(task);
     }
 
 //    ///* For debugging purposes:

@@ -403,10 +403,6 @@ public class TaskNode extends AbstractNode {
             // children's job
         }
 
-        public void changedTask(Task t) {
-            // we listen on task itself
-        }
-
         public void structureChanged(Task t) {
             if (t.getKey() == item.getKey()) {
                 // Special case -- we've made a leaf into one containing children!

@@ -180,10 +180,6 @@ public class TaskTest extends TestCase {
                 System.out.println("removedTask:" + t);
             }
 
-            public void changedTask(Task t) {
-                System.out.println("changedTask:" + t);
-            }
-
             public void structureChanged(Task t) {
                 System.out.println("structureChangedTask:" + t);
                 fail("Unexpected event");
@@ -235,10 +231,6 @@ public class TaskTest extends TestCase {
 
             public void removedTask(Task pt, Task t) {
                 System.out.println("removedTask:" + t);
-            }
-
-            public void changedTask(Task t) {
-                System.out.println("changedTask:" + t);
             }
 
             public void structureChanged(Task t) {
@@ -299,10 +291,6 @@ public class TaskTest extends TestCase {
                 System.out.println("removedTask:" + t);
                 if (c1 == t) tlCallbacks[0] = true;
                 if (c2 == t) tlCallbacks[1] = true;
-            }
-
-            public void changedTask(Task t) {
-                System.out.println("changedTask:" + t);
             }
 
             public void structureChanged(Task t) {

@@ -151,7 +151,7 @@ public class SuggestionList extends TaskList {
         Task parent = task.getParent();
         parent.addSubtask(task, append);
 
-        notifyAdded(task);
+        fireAdded(task);
     }
 
 

@@ -219,16 +219,6 @@ final class FilteredTasksList implements ObservableList {
             }
         }
 
-        public void changedTask(Task t) {
-            if (t.getSeed() instanceof SourceTaskProvider) {
-                Iterator it = listeners.iterator();
-                while (it.hasNext()) {
-                    TaskListener listener = (TaskListener) it.next();
-                    listener.changedTask(t);
-                }
-            }
-        }
-
         public void structureChanged(Task t) {
             // need to build it again
             try {

@@ -54,13 +54,6 @@ public interface TaskListener extends EventListener {
     void removedTask(Task pt, Task t);
 
     /**
-     * A task has been changed (some properties has been changed).
-     *
-     * @param t task that has changed
-     */
-    void changedTask(Task t);
-
-    /**
      * Invoked after the tree has drastically changed structure from a 
      * given node down. 
      *
