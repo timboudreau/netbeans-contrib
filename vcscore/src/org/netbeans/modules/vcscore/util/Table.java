@@ -59,11 +59,12 @@ public class Table extends AbstractMap {
     
     public synchronized Object remove(Object key) {
         Object old = null;
-        for(Iterator it = entries.iterator(); it.hasNext(); ) {
+        int i = 0;
+        for(Iterator it = entries.iterator(); it.hasNext(); i++) {
             Entry e = (Entry) it.next();
-            if (e.getKey() == key) {
+            if (e.getKey().equals(key)) {
                 old = e.getValue();
-                entries.remove(e);
+                entries.remove(i);
                 break;
             }
         }
@@ -140,8 +141,18 @@ public class Table extends AbstractMap {
             list.addFirst(obj);
         }
         
+        // Do NOT use this method, it behaves strange !!
         public boolean remove(Object o) {
-            return list.remove(o);
+            System.out.println("Table.SimpleSet.remove("+o+"): list = "+list+"\n, size = "+list.size());
+            System.out.println("o = ("+((Entry) o).getKey()+", "+((Entry) o).getValue()+")");
+            System.out.println("list.get(0) = ("+((Entry) list.get(0)).getKey()+", "+((Entry) list.get(0)).getValue()+")");
+            boolean removed = list.remove(o);
+            System.out.println("Table.SimpleSet.removed = "+removed+", size = "+list.size());
+            return removed;
+        }
+        
+        public Object remove(int i) {
+            return list.remove(i);
         }
         
         public int size() {
