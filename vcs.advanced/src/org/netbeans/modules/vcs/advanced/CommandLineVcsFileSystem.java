@@ -127,9 +127,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                     TopManager.getDefault ().notify (new NotifyDescriptor.Message (CommandLineVcsFileSystem.this.clg("DLG_ConfigurationPathNotFound", CONFIG_ROOT)));
                 }
             });
-        } else {
-            CONFIG_ROOT_FO = fo;
         }
+        CONFIG_ROOT_FO = fo;
     }
 
     //-------------------------------------------
@@ -201,12 +200,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return dir;
     }
 
-    protected void readConfigurationCompat () {
+    protected boolean readConfigurationCompat () {
         D.deb ("readConfigurationCompat ()"); // NOI18N
         //CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
         //            "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
         //CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
         setConfigFO();
+        if (CONFIG_ROOT_FO == null) return false;
         //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
         Properties props = VariableIOCompat.readPredefinedProperties(CONFIG_ROOT_FO, DEFAULT_CONFIG_NAME_COMPAT); // NOI18N
         setVariables (VariableIOCompat.readVariables(props));
@@ -214,6 +214,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         
         setCommands ((org.openide.nodes.Node) CommandLineVcsAdvancedCustomizer.readConfig (props));
         D.deb("readConfigurationCompat() done"); // NOI18N
+        return true;
     }
 
     protected boolean readConfiguration () {
@@ -222,6 +223,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         //            "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
         //CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
         setConfigFO();
+        if (CONFIG_ROOT_FO == null) return false;
         //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
         org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, DEFAULT_CONFIG_NAME); // NOI18N
         if (doc == null) return false;
