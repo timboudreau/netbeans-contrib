@@ -28,7 +28,7 @@ Microsystems, Inc. All Rights Reserved.
   <property name="tomcat.filename" value="jakarta-tomcat-5.0.19"/>
 
   <target name="init">
-    <ant dir="${nb_root}/tomcatint/external" target="unscramble-tomcat5"/>
+    <ant dir="${nb_root}/tomcatint/external" target="unscramble"/>
   </target>
 
   <target name="compile">
