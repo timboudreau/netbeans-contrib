@@ -25,6 +25,7 @@ Microsystems, Inc. All Rights Reserved.
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="${nb_root}/nbbuild/standard-nbm-license.txt"/>
   <property name="nbm_alias" value="nb_ide"/>
+  <property name="tomcat.filename" value="jakarta-tomcat-5.0.14"/>
 
   <target name="init">
     <ant dir="${nb_root}/tomcatint/external" target="unscramble-tomcat5"/>
@@ -61,24 +62,24 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="release" depends="init,jars">
     <mkdir dir="netbeans"/>
-    <unzip src="../../external/jakarta-tomcat-5.0.12.zip" dest="netbeans" />
+    <unzip src="../../external/${tomcat.filename}.zip" dest="netbeans" />
     <chmod perm="ugo+x">
-      <fileset dir="netbeans/jakarta-tomcat-5.0.12/bin">
+      <fileset dir="netbeans/${tomcat.filename}/bin">
         <include name="*.sh"/>
       </fileset>
     </chmod>
 
     <!-- XXX:compile extension
-    <copy file="${tc40_moduleroot}/netbeans/modules/ext/tomcat40-ide.jar" tofile="netbeans/jakarta-tomcat-5.0.12/lib/tomcat40-ide.jar"/>
+    <copy file="${tc40_moduleroot}/netbeans/modules/ext/tomcat40-ide.jar" tofile="netbeans/${tomcat.filename}/lib/tomcat40-ide.jar"/>
     -->
 
     <!-- XXX:copy IDE-README.txt
-    <copy file="torelease/IDE-README.txt" tofile="netbeans/jakarta-tomcat-5.0.12/IDE-README.txt" includeEmptyDirs="false"/> -->
+    <copy file="torelease/IDE-README.txt" tofile="netbeans/${tomcat.filename}/IDE-README.txt" includeEmptyDirs="false"/> -->
     <!-- copy dummy to empty directories -->
-    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.12/logs/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.12/temp/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.12/work/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.12/common/classes/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/${tomcat.filename}/logs/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/${tomcat.filename}/temp/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/${tomcat.filename}/work/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/${tomcat.filename}/common/classes/dummy" includeEmptyDirs="false"/>
   </target>
 
   <target name="netbeans" depends="jars,release" description="Builds the module">
