@@ -16,13 +16,13 @@ package org.netbeans.modules.vcscore.util.virtuals;
 import org.openide.cookies.*;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.loaders.DataNode;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.loaders.DataObjectExistsException;
-import org.openide.nodes.Node;
-
-import org.openide.loaders.DataNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -58,6 +58,7 @@ public class VirtualsDataObject extends MultiDataObject {
             //            setName(obj.getPrimaryFile().getNameExt());
             //            setIconBase(
             updateDisplayName();
+            setShortDescription(NbBundle.getMessage(VirtualsDataNode.class, "VirtualsDataNode.Description"));
         }
         
         /** Changes the name of the node and may also rename the data object.

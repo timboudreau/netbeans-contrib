@@ -13,13 +13,16 @@
 
 package org.netbeans.modules.vcscore.runtime;
 
+import java.beans.*;
+
 import org.openide.nodes.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.*;
-import org.netbeans.modules.vcscore.VcsFileSystem;
-import java.beans.*;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
+
+import org.netbeans.modules.vcscore.VcsFileSystem;
 
 /**
  * The folder node, which contains RuntimeFolderNodes nodes.
@@ -36,6 +39,7 @@ public class RuntimeMainNode extends AbstractNode {
         super(children);
         setName(VCS_RUNTIME_NODE_NAME);
         setDisplayName(g("CTL_VcsRuntime"));
+        setShortDescription(NbBundle.getMessage(RuntimeMainNode.class, "RuntimeMainNode.Description"));
         setIconBase("org/netbeans/modules/vcscore/runtime/commandIcon");
     }
     
@@ -45,7 +49,7 @@ public class RuntimeMainNode extends AbstractNode {
     
 
     private String g(String name) {
-        return org.openide.util.NbBundle.getBundle(RuntimeMainNode.class).getString(name);
+        return NbBundle.getMessage(RuntimeMainNode.class, name);
     }
     
     public HelpCtx getHelpCtx() {

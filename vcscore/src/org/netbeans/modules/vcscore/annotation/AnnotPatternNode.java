@@ -76,6 +76,7 @@ public class AnnotPatternNode extends AbstractNode implements  java.io.Serializa
         setName("");
         setRoot(false);
         setIconBase(ICON_NODE);
+        setShortDescription(NbBundle.getMessage(AnnotPatternNode.class, "AnnotPatternNode.Description"));
         TRUE = NbBundle.getBundle(AnnotPatternNode.class).getString("ANNOT_NODE_NAME_TRUE");
         FALSE = NbBundle.getBundle(AnnotPatternNode.class).getString("ANNOT_NODE_NAME_FALSE");
         IF_DEFINED = NbBundle.getBundle(AnnotPatternNode.class).getString("ANNOT_NODE_NAME_IF_DEFINED");

@@ -15,10 +15,11 @@ package org.netbeans.modules.vcscore.runtime;
 
 import java.awt.Image;
 
+import org.openide.actions.PropertiesAction;
 import org.openide.nodes.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.Utilities;
-import org.openide.actions.PropertiesAction;
+import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.CommandsPool;
@@ -54,6 +55,7 @@ public class RuntimeCommandNode extends AbstractNode {
         String displayName = command.getDisplayName();
         if (displayName == null || displayName.length() == 0) displayName = command.getName();
         setDisplayName(displayName);
+        setShortDescription(NbBundle.getMessage(RuntimeCommandNode.class, "RuntimeCommandNode.Description", displayName));
         setDefaultAction(CommandOutputViewAction.getInstance());
         getCookieSet().add(comm);
     }

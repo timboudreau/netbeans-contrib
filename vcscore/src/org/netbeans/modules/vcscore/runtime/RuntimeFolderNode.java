@@ -16,6 +16,7 @@ package org.netbeans.modules.vcscore.runtime;
 import org.openide.nodes.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 import org.openide.actions.PropertiesAction;
 
 /**
@@ -33,6 +34,7 @@ public class RuntimeFolderNode extends AbstractNode {
     /** Creates new RuntimeFolderNode */
     public RuntimeFolderNode(Children children) {
         super(children);
+        setShortDescription(NbBundle.getMessage(RuntimeFolderNode.class, "RuntimeFolderNode.Description"));
     }
     
     public void setNumOfFinishedCmdsToCollect(int numOfFinishedCmdsToCollect) {
@@ -72,7 +74,7 @@ public class RuntimeFolderNode extends AbstractNode {
     }
 
     private String g(String name) {
-        return org.openide.util.NbBundle.getBundle(RuntimeFolderNode.class).getString(name);
+        return NbBundle.getMessage(RuntimeFolderNode.class, name);
     }
 
     public HelpCtx getHelpCtx() {

@@ -75,6 +75,9 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         super(Children.LEAF);
         setName(item.getRevisionVCS());
         setDisplayName(item.getDisplayName());
+        setShortDescription(NbBundle.getMessage(RevisionNode.class,
+                            "RevisionNode.Description",
+                            list.getFileObject().getName(), item.getRevision()));
         init(list, item);
     }
 
