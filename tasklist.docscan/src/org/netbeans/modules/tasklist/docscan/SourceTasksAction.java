@@ -24,6 +24,8 @@ import org.openide.util.Utilities;
 import org.openide.util.RequestProcessor;
 import org.openide.loaders.DataObject;
 import org.openide.ErrorManager;
+import org.openide.windows.Mode;
+import org.openide.windows.WindowManager;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.filesystems.*;
 import org.netbeans.api.tasklist.SuggestionManager;
@@ -31,6 +33,7 @@ import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
+import org.netbeans.modules.tasklist.core.TaskListView;
 
 /**
  * Opens window with scanned project source tasks.

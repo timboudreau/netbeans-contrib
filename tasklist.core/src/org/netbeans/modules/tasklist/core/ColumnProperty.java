@@ -44,6 +44,8 @@ public class ColumnProperty extends PropertySupport.ReadOnly {
         super(name, type, displayName, hint);
         this.uid = uid;
         this.width = width;
+        setValue("suppressCustomEditor", Boolean.TRUE);  // NOI18N
+//        setValue("canEditAsText", Boolean.FALSE); // NOI18N
         setValue ("ColumnDescriptionTTV", hint); // NOI18N
         if (sortable) {
             setValue("ComparableColumnTTV", Boolean.TRUE);// NOI18N
@@ -75,6 +77,8 @@ public class ColumnProperty extends PropertySupport.ReadOnly {
         this.uid = uid;
         this.width = width;
         setValue( "TreeColumnTTV", Boolean.TRUE );// NOI18N
+        setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
+        setValue("canEditAsText", Boolean.FALSE); // NOI18N
         if (sortable) {
             setValue ("ComparableColumnTTV", Boolean.TRUE);// NOI18N
         }

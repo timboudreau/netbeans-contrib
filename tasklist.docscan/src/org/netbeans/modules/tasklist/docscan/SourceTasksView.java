@@ -416,8 +416,19 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private Component getGoto() {
         if (gotoPresenter == null) {
-            GoToTaskAction gotoAction = (GoToTaskAction) SystemAction.get(GoToTaskAction.class);
-            gotoPresenter = gotoAction.getToolbarPresenter();
+            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/gotosource.gif");
+            JButton button = new JButton(new ImageIcon(image));
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    GoToTaskAction gotoAction = (GoToTaskAction) SystemAction.get(GoToTaskAction.class);
+                    if (gotoAction.isEnabled()) {
+                        gotoAction.performAction();
+                    } else {
+                        Toolkit.getDefaultToolkit().beep();
+                    }
+                }
+            });
+            gotoPresenter = button;
         }
         return gotoPresenter;
     }
@@ -426,7 +437,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private JButton getFilterMenu() {
         if (filterButton == null) {
-            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/core/filter.png"));
+            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filterOperations.gif"));
             filterButton = new JButton(icon);
             filterButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
