@@ -46,6 +46,7 @@ final class JndiDataType extends NewType {
     private static final int NAMING_INTERRUPTED_EXCEPTION = 4;
     private static final int JNDI_EXCEPTION =5;
     private static final int OTHER_EXCEPTION = 6;
+	private static final int TIMEOUT_TO_SHORT = 7;
     
     /** This class represents an status set by connector thread
      *  to inform the controller thread about result of connect
@@ -237,7 +238,10 @@ final class JndiDataType extends NewType {
                                             t.interrupt();
                                          }
                                          ConnectOperationStatus status = connector.getOperationStatus ();
-                                         switch (status.getOperationStatus()) {
+										 int statusCode = TIMEOUT_TO_SHORT; // By default we suppose that time was to short to start connector thread
+										if (status != null)
+											statusCode = status.getOperationStatus();
+                                         switch (statusCode) {
                                              case SUCCESSFULL:
                                                  org.openide.TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_Connected"));
                                                  dlg.setVisible (false);
@@ -252,6 +256,9 @@ final class JndiDataType extends NewType {
                                                  TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
                                                  TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
                                                  break;
+											 case TIMEOUT_TO_SHORT:
+												TopManager.getDefault().notify (new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_TimeoutToShort"), NotifyDescriptor.Message.ERROR_MESSAGE));
+												break;
                                              case INTERRUPTED_EXCEPTION:
                                              case NAMING_INTERRUPTED_EXCEPTION:
                                                  Throwable e = status.getException();
