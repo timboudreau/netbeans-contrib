@@ -1442,6 +1442,20 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>
         </property>
+        <property name="commandsAfterSuccess">
+          <value>GLOBAL_REGISTER</value>
+        </property>
+      </command>
+      <command name="GLOBAL_REGISTER">
+        <property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.VssGlobalRegister.class</value>
+        </property>
+        <property name="executionPriority">
+          <value>1</value> <!-- HIGH PRIORITY -->
+        </property>
+        <property name="ignoreFail">
+          <value>true</value>
+        </property>
       </command>
     </command>
   </globalCommands>
