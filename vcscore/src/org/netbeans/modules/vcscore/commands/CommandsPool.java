@@ -259,7 +259,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 //commandsFinished.add(vce);
                 notifyAll();
             }
-            fileSystem.debug(g("MSG_Command_cancelled", name));
+            fileSystem.debug(g("MSG_Command_canceled", name));
             //RuntimeSupport.addCancelled(runtimeNode, vce, this);
             RuntimeSupport.getInstance().removeDone(fileSystem.getSystemName(), rCom);
         }
