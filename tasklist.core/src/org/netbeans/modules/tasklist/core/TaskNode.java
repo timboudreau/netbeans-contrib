@@ -238,14 +238,7 @@ public class TaskNode extends AbstractNode {
         // That's why we create DataFlavor.stringFlavor here
         enriched.put(new ExTransferable.Single(TaskTransfer.TODO_FLAVOR) {
             protected Object getData() {
-                try {
-                    return item.clone();
-                } catch (java.lang.CloneNotSupportedException e) {
-                    // This should NOT happen - item is a Task and
-                    // task implements Cloneable. But clone() uses
-                    // a checked exception so I'm forced to catch it.
-                    return null;
-                }
+                return item.clone();
             }
         });
         enriched.put(new ExTransferable.Single(DataFlavor.stringFlavor) {

@@ -704,13 +704,24 @@ public class Task extends Suggestion implements Cloneable {
 
     /** Create an identical copy of a task (a deep copy, e.g. the
         list of subtasks will be cloned as well */
-    protected Object clone() throws CloneNotSupportedException {
+    protected Object clone() {
         Task t = new Task();
         t.copyFrom(this);
         return t;
     }
 
-    /** 
+    /**
+     * Clones task's properies without its
+     * membership relations (parent and list).
+     */
+    public Task cloneTask() {
+        Task clone = (Task) clone();
+        clone.list = null;
+        clone.parent = null;
+        return clone;
+    }
+
+    /**
      * Get the provider. Not defined for tasks - will be subclassed
      * in SuggestionImpl but we don't want Task to be abstract...
      */
@@ -761,15 +772,9 @@ public class Task extends Suggestion implements Cloneable {
             subtasks = new LinkedList();
             while (it.hasNext()) {
                 Task task = (Task)it.next();
-                try {
-                    Task mycopy = (Task)task.clone();
-                    mycopy.parent = this;
-                    subtasks.addLast(mycopy);
-                } catch (java.lang.CloneNotSupportedException e) {
-                    // Internal error - this should NOT happen since
-                    // tasks implement Cloneable
-                    e.printStackTrace();
-                }
+                Task mycopy = (Task)task.clone();
+                mycopy.parent = this;
+                subtasks.addLast(mycopy);
             }
         }
     }

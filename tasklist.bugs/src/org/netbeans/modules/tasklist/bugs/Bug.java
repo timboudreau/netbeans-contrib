@@ -222,7 +222,7 @@ public final class Bug extends Task {
 
     /** Create an identical copy of a task (a deep copy, e.g. the
         list of subtasks will be cloned as well */
-    protected Object clone() throws CloneNotSupportedException {
+    protected Object clone() {
         Bug t = new Bug();
         t.copyFrom(this);
         return t;

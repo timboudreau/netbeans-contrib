@@ -43,6 +43,7 @@ final class FilteredTasksList implements ObservableList {
     private List listeners = new ArrayList(1);
     private Task root;
     private EventHandler handler;
+    private boolean silent = false;
 
     public FilteredTasksList(TaskList peer) {
         assert peer.getRoot() != null : "Unitialized list :" + peer;  // NOI18N
@@ -100,6 +101,7 @@ final class FilteredTasksList implements ObservableList {
     }
 
     public void notifyStructureChanged(Task task) {
+//        if (silent) return;
         Iterator it = listeners.iterator();
         while (it.hasNext()) {
             TaskListener listener = (TaskListener) it.next();
@@ -113,12 +115,13 @@ final class FilteredTasksList implements ObservableList {
     }
 
     private void loadSourceTasks(Task parent) {
-        if (parent.getSubtasks() == null) return;
+        if (parent.hasSubtasks() == false) return;
         Iterator it = parent.getSubtasks().iterator();
         while (it.hasNext()) {
             Task task = (Task) it.next();
             if (task.getSeed() instanceof SourceTaskProvider) {
-                root.addSubtask(task, true);
+                Task clone = task.cloneTask();
+                root.addSubtask(clone, true);
             } else {
                 // There are those nesting category tasks
                 // if grouping treshold is matched.
@@ -196,7 +199,12 @@ final class FilteredTasksList implements ObservableList {
 
         public void structureChanged(Task t) {
             // need to build it again
-            refreshSnapshot();
+            try {
+                silent = true;
+                refreshSnapshot();
+            } finally {
+                silent = false;
+            }
             notifyStructureChanged(t);
         }
     }

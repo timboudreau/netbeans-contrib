@@ -117,7 +117,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
 
     /** Create an identical copy of a task (a deep copy, e.g. the
         list of subtasks will be cloned as well */
-    protected Object clone() throws CloneNotSupportedException {
+    protected Object clone() {
         SuggestionImpl t = new SuggestionImpl();
         t.copyFrom(this);
         return t;
@@ -143,6 +143,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         basename = from.basename;
         category = from.category;
         seed = from.seed;
+        stype = from.stype;
         //highlighted = from.highlighted;
         
         // TODO XXX Copy fields from Suggestion as well!

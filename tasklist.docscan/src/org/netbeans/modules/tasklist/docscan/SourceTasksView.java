@@ -320,7 +320,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private JButton getStop() {
         if (stop == null) {
-            stop = new JButton("stop");
+            stop = new JButton("Stop");
             stop.setVisible(job == null);
             stop.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -335,6 +335,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (refresh == null) {
             Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/refresh.gif");
             JButton button = new JButton(new ImageIcon(image));
+            button.setEnabled(job == null);
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     handleRefresh();

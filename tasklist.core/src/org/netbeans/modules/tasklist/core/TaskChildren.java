@@ -42,16 +42,7 @@ public class TaskChildren extends Children.Keys {
         if (parent.hasSubtasks() == false) {
             setKeys(Collections.EMPTY_SET);
         } else {
-            myKeys = new LinkedList();
-            Iterator it = parent.getSubtasks().iterator();
-            while (it.hasNext()) {
-                Task item = (Task)it.next();
-                myKeys.add(item);
-            }
-            // XXX couldn't I just do
-            //   setKeys(parent.getSubtasks()) ?? Check if this method
-            // clones the list... if it doesn't I can do it
-            setKeys(myKeys);
+            setKeys(parent.getSubtasks());
         }
     }
 
