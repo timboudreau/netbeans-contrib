@@ -183,8 +183,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	  props = new Vector (5);
 	  clientBindings = new Vector (5);
 	  serverBindings = new Vector (5);
-	  namingChildren = new Vector ();
 	*/
+	namingChildren = new Vector ();	
 	IRChildren = new Vector ();
 	//loadImpl ();
 	//addPropertyChangeListener (this);
