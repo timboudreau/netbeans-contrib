@@ -98,9 +98,18 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
                     "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
         CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
-        CONFIG_ROOT_FO = TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot ();
-        CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("vcs");
-        CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("config");
+        try {
+            CONFIG_ROOT_FO = TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot ();
+            CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("vcs");
+            CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("config");
+        } catch (NullPointerException exc) {
+            javax.swing.SwingUtilities.invokeLater(new Runnable () {
+                public void run () {
+                    TopManager.getDefault ().notify (new NotifyDescriptor.Message (CommandLineVcsFileSystem.this.g("DLG_ConfigurationPathNotFound", CONFIG_ROOT)));
+                }
+            });
+            return;
+        }
         //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
         Properties props = VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT_FO, "empty.properties"); // NOI18N
         setVariables (VcsConfigVariable.readVariables(props));
