@@ -59,6 +59,41 @@ public final class DiffTest extends NbTestCase {
         assertEquals ("spaces are there", vzor, s);
     }
 
+    public void testBrokenTables () throws Exception {
+        Reader r1 = new StringReader (
+"    <table><tr><td>Jarda</td><td>Tulach</td></tr></table>"
+        );
+        Reader r2 = new StringReader (
+"    <table><tr><td>Jiri</td><td>Tukach</td></tr></table>"
+        );
+        
+        
+        HtmlDiff[] res = HtmlDiff.diff (r1, r2);
+        assertNotNull ("Some result is there", res);
+        
+        assertEquals ("Split to 5 parts", 5, res.length);
+        
+        
+        
+        for (int i = 0; i < res.length; i++) {
+            if (!res[i].isDifference()) {
+                continue;
+            }
+            
+            int end = res[i].getNew ().indexOf ("</");
+            int beg = res[i].getNew ().indexOf ("<", end);
+            
+            if (end == -1 || beg == -1) continue;
+            
+            if (end > beg) continue;
+            
+            fail ("Tag order reveredted: " + res[i].getNew ());
+        }
+        
+        r1.close ();
+        r2.close ();
+    }
+
     public void testSpacesAreKeptInPreModeWithNewLines () throws Exception {
         String vzor = "Is a <pre>\n\nNewline\n    spaces     between</PRE> there?";
         
@@ -370,7 +405,6 @@ public final class DiffTest extends NbTestCase {
         r1.close ();
         r2.close ();
     }
-
     
     private static void assertDifferences (String txt, int cnt, HtmlDiff[] res) {
         int was = 0;

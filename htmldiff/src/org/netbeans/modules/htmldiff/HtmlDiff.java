@@ -15,6 +15,7 @@ package org.netbeans.modules.htmldiff;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -90,8 +91,8 @@ public final class HtmlDiff extends Object {
             }
             
             // same text
-            String oldText = toHTML (oldArr, oldArrIndex, os, true);
-            String newText = toHTML (newArr, newArrIndex, ns, true);
+            String oldText = toHTML (oldArr, oldArrIndex, os, null);
+            String newText = toHTML (newArr, newArrIndex, ns, null);
             /*
             if (!oldText.equals (newText)) {
                 throw new IllegalStateException ("Should be the same: " + oldText + " new: " + newText);
@@ -104,15 +105,28 @@ public final class HtmlDiff extends Object {
             int oe = arr[i].getFirstEnd ();
             int ne = arr[i].getSecondEnd ();
             
-            oldText = toHTML (oldArr, oldArrIndex, oe, false);
-            newText = toHTML (newArr, newArrIndex, ne, false);
+            ArrayList oldItems = new ArrayList ();
+            ArrayList newItems = new ArrayList ();
+
+            toHTML (oldArr, oldArrIndex, oe, oldItems);
+            toHTML (newArr, newArrIndex, ne, newItems);
             
-            res.add (new HtmlDiff (oldText, newText));
+            int max = Math.max (oldItems.size (), newItems.size ());
+            for (int j = 0; j < max; j++) {
+                oldText = oldItems.size () > j ? (String)oldItems.get (j) : "";
+                newText = newItems.size () > j ? (String)newItems.get (j) : "";
+                
+                if (oldText.equals (newText)) {
+                    res.add (new HtmlDiff (oldText));
+                } else {
+                    res.add (new HtmlDiff (oldText, newText));
+                }
+            }
         }
         
         // same text
-        String oldText = toHTML (oldArr, oldArrIndex, Integer.MAX_VALUE, true);
-        String newText = toHTML (newArr, newArrIndex, Integer.MAX_VALUE, true);
+        String oldText = toHTML (oldArr, oldArrIndex, Integer.MAX_VALUE, null);
+        String newText = toHTML (newArr, newArrIndex, Integer.MAX_VALUE, null);
         
         if (newText.length() != 0) {
 /*
@@ -233,25 +247,40 @@ public final class HtmlDiff extends Object {
     }
     
     /** Gets HTML.
+     * @param nonexlusive in exclusive mode it is forbidden to mix different types (e.g. words with tags)
      */
-    private static String toHTML (List items, int[] fromPosition, int toIndex, boolean eager) throws IOException {
+    private static String toHTML (List items, int[] fromPosition, int toIndex, Collection toAdd) throws IOException {
         StringWriter w = new StringWriter ();
         boolean addSpace = false;
         boolean firstOrEager = true;
+        int type = -1;
         while (fromPosition[0] < items.size ()) {
             Item item = (Item)items.get (fromPosition[0]);
-            if (firstOrEager && item.index >= toIndex) {
-                return w.toString ();
+            
+            if (type != -1 && toAdd != null && type != item.type && item.isVisible()) {
+                toAdd.add (w.toString ());
+                w = new StringWriter ();
+                type = -1;
             }
-            firstOrEager = eager;
+            
+            if (firstOrEager && item.index >= toIndex) {
+                break;
+            }
+            firstOrEager = toAdd == null;
             
             addSpace = item.printHTML (w, addSpace);
+            if (item.isVisible ()) {
+                type = item.type;
+            }
                 
             fromPosition[0]++;
             
-            if (!eager && item.index + 1 >= toIndex) {
-                return w.toString ();
+            if (toAdd != null && item.index != -1 && item.index + 1 >= toIndex) {
+                break;
             }
+        }
+        if (toAdd != null) {
+            toAdd.add (w.toString ());
         }
         return w.toString ();
     }   
@@ -271,16 +300,16 @@ public final class HtmlDiff extends Object {
     }
     
     private static Item newLine () {
-        return new Item (0, null);
+        return new Item (0x01, null);
     }
     private static Item newSpace () {
-        return new Item (3, null);
+        return new Item (0x02, null);
     }
     private static Item newWord (String string) {
-        return new Item (1, string);
+        return new Item (0x04, string);
     }
     private static Item newTag (String string) {
-        return new Item (2, string);
+        return new Item (0x08, string);
     }
     
     /** Item in HTML document
@@ -298,19 +327,25 @@ public final class HtmlDiff extends Object {
         public String toString () {
             return type + " value: " + value;
         }
+        
+        /** Checks whehter the type of item is visible.
+         */
+        public boolean isVisible () {
+            return (type & (0x04 | 0x08)) != 0;
+        }
 
         /** Prints to diff file
          */
         public void printDiff (Writer w, int[] counter) throws IOException {
             switch (type) {
-                case 3:
-                case 0: break; // new line
-                case 1: 
+                case 0x02:
+                case 0x01: break; // new line
+                case 0x04: 
                     w.write (value); 
                     w.write ('\n'); 
                     index = counter[0]++;
                     break; // word
-                case 2: break; // no tags
+                case 0x08: break; // no tags
                 default: 
                     throw new IllegalArgumentException ();
             }
@@ -321,22 +356,22 @@ public final class HtmlDiff extends Object {
          */
         public boolean printHTML (Writer w, boolean needsSpace) throws IOException {
             switch (type) {
-                case 0: 
+                case 0x01: 
                     w.write ('\n');
                     needsSpace = false;
                     break; // new line
-                case 3: 
+                case 0x02: 
                     w.write (' ');
                     needsSpace = false;
                     break; // space
-                case 1: 
+                case 0x04: 
                     if (needsSpace) {
                         w.write (' ');
                     }
                     w.write (value); 
                     needsSpace = true;
                     break; // word
-                case 2: 
+                case 0x08: 
                     w.write (value);
                     needsSpace = false;
                     break; // no tags
