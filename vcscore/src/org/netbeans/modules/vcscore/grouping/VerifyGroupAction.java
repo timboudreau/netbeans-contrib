@@ -74,16 +74,18 @@ public class VerifyGroupAction extends GeneralCommandAction {
         Set nodeList = new HashSet();
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] instanceof VcsGroupNode) {
-                nodeList.add(nodes[i]);
-                if (nodes[i].getChildren().getNodesCount() == 0) {
-                    return false;
+                if (nodes[i].getChildren().getNodesCount() != 0) {
+                    nodeList.add(nodes[i]);
                 }
             }
             if (nodes[i] instanceof MainVcsGroupNode) {
                 MainVcsGroupNode main = (MainVcsGroupNode)nodes[i];
                 Enumeration en = main.getChildren().nodes();
                 while (en.hasMoreElements()) {
-                    nodeList.add(en.nextElement());
+                    Node nd = (Node)en.nextElement();
+                    if (nd.getChildren().getNodes().length != 0) {
+                        nodeList.add(nd);
+                    }
                 }
                 
             }
