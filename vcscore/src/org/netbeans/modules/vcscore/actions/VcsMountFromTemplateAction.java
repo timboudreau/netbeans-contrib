@@ -404,6 +404,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
                 // change the order
                 parent.setOrder ((DataObject[])children.toArray (new DataObject[0]));
             }
+            retValue = null; // To free the added filesystems
         }
         
     } // end of TW
