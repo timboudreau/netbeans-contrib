@@ -43,8 +43,8 @@ import com.netbeans.enterprise.modules.corba.settings.*;
 */
 public class IDLModule implements ModuleInstall {
 
-   private static final boolean DEBUG = false;
-   //private static final boolean DEBUG = true;
+   //private static final boolean DEBUG = false;
+   private static final boolean DEBUG = true;
    
    /** Module installed for the first time. */
    public void installed() {
@@ -149,6 +149,15 @@ public class IDLModule implements ModuleInstall {
       return retval;
    }
 
+   public String getFileNameWithoutTemplate (String name) {
+      if (DEBUG)
+	 System.out.println ("orig: " + name);
+      String retval = name.substring (0, name.lastIndexOf ('.'));
+      if (DEBUG)
+	 System.out.println ("name: " + retval);
+      return retval;
+   }
+
    public String getFileExt (String name) {
       if (DEBUG)
          System.out.println ("orig: " + name);
@@ -161,8 +170,9 @@ public class IDLModule implements ModuleInstall {
    
    public void copyTemplates () {
 
-      String[] list_of_templates     = {"Empty.idl", "Simple.idl", "SimpleInterface.idl", 
-					"ClientMain.java", "ServerMain.java"};
+      String[] list_of_templates     = {"Empty.idl.template", "Simple.idl.template", 
+					"SimpleInterface.idl.template", "ClientMain.java.template",
+					"ServerMain.java.template"};
       String _package =   "/com/netbeans/enterprise/modules/corba/templates";
       TopManager tm = TopManager.getDefault ();
       
@@ -213,8 +223,9 @@ public class IDLModule implements ModuleInstall {
 	 if (fo.getChildren ().length == 0) {
 	    // copy of Templates
 	    for (int i=0; i<list_of_templates.length; i++) {
-	       FileObject tmp_file = fo.createData (getFileName (list_of_templates[i]),
-						    getFileExt (list_of_templates[i]));
+	       FileObject tmp_file 
+		  = fo.createData (getFileName (getFileNameWithoutTemplate (list_of_templates[i])),
+		  getFileExt (getFileNameWithoutTemplate (list_of_templates[i])));
 	       DataObject.find (tmp_file).setTemplate (true);
 	       FileLock lock = tmp_file.lock ();
 	       OutputStream o = tmp_file.getOutputStream (lock);
@@ -471,6 +482,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         6/4/99   Karel Gardas    
  *  9    Gandalf   1.8         6/4/99   Karel Gardas    
  *  8    Gandalf   1.7         5/28/99  Karel Gardas    
  *  7    Gandalf   1.6         5/28/99  Karel Gardas    
