@@ -1669,7 +1669,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         else autoFillVars.clear();
         String configInputDescriptorStr = (String) fsVars.get(VAR_CONFIG_INPUT_DESCRIPTOR);
         VariableInputDescriptor configInputDescriptor = null;
-        if (configInputDescriptorStr != null) {
+        if (configInputDescriptorStr != null && configInputDescriptorStr.length() > 0) {
             try {
                 configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr);
             } catch (VariableInputFormatException vifex) {
