@@ -33,8 +33,7 @@ public class InteractiveCommandOutputVisualizer extends CommandOutputVisualizer 
         this.immediateErr = new ImmediateError();
     }
     
-   // protected CommandOutputPanel createOutputPanel() {
-    protected OutputPanel createOutputpanel(){
+    protected OutputPanel createOutputPanel() {
         this.interactivePanel = new InteractiveCommandOutputPanel();
         return interactivePanel;
     }
