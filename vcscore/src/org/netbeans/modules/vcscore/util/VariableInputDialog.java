@@ -171,8 +171,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         initComponents();
         this.inputDescriptor = inputDescriptor;
         this.expert = expert;
-        this.vars = vars;            
-        setAutoFillVars(inputDescriptor.getAutoFillVars());
+        this.vars = vars;
+        if(inputDescriptor != null)
+            setAutoFillVars(inputDescriptor.getAutoFillVars());
         firstFocusedComponent = initComponentsFromDescriptor(inputDescriptor, variablePanel);
         currentHistory = historySize;
         //System.out.println("currentHistory = "+currentHistory);
