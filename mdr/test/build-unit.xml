@@ -17,11 +17,11 @@ Microsystems, Inc. All Rights Reserved.
     <import file="../../../nbbuild/templates/xtest-unit.xml"/>
 
     <path id="compiletest.classpath">
-        <pathelement location="${mdr.dir}/${nb.modules.dir}/ext/mdr.jar"/>
-        <pathelement location="${mdr.dir}/${nb.modules.dir}/ext/mof.jar"/>
-        <pathelement location="${mdr.dir}/${nb.modules.dir}/ext/jmi.jar"/>
-        <pathelement location="${mdr.dir}/${nb.modules.dir}/ext/jmiutils.jar"/>
-        <pathelement location="${mdr.dir}/${nb.modules.dir}/org-netbeans-api-mdr.jar"/>
+        <pathelement location="../../dist/mdr.jar"/>
+        <pathelement location="../../external/mof.jar"/>
+        <pathelement location="../../external/jmi.jar"/>
+        <pathelement location="../../jmiutils/dist/jmiutils.jar"/>
+        <pathelement location="../../mdrapi/build/classes"/>
         <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
     </path>
 
