@@ -17,6 +17,7 @@ import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.openide.util.actions.SystemAction;
 import org.openide.nodes.Node;
@@ -244,6 +245,15 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
             if (cmd instanceof VcsDescribedCommand) {
                 executor.setDescribedCommand((VcsDescribedCommand) cmd);
                 ((VcsDescribedCommand) cmd).setExecutor(executor);
+                Collection fileCollection = ExecuteCommand.createProcessingFiles(fileSystem, variables);
+                if (fileCollection.size() > 0) {
+                    java.io.File[] files = new java.io.File[fileCollection.size()];
+                    int i = 0;
+                    for (Iterator it = fileCollection.iterator(); it.hasNext(); i++) {
+                        files[i] = fileSystem.getFile((String) it.next());
+                    }
+                    ((VcsDescribedCommand) cmd).setDiskFiles(files);
+                }
             }
             return executor;
             //}
