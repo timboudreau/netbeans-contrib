@@ -27,6 +27,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 
 import org.netbeans.modules.vcs.profiles.list.AbstractListCommand;
+import org.netbeans.modules.vcscore.VcsConfigVariable;
 
 /** PVCS list command wrapper
  * 
@@ -57,6 +58,9 @@ public class PvcsListCommand extends AbstractListCommand {
     private static final String MISSING_STATUS = "Missing"; // NOI18N
     private static final String CURRENT_STATUS = "Current"; // NOI18N
     private static final String MODIFIED_STATUS = "Locally Modified"; // NOI18N
+    
+    /** The first version of PVCS in which the quoting is fixed. */
+    private static final String[] PCLI_OLDSTYLE_QUOTING_VERSION = { "6", "8" };
 
     //-------------------------------------------
     public PvcsListCommand() {
@@ -141,11 +145,48 @@ public class PvcsListCommand extends AbstractListCommand {
         }
         archivesByNames = new HashMap();
         workFilesByNames = new HashMap();
+        final String[] version = new String[2];
         try {
-            runCommand(vars, args[0], false);
+            runCommand(vars, args[0], this, new CommandDataOutputListener() {
+                public void outputData(String[] data) {
+                    if (data != null && data.length > 1) {
+                        version[0] = data[0];
+                        version[1] = data[1];
+                    }
+                }
+            });
         } catch (InterruptedException iexc) {
             return false;
         }
+        //if (shouldFail) {  PCLI commands of old PVCS versions do not fail!!!
+            java.util.Vector fsVars = fileSystem.getVariables();
+            VcsConfigVariable pcliOldStyleQuotingVar = null;
+            for (java.util.Iterator it = fsVars.iterator(); it.hasNext(); ) {
+                VcsConfigVariable var = (VcsConfigVariable) it.next();
+                if ("PCLI_OLDSTYLE_QUOTING".equals(var.getName())) {
+                    pcliOldStyleQuotingVar = var;
+                    break;
+                }
+            }
+            if (pcliOldStyleQuotingVar != null) {
+                String oldValue = pcliOldStyleQuotingVar.getValue();
+                int cmp = cmpVersions(PCLI_OLDSTYLE_QUOTING_VERSION, version);
+                if (cmp >= 0) {
+                    pcliOldStyleQuotingVar.setValue("");
+                } else {
+                    pcliOldStyleQuotingVar.setValue("true");
+                }
+                if (!pcliOldStyleQuotingVar.getValue().equals(oldValue)) {
+                    vars.put("PCLI_OLDSTYLE_QUOTING", pcliOldStyleQuotingVar.getValue());
+                    // Run the command again with the correct quoting.
+                    try {
+                        runCommand(vars, args[0], false);
+                    } catch (InterruptedException iexc) {
+                        return false;
+                    }
+                }
+            }
+        //}
         if (fileStatuses != null) filesByName.put(fileStatuses[0], fileStatuses);
         findFilesStatus(filesByName, diffCmd, vars);
         if (stdoutListener != null) {
@@ -154,6 +195,53 @@ public class PvcsListCommand extends AbstractListCommand {
             }
         }
         return filesByName.size() > 0 || !shouldFail;
+    }
+    
+    /**
+     * Compare the two PVCS versions.
+     * @param v1 One version. First item is the main version, second item are all
+     *           secondary versions.
+     * @param v2 The second version. First item is the main version, second item are all
+     *           secondary versions.
+     * @return A number greater then zero if the second version is greater then the first one.
+     *         Zero if the versions are equal.
+     *         A number smaller then zero if the second version is smaller then the first one.
+     */
+    private static int cmpVersions(String[] v1, String[] v2) {
+        try {
+            int iv1 = Integer.parseInt(v1[0]);
+            int iv2 = Integer.parseInt(v2[0]);
+            if (iv1 != iv2) {
+                return iv2 - iv1;
+            }
+            if (v1[1].equals(v2[1])) {
+                return 0;
+            }
+            int dot = 0;
+            int dotLast1 = 0;
+            int dotLast2 = 0;
+            do {
+                dot = v1[1].indexOf('.', dotLast1);
+                if (dot < 0) {
+                    return -1;
+                }
+                String v1s = v1[1].substring(dotLast1, dot);
+                dotLast1 = dot + 1;
+                dot = v2[1].indexOf('.', dotLast2);
+                if (dot < 0) {
+                    return +1;
+                }
+                String v2s = v2[1].substring(dotLast2, dot);
+                iv1 = Integer.parseInt(v1s);
+                iv2 = Integer.parseInt(v2s);
+                if (iv1 != iv2) {
+                    return iv2 - iv1;
+                }
+                dotLast2 = dot + 1;
+            } while (true);
+        } catch (NumberFormatException nfex) {
+            return +1;
+        }
     }
 
     //-------------------------------------------
