@@ -21,21 +21,27 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.*;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.MenuElement;
+import javax.swing.event.MenuListener;
 import org.netbeans.modules.vcscore.VcsFSCommandsAction;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 
+import org.openide.filesystems.Repository;
+import org.openide.util.WeakListener;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.JInlineMenu;
 import org.openide.actions.FileSystemAction;
+import org.openide.awt.Actions;
 import org.openide.awt.JMenuPlus;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
@@ -48,6 +54,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
+import org.openide.util.NbBundle;
 import org.openide.util.WeakListener;
 import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
@@ -62,13 +69,15 @@ import org.openide.windows.WindowManager;
  *
  * @author  Martin Entlicher
  */
-public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu, Presenter.Popup,
-                                                                  ContextAwareAction,
-                                                                  ContextAwareDelegateAction.Delegatable {
+public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu, Presenter.Popup, ContextAwareAction, ContextAwareDelegateAction.Delegatable {
 
     static final long serialVersionUID = -2345126396734900262L;
 
     private LookupListener lastProvidersLookupListener;
+    private static final String GLOBAL_MENU_FOLDER = "vcs/versioningMenu"; // NOI18N
+    private static final String OS_NAME = "os.name"; // NOI18N   
+    private FileObject menuRoot;
+    
     
     public boolean enable(Node[] nodes) {
         return true;
@@ -86,9 +95,34 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         return getPresenter(false, org.openide.util.Utilities.actionsGlobalContext ());
     }
     
-    public JMenuItem getPresenter(boolean inMenu, Lookup lookup) {
-        return new MergedMenu(inMenu, lookup);
-    }
+    public JMenuItem getPresenter(boolean inMenu, Lookup lookup) { 
+        FileSystem dfs = Repository.getDefault().getDefaultFileSystem ();
+        menuRoot = dfs.findResource(GLOBAL_MENU_FOLDER);
+        FileObject[] filob = menuRoot.getChildren();
+        JInlineMenu menu = new JInlineMenu();        
+        ArrayList items = new ArrayList();
+        String osname = System.getProperty(OS_NAME);
+        String os_name; 
+        Icon icon;
+        JMenu item;
+        for(int i = 0; i < filob.length; i++){
+            os_name = (String) filob[i].getAttribute(OS_NAME);         
+            if(os_name != null && osname.indexOf(os_name) == -1)
+                continue;
+            String bundleName = (String)filob[i].getAttribute("SystemFileSystem.localizingBundle"); //NOI18N             
+            item = new JMenu();
+            Actions.setMenuText(item,NbBundle.getBundle(bundleName).getString(filob[i].getNameExt()),true);
+            item.addMenuListener(new VcsMenuListener(inMenu, lookup));
+            URL url = (URL)filob[i].getAttribute("SystemFileSystem.icon"); //NOI18N
+            if(url != null){
+                icon = new ImageIcon(url);
+                item.setIcon(icon);
+            }            
+            items.add(item);
+        }
+        menu.setMenuItems((JMenuItem[])items.toArray(new JMenuItem[items.size()]));       
+        return menu;
+    } 
     
     /* Getter for name
     */
@@ -114,7 +148,7 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
     
     private static JMenuItem[] getGlobalMenu(boolean inMenu, Lookup actionContext) {
         VcsGlobalCommandsAction globalAction = (VcsGlobalCommandsAction) VcsGlobalCommandsAction.get(VcsGlobalCommandsAction.class);
-        JMenuItem[] globalMenu = globalAction.createMenuItems(globalAction.getActivatedFiles(), inMenu);
+        JMenuItem[] globalMenu = globalAction.createMenuItems(globalAction.getActivatedFiles(), inMenu);       
         return globalMenu;
     }
     
@@ -124,29 +158,67 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         return contextMenu;
     }
     
+    private class VcsMenuListener implements MenuListener{        
+        private boolean inMenu;
+        private Lookup lookup;
+        private boolean wasSelected = false;
+        private MergedMenu mergedMenu;
+        
+        public VcsMenuListener(boolean inMenu, Lookup lookup){            
+            this.inMenu = inMenu;
+            this.lookup = lookup;            
+        }
+        
+        public void menuCanceled(javax.swing.event.MenuEvent e) {
+        }
+        
+        public void menuDeselected(javax.swing.event.MenuEvent e) {
+        }
+        
+        public void menuSelected(javax.swing.event.MenuEvent e) {                                   
+                JMenu emptyMenu = (JMenu)e.getSource();
+                mergedMenu = new MergedMenu(inMenu,lookup,emptyMenu);
+                mergedMenu.addNotify();           
+        }
+        
+    }
     private class MergedMenu extends JInlineMenu implements LookupListener {
         
         static final long serialVersionUID = 2650151487189209767L;
         
         private boolean inMenu;
         private Lookup lookup;
+        private JMenu eMenu;
         private boolean needsChange = true;
         
-        public MergedMenu(boolean inMenu, Lookup lookup) {
+        public MergedMenu(boolean inMenu, Lookup lookup, JMenu eMenu) {
             this.inMenu = inMenu;
             this.lookup = lookup;
+            this.eMenu = eMenu;
             Lookup.Result globalProvidersRes = Lookup.getDefault().lookup(new Lookup.Template(VcsCommandsProvider.class));
             Lookup.Result contextRes = lookup.lookup (new Lookup.Template (Node.class));
             globalProvidersRes.addLookupListener((LookupListener) WeakListeners.create(LookupListener.class, this, globalProvidersRes));
             contextRes.addLookupListener((LookupListener) WeakListeners.create(LookupListener.class, this, contextRes));
         }
         
-        public void addNotify() {
+        public void addNotify() {            
             if (needsChange) {
                 needsChange = false;
                 JMenuItem[] globalMenu = getGlobalMenu(inMenu, lookup);
+                JMenuItem[] m1 = new JMenuItem[1];
+                for(int i = 0; i < globalMenu.length; i++){
+                    if(globalMenu[i].getText().equals(eMenu.getText()))
+                        m1[0] = globalMenu[i];
+                }
                 JMenuItem[] contextMenu = getContextMenu(inMenu, lookup);
-                setMenuItems(mergeMenu(globalMenu, contextMenu));
+                //setMenuItems(mergeMenu(globalMenu, contextMenu));
+                JMenuItem[] mMenu = mergeMenu(m1,contextMenu);
+                JPopupMenu popup = ((MergedMenuItem)mMenu[0]).getPopupMenu();
+                Component[] items = popup.getComponents();
+                eMenu.removeAll();
+                for(int j=0; j<items.length; j++){                   
+                    eMenu.add(items[j]);
+                }                
             }
             super.addNotify();
         }
@@ -201,13 +273,13 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         
     }
     
-    private static class MergedMenuItem extends JMenuPlus {
+   private static class MergedMenuItem extends JMenuPlus {
         
         private JMenu m1;
         private JMenu m2;
         private boolean popupCreated = false;
         
-        public MergedMenuItem(JMenu m1, JMenu m2) {
+        public MergedMenuItem(JMenu m1, JMenu m2) {            
             this.m1 = m1;
             this.m2 = m2;
             setText(m1.getText());

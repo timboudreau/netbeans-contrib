@@ -44,5 +44,13 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="config">
       &includefiles_config;
     </folder>
+    <folder name="versioningMenu">
+      <file name="vss.xml" url="vss.xml">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.profiles.vss.Bundle" />
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif" />
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif" />
+            <attr name="os.name" stringvalue="win" />
+      </file>
+    </folder>
   </folder>
 </filesystem>
