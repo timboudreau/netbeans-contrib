@@ -1343,7 +1343,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
           <property name="disabledOnStatus">
-            <value>&local-statuses;</value>
+            <value>&versioned-statuses; Ignored</value>
           </property>
       </command>
       <separator />
