@@ -32,6 +32,22 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
     
+    <testbag testattribs="validation, full" name="pvcs_profile">
+        <testset dir="qa-functional/src">
+            <patternset>
+    		<include name="complete/pvcs_profile/MountPVCSFilesystem.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+    
+    <testbag testattribs="validation, full" name="vss_profile">
+        <testset dir="qa-functional/src">
+            <patternset>
+    		<include name="complete/vss_profile/MountVSSFilesystem.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+    
     <resultsprocessor name="qa-functional" antfile="build.xml" target="test_report" default="true"/>
     <executor name="ide" antfile="build-qa-functional.xml" target="runidetest" default="true"/>
     <compiler name="qa-functional-compiler" antfile="build-qa-functional.xml" target="qa-functional-compiler" default="true" />
