@@ -418,7 +418,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                 final VcsCommandExecutor vce = vces[0];
                 fileSystem.getCommandsPool().waitToFinish(vce);
                 list = getEncodedRevisionList(name, dataBuffer.toString());
-                displayRevisions(list);
+                if (list != null) displayRevisions(list);
             }
             return list;//(RevisionList) revisionListsByName.get(name);
         }
