@@ -611,18 +611,28 @@ public class CommandsPool extends Object /*implements CommandListener */{
          * This method is called when the command is done.
          */
         public void commandDone(VcsCommandExecutor vce) {
-            synchronized (stdOutput) {
-                stdOutputListeners = null;
-            }
-            synchronized (stdDataOutput) {
-                stdDataOutputListeners = null;
-            }
-            synchronized (errOutput) {
-                errOutputListeners = null;
-            }
-            synchronized (errDataOutput) {
-                errDataOutputListeners = null;
-            }
+            Runnable later = new Runnable() {
+                public void run() {
+                    try {
+                        // Wait for all the output from the commands.
+                        Thread.currentThread().sleep(1000);
+                    } catch (InterruptedException exc) {
+                    }
+                    synchronized (stdOutput) {
+                        stdOutputListeners = null;
+                    }
+                    synchronized (stdDataOutput) {
+                        stdDataOutputListeners = null;
+                    }
+                    synchronized (errOutput) {
+                        errOutputListeners = null;
+                    }
+                    synchronized (errDataOutput) {
+                        errDataOutputListeners = null;
+                    }
+                }
+            };
+            new Thread(later).start();
         }
         
         /**
@@ -678,7 +688,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
          * is supposed to fail. The listeners are removed when the command finishes.
          */
         public synchronized void addDataErrorOutputListener(CommandDataOutputListener l) {
-            synchronized (errDataOutputListeners) {
+            synchronized (errDataOutput) {
                 for (Iterator it = errDataOutput.iterator(); it.hasNext(); ) {
                     l.outputData((String[]) it.next());
                 }
