@@ -1128,6 +1128,15 @@ Microsystems, Inc. All Rights Reserved.
 	  <value if="IS_WINNT">${RUN} (attrib -r ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} >nul || echo.>nul) &amp;&amp; (del ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) &amp;&amp; (move ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) ${NUR}</value>
 	</property>
       </command>
+      <command name="UNBACKUP_FILE">
+	<property name="exec">
+	  <value>${RUN} mv ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${NUR}</value>
+	  <value if="IS_WINNT">${RUN} (move ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} 2>nul || echo.>nul) ${NUR}</value>
+	</property>
+        <property name="ignoreFail">
+          <value>true</value>
+        </property>
+      </command>
       <command name="MERGE" displayName="ResourceMsg(PVCS_MERGE)">
         <property name="labelMnemonic">
           <value>ResourceMsg(PVCS_MERGE_Mnemonic)</value>
@@ -1151,7 +1160,7 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})"/>
         </run>
         <property name="preCommands">
-          <value>BACKUP_FILE</value>
+          <value>$[? OUT_FILE] [] [BACKUP_FILE]</value>
         </property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg(COMMAND_PVCS_MERGE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Label)))
@@ -1179,6 +1188,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>false</value>
 	</property>
+        <property name="commandsAfterFail">
+          <value>$[? OUT_FILE] [] [UNBACKUP_FILE]</value>
+        </property>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
         </property>
