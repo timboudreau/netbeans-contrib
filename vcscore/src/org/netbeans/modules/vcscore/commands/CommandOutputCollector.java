@@ -156,7 +156,7 @@ class CommandOutputCollector extends Object implements CommandListener {
         if (!this.vce.equals(vce)) return ;
         synchronized (CommandOutputCollector.class) {
             if (collectorsFreeTask == null) {
-                collectorsFreeTask = RequestProcessor.createRequest(new Runnable() {
+                collectorsFreeTask = new RequestProcessor().create(new Runnable() {
                     public void run() {
                         synchronized (CommandOutputCollector.class) {
                             for (Iterator it = outputCollectorsToFree.iterator(); it.hasNext(); ) {
@@ -166,6 +166,7 @@ class CommandOutputCollector extends Object implements CommandListener {
                         }
                     }
                 });
+                collectorsFreeTask.setPriority(Thread.MIN_PRIORITY);
             }
         };
         outputCollectorsToFree.add(this);
