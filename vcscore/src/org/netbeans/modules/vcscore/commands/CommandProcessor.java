@@ -95,8 +95,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     
     /** Contains instances of Command, which are to be preprocessed.  */
     private ArrayList commandsToPreprocess;
-    /** Contains instances of Command, which are being preprocessed.  */
-    private ArrayList commandsPreprocessing;
     /** The table of instances of CommandTask and associated CommandTaskInfo */
     private Hashtable taskInfos;
     /** Contains instances of CommandTaskInfos, which are waiting to run. */
@@ -138,7 +136,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     /** Creates new CommandProcessor */
     private CommandProcessor() {
         commandsToPreprocess = new ArrayList();
-        commandsPreprocessing = new ArrayList();
         //commandsToRun = new ArrayList();
         taskInfos = new Hashtable();
         taskWaitQueue = new ArrayList();
@@ -252,7 +249,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     }
     
     private synchronized void doPreprocess(final Command cmd) {
-        commandsPreprocessing.add(cmd);
         // Use a different RP for commands customization from the RP that is
         // used for commands execution. This is necessary so that commands
         // can not be accidentally started from a thread, that is later
@@ -586,7 +582,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             //commandsFinished.add(cw);
             tasksExceptionallyRunning.remove(cw);
             taskInfos.remove(cmdTask);
-            notifyAll();
         }
         //System.out.println("  commandsFinished.size() = "+commandsFinished.size());
         /*
@@ -624,6 +619,11 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
             ((CommandProcessListener) it.next()).commandDone(cw);
+        }
+        synchronized (this) {
+            notifyAll(); // Notify starter loop after we have notified all listeners.
+            // This is necessary for custom canRun() implementation is tasks,
+            // which can listen on tasks via CommandListener
         }
         /*
         if (fileSystem != null) {
@@ -775,9 +775,9 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                 CommandTaskInfo cw;
                 do {
                     cw = null;
-                    for (Iterator it = taskWaitQueue.iterator(); it.hasNext(); ) {
-                        CommandTaskInfo cwTest = (CommandTaskInfo) it.next();
-                        if (canRun(cwTest)) {
+                    for (int i = 0; i < taskWaitQueue.size(); i++) {
+                        CommandTaskInfo cwTest = (CommandTaskInfo) taskWaitQueue.get(i);
+                        if (canRun(cwTest)) { // It can alter taskWaitQueue, if the task calls process()
                             //System.out.println("CommandProcessor: CAN RUN: "+cwTest.getTask().getName()+" ("+cwTest.getCommandID()+")");
                             cw = cwTest;
                             break;

@@ -54,6 +54,7 @@ import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
 import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
 import org.netbeans.modules.vcscore.commands.CommandOutputVisualizer;
+import org.netbeans.modules.vcscore.commands.CommandProcessListener;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.CommandTaskInfo;
 import org.netbeans.modules.vcscore.commands.InteractiveCommandOutputVisualizer;
@@ -487,28 +488,41 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             boolean havePreCommands = preCommands != null && preCommands.length > 0;
             preCommandsProcessed = (havePreCommands) ? Boolean.FALSE : Boolean.TRUE;
             if (havePreCommands) {
-                RequestProcessor.getDefault().post(new Runnable() {
-                    public void run() {
-                        try {
-                            CommandTask[] tasks = new CommandTask[preCommands.length];
-                            for (int i = 0; i < preCommands.length; i++) {
-                                Command preCmd = getProvider().createCommand(preCommands[i]);
-                                if (preCmd != null) {
-                                    ((VcsDescribedCommand) preCmd).setAdditionalVariables(executor.getVariables());
-                                    tasks[i] = preCmd.execute();
-                                }
-                            }
-                            for (int i = 0; i < tasks.length; i++) {
-                                if (tasks[i] != null) {
-                                    tasks[i].waitFinished(0);
-                                }
-                            }
-                        } catch (InterruptedException iex) {
-                        } finally {
+                final HashSet tasks = new HashSet(preCommands.length);
+                CommandProcessor.getInstance().addCommandProcessListener(new CommandProcessListener() {
+
+                    public VcsCommandsProvider getProvider() {
+                        return UserCommandTask.this.getProvider();
+                    }
+
+                    public void commandPreprocessing(Command cmd){}
+
+                    public void commandPreprocessed(Command cmd, boolean status) {}
+
+                    public void commandStarting(CommandTaskInfo info) {}
+
+                    public void commandDone(CommandTaskInfo info) {
+                        int size;
+                        synchronized (tasks) {
+                            tasks.remove(info.getTask());
+                            size = tasks.size();
+                        }
+                        if (size == 0) {
+                            CommandProcessor.getInstance().removeCommandProcessListener(this);
                             preCommandsProcessed = Boolean.TRUE;
                         }
                     }
+                    
                 });
+                for (int i = 0; i < preCommands.length; i++) {
+                    Command preCmd = getProvider().createCommand(preCommands[i]);
+                    if (preCmd != null) {
+                        ((VcsDescribedCommand) preCmd).setAdditionalVariables(executor.getVariables());
+                        synchronized (tasks) {
+                            tasks.add(preCmd.execute());
+                        }
+                    }
+                }
             }
         }
         return preCommandsProcessed.booleanValue();
