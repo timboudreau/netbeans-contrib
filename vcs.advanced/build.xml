@@ -18,6 +18,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <property name="stdprofiles" value="cvsprofiles, pvcs, vss"/>
   <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+  <property name="build.compiler.debug" value="on"/>
 
   <target name="init" depends="default.init">
     <patternset id="vcsgeneric.files">
