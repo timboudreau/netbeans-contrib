@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.util.*;
@@ -62,6 +63,8 @@ public class PvcsListCommand extends AbstractListCommand {
     private static final String LOCK_INFO_END = "]"; // NOI18N
     private static final String LOCKS_SEPARATOR = " : "; // NOI18N
     
+    private static final String NO_ENTITIES_REGEX = "^The entity \\(or entities\\) for .* could not be loaded\\.$";
+    
     private static final String MISSING_STATUS = "Missing"; // NOI18N
     private static final String CURRENT_STATUS = "Current"; // NOI18N
     private static final String MODIFIED_STATUS = "Locally Modified"; // NOI18N
@@ -69,9 +72,13 @@ public class PvcsListCommand extends AbstractListCommand {
     
     /** The first version of PVCS in which the quoting is fixed. */
     private static final String[] PCLI_OLDSTYLE_QUOTING_VERSION = { "6", "8" };
+    
+    private Pattern noEntitiesPattern;
+    private boolean noEntitiesMatched = false;
 
     //-------------------------------------------
     public PvcsListCommand() {
+        noEntitiesPattern = Pattern.compile(NO_ENTITIES_REGEX);
     }
 
     public void setFileSystem(VcsFileSystem fileSystem) {
@@ -173,6 +180,9 @@ public class PvcsListCommand extends AbstractListCommand {
             });
         } catch (InterruptedException iexc) {
             return false;
+        }
+        if (noEntitiesMatched) {
+            return true; // No files are returned. Return successfully.
         }
         //if (shouldFail) {  PCLI commands of old PVCS versions do not fail!!!
             java.util.Vector fsVars = fileSystem.getVariables();
@@ -321,6 +331,10 @@ public class PvcsListCommand extends AbstractListCommand {
     public void outputData(String[] elements) {
         D.deb("match("+elements[0]+")"); // NOI18N
         if (elements[0] != null) {
+            if (noEntitiesPattern.matcher(elements[0]).matches()) {
+                noEntitiesMatched = true;
+                return ;
+            }
             if (pathToSkip.equals(elements[0])) skipNextName = true;
             if (elements[0].startsWith(ENTITY_TYPE)) {
                 String entityType = elements[0].substring(ENTITY_TYPE.length());
