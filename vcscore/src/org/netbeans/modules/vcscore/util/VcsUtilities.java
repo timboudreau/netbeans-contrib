@@ -236,6 +236,22 @@ public class VcsUtilities {
         //String element = str.substring(index, end);
         return (String[]) list.toArray(new String[0]);
     }
+    
+    /**
+     * Find out, whether some string from the field of quoted strings is contained in a set of strings.
+     * @param quotedStr the field of quoted strings, can be <code>null</code>
+     * @param set the set of strings
+     * @return true if there is a match, false otherwise
+     */
+    public static boolean matchQuotedStringToSet(String quotedStr, Set set) {
+        if (quotedStr != null && set != null) {
+            String[] strs = getQuotedStrings(quotedStr);
+            for (int i = 0; i < strs.length; i++) {
+                if (set.contains(strs[i])) return true;
+            }
+        }
+        return false;
+    }
 
     //-------------------------------------------
     public static String getDirNamePart(String path){
