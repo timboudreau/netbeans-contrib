@@ -718,8 +718,8 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     }
     
     private class MyTreeCellRenderer extends DefaultTreeCellRenderer {
-        String DEFAULT_FOLDER = "/org/openide/resources/defaultFolder.gif";
-        String DEFAULT_OPEN_FOLDER = "/org/openide/resources/defaultFolderOpen.gif";
+        String DEFAULT_FOLDER = "/org/openide/loaders/defaultFolder.gif";
+        String DEFAULT_OPEN_FOLDER = "/org/openide/loaders/defaultFolderOpen.gif";
 
         static final long serialVersionUID = -1075722862531035018L;
         
@@ -754,7 +754,6 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                 } else {
                     java.net.URL url2 = this.getClass().getResource(DEFAULT_OPEN_FOLDER);
                     label.setIcon(new ImageIcon(url2));
-//                  label.setIcon(new ImageIcon(new java.net.URL("org.netbeans.openide.resources.defaultFolder.gif")));
                 }
 
             }

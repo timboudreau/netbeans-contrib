@@ -33,8 +33,8 @@ import org.netbeans.modules.vcscore.util.table.*;
  *
  */
 public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implements TreeCellRenderer {    
-    protected  String DEFAULT_FOLDER = "/org/openide/resources/defaultFolder.gif"; // NOI18N
-    protected  String DEFAULT_OPEN_FOLDER = "/org/openide/resources/defaultFolderOpen.gif"; // NOI18N
+    protected  String DEFAULT_FOLDER = "/org/openide/loaders/defaultFolder.gif"; // NOI18N
+    protected  String DEFAULT_OPEN_FOLDER = "/org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
     protected  String DEFAULT_FILE = "/org/openide/resources/defaultNode.gif"; // NOI18N
     
     protected File topDirectory;

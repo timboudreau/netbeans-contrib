@@ -47,8 +47,8 @@ import org.netbeans.modules.vcscore.util.Table;
  */
 public class CommandNode extends AbstractNode {
 
-    private static final String DEFAULT_FOLDER = "org/openide/resources/defaultFolder.gif"; // NOI18N
-    private static final String DEFAULT_OPEN_FOLDER = "org/openide/resources/defaultFolderOpen.gif"; // NOI18N
+    private static final String DEFAULT_FOLDER = "org/openide/loaders/defaultFolder.gif"; // NOI18N
+    private static final String DEFAULT_OPEN_FOLDER = "org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
     //private static final String DEFAULT_COMMAND = "org/netbeans/modules/vcscore/runtime/commandIcon.gif"; // NOI18N
     private static final String DEFAULT_COMMAND = "org/netbeans/modules/vcs/advanced/commands/commandsJmenuItem.gif"; // NOI18N
     private static final String DEFAULT_HIDDEN_COMMAND_BADGE = "org/netbeans/modules/vcs/advanced/commands/commandsHiddenBadgeIcon.gif"; // NOI18N

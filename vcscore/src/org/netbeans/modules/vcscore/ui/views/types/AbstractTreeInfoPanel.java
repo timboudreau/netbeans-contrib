@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -39,8 +39,8 @@ import org.netbeans.modules.vcscore.util.table.*;
  */
 public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel {
 
-    protected  String DEFAULT_FOLDER = "/org/openide/resources/defaultFolder.gif"; // NOI18N
-    protected  String DEFAULT_OPEN_FOLDER = "/org/openide/resources/defaultFolderOpen.gif"; // NOI18N
+    protected  String DEFAULT_FOLDER = "/org/openide/loaders/defaultFolder.gif"; // NOI18N
+    protected  String DEFAULT_OPEN_FOLDER = "/org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
     protected  String DEFAULT_FILE = "/org/openide/resources/defaultNode.gif"; // NOI18N
     
 //    private ArrayList files;
