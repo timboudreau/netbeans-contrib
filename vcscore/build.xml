@@ -31,7 +31,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="jars" depends="compile">
     <mkdir dir="netbeans/lib/ext"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-    <copyfile src="manifest.mf" dest="manifest-subst.mf" filtering="on"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     <jar jarfile="netbeans/lib/ext/vcscore.jar"
          manifest="manifest-subst.mf"
          basedir="libsrc"
@@ -56,13 +56,18 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="clean">
-    <delete dir="libsrc">
-      <include name="**/*.class"/>
+    <delete>
+      <fileset dir="libsrc">
+        <include name="**/*.class"/>
+      </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="vcscore.nbm"/>
-    <deltree dir="netbeans"/>
-    <deltree dir="Info"/>
+    <delete dir="netbeans"/>
+    <delete dir="Info"/>
   </target>
 
 </project>
+
+
+
