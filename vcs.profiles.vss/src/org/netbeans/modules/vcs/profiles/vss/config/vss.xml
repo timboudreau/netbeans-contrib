@@ -202,6 +202,12 @@ Microsystems, Inc. All Rights Reserved.
              ASK_FOR(DO_VSS_CHECKOUT, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_GET);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(WIZARD_VSS_CHECKOUT_Mnemonic)))
       </value>
     </variable>
+    <variable name="IS_FINISH_ENABLED" basic="false">
+      <value>$[? DO_VSS_CHECKOUT][]["true"]</value>
+    </variable>
+    <variable name="DO_VSS_CHECKOUT" basic="false">
+      <value></value>
+    </variable>  
     <variable name="WIZARD_INPUT_DESCRIPTOR1" basic="false">
       <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_GET)))             
              ASK_FOR(RW_MODE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
