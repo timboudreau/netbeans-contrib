@@ -30,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.helpbuilder.HelpPreview;
-import org.netbeans.modules.helpbuilder.ShowHelpAction;
 import org.netbeans.modules.helpbuilder.processors.HelpSetProcessor;
 import org.netbeans.modules.helpbuilder.processors.MapProcessor;
 import org.netbeans.modules.helpbuilder.tree.HelpTreeNode;
