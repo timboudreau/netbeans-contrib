@@ -719,6 +719,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                             propertyChangeEvents.add(pcev);
                             eventsToAdjust.add(pcev);
                         }
+                        break; // Skip the next radio buttons. We've already set the correct button.
                     } else if (component instanceof javax.swing.JComboBox) {
                         javax.swing.JComboBox comboBox = (javax.swing.JComboBox) component;
                         if (comboBox.isEditable()) {
