@@ -14,22 +14,26 @@
 package org.netbeans.modules.vcscore.commands;
 
 import java.util.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 import org.openide.TopManager;
 import org.openide.nodes.Node;
 import org.openide.filesystems.RepositoryListener;
 import org.openide.filesystems.RepositoryEvent;
 import org.openide.filesystems.RepositoryReorderedEvent;
+import org.openide.util.RequestProcessor;
 //import org.openide.nodes.AbstractNode;
 //import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.FileReaderListener;
-import org.netbeans.modules.vcscore.runtime.RuntimeSupport;
+import org.netbeans.modules.vcscore.runtime.*;
 import org.netbeans.modules.vcscore.cache.FileSystemCache;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
  * This class is used as a container of all external commands which are either running or finished.
@@ -55,8 +59,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     public static final int PREPROCESS_DONE = 2;
     
+    public static final int DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT = 20;
+    
     /** Contains instances of VcsCommandExecutor, which are to be run.  */
     private ArrayList commandsToRun;
+    /** Contains instances of VcsCommandExecutor, which are waiting to run. */
+    private ArrayList commandsWaitQueue;
     /** Contains pairs of instances of VcsCommandExecutor and threads in which are running. */
     private Table commands;
     /** The containers of output of commands. Contains pairs of instances of VcsCommandExecutor
@@ -70,7 +78,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private ThreadGroup group;
     
     /** The number of finished commands to collect. */
-    private int collectFinishedCmdsNum = 20;
+    private int collectFinishedCmdsNum = DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
     /** Whether to collect the whole output of commands. */
     private boolean collectOutput = true;
     /** Whether to collect error output of commands. */
@@ -80,18 +88,31 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     private VcsFileSystem fileSystem;
     
-    private Node runtimeNode;
+    private RuntimeFolderNode runtimeNode;
+
+    private boolean execStarterLoopStarted = false;
+    private boolean execStarterLoopRunning = true;
 
     /** Creates new CommandsPool */
     public CommandsPool(final VcsFileSystem fileSystem) {
         commandsToRun = new ArrayList();
         commands = new Table();
         commandsFinished = new ArrayList();
+        commandsWaitQueue = new ArrayList();
         outputContainers = new Hashtable();
         outputVisualizers = new Hashtable();
         group = new ThreadGroup("VCS Commands Goup");
         this.fileSystem = fileSystem;
         runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
+        runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
+        final PropertyChangeListener runtimeNodePropertyChange = new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT.equals(evt.getPropertyName())) {
+                    collectFinishedCmdsNum = ((Integer) evt.getNewValue()).intValue();
+                }
+            }
+        };
+        runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
         fileSystem.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 RuntimeSupport.updateRuntime(runtimeNode, fileSystem.getDisplayName());
@@ -102,48 +123,35 @@ public class CommandsPool extends Object /*implements CommandListener */{
             public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {}
             public void fileSystemRemoved(RepositoryEvent ev) {
                 if (ev.getFileSystem().equals(fileSystem)) {
+                    runtimeNode.removePropertyChangeListener(runtimeNodePropertyChange);
                     try {
                         runtimeNode.destroy();
                     } catch (java.io.IOException exc) {
                         TopManager.getDefault().notifyException(exc);
                     }
+                    synchronized (CommandsPool.this) {
+                        execStarterLoopRunning = false;
+                        notifyAll();
+                    }
                     ev.getRepository().removeRepositoryListener(this);
                 }
             }
         });
+        //executorStarterLoop();
     }
     
-    /*
-    private void initRuntime() {
-        Node runtime = TopManager.getDefault().getPlaces().nodes().environment();
-        Children runtimeCh = runtime.getChildren();
-        Node vcsRuntime = getVcsRuntime(runtimeCh);
-    }
-    
-    private Node getVcsRuntime(Children ch) {
-        Node[] nodes = ch.getNodes();
-        for(int i = 0; i < nodes.length; i++) {
-            if (VCS_RUNTIME_NODE_NAME.equals(nodes[i].getName())) return nodes[i];
-        }
-        AbstractNode vcsRuntime = new AbstractNode(new Children.Array());
-        vcsRuntime.setName(VCS_RUNTIME_NODE_NAME);
-        vcsRuntime.setDisplayName(g("CTL_VcsRuntime"));
-        ch.add(new Node[] { vcsRuntime });
-        return vcsRuntime;
-    }
-     */
-
     /**
      * Set the number of finished commands to collect.
      */
     public void setCollectFinishedCmdsNum(int collectFinishedCmdsNum) {
         this.collectFinishedCmdsNum = collectFinishedCmdsNum;
+        runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
     }
     
     /**
      * Get the number of finished commands to collect.
      */
-    public int getCollectFinishedCmds() {
+    public int getCollectFinishedCmdsNum() {
         return collectFinishedCmdsNum;
     }
     
@@ -207,7 +215,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     private void commandStarted(VcsCommandExecutor vce) {
         VcsCommand cmd = vce.getCommand();
-        waitToRun(cmd, vce.getFiles());
+        //waitToRun(cmd, vce.getFiles());
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
         TopManager.getDefault().setStatusText(g("MSG_Command_name_running", name));
@@ -282,7 +290,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 break;
         }
         TopManager.getDefault().setStatusText(message);
-        if (exit != VcsCommandExecutor.SUCCEEDED) {
+        if (exit != VcsCommandExecutor.SUCCEEDED && !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
             fileSystem.debugErr(message);
             printErrorOutput(vce);
         } else {
@@ -319,21 +327,56 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     /**
-     * Start the executor. The method starts the executor in a separate thread
-     * and does not wait for it to finish.
+     * Start the executor. The method starts the executor in a separate thread.
      * @param vce the executor
      */
-    public void startExecutor(final VcsCommandExecutor vce) {
-        final Thread t = new Thread(group, vce, "VCS Command Execution Thread");
-        //System.out.println("startExecutor("+vce.getCommand()+")");
-        synchronized (this) {
-            commandsToRun.remove(vce);
-            commands.put(vce, t);
+    public synchronized void startExecutor(final VcsCommandExecutor vce) {
+        commandsToRun.remove(vce);
+        commandsWaitQueue.add(vce);
+        notifyAll(); // executorStarterLoop will start the command
+        if (!execStarterLoopStarted) {
+            runExecutorStarterLoop();
         }
+        /*
+        RequestProcessor.Task task = RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                final Thread t = new Thread(group, vce, "VCS Command Execution Thread");
+                //System.out.println("startExecutor("+vce.getCommand()+")");
+                synchronized (CommandsPool.this) {
+                    waitToRun(vce.getCommand(), vce.getFiles());
+                    commandsToRun.remove(vce);
+                    commands.put(vce, t);
+                }
+                commandStarted(vce);
+                t.start();
+                //System.out.println("startExecutor, thread started.");
+                new Thread(group, "VCS Command Execution Waiter") {
+                    public void run() {
+                        //System.out.println("startExecutor.Waiter: thread checking ...");
+                        while (t.isAlive()) {
+                            //System.out.println("startExecutor.Waiter: thread is Alive");
+                            try {
+                                t.join();
+                            } catch (InterruptedException exc) {
+                                // Ignore
+                            }
+                        }
+                        commandDone(vce);
+                    }
+                }.start();
+            }
+        });
+        //System.out.println("startExecutor, waiter started.");
+         */
+    }
+    
+    private synchronized void executorStarter(final VcsCommandExecutor vce) {
+        final Thread t = new Thread(group, vce, "VCS Command \""+vce.getCommand().getName()+"\" Execution Thread");
+        commands.put(vce, t);
         commandStarted(vce);
         t.start();
         //System.out.println("startExecutor, thread started.");
-        new Thread(group, "VCS Command Execution Waiter") {
+        new Thread(group, "VCS Command \""+vce.getCommand().getName()+"\" Execution Waiter") {
             public void run() {
                 //System.out.println("startExecutor.Waiter: thread checking ...");
                 while (t.isAlive()) {
@@ -347,7 +390,72 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 commandDone(vce);
             }
         }.start();
-        //System.out.println("startExecutor, waiter started.");
+    }
+    
+    /*
+    private void executorStarterLoop() {
+        new Thread(group, new Runnable() {
+            public void run() {
+                do {
+                    VcsCommandExecutor vce;
+                    do {
+                        vce = null;
+                        synchronized (CommandsPool.this) {
+                            for (Iterator it = commandsWaitQueue.iterator(); it.hasNext(); ) {
+                                vce = (VcsCommandExecutor) it.next();
+                                if (canRun(vce)) break;
+                            }
+                            if (vce != null) {
+                                commandsWaitQueue.remove(vce);
+                                executorStarter(vce);
+                            }
+                        }
+                    } while (vce != null);
+                    synchronized (CommandsPool.this) {
+                        try {
+                            wait();
+                        } catch (InterruptedException intrexc) {
+                            // silently ignored
+                        }
+                    }
+                } while(execStarterLoopRunning);
+            }
+        }, "VCS Command Executor Starter Loop").start();
+        execStarterLoopStarted = true;
+    }
+     */
+    private synchronized void executorStarterLoop() {
+        do {
+            VcsCommandExecutor vce;
+            do {
+                vce = null;
+                for (Iterator it = commandsWaitQueue.iterator(); it.hasNext(); ) {
+                    VcsCommandExecutor vceTest = (VcsCommandExecutor) it.next();
+                    if (canRun(vceTest)) {
+                        vce = vceTest;
+                        break;
+                    }
+                }
+                if (vce != null) {
+                    commandsWaitQueue.remove(vce);
+                    executorStarter(vce);
+                }
+            } while (vce != null);
+            try {
+                wait();
+            } catch (InterruptedException intrexc) {
+                // silently ignored
+            }
+        } while(execStarterLoopRunning);
+    }
+    
+    private void runExecutorStarterLoop() {
+        new Thread(group, new Runnable() {
+            public void run() {
+                executorStarterLoop();
+            }
+        }, "VCS Command Executor Starter Loop").start();
+        execStarterLoopStarted = true;
     }
 
     /**
@@ -450,41 +558,154 @@ public class CommandsPool extends Object /*implements CommandListener */{
         return (String[]) names.toArray(new String[0]);
     }
     
+    /** @return true if there are two files contained in the same package folder, false otherwise.
+     */
+    private static boolean areFilesInSamePackage(Collection files1, Collection files2) {
+        for(Iterator it1 = files1.iterator(); it1.hasNext(); ) {
+            String file1 = (String) it1.next();
+            String dir1 = VcsUtilities.getDirNamePart(file1);
+            for(Iterator it2 = files2.iterator(); it2.hasNext(); ) {
+                String file2 = (String) it2.next();
+                String dir2 = VcsUtilities.getDirNamePart(file2);
+                if (dir1.equals(dir2)) return true;
+            }
+        }
+        return false;
+    }
+    
+    /** @return true if a file or folder from <code>files1</code> is contained in a folder
+     * from <code>files2</code>
+     */
+    private static boolean isParentFolder(Collection files1, Collection files2) {
+        for(Iterator it1 = files1.iterator(); it1.hasNext(); ) {
+            String file1 = (String) it1.next();
+            for(Iterator it2 = files2.iterator(); it2.hasNext(); ) {
+                String file2 = (String) it2.next();
+                if (file1.startsWith(file2)) return true;
+            }
+        }
+        return false;
+    }
+    
     /**
+     * Say whether the command executor can be run now or not. It should be called
+     * with a monitor lock on this object.
+     * Check its concurrent property and other running commands.
+     * @return true if the command can be run in the current monitor lock, false otherwise.
+     */
+    private synchronized boolean canRun(VcsCommandExecutor vce) {
+        VcsCommand cmd = vce.getCommand();
+        Collection files = vce.getFiles();
+        int concurrency = VcsCommandIO.getIntegerPropertyAssumeZero(cmd,
+                            VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
+        if (concurrency == VcsCommand.EXEC_CONCURRENT_ALL) return true;
+        String name = cmd.getName();
+        boolean haveToWait = false;
+        boolean serialOnFile = (concurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0;
+        boolean serialOnPackage = (concurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0;
+        boolean serialWithParent = (concurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0;
+        boolean serialOfCommand = (concurrency & VcsCommand.EXEC_SERIAL_OF_COMMAND) != 0;
+        boolean matchOnFile = false;
+        boolean matchOnPackage = false;
+        boolean matchWithParent = false;
+        boolean matchOfCommand = false;
+        for(Enumeration enum = commands.keys(); enum.hasMoreElements(); ) {
+            VcsCommandExecutor ec = (VcsCommandExecutor) enum.nextElement();
+            Collection cmdFiles = ec.getFiles();
+            VcsCommand uc = ec.getCommand();
+            String cmdName = uc.getName();
+            if (serialOnFile) {
+                for(Iterator it = files.iterator(); it.hasNext(); ) {
+                    String file = (String) it.next();
+                    if (cmdFiles.contains(file)) {
+                        matchOnFile = true;
+                        break;
+                    }
+                }
+            }
+            if (serialOnPackage) {
+                if (areFilesInSamePackage(files, cmdFiles)) {
+                    matchOnPackage = true;
+                }
+            }
+            if (serialWithParent) {
+                if (isParentFolder(files, cmdFiles)) {
+                    matchWithParent = true;
+                }
+            }
+            if (serialOfCommand) {
+                matchOfCommand = name.equals(cmdName);
+            }
+            if (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand) {
+                haveToWait = true;
+                break;
+            }
+        }
+        return !haveToWait;
+    }
+    
+    /*
      * Wait before the command can be run if necessary.
      * Check its concurrent property and other running commands.
-     */
+     *
     public synchronized void waitToRun(VcsCommand cmd, Collection files) {
         int concurrency = VcsCommandIO.getIntegerPropertyAssumeZero(cmd,
                             VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
         if (concurrency == VcsCommand.EXEC_CONCURRENT_ALL) return ;
         String name = cmd.getName();
-        boolean haveToWait = true;
+        boolean haveToWait;
+        boolean serialOnFile = (concurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0;
+        boolean serialOnPackage = (concurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0;
+        boolean serialWithParent = (concurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0;
+        boolean serialOfCommand = (concurrency & VcsCommand.EXEC_SERIAL_OF_COMMAND) != 0;
         do {
+            haveToWait = false;
+            boolean matchOnFile = false;
+            boolean matchOnPackage = false;
+            boolean matchWithParent = false;
+            boolean matchOfCommand = false;
             for(Enumeration enum = commands.keys(); enum.hasMoreElements(); ) {
                 VcsCommandExecutor ec = (VcsCommandExecutor) enum.nextElement();
+                Collection cmdFiles = ec.getFiles();
                 VcsCommand uc = ec.getCommand();
                 String cmdName = uc.getName();
-                if ((concurrency & VcsCommand.EXEC_SERIAL_OF_COMMAND) != 0) {
-                    if (name.equals(cmdName)) {
-                        try {
-                            wait();
-                        } catch (InterruptedException intrexc) {
-                            // silently ignored
+                if (serialOnFile) {
+                    for(Iterator it = files.iterator(); it.hasNext(); ) {
+                        String file = (String) it.next();
+                        if (cmdFiles.contains(file)) {
+                            matchOnFile = true;
+                            break;
                         }
-                        continue;
                     }
                 }
-                Collection cmdFiles = ec.getFiles();
-            //int index = commands.indexOf(cmd);
-            //if (index >= 0) {
-            //    VcsCommandExecutor executor = (VcsCommandExecutor) commands.get(index);
-                
+                if (serialOnPackage) {
+                    if (areFilesInSamePackage(files, cmdFiles)) {
+                        matchOnPackage = true;
+                    }
+                }
+                if (serialWithParent) {
+                    if (isParentFolder(files, cmdFiles)) {
+                        matchWithParent = true;
+                    }
+                }
+                if (serialOfCommand) {
+                    matchOfCommand = name.equals(cmdName);
+                }
+                if (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand) {
+                    haveToWait = true;
+                    break;
+                }
             }
-            haveToWait = false;
+            if (haveToWait) {
+                try {
+                    wait();
+                } catch (InterruptedException intrexc) {
+                    // silently ignored
+                }
+            }
         } while (haveToWait);
-        // TODO
     }
+     */
     
     /*
     private synchronized void addExecutorsOfCommandFromIterator(ArrayList executors, VcsCommand cmd, Iterator source) {
@@ -500,6 +721,13 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private synchronized void addExecutorsOfCommand(ArrayList executors, VcsCommand cmd) {
         String name = cmd.getName();
         Iterator it = commandsToRun.iterator();
+        while (it.hasNext()) {
+            VcsCommandExecutor executor = (VcsCommandExecutor) it.next();
+            if (name.equals(executor.getCommand().getName())) {
+                executors.add(executor);
+            }
+        }
+        it = commandsWaitQueue.iterator();
         while (it.hasNext()) {
             VcsCommandExecutor executor = (VcsCommandExecutor) it.next();
             if (name.equals(executor.getCommand().getName())) {
@@ -558,7 +786,15 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @param vce the executor
      */
     public void waitToFinish(VcsCommandExecutor vce) {
-        Thread t = (Thread) commands.get(vce);
+        Thread t;
+        synchronized (this) {
+            while (commandsToRun.contains(vce) || commandsWaitQueue.contains(vce)) {
+                try {
+                    wait();
+                } catch (InterruptedException iexc) {}
+            }
+            t = (Thread) commands.get(vce);
+        }
         if (t != null) {
             while(t.isAlive()) {
                 try {
@@ -599,15 +835,19 @@ public class CommandsPool extends Object /*implements CommandListener */{
     /**
      * Add a command listener.
      */
-    public synchronized void addCommandListener(CommandListener listener) {
-        commandListeners.add(listener);
+    public void addCommandListener(CommandListener listener) {
+        synchronized (commandListeners) {
+            commandListeners.add(listener);
+        }
     }
     
     /**
      * Remove a command listener.
      */
-    public synchronized void removeCommandListener(CommandListener listener) {
-        commandListeners.remove(listener);
+    public void removeCommandListener(CommandListener listener) {
+        synchronized (commandListeners) {
+            commandListeners.remove(listener);
+        }
     }
     
     /**
