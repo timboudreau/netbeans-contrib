@@ -16,12 +16,15 @@ package org.netbeans.modules.tasklist.docscan;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.ObjectOutput;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.SoftBevelBorder;
 
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -78,6 +81,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         // When the tab is alone in a container, don't show a tab;
         // the category nodes provide enough feedback.
         putClientProperty("TabPolicy", "HideWhenAlone");
+
+        InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        KeyStroke stop = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        inputMap.put(stop, stop);
+        getActionMap().put(stop, new StopAction());
     }
 
     protected TaskNode createRootNode() {
@@ -206,7 +214,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             stop = new JButton("stop");
             stop.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    stop.setText("Stopping...");
                     handleStop();
                 }
             });
@@ -390,6 +397,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
+        panel.setBorder(new SoftBevelBorder(BevelBorder.RAISED));  // XXX BorderFactory does not support it
+
         panel.add(toolbar, BorderLayout.WEST);
         panel.add(getMiniStatus(), BorderLayout.CENTER);
         panel.add(rightpanel, BorderLayout.EAST);
@@ -469,7 +478,14 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private void handleStop() {
+        getStop().setText("Stopping...");
         interrupt = true;
+    }
+
+    private class StopAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            handleStop();
+        }
     }
 
     private void handleAllFiles() {
