@@ -344,12 +344,14 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         }
         enableString(stringRadioButton.isSelected());
         enableStructured(structuredRadioButton.isSelected());
+        fieldsFocusLost();
     }//GEN-LAST:event_structuredRadioButtonActionPerformed
 
     private void stringRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stringRadioButtonActionPerformed
         // Add your handling code here:
         enableString(stringRadioButton.isSelected());
         enableStructured(structuredRadioButton.isSelected());
+        fieldsFocusLost();
     }//GEN-LAST:event_stringRadioButtonActionPerformed
 
     private void stringEditButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stringEditButtonActionPerformed
@@ -371,6 +373,7 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
             } else {
                 stringTextField.setText((String) stringEditor.getValue());
             }
+            fieldsFocusLost();
         }
     }//GEN-LAST:event_stringEditButtonActionPerformed
 
@@ -399,7 +402,8 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
             //D.deb("no directory selected"); // NOI18N
             return ;
         }
-        execTextField.setText(selected);
+        execTextField.setText(selected); 
+        fieldsFocusLost();
     }//GEN-LAST:event_execButtonActionPerformed
 
     private void workButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_workButtonActionPerformed
@@ -428,6 +432,7 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
             return ;
         }
         workTextField.setText(selected);
+        fieldsFocusLost();
     }//GEN-LAST:event_workButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
@@ -443,6 +448,7 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         // Add your handling code here:
         addArgTableRow();
+        fieldsFocusLost();
     }//GEN-LAST:event_addButtonActionPerformed
     
     protected void postInitComponents() {
@@ -533,13 +539,13 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         }
     }
     
-    private void attachFocusLostListener() {
+    private void attachFocusLostListener() {       
         FocusListener fl = new FocusAdapter() {
             public void focusLost(FocusEvent fe) {
                 fieldsFocusLost();
             }
         };
-        stringTextField.addFocusListener(fl);
+        stringTextField.addFocusListener(fl);        
         execTextField.addFocusListener(fl);
         workTextField.addFocusListener(fl);
         argTable.addFocusListener(fl);
@@ -573,15 +579,15 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
     }
     
     /** This method is called when some field loose focus */
-    protected void fieldsFocusLost() {
+    protected void fieldsFocusLost() {              
     }
-    
+        
     public String getExecString() {
         execString = stringTextField.getText();
         return execString;
     }
     
-    public void setExecString(String execString) {
+    public void setExecString(String execString) {        
         this.execString = execString;
         if (execString != null) {
             stringTextField.setText(execString);
