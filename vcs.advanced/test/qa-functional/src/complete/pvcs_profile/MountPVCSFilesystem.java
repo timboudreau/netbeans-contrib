@@ -80,15 +80,18 @@ public class MountPVCSFilesystem extends NbTestCase {
     }
     
     /** Method will create a file and capture the screen.
+     * @param reason Reason of failure.
+     * @param dialogs Dialogs that should be closed before exception is thrown.
      */
-    private void captureScreen(String reason) throws Exception {
-        File file;
+    private void captureScreen(String reason, NbDialogOperator[] dialogs) throws Exception {
+        File file = null;
         try {
             file = new File(getWorkDirPath() + "/dump.png");
             file.getParentFile().mkdirs();
             file.createNewFile();
-        } catch(IOException e) { throw new Exception("Error: Can't create dump file."); }
+        } catch(IOException e) { reason = "Error: Can't create dump file."; }
         PNGEncoder.captureScreen(file.getAbsolutePath());
+        if (dialogs != null) for (int i=0; i<dialogs.length; i++) dialogs[i].cancel();
         throw new Exception(reason);
     }
     
@@ -137,35 +140,36 @@ public class MountPVCSFilesystem extends NbTestCase {
         if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
             profile = VCSWizardProfile.PVCS_WIN_95;
         wizard.setProfile(profile);
-        Thread.currentThread().sleep(5000);
+        Thread.currentThread().sleep(10000);
         String status = MainWindowOperator.getDefault().getStatusText();
         if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed.")))
-            captureScreen("Error: Incorrect status \"" + status + "\" reached.");
+            captureScreen("Error: Incorrect status \"" + status + "\" reached.", new NbDialogOperator[] {wizard});
         wizard.selectProjectDatabase();
         DatabaseSelector selector = new DatabaseSelector();
         selector.pickADatabaseInSubfolderOf();
         selector.browseDatabaseParentFolder();
         new JButtonOperator(new JDialogOperator("Select Directory:"), "Cancel").push();
         selector.selectADatabaseUsedByPVCSGUI();
-        Thread.currentThread().sleep(5000);
+        Thread.currentThread().sleep(10000);
         status = MainWindowOperator.getDefault().getStatusText();
         if (status.equals("Command LIST_PROJECT_DB failed."))
             new JButtonOperator( new JDialogOperator("Exception"), "OK").push();
         else if (status.equals("Command LIST_PROJECT_DB finished."))
             selector.lstDatabaseList().clickOnItem(0, 1);
-            else captureScreen("Error: Incorrect status \"" + status + "\" reached.");
+            else captureScreen("Error: Incorrect status \"" + status + "\" reached.", new NbDialogOperator[] {selector, wizard});
         selector.databaseLocationPath();
         selector.browseDatabaseLocation();
         JFileChooserOperator fileChooser = new JFileChooserOperator();
         new File(workingDirectory + File.separator + "Repo").mkdirs();
         fileChooser.chooseFile(workingDirectory + File.separator + "Repo");
         selector.ok();
-        Thread.currentThread().sleep(5000);
+        Thread.currentThread().sleep(10000);
         status = MainWindowOperator.getDefault().getStatusText();
-        if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed.")))
-            captureScreen("Error: Incorrect status \"" + status + "\" reached.");
+        if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed."))) {
+            captureScreen("Error: Incorrect status \"" + status + "\" reached.", new NbDialogOperator[] {wizard});
+        }
         if (!wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE).getText().equals(workingDirectory + File.separator + "Repo"))
-            captureScreen("Error: Unable to setup project database through its selector.");
+            captureScreen("Error: Unable to setup project database through its selector.", new NbDialogOperator[] {wizard});
         wizard.cancel();
         System.out.println(". done !");
     }
@@ -182,18 +186,20 @@ public class MountPVCSFilesystem extends NbTestCase {
         if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
             profile = VCSWizardProfile.PVCS_WIN_95;
         wizard.setProfile(profile);
+        Thread.currentThread().sleep(5000);
         MainWindowOperator.getDefault().waitStatusText("Command AUTO_FILL_CONFIG finished.");
         JTextFieldOperator txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE);
         txt.clearText();
         txt.typeText(workingDirectory + File.separator + "Repo");
         txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION);
         txt.requestFocus();
+        Thread.currentThread().sleep(5000);
         MainWindowOperator.getDefault().waitStatusText("Command AUTO_FILL_CONFIG finished.");
         new File(workingDirectory + File.separator + "Work").mkdirs();
         txt.clearText();
         txt.typeText(workingDirectory + File.separator + "Work");
         wizard.finish();
-        Thread.currentThread().sleep(2000);
+        Thread.currentThread().sleep(3000);
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         assertNotNull("Error: Can't select filesystem " + filesystem, new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
         System.out.println(". done !");
