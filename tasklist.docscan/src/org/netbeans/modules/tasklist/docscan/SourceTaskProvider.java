@@ -124,15 +124,15 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      */
     protected void docShown(Document document, DataObject dataobject) {
         //System.out.println("docShown(" + document + ")");
-	Settings settings = (Settings)Settings.
-	    findObject(Settings.class, true);
-	boolean skipCode = settings.getSkipComments();
-        tasklist = new TaskList();
-	scanner = new SourceScanner(tasklist, skipCode);
-	//scanner.start(false);
+        skipCode = ((Settings)Settings.
+                             findObject(Settings.class, true)).getSkipComments();
         update(document, dataobject);
     }
 
+    private boolean skipCode = ((Settings)Settings.
+                             findObject(Settings.class, true)).getSkipComments();
+
+    
     /** Update the manager with the current document contents */
     private void update(Document doc, DataObject dobj) {
         List newTasks = scan(doc, dobj);
@@ -156,7 +156,14 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
         }
 
         // Don't update old tasks - just generate new ones!
-        tasklist.clear();
+        if (tasklist == null) {
+            tasklist = new TaskList();
+        } else {
+            tasklist.clear();
+        }
+        if (scanner == null) {
+            scanner = new SourceScanner(tasklist, skipCode);
+        }
 
         scanner.scan(doc, dobj, false, false);
         

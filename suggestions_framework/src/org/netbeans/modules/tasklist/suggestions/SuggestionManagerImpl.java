@@ -247,7 +247,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         SuggestionImpl category = tasklist.getCategoryTask(type);
         // XXX Do I need to set the parent field on each item?
         synchronized(this) {
-            list.addRemove(suggestions, null, false, category);
+            tasklist.addRemove(suggestions, null, false, category);
         }
         updateCategoryCount(category); // TODO: skip this when filtered
     }
@@ -452,7 +452,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         return providers;
     }
 
-    SuggestionList list = null;
+    private SuggestionList list = null;
 
     /**
      * Return the TaskList that we're managing
@@ -462,12 +462,11 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             TaskListView view =
             TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N
             if (view == null) {
-                view = new SuggestionsView();
-            /* Let user open the window
-               TODO Find a way to manage the tasklist so that I -don't-
-               have to create it now; only when it's opened by the user!
-            view.showInMode();
-             */
+            view = new SuggestionsView();
+            // Let user open the window
+            //   TODO Find a way to manage the tasklist so that I -don't-
+            //   have to create it now; only when it's opened by the user!
+            //view.showInMode();
             }
             list = (SuggestionList)view.getList();
         }
@@ -652,11 +651,9 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      * @param type SuggestionType to be shown, or
      *     null if the view should not be filtered (e.g. show all)
      */
-    void notifyFiltered(SuggestionType type) {
-
+    void notifyFiltered(SuggestionList tasklist, SuggestionType type) {
         // "Flatten" the list when I'm filtering so that I don't show
         // category nodes!
-        SuggestionList tasklist = getList();
         if (type != null) {
             tasklist.clear();
        
@@ -666,7 +663,9 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                 ArrayList list = new ArrayList(200);
                 while (it.hasNext()) {
                     SuggestionImpl s = (SuggestionImpl)it.next();
-                    list.addAll(s.getSubtasks());
+                    if (s.hasSubtasks()) {
+                        list.addAll(s.getSubtasks());
+                    }
                 }
                 tasklist.addRemove(list, null, false, null);
             }
@@ -1004,16 +1003,19 @@ final public class SuggestionManagerImpl extends SuggestionManager {
       List erase = null;
       List origIcon = null;
    
-      /** Set a series of suggestions as highlighted. Or, clear the current
-      * selection of highlighted nodes.
-      * <p>
-      * @param suggestions List of suggestions that should be highlighted.
-      *      If null, the selection is cleared.
-      *
-      */
-     public void setHighlighted(List suggestions) {
-         // Clear out previously highlighted items
-         if (erase != null) {
+    /** Set a series of suggestions as highlighted. Or, clear the current
+     * selection of highlighted nodes.
+     * <p>
+     * @param suggestions List of suggestions that should be highlighted.
+     *      If null, the selection is cleared.
+     * @param type The type for which this selection applies. Each type
+     *      has its own, independent set of highlighted suggestions. If
+     *      null, it applies to all types.
+     *
+     */
+    public void setHighlighted(List suggestions, String type) {
+        // Clear out previously highlighted items
+        if (erase != null) {
              Iterator it = erase.iterator();
              Iterator itorig = origIcon.iterator();
              while (it.hasNext()) {
@@ -1022,11 +1024,11 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                  s.setIcon(icon);
                  s.setHighlighted(false);
              }
-         }
-         erase = null;
-         origIcon = null;
+        }
+        erase = null;
+        origIcon = null;
          
-         if (suggestions != null) {
+        if (suggestions != null) {
              Iterator it = suggestions.iterator();
              while (it.hasNext()) {
                  SuggestionImpl s = (SuggestionImpl)it.next();
@@ -1043,7 +1045,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                            0, 0);
                      s.setIcon(image);
                      erase.add(s);
-                 }
-         }
-     }
+             }
+        }
+    }
 }
