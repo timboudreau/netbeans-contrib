@@ -15,12 +15,12 @@ Microsystems, Inc. All Rights Reserved.
   <!ENTITY api-questions SYSTEM "../../nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml">
 ]>
 
-<!-- XXX this whole file is clearly not right; ignore current contents -->
+<!-- XXX this file is not completed - (madamek) -->
 
 <api-answers
   question-version="1.24"
-  module="web/freeform"
-  author="dkonecny@netbeans.org"
+  module="j2ee/ejbfreeform"
+  author="madamek@netbeans.org"
 >
 
   &api-questions;
@@ -43,7 +43,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="arch-overall">
   <p>
-   Web development support for freeform project. There is no API/SPI.
+   EJB development support for freeform project. There is no API/SPI.
   </p>
   <p>
    The behavior of this extension is entirely controlled by
@@ -51,10 +51,9 @@ Microsystems, Inc. All Rights Reserved.
   </p>
   <ol>
    <li>
-    <!-- XXX fix this link -->
-    <api group="dtd" name="freeform-project-web.xsd" type="export" category="devel" url="http://www.netbeans.org/source/browse/~checkout~/ant/freeform/src/org/netbeans/modules/ant/freeform/resources/freeform-project-web.xsd">
+    <api group="dtd" name="freeform-project-ejb.xsd" type="export" category="devel" url="http://www.netbeans.org/source/browse/~checkout~/ant/freeform/src/org/netbeans/modules/ant/freeform/resources/freeform-project-ejb.xsd">
      <p>
-      XML schema for the Web-specific section.
+      XML schema for the EJB-specific section.
      </p>
     </api>
    </li>
@@ -97,7 +96,10 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="arch-time">
   <p>
-   Complete.
+   Important task to complete:
+   Implementation dependency on ejbjarproject have to be removed.
+   Possibility to select NO server type in wizard have to be added.
+   Stabilization have to be done.
   </p>
  </answer>
 
@@ -133,19 +135,19 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="arch-what">
   <p>
-   This module implements Web development support in Freeform project type.
+   This module implements EJB development support in Freeform project type.
    See Freeform project type documentation for its general description. The
    main features of this extension are:
   </p>
   <ol>
    <li>
     <p>
-     Answers Web specific <dfn>queries</dfn> like WebModule provider, etc.
+     Answers EJB specific <dfn>queries</dfn> like J2eeModule provider, etc.
     </p>
    </li>
    <li>
     <p>
-     Provides wizard to help the user set up a new project with Web support.
+     Provides wizard to help the user set up a new project with EJB support.
     </p>
    </li>
   </ol>
@@ -190,7 +192,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="compat-standards">
   <p>
-   Defines project syntax of Web support. There is no known independent format for this.
+   Defines project syntax of EJB support. There is no known independent format for this.
   </p>
  </answer>
 
@@ -258,97 +260,15 @@ Microsystems, Inc. All Rights Reserved.
             </hint>
         </question>
 -->
+
+<!-- Not complete - (madamek) -->
+
  <answer id="dep-nb">
   <ul>
    <li>
-    <api group="java" name="FreeformProjectSPI" type="import" category="friend">
+    <api group="java" name="ejbjarproject" type="import" category="friend">
      <p>
-      Base Freeform SPI.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="AntProjectAPI" type="import" category="devel">
-     <p>
-      The SPI is used heavily to implement various queries, evaluate Ant
-      properties at development time, etc.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="JavaSupportAPIs" type="import" category="official">
-     <p>
-      Implements the classpath query.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="JavaPlatformAPI" type="import" category="devel">
-     <p>
-      Looks for registered Java platforms to handle the boot classpath.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="JavaFreeformProjectSPI" type="import" category="friend">
-     <p>
-      Used for instantiation of Java support in Web freeform project.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="JavaProjectAPI" type="import" category="devel">
-     <p>
-      Used for the Java package view, etc.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="WebModuleAPI" type="import" category="devel">
-     <p>
-      Used to answer web-app-specific queries.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="ProjectAPI" type="import" category="devel">
-     <p>
-      Basic project API.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="ProjectUIAPI" type="import" category="devel">
-     <p>
-      Used to register the project open hook, etc.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="GeneralQueriesAPI" type="import" category="devel">
-     <p>
-      For checking file collocation.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="Filesystems" type="import" category="official">
-     <p>
-      Used for many purposes.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="Nodes" type="import" category="official">
-     <p>
-      Used to show the logical view.
-     </p>
-    </api>
-   </li>
-   <li>
-    <api group="java" name="Wizards" type="import" category="official">
-     <p>
-      For the new project wizards.
+      Temporary implementation dependency on ejbjarproject's logicalview. This needs to be refactored.
      </p>
     </api>
    </li>
