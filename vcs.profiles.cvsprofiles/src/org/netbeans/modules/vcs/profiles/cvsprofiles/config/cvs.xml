@@ -18,7 +18,7 @@ Microsystems, Inc. All Rights Reserved.
   <label>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_Label)</label>
   
   <os>
-    <compatible>"Unix", "Windows"</compatible>
+    <compatible>"Unix", "Windows", "OpenVMS"</compatible>
   </os>
   
   <condition var="IS_WINDOWS">
@@ -43,6 +43,11 @@ Microsystems, Inc. All Rights Reserved.
   <condition var="IS_OS2">
     <var name="os.name" value="OS/2"/>
   </condition>
+  
+  <condition var="IS_VMS">
+    <var name="os.name" valueContainsIgnoreCase="OpenVMS"/>
+  </condition>
+
   
   <condition var="IS_BUILT-IN_AND_WIN9X">
     <var name="IS_WIN9X" value="true"/>
