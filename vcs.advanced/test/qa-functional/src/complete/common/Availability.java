@@ -227,6 +227,7 @@ public class Availability extends JellyTestCase {
             new Action(VERSIONING_MENU + "|Empty|Lock", "Empty|Lock").perform(filesystemNode);
             Node commandNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem + "|Lock");
             commandNode.select();
+            new PropertiesAction().perform(commandNode);
             PropertySheetOperator sheet = new PropertySheetOperator();
             TextFieldProperty property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Status");
             if (!property.getValue().equals("Finished"))
@@ -241,6 +242,7 @@ public class Availability extends JellyTestCase {
             property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Processed Files");
             if (!property.getValue().equals("."))
                 throw new Exception("Error: Incorrect processed files of Lock command.");
+            sheet.close();
             new Action(null, "View Output").performPopup(commandNode);
             Thread.sleep(2000);
             VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Lock");
@@ -250,8 +252,11 @@ public class Availability extends JellyTestCase {
                 throw new Exception("Error: Incorrect standard output of Lock command: " + output);
             filesystemNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem);
             filesystemNode.select();
+            new PropertiesAction().perform(filesystemNode);
+            sheet = new PropertySheetOperator();
             property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Number Of Finished Commands To Keep");
             property.setValue("1");
+            sheet.close();
             filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
             new Action(VERSIONING_MENU + "|Empty|Add", "Empty|Add").perform(filesystemNode);
             filesystemNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem);
