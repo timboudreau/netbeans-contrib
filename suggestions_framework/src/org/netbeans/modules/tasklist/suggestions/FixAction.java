@@ -48,7 +48,7 @@ import org.netbeans.modules.tasklist.core.*;
  * @author Tor Norbye
  */
 
-public class FixAction extends NodeAction {
+public final class FixAction extends NodeAction {
 
     protected boolean enable(Node[] node) {
         if ((node == null) || (node.length < 1)) {
@@ -70,18 +70,8 @@ public class FixAction extends NodeAction {
 
         boolean skipConfirm = false;
 
-        SuggestionImpl first = (SuggestionImpl)TaskNode.getTask(node[0]);
-        TaskList list = first.getList();
-        SuggestionsView tlv;
-        if (list.getView() instanceof SuggestionsView) {
-            tlv = (SuggestionsView)list.getView();
-        } else {
-            tlv = SuggestionsView.getCurrentView();
-        }
-        if (tlv == null) {
-            // INTERNAL ERROR
-            return;
-        }
+        assert node[0] instanceof SuggestionNode : "Need to be softened later on";
+        TaskListView tlv = ((SuggestionNode)node[0]).getView();
 
         Collection originalModified =
             new ArrayList(DataObject.getRegistry().getModifiedSet());

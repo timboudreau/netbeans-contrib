@@ -66,7 +66,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
      * @param name The name of the window
      * @param list The tasklist to store the scanned tasks in
      */
-    public SourceTasksView(String name, TaskList list, String icon) {
+    public SourceTasksView(String name, SourceTasksList list, String icon) {
         super(
                 CATEGORY,
                 name,
@@ -75,8 +75,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 list
         );
 
-        assert list instanceof SourceTasksList;
-
         // When the tab is alone in a container, don't show a tab;
         // the category nodes provide enough feedback.
         putClientProperty("TabPolicy", "HideWhenAlone");
@@ -84,7 +82,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     protected TaskNode createRootNode() {
         SuggestionImpl root = (SuggestionImpl) tasklist.getRoot();
-        return new SuggestionNode(root, root.getSubtasks());
+        return new SuggestionNode(root, this);
     }
 
 

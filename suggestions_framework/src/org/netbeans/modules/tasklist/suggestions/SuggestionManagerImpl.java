@@ -274,7 +274,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager
             TaskListView view =
                     TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N
             if (view == null) {
-                view = new SuggestionsView();
+                view = SuggestionsView.createSuggestionsView();
                 // Let user open the window
                 //   TODO Find a way to manage the tasklist so that I -don't-
                 //   have to create it now; only when it's opened by the user!
@@ -645,7 +645,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager
      *
      * @param line The current line of the cursor.
      */
-    public void setCursorLine(Line line) {
+    private void setCursorLine(Line line) {
         if (line == prevLine) {
             return;
         }
@@ -854,11 +854,8 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager
      * <p>
      * @param document The document being edited
      * @param dataobject The Data Object for the file being opened
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
      */
-    public void rescan(final Document document,
+    private void dispatchRescan(final Document document,
                        final DataObject dataobject) {
         setScanning(true);
         if ((docSuggestions != null) && (docSuggestions.size() > 0)) {
@@ -941,7 +938,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager
      * @param document The document being shown
      * @param dataobject The Data Object for the file being opened
      */
-    private void fetchDocumentSuggestions(Document document, DataObject dataobject) {
+    private void dispatchDocShown(Document document, DataObject dataobject) {
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
@@ -961,10 +958,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager
      * @param document The document being hidden
      * @param dataobject The Data Object for the file being opened
      */
-    private void cleanDocumentSuggestions(Document document, DataObject dataobject) {
-        // Update expansion state before we remove the nodes
-        getList().flushExpansion();
-
+    private void dispatchDocHidden(Document document, DataObject dataobject) {
         // This is not right - runTimer is telling us whether we have
         // a request pending - (and we should indeed kill the timer
         // if we do) - but we need to know if a RequestProcessor is
@@ -1105,7 +1099,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager
                     public void actionPerformed(ActionEvent evt) {
                         runTimer = null;
                         if (!wait) {
-                            rescan(document, dataobject);
+                            dispatchRescan(document, dataobject);
                         }
                     }
                 });
@@ -1304,7 +1298,7 @@ err.log("Couldn't find current nodes...");
         if (document != null) {
             document.removeDocumentListener(this);
             switchingFiles = true;
-            cleanDocumentSuggestions(document, dataobject);
+            dispatchDocHidden(document, dataobject);
             switchingFiles = false;
         }
         if (editors != null) {
@@ -1467,7 +1461,7 @@ err.log("Couldn't find current nodes...");
         //  Wait, I'm doing a comparison now - look for currRequest.longValue
         currRequest = new Long(currRequest.intValue() + 1);
 
-        fetchDocumentSuggestions(doc, dataobject);
+        dispatchDocShown(doc, dataobject);
         addCaretListeners();
 
         // XXX Use scheduleRescan instead? (but then I have to call docShown instead of rescan;
@@ -1508,7 +1502,7 @@ err.log("Couldn't find current nodes...");
                                  err.log("Timer expired - time to scan " + dao);
                              }
                              */
-                            rescan(doc, dataobject);
+                            dispatchRescan(doc, dataobject);
                         }
                     });
             runTimer.setRepeats(false);
@@ -1516,7 +1510,7 @@ err.log("Couldn't find current nodes...");
             runTimer.start();
         } else {
             // Do it right away
-            rescan(doc, dataobject);
+            dispatchRescan(doc, dataobject);
         }
     }
 
@@ -1628,7 +1622,7 @@ err.log("Couldn't find current nodes...");
         }
 
         switchingFiles = true;
-        cleanDocumentSuggestions(document, dataobject);
+        dispatchDocHidden(document, dataobject);
         switchingFiles = false;
         document = null;
     }

@@ -595,7 +595,7 @@ public class TaskList { // XXX remove the publicness.
      * to indicate that the list is no longer shown in a view.
      * @param view The view where the list is shown
      */
-    public void setView(TaskListView view) {
+    final void setView(TaskListView view) {
         this.view = view;
     }
 

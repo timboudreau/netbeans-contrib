@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.suggestions;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collections;
 
 import org.netbeans.api.tasklist.Suggestion;
 
@@ -51,7 +52,10 @@ import org.openide.text.DataEditorSupport;
  */
 
 public class SuggestionNode extends TaskNode {
-    
+
+    // the node is displayed in given view
+    private TaskListView view;
+
     // Leaf
     protected SuggestionNode(SuggestionImpl item) {
         super(item);
@@ -59,9 +63,20 @@ public class SuggestionNode extends TaskNode {
     } 
 
     // Non-leaf/parent
-    public /*protected*/ SuggestionNode(SuggestionImpl item, List subtasks) {
+    protected SuggestionNode(SuggestionImpl item, List subtasks) {
         super(item, subtasks);
         init(item);
+    }
+
+    /**
+     * Cretaes root node attached to given view.
+     * @param rootItem
+     * @param view
+     */
+    public SuggestionNode(SuggestionImpl rootItem, TaskListView view) {
+        super(rootItem, Collections.EMPTY_LIST);  //XXX parametr is used as flag
+        this.view = view;
+        init(rootItem);
     }
 
     private void init(SuggestionImpl item) {
@@ -134,6 +149,16 @@ public class SuggestionNode extends TaskNode {
             return (SystemAction[])actions.toArray(
                  new SystemAction[actions.size()]);
         }
+    }
+
+    /**
+     * Returns parent view.
+     */
+    public final TaskListView getView() {
+        if (view != null) return view;
+        SuggestionNode parent = (SuggestionNode) getParentNode();
+        assert parent != null;
+        return parent.getView();  // recursion
     }
 
     /** Creates properties.
