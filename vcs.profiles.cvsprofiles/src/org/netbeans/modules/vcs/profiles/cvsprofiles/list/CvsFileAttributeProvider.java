@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.list;
 
+import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.turbo.local.FileAttributeProvider;
 import org.netbeans.modules.vcscore.turbo.local.FileAttributeProvider.MemoryCache;
 import org.netbeans.modules.vcscore.turbo.*;
@@ -69,9 +70,24 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
             CommandLineVcsFileSystem clifs = (CommandLineVcsFileSystem) vfs;
             Profile profile = clifs.getProfile();
             String name = profile.getType();
-            return "netbeans.cvsprofile".equals(name); // NOI18N
+            if (name != null) {
+                return "netbeans.cvsprofile".equals(name); // NOI18N
+            } else {
+                return isCvs(clifs); // When the type is not defined, try to check it for older profiles (see #55340).
+            }
         }
         return false;
+    }
+    
+    private static boolean isCvs(CommandLineVcsFileSystem clifs) {
+        VcsCommand cmd = clifs.getCommand("CREATE_FOLDER_IGNORE_LIST");
+        if (cmd == null) return false;
+        String exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
+        if (exec != null && exec.indexOf("CvsCreateFolderIgnoreList.class") >= 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public Object readAttribute(FileObject fo, String name, MemoryCache memoryCache) {
