@@ -27,13 +27,15 @@ public class RemoteFileAttributes   {
     private boolean isdirectory = true;
     private long size = 0;
     private java.util.Date date = new java.util.Date(0);
+    private String accessPath = null;
 
     /** Creates new RemoteFileAttributes */
-    public RemoteFileAttributes(String name,boolean isdirectory,long size,java.util.Date date) {
+    public RemoteFileAttributes(String name,boolean isdirectory,long size,java.util.Date date, String accessPath) {
         this.name=name;
         this.isdirectory=isdirectory;
         this.size=size;
         this.date=date;
+        this.accessPath=accessPath;
     }
    
     /** Creates empty RemoteFileAttributes */
@@ -55,7 +57,7 @@ public class RemoteFileAttributes   {
     /** Set date of last modification */
     public void setDate(Date date) {  this.date=date; }
     /** Set access path */
-    public void setAccessPath(String path) { }
+    public void setAccessPath(String path) {this.accessPath=path; }
     
     /** Tet name of file */
     public String getName() { return name; }
@@ -66,6 +68,6 @@ public class RemoteFileAttributes   {
     /** Get date of last modification */
     public Date getDate() { return date; }
     /** Get access path */
-    public String getAccessPath() { return null; }
+    public String getAccessPath() { return accessPath; }
     
 }

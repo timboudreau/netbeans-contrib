@@ -31,8 +31,8 @@ public class FTPFileAttributes extends RemoteFileAttributes  {
     
     /** Create new FTPFileAttributes */
     public FTPFileAttributes(String name,boolean isdirectory,String rights,int links,
-                            String user,String group,long size,java.util.Date date) {
-        super(name, isdirectory, size, date);
+                            String user,String group,long size,java.util.Date date, String accessPath) {
+        super(name, isdirectory, size, date, accessPath);
         this.rights=rights;
         this.links=links;
         this.user=user;
@@ -40,8 +40,8 @@ public class FTPFileAttributes extends RemoteFileAttributes  {
     }
     
     /** Create new FTPFileAttributes */
-    public FTPFileAttributes(String name,boolean isdirectory,long size,java.util.Date date) {
-        super(name,isdirectory,size,date);
+    public FTPFileAttributes(String name,boolean isdirectory,long size,java.util.Date date, String accessPath) {
+        super(name,isdirectory,size,date, accessPath);
     }
    
     /** Create empty FTPFileAttributes */
