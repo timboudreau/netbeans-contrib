@@ -66,7 +66,10 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     private Object key;
 
     /** If this item has subtasks, they are stored in this list */
-    protected LinkedList subtasks = null;
+    private List subtasks = null;
+
+    /** Last unmodifiable subtasks copy distributed to clients. */
+    private List subtasksCopy;
 
     /** When true, this item has been removed from a list.
         The old list reference is still kept around so that
@@ -108,6 +111,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     public void clear() {
         if (hasSubtasks()) {
             subtasks.clear();
+            subtasksCopy = null;
             fireStructureChanged();
         }
     }
@@ -261,7 +265,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     protected void recursivePropertyChange() {
         firePropertyChange(PROP_ATTRS_CHANGED, null, null);
         if (subtasks != null) {
-            ListIterator it = subtasks.listIterator();
+            Iterator it = getSubtasks().iterator();
             while (it.hasNext()) {
                 Task item = (Task)it.next();
                 item.recursivePropertyChange();
@@ -274,13 +278,19 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      *
      * @todo all usages require iterator() or size() calls only, so it could be replaced by
      *       subtasksIterator and subtasksCount methods. Add TLUtil.iteratorToCollection.
-     * @return children
+     * @return children never null
      */
     public final List getSubtasks() {
         if (subtasks == null) {
             return Collections.EMPTY_LIST;
         } else {
-            return subtasks;
+            // #48953 clone it for iterators safeness
+            if (subtasksCopy == null) {
+                synchronized (subtasks) {
+                    subtasksCopy = Collections.unmodifiableList(new ArrayList(subtasks));
+                }
+            }
+            return subtasksCopy;
         }
     }
 
@@ -291,11 +301,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * @return non-recursive subtask iterator
      */
     public final Iterator subtasksIterator() {  // in JRE 1.5 could be turned to Iterable by renaming to Iterator<T> iterator().
-        if (subtasks == null) {
-            return Collections.EMPTY_LIST.iterator();
-        } else {
-            return subtasks.iterator();
-        }
+        return getSubtasks().iterator();
     }
 
     /** @return subtasks count */
@@ -346,6 +352,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         }
         int pos = subtasks.indexOf(after);
         subtasks.add(pos+1, subtask);
+        subtasksCopy = null;
         fireAddedTask(subtask);
     }
 
@@ -358,9 +365,10 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     private void addSubtask(int position, Task subtask) {
         subtask.parent = this;
         if (subtasks == null) {
-            subtasks = new LinkedList();
+            subtasks = Collections.synchronizedList(new LinkedList());
         }
         subtasks.add(position, subtask);
+        subtasksCopy = null;
         fireAddedTask(subtask);
     }
 
@@ -381,7 +389,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         }
 
         if (subtasks == null) {
-            subtasks = new LinkedList();
+            subtasks = Collections.synchronizedList(new LinkedList());
         }
         if (after != null) {
             int pos = subtasks.indexOf(after);
@@ -391,6 +399,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         } else {
             subtasks.addAll(0, tasks);
         }
+        subtasksCopy = null;
         fireStructureChanged();
     }
 
@@ -402,7 +411,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     public void addSubtask(Task subtask, boolean append) {
         subtask.parent = this;
         if (subtasks == null) {
-            subtasks = new LinkedList();
+            subtasks = Collections.synchronizedList(new LinkedList());
         }
 
         // XXX does not work with SuggetionList.addCategory:152
@@ -410,10 +419,11 @@ public class Task extends Suggestion implements Cloneable, Cookie {
        if (subtasks.contains(subtask)) return;
 
         if (append) {
-            subtasks.addLast(subtask);
+            subtasks.add(subtask);
         } else {
-            subtasks.addFirst(subtask);
+            subtasks.add(0, subtask);
         }
+        subtasksCopy = null;
         fireAddedTask(subtask);
     }
 
@@ -438,7 +448,8 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         if (subtasks.size() == 0) {
             subtasks = null;
         }
-        
+
+        subtasksCopy = null;
         fireRemovedTask(subtask, index);
     }
 
@@ -583,12 +594,14 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         if(subtasks == null) return 0;
 
         int n = 0;
-        Iterator it = subtasks.iterator();
-        while(it.hasNext()) {
-            Task t = (Task) it.next();
-            n += t.getSubtaskCountRecursively() + 1;
+        synchronized(subtasks) {
+            Iterator it = subtasks.iterator();
+            while(it.hasNext()) {
+                Task t = (Task) it.next();
+                n += t.getSubtaskCountRecursively() + 1;
+            }
+            return n;
         }
-        return n;
     }
 
     /**
@@ -679,13 +692,16 @@ public class Task extends Suggestion implements Cloneable, Cookie {
 	// Please note -- I'm NOT copying the universal id, these have to
 	// be unique, even for copies
         if (from.subtasks != null) {
-            ListIterator it = from.subtasks.listIterator();
-            subtasks = new LinkedList();
-            while (it.hasNext()) {
-                Task task = (Task)it.next();
-                Task mycopy = (Task)task.clone();
-                mycopy.parent = this;
-                subtasks.addLast(mycopy);
+            synchronized(from.subtasks) {
+                Iterator it = from.subtasks.iterator();
+                subtasks = Collections.synchronizedList(new LinkedList());
+                while (it.hasNext()) {
+                    Task task = (Task)it.next();
+                    Task mycopy = (Task)task.clone();
+                    mycopy.parent = this;
+                    subtasks.add(mycopy);
+                }
+                subtasksCopy = null;
             }
         }
     }
