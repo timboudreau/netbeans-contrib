@@ -102,6 +102,20 @@ public class JellyCommands extends JellyStub {
         imfile = new MyNode (imdir, "imfile");
     }
     
+    public void deleteRecursively (File file) {
+        File[] fs = file.listFiles();
+        if (fs == null)
+            return;
+        for (int a = 0; a < fs.length; a ++) {
+            File f = fs[a];
+            if (!f.exists())
+                continue;
+            if (!file.isFile())
+                deleteRecursively (fs[a]);
+            info.println ("Deleting: " + file + " Return: " + file.delete ());
+        }
+    }
+    
     public void testRelease () {
         String str, s;
         MyNode releaseNode = new MyNode (root, "releasedirectory");
@@ -143,11 +157,17 @@ public class JellyCommands extends JellyStub {
         str = new JLabelOperator (dia, releaseNode.name ()).getText ();
         dia.yes ();
         dia.waitClosed();
-//        Helper.waitNoNode (exp.repositoryTab ().tree (), root.node (), releaseNode.name()); # fails due to bug #28223
+//        Helper.waitNoNode (exp.repositoryTab ().tree (), root.node (), releaseNode.name()); // fails due to bug #28223
         for (int a = 0; a < 60; a ++) {
             Helper.sleep (1000);
-            if (!new File (releaseFileNode1.file ()).exists()  &&  !new File (releaseFileNode2.file ()).exists())
+            if (!new File (releaseFileNode1.file ()).exists()  &&  !new File (releaseFileNode2.file ()).exists()) {
+                Helper.sleep (10000); // recovery from bug #28223
+                if (new File (releaseNode.file ()).exists ()) { // recovery from bug #28223
+                    info.println ("Recovering from bug #28223"); // recovery from bug #28223
+                    deleteRecursively (new File (releaseNode.file ())); // recovery from bug #28223
+                }
                 return;
+            }
         }
         assertTrue ("Timeout: ReleaseFileNodes still exists", false);
     }
