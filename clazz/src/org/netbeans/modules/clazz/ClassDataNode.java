@@ -302,6 +302,7 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  18   Gandalf   1.17        4/4/99   Ian Formanek    
  *  17   Gandalf   1.16        3/26/99  David Simonek   
  *  16   Gandalf   1.15        3/26/99  Ian Formanek    Fixed use of obsoleted 
  *       NbBundle.getBundle (this)
@@ -325,11 +326,4 @@ class ClassDataNode extends DataNode implements Runnable {
  *       datasystem package
  *  1    Gandalf   1.0         1/5/99   Ian Formanek    
  * $
- * Beta Change History:
- *  0    Tuborg    0.11        --/--/98 Jan Formanek    slightly modified to reflect that PropertySheetView is no more a GUI component
- *  0    Tuborg    0.20        --/--/98 Jan Formanek    SWITCHED TO NODES
- *  0    Tuborg    0.21        --/--/98 Jan Formanek    reflecting changes in ButtonBar and CoronaDialog
- *  0    Tuborg    0.26        --/--/98 Jan Jancura     Serialization, localization, CoronaDialog...
- *  0    Tuborg    0.27        --/--/98 Jaroslav Tulach methods that cannot be overriden moved from ClassDataObject
- *  0    Tuborg    0.28        --/--/98 Jan Jancura     ClassException,
  */
