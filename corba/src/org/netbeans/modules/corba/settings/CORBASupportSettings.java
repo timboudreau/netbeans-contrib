@@ -493,6 +493,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	}
 	Properties __props = System.getProperties ();
 	if (__set_property) {
+            __props = (Properties) __props.clone ();
 	    __props.put ("org.omg.CORBA.ORBClass", "org.openorb.CORBA.ORB");
 	    __props.put ("org.omg.CORBA.ORBSingletonClass",
 			 "org.openorb.CORBA.ORBSingleton");
