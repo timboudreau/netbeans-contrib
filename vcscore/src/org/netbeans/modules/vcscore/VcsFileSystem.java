@@ -280,7 +280,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private boolean askIfDownloadRecursively = true;
     private volatile Hashtable numDoAutoRefreshes = new Hashtable();
     
-    private transient boolean deserialized; // Whether this class was created by deserialization
+    protected transient boolean deserialized; // Whether this class was created by deserialization
 
     /**
      * Whether to prompt the user for variables for each selected file. Value of this variable
