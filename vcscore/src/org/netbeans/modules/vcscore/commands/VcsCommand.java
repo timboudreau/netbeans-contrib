@@ -74,6 +74,11 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String PROPERTY_ADVANCED_NAME = "advancedName";
     
     /**
+     * Describe the components, that will appear in the variable input dialog
+     * prior the command is executed.
+     */
+    public static final String PROPERTY_INPUT_DESCRIPTOR = "inputDescriptor";
+    /**
      * This property denotes the executable string. This string may contain
      * any number of variables that are expanded prior to execution.
      */
