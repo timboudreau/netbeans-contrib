@@ -77,6 +77,9 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
    //public static String _client_binding = CORBASupport.CLIENT_NS;    
    public static String _client_binding;
 
+
+   public boolean _hide_generated_files = true;
+
    // advanced settings
 
    public static String _test;
@@ -681,6 +684,14 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       return choices;
    }
 
+   public boolean hideGeneratedFiles () {
+      return _hide_generated_files;
+   }
+
+   
+   public void setHideGeneratedFiles (boolean v) {
+      _hide_generated_files = v;
+   }
 
    public void setAdvancedOrbOptions (String orb) {
 

@@ -93,7 +93,9 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 		new PropertyDescriptor ("_impl_int_postfix", CORBASupportSettings.class,
 					"getImplIntPostfix", "setImplIntPostfix"), 
  		new PropertyDescriptor ("namingChildren", CORBASupportSettings.class,
-					"getNamingServiceChildren", "setNamingServiceChildren"), 
+					"getNamingServiceChildren", "setNamingServiceChildren"),
+		new PropertyDescriptor ("_hide_generated_files", CORBASupportSettings.class,
+					"hideGeneratedFiles", "setHideGeneratedFiles"),
  
 		
 	    };
@@ -158,6 +160,9 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    desc[23].setDisplayName ("Implemented Interface Postfix");
 	    desc[23].setExpert (true);
 	    desc[24].setHidden (true);  // children of persistent NamingService Browser
+
+	    desc[25].setDisplayName ("Hide Generated Files");
+	    desc[25].setShortDescription ("Hide Generated Files from IDL file");
 	} catch (IntrospectionException ex) {
 	    //throw new InternalError ();
 	    ex.printStackTrace ();
@@ -193,6 +198,8 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 
 /*
  * <<Log>>
+ *  11   Gandalf   1.10        8/7/99   Karel Gardas    added option for hidding
+ *       generated files
  *  10   Gandalf   1.9         8/3/99   Karel Gardas    
  *  9    Gandalf   1.8         7/10/99  Karel Gardas    
  *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
