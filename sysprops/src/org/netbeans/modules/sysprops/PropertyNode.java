@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * Contributor(s): Jesse Glick, Michael Ruflin
@@ -17,6 +17,7 @@ package org.netbeans.modules.sysprops;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
+import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
@@ -26,7 +27,6 @@ import org.openide.util.HelpCtx;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListener;
 
@@ -62,9 +62,6 @@ public class PropertyNode extends AbstractNode {
                new PropertyChildren (prop));
         property = prop;
         this.kids = kids;
-        
-        // set the default Action
-        setDefaultAction (SystemAction.get (PropertiesAction.class));
         
         if (property != null) {
             // Set FeatureDescriptor stuff:
@@ -163,6 +160,10 @@ public class PropertyNode extends AbstractNode {
                SystemAction.get (ToolsAction.class),
                SystemAction.get (PropertiesAction.class),
         };
+    }
+
+    public Action getPreferredAction() {
+        return SystemAction.get(PropertiesAction.class);
     }
     
     /**

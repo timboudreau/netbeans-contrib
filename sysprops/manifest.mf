@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.sysprops
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/sysprops/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.6
+OpenIDE-Module-Specification-Version: 1.7
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 2.16
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.29
 OpenIDE-Module-Layer: org/netbeans/modules/sysprops/layer.xml
 

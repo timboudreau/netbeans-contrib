@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * Contributor(s): Jesse Glick, Michael Ruflin
@@ -19,8 +19,8 @@ import java.util.ResourceBundle;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.datatransfer.NewType;
+import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
 import org.openide.util.NbBundle;
 
 /** NewType that can create a new SystemProperty.
@@ -66,7 +66,7 @@ class SystemPropertyNewType extends NewType {
             desc.setInputText (propertyName + ".");
         }
 
-        TopManager.getDefault ().notify (desc);
+        DialogDisplayer.getDefault ().notify (desc);
 
         // return if the user has canceled the dialog
         String key = desc.getInputText ();
@@ -76,7 +76,7 @@ class SystemPropertyNewType extends NewType {
         msg = bundle.getString ("MSG_NewProp_dialog_value");
         desc = new NotifyDescriptor.InputLine (msg, title);
         // [PENDING] return if result is a cancel
-        TopManager.getDefault ().notify (desc);
+        DialogDisplayer.getDefault ().notify (desc);
         String value = desc.getInputText ();
 
         // add the Property to the SystemProperties

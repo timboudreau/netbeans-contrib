@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * Contributor(s): Jesse Glick, Michael Ruflin
@@ -24,7 +24,6 @@ import org.openide.util.HelpCtx;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
 import org.openide.util.NbBundle;
 
 /** Root Node for all SystemProperties.
