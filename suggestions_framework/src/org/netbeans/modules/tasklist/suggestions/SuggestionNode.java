@@ -135,8 +135,11 @@ public class SuggestionNode extends TaskNode {
 //            actions.add(SystemAction.get(ExportAction.class));
 
             // Property: node specific, but by convention last in menu
-            actions.add(null);
-            actions.add(SystemAction.get(PropertiesAction.class));
+            // #38642 do not show for TODOs, its confusing XXX
+            if ("nb-tasklist-scannedtask".equals(item.getType()) == false ) { // NOI18N
+                actions.add(null);
+                actions.add(SystemAction.get(PropertiesAction.class));
+            }
 
             return (SystemAction[])actions.toArray(
                  new SystemAction[actions.size()]);

@@ -28,6 +28,7 @@ import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.nodes.Node;
+import org.openide.ErrorManager;
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 import org.netbeans.modules.tasklist.providers.SuggestionProvider;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
@@ -347,11 +348,19 @@ public final class SuggestionsScanner implements Cancellable {
             // I guess that reponsibility for recovering from missing
             // lifecycle events should be moved to providers
             if (provider instanceof DocumentSuggestionProvider) {
-                List l = ((DocumentSuggestionProvider) provider).scan(env);
+                List l = null;
+                String type = null;
+                try {
+                    type = provider.getTypes()[0];
+                    l = ((DocumentSuggestionProvider) provider).scan(env);
+                } catch (RuntimeException ex) {
+                    ErrorManager.getDefault().annotate(ex, "Ignoring error in " + provider + "..."); // NOI18N
+                    ErrorManager.getDefault().notify(ex);
+                }
                 if (l != null) {
                     // XXX ensure that scan returns a homogeneous list of tasks
                     suggestionsCounter += l.size();
-                    manager.register(provider.getTypes()[0], l, null, list, true);
+                    manager.register(type, l, null, list, true);
                 }
             }
         }

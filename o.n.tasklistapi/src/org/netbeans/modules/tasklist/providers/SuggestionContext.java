@@ -68,9 +68,14 @@ public final class SuggestionContext {
                 }
             }
 
-            if (fo.hasExt("properties")) { // NOI18N
+            if (fo.hasExt("properties") && dataObject.isModified() == false) { // NOI18N
                 cachedString = PropertiesSuggestionContext.getContent(fo);
                 return cachedString;
+            }
+
+            if ("xml".equalsIgnoreCase(fo.getExt()) && dataObject.isModified() == false) {  // NOI18N
+                cachedString = XMLSuggestionContext.getContent(fo);
+                if (cachedString != null) return cachedString;
             }
 
             EditorCookie edit =

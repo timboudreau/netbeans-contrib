@@ -16,23 +16,25 @@ package org.netbeans.modules.tasklist.providers;
 import org.openide.filesystems.FileObject;
 import org.openide.ErrorManager;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.BufferedInputStream;
 
 /**
- * Dedicated java source context that is faster than generic one.
+ * Dedicated XML document context that is faster than generic one.
  *
  * @author Petr Kuzel
  */
-final class PropertiesSuggestionContext {
+final class XMLSuggestionContext {
 
     static  String getContent(FileObject fo) {
         try {
             char[] buf = new char[1024*64];
             StringBuffer sb = new StringBuffer();
-            Reader r = new InputStreamReader(new BufferedInputStream(fo.getInputStream()), "ISO8859-1");  // NOI18N
+            String encoding = XMLEncodingHelper.detectEncoding(new BufferedInputStream(fo.getInputStream(), 2157));
+            if (encoding == null) return null;
+            Reader r = new InputStreamReader(new BufferedInputStream(fo.getInputStream()), encoding);
             int len = -1;
             while (true) {
                 len = r.read(buf);
@@ -45,6 +47,5 @@ final class PropertiesSuggestionContext {
         }
         return null;
     }
-
 
 }

@@ -38,6 +38,7 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
+import org.openide.windows.TopComponent;
 
 
 import org.netbeans.modules.tasklist.core.*;
@@ -170,8 +171,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         inputMap.put(selectFolder, selectFolder);
         getActionMap().put(selectFolder, new DelegateAction(getFolderSelector()));
 
-        putClientProperty("PersistenceType", "OnlyOpened"); // NOI18N
     }
+
+    public int getPersistenceType() {
+        return TopComponent.PERSISTENCE_ONLY_OPENED;
+    }
+
 
     protected TaskNode createRootNode() {
         Task root = getModel().getRoot();

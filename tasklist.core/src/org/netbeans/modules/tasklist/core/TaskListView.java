@@ -175,12 +175,6 @@ public abstract class TaskListView extends TopComponent
         this.persistent = persistent;
         setIcon(icon);
 
-        if (persistent) {
-            // Only persist window info if the window is opened on exit.
-            putClientProperty("PersistenceType", "OnlyOpened"); // NOI18N
-        } else {
-            putClientProperty("PersistenceType", "Never"); // NOI18N
-        }
         registerTaskListView(this);
         setModel(tasklist);
     }
@@ -189,6 +183,16 @@ public abstract class TaskListView extends TopComponent
      * Common part for all constructors
      */
     protected void init_() {
+    }
+
+    public int getPersistenceType() {
+        if (persistent) {
+            // Only persist window info if the window is opened on exit.
+            return TopComponent.PERSISTENCE_ONLY_OPENED;
+        } else {
+            return TopComponent.PERSISTENCE_NEVER;
+        }
+
     }
 
     public ExplorerManager getExplorerManager() {
