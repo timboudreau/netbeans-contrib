@@ -18,7 +18,9 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="J2EE">
         <folder name="InstalledServers">
             <file name="Tomcat_instance">
-                <attr name="url" stringvalue="tomcat:home=jakarta-tomcat-5.0.16:base=jakarta-tomcat-5.0.16_base:http://localhost:8080/manager/"/>
+                <attr name="url" stringvalue="tomcat:home=jakarta-tomcat-5.0.16:base=jakarta-tomcat-5.0.16_base"/>
+                <attr name="host" stringvalue="localhost"/>
+                <attr name="server_port" stringvalue="8080"/>
                 <attr name="username" stringvalue="ide"/>
                 <attr name="password" stringvalue="ide_manager"/>
             </file>
