@@ -376,12 +376,25 @@ public class VcsAttributes extends DefaultAttributes {
      *        depending on the command exit status.
      */
     private void performVcsAction(final String name, final FeatureDescriptor descriptor) throws java.net.UnknownServiceException {
+        performVcsAction(fileSystem.findResource(name), descriptor);
+    }
+    
+    /**
+     * Perform a VCS command on a specific file.
+     * @param fo the file object the command should run on
+     * @param descriptor the descriptor of the command. descriptor.getName() should
+     *        return the command name, attributes can contain variable values
+     *        which are given to the command. VCS_ACTION_DONE attribute is set
+     *        when the action is done with the value being Boolean.TRUE or Boolean.FALSE
+     *        depending on the command exit status.
+     */
+    private void performVcsAction(final FileObject fo, final FeatureDescriptor descriptor) throws java.net.UnknownServiceException {
         //System.out.println("performVcsAction("+name+")");
         String cmdName = descriptor.getName();
         final CommandSupport cmdSupport = fileSystem.getCommandSupport(cmdName);
         if (cmdSupport == null) throw new java.net.UnknownServiceException(cmdName);
         final Command cmd = cmdSupport.createCommand();
-        FileObject[] files = new FileObject[] { fileSystem.findResource(name) };
+        FileObject[] files = new FileObject[] { fo };
         cmd.setFiles(files);
         //final Table files = new Table();
         //files.put(name, fileSystem.findResource(name));
@@ -470,7 +483,7 @@ public class VcsAttributes extends DefaultAttributes {
             descriptor.setName(VcsCommand.NAME_SCHEDULE_ADD);
             try {
                 fileSystem.addScheduledFileToBeProcessed(name);
-                performVcsAction(name, descriptor);
+                performVcsAction(fo, descriptor);
             } catch (java.net.UnknownServiceException unsExc) {
                 fileSystem.removeScheduledFileToBeProcessed(name);
                 endOfScheduling = true;
@@ -482,7 +495,7 @@ public class VcsAttributes extends DefaultAttributes {
             descriptor.setName(VcsCommand.NAME_SCHEDULE_REMOVE);
             try {
                 fileSystem.addScheduledFileToBeProcessed(name);
-                performVcsAction(name, descriptor);
+                performVcsAction(fo, descriptor);
             } catch (java.net.UnknownServiceException unsExc) {
                 fileSystem.removeScheduledFileToBeProcessed(name);
                 endOfScheduling = true;
