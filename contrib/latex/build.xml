@@ -85,45 +85,45 @@ Microsystems, Inc. All Rights Reserved.
     <target name="dist" depends="-fail-no-buildnumber,clean-build" description="Does the clean build, and prepares the distribution packages.">
         <delete dir="dist" />
         <mkdir dir="dist" />
-        <zip destfile="dist/latex-nbms.zip">
-	    <fileset dir="ant/antint/build">
+        <zip destfile="dist/latex-nbms-${buildnumber}.zip">
+	    <zipfileset dir="ant/antint/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-antint.nbm"/>
-	    </fileset>
-	    <fileset dir="core/build">
+	    </zipfileset>
+	    <zipfileset dir="core/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex.nbm"/>
-	    </fileset>
-	    <fileset dir="auted/build">
+	    </zipfileset>
+	    <zipfileset dir="auted/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-auted.nbm"/>
-	    </fileset>
-	    <fileset dir="bibtex/build">
+	    </zipfileset>
+	    <zipfileset dir="bibtex/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-bibtex.nbm"/>
-	    </fileset>
-	    <fileset dir="editor/build">
+	    </zipfileset>
+	    <zipfileset dir="editor/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-editor.nbm"/>
-	    </fileset>
-	    <fileset dir="guiproject/build">
+	    </zipfileset>
+	    <zipfileset dir="guiproject/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-guiproject.nbm"/>
-	    </fileset>
-	    <fileset dir="loaders/build">
+	    </zipfileset>
+	    <zipfileset dir="loaders/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-loaders.nbm"/>
-	    </fileset>
-	    <fileset dir="model/build">
+	    </zipfileset>
+	    <zipfileset dir="model/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-model.nbm"/>
-	    </fileset>
-	    <fileset dir="ui/build">
+	    </zipfileset>
+	    <zipfileset dir="ui/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-ui.nbm"/>
-	    </fileset>
+	    </zipfileset>
 	</zip>
-        <zip destfile="dist/latex-nbms-extra.zip">
-	    <fileset dir="branding/build">
+        <zip destfile="dist/latex-nbms-extra-${buildnumber}.zip">
+	    <zipfileset dir="branding/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-branding.nbm"/>
-	    </fileset>
-	    <fileset dir="nexplorer/build">
+	    </zipfileset>
+	    <zipfileset dir="nexplorer/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-nexplorer.nbm"/>
-	    </fileset>
-	    <fileset dir="project/build">
+	    </zipfileset>
+	    <zipfileset dir="project/build" prefix="latex-nbms-${buildnumber}">
 	        <filename name="org-netbeans-modules-latex-project.nbm"/>
-	    </fileset>
+	    </zipfileset>
 	</zip>
     </target>
     
