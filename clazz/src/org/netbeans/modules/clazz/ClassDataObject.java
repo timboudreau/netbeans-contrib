@@ -33,7 +33,6 @@ import com.netbeans.ide.util.*;
 import com.netbeans.ide.cookies.*;
 import com.netbeans.ide.filesystems.*;
 import com.netbeans.ide.loaders.*;
-import com.netbeans.ide.classloader.NbClassLoader;
 import com.netbeans.ide.explorer.propertysheet.PropertySheet;
 import com.netbeans.ide.nodes.Node;
 import com.netbeans.ide.nodes.CookieSet;
@@ -433,6 +432,7 @@ public class ClassDataObject extends MultiDataObject {
 
 /*
  * Log
+ *  13   Gandalf   1.12        3/26/99  Ian Formanek    
  *  12   Gandalf   1.11        3/26/99  Ian Formanek    Fixed use of obsoleted 
  *       NbBundle.getBundle (this)
  *  11   Gandalf   1.10        3/3/99   Jaroslav Tulach Uses ExecSupport to 
