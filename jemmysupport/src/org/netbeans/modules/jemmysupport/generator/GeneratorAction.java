@@ -39,7 +39,7 @@ public class GeneratorAction extends NodeAction {
      */    
     public boolean enable (Node[] node) {
         try {
-            Class.forName("org.netbeans.jemmy.operators.ComponentOperator");
+            Class.forName("org.netbeans.jemmy.operators.ComponentOperator"); // NOI18N
             return true;
         } catch (ClassNotFoundException e) {
             return false;
@@ -50,14 +50,14 @@ public class GeneratorAction extends NodeAction {
      * @return String name of the action
      */    
     public String getName() {
-        return "Jemmy Component Generator";
+        return org.openide.util.NbBundle.getMessage(GeneratorAction.class, "Title"); // NOI18N
     }
 
     /** method returning icon for the action
      * @return String path to action icon
      */    
     protected String iconResource() {
-       return "/org/netbeans/modules/jemmysupport/generator/GeneratorAction.gif"; 
+       return "/org/netbeans/modules/jemmysupport/generator/GeneratorAction.gif"; // NOI18N
     }
     
     /** method returning action Help Context

@@ -35,6 +35,7 @@ import org.netbeans.jemmy.ComponentChooser;
 import org.netbeans.jemmy.operators.*;
 import org.netbeans.jemmy.util.PNGEncoder;
 import java.awt.image.BufferedImage;
+import org.openide.util.NbBundle;
 
 /** class observing CTRL-F12 key and launching ComponentGenerator
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -52,11 +53,12 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     boolean showEditor;
     
     /** Creates new ComponentGeneratorRunnable
+     * @param screenShot boolean true when create screen shot
+     * @param showEditor boolean true when show components editor
      * @param directory String destination directory
      * @param packageName String package name
      * @param panel ComponentGeneratorPanel
-     * @param properties CompoenentGenerator configuration properties
-     */
+     * @param properties CompoenentGenerator configuration properties */
     public ComponentGeneratorRunnable(String directory, String packageName, ComponentGeneratorPanel panel, Properties properties, boolean screenShot, boolean showEditor) {
         this.directory = directory;
         this.packageName = packageName;
@@ -96,7 +98,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                 while (window==null) {
                     Thread.currentThread().sleep(100);
                 }
-                help.setText("Please wait, processing ...");
+                help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Processing")); // NOI18N
                 try {
                     gen.grabComponents((Container)window, packageName, showEditor);
                     BufferedImage shot=null;
@@ -106,28 +108,28 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                     int i=2;
                     String name = gen.getClassName();
                     String index = "";
-                    while ((file=new File(directory+"/"+name+index+".java")).exists()){
+                    while ((file=new File(directory+"/"+name+index+".java")).exists()) { // NOI18N
                         index = String.valueOf(i++);
                     }
                     gen.setClassName(name+index);
                     
                     if ((!showEditor)||(ComponentsEditorPanel.showDialog(gen))) {
 
-                        file=new File(directory+"/"+gen.getClassName()+".java");
+                        file=new File(directory+"/"+gen.getClassName()+".java"); // NOI18N
                         out=new PrintStream(new FileOutputStream(file));
                         out.println(gen.getComponentCode());
                         out.close();
 
                         if (screenShot) {
-                            new PNGEncoder(new FileOutputStream(directory+"/"+gen.getClassName()+".png")).encode(shot);
+                            new PNGEncoder(new FileOutputStream(directory+"/"+gen.getClassName()+".png")).encode(shot); // NOI18N
                         }
 
-                        help.setText("Finished: "+gen.getClassName());
+                        help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Finished")+gen.getClassName()); // NOI18N
                     } else {
-                        help.setText("Operation canceled.");
+                        help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Canceled")); // NOI18N
                     }
                 } catch (Exception e) {
-                    help.setText("Exception: "+e.getMessage());
+                    help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Exception")+e.getMessage()); // NOI18N
                     e.printStackTrace();
                 }
                 window=null;

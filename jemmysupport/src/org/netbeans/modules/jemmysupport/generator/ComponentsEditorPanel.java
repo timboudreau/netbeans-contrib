@@ -40,6 +40,7 @@ import java.util.Enumeration;
 import javax.swing.Icon;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeNode;
+import org.openide.util.NbBundle;
 
 /** class with panel used for edit found components before generation
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -52,12 +53,12 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     
     static {
         try {
-            InputStream in = TopManager.class.getClassLoader().getResourceAsStream("org/openide/resources/propertysheet/customize.gif");
+            InputStream in = TopManager.class.getClassLoader().getResourceAsStream("org/openide/resources/propertysheet/customize.gif"); // NOI18N
             byte b[] = new byte[in.available()];
             in.read(b);
             in.close();
             rootIcon = new ImageIcon(b);
-            in = TopManager.class.getClassLoader().getResourceAsStream("org/openide/resources/src/sourceOptions.gif");
+            in = TopManager.class.getClassLoader().getResourceAsStream("org/openide/resources/src/sourceOptions.gif"); // NOI18N
             b = new byte[in.available()];
             in.read(b);
             in.close();
@@ -86,7 +87,8 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
 
     }
     
-    /** Creates new form ComponentsEditorPanel */
+    /** Creates new form ComponentsEditorPanel
+     * @param gen ComponentGenerator instance */
     public ComponentsEditorPanel(ComponentGenerator gen) {
         TreeNode rootNode=gen.getRootNode();
         this.nodes = gen.getNodes();
@@ -138,6 +140,8 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
         splitPane.setDividerSize(4);
         splitPane.setResizeWeight(0.5);
         splitPane.setPreferredSize(new java.awt.Dimension(800, 400));
+        scrollPane.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentsEditorPanel.class, "TTT_ComponentsTree", new Object[] {}));
+        tree.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentsEditorPanel.class, "TTT_ComponentsTree", new Object[] {}));
         tree.setShowsRootHandles(true);
         tree.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -152,10 +156,13 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
         });
 
         scrollPane.setViewportView(tree);
+        tree.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ComponentsEditorPanel.class, "LBL_ComponentTree", new Object[] {}));
 
         splitPane.setLeftComponent(scrollPane);
 
+        propertySheet.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentsEditorPanel.class, "TTT_Properties", new Object[] {}));
         splitPane.setRightComponent(propertySheet);
+        propertySheet.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ComponentsEditorPanel.class, "LBL_Properties", new Object[] {}));
 
         add(splitPane, java.awt.BorderLayout.CENTER);
 
@@ -170,7 +177,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     private void treeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeMouseClicked
         if ((evt.getModifiers()==evt.BUTTON3_MASK)&&(tree.getSelectionCount()==1)&&(tree.getSelectionRows()[0]>0)) {
             JPopupMenu menu=new JPopupMenu();
-            menu.add("Delete").addActionListener(new java.awt.event.ActionListener() {
+            menu.add(NbBundle.getMessage(ComponentsEditorPanel.class, "CTL_Delete")).addActionListener(new java.awt.event.ActionListener() { // NOI18N
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     DeleteActionPerformed();
                 }
@@ -195,12 +202,17 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     private org.openide.explorer.propertysheet.PropertySheet propertySheet;
     // End of variables declaration//GEN-END:variables
     
+    /** shows Component Editor modal dialog
+     * @param gen ComponentGenerator instance
+     * @return boolean false when operation canceled */    
     public static boolean showDialog(ComponentGenerator gen) {
-        DialogDescriptor desc = new DialogDescriptor(new ComponentsEditorPanel(gen), "Components Editor", true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null);
+        DialogDescriptor desc = new DialogDescriptor(new ComponentsEditorPanel(gen), NbBundle.getMessage(ComponentsEditorPanel.class, "ComponentsEditor_Title"), true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null); // NOI18N
         TopManager.getDefault().createDialog(desc).show();
         return desc.getValue()==DialogDescriptor.OK_OPTION;
     }
     
+    /** implementation of StateListener
+     * @param changeEvent ChangeEvent */    
     public void stateChanged(javax.swing.event.ChangeEvent changeEvent) {
         DefaultTreeModel model=(DefaultTreeModel)tree.getModel();
         model.nodeChanged(((ComponentGenerator.ComponentRecord)changeEvent.getSource()).getNode());

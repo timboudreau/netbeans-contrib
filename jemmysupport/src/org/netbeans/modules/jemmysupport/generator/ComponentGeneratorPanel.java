@@ -14,6 +14,7 @@
 package org.netbeans.modules.jemmysupport.generator;
 
 import org.openide.nodes.Node;
+import org.openide.util.NbBundle;
 
 /*
  * ComponentGeneratorPanel.java
@@ -40,7 +41,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
      */    
     public static void showDialog(){
         if (dialog==null) {
-            dialog = org.openide.TopManager.getDefault().createDialog(new org.openide.DialogDescriptor(new ComponentGeneratorPanel(), "Jemmy Component Generator", false, new Object[0], null, org.openide.DialogDescriptor.BOTTOM_ALIGN, null, null));
+            dialog = org.openide.TopManager.getDefault().createDialog(new org.openide.DialogDescriptor(new ComponentGeneratorPanel(), NbBundle.getMessage(ComponentGeneratorPanel.class, "Title"), false, new Object[0], null, org.openide.DialogDescriptor.BOTTOM_ALIGN, null, null)); // NOI18N
         }
         dialog.show();
     }
@@ -71,27 +72,27 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         } catch (Exception e1) {
 */
         try {
-            props.load( this.getClass().getClassLoader().getResourceAsStream("org/netbeans/modules/jemmysupport/generator/ComponentGenerator.properties"));
+            props.load( this.getClass().getClassLoader().getResourceAsStream("org/netbeans/modules/jemmysupport/generator/ComponentGenerator.properties")); // NOI18N
         } catch (Exception e) {
             e.printStackTrace();
-            throw new java.lang.reflect.UndeclaredThrowableException(e, "Properties file not loaded!");
+            throw new java.lang.reflect.UndeclaredThrowableException(e, NbBundle.getMessage(ComponentGeneratorPanel.class, "MSG_PropertiesNotLoaded")); // NOI18N
         }
     }
     
     void saveProperties() {
         try {
             org.openide.filesystems.FileObject fo=org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().getRoot();
-            org.openide.filesystems.FileObject fo2=fo.getFileObject("jemmysupport");
+            org.openide.filesystems.FileObject fo2=fo.getFileObject("jemmysupport"); // NOI18N
             if (fo2==null) {
-                fo2=fo.createFolder("jemmysupport");
+                fo2=fo.createFolder("jemmysupport"); // NOI18N
             }
-            fo=fo2.getFileObject("ComponentGenerator","properties");
+            fo=fo2.getFileObject("ComponentGenerator","properties"); // NOI18N
             if (fo==null) {
-                fo=fo2.createData("ComponentGenerator","properties");
+                fo=fo2.createData("ComponentGenerator","properties"); // NOI18N
             }
-            props.store(fo.getOutputStream(fo.lock()),"Jemmy Support Module - Component Generator - User Properties File");
+            props.store(fo.getOutputStream(fo.lock()),NbBundle.getMessage(ComponentGeneratorPanel.class, "MSG_PropertiesTitle")); // NOI18N
         } catch (Exception e) {
-                throw new java.lang.reflect.UndeclaredThrowableException(e, "Properties file not saved!");
+                throw new java.lang.reflect.UndeclaredThrowableException(e, NbBundle.getMessage(ComponentGeneratorPanel.class, "MSG_PropertiesNoSaved")); // NOI18N
         }
     }
     
@@ -107,8 +108,10 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         packagesTreeView = new org.openide.explorer.view.BeanTreeView();
         selectLabel = new javax.swing.JLabel();
         helpLabel = new javax.swing.JLabel();
+        helpLabel.setVisible(false);
         stopButton = new javax.swing.JButton();
         startButton = new javax.swing.JButton();
+        stopButton.setVisible(false);
         closeButton = new javax.swing.JButton();
         screenShot = new javax.swing.JCheckBox();
         showEditor = new javax.swing.JCheckBox();
@@ -119,6 +122,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         setAlignmentY(0.0F);
         setPreferredSize(new java.awt.Dimension(420, 300));
         packagesPanel.setName("");
+        packagesTreeView.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Package"));
         packagesTreeView.setPopupAllowed(false);
         packagesTreeView.setAutoscrolls(true);
         packagesPanel.add(packagesTreeView, java.awt.BorderLayout.CENTER);
@@ -129,34 +133,41 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.9;
-        gridBagConstraints.insets = new java.awt.Insets(4, 4, 0, 4);
+        gridBagConstraints.weighty = 10.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
         add(packagesPanel, gridBagConstraints);
 
-        selectLabel.setText("Select destination package:");
+        selectLabel.setDisplayedMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_Package").charAt(0));
+        selectLabel.setLabelFor(packagesTreeView);
+        selectLabel.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_Package"));
+        selectLabel.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Package"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
         add(selectLabel, gridBagConstraints);
 
         helpLabel.setFont(new java.awt.Font("Dialog", 2, 12));
         helpLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        helpLabel.setText("Use Ctrl-F12 key to grab current focused component (Frame, Dialog).");
-        helpLabel.setEnabled(false);
+        helpLabel.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_Help"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 8, 0, 8);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
         add(helpLabel, gridBagConstraints);
+        helpLabel.getAccessibleContext().setAccessibleDescription("N/A");
 
-        stopButton.setMnemonic('t');
-        stopButton.setText("Stop");
-        stopButton.setEnabled(false);
+        stopButton.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_Stop").charAt(0));
+        stopButton.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_Stop"));
+        stopButton.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Stop"));
         stopButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 stopButtonActionPerformed(evt);
@@ -166,13 +177,16 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 0);
         add(stopButton, gridBagConstraints);
 
-        startButton.setMnemonic('s');
-        startButton.setText("Start");
+        startButton.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_Start").charAt(0));
+        startButton.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_Start"));
+        startButton.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Start"));
         startButton.setEnabled(false);
         startButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -181,15 +195,18 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 0);
         add(startButton, gridBagConstraints);
 
-        closeButton.setMnemonic('c');
-        closeButton.setText("Close");
+        closeButton.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_Close").charAt(0));
+        closeButton.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_Close"));
+        closeButton.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Close"));
         closeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 closeButtonActionPerformed(evt);
@@ -199,27 +216,37 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(17, 5, 12, 12);
         add(closeButton, gridBagConstraints);
 
-        screenShot.setSelected(true);
-        screenShot.setText("add screenshot");
+        screenShot.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_ScreenShot").charAt(0));
+        screenShot.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_ScreenShot"));
+        screenShot.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_ScreenShot"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
         add(screenShot, gridBagConstraints);
 
+        showEditor.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_ShowEditor").charAt(0));
         showEditor.setSelected(true);
-        showEditor.setText("show components editor");
+        showEditor.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_ShowEditor"));
+        showEditor.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_ShowEditor"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
         add(showEditor, gridBagConstraints);
 
     }//GEN-END:initComponents
@@ -235,10 +262,10 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
             thread.interrupt();
             thread=null;
         }
-        stopButton.setEnabled(false);
-        helpLabel.setEnabled(false);
+        stopButton.setVisible(false);
+        helpLabel.setVisible(false);
         packagesTreeView.setEnabled(true);
-        startButton.setEnabled(true);
+        startButton.setVisible(true);
 //        customizeButton.setEnabled(true);
         screenShot.setEnabled(true);
         showEditor.setEnabled(true);
@@ -246,16 +273,16 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
         packagesTreeView.setEnabled(false);
-        startButton.setEnabled(false);
-        stopButton.setEnabled(true);
+        startButton.setVisible(false);
+        stopButton.setVisible(true);
 //        customizeButton.setEnabled(false);
         screenShot.setEnabled(false);
         showEditor.setEnabled(false);
-        helpLabel.setEnabled(true);
+        helpLabel.setVisible(true);
         if (thread!=null) {
             thread.interrupt();
         }
-        helpLabel.setText("Use Ctrl-F12 key to grab current focused component (Frame, Dialog).");
+        helpLabel.setText(NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_Help")); // NOI18N
         thread = new Thread(new ComponentGeneratorRunnable(directory, packageName, this, props, screenShot.isSelected(), showEditor.isSelected()));
         thread.start();
     }//GEN-LAST:event_startButtonActionPerformed
@@ -285,7 +312,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         if (org.openide.explorer.ExplorerManager.PROP_SELECTED_NODES.equals (ev.getPropertyName ())) {
             Node n[] = (Node[])ev.getNewValue();
             if (n.length > 1 ) {
-                throw new java.beans.PropertyVetoException ("Only single selection allowed", ev); // NOI18N
+                throw new java.beans.PropertyVetoException (NbBundle.getMessage(ComponentGeneratorPanel.class, "MSG_SingleSelection"), ev); // NOI18N
             } 
         }
     }

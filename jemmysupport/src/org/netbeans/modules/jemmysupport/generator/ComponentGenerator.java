@@ -47,6 +47,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
+import org.openide.util.NbBundle;
 
 /** Jemmy Tools Component Generator class generates source code from given Container (Frame, Dialog ...) according to its visible structure.
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -105,13 +106,13 @@ public class ComponentGenerator {
         boolean _recursion;
         
         /** creates new record of component operator
+         * @param recursion boolean true when recursion enabled
          * @param internalLogicCode set of component codes used for source generation
          * @param operatorClass String class name
          * @param instancePrefix String prefix
          * @param instanceSuffix String suffix
          * @param idMethod string identification method
-         * @param componentCode String[] set of component generation codes
-         */        
+         * @param componentCode String[] set of component generation codes */        
         public OperatorRecord( String operatorClass, String instancePrefix, String instanceSuffix, String idMethod, String componentCode[], String internalLogicCode[], boolean recursion ) {
             _operatorClass=operatorClass;
             _instancePrefix=instancePrefix;
@@ -144,7 +145,7 @@ public class ComponentGenerator {
             if ((null!=_componentCode) && (i>=0) && (i<_componentCode.length) && (null!=_componentCode[i])) {
                 return _componentCode[i];
             } else {
-                return "";
+                return ""; // NOI18N
             }
         }
         
@@ -156,7 +157,7 @@ public class ComponentGenerator {
             if ((null!=_internalLogicCode) && (i>=0) && (i<_internalLogicCode.length) && (null!=_internalLogicCode[i])) {
                 return _internalLogicCode[i];
             } else {
-                return "";
+                return ""; // NOI18N
             }
         }
         
@@ -181,6 +182,8 @@ public class ComponentGenerator {
             return _operatorClass;
         }
         
+        /** getter for internal recursion property
+         * @return boolean true if scanning for internal labels is enabled */        
         public boolean getInternalRecursion() {
             if (_internalLogicCode==null) return false;
             for (int i=0; i<_internalLogicCode.length; i++)
@@ -207,18 +210,20 @@ public class ComponentGenerator {
         DefaultMutableTreeNode _node = null;
         
         /** creates new record of component
+         * @param icon Icon of component
+         * @param componentOperator ComponentOperator of component
+         * @param parent OperatorRecord of parent container
          * @param internalLabels String[] set of components internal labels used for internal logic generation
          * @param operator OperatorRecord component's oerator
          * @param identification identification string
          * @param uniqueName generated unique name
          * @param index index used for component search inside container
-         * @param componentClass compoennt's real class name
-         */        
+         * @param componentClass compoennt's real class name */        
         public ComponentRecord( OperatorRecord operator, String identification, String uniqueName, int index, String componentClass, String[] internalLabels, Icon icon, ComponentOperator componentOperator, ComponentRecord parent ) {
             _icon = icon;
             _operator = operator;
             if (identification==null) {
-                _identification = "null";
+                _identification = "null"; // NOI18N
             } else {
                 StringBuffer sb = new StringBuffer(identification);
                 int i=0, j=0;
@@ -253,10 +258,14 @@ public class ComponentGenerator {
             return _operator.getOperatorClass();
         }
         
+        /** getter for recursion property
+         * @return boolean true when scanning for sub-components is enabled */        
         public boolean getRecursion() {
             return _operator.getRecursion();
         }
         
+        /** getter for component operator
+         * @return ComponentOperator of component */        
         public ComponentOperator getComponentOperator() {
             return _componentOperator;
         }
@@ -303,26 +312,32 @@ public class ComponentGenerator {
             return _componentClass;
         }
 
+        /** getter for source code of getter of parent conatiner
+         * @return String source code of parent getter */        
         public String getParentGetter() {
-            return _parent==null? "this" : _parent.getUniqueName()+"()";
+            return _parent==null? "this" : _parent.getUniqueName()+"()"; // NOI18N
         }
         
+        /** getter for source code of construcotr arguments
+         * @return String source code of constructor arguments */        
         public String getConstructorArgs() {
-            String s=getParentGetter()+", ";
-            if (!_identification.equals("null")) s+=_identification+", ";
+            String s=getParentGetter()+", "; // NOI18N
+            if (!_identification.equals("null")) s+=_identification+", "; // NOI18N
             if (_index>0) s+=getIndex();
-            if (s.endsWith(", ")) return s.substring(0, s.length()-2);
+            if (s.endsWith(", ")) return s.substring(0, s.length()-2); // NOI18N
             return s;
         }
 
+        /** getter for "visualizer" code
+         * @return String source code that brings component visible */        
         public String getVisualizer() {
             ComponentRecord cr=_parent;
             while (cr!=null) {
                 if (cr._componentOperator instanceof TabOperator)
-                    return "        "+cr.getUniqueName()+"();\n";
+                    return "        "+cr.getUniqueName()+"();\n"; // NOI18N
                 cr=cr._parent;
             }
-            return "";
+            return ""; // NOI18N
         }
         
         /** returns formated component code with given index, formating means replacing keywords with real values
@@ -330,7 +345,7 @@ public class ComponentGenerator {
          * @return formated component code
          */        
         public String getComponentCode(int i) {
-            return formate(_operator.getComponentCode(i),"");
+            return formate(_operator.getComponentCode(i),""); // NOI18N
         }
 
         /** returns components internal label with given index
@@ -341,7 +356,7 @@ public class ComponentGenerator {
             if ((null!=_internalLabels) && (i>=0) && (i<_internalLabels.length) && (null!=_internalLabels[i])) {
                 return _internalLabels[i];
             } else {
-                return "";
+                return ""; // NOI18N
             }
         }
         
@@ -360,10 +375,14 @@ public class ComponentGenerator {
             _internalLabels[i] = label;
         }
         
+        /** getter for component internal labels
+         * @return String[] texts of component internal labels */        
         public String[] getInternalLabels() {
             return _internalLabels;
         }
         
+        /** setter for component internal labels
+         * @param labels String[] texts of component internal labels */        
         public void setInternalLabels(String[] labels) {
             _internalLabels = labels;
         }
@@ -373,7 +392,7 @@ public class ComponentGenerator {
          * @return formated component code
          */        
         public String getInternalLogicCode(int i) {
-            if (_internalLabels==null) return "";
+            if (_internalLabels==null) return ""; // NOI18N
             StringBuffer sb=new StringBuffer();
             for (int j=0;j<_internalLabels.length;j++) {
                 sb.append(formate(_operator.getInternalLogicCode(i),getInternalLabels(j)));
@@ -419,22 +438,22 @@ public class ComponentGenerator {
          */        
         public String formate(String s, String internalLabel) {
             StringBuffer sb=new StringBuffer(s);
-            replace(sb, "__DATE__", new SimpleDateFormat().format(new Date()));
-            replace(sb, "__USER__", System.getProperty("user.name"));
-            replace(sb, "__PACKAGE__", getPackage());
-            replace(sb, "__SMALLNAME__", getSmallName());
-            replace(sb, "__SHORTNAME__", getShortName());
-            replace(sb, "__NAME__", getUniqueName());
-            replace(sb, "__CLASS__", getOperatorClass());
-            replace(sb, "__ID__", getIdentification());
-            replace(sb, "__INDEX__", getIndex());
-            replace(sb, "__COMPONENT__", getComponentClass());
-            replace(sb, "__INTERNALLABEL__", internalLabel);
-            replace(sb, "__SHORTLABEL__", toJavaID(internalLabel));
-            replace(sb, "__BIGLABEL__", toBigJavaID(internalLabel));
-            replace(sb, "__PARENTGETTER__", getParentGetter());
-            replace(sb, "__CONSTRUCTORARGS__", getConstructorArgs());
-            replace(sb, "__VISUALIZER__", getVisualizer());
+            replace(sb, "__DATE__", new SimpleDateFormat().format(new Date())); // NOI18N
+            replace(sb, "__USER__", System.getProperty("user.name")); // NOI18N
+            replace(sb, "__PACKAGE__", getPackage()); // NOI18N
+            replace(sb, "__SMALLNAME__", getSmallName()); // NOI18N
+            replace(sb, "__SHORTNAME__", getShortName()); // NOI18N
+            replace(sb, "__NAME__", getUniqueName()); // NOI18N
+            replace(sb, "__CLASS__", getOperatorClass()); // NOI18N
+            replace(sb, "__ID__", getIdentification()); // NOI18N
+            replace(sb, "__INDEX__", getIndex()); // NOI18N
+            replace(sb, "__COMPONENT__", getComponentClass()); // NOI18N
+            replace(sb, "__INTERNALLABEL__", internalLabel); // NOI18N
+            replace(sb, "__SHORTLABEL__", toJavaID(internalLabel)); // NOI18N
+            replace(sb, "__BIGLABEL__", toBigJavaID(internalLabel)); // NOI18N
+            replace(sb, "__PARENTGETTER__", getParentGetter()); // NOI18N
+            replace(sb, "__CONSTRUCTORARGS__", getConstructorArgs()); // NOI18N
+            replace(sb, "__VISUALIZER__", getVisualizer()); // NOI18N
             return sb.toString();
         }
         
@@ -442,7 +461,7 @@ public class ComponentGenerator {
          * @return string representation of this class
          */        
         public String toString() {
-            return getUniqueName()+" ("+getOperatorClass()+")";
+            return getUniqueName()+" ("+getOperatorClass()+")"; // NOI18N
         }
         
         /** Setter for property shortName.
@@ -456,6 +475,8 @@ public class ComponentGenerator {
             }
         }
         
+        /** setter for component unique name
+         * @param name String unique name */        
         public void setUniqueName(String name) {
             if (name!=null) {
                 String old = _uniqueName;
@@ -464,10 +485,14 @@ public class ComponentGenerator {
             }
         }
         
+        /** getter for component icon
+         * @return Icon of component */        
         public Icon getIcon() {
             return _icon;
         }
         
+        /** getter for components tree node
+         * @return DefaultMutableTreeNode of component */        
         public DefaultMutableTreeNode getNode() {
             if (_node==null) {
                 _node=new DefaultMutableTreeNode(this);
@@ -486,49 +511,49 @@ public class ComponentGenerator {
      * @param props configuration properties
      */   
     public ComponentGenerator(Properties props) {
-        maxComponentCodeLength = Integer.parseInt(props.getProperty("max.code.length"));
+        maxComponentCodeLength = Integer.parseInt(props.getProperty("max.code.length")); // NOI18N
         int i;
         String operator;
         String code[], internalLogic[], defaultCode[] = new String[maxComponentCodeLength];
-        StringTokenizer operators = new StringTokenizer(props.getProperty("component.operators"), ",");
+        StringTokenizer operators = new StringTokenizer(props.getProperty("component.operators"), ","); // NOI18N
         for (i=0; i<maxComponentCodeLength; i++) {
-            defaultCode[i] = props.getProperty("default.component.code."+String.valueOf(i), "");
+            defaultCode[i] = props.getProperty("default.component.code."+String.valueOf(i), ""); // NOI18N
         }
-        String defRecursion = "false";
+        String defRecursion = "false"; // NOI18N
         while (operators.hasMoreTokens()) {
             operator = operators.nextToken();
             code = new String[maxComponentCodeLength];
             internalLogic = new String[maxComponentCodeLength];
             for (i=0; i<maxComponentCodeLength; i++) {
-                code[i] = props.getProperty("operator."+operator+".code."+String.valueOf(i), defaultCode[i]);
-                internalLogic[i] = props.getProperty("operator."+operator+".internal."+String.valueOf(i), "");
+                code[i] = props.getProperty("operator."+operator+".code."+String.valueOf(i), defaultCode[i]); // NOI18N
+                internalLogic[i] = props.getProperty("operator."+operator+".internal."+String.valueOf(i), ""); // NOI18N
             }
-            boolean rec = Boolean.valueOf(props.getProperty("operator."+operator+".recursion", defRecursion)).booleanValue();
-            addOperator(operator, props.getProperty("operator."+operator+".prefix",""), props.getProperty("operator."+operator+".suffix",""), props.getProperty("operator."+operator+".method"), code, internalLogic, rec);
+            boolean rec = Boolean.valueOf(props.getProperty("operator."+operator+".recursion", defRecursion)).booleanValue(); // NOI18N
+            addOperator(operator, props.getProperty("operator."+operator+".prefix",""), props.getProperty("operator."+operator+".suffix",""), props.getProperty("operator."+operator+".method"), code, internalLogic, rec); // NOI18N
         }
-        operators = new StringTokenizer(props.getProperty("top.operators"), ",");
+        operators = new StringTokenizer(props.getProperty("top.operators"), ","); // NOI18N
         for (i=0; i<maxComponentCodeLength; i++) {
-            defaultCode[i] = props.getProperty("default.top.code."+String.valueOf(i), "");
+            defaultCode[i] = props.getProperty("default.top.code."+String.valueOf(i), ""); // NOI18N
         }
-        defRecursion = "true";
+        defRecursion = "true"; // NOI18N
         while (operators.hasMoreTokens()) {
             operator = operators.nextToken();
             code = new String[maxComponentCodeLength];
             for (i=0; i<maxComponentCodeLength; i++) {
-                code[i] = props.getProperty("operator."+operator+".code."+String.valueOf(i), defaultCode[i]);
+                code[i] = props.getProperty("operator."+operator+".code."+String.valueOf(i), defaultCode[i]); // NOI18N
             }
-            boolean rec = Boolean.valueOf(props.getProperty("operator."+operator+".recursion", defRecursion)).booleanValue();
-            addOperator(operator, props.getProperty("operator."+operator+".prefix",""), props.getProperty("operator."+operator+".suffix",""), props.getProperty("operator."+operator+".method"), code, null, rec);
+            boolean rec = Boolean.valueOf(props.getProperty("operator."+operator+".recursion", defRecursion)).booleanValue(); // NOI18N
+            addOperator(operator, props.getProperty("operator."+operator+".prefix",""), props.getProperty("operator."+operator+".suffix",""), props.getProperty("operator."+operator+".method"), code, null, rec); // NOI18N
         }
-        JemmyProperties.setCurrentTimeout("ComponentOperator.WaitComponentTimeout", 0);
+        JemmyProperties.setCurrentTimeout("ComponentOperator.WaitComponentTimeout", 0); // NOI18N
         JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
    }
 
     String getPackage() {
         if ((null==_package) || (_package.length()==0)) {
-            return "";
+            return ""; // NOI18N
         } else {
-            return "package "+_package+";\n";
+            return "package "+_package+";\n"; // NOI18N
         }
     }
         
@@ -541,13 +566,13 @@ public class ComponentGenerator {
     }
 
     /** add new operator record into set of known operators
+     * @param recursion boolean true if recursion is enabled
      * @param internalLogicCode set of internal logic component codes used to source generation
      * @param operatorClass String short operator class name (f.e.: "JButtonOperator")
      * @param instancePrefix prefix for generated names (f.e.: "txt")
      * @param instanceSuffix suffix for generated names (f.e.: "Dialog")
      * @param idMethod String identification method name (f.e.: "getTitle")
-     * @param componentCode set of component codes used for source generation
-     */    
+     * @param componentCode set of component codes used for source generation */    
     public void addOperator( String operatorClass, String instancePrefix, String instanceSuffix, String idMethod, String[] componentCode, String[] internalLogicCode, boolean recursion ) {
         operators.put( operatorClass, new OperatorRecord( operatorClass, instancePrefix, instanceSuffix, idMethod, componentCode, internalLogicCode, recursion ));
     }
@@ -559,10 +584,10 @@ public class ComponentGenerator {
             if (text!=null) {
                 return text.toString();
             } else {
-                return "";
+                return ""; // NOI18N
             }
         } catch (Exception e) {
-            throw new UndeclaredThrowableException( e, "Exception during invocation of method "+method+" on Object "+o);
+            throw new UndeclaredThrowableException( e, NbBundle.getMessage(ComponentGenerator.class, "MSG_InvocationException", new Object[] {method, o})); // NOI18N
         }
     }
     
@@ -594,7 +619,7 @@ public class ComponentGenerator {
                 return (comp instanceof JLabel) && (component==((JLabel)comp).getLabelFor());
             }
             public String getDescription() {
-                return "GetLabelFor Chooser";
+                return "GetLabelFor Chooser"; // NOI18N
             }
         });
         if (label!=null) {
@@ -610,7 +635,7 @@ public class ComponentGenerator {
         }
         if (name.length()==0) {
             AccessibleContext ac = component.getAccessibleContext();
-            if ((ac!=null)&&(!"N/A".equalsIgnoreCase(ac.getAccessibleName()))) {
+            if ((ac!=null)&&(!"N/A".equalsIgnoreCase(ac.getAccessibleName()))) { // NOI18N
                 name = toJavaIdentifier(ac.getAccessibleName());
             }
         }
@@ -725,9 +750,9 @@ public class ComponentGenerator {
     }
     
     /** grabs given visible container identified by ContainerOperator
+     * @param _grabIcons boolean true when grab icons of components
      * @param _container Container to grab
-     * @param _package String package name of generated source code
-     */    
+     * @param _package String package name of generated source code */    
     public void grabComponents( Container _container, String _package, boolean _grabIcons ) {
         ContainerOperator container = (ContainerOperator)Operator.createOperator(_container);
         this._package = _package;
@@ -841,8 +866,7 @@ public class ComponentGenerator {
     }
     
     /** sets class name
-     * @param String class name
-     */
+     * @param name String class name */
     public void setClassName(String name) {
         if (name!=null)
             _container.setUniqueName(name);
