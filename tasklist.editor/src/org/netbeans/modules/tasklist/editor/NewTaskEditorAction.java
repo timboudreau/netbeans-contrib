@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.editor;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.JTextComponent;
@@ -76,7 +77,14 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
 	Line lineObj = NbEditorUtilities.getLine(doc, caret.getDot(), false);
 	DataObject dob = lineObj.getDataObject();
 	FileObject fo = dob.getPrimaryFile();
-	String filename = FileUtil.toFile(fo).getPath();
+        File file = FileUtil.toFile(fo);
+        String filename;
+        if (file == null) {
+            filename = null;
+        } else {
+            filename = file.getPath();
+        }
+        
 	if (!((filename != null) && (filename.length() > 0))) {
 	    line = 0;
 	}
