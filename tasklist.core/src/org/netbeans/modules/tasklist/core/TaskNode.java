@@ -33,14 +33,8 @@ import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.loaders.InstanceSupport;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.FilterNode;
-import org.openide.nodes.Node;
-import org.openide.nodes.NodeMemberEvent;
-import org.openide.nodes.Sheet;
 
-import org.openide.nodes.Children;
-import org.openide.nodes.PropertySupport;
+import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -94,9 +88,18 @@ public class TaskNode extends AbstractNode {
         setName(item.getSummary());
         monitor = new Monitor();
         ObservableList list = item.getList();
-        TaskListener weakMonitor = (TaskListener) WeakListeners.create(TaskListener.class, monitor, list);
-        list.addTaskListener(weakMonitor);
+        list.addTaskListener(monitor);
         item.addPropertyChangeListener(monitor);
+        addNodeListener(new NodeAdapter() {
+            // XXX it comes only if being child of Children.Keys
+            public void nodeDestroyed(NodeEvent ev) {
+                if (ev.getNode() == TaskNode.this) {
+                    ObservableList list = item.getList();
+                    list.removeTaskListener(monitor);
+                    item.removePropertyChangeListener(monitor);
+                }
+            }
+        });
         updateDisplayStuff();
         getCookieSet().add(new InstanceSupport.Instance(item));
         
