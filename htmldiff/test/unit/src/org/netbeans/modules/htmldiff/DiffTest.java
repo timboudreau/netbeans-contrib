@@ -139,6 +139,11 @@ public final class DiffTest extends NbTestCase {
         }
         
         assertEquals ("Maximum of TD in one row", 2, max);
+        
+        index = s.indexOf ("</HTML>");
+        assertTrue ("End tag is there", index > 0);
+        index = s.indexOf ("JavaBean", index + 1);
+        assertEquals ("Nothing beyond it, especially not JavaBean", -1, index);
     }
     
     

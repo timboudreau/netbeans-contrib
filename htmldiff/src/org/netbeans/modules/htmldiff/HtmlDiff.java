@@ -83,11 +83,20 @@ public final class HtmlDiff extends Object {
             int os = arr[i].getFirstStart();
             int ns = arr[i].getSecondStart();
 
-            if (arr[i].getType() == org.netbeans.api.diff.Difference.ADD) {
+            switch (arr[i].getType ()) {
+            case org.netbeans.api.diff.Difference.ADD:    
                 ns--;
-            } else if (arr[i].getType() == org.netbeans.api.diff.Difference.CHANGE) {
+                break;
+            case org.netbeans.api.diff.Difference.CHANGE:
                 ns--;
                 os--;
+                break;
+            case org.netbeans.api.diff.Difference.DELETE:
+                os--;
+                ns--;
+                break;
+            default:
+                throw new IllegalStateException ();
             }
             
             // same text
@@ -117,7 +126,9 @@ public final class HtmlDiff extends Object {
                 newText = newItems.size () > j ? (String)newItems.get (j) : "";
                 
                 if (oldText == null || oldText.equals (newText) || oldText.startsWith ("<")) {
-                    res.add (new HtmlDiff (newText));
+                    if (newText.length () > 0) {
+                        res.add (new HtmlDiff (newText));
+                    }
                 } else {
                     res.add (new HtmlDiff (oldText, newText));
                 }
