@@ -31,12 +31,19 @@ Microsystems, Inc. All Rights Reserved.
             <patternset>
                 <include name="complete/cvs_profile/JellyBranch.class"/>
                 <include name="complete/cvs_profile/JellyOverall.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+
+    <testbag testattribs="full,cvs_profile_2" name="cvs_profile_2">
+        <testset dir="qa-functional/src">
+            <patternset>
                 <include name="complete/cvs_profile/JellyGroup.class"/>
             </patternset>
         </testset>
     </testbag>
 
-        <testbag testattribs="full" name="common_functionality">
+    <testbag testattribs="full" name="common_functionality">
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/common/Availability.class"/>
