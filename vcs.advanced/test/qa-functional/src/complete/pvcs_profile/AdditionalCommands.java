@@ -37,6 +37,7 @@ import org.netbeans.jellytools.util.StringFilter;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
 import org.netbeans.jemmy.operators.JTreeOperator;
 import org.netbeans.junit.NbTestSuite;
+import org.netbeans.modules.vcscore.runtime.RuntimeCommand;
 import org.openide.util.Utilities;
 
 public class AdditionalCommands extends PVCSStub {
@@ -397,6 +398,7 @@ public class AdditionalCommands extends PVCSStub {
         A_File.waitLock (true);
         unlockFile(A_File, null, null, getLockText (A_File.pvcsNode ().getText()));
 
+        RuntimeCommand rc = history.getBreakpoint();
         A_File.pvcsNode().pVCSGet ();
         GetCommandOperator get = new GetCommandOperator ("");
         get.setSpecificRevision("1.2");
@@ -406,7 +408,9 @@ public class AdditionalCommands extends PVCSStub {
         assertQuestionYesDialog (null);
         assertQuestionYesDialog (null);
         A_File.waitHistory("Get");
+        history.setBreakpoint(rc);
         A_File.parent ().waitHistory("Refresh");
+        history.breakpoint();
 
         A_File.waitStatus ("Locally Modified; 1.2.1.0");
         A_File.pvcsNode ().pVCSApplyDelta();
@@ -506,7 +510,7 @@ public class AdditionalCommands extends PVCSStub {
         HistoryCommandOperator hi = new HistoryCommandOperator ("");
         hi.ok();
         hi.waitClosed ();
-        D_File.waitHistory ("History");
+        B_File.waitHistory ("History");
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("History");
         waitNoEmpty(coo.txtStandardOutput ());
         output = coo.txtStandardOutput().getText ();
@@ -560,6 +564,7 @@ public class AdditionalCommands extends PVCSStub {
         B_File.waitHistory("Remove Revision");
         assertInformationDialog (null);
 
+        closeAllVCSWindows();
         B_File.pvcsNode ().pVCSHistory ();
         HistoryCommandOperator hi = new HistoryCommandOperator ("");
         hi.selectReportType(HistoryCommandOperator.ITEM_REVISIONINFORMATIONONLY);
@@ -597,6 +602,7 @@ public class AdditionalCommands extends PVCSStub {
         B_File.waitHistory("Remove Revision");
         assertInformationDialog (null);
 
+        closeAllVCSWindows();
         B_File.pvcsNode ().pVCSHistory ();
         HistoryCommandOperator hi = new HistoryCommandOperator ("");
         hi.selectReportType(HistoryCommandOperator.ITEM_REVISIONINFORMATIONONLY);
