@@ -382,19 +382,11 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             wizardAdvanced.finish();
             String filesystem = "Empty " + getWorkDirPath();
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-
-            // !!! Workaround until issue #32466 "jemmy eats some EVENTs (espec. HierarchyEvent)" gets fixed.
-            try {
-                org.netbeans.jemmy.EventTool.removeListeners();
-                new Action(null, "Empty|My Submenu|Test").perform(filesystemNode);
-                MainWindowOperator.getDefault().waitStatusText("Command Test finished.");
-                VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Test");
-                executionString = outputWindow.txtExecutionString().getText();
-                outputWindow.close();
-            } finally {
-                org.netbeans.jemmy.EventTool.addListeners();
-            }
-
+            new Action(null, "Empty|My Submenu|Test").perform(filesystemNode);
+            MainWindowOperator.getDefault().waitStatusText("Command Test finished.");
+            VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Test");
+            executionString = outputWindow.txtExecutionString().getText();
+            outputWindow.close();
             String correctExecutionString = "sh -c \"echo Ahoj !\"";
             if (org.openide.util.Utilities.isWindows()) correctExecutionString = "cmd /x /c \"echo Ahoj !\"";
             if (!correctExecutionString.equals(executionString)) throw new Exception("Error: Can't set execution string.");
@@ -465,24 +457,16 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             Node fileNode = new Node(filesystemNode, "A_File");
             new CompileAction().perform(fileNode);
             MainWindowOperator.getDefault().waitStatusText("Finished A_File [Local].");
-
-            // !!! Workaround until issue #32466 "jemmy eats some EVENTs (espec. HierarchyEvent)" gets fixed.
-            try {
-                org.netbeans.jemmy.EventTool.removeListeners();
-                new Action(null, "Empty|My Submenu|Test").perform(filesystemNode);
-                MainWindowOperator.getDefault().waitStatusText("Command Test is running ...");
-                VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Test");
-                new JButtonOperator(outputWindow, "Kill").pushNoBlock();
-                new QuestionDialogOperator("Are you sure you want to kill the 'Test' command?").cancel();
-                MainWindowOperator.getDefault().waitStatusText("Command Test finished.");
-                Thread.sleep(2000);
-                String output = outputWindow.txtStandardOutput().getText();
-                if (output.indexOf("Ahoj Jirka!") == -1) throw new Exception("Error: Incorrect output reached: " + output);
-                outputWindow.close();
-            } finally {
-                org.netbeans.jemmy.EventTool.addListeners();
-            }
-
+            new Action(null, "Empty|My Submenu|Test").perform(filesystemNode);
+            MainWindowOperator.getDefault().waitStatusText("Command Test is running ...");
+            VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Test");
+            new JButtonOperator(outputWindow, "Kill").pushNoBlock();
+            new QuestionDialogOperator("Are you sure you want to kill the 'Test' command?").cancel();
+            MainWindowOperator.getDefault().waitStatusText("Command Test finished.");
+            Thread.sleep(2000);
+            String output = outputWindow.txtStandardOutput().getText();
+            if (output.indexOf("Ahoj Jirka!") == -1) throw new Exception("Error: Incorrect output reached: " + output);
+            outputWindow.close();
             new UnmountFSAction().perform(filesystemNode);
             System.out.println(". done !");
         } catch (Exception e) {
