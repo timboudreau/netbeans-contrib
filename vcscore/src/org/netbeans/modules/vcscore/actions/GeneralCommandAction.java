@@ -386,6 +386,13 @@ public class GeneralCommandAction extends NodeAction {
         map.put(supporter, set);
     }
     
+
+    /**
+     * The action performs it's job on the activated nodes..
+     */
+    public void performAction() {
+        performAction(getActivatedNodes());
+    }    
     
 
     
