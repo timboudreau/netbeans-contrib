@@ -753,6 +753,7 @@ public class VariableInputDescriptor extends Object {
         grabDefaultsToMap(defaults);
         if (defaults.size() == 0) return;  // do not create empty files
 
+        setValuesAsDefault(defaults, components());
         try {
             writeDefaultsToDisk(defaults, commandName, commandProvider);
         } catch (IOException ex) {
@@ -849,6 +850,19 @@ public class VariableInputDescriptor extends Object {
         }
     }
 
+    private void setValuesAsDefault(Map defaults, VariableInputComponent[] comps) {
+        for (int i = 0; i < comps.length; i++) {
+            String value = (String) defaults.get(comps[i].getVariable());
+            if (value != null) {
+                comps[i].setDefaultValue(value);
+            }
+            VariableInputComponent[] subComponents = comps[i].subComponents();
+            if (subComponents != null) {
+                setValuesAsDefault(defaults, subComponents);
+            }
+        }
+    }
+    
     /**
      * Writes given map to user dir located settings. Reverse opration to
      * {@link #loadDefaultsFromDisk}.

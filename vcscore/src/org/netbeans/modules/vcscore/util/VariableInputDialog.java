@@ -507,11 +507,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private void asDefaultButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_asDefaultButtonActionPerformed
         VcsCommandsProvider provider = executionContext.getCommandsProvider();
         String type = provider.getType();
-        inputDescriptor.setValuesAsDefault();
         inputDescriptor.storeDefaults(command.getName(), type);
         if (globalDescriptor != null) {
             // per profile
-            globalDescriptor.setValuesAsDefault();
             globalDescriptor.storeDefaults("common-command-options", type);
         }
     }//GEN-LAST:event_asDefaultButtonActionPerformed
