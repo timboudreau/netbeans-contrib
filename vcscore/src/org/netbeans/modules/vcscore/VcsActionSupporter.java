@@ -32,6 +32,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
+import org.netbeans.modules.vcscore.actions.VersioningAction;
 import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
 import org.netbeans.modules.vcscore.commands.ActionCommandSupport;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
@@ -80,6 +81,9 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
             return false;
         }
         if (action.getClass().equals(VersioningExplorerAction.class)) {
+            return true;
+        }
+        if (action.getClass().equals(VersioningAction.class)) {
             return true;
         }
         HashSet cmdSet = (HashSet) commandMap.get(action.getClass());

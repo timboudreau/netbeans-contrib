@@ -41,8 +41,8 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
         <attr name="Versioning/Separator3.instance" boolvalue="true"/>
         <folder name="SelectDocumentNode">
-            <file name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance" />
-            <attr name="SelectInProjectsTabAction.shadow/SelectInVersioningExplorerAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-vcscore-actions-VersioningAction.instance" />
+            <attr name="SelectInProjectsTabAction.shadow/VersioningAction.instance" boolvalue="true"/>
         </folder>
     </folder>
   </folder>
@@ -52,7 +52,7 @@ Microsystems, Inc. All Rights Reserved.
           <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.OpenVersioningAction" />
       </file>
       <file name="CS-8.instance">
-          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VersioningExplorerAction" />
+          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VersioningAction" />
       </file>
       <file name="C-9.instance">
         <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VcsOutputAction" />
