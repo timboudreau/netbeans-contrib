@@ -80,9 +80,11 @@ public class CommandOutputTopComponent extends TopComponent {
         "discard"); //NOI18N
         
         getActionMap().put("discard", discardAction);//NOI18N
+    }
 
+    public boolean isFocusable() {
         // #54284 ctrl + BS handling
-        setFocusable(true);        
+        return tabPane == null || tabPaneRemoved || tabPane.getTabCount() > 0;
     }
 
     protected String preferredID(){
