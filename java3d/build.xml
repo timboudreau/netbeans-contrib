@@ -96,6 +96,17 @@ Microsystems, Inc. All Rights Reserved.
                      extra_loaders/README, java3d.nbm, extra_libs/README,
                      README"
       />
+      <zip zipfile="release_2.0_beta_${DSTAMP}_with_examples.zip"
+           basedir="."
+           excludes="**/CVS"
+           includes="J3dFly_2.0/bin/*, J3dFly_2.0/lib/*, 
+		     J3dFly_2.0/preferences/*, J3dFly_2.0/universe-configs/*, 
+		     J3dEditor_2.0/bin/*, J3dEditor_2.0/lib/*, 
+		     J3dEditor_2.0/preferences/*, loaders/*, 
+                     extra_loaders/README, java3d.nbm, extra_libs/README,
+                     README,
+		     geometry/**"
+      />
   </target>
 
   <target name="clean">
