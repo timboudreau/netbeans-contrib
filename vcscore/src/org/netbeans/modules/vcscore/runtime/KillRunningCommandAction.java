@@ -43,9 +43,8 @@ public class KillRunningCommandAction extends NodeAction {
 
     public void performAction(Node[] nodes) {
         for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] instanceof RuntimeCommandNode) {
-                RuntimeCommandNode node = (RuntimeCommandNode) nodes[i];
-                final RuntimeCommand comm = node.getRuntimeCommand();
+            final RuntimeCommand comm = (RuntimeCommand) nodes[i].getCookie(RuntimeCommand.class);
+            if (comm != null) {
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         comm.killCommand();
@@ -58,9 +57,8 @@ public class KillRunningCommandAction extends NodeAction {
     public boolean enable(Node[] nodes){
         boolean enabled = false;
         for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] instanceof RuntimeCommandNode) {
-                RuntimeCommandNode node = (RuntimeCommandNode) nodes[i];
-                final RuntimeCommand comm = node.getRuntimeCommand();
+            RuntimeCommand comm = (RuntimeCommand) nodes[i].getCookie(RuntimeCommand.class);
+            if (comm != null) {
                 if (comm.getState() == comm.STATE_RUNNING) {
                     enabled = true;
                     break;

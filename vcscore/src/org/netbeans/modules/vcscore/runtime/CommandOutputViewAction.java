@@ -44,9 +44,8 @@ public class CommandOutputViewAction extends NodeAction {
 
     public void performAction(Node[] nodes) {
         for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] instanceof RuntimeCommandNode) {
-                RuntimeCommandNode node = (RuntimeCommandNode) nodes[i];
-                RuntimeCommand comm = node.getRuntimeCommand();
+            RuntimeCommand comm = (RuntimeCommand) nodes[i].getCookie(RuntimeCommand.class);
+            if (comm != null) {
                 comm.openCommandOutputDisplay();
             }
         }

@@ -55,6 +55,7 @@ public class RuntimeCommandNode extends AbstractNode {
         if (displayName == null || displayName.length() == 0) displayName = command.getName();
         setDisplayName(displayName);
         setDefaultAction(CommandOutputViewAction.getInstance());
+        getCookieSet().add(comm);
     }
     
     public void setState(int state) {
@@ -63,9 +64,11 @@ public class RuntimeCommandNode extends AbstractNode {
         firePropertyChange("status", null, null);
     }
     
+    /* This method should not be used. Get RuntimeCommand.class cookie instead.
     public RuntimeCommand getRuntimeCommand() {
         return command;
     }
+     */
     
     public Image getIcon(int type) {
         Image icon = Utilities.loadImage("org/netbeans/modules/vcscore/runtime/commandIcon.gif");
