@@ -535,6 +535,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                     //System.out.println("old List = "+oldList);
                     if (oldList != null) {
                         RevisionList newList = createRevisionList(name);
+                        if (newList == null) return ;
                         ArrayList workNew = new ArrayList(newList);
                         synchronized (oldList) {
                             ArrayList workOld = new ArrayList(oldList);
