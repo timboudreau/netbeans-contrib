@@ -80,7 +80,7 @@ public class CBOMetricSettings extends SystemOption implements MetricSettings {
     }
 
     public void setIncludeJDKClasses(boolean value) {
-        putProperty(PROP_INCLUDE_JDK_CLASSES, new Boolean(value), true);
+        putProperty(PROP_INCLUDE_JDK_CLASSES, Boolean.valueOf(value), true);
     }
 
     public boolean includeOpenIDEClasses() {
@@ -88,7 +88,7 @@ public class CBOMetricSettings extends SystemOption implements MetricSettings {
     }
 
     public void setIncludeOpenIDEClasses(boolean value) {
-        putProperty(PROP_INCLUDE_OPENIDE_CLASSES, new Boolean(value), true);
+        putProperty(PROP_INCLUDE_OPENIDE_CLASSES, Boolean.valueOf(value), true);
     }
 
     // this metric doesn't support per-method values
