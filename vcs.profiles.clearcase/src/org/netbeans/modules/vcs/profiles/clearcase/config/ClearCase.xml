@@ -216,6 +216,9 @@ Microsystems, Inc. All Rights Reserved.
                 <property name="onRoot">
                     <value>true</value>
                 </property>
+                <property name="ignoreFail">
+                    <value>true</value>
+                </property>
             </command>
             <command displayName="Compare With..." name="COMPARE WITH">
                 <property name="exec">
@@ -228,6 +231,9 @@ Microsystems, Inc. All Rights Reserved.
                     <value>LABEL(Compare With...) PROMPT_FOR(CONVERSION_VAR_0, &quot;Directory&quot;, &quot;&quot;) PROMPT_FOR(CONVERSION_VAR_1, &quot;File&quot;, &quot;&quot;) </value>
                 </property>
                 <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="ignoreFail">
                     <value>true</value>
                 </property>
             </command>
