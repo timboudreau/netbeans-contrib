@@ -82,6 +82,9 @@ implements DebuggerCookie {
 
   transient protected ExecSupport execSupport;
 
+  /** Are cookies initialized already? Synchronization helper */
+  transient private boolean cookiesInitialized;
+
   // constructors ...................................................................................
 
   /** Constructs a new ClassDataObject */
@@ -106,7 +109,7 @@ implements DebuggerCookie {
   }
 
   /** Actually performs the work of assigning cookies */
-  private void doInitCookies () {
+  private synchronized void doInitCookies () {
     boolean isExecutable = false;
     try {
       instanceSupport.instanceClass();
@@ -122,11 +125,32 @@ implements DebuggerCookie {
     cs.add(instanceSupport);
     if (isExecutable)
       cs.add(execSupport);
+    cookiesInitialized = true;
+    notify();
   }
+
+  /** Overrides superclass getCookie.<P>
+  * Blocks until cookie initialization is finished.
+  */
+  public Node.Cookie getCookie (Class type) {
+    // block if cookies not initialized yet
+    synchronized (this) {
+      while (!cookiesInitialized) {
+        try {
+          wait();
+        } catch (InterruptedException ex) {
+          // someone interrupted, ignore...
+        }
+      }
+    }
+    return super.getCookie(type);
+  }
+
 
   private void readObject (java.io.ObjectInputStream is)
   throws java.io.IOException, ClassNotFoundException {
     is.defaultReadObject();
+    cookiesInitialized = false;
     initCookies();
   }
 
@@ -442,6 +466,8 @@ implements DebuggerCookie {
 
 /*
  * Log
+ *  6    Gandalf   1.5         1/22/99  David Simonek   synchronization problems
+ *       concerning getCookie repaired
  *  5    Gandalf   1.4         1/20/99  David Simonek   rework of class DO
  *  4    Gandalf   1.3         1/19/99  David Simonek   
  *  3    Gandalf   1.2         1/13/99  David Simonek   
