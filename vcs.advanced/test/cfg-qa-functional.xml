@@ -39,6 +39,7 @@ Microsystems, Inc. All Rights Reserved.
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyGroup.class"/>
+                <include name="complete/cvs_profile/JellyAddFeatures.class"/>
             </patternset>
         </testset>
     </testbag>
