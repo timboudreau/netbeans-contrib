@@ -1144,7 +1144,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static void removeScheduledFromPrimary(FileObject fo, int id) {
         DataObject dobj;
         try {
-            dobj = DataObject.find(fo);
+            dobj = DataObject.find(VcsUtilities.getMainFileObject(fo));
         } catch (org.openide.loaders.DataObjectNotFoundException exc) {
             return ;
         }
@@ -1164,6 +1164,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             try {
                 FileSystem fs = fo.getFileSystem();
                 if (fs instanceof VcsFileSystem) {
+                    primary = VcsUtilities.convertFileObjects(new FileObject[] { primary })[0];
                     ((VcsFileSystem) fs).statusChanged(primary.getPath());
                 }
             } catch (FileStateInvalidException fsiex) {
@@ -3629,7 +3630,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
                         if (fo != null) {
                             try {
-                                DataObject dobj = DataObject.find(fo);
+                                DataObject dobj = DataObject.find(VcsUtilities.getMainFileObject(fo));
                                 if (VcsFileSystem.this.isImportant(name)) {
                                     synchronized (GROUP_LOCK) {
                                         DataShadow shadow = GroupUtils.findDOInGroups(dobj);

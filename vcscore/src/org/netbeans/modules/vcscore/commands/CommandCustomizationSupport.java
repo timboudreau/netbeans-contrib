@@ -606,19 +606,6 @@ public class CommandCustomizationSupport extends Object {
         });
     }
     
-    private static Collection getAllFilesAssociatedWith(VcsFileSystem fileSystem, Collection fileNames) {
-        java.util.HashSet files = new java.util.HashSet();
-        for (Iterator filesIt = fileNames.iterator(); filesIt.hasNext(); ) {
-            String name = (String) filesIt.next();
-            org.openide.filesystems.FileObject fo = fileSystem.findResource(name);
-            try {
-                org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
-                files.addAll(dobj.files());
-            } catch (org.openide.loaders.DataObjectNotFoundException donfexc) {}
-        }
-        return files;
-    }
-    
     /**
      * Find out which additional user parameters prompt the use for.
      * @return The table of parameter labels for the user to input, one for each parameter

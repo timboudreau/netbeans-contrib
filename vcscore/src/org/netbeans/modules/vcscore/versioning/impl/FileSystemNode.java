@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore.versioning.impl;
 
 import java.beans.BeanInfo;
 import java.awt.Image;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.openide.nodes.Sheet;
 import org.openide.nodes.AbstractNode;
@@ -73,12 +74,8 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
         // mimics DataNode because some actions heavily depends on DataObject cookie existence
         if (type.isAssignableFrom(DataObject.class) || type.isAssignableFrom(DataFolder.class)) {
             try {
-                FileObject masterRoot = FileUtil.toFileObject(FileUtil.toFile(root));
-                if (masterRoot != null) {
-                    return DataObject.find(masterRoot);
-                } else {
-                    return DataObject.find(root);
-                }
+                FileObject masterRoot = VcsUtilities.getMainFileObject(root);
+                return DataObject.find(masterRoot);
             } catch (DataObjectNotFoundException e) {
                 // ignore, call super later on
             }

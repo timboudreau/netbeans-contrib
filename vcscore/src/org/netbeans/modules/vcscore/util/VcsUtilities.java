@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -20,6 +20,7 @@ import java.text.*;
 import java.util.*;
 import java.util.List;
 
+import org.openide.ErrorManager;
 import org.openide.execution.NbClassLoader;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
@@ -28,16 +29,17 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
 import org.openide.util.io.NbObjectInputStream;
 import org.openide.util.io.NbObjectOutputStream;
 
 import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.turbo.Turbo;
-import org.openide.util.Lookup;
-import org.openide.util.RequestProcessor;
 
 /** Miscelaneous stuff.
  * 
@@ -1131,6 +1133,26 @@ public class VcsUtilities {
         return originals;
     }
     
+    /**
+     * Get the main FileObject that resides on MasterFS for the given FileObject that can be
+     * on some delegate FS.
+     */
+    public static FileObject getMainFileObject(FileObject fo) {
+        File file = FileUtil.toFile(fo);
+        if (file != null) {
+            file = FileUtil.normalizeFile(file);
+            FileObject mainFO = FileUtil.toFileObject(file);
+            if (mainFO != null) {
+                fo = mainFO;
+            } else {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, new IllegalArgumentException("Can not convert file "+file+" to a FileObject. FO = "+fo)); // NOI18N
+            }
+        } else {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, new IllegalArgumentException("Can not convert "+fo+" to a java.io.File.")); // NOI18N
+        }
+        return fo;
+    }
+
     /**
      * Encodes Object into String encoded in HEX format
      * @param value Object, which will be encoded

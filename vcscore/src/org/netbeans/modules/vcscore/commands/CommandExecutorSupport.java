@@ -25,6 +25,7 @@ import java.util.TreeMap;
 import java.util.WeakHashMap;
 
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
 import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.vcs.VcsManager;
@@ -107,8 +108,10 @@ public class CommandExecutorSupport extends Object {
             org.openide.filesystems.FileObject fo = fileSystem.findResource(name);
             if (fo == null) continue;
             try {
-                org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
-                files.addAll(dobj.files());
+                DataObject dobj = DataObject.find(VcsUtilities.getMainFileObject(fo));
+                FileObject[] allFOs = (FileObject[]) dobj.files().toArray(new FileObject[0]);
+                allFOs = VcsUtilities.convertFileObjects(allFOs);
+                files.addAll(java.util.Arrays.asList(allFOs));
             } catch (org.openide.loaders.DataObjectNotFoundException donfexc) {}
         }
         return files;

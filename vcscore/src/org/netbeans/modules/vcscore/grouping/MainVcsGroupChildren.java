@@ -118,19 +118,6 @@ public class MainVcsGroupChildren extends Children.Keys  {
     }
     
 
-    
-    private Node createVcsGroupNode(FileObject fo) {
-        DataFolder fold = null;
-        try {
-            fold = (DataFolder)DataObject.find(fo);
-        } catch (DataObjectNotFoundException exc) {
-            return null;
-        }
-        VcsGroupNode node = new VcsGroupNode(fold);
-        return node;
-        
-    }    
-
     /** Called when the preparetion of nodes is needed
      */
     protected void addNotify() {

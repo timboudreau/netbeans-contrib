@@ -18,6 +18,7 @@ import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
@@ -314,8 +315,9 @@ public class VcsAttributes extends Attributes {
             if (fo == null) return ;
             FileObject primary;
             try {
-                org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
+                DataObject dobj = DataObject.find(VcsUtilities.getMainFileObject(fo));
                 primary = dobj.getPrimaryFile();
+                primary = VcsUtilities.convertFileObjects(new FileObject[] { primary })[0];
                 //System.out.println("  primary("+primary+").equals("+fo+") = "+primary.equals(fo));
                 if (primary.equals(fo)) return ;
             } catch (org.openide.loaders.DataObjectNotFoundException exc) {

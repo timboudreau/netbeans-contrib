@@ -37,6 +37,7 @@ import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.AddCommand;
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -282,7 +283,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
         analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
     }
-
+    
     /**
      * Get the created DataObject from the queue, analyze their files and
      * add the file names into the integrity list if necessary.
@@ -305,7 +306,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 FileObject fo = (FileObject) existingEnum.nextElement();
                 if (paths.remove(fo.getPath())) {
                     try {
-                        DataObject dobj = DataObject.find(fo);
+                        DataObject dobj = DataObject.find(VcsUtilities.getMainFileObject(fo));
                         objects.add(dobj);
                     } catch (DataObjectNotFoundException donfex) {
                         // Ignored. If the DO does not exist, it can not be analyzed.

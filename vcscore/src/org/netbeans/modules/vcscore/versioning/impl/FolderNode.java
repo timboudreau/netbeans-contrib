@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcscore.versioning.impl;
 
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
@@ -103,7 +104,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
 
         // setup lookup content
         
-        final FileObject masterFile = FileUtil.toFileObject(FileUtil.toFile(file));
+        final FileObject masterFile = VcsUtilities.getMainFileObject(file);
 
 
         content.add(masterFile);
