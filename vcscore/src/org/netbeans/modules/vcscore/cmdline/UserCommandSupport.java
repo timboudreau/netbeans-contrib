@@ -579,15 +579,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             success = true;
         }
         if (success) {
-            if (structuredExec != null) {
-                structuredExec = CommandCustomizationSupport.insertGlobalOptions(structuredExec, vars);
-                success = structuredExec != null;
-                if (success) cmd.setPreferredStructuredExec(structuredExec);
-            } else if (commandExec != null) {
-                commandExec = CommandCustomizationSupport.insertGlobalOptions(commandExec, vars);
-                success = commandExec != null;
-                if (success) cmd.setPreferredExec(commandExec);
-            }
+            // Have the global options defined
+            CommandCustomizationSupport.defineGlobalOptions(vars, executionContext, vcsCmd);
         }
         if (!success) return new UserCancelException();
         Object finalCustomizer = null;

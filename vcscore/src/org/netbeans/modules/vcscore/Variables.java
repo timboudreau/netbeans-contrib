@@ -318,6 +318,9 @@ public class Variables {
                 value = substractVariables(value, svalue); //VcsFileSystem.substractRootDir(value, svalue);
             }
         } else {
+            if (value.indexOf("${"+name+"}") >= 0) {
+                throw new IllegalStateException("Variable "+name+" references itself in it's value '"+value+"'.");
+            }
             value = expand(tab, value, warnUndefVars);
         }
         if (replC1 != ((char) -1)) {

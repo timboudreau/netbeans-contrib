@@ -426,7 +426,7 @@ public class VariableInputComponent extends Object {
         } else {
             items.append("\", \"");
             if (VariableInputDescriptor.INPUT_ASK == component) {
-                if (value != null && value.equals(valueSelected)) {
+                if (value != null && (valueSelected == null && value.equals("true") || value.equals(valueSelected))) {
                     items.append("true");
                 } else {
                     items.append("false");

@@ -521,51 +521,40 @@ public class CommandCustomizationSupport extends Object {
     }
      */
     
-    /**
-     * Insert the global options into the structured execution string and
-     * return the new StructuredExec with the filled global options.
-     */
-    public static StructuredExec insertGlobalOptions(StructuredExec exec, Hashtable vars) {
-        if (exec == null) return null;
-        StructuredExec.Argument[] args = exec.getArguments();
-        String w = null;
-        String exe = exec.getExecutable();
-        StructuredExec.Argument[] as = new StructuredExec.Argument[args.length];
-        if (exec.getWorking() != null) {
-            w = exec.getWorking().getPath();
-            w = insertGlobalOptions(w, vars);
-        }
-        exe = insertGlobalOptions(exe, vars);
-        for (int i = 0; i < args.length; i++) {
-            String arg = args[i].getArgument();
-            arg = insertGlobalOptions(arg, vars);
-            as[i] = new StructuredExec.Argument(arg, args[i].isLine());
-        }
-        exec = new StructuredExec((w != null) ? new java.io.File(w) : null, exe, as);
-        return exec;
-    }
+    private static final String GLOBAL_VARS_DEFINED_MARK = "Global variables defined internal mark."; // NOI18N
     
     /**
-     * Insert the global options into the execution string and
-     * return the new exec with the filled global options.
+     * Insert the global options into the map of variables.
      */
-    public static String insertGlobalOptions(String exec, Hashtable vars) {
-        if (vars.get(GLOBAL_INPUT_DESCRIPTOR) != null) {
+    public static void defineGlobalOptions(Map vars, CommandExecutionContext executionContext,
+                                           VcsCommand cmd) {
+        //System.out.println("defineGlobalOptions("+cmd.getName()+")");
+        String[] resourceBundles = (String[]) cmd.getProperty(INPUT_DESCRIPTOR_RESOURCE_BUNDLES);
+        VariableInputDescriptor globalInputDescriptor =
+                getGlobalVariableInputDescriptor(vars, executionContext, resourceBundles);
+        //System.out.println("  globalInputDescriptor = "+globalInputDescriptor);
+        if (globalInputDescriptor != null) {
             String glInput = (String) vars.get(GLOBAL_INPUT_EXPRESSION);
-            if (glInput != null) {
-                String search = "${"+USER_GLOBAL_PARAM+"}";
-                int pos = 0;
-                int index;
-                while ((index = exec.indexOf(search, pos)) > 0) {
-                    exec = exec.substring(0, index) + glInput + exec.substring(index + search.length());
-                    pos = index + search.length();
-                }
-                synchronized (vars) {
-                    vars.put(USER_GLOBAL_PARAM, glInput); // Put it as a variable, so that it can be used in sub-commands.
+            //System.out.println("  GLOBAL_INPUT_EXPRESSION = "+glInput);
+            VariableInputComponent[] components = globalInputDescriptor.components();
+            synchronized (vars) {
+                if (vars.get(GLOBAL_VARS_DEFINED_MARK) == null) { // Not to re-define customized values in sub-commands.
+                    for (int i = 0; i < components.length; i++) {
+                        String var = components[i].getVariable();
+                        String value = components[i].getDefaultValue();
+                        if (value != null && components[i].getComponent() != VariableInputDescriptor.INPUT_TEXT) {
+                            //System.out.println("  PUTTING: "+var+"="+value+", component = "+components[i]);
+                            vars.put(var, value);
+                        }
+                    }
+                    if (glInput != null) {
+                        vars.put(USER_GLOBAL_PARAM, glInput); // Put it as a variable, so that it can be used in sub-commands.
+                        //System.out.println("  USER_GLOBAL_PARAM="+glInput);
+                    }
+                    vars.put(GLOBAL_VARS_DEFINED_MARK, GLOBAL_VARS_DEFINED_MARK);
                 }
             }
         }
-        return exec;
     }
     
     private static Component createNotificationDesign(final String text,
@@ -894,26 +883,9 @@ public class CommandCustomizationSupport extends Object {
                     if (inputDescriptor != null) {
                         dlg.setComponentsToPreprocess(getComponentsToPreprocess(inputDescriptor));
                     }
-                    final String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
-                    String globalInputStrStored = (String) globalInputStrs.get(executionContext);
-                    VariableInputDescriptor globalInputDescriptor = null;
-                    if (globalInputStr != null) {
-                        if (!globalInputStr.equals(globalInputStrStored)) {
-                            try {
-                                globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr, resourceBundles);
-                            } catch (VariableInputFormatException exc) {
-                                ErrorManager.getDefault().notify(exc);
-                                return null;
-                            }
-                            globalInputStrs.put(executionContext, globalInputStr);
-                            globalInputDescrs.put(executionContext, globalInputDescriptor);
-                            String type = executionContext.getCommandsProvider().getType();
-                            globalInputDescriptor.loadDefaults("common-command-options", type, executionContext.isExpertMode());  // NOI18N
-                            globalInputDescriptor.setValuesAsDefault();
-                        } else {
-                            globalInputDescriptor = (VariableInputDescriptor) globalInputDescrs.get(executionContext);
-                        }
-                    }
+                    
+                    VariableInputDescriptor globalInputDescriptor =
+                            getGlobalVariableInputDescriptor(vars, executionContext, resourceBundles);
                     dlg.setGlobalInput(globalInputDescriptor);
                     dlg.setUserParamsPromptLabels(userParamsPromptLabels, (String) cmd.getProperty(VcsCommand.PROPERTY_ADVANCED_NAME));
                     if (executionContext instanceof VariableInputDialog.FilePromptDocumentListener) {
@@ -953,22 +925,8 @@ public class CommandCustomizationSupport extends Object {
                                 }
                                 if (dlgGlobalInputDescriptor != null) {
                                     dlgGlobalInputDescriptor.addValuesToHistory();
-                                    // Now I need to remember default values
-                                    dlgGlobalInputDescriptor.setDefaultValues();
-                                    String globalVIDString = dlgGlobalInputDescriptor.getStringInputItems();
-                                    //System.out.println("CCS: old GlobalVID was :\n"+globalInputStr);
-                                    //System.out.println("CCS: have new GlobalVID:\n"+globalVIDString);
-                                    if (!globalVIDString.equals(globalInputStr)) {
-                                        Vector fsVars = executionContext.getVariables();
-                                        for (Iterator it = fsVars.iterator(); it.hasNext(); ) {
-                                            VcsConfigVariable var = (VcsConfigVariable) it.next();
-                                            if (GLOBAL_INPUT_DESCRIPTOR.equals(var.getName())) {
-                                                var.setValue(globalVIDString);
-                                                break;
-                                            }
-                                        }
-                                        executionContext.setVariables(fsVars);
-                                    }
+                                    // We do not remember them as default values
+                                    // An explicit Set As Default is for that purpose
                                 }
                                 Hashtable valuesTable = dlg.getUserParamsValuesTable();
                                 for (Enumeration enum = userParamsVarNames.keys(); enum.hasMoreElements(); ) {
@@ -1004,23 +962,10 @@ public class CommandCustomizationSupport extends Object {
                             String value = components[i].getDefaultValue();
                             if (value != null) vars.put(var, value);
                         }
-                        String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
-                        String globalInputStrStored = (String) globalInputStrs.get(executionContext);
-                        if (globalInputStr != null) {
-                            VariableInputDescriptor globalInputDescriptor;
-                            if (!globalInputStr.equals(globalInputStrStored)) {
-                                try {
-                                    globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr, resourceBundles);
-                                } catch (VariableInputFormatException exc) {
-                                    ErrorManager.getDefault().notify(exc);
-                                    return null;
-                                }
-                                globalInputStrs.put(executionContext, globalInputStr);
-                                globalInputDescrs.put(executionContext, globalInputDescriptor);
-                            } else {
-                                globalInputDescriptor = (VariableInputDescriptor) globalInputDescrs.get(executionContext);
-                            }
-                            //dlg.setGlobalInput(globalInputDescriptor);
+                        
+                        VariableInputDescriptor globalInputDescriptor =
+                                getGlobalVariableInputDescriptor(vars, executionContext, resourceBundles);
+                        if (globalInputDescriptor != null) {
                             components = globalInputDescriptor.components();
                             for (int i = 0; i < components.length; i++) {
                                 String var = components[i].getVariable();
@@ -1034,6 +979,37 @@ public class CommandCustomizationSupport extends Object {
                     }
                 }
             }
+            return null;
+        }
+    }
+    
+    private static VariableInputDescriptor getGlobalVariableInputDescriptor(Map vars,
+            CommandExecutionContext executionContext, String[] resourceBundles) {
+        
+        String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
+        Object ID = executionContext.getCommandsProvider().getType();
+        if (ID == null) ID = executionContext;
+        String globalInputStrStored = (String) globalInputStrs.get(ID);
+        if (globalInputStr != null) {
+            VariableInputDescriptor globalInputDescriptor;
+            if (!globalInputStr.equals(globalInputStrStored)) {
+                try {
+                    globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr, resourceBundles);
+                } catch (VariableInputFormatException exc) {
+                    ErrorManager.getDefault().notify(exc);
+                    return null;
+                }
+                globalInputStrs.put(ID, globalInputStr);
+                globalInputDescrs.put(ID, globalInputDescriptor);
+                String type = executionContext.getCommandsProvider().getType();
+                globalInputDescriptor.loadDefaults("common-command-options", type, executionContext.isExpertMode());  // NOI18N
+                globalInputDescriptor.setValuesAsDefault();
+            } else {
+                globalInputDescriptor = (VariableInputDescriptor) globalInputDescrs.get(ID);
+            }
+            //System.out.println("Global Input Descriptor '"+executionContext.getCommandsProvider().getType()+"' = "+globalInputDescriptor+((globalInputDescriptor != null) ? " hash code = "+globalInputDescriptor.hashCode() : ""));
+            return globalInputDescriptor;
+        } else {
             return null;
         }
     }
