@@ -87,10 +87,6 @@ public class MainVcsGroupNode extends AbstractNode   {
                };
     }
 
-    public HelpCtx getHelpCtx () {
-        return new HelpCtx (MainVcsGroupNode.class);
-    }
-
 
     // RECOMMENDED - handle cloning specially (so as not to invoke the overhead of FilterNode):
     /*
@@ -106,7 +102,6 @@ public class MainVcsGroupNode extends AbstractNode   {
 	// Make sure there is a "Properties" set:
 	Sheet.Set props = Sheet.createPropertiesSet();
         sheet.put (props);
-        props.setValue("helpID", MainVcsGroupNode.class.getName()+"_properties");
         createProps(props);
         return sheet;
     }

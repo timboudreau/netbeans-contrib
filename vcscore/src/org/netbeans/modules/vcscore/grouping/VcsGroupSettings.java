@@ -22,7 +22,6 @@ import java.io.*;
 
 import org.openide.util.NbBundle;
 import org.openide.options.SystemOption;
-import org.openide.util.HelpCtx;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.Utilities;
 import org.openide.util.SharedClassObject;
@@ -60,10 +59,6 @@ public class VcsGroupSettings extends SystemOption {
         return NbBundle.getBundle(VcsGroupSettings.class).getString("CTL_VcsGroup_settings"); // NOI18N
     }
 
-
-    public HelpCtx getHelpCtx () {
-        return new HelpCtx (VcsGroupSettings.class);
-    }
 
     
 

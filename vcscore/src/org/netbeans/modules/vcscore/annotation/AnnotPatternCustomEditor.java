@@ -36,7 +36,6 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
     public AnnotPatternCustomEditor() {
         initComponents();
         initAccessibility();
-        org.openide.util.HelpCtx.setHelpIDString (this, AnnotPatternCustomEditor.class.getName ());
     }
 
     public void setCallingPropertyEditor(AnnotationPatternPropertyEditor editor) {

@@ -15,7 +15,6 @@ package org.netbeans.modules.vcscore.runtime;
 
 import org.openide.nodes.*;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.actions.PropertiesAction;
 
@@ -55,7 +54,6 @@ public class RuntimeFolderNode extends AbstractNode {
         Sheet sheet = Sheet.createDefault();
 	Sheet.Set set = Sheet.createPropertiesSet();
         sheet.put (set);
-        set.setValue("helpID", RuntimeFolderNode.class.getName()+"_properties");
         createProperties(set);
         return sheet;
     }
@@ -79,8 +77,4 @@ public class RuntimeFolderNode extends AbstractNode {
         return NbBundle.getMessage(RuntimeFolderNode.class, name);
     }
 
-    public HelpCtx getHelpCtx() {
-        return new HelpCtx(RuntimeFolderNode.class);
-    }
-    
 }

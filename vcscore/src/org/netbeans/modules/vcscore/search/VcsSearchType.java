@@ -327,7 +327,7 @@ public class VcsSearchType extends SearchType {
     }
 
     public HelpCtx getHelpCtx() {
-        return new HelpCtx(this.getClass());
+        return null;
     }
 
 }

@@ -114,7 +114,6 @@ public class VcsRuntimeCommand extends RuntimeCommand {
         Sheet sheet = Sheet.createDefault();
 	Sheet.Set set = Sheet.createPropertiesSet();
         sheet.put (set);
-        set.setValue("helpID", VcsRuntimeCommand.class.getName()+"_properties");
         createProperties(set);
         return sheet;
     }

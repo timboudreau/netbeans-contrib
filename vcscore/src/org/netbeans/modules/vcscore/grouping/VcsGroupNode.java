@@ -15,7 +15,6 @@ package org.netbeans.modules.vcscore.grouping;
 import org.openide.actions.*;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.SharedClassObject;
 import org.openide.util.actions.SystemAction;
@@ -168,10 +167,6 @@ public class VcsGroupNode extends AbstractNode {
         return toReturn;
     }
     
-    public org.openide.util.HelpCtx getHelpCtx() {
-        return new org.openide.util.HelpCtx(this.getClass());
-    }
-
 
 
     // RECOMMENDED - handle cloning specially (so as not to invoke the overhead of FilterNode):
@@ -186,7 +181,6 @@ public class VcsGroupNode extends AbstractNode {
 	// Make sure there is a "Properties" set:
 	Sheet.Set props = Sheet.createPropertiesSet();
         sheet.put (props);
-        props.setValue("helpID", VcsGroupNode.class.getName()+"_properties");
         createProperties(props);
         return sheet;
     }
