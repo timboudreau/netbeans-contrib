@@ -118,7 +118,7 @@ class NbTranslucentStatusDisplay extends DisappearingTranslucentLabel implements
         setBounds (50, 10, preferredWidth+10, preferredHeight+10);
         
         Object o = org.openide.util.Lookup.getDefault().lookup(org.openide.awt.StatusDisplayer.class);
-        System.err.println("Default status displayer is " + o);
+//        System.err.println("Default status displayer is " + o);
     }
     
     public void stateChanged(javax.swing.event.ChangeEvent e) {
