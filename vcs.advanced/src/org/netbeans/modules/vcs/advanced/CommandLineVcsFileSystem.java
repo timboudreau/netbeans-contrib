@@ -32,7 +32,16 @@ import com.netbeans.ide.filesystems.FileStateInvalidException;
 import com.netbeans.ide.filesystems.AbstractFileSystem;
 import com.netbeans.ide.filesystems.DefaultAttributes;
 
-/** Generic command line VCS filesystem - the Bean itself.
+/* TODO:
+ * 
+ * - "Refresh..." dialog s rekurzivnim ziskavanim adresaru
+ * - "Details..." s detaily stavu jednotlivych souboru
+ * - zobrazovat uzivatelske prikazy v popup menu na konci
+ * - "Customize" tlacitko na upravu konfiguraci
+ *
+ */
+
+/** Generic command line VCS filesystem.
  * 
  * @author Michal Fadljevic
  */
@@ -77,7 +86,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   
   private transient VcsAction action=null;
 
-
+  private boolean ready=false;
+  
   //-------------------------------------------
   public void setConfig(String label){
     this.config=label;
@@ -388,6 +398,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     setSystemName(computeSystemName (r));
 
     rootFile = r;
+    ready=true ;
 
     firePropertyChange("root", null, refreshRoot ());
   }
@@ -466,6 +477,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     String[] vcsFiles=null;
     String[] localFiles=null;
     String[] files=null;
+
+    if( !ready ){
+      D.deb("not ready");
+      return new String[0];
+    }
 
     if( cache.isDir(name) ){
       vcsFiles=cache.getFilesAndSubdirs(name);
@@ -686,7 +702,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @param name the file to mark
   */
   public void markUnimportant (String name) {
-    //TODO...
+// TODO...
 //  D.deb("markUnimportant("+name+")");
 //      VcsFile file=cache.getFile(name);
 //      if( file==null ){
@@ -743,6 +759,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  19   Gandalf   1.18        5/21/99  Michal Fadljevic 
  *  18   Gandalf   1.17        5/19/99  Michal Fadljevic 
  *  17   Gandalf   1.16        5/18/99  Michal Fadljevic 
  *  16   Gandalf   1.15        5/14/99  Michal Fadljevic 
