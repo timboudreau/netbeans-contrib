@@ -544,6 +544,10 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
             VcsCacheDir cacheDir = (VcsCacheDir) cache.getCacheFile(fileSystem.getFile(path), CacheHandler.STRAT_DISK, locker);
             //System.out.println("cacheDir = "+cacheDir);
             if (cacheDir == null) return true;
+            // refresh the local files
+            int level = cacheDir.getAppliedLevel();
+            cacheDir.populateWithLocal(locker);
+            cacheDir.setAppliedLevel(level);
             boolean status = runCommandsRecursively(cacheDir, cmdInfos);
             locker = null;
             return status;
