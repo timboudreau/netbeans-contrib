@@ -98,6 +98,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_DISK_CACHE_FILE_NAME = "DISK_CACHE_FILE_NAME"; // NOI18N
 
     /**
+     * The name of a variable, that tells whether the cache folder can be created if it does not exist.
+     */
+    public static final String VAR_DISK_CACHE_FOLDER_CAN_CREATE = "DISK_CACHE_FOLDER_CAN_CREATE"; // NOI18N
+
+    /**
      * The name of a variable, which contains the parent ignore list for
      * CREATE_FOLDER_IGNORE_LIST command.
      */
@@ -154,6 +159,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private String cachePath;
     private long cacheId = 0;
     private String cacheFileName = null; // The cache file relative to the file's directory.
+    private boolean cacheFolderCanCreate = false;
     private boolean shortFileStatuses = false;
     private Set compatibleOSs = null;
     private Set uncompatibleOSs = null;
@@ -358,6 +364,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      */
     public String getCacheFileName(String path) {
         if (cacheFileName != null) {
+            String cacheFilePath = getFile(path).getAbsolutePath() + File.separator + cacheFileName;
+            if (!cacheFolderCanCreate) {
+                File cacheFile = new File(cacheFilePath);
+                // No cache file when the parent does not exist and I can not create it.
+                if (!cacheFile.getParentFile().exists()) return null;
+            }
             return getFile(path).getAbsolutePath() + File.separator + cacheFileName;
         }
         return cachePath + File.separator + getRelativeMountPoint()
@@ -835,6 +847,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             newCacheFileName = var.getValue();
             if (newCacheFileName.length() == 0) newCacheFileName = null;
         } else newCacheFileName = null;
+        
+        var = (VcsConfigVariable) variablesByName.get(VAR_DISK_CACHE_FOLDER_CAN_CREATE);
+        if (var != null) {
+            cacheFolderCanCreate = Boolean.TRUE.toString().equalsIgnoreCase(var.getValue());
+        } else cacheFolderCanCreate = false;
+        
         if (cacheFileName == null && newCacheFileName != null ||
             cacheFileName != null && !cacheFileName.equals(newCacheFileName)) {
             
