@@ -44,11 +44,24 @@ public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
   //-------------------------------------------
   public UserCommandsPanel(UserCommandsEditor editor){
     this.editor = editor;
-    commands=(Vector)((Vector)editor.getValue()).clone();
+    Vector oldCommands=(Vector)editor.getValue();
+    commands=deepCopy(oldCommands);
     initComponents();
     initListeners();
     deselectAll();
   }
+
+  //-------------------------------------------
+  private Vector deepCopy(Vector oldCommands){
+    int len=oldCommands.size();
+    Vector newCommands=new Vector(len);
+    for(int i=0;i<len;i++){
+      UserCommand cmd=(UserCommand)oldCommands.elementAt(i);
+      newCommands.addElement( cmd.clone() );
+    }
+    return newCommands;
+  }
+  
 
   //-------------------------------------------
   private JButton createButton(String name){
@@ -248,6 +261,7 @@ public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         4/22/99  Michal Fadljevic 
  *  1    Gandalf   1.0         4/21/99  Michal Fadljevic 
  * $
  */
