@@ -38,8 +38,10 @@ import org.netbeans.modules.tasklist.usertasks.editors.CategoryTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
+import org.netbeans.modules.tasklist.usertasks.renderers.CategoryTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.EffortTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.PercentsTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.PriorityTableCellRenderer;
@@ -73,7 +75,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
             new DefaultMutableTreeTableNode(), new String[] {""})); // NOI18N
         setTreeTableModel(
             new UserTasksTreeTableModel(utl, getSortingModel(), filter));
-        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         setShowHorizontalLines(true);
         setShowVerticalLines(true);
         setAutoResizeMode(AUTO_RESIZE_OFF);
@@ -214,7 +216,6 @@ public class UserTasksTreeTable extends NodesTreeTable {
         tcm.getColumn(3).setCellRenderer(
             new PercentsTableCellRenderer());
         DurationTableCellRenderer dr = new DurationTableCellRenderer();
-        tcm.getColumn(4).setCellRenderer(dr);
         tcm.getColumn(5).setCellRenderer(dr);
         tcm.getColumn(6).setCellRenderer(dr);
         tcm.getColumn(9).setCellRenderer(
@@ -225,12 +226,19 @@ public class UserTasksTreeTable extends NodesTreeTable {
         tcm.getColumn(13).setCellRenderer(dcr);
         tcm.getColumn(UserTaskTreeTableNode.PERCENT_COMPLETE).
             setCellEditor(new PercentsTableCellEditor());
+        
         tcm.getColumn(UserTaskTreeTableNode.CATEGORY).
             setCellEditor(new CategoryTableCellEditor());
+        tcm.getColumn(UserTaskTreeTableNode.CATEGORY).
+            setCellRenderer(new CategoryTableCellRenderer());
+        
         tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setCellEditor(
             new PriorityTableCellEditor());
         tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setCellRenderer(
             new PriorityTableCellRenderer());
+        
+        tcm.getColumn(UserTaskTreeTableNode.EFFORT).setCellRenderer(
+            new EffortTableCellRenderer());
     }
 
     /**

@@ -328,6 +328,12 @@ public class ICalExportFormat implements ExportImportFormat {
             writer.write(Integer.toString(lineno + 1));
             writer.write("\r\n"); // NOI18N
         }
+        
+        if (task.getOwner().length() != 0) {
+            writer.write("X-NETBEANS-OWNER:"); // NOI18N
+            writer.write(task.getOwner());
+            writer.write("\r\n"); // NOI18N
+        }
 
         // Parent item
         // attribute reltype for related-to defaults to "PARENT" so we

@@ -13,10 +13,14 @@
 
 package org.netbeans.modules.tasklist.usertasks.editors;
 
+import java.awt.Component;
 import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 
-import org.openide.util.NbBundle;
+
+import javax.swing.JTable;
+import org.netbeans.modules.tasklist.usertasks.UserTask;
 
 /**
  * TableCellEditor for the category
@@ -26,11 +30,24 @@ public class CategoryTableCellEditor extends DefaultCellEditor {
      * Creates a new instance of PriorityTableCellRenderer
      */
     public CategoryTableCellEditor() {
-        super(new JComboBox(new String[] {
-            NbBundle.getMessage(CategoryTableCellEditor.class, "Bug"), // NOI18N
-            NbBundle.getMessage(CategoryTableCellEditor.class, "Enhancement"), // NOI18N
-            NbBundle.getMessage(CategoryTableCellEditor.class, "Feature") // NOI18N
-        }));
+        super(new JComboBox());
         ((JComboBox) editorComponent).setEditable(true);
+    }
+
+    public Component getTableCellEditorComponent(JTable table, Object value, 
+        boolean isSelected, int row, int column) {
+
+        java.awt.Component retValue;
+        
+        retValue = super.getTableCellEditorComponent(table, value, isSelected, 
+            row, column);
+        
+        UserTask ut = (UserTask) value;
+        JComboBox cb = (JComboBox) editorComponent;
+        DefaultComboBoxModel m = new DefaultComboBoxModel(ut.getList().getCategories());
+        cb.setModel(m);
+        cb.setSelectedItem(ut.getCategory());
+        
+        return retValue;
     }
 }

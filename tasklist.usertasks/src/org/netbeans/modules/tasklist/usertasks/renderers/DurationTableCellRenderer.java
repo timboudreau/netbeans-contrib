@@ -1,13 +1,13 @@
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.text.MessageFormat;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
 
 import org.openide.util.NbBundle;
@@ -22,40 +22,29 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
     private static final MessageFormat SHORT_EFFORT_FORMAT = 
         new MessageFormat(NbBundle.getMessage(DurationTableCellRenderer.class, 
             "ShortEffortFormat")); // NOI18N
-    private UserTask.Duration duration;
-    private Font boldFont, normalFont;
-    
-    /**
-     * Creates a new instance of DurationTableCellRenderer
-     */
-    public DurationTableCellRenderer() {
-        normalFont = this.getFont();
-        boldFont = normalFont.deriveFont(Font.BOLD);
-    }
-    
-    /**
-     * Sets whether the text should be bold
-     *
-     * @param bold true = bold
-     */
-    public void setBold(boolean bold) {
-        if (bold)
-            setFont(normalFont);
-        else
-            setFont(boldFont);
-    }
-    
+    protected UserTask.Duration duration;
+
     public Component getTableCellRendererComponent(javax.swing.JTable table, 
         Object value, boolean isSelected, boolean hasFocus, 
         int row, int column) {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, 
             row, column);
-        if (value == null)
-            duration = null;
-        else
-            duration = UserTask.splitDuration(((Integer) value).intValue(),
-                Settings.getDefault().getHoursPerDay(), Settings.getDefault().getDaysPerWeek());
+        duration = getDuration(value);
         return this;
+    }
+
+    /**
+     * Retrieves duration from the given object
+     *
+     * @param obj object from the getTableCellRendererComponent method
+     * @return duration or null
+     */
+    protected UserTask.Duration getDuration(Object obj) {
+        if (obj == null)
+            return null;
+        else
+            return UserTask.splitDuration(((Integer) obj).intValue(),
+                Settings.getDefault().getHoursPerDay(), Settings.getDefault().getDaysPerWeek());
     }
     
     public String getText() {
@@ -81,4 +70,14 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
             new Integer(duration.minutes)
         }).trim();
     }
+
+    // workaround for a Swing bug (?)
+    protected void paintComponent(java.awt.Graphics g) {
+        UTUtils.LOGGER.fine(getHeight() + "");
+        //g.setClip(oldClip.x, oldClip.y, 
+        //    oldClip.width - 1, 
+        //    oldClip.height - 1);
+        super.paintComponent(g);
+        //g.setClip(oldClip);
+    }    
 }

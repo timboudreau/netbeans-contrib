@@ -29,6 +29,8 @@ public class StartTaskAction extends CookieAction {
 
     protected void performAction(Node[] nodes) {
         UserTask ptsk = ((UserTaskNode) nodes[0]).getTask();
+        if (ptsk.getOwner().length() == 0)
+            ptsk.setOwner(System.getProperty("user.name"));
         ptsk.start();
     }
 

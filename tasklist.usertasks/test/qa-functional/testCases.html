@@ -95,18 +95,44 @@
     <li>Move it down.</li>
     <li>"Music/Pop" still selected.</li>
   </ol>
-  <li>-</li>
-  <li>Expanded nodes/selection/started task should be restored after NB
+  <li>[TestTable.testShowTask]</li>
+  <ol>
+    <li>test10.ics</li>
+    <li>Select a task</li>
+    <li>RMB, "Show Task"</li>
+    <li>Close the dialog<br>
+    </li>
+  </ol>
+  <li>Expanded nodes/selection/started task/scrollbar positions should
+be restored after NB
 restart.</li>
   <ol>
     <li>Open test11.ics.</li>
     <li>Expand "Lights" and "Music".</li>
     <li>Start "Lights/Green"<br>
     </li>
-    <li>Select "Colors"<br>
+    <li>Select "Colors"</li>
+    <li>Scroll down/right <br>
     </li>
     <li>Restart NB.</li>
-    <li>Check selection, expanded nodes and started task.<br>
+    <li>Check selection, expanded nodes and started task, scrollbar
+positions.</li>
+  </ol>
+  <li>-</li>
+  <li>[TestTable.testCategoryInplace]</li>
+  <ol>
+    <li>test13.ics</li>
+    <li>Select the category cell for the task "Colors"</li>
+    <li>Open the combobox <br>
+    </li>
+    <li>The content of the combobox must be "CatA, CatB"</li>
+  </ol>
+  <li>[TestTable.testStartTaskFillsOwner]</li>
+  <ol>
+    <li>test14.ics</li>
+    <li>Select the task "Colors/R"</li>
+    <li>Start the task</li>
+    <li>The owner field should be filled with the current user's name<br>
     </li>
   </ol>
 </ol>

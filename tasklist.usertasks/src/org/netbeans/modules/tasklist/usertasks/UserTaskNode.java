@@ -111,8 +111,9 @@ public final class UserTaskNode extends AbstractNode {
                     int new_ = Math.round(((Float) e.getNewValue()).floatValue());
                     UserTaskNode.this.firePropertyChange(
                         "percentComplete", new Integer(old), new Integer(new_));
-                }
-                if (n != "line" && n != "started") {
+                } else if (n == "line" || n == "started") {
+                    // nothing
+                } else {
                     UserTaskNode.this.firePropertyChange(e.getPropertyName(),
                         e.getOldValue(), e.getNewValue());
                 }
@@ -372,6 +373,12 @@ public final class UserTaskNode extends AbstractNode {
             p.setName(UserTask.PROP_DUE_DATE);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_dueDateProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_dueDateProperty")); // NOI18N
+            ss.put(p);
+
+            p = new PropertySupport.Reflection(item, String.class, "getOwner", "setOwner"); // NOI18N            
+            p.setName(UserTask.PROP_OWNER);
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_ownerProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_ownerProperty")); // NOI18N
             ss.put(p);
         } catch (NoSuchMethodException nsme) {
             ErrorManager.getDefault().notify(nsme);

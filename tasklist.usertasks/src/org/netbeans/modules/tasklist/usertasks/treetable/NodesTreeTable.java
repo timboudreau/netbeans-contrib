@@ -70,7 +70,9 @@ public abstract class NodesTreeTable extends TreeTable {
                 if (row < 0 || col < 0) {
                     actions = getFreeSpaceActions();
                 } else {
-                    setRowSelectionInterval(row, row);
+                    if (!getSelectionModel().isSelectedIndex(row)) {
+                        setRowSelectionInterval(row, row);
+                    }
                     Node n = createNode(getNodeForRow(row));
                     if (n == null)
                         return;
@@ -111,16 +113,10 @@ public abstract class NodesTreeTable extends TreeTable {
         getSelectionModel().addListSelectionListener(
             new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                int row = getSelectedRow();
-                Node[] nodes;
-                if (row < 0) {
-                    nodes = new Node[0];
-                } else {
-                    Node n = createNode(getNodeForRow(row));
-                    if (n != null)
-                        nodes = new Node [] {n};
-                    else
-                        nodes = new Node[0];
+                int[] rows = getSelectedRows();
+                Node[] nodes = new Node[rows.length];
+                for (int i = 0; i < nodes.length; i++) {
+                    nodes[i] = createNode(getNodeForRow(rows[i]));
                 }
                 
                 Children.Array ch = (Children.Array) rootNode.getChildren();
@@ -144,7 +140,7 @@ public abstract class NodesTreeTable extends TreeTable {
      * Creates a node for the specified Object returned by the TreeTableModel
      *
      * @parem obj an object returned by the TreeTableModel
-     * @return created Node or null if inappropriate
+     * @return created Node if inappropriate
      */
     public abstract Node createNode(Object obj);
     

@@ -495,6 +495,8 @@ public class ICalImportFormat implements ExportImportFormat {
             } else if (name.equals("X-NETBEANS-PROGRESS-COMPUTED")) { // NOI18N
                 if (value.equals("yes")) // NOI18N
                     task.setProgressComputed(true);
+            } else if (name.equals("X-NETBEANS-OWNER")) { // NOI18N
+                task.setOwner(value);
             } else if (name.equals("PRIORITY")) { // NOI18N
                 try {
                     int prio = Integer.parseInt(value);

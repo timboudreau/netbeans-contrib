@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.usertasks;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Image;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -24,8 +25,10 @@ import java.io.ObjectOutput;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.swing.ActionMap;
@@ -175,17 +178,12 @@ ExplorerManager.Provider, ExportImportProvider {
     }
 
     private UserTasksTreeTable tt;
-    
+    private JScrollPane scrollPane;
     private int viewId;
-    
     private boolean initialized = false;
-    
     private UserTaskList tasklist = null;
-    
     private FilterRepository filters = null;
-    
     private Filter activeFilter = null;
-    
     private ExplorerManager manager;
     
     /** 
@@ -385,6 +383,14 @@ ExplorerManager.Provider, ExportImportProvider {
                     ut.start();
             }
         }
+        if (ver >= 6) {
+            Map m = (Map) objectInput.readObject();
+            Point p = (Point) m.get("scrollPosition");
+            if (p != null) {
+                scrollPane.getVerticalScrollBar().setValue(p.y);
+                scrollPane.getHorizontalScrollBar().setValue(p.x);
+            }
+        }
     }
 
     /** 
@@ -429,7 +435,7 @@ ExplorerManager.Provider, ExportImportProvider {
         // preferences, etc.
         // Since I'm not doing that yet, let's at a minimum put in a version
         // byte so we can do the right thing later without corrupting the userdir
-        objectOutput.write(5); // SERIAL VERSION
+        objectOutput.write(6); // SERIAL VERSION
 
         FileObject fo = tl.getFile();
         if (fo != null) {
@@ -457,6 +463,14 @@ ExplorerManager.Provider, ExportImportProvider {
         } else {
             objectOutput.writeObject(null);
         }
+
+        // other attributes
+        Map m = new HashMap();
+        Point p = new Point(            
+            scrollPane.getHorizontalScrollBar().getValue(), 
+            scrollPane.getVerticalScrollBar().getValue());
+        m.put("scrollPosition", p);
+        objectOutput.writeObject(m);
     }
 
     /**
@@ -623,13 +637,13 @@ ExplorerManager.Provider, ExportImportProvider {
         tt = new UserTasksTreeTable(
             getExplorerManager(), getList(), getFilter());
         
-        JScrollPane sp = new JScrollPane(tt,
+        scrollPane = new JScrollPane(tt,
             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         
-        ChooseColumnsPanel.installChooseColumnsButton(sp);
+        ChooseColumnsPanel.installChooseColumnsButton(scrollPane);
         
-        centerPanel.add(sp, BorderLayout.CENTER);
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
         loadColumnsConfiguration();

@@ -233,6 +233,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             jRadioButtonSpent.setSelected(true);
         
         dp.fillPanel(item);
+        
+        jTextFieldOwner.setText(item.getOwner());
     }
     
     /**
@@ -288,6 +290,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         }
         
         dp.fillObject();
+        
+        task.setOwner(jTextFieldOwner.getText());
     }
     
     /**
@@ -439,6 +443,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         lineLabel = new javax.swing.JLabel();
         addSourceButton = new javax.swing.JButton();
         prioLabel = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jTextFieldOwner = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         dueDateTextField = new javax.swing.JTextField();
         dueCheckBox = new javax.swing.JCheckBox();
@@ -477,7 +483,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 0;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     jPanelGeneral.add(descLabel, gridBagConstraints);
 
     categoryCombo.setEditable(true);
@@ -485,7 +491,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 3;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     jPanelGeneral.add(categoryCombo, gridBagConstraints);
 
     detailsTextArea.setRows(5);
@@ -563,7 +569,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.gridy = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     jPanelGeneral.add(priorityComboBox, gridBagConstraints);
 
     /*
@@ -659,6 +665,23 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanelGeneral.add(prioLabel, gridBagConstraints);
+
+    org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("OwnerLabel"));
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 4;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanelGeneral.add(jLabel1, gridBagConstraints);
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 4;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.ipadx = 100;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
+    jPanelGeneral.add(jTextFieldOwner, gridBagConstraints);
 
     jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "General"), jPanelGeneral);
 
@@ -1067,6 +1090,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JCheckBox fileCheckBox;
     private javax.swing.JTextField fileTextField;
     private javax.swing.JComboBox jComboBoxProgress;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabelCreated;
@@ -1088,6 +1112,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JRadioButton jRadioButtonProgress;
     private javax.swing.JRadioButton jRadioButtonSpent;
     private javax.swing.JTabbedPane jTabbedPane;
+    private javax.swing.JTextField jTextFieldOwner;
     private javax.swing.JLabel lineLabel;
     private javax.swing.JTextField lineTextField;
     private javax.swing.JLabel prioLabel;

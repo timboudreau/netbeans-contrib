@@ -22,6 +22,9 @@ import org.netbeans.modules.tasklist.usertasks.UserTask;
 
 
 public class UserTaskProperties extends TaskProperties {
+    public static final String PROPID_PRIORITY = "priority";
+    public static final String PROPID_SUMMARY = "summary";
+    public static final String PROPID_DETAILS = "details";
     public static final String PROPID_CATEGORY = "category"; // NOI18N
     public static final String PROPID_FILENAME = "filename"; // NOI18N
     public static final String PROPID_LINE_NUMBER = "line"; // NOI18N
@@ -33,16 +36,24 @@ public class UserTaskProperties extends TaskProperties {
     public static final String PROPID_EFFORT = "effort"; // NOI18N
     public static final String PROPID_REMAINING_EFFORT = "remainingEffort"; // NOI18N
     public static final String PROPID_SPENT_TIME = "spentTime"; // NOI18N
+    public static final String PROPID_OWNER = "owner"; // NOI18N
 
-    // override to force different strings for the property
-    // (it's in fact a different property with the same id)
-    public static final SuggestionProperty PROP_DETAILS =
-        new SuggestionProperty(PROPID_DETAILS, String.class) {
-            public Object getValue(Object obj) {
-                // just delegate
-                return TaskProperties.PROP_DETAILS.getValue(obj);
-            }
-        };
+  public static SuggestionProperty PROP_SUMMARY = 
+    new SuggestionProperty(PROPID_SUMMARY, String.class) { 
+      public Object getValue(Object obj) {return ((UserTask) obj).getSummary(); }
+    };
+
+  public static SuggestionProperty PROP_PRIORITY = 
+    new SuggestionProperty(PROPID_PRIORITY, String.class) {   
+      public Object getValue(Object obj) {
+          return new Integer(((UserTask) obj).getPriority()); 
+      }
+    };
+
+  public static SuggestionProperty PROP_DETAILS = 
+    new SuggestionProperty(PROPID_DETAILS, String.class) {   
+      public Object getValue(Object obj) {return ((UserTask) obj).getDetails(); }
+    };
 
     public static final SuggestionProperty PROP_CATEGORY =
         new SuggestionProperty(PROPID_CATEGORY, String.class) {
@@ -125,6 +136,13 @@ public class UserTaskProperties extends TaskProperties {
             }
         };
 
+    public static final SuggestionProperty PROP_OWNER =
+        new SuggestionProperty(PROPID_OWNER, String.class) {
+            public Object getValue(Object obj) {
+                return ((UserTask) obj).getOwner();
+            }
+        };
+
     public static SuggestionProperty getProperty(String propID) {
         if (propID.equals(PROPID_CATEGORY)) {
             return PROP_CATEGORY;
@@ -150,8 +168,16 @@ public class UserTaskProperties extends TaskProperties {
             return PROP_SPENT_TIME;
         } else if (propID.equals(PROPID_DETAILS)) {
             return PROP_DETAILS;
+        } else if (propID.equals(PROPID_OWNER)) {
+            return PROP_OWNER;
+        } else if (propID.equals(PROPID_PRIORITY)) { 
+            return PROP_PRIORITY;
+        } else if (propID.equals(PROPID_SUMMARY)) { 
+            return PROP_SUMMARY;
+        } else if (propID.equals(PROPID_DETAILS)) { 
+            return PROP_DETAILS;
         } else {
-            return TaskProperties.getProperty(propID);
+            throw new IllegalArgumentException("Unresolved property id " + propID);
         }
     }
 }
