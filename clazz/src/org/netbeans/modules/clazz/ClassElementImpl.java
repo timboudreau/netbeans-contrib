@@ -268,7 +268,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
                 Iterator it = reflIntfs.iterator();
                 for (int i = 0; it.hasNext(); i++) {
                     ClassName cn = (ClassName)it.next();
-                    interfaces[i] = Identifier.create(cn.getSimpleName());
+                    interfaces[i] = Identifier.create(cn.getExternalName());
                 }
             }
             catch(IOException ioEx){    //### what to do here?
