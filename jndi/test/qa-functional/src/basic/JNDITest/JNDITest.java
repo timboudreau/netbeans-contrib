@@ -79,7 +79,7 @@ public class JNDITest extends org.netbeans.junit.NbTestCase {
             assertNotNull("JNDI system data folder does not exists!", jndiDataFolder);
 
         /* Get JNDI System loaded properties */
-            Node[] providersNodes = providersNode.getChildren ().getNodes (); // under runtime node
+            Node[] providersNodes = providersNode.getChildren ().getNodes (true); // under runtime node
             for (int a = 0; a < providersNodes.length; a ++) {
                 boolean changed = false;
                 for (int b = 0; b < providersNodes.length - 1; b ++) {
