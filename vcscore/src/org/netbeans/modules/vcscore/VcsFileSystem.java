@@ -3732,24 +3732,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         boolean success = file.delete();
-        //if (cache != null) cache.remove(name, wasDir);
-        // This delete deletes ONLY local files, to delete a file from the repository also
-        // (if it's really desired to do it here), use the delete command with it's own refreshing
-        // The files are removed from the cache if the missing status is not set
-        // (thus the new status would need to be retrieved later)
-        if (success && cache != null) {
-            if (!wasDir) {
-                if (missingFileStatus == null) cache.remove(name, wasDir);
-            } else {
-                if (missingFolderStatus == null) cache.remove(name, wasDir);
-            }
-        }
-        //if (cache != null && wasDir) cache.remove(name, wasDir);
-        /*
-        if (statusProvider != null) {
-            statusProvider.setFileMissing(name);
-        }
-         */
+        //Currently vcscore only allows one fixed text for
+        //missing status, but some vcs profiler may want to change the missing 
+        //status depending on the context. So we don't delete the cache here,and
+        //leave it to the vcs profiler.
+        //
         addParentToRefresher(name);
         if (success) callDeleteCommand(name, wasDir);
         return success;

@@ -1248,12 +1248,15 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             flushRemoveFile(elements[0]);
             return ;
         }
+        //This is inefficient,refreshing each time the status gets updated.
+        //Just correct the elements here and do one refresh later
+        //
         //System.out.println("  translated = "+VcsUtilities.arrayToString(elements));
-        if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
-            elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].trim().length() > 0) {
-                
-            flushRefreshInfo();
-        }
+        //if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
+        //    elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].trim().length() > 0) {
+        //        
+        //    flushRefreshInfo();
+        //}
         refreshInfoElements.add(elements);
     }
     
@@ -1297,7 +1300,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
         }
         //System.out.println("readFileFinished("+fileDir+", [REMOVED:] "+fileName+")");
-        sendRefreshInfo(fileDir, new String[] { fileName });
+        sendRefreshInfoRemove(fileDir, new String[] { fileName });
         filesToRefresh.remove(filePath);
     }
     
@@ -1310,7 +1313,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
                 elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].trim().length() > 0) {
                 
-                elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].replace(java.io.File.separatorChar, '/');
+                elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = 
+                    elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].replace(java.io.File.separatorChar, '/');
                 String fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
                 String fileDir = "";
                 String filePath;
@@ -1371,8 +1375,13 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     fileName += "/";
                     elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
+                //correct the directory and files pair so that we can refresh them
+                //later at once.
+                //
+                if( !lastCollectedFolder.containsKey(fileDir)) 
+                    lastCollectedFolder.put(fileDir, new HashSet());
+                ((HashSet)lastCollectedFolder.get(fileDir)).add(elements);
                 //System.out.println("readFileFinished("+fileDir+", "+VcsUtilities.arrayToString(elements)+")");
-                sendRefreshInfo(fileDir, elements);
                 filesToRefresh.remove(filePath);
             }
         }
@@ -1434,14 +1443,18 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         } else {
             files = getFiles();
         }
+        char sepChar = '/';
         for (Iterator it = files.iterator(); it.hasNext(); ) {
             String filePath = (String) it.next();
-            if (filePath.endsWith(name)) {
-                if (filePath.length() > name.length()) {
+            int sepIdx = filePath.lastIndexOf(name);
+            if (sepIdx > 0 ) {
+                if (filePath.charAt(sepIdx-1) == sepChar
+                        && (sepIdx + name.length()) == filePath.length()) {
                     dir = filePath.substring(0, filePath.length() - name.length() - 1);
                 }
                 break;
-            }
+            } else if (sepIdx == 0)
+                break;
         }
         return dir;
     }
@@ -1492,43 +1505,51 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
     }
     
-    private String lastCollectedFolder = null;
+    private HashMap lastCollectedFolder = new HashMap();
     private Set lastCollectedElements = null;
     
     /**
-     * This method collects the refresh information and send it to the listeners
-     * in groups. This improves the performance of the whole status refresh and
-     * status cache storage system.
+     * For delete_file command, we have no choice, but do refresh per each file.
+     * @param folder directory where the file is
+     * @param elements file to remove
      */
-    private void sendRefreshInfo(String folder, String[] elements) {
-        if (!folder.equals(lastCollectedFolder)) {
-            if (lastCollectedFolder != null) {
-                for (Iterator it = new ArrayList(fileReaderListeners).iterator();
-                     it.hasNext(); ) {
-                    ((FileReaderListener) it.next()).readFileFinished(lastCollectedFolder,
-                                                                      lastCollectedElements);
-                }
-                lastCollectedElements.clear();
-            }
-            lastCollectedFolder = folder;
-        }
+    private void sendRefreshInfoRemove(String folder, String [] elements) {
+        //if (!folder.equals(lastCollectedFolder)) {
+        //   if (lastCollectedFolder != null) {
         if (lastCollectedElements == null) lastCollectedElements = new HashSet();
-        lastCollectedElements.add(elements);
+            lastCollectedElements.add(elements);
+        for (Iterator it = new ArrayList(fileReaderListeners).iterator();
+            it.hasNext(); ) {
+            ((FileReaderListener) it.next()).readFileFinished(folder,//lastCollectedFolder,
+            lastCollectedElements);//lastCollectedElements);
+        }
+        lastCollectedElements.clear();
+        //}
+        //lastCollectedFolder = folder;
+        //}
+        //if (lastCollectedElements == null) lastCollectedElements = new HashSet();
+        //lastCollectedElements.add(elements);
+
     }
     
     /**
      * This methods sends the remaining refresh information to the listeners
-     * and cleanups the collected elements.
+     * and cleanups the collected elements. LastCollectedFolder is a map
+     * of directory name and the files in the directory which are corrected
+     * while the command is running. 
      */
     private void cleanupSendRefreshInfo() {
-        if (lastCollectedFolder != null) {
+        Iterator dirSet = lastCollectedFolder.entrySet().iterator();
+        while (dirSet.hasNext()) {
+            Map.Entry entry = ( Map.Entry)dirSet.next();
             for (Iterator it = new ArrayList(fileReaderListeners).iterator();
                  it.hasNext(); ) {
-                ((FileReaderListener) it.next()).readFileFinished(lastCollectedFolder,
-                                                                  lastCollectedElements);
+               
+                ((FileReaderListener) it.next()).readFileFinished((String)entry.getKey(),
+                                                                  (Set)entry.getValue());
             }
         }
-        lastCollectedFolder = null;
+        lastCollectedFolder.clear();
         lastCollectedElements = null;
     }
 
