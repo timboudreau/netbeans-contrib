@@ -33,7 +33,7 @@ import org.openide.util.*;
 public class UserCommandsPanel extends JPanel 
   implements EnhancedCustomPropertyEditor {
 
-  private Debug E=new Debug("UserCommandsPanel",true);
+  private Debug E=new Debug("UserCommandsPanel", false);
   private Debug D=E;
 
   private JList list=null;
@@ -90,8 +90,8 @@ public class UserCommandsPanel extends JPanel
 
   //-------------------------------------------
   private JPanel createCommands(){
-    editButton=createButton(g("CTL_Edit"));
     addButton=createButton(g("CTL_Add"));
+    editButton=createButton(g("CTL_Edit"));
     removeButton=createButton(g("CTL_Remove"));
 
     GridLayout panel2Layout=new GridLayout(5,1);
@@ -101,8 +101,8 @@ public class UserCommandsPanel extends JPanel
     panel2.setLayout(panel2Layout);
     panel2.setBorder(new EmptyBorder(5, 7, 5, 7));
 
-    panel2.add(editButton);
     panel2.add(addButton);
+    panel2.add(editButton);
     panel2.add(removeButton);
 
     JPanel panel=new JPanel(new BorderLayout());
@@ -115,7 +115,7 @@ public class UserCommandsPanel extends JPanel
     GridBagLayout gb=new GridBagLayout();
     GridBagConstraints c = new GridBagConstraints();
     setLayout(gb);
-    setBorder(new EtchedBorder(EtchedBorder.RAISED));
+    setBorder(new TitledBorder("Commands"));
 
     c.fill = GridBagConstraints.BOTH;
     c.weightx = 0.9;
@@ -295,6 +295,8 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         9/8/99   Pavel Buzek     class model changed, 
+ *       customization improved, several bugs fixed
  *  9    Gandalf   1.8         8/31/99  Pavel Buzek     
  *  8    Gandalf   1.7         6/30/99  Ian Formanek    reflected change in 
  *       enhanced property editors

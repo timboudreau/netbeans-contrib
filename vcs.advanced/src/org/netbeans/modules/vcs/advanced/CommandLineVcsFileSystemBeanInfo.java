@@ -53,7 +53,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       variables=new PropertyDescriptor
 	("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables");
       variables.setPropertyEditorClass
-	(com.netbeans.enterprise.modules.vcs.cmdline.UserVariablesEditor.class);
+	(com.netbeans.enterprise.modules.vcs.UserVariablesEditor.class);
 
       commands=new PropertyDescriptor
 	("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands");
@@ -113,13 +113,15 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
   public BeanDescriptor getBeanDescriptor(){
     //D.deb("getBeanDescriptor()");
-    return new BeanDescriptor(CommandLineVcsFileSystem.class, CommandLineVcsCustomizer.class);
+    return new BeanDescriptor(CommandLineVcsFileSystem.class, com.netbeans.enterprise.modules.vcs.VcsCustomizer.class);
   }
   
 }
 
 /*
 * <<Log>>
+*  13   Gandalf   1.12        9/8/99   Pavel Buzek     class model changed, 
+*       customization improved, several bugs fixed
 *  12   Gandalf   1.11        8/31/99  Pavel Buzek     
 *  11   Gandalf   1.10        8/7/99   Ian Formanek    Icon for VCS Filesystem
 *  10   Gandalf   1.9         6/9/99   Ian Formanek    ---- Package Change To 

@@ -24,7 +24,7 @@ import com.netbeans.enterprise.modules.vcs.util.*;
  */
 //-------------------------------------------
 public class UserCommandsEditor implements PropertyEditor {
-  private Debug E=new Debug("UserCommandsEditor",true);
+  private Debug E=new Debug("UserCommandsEditor", false);
   private Debug D=E;
 
   private Vector commands=new Vector(10);
@@ -108,6 +108,8 @@ public class UserCommandsEditor implements PropertyEditor {
 
 /*
  * <<Log>>
+ *  8    Gandalf   1.7         9/8/99   Pavel Buzek     class model changed, 
+ *       customization improved, several bugs fixed
  *  7    Gandalf   1.6         8/31/99  Pavel Buzek     
  *  6    Gandalf   1.5         8/31/99  Pavel Buzek     
  *  5    Gandalf   1.4         5/4/99   Michal Fadljevic 
