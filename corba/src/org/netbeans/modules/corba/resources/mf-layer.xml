@@ -157,7 +157,7 @@ Microsystems, Inc. All Rights Reserved.
         <file name="org-netbeans-modules-corba-settings-CORBASupportSettings.settings" url="CORBASupportSettings.settings">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.settings.Bundle"/>
             <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/corba/settings/orb.gif"/>
-            <attr name="SystemFileSystem.layer" stringValue="project"/>
+            <attr name="SystemFileSystem.layer" stringvalue="project"/>
         </file>
 
 
