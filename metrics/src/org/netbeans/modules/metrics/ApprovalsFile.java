@@ -84,10 +84,10 @@ class ApprovalsFile {
 	    parser.parse(is);
 
 	} catch (IOException e) {
-	    System.err.println("IOException reading " + xmlFile.toString() +
+	    System.err.println("IOException reading " + xmlFile.getPath() +
 			       ": " + e);
 	} catch (SAXException e) {
-	    System.err.println("SAXException reading " + xmlFile.toString() +
+	    System.err.println("SAXException reading " + xmlFile.getPath() +
 			       ": " + e);
 	    Exception e2 = e.getException();
 	    if (e2 != null)
@@ -116,7 +116,7 @@ class ApprovalsFile {
             xml.close();
 	    lock.releaseLock();
 	} catch (IOException e) {
-	    System.err.println("failed writing " + xmlFile.toString() +
+	    System.err.println("failed writing " + xmlFile.getPath() +
 			       ": " + e);
 	}
     }
@@ -131,7 +131,7 @@ class ApprovalsFile {
     }
 
     public String toString() {
-	String s = xmlFile.toString() + ", approvals:\n";
+	String s = xmlFile.getPath() + ", approvals:\n";
 	Iterator i = approvals.values().iterator();
 	while (i.hasNext())
 	    s += "\t" + i.next().toString() + "\n";
