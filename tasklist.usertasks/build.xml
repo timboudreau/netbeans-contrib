@@ -75,7 +75,7 @@ Microsystems, Inc. All Rights Reserved.
         <style in="module-updates.xml" out="../www/updates/tasklist-usertasks.html" style="../www/updates/updates.xsl"/>
     </target>
  
-    <target name="clean">
+    <target name="clean" depends="init">
         <delete>
             <fileset dir="src">
                 <include name="**/*.class"/>
