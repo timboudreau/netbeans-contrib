@@ -3950,6 +3950,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                     CommandTask exec = command.execute();
                                                     if (exec != null) {
                                                         editCommandExecutors.put(filePath, exec);
+                                                        try {
+                                                            exec.waitFinished(0);
+                                                        } catch (InterruptedException iex) {
+                                                            // Interrupted, so we continue...
+                                                        }
                                                     }
                                                 }
                                             }
@@ -3966,6 +3971,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                     CommandTask exec = command.execute();
                                     if (exec != null) {
                                         editCommandExecutors.put(filePath, exec);
+                                        try {
+                                            exec.waitFinished(0);
+                                        } catch (InterruptedException iex) {
+                                            // Interrupted, so we continue...
+                                        }
                                     }
                                 }
                             }
@@ -4010,6 +4020,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                             CommandTask exec = command.execute();
                                             if (exec != null) {
                                                 lockCommandExecutors.put(filePath, exec);
+                                                try {
+                                                    exec.waitFinished(0);
+                                                } catch (InterruptedException iex) {
+                                                    // Interrupted, so we continue...
+                                                }
                                             }
                                         }
                                     }
@@ -4026,6 +4041,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                 CommandTask exec = command.execute();
                                 if (exec != null) {
                                     lockCommandExecutors.put(filePath, exec);
+                                    try {
+                                        exec.waitFinished(0);
+                                    } catch (InterruptedException iex) {
+                                        // Interrupted, so we continue...
+                                    }
                                 }
                             }
                         }
