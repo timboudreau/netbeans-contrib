@@ -55,4 +55,17 @@ Microsystems, Inc. All Rights Reserved.
        </folder>
      </folder>
    </folder>
+
+    <folder name="xml">
+        <!--
+          This 'entities' folder represents an entity catalog realized by mapping 
+          public IDs to filesystem constructs (files and folders).
+        -->
+        <folder name="entities">
+            <folder name="NetBeans">
+                <file name="DTD_VCS_Configuration_1_0" url="nbrescurr:/org/netbeans/modules/vcs/advanced/config/vcs/config/configuration-1_0.dtd" />
+            </folder>
+        </folder>
+    </folder>
+
 </filesystem>
