@@ -2469,7 +2469,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg1(CVS_GENERAL_ACTION_DIFF)</value>
         </property>
           <property name="disabledOnStatus">
-            <value>&local-statuses;, "Yet-Unknown"</value>
+            <value>&local-statuses;, "Yet-Unknown", "Locally Added", "Locally Removed"</value>
           </property>
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.DiffCommand</value>
