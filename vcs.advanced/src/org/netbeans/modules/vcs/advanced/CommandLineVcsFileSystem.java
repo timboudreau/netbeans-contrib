@@ -41,19 +41,20 @@ import com.netbeans.developer.modules.vcs.util.*;
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends CvsFileSystem {
  
-  public VcsFactory getVcsFactory () {
-    return new CommandLineVcsFactory ();
-  }
-    
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
     //D.deb("CommandLineVcsFileSystem()");
     super ();
   }
+  
+  public VcsFactory getVcsFactory () {
+    return new CommandLineVcsFactory ();
+  }    
 }
 
 /*
  * <<Log>>
+ *  42   Gandalf   1.41        10/5/99  Pavel Buzek     
  *  41   Gandalf   1.40        9/30/99  Pavel Buzek     
  *  40   Gandalf   1.39        9/13/99  Pavel Buzek     
  *  39   Gandalf   1.38        9/10/99  Martin Entlicher removed import regexp
