@@ -12,10 +12,23 @@
  *
  * Contributor(s): Jan Lahoda.
  */
+#ifdef __WIN32__
+# define MINGW
+#else
+# define UNIX
+#endif
+
+#ifdef UNIX
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#endif
+
+#ifdef MINGW
+#include <winsock2.h>
+#endif
+
 #include <unistd.h>
 #include <strings.h>
 #include <string.h>
@@ -30,8 +43,15 @@
 #define SERVER_ADRESS "127.0.0.1"
 #define SERVER_PORT   12401
 
-void print_help(void) {
-    fprintf(stderr, "PLACEHOLDER: help\n");
+void print_help(const char *exe_name) {
+    fprintf(stderr, "Usage: %s [OPTIONS] [DATA]\n", exe_name);
+    fprintf(stderr, "Sends specified data through a socket to a given server address and port.\n\n");
+    fprintf(stderr, "  -s, --server\t\tthe server address to use [defaults to %s]\n", SERVER_ADRESS); 
+    fprintf(stderr, "  -p, --port\t\tthe server port to use [defaults to %d]\n", SERVER_PORT); 
+    fprintf(stderr, "  -h, --help\t\tprints this help\n"); 
+    fprintf(stderr, "  -V, --version\t\tprints version\n"); 
+    fprintf(stderr, "  -v, --verbose\t\ttries to be more verbose\n");
+    fprintf(stderr, "\n"); 
 }
 
 int main(int argc, char *argv[]) {
@@ -72,7 +92,7 @@ int main(int argc, char *argv[]) {
 	      char *end;
 	      int dest_port = strtol(optarg, &end, 0);
 	      
-	      if (end != '\0') {
+	      if (*end != '\0') {
 	          fprintf(stderr, "Incorrect port specification: \"%s\".\n", optarg);
 		  should_fail = true;
 		  break;
@@ -83,7 +103,7 @@ int main(int argc, char *argv[]) {
 	      }
 	      
 	   case 'h':
-	      print_help();
+	      print_help(argv[0]);
 	      should_end = true;
 	      break;
 	      
@@ -115,19 +135,23 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    fprintf(stderr, "Creating socket...");
+    if (verbose)
+        printf("Creating socket...");
+	
     if ((sock = socket(PF_INET, SOCK_STREAM, 0)) == (-1)) {
         fprintf(stderr, "An error occured during \"socket\": errno=%d\n", errno);
         return 1;
     }
     
-    fprintf(stderr, "done.\n");
+    if (verbose)
+        printf("done.\n");
 
     sockaddr_in addr;
     
-    bzero((char *) &addr, sizeof(addr));
+    memset((char *) &addr, 0, sizeof(addr));
     addr.sin_family      = AF_INET;
     
+#ifdef UNIX
     in_addr target_adress;
     
     if (!inet_aton(server_adress, &target_adress)) {
@@ -136,22 +160,39 @@ int main(int argc, char *argv[]) {
     }
     
     addr.sin_addr.s_addr = target_adress.s_addr;
-    addr.sin_port        = htons(SERVER_PORT);
+#endif
+#ifdef MINGW
+    if ((addr.sin_addr.s_addr = inet_addr(server_adress)) == INADDR_NONE) {
+        printf("The adress \"%s\" is not valid internet adress.\n", server_adress);
+	return 1;
+    }
+#endif
+    addr.sin_port        = htons(server_port);
     
     if (connect(sock, (sockaddr *) &addr, sizeof(addr)) < 0) {
         printf("An error occured during \"connect\": errno=%d\n", errno);
         return 1;
     }
 
-    int count = 1;
+    int count = optind;
+    
+    if (verbose) {
+        printf("%s: starting to write arguments into the socket.\n", argv[0]);
+    }
     
     while (count < argc) {
-        write(sock, argv[count], strlen(argv[count]));
+        if (verbose) {
+            printf("%s: count=%d, value=%s, length=%d\n", argv[0], count, argv[count], strlen(argv[count]));
+	}
+	
+//        write(sock, argv[count], strlen(argv[count]));
+        send(sock, argv[count], strlen(argv[count]), 0);
 	
 	count++;
 	
 	if (count < argc)
-	   write(sock, DELIMITER, strlen(DELIMITER));
+	   send(sock, DELIMITER, strlen(DELIMITER), 0);
+//	   write(sock, DELIMITER, strlen(DELIMITER));
     }
 
     close(sock);

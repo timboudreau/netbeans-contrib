@@ -27,6 +27,10 @@ import org.openide.util.NbBundle;
 * @version 1.00
 */
 public class TexOptions extends BaseOptions {
+    
+    public static final String PROP_FULL_SYNTACTIC_COLORING = "fullSyntacticColoring";
+    public static final String PROP_LOCAL_CONNECTS_ONLY = "localConnectsOnly";
+    public static final String PROP_REMOTE_HOST = "remoteHost";
 
     private ResourceBundle bundle = NbBundle.getBundle(TexOptions.class);
     
@@ -37,6 +41,8 @@ public class TexOptions extends BaseOptions {
     private static final String HELP_ID = "editing.editor.tex"; // !!! NOI18N
     
     private boolean syntacticColoring = true;
+    private boolean localConnectsOnly = true;
+    private String  remoteHost        = "localhost";
     
     public TexOptions() {
         this(TexKit.class, TEX);
@@ -62,5 +68,20 @@ public class TexOptions extends BaseOptions {
         this.syntacticColoring = value;
     }
     
-
+    public boolean isLocalConnectsOnly() {
+        return localConnectsOnly;
+    }
+    
+    public void setLocalConnectsOnly(boolean value) {
+        localConnectsOnly = value;
+    }
+    
+    public String getRemoteHost() {
+        return remoteHost;
+    }
+    
+    public void setRemoteHost(String host) {
+        remoteHost = host;
+    }
+    
 }

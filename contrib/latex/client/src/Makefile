@@ -25,3 +25,11 @@ client.o: client.cpp
 client: client.o
 	$(LD) -o client client.o -lstdc++
 
+client.exe.o: client.cpp
+	$(CCPP) -o client.exe.o -c client.cpp
+
+client.exe: client.exe.o
+	$(LD) -o client.exe client.exe.o -lstdc++ -lwsock32
+
+clean:
+	rm -f client client.o client.exe client.exe.o

@@ -24,8 +24,6 @@ import org.openide.util.NbBundle;
 */
 public class TexOptionsBeanInfo extends BaseOptionsBeanInfo {
 
-    public static final String FULL_SYNTACTIC_COLORING = "fullSyntacticColoring";
-
     private ResourceBundle bundle = NbBundle.getBundle(TexOptions.class);
     
     public TexOptionsBeanInfo() {
@@ -42,7 +40,9 @@ public class TexOptionsBeanInfo extends BaseOptionsBeanInfo {
 
     private String[] getLocalPropNames() {
         return new String[] {
-//            FULL_SYNTACTIC_COLORING,
+            TexOptions.PROP_FULL_SYNTACTIC_COLORING,
+            TexOptions.PROP_LOCAL_CONNECTS_ONLY,
+            TexOptions.PROP_REMOTE_HOST,
         };
     }
     
