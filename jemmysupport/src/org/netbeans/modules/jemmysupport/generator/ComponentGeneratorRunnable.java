@@ -36,14 +36,24 @@ import org.netbeans.jemmy.ComponentChooser;
 import org.netbeans.jemmy.operators.*;
 import org.netbeans.jemmy.util.PNGEncoder;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import org.netbeans.api.diff.StreamSource;
+import org.netbeans.spi.diff.DiffProvider;
+import org.netbeans.spi.diff.MergeVisualizer;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.io.ReaderInputStream;
 
 /** class observing CTRL-F12 key and launching ComponentGenerator
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -59,6 +69,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     ComponentGeneratorPanel panel;
     boolean screenShot;
     boolean showEditor;
+    boolean merge;
     static final Border focusedBorder=BorderFactory.createLineBorder(Color.red, 1);
     Border lastBorder;
     
@@ -69,7 +80,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
      * @param packageName String package name
      * @param panel ComponentGeneratorPanel
      * @param properties CompoenentGenerator configuration properties */
-    public ComponentGeneratorRunnable(String directory, String packageName, ComponentGeneratorPanel panel, Properties properties, boolean screenShot, boolean showEditor) {
+    public ComponentGeneratorRunnable(String directory, String packageName, ComponentGeneratorPanel panel, Properties properties, boolean screenShot, boolean showEditor, boolean merge) {
         this.directory = directory;
         this.packageName = packageName;
         help = panel.getHelpLabel();
@@ -86,6 +97,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         this.panel = panel;
         this.screenShot = screenShot;
         this.showEditor = showEditor;
+        this.merge = merge;
     }
 
     static JComponent getJComponent(Component c) {
@@ -131,6 +143,25 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
             focused=null;
         }
     }
+
+    static void mergeConflicts(File f, Reader r) throws IOException {
+        File tmp = File.createTempFile("merge", "temporary");
+        tmp.deleteOnExit();
+        tmp.createNewFile();
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            FileUtil.copy(in = new ReaderInputStream(r), out = new FileOutputStream(tmp));
+        } finally {
+            if (in != null) in.close();
+            if (out != null) out.close();
+        }
+        StreamSource s1=StreamSource.createSource(f.getName(), NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_OldComponent"), "text/x-java", f); // NOI18N
+        StreamSource s2=StreamSource.createSource(f.getName(), NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_NewComponent"), "text/x-java", tmp); // NOI18N
+        DiffProvider diff=(DiffProvider)Lookup.getDefault().lookup(DiffProvider.class);
+        MergeVisualizer merge=(MergeVisualizer)Lookup.getDefault().lookup(MergeVisualizer.class);
+        merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s1).show();
+    }
     
     /** method implementing Runnable interface
      */    
@@ -154,20 +185,24 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                     if (screenShot) {
                         shot = new Robot().createScreenCapture(new Rectangle(window.getLocationOnScreen(),window.getSize()));
                     }
-                    int i=2;
-                    String name = gen.getClassName();
-                    String index = "";
-                    while ((file=new File(directory+"/"+name+index+".java")).exists()) { // NOI18N
-                        index = String.valueOf(i++);
+                    if (!merge) {
+                        int i=2;
+                        String name = gen.getClassName();
+                        String index = "";
+                        while ((file=new File(directory+"/"+name+index+".java")).exists()) { // NOI18N
+                            index = String.valueOf(i++);
+                        }
+                        gen.setClassName(name+index);
                     }
-                    gen.setClassName(name+index);
-                    
                     if ((!showEditor)||(ComponentsEditorPanel.showDialog(gen))) {
-
                         file=new File(directory+"/"+gen.getClassName()+".java"); // NOI18N
-                        out=new PrintStream(new FileOutputStream(file));
-                        out.println(gen.getComponentCode());
-                        out.close();
+                        if (merge && file.exists()) {
+                            mergeConflicts(file, new StringReader(gen.getComponentCode()));
+                        } else {
+                            out=new PrintStream(new FileOutputStream(file));
+                            out.println(gen.getComponentCode());
+                            out.close();
+                        }
 
                         if (screenShot) {
                             new PNGEncoder(new FileOutputStream(directory+"/"+gen.getClassName()+".png")).encode(shot); // NOI18N

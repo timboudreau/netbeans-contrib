@@ -140,12 +140,13 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         closeButton = new javax.swing.JButton();
         screenShot = new javax.swing.JCheckBox();
         showEditor = new javax.swing.JCheckBox();
+        mergeConflicts = new javax.swing.JCheckBox();
 
         setLayout(new java.awt.GridBagLayout());
 
         setAlignmentX(0.0F);
         setAlignmentY(0.0F);
-        setPreferredSize(new java.awt.Dimension(420, 300));
+        setPreferredSize(new java.awt.Dimension(520, 300));
         packagesPanel.setName("");
         packagesTreeView.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Package"));
         packagesTreeView.setPopupAllowed(false);
@@ -162,7 +163,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
         add(packagesPanel, gridBagConstraints);
 
-        selectLabel.setDisplayedMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_Package").charAt(0));
+        selectLabel.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_Package").charAt(0));
         selectLabel.setLabelFor(packagesTreeView);
         selectLabel.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_Package"));
         selectLabel.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Package"));
@@ -190,7 +191,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         add(helpLabel, gridBagConstraints);
         helpLabel.getAccessibleContext().setAccessibleDescription("N/A");
 
-        stopButton.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_Stop").charAt(0));
+        stopButton.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_Stop").charAt(0));
         stopButton.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_Stop"));
         stopButton.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Stop"));
         stopButton.addActionListener(new java.awt.event.ActionListener() {
@@ -203,13 +204,13 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 0);
         add(stopButton, gridBagConstraints);
 
-        startButton.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_Start").charAt(0));
+        startButton.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_Start").charAt(0));
         startButton.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_Start"));
         startButton.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Start"));
         startButton.setEnabled(false);
@@ -223,13 +224,13 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 0);
         add(startButton, gridBagConstraints);
 
-        closeButton.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_Close").charAt(0));
+        closeButton.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_Close").charAt(0));
         closeButton.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_Close"));
         closeButton.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Close"));
         closeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -242,13 +243,13 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(17, 5, 12, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(17, 5, 12, 12);
         add(closeButton, gridBagConstraints);
 
-        screenShot.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_ScreenShot").charAt(0));
+        screenShot.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_ScreenShot").charAt(0));
         screenShot.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_ScreenShot"));
         screenShot.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_ScreenShot"));
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -260,19 +261,30 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
         add(screenShot, gridBagConstraints);
 
-        showEditor.setMnemonic(NbBundle.getMessage(ComponentGeneratorPanel.class, "MNM_ShowEditor").charAt(0));
+        showEditor.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_ShowEditor").charAt(0));
         showEditor.setSelected(true);
         showEditor.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_ShowEditor"));
         showEditor.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_ShowEditor"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
         add(showEditor, gridBagConstraints);
+
+        mergeConflicts.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_Merge").charAt(0));
+        mergeConflicts.setSelected(true);
+        mergeConflicts.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("CTL_Merge"));
+        mergeConflicts.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("TTT_Merge"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        add(mergeConflicts, gridBagConstraints);
 
     }//GEN-END:initComponents
 
@@ -294,6 +306,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
 //        customizeButton.setEnabled(true);
         screenShot.setEnabled(true);
         showEditor.setEnabled(true);
+        mergeConflicts.setEnabled(true);
     }//GEN-LAST:event_stopButtonActionPerformed
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
@@ -303,12 +316,13 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
 //        customizeButton.setEnabled(false);
         screenShot.setEnabled(false);
         showEditor.setEnabled(false);
+        mergeConflicts.setEnabled(false);
         helpLabel.setVisible(true);
         if (thread!=null) {
             thread.interrupt();
         }
         helpLabel.setText(NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_Help")); // NOI18N
-        thread = new Thread(new ComponentGeneratorRunnable(directory, packageName, this, props, screenShot.isSelected(), showEditor.isSelected()));
+        thread = new Thread(new ComponentGeneratorRunnable(directory, packageName, this, props, screenShot.isSelected(), showEditor.isSelected(), mergeConflicts.isSelected()));
         thread.start();
     }//GEN-LAST:event_startButtonActionPerformed
 
@@ -378,6 +392,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     private javax.swing.JButton stopButton;
     private javax.swing.JCheckBox showEditor;
     private javax.swing.JButton closeButton;
+    private javax.swing.JCheckBox mergeConflicts;
     private javax.swing.JCheckBox screenShot;
     // End of variables declaration//GEN-END:variables
 
