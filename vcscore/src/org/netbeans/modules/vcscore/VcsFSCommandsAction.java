@@ -109,7 +109,8 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                     Node nd = (Node) children.nextElement();
                     DataObject dd = (DataObject) nd.getCookie(DataObject.class);
                     if (dd == null) continue;
-                    messageFiles.addAll(dd.files());
+                    //messageFiles.addAll(dd.files());
+                    addAllWorkaround(dd.files(), messageFiles);
                     /*
                     variablesForSelectedFiles.put(additionalVars, varFiles);
                      */
@@ -122,11 +123,22 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                     // We want to have the same VCS actions on the link as on the original.
                     dd = ((DataShadow) dd).getOriginal();
                 }
-                files.addAll(dd.files());
+                //files.addAll(dd.files());
+                addAllWorkaround(dd.files(), files);
             }
         }
         if (files.size() > 0) filesWithMessages.put(files.toArray(new FileObject[0]), null);
         return filesWithMessages;
+    }
+    
+    /**
+     * A workaround for Collection.addAll() method, which is broken. See
+     * http://developer.java.sun.com/developer/bugParade/bugs/4715206.html
+     * for details.
+     * Add all elements from "src" to "dest".
+     */
+    private static final void addAllWorkaround(Collection src, Collection dest) {
+        for (Iterator it = src.iterator(); it.hasNext(); dest.add(it.next()));
     }
     
     /*
