@@ -429,7 +429,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             this.workingDir = workingDir;
             workPathLength = workingDir.getAbsolutePath().length();
             if (relativePath != null && relativePath.length() > 0) {
-                this.relativePath += "/";
+                this.relativePath = relativePath + "/";
             } else {
                 this.relativePath = "";
             }
