@@ -13,18 +13,22 @@
 
 package com.netbeans.enterprise.modules.corba.idl.node;
 
-import org.openide.nodes.*;
+import org.openide.nodes.Children;
+import org.openide.nodes.Sheet;
+import org.openide.nodes.PropertySupport;
 
-//import java.util.Vector;
+import org.openide.util.actions.SystemAction;
+import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.idl.src.*;
+import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
+import com.netbeans.enterprise.modules.corba.idl.src.AttributeElement;
 
 /**
  * Class IDLAttributeNode
  *
  * @author Karel Gardas
  */
-public class IDLAttributeNode extends AbstractNode {
+public class IDLAttributeNode extends IDLAbstractNode {
 
   AttributeElement _attribute;
   private static final String ATTRIBUTE_ICON_BASE =
@@ -35,6 +39,11 @@ public class IDLAttributeNode extends AbstractNode {
     super (Children.LEAF);
     setIconBase (ATTRIBUTE_ICON_BASE);
     _attribute = value;
+    setCookieForDataObject (_attribute.getDataObject ());
+  }
+
+  public IDLElement getIDLElement () {
+    return _attribute;
   }
 
   public String getDisplayName () {
@@ -48,6 +57,11 @@ public class IDLAttributeNode extends AbstractNode {
 
   public String getName () {
     return "attribute";
+  }
+
+  public SystemAction getDefaultAction () {
+    SystemAction result = super.getDefaultAction();
+    return result == null ? SystemAction.get(OpenAction.class) : result;
   }
 
   protected Sheet createSheet () {

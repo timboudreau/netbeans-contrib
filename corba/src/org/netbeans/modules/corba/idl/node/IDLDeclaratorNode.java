@@ -15,16 +15,22 @@ package com.netbeans.enterprise.modules.corba.idl.node;
 
 import java.util.Vector;
 
-import org.openide.nodes.*;
+import org.openide.nodes.Children;
+import org.openide.nodes.Sheet;
+import org.openide.nodes.PropertySupport;
 
-import com.netbeans.enterprise.modules.corba.idl.src.*;
+import org.openide.util.actions.SystemAction;
+import org.openide.actions.OpenAction;
+
+import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
+import com.netbeans.enterprise.modules.corba.idl.src.DeclaratorElement;
 
 /**
  * Class IDLDeclaratorNode
  *
  * @author Karel Gardas
  */
-public class IDLDeclaratorNode extends AbstractNode {
+public class IDLDeclaratorNode extends IDLAbstractNode {
 
   DeclaratorElement _declarator;
   String name;
@@ -37,6 +43,7 @@ public class IDLDeclaratorNode extends AbstractNode {
     super (Children.LEAF);
     setIconBase (DECLARATOR_ICON_BASE);
     _declarator = value;
+    setCookieForDataObject (_declarator.getDataObject ());
     if (_declarator != null) {
       /*
 	for (int i=0; i<_declarator.getDeclarators ().size (); i++)  {
@@ -53,6 +60,10 @@ public class IDLDeclaratorNode extends AbstractNode {
       name = "NoName :)";
   }
 
+  public IDLElement getIDLElement () {
+    return _declarator;
+  }
+
   public String getDisplayName () {
     return name;
   }
@@ -61,6 +72,10 @@ public class IDLDeclaratorNode extends AbstractNode {
     return "declarator";
   }
 
+  public SystemAction getDefaultAction () {
+    SystemAction result = super.getDefaultAction();
+    return result == null ? SystemAction.get(OpenAction.class) : result;
+  }
 
   protected Sheet createSheet () {
     Sheet s = Sheet.createDefault ();

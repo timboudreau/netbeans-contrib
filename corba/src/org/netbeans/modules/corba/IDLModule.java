@@ -49,10 +49,11 @@ import com.netbeans.enterprise.modules.corba.idl.editor.settings.IDLOptions;
 */
 public class IDLModule extends ModuleInstall {
 
+  static final long serialVersionUID =8847247042163099527L;
+
   private static final boolean DEBUG = false;
   //private static final boolean DEBUG = true;
 
-  static final long serialVersionUID =8847247042163099527L;
   /** Module installed for the first time. */
   public void installed() {
     if (DEBUG) 
@@ -91,12 +92,22 @@ public class IDLModule extends ModuleInstall {
          false, this.getClass().getClassLoader());
       Method restoreMethod = restore.getMethod ("restore", null);
       restoreMethod.invoke (restore.newInstance(), null);
-      
+
     } catch (ClassNotFoundException e) {
+      if (DEBUG)
+	e.printStackTrace ();
     } catch (NoSuchMethodException e) {
+      if (DEBUG)
+	e.printStackTrace ();
     } catch (InvocationTargetException e) {
+      if (DEBUG)
+	e.printStackTrace ();
     } catch (IllegalAccessException e) {
+      if (DEBUG)
+	e.printStackTrace ();
     } catch (InstantiationException e) {
+      if (DEBUG)
+	e.printStackTrace ();
     }
     /*
       } catch (Exception ex) {
@@ -143,6 +154,7 @@ public class IDLModule extends ModuleInstall {
 
 /*
  * <<Log>>
+ *  25   Gandalf   1.24        2/8/00   Karel Gardas    
  *  24   Gandalf   1.23        11/27/99 Patrik Knakal   
  *  23   Gandalf   1.22        11/9/99  Karel Gardas    - updated for new IDL 
  *       Editor Stuff

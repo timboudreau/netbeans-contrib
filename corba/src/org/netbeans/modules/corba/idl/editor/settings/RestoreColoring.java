@@ -36,7 +36,8 @@ public class RestoreColoring {
     // Registration of the editor kits to JEditorPane
     JEditorPane.registerEditorKitForContentType
       (IDL_MIME_TYPE,
-       "com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLKit",
+       "com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLKit", 
+       /* "com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLKit", */
        this.getClass().getClassLoader());
     AllOptions all_options = (AllOptions)AllOptions.findObject (AllOptions.class, true);
     all_options.addOption (new IDLOptions());
@@ -47,6 +48,7 @@ public class RestoreColoring {
 }
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         2/8/00   Karel Gardas    
  *  1    Gandalf   1.0         11/9/99  Karel Gardas    
  * $
  */

@@ -32,20 +32,34 @@ public class IDLExternalCompiler extends ExternalCompiler {
 
   /** copy of type */
   protected final Object type;
+  protected FileObject _file_object;
 
-  public IDLExternalCompiler(Compiler[] dependencies, FileObject fo, Object type, 
+  public IDLExternalCompiler(FileObject fo, 
+			     Object type, 
 			     NbProcessDescriptor nbDescriptor, 
 			     ExternalCompiler.ErrorExpression err) {
-     super(dependencies, fo, type, nbDescriptor, err);
+     super(fo, type, nbDescriptor, err);
      this.type = type;
+     _file_object = fo;
   }
 
-   public IDLExternalCompiler(CompilerJob job, FileObject fo, Object type, 
-			      NbProcessDescriptor nbDescriptor, 
-			      ExternalCompiler.ErrorExpression err) {
-      super(job, fo, type, nbDescriptor, err);
-      this.type = type;
-   }
+  /*
+    public IDLExternalCompiler(FileObject fo,
+    Object type, 
+    NbProcessDescriptor nbDescriptor, 
+    ExternalCompiler.ErrorExpression err) {
+    super(fo, type, nbDescriptor, err);
+    this.type = type;
+    }
+  */
+
+  public FileObject getIDLFileObject () {
+    return getFileObject ();
+  }
+
+  public boolean isUpToDate () {
+    return false;
+  }
 
   /**
    */
@@ -142,14 +156,26 @@ public class IDLExternalCompiler extends ExternalCompiler {
    * @see ExternalCompilerGroup#createProcess
    */
 
-  protected Object compilerType () {
-     //   try {
-     //System.err.println("IDLExternalCompiler: compiler type = " 
-     //		  + getFileObject());
-       return getFileObject ();
-       // } catch (FileStateInvalidException ex) {
-       //return new Object ();
-       //}
+  /*
+    protected Object compilerType () {
+    //   try {
+    //System.err.println("IDLExternalCompiler: compiler type = " 
+    //		  + getFileObject());
+    return getFileObject ();
+    // } catch (FileStateInvalidException ex) {
+    //return new Object ();
+    //}
+    }
+  */
+
+  public Object compilerGroupKey () {
+    //   try {
+    //System.err.println("IDLExternalCompiler: compiler type = " 
+    //		  + getFileObject());
+    return getFileObject ();
+    // } catch (FileStateInvalidException ex) {
+    //return new Object ();
+    //}
   }
 
 }

@@ -13,18 +13,22 @@
 
 package com.netbeans.enterprise.modules.corba.idl.node;
 
-import org.openide.nodes.*;
+import org.openide.nodes.Children;
+import org.openide.nodes.Sheet;
+import org.openide.nodes.PropertySupport;
+
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.idl.src.*;
+import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
+import com.netbeans.enterprise.modules.corba.idl.src.InterfaceElement;
 
 /**
  * Class IDLInterfaceNode
  *
  * @author Karel Gardas
  */
-public class IDLInterfaceNode extends AbstractNode {
+public class IDLInterfaceNode extends IDLAbstractNode {
 
   InterfaceElement _interface;
 
@@ -33,8 +37,14 @@ public class IDLInterfaceNode extends AbstractNode {
 
   public IDLInterfaceNode (InterfaceElement value) {
     super (new IDLDocumentChildren ((IDLElement)value));
+    //System.out.println ("IDLInterfaceNode (" + value + ");");
     setIconBase (INTERFACE_ICON_BASE);
     _interface = value;
+    setCookieForDataObject (_interface.getDataObject ());
+  }
+
+  public IDLElement getIDLElement () {
+    return _interface;
   }
 
   public String getDisplayName () {
@@ -60,6 +70,14 @@ public class IDLInterfaceNode extends AbstractNode {
     ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of interface") {
       public Object getValue () {
 	return _interface.getName ();
+      }
+    });
+    ss.put (new PropertySupport.ReadOnly ("abstract", String.class, "abstract", "is interface abstract") {
+      public Object getValue () {
+	if (_interface.isAbstract ())
+	  return "yes";
+	else
+	  return "no";
       }
     });
     ss.put (new PropertySupport.ReadOnly ("inherited", String.class, "inherited", 

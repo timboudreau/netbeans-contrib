@@ -21,116 +21,228 @@ import java.util.Vector;
 //import org.openide.nodes.Node;
 import org.openide.cookies.OpenCookie;
 
+import com.netbeans.enterprise.modules.corba.IDLDataObject;
+
 /*
  * @author Karel Gardas
  */
 
 public class IDLElement extends SimpleNode
-   implements Serializable, OpenCookie {
+  implements Serializable, OpenCookie {
     
-   //public static final boolean DEBUG = true;
-   public static final boolean DEBUG = false;
+  //public static final boolean DEBUG = true;
+  public static final boolean DEBUG = false;
 
-   private String name;
-   private int line;
-   private Vector members;
+  private String name;
+  private int line;
+  private int column;
+  private Vector members;
 
-   private IDLElement parent;
+  private IDLElement parent;
 
-  static final long serialVersionUID =-3856359260945095457L;
-   public IDLElement (int i) {
-      super (i);
-      members = new Vector ();
-      name = "";
-   }
+  private IDLDataObject ido;
 
-   public IDLElement (IDLParser p, int i) {
-      super (p, i);
-      members = new Vector ();
-      name = "";
-   }
+  public IDLElement (int i) {
+    super (i);
+    members = new Vector ();
+    name = "";
+  }
 
-   public void setLine (int i) {
-      if (DEBUG)
-	 System.out.println ("set line: " + i);
-      line = i;
-   }
+  public IDLElement (IDLParser p, int i) {
+    super (p, i);
+    members = new Vector ();
+    name = "";
+  }
 
-   public int getLine () {
-      return line;
-   }
+  public void setDataObject (IDLDataObject val) {
+    if (DEBUG)
+      System.out.println ("IDLElement ``" + getName () + " '' ::setDataObject (val)");
+    ido = val;
+    setDataObjectForMembers (val);
+  }
 
-   public void setName (String v) {
-      name = v;
-   }
+  public void setDataObjectForMembers (IDLDataObject val) {
+    for (int i=0; i<getMembers ().size (); i++) {
+      ((IDLElement)getMember (i)).setDataObject (val);
+    }
+  }
+
+  public IDLDataObject getDataObject () {
+    return ido;
+  }
+
+  public void setLine (int i) {
+    if (DEBUG)
+      System.out.println ("set line for " + getName () + " : " + i);
+    line = i;
+    //getLine (); // debug check
+  }
+
+  public int getLine () {
+    if (DEBUG)
+      System.out.println ("get line for " + getName () + " : " + line);
+    return line;
+  }
+
+  public void setColumn (int i) {
+    if (DEBUG)
+      System.out.println ("set column for " + getName () + " : " + i);
+    column = i;
+    //getColumn (); // debug check
+  }
+
+  public int getColumn () {
+    if (DEBUG)
+      System.out.println ("get column for " + getName () + " : " + column);
+    return column;
+  }
+
+  public void setName (String v) {
+    if (DEBUG)
+      System.out.println ("setName: " + v);
+    name = v;
+  }
    
-   public String getName () {
-      return name;
-   }
+  public String getName () {
+    if (DEBUG)
+      System.out.println ("getName: " + name);
+    return name;
+  }
    
-   public void addMember (Node x) {
-      members.addElement (x);
-   }
+  public void addMember (Node x) {
+    members.addElement (x);
+  }
 
-   public Vector getMembers () {
-      return members;
-   }
-   /*   
-   public Object getMember (int i) {
-      return members.elementAt (i);
-   }
-   */
+  public Vector getMembers () {
+    return members;
+  }
+  /*   
+       public Object getMember (int i) {
+       return members.elementAt (i);
+       }
+  */
 
-   public IDLElement getMember (int i) {
-      return (IDLElement)members.elementAt (i);
-   }
+  public IDLElement getMember (int i) {
+    return (IDLElement)members.elementAt (i);
+  }
 
-   public void setParent (IDLElement e) {
-      parent = e;
-   }
+  public void setParent (IDLElement e) {
+    parent = e;
+  }
 
-   public IDLElement getParent () {
-      return parent;
-   }
+  public IDLElement getParent () {
+    return parent;
+  }
 
-   public void open () {
-      if (DEBUG)
-	 System.out.println ("open action :-))");
-   }
+  public void open () {
+    if (DEBUG)
+      System.out.println ("open action :-))");
+  }
 
+  public String deepToString (IDLElement element) {
+    if (DEBUG)
+      System.out.println ("IDLElement::deepToString (" + element + ");");
 
-   public void jjtClose () {
-      if (DEBUG)
-	 System.out.println ("IDLElement.jjtClose ()");
-      for (int i=0; i<jjtGetNumChildren (); i++) {
-	 addMember (jjtGetChild (i));
+    // for tests
+    //return element.getName ();
+    
+    String names = element.getName () + ":" + element.getLine () + ":" 
+      + element.getColumn () + ":" + "(";
+    Vector members = element.getMembers ();
+    for (int i=0; i<members.size (); i++) {
+      IDLElement tmp = (IDLElement)members.elementAt (i);
+      //names = names + " " + tmp.getName () + " (" + deepToString (tmp) + ")";
+      names = names + tmp.getName () + ":" + tmp.getLine () + ":" + tmp.getColumn () + ":" 
+	+ " (" + deepToString (tmp) + ")";
+      //names = names + " " + tmp.getName ();
+    }
+      
+    if (DEBUG)
+      System.out.println ("-> " + names);
+    return names + ")";
+   
+  }
+
+  public boolean equals (Object obj) {
+    IDLElement element;
+    if (!(obj instanceof IDLElement)) {
+      if (DEBUG) {
+	System.out.println (this.getName () + "::equals (" + obj + ");");
+	System.out.println ("isn't IDLElement");
       }
-      for (int i=0; i<getMembers ().size (); i++) {
-         ((IDLElement)getMember (i)).setParent (this);
+      return false;
+    } else {
+      element = (IDLElement)obj;
+    }
+      
+    if (DEBUG)
+      System.out.println (this.getName () + "::equals (" + ((IDLElement)element).getName () 
+			  + ");");
+      
+    if (element.className ().equals (className ())) {
+      IDLElement tmp_element = (IDLElement)element;
+      String this_names = deepToString (this);
+      String object_names = deepToString ((IDLElement)element);
+      if (this_names.equals (object_names)) {
+	if (DEBUG)
+	  System.out.println ("return true;");
+	return true;
       }
+    }
+    if (DEBUG)
+      System.out.println ("return false;");
+    return false;
+  }
 
-   }      
 
-   public void xDump (String s) {
-      //System.out.println ("dump: " + members);
-      for (int i=0; i<members.size (); i++) {
-	 System.out.println (s + members.elementAt (i));
-	 ((IDLElement)members.elementAt (i)).xDump (s + " ");
-      } 
-   }
+  public String className () {
+    String tmp = this.getClass ().getName ();
+    return tmp.substring (tmp.lastIndexOf (".") + 1, tmp.length ());
+  }
+
+
+  public int hashCode () {
+    String name = className () + deepToString (this);
+    int code = name.hashCode ();
+    if (DEBUG)
+      System.out.println ("IDLElement::hashCode () : " + name + " : " + code); 
+    return code;
+  }
+
+
+  public void jjtClose () {
+    //if (DEBUG)
+    //  System.out.println ("IDLElement.jjtClose ()");
+    for (int i=0; i<jjtGetNumChildren (); i++) {
+      addMember (jjtGetChild (i));
+    }
+    for (int i=0; i<getMembers ().size (); i++) {
+      ((IDLElement)getMember (i)).setParent (this);
+    }
+
+  }      
+
+  public void xDump (String s) {
+    //System.out.println ("dump: " + members);
+    for (int i=0; i<members.size (); i++) {
+      System.out.println (s + members.elementAt (i));
+      ((IDLElement)members.elementAt (i)).xDump (s + " ");
+    } 
+  }
 
   public static Node jjtCreate(int id) {
-      return new IDLElement (id);
+    return new IDLElement (id);
   }
 
   public static Node jjtCreate(IDLParser p, int id) {
-      return new IDLElement (p, id);
+    return new IDLElement (p, id);
   }
 
 }
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         2/8/00   Karel Gardas    
  *  5    Gandalf   1.4         11/27/99 Patrik Knakal   
  *  4    Gandalf   1.3         11/4/99  Karel Gardas    - update from CVS
  *  3    Gandalf   1.2         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
@@ -139,3 +251,4 @@ public class IDLElement extends SimpleNode
  *  1    Gandalf   1.0         8/3/99   Karel Gardas    initial revision
  * $
  */
+

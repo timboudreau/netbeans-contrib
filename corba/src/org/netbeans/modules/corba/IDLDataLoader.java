@@ -50,6 +50,8 @@ public class IDLDataLoader extends MultiFileLoader {
 
   /** Creates new IDLDataLoader */
 
+  static final long serialVersionUID =-1462379765695052830L;
+
   //private static final boolean DEBUG = true;
   private static final boolean DEBUG = false;
 
@@ -60,7 +62,6 @@ public class IDLDataLoader extends MultiFileLoader {
 
   protected HashMap folders;
 
-  static final long serialVersionUID =-1462379765695052830L;
   public IDLDataLoader() {
     super(IDLDataObject.class);
     if (DEBUG)
@@ -212,17 +213,21 @@ public class IDLDataLoader extends MultiFileLoader {
     
     FileObject retval = null;
     IDLDataObject tmp_ido = null;
-    for (int i=0; i<idos.size (); i++) {
-      tmp_ido = (IDLDataObject)idos.elementAt (i);
-      if (tmp_ido.canGenerate (fo)) {
-	retval = tmp_ido.getPrimaryFile ();
-	if (DEBUG)
-	  System.out.println (fo.getName () + " generated from " + retval.getName ());
+    try { // workaround for dynamic update of CORBA module
+      for (int i=0; i<idos.size (); i++) {
+	tmp_ido = (IDLDataObject)idos.elementAt (i);
+	if (tmp_ido.canGenerate (fo)) {
+	  retval = tmp_ido.getPrimaryFile ();
+	  if (DEBUG)
+	    System.out.println (fo.getName () + " generated from " + retval.getName ());
 	
-	return retval;
+	  return retval;
+	}
       }
+    } catch (ClassCastException ex) {
+      //ex.printStackTrace ();
+      System.out.println ("exception: " + ex);
     }
-
 
     return null;
   }
@@ -301,6 +306,7 @@ public class IDLDataLoader extends MultiFileLoader {
   public class IDLFileEntry extends FileEntry.Format {
 
     static final long serialVersionUID =-3139969782935474471L;
+    
     /** Creates new IDLFileEntry */
     IDLFileEntry (MultiDataObject obj, FileObject file) {
       super (obj, file);

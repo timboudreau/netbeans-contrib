@@ -17,14 +17,17 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 public interface IDLParserConstants {
 
   int EOF = 0;
-  int ID = 67;
-  int OCTALINT = 68;
-  int DECIMALINT = 69;
-  int HEXADECIMALINT = 70;
-  int FLOATONE = 71;
-  int FLOATTWO = 72;
-  int CHARACTER = 73;
-  int STRING = 74;
+  int ID = 80;
+  int OCTALINT = 81;
+  int DECIMALINT = 82;
+  int HEXADECIMALINT = 83;
+  int FLOATONE = 84;
+  int FLOATTWO = 85;
+  int CHARACTER = 86;
+  int WCHARACTER = 87;
+  int STRING = 88;
+  int WSTRING = 89;
+  int FIXED = 90;
 
   int DEFAULT = 0;
 
@@ -42,10 +45,21 @@ public interface IDLParserConstants {
     "\"module\"",
     "\"{\"",
     "\"}\"",
+    "\"abstract\"",
     "\"interface\"",
     "\":\"",
     "\",\"",
     "\"::\"",
+    "\"valuetype\"",
+    "\"custom\"",
+    "\"truncatable\"",
+    "\"supports\"",
+    "\"public\"",
+    "\"private\"",
+    "\"factory\"",
+    "\"(\"",
+    "\")\"",
+    "\"in\"",
     "\"const\"",
     "\"=\"",
     "\"|\"",
@@ -59,17 +73,17 @@ public interface IDLParserConstants {
     "\"/\"",
     "\"%\"",
     "\"~\"",
-    "\"(\"",
-    "\")\"",
     "\"TRUE\"",
     "\"FALSE\"",
     "\"typedef\"",
+    "\"native\"",
     "\"float\"",
     "\"double\"",
     "\"long\"",
     "\"short\"",
     "\"unsigned\"",
     "\"char\"",
+    "\"wchar\"",
     "\"boolean\"",
     "\"octet\"",
     "\"any\"",
@@ -84,6 +98,7 @@ public interface IDLParserConstants {
     "\"<\"",
     "\">\"",
     "\"string\"",
+    "\"wstring\"",
     "\"[\"",
     "\"]\"",
     "\"readonly\"",
@@ -91,11 +106,12 @@ public interface IDLParserConstants {
     "\"exception\"",
     "\"oneway\"",
     "\"void\"",
-    "\"in\"",
     "\"out\"",
     "\"inout\"",
     "\"raises\"",
     "\"context\"",
+    "\"fixed\"",
+    "\"ValueBase\"",
     "<ID>",
     "<OCTALINT>",
     "<DECIMALINT>",
@@ -103,7 +119,10 @@ public interface IDLParserConstants {
     "<FLOATONE>",
     "<FLOATTWO>",
     "<CHARACTER>",
+    "<WCHARACTER>",
     "<STRING>",
+    "<WSTRING>",
+    "<FIXED>",
   };
 
 }

@@ -1177,9 +1177,14 @@ public class ImplGenerator {
 
 
   public IDLElement findModuleIn (String name, IDLElement from) {
+
+    if (from == null)
+      return null;
+
     if (DEBUG)
       System.out.println ("ImplGenerator::findModuleIn (" + name + ", " + from.getName () 
 			  + ":" + from + ");");
+
     Vector mm = from.getMembers ();
     IDLElement retval = null;
     for (int i=0; i<mm.size (); i++) {

@@ -14,6 +14,7 @@
 package com.netbeans.enterprise.modules.corba.idl.node;
 
 import java.util.Vector;
+import java.util.Enumeration;
 
 import org.openide.nodes.*;
 import org.openide.filesystems.*;
@@ -59,6 +60,8 @@ public class IDLDocumentChildren extends Children.Keys {
   }
 
   public void setSrc (IDLElement s) {
+    if (DEBUG)
+      System.out.println ("setSrc (" + s.getName () + ");");
     src = s;
   }
 
@@ -76,9 +79,43 @@ public class IDLDocumentChildren extends Children.Keys {
       System.out.println ("createKeys ()");
     if (src == null)
       return;
-	      
+    
+    if (DEBUG) {
+      System.out.println ("setKeys (" + src.getName () + ");");
+      Vector tmp = src.getMembers ();
+      for (int i=0; i<tmp.size (); i++) {
+	System.out.println ("key: " + ((IDLElement)tmp.elementAt (i)).getName ());
+      }
+      src.xDump (" ");
+    }
     setKeys (src.getMembers ());
-
+    
+    /*
+      for (int i=0; i<src.getMembers ().size (); i++) {
+      refreshKey (src.getMember (i));
+      }
+    */
+    /*
+      org.openide.nodes.Node[] nodes = getNodes ();
+      for (int i=0; i<nodes.length; i++) {
+      try {
+       ((IDLDocumentChildren)nodes[i].getChildren ()).createKeys ();
+      } catch (ClassCastException e) {
+      System.out.println (e);
+      }
+      }
+    */
+    /*
+      Enumeration nodes = nodes ();
+      while (nodes.hasMoreElements ()) {
+      try {
+      ((IDLDocumentChildren)((org.openide.nodes.Node)nodes.nextElement ()).getChildren ()).createKeys ();
+      } catch (ClassCastException e) {
+      //if (DEBUG)
+      //  e.printStackTrace ();
+      }
+      }
+    */
     if (DEBUG)
       System.out.println ("---end of createKeys ()----------");
   }
@@ -108,10 +145,32 @@ public class IDLDocumentChildren extends Children.Keys {
       if (DEBUG)
 	System.out.println ("found interface");
       nodes.addElement (new IDLInterfaceNode ((InterfaceElement) child));
-
       return vector2nodes (nodes);
     }
 
+    if (child instanceof InterfaceForwardElement) {
+      if (DEBUG)
+	System.out.println ("found forward interface");
+      nodes.addElement (new IDLInterfaceForwardNode ((InterfaceForwardElement) child));
+      return vector2nodes (nodes);
+    }
+    /*
+      if (child instanceof ValueAbsElement) {
+      if (DEBUG)
+      System.out.println ("found abstract valuetype");
+      nodes.addElement (new IDLValueAbsNode ((ValueAbsElement) child));
+
+      return vector2nodes (nodes);
+      }
+
+      if (child instanceof ValueElement) {
+      if (DEBUG)
+      System.out.println ("found valuetype");
+      nodes.addElement (new IDLValueNode ((ValueElement) child));
+      
+      return vector2nodes (nodes);
+      }
+    */
     if (child instanceof OperationElement) {
       if (DEBUG)
 	System.out.println ("found operation");

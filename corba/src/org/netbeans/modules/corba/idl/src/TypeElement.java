@@ -24,7 +24,6 @@ public class TypeElement extends IDLElement {
   private IDLType type;
   //private Vector members;
 
-  static final long serialVersionUID =3084864756788217377L;
   public TypeElement (int id) {
     super(id);
     //members = new Vector ();
@@ -58,13 +57,13 @@ public class TypeElement extends IDLElement {
   public void jjtSetParent (Node n) {
     super.jjtSetParent (n);
     String type;
-    if (DEBUG) {
-      System.out.println ("TypeElement.jjtSetParent ()");
-      if (getType () != null)
-	System.out.println ("type: " + getType ().getName ());
-    }
-    if (getMember (0) instanceof Identifier)
-      setName (((Identifier)getMember (0)).getName ());
+    //if (DEBUG) {
+    //  System.out.println ("TypeElement.jjtSetParent ()");
+    //  if (getType () != null)
+    //System.out.println ("type: " + getType ().getName ());
+    //}
+    //if (getMember (0) instanceof Identifier)
+    setName (((IDLElement)getMember (0)).getName ());
 
     if ((getMember (0) instanceof StructTypeElement) 
 	|| (getMember (0) instanceof UnionTypeElement) 

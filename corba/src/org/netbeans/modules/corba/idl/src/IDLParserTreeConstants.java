@@ -19,19 +19,28 @@ public interface IDLParserTreeConstants
   public int JJTVOID = 1;
   public int JJTMODULEELEMENT = 2;
   public int JJTINTERFACEELEMENT = 3;
-  public int JJTCONSTELEMENT = 4;
-  public int JJTTYPEELEMENT = 5;
-  public int JJTDECLARATORELEMENT = 6;
-  public int JJTSTRUCTTYPEELEMENT = 7;
-  public int JJTMEMBERELEMENT = 8;
-  public int JJTUNIONTYPEELEMENT = 9;
-  public int JJTUNIONMEMBERELEMENT = 10;
-  public int JJTENUMTYPEELEMENT = 11;
-  public int JJTATTRIBUTEELEMENT = 12;
-  public int JJTEXCEPTIONELEMENT = 13;
-  public int JJTOPERATIONELEMENT = 14;
-  public int JJTPARAMETERELEMENT = 15;
-  public int JJTIDENTIFIER = 16;
+  public int JJTINTERFACEFORWARDELEMENT = 4;
+  public int JJTINTERFACEHEADERELEMENT = 5;
+  public int JJTVALUEABSELEMENT = 6;
+  public int JJTVALUEELEMENT = 7;
+  public int JJTVALUEHEADERELEMENT = 8;
+  public int JJTVALUEINHERITANCESPECELEMENT = 9;
+  public int JJTSTATEMEMBERELEMENT = 10;
+  public int JJTINITDCLELEMENT = 11;
+  public int JJTCONSTELEMENT = 12;
+  public int JJTTYPEELEMENT = 13;
+  public int JJTSIMPLEDECLARATOR = 14;
+  public int JJTSTRUCTTYPEELEMENT = 15;
+  public int JJTMEMBERELEMENT = 16;
+  public int JJTUNIONTYPEELEMENT = 17;
+  public int JJTUNIONMEMBERELEMENT = 18;
+  public int JJTENUMTYPEELEMENT = 19;
+  public int JJTARRAYDECLARATOR = 20;
+  public int JJTATTRIBUTEELEMENT = 21;
+  public int JJTEXCEPTIONELEMENT = 22;
+  public int JJTOPERATIONELEMENT = 23;
+  public int JJTPARAMETERELEMENT = 24;
+  public int JJTIDENTIFIER = 25;
 
 
   public String[] jjtNodeName = {
@@ -39,14 +48,23 @@ public interface IDLParserTreeConstants
     "void",
     "ModuleElement",
     "InterfaceElement",
+    "InterfaceForwardElement",
+    "InterfaceHeaderElement",
+    "ValueAbsElement",
+    "ValueElement",
+    "ValueHeaderElement",
+    "ValueInheritanceSpecElement",
+    "StateMemberElement",
+    "InitDclElement",
     "ConstElement",
     "TypeElement",
-    "DeclaratorElement",
+    "SimpleDeclarator",
     "StructTypeElement",
     "MemberElement",
     "UnionTypeElement",
     "UnionMemberElement",
     "EnumTypeElement",
+    "ArrayDeclarator",
     "AttributeElement",
     "ExceptionElement",
     "OperationElement",

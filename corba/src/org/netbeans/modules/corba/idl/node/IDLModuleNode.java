@@ -13,58 +13,64 @@
 
 package com.netbeans.enterprise.modules.corba.idl.node;
 
-import org.openide.nodes.*;
+import org.openide.nodes.CookieSet;
+import org.openide.nodes.Sheet;
+import org.openide.nodes.PropertySupport;
+
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.idl.src.*;
+import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
+import com.netbeans.enterprise.modules.corba.idl.src.ModuleElement;
+
 
 /**
  * Class IDLModuleNode
  *
  * @author Karel Gardas
  */
-public class IDLModuleNode extends AbstractNode {
 
-   ModuleElement _module;
+public class IDLModuleNode extends IDLAbstractNode {
 
-   private static final String MODULE_ICON_BASE =
-      "com/netbeans/enterprise/modules/corba/idl/node/module";
+  ModuleElement _module;
 
-   public IDLModuleNode (ModuleElement value) {
-      super (new IDLDocumentChildren ((IDLElement)value));
-      setIconBase (MODULE_ICON_BASE);
-      _module = value;
-   }
+  private static final String MODULE_ICON_BASE =
+    "com/netbeans/enterprise/modules/corba/idl/node/module";
 
-   public String getDisplayName () {
-      if (_module != null)
-	 //return ((Identifier)_interface.jjtGetChild (0)).getName ();
-	 return _module.getName ();
-      else 
-	 return "NoName :)";
-   }
+  public IDLModuleNode (ModuleElement value) {
+    super (new IDLDocumentChildren ((IDLElement)value));
+    setIconBase (MODULE_ICON_BASE);
+    _module = value;
+    setCookieForDataObject (_module.getDataObject ());
+  }
 
-   public String getName () {
-      return "module";
-   }
+  public IDLElement getIDLElement () {
+    return _module;
+  }
 
-   public SystemAction getDefaultAction () {
-      SystemAction result = super.getDefaultAction();
-      return result == null ? SystemAction.get(OpenAction.class) : result;
-   }
+  public String getDisplayName () {
+    if (_module != null)
+      //return ((Identifier)_interface.jjtGetChild (0)).getName ();
+      return _module.getName ();
+    else 
+      return "NoName :)";
+  }
 
-   protected Sheet createSheet () {
-      Sheet s = Sheet.createDefault ();
-      Sheet.Set ss = s.get (Sheet.PROPERTIES);
-      ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of module") {
-	 public Object getValue () {
-	    return _module.getName ();
-	 }
+  public String getName () {
+    return "module";
+  }
+
+  protected Sheet createSheet () {
+    Sheet s = Sheet.createDefault ();
+    Sheet.Set ss = s.get (Sheet.PROPERTIES);
+    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of module") {
+	public Object getValue () {
+	  return _module.getName ();
+	}
       });
 
-      return s;
-   }
+    return s;
+  }
 
 }
 

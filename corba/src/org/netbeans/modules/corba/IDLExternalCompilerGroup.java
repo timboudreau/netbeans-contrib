@@ -15,20 +15,33 @@ package com.netbeans.enterprise.modules.corba;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 
 import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.openide.compiler.ExternalCompilerGroup;
-import org.openide.compiler.*;
+import org.openide.compiler.ExternalCompiler;
+import org.openide.compiler.Compiler;
+import org.openide.compiler.CompilerJob;
+
 import org.openide.cookies.CompilerCookie;
 import org.openide.execution.NbProcessDescriptor;
-import org.openide.filesystems.*;
-import org.openide.loaders.*;
+
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.EnvironmentNotSupportedException;
+
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+
 import org.openide.TopManager;
 
 
 import com.netbeans.enterprise.modules.corba.settings.*;
+
 import com.netbeans.developer.modules.loaders.java.JavaDataObject;
 import com.netbeans.developer.modules.loaders.java.JavaCompilerType;
 import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
@@ -60,39 +73,54 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
 
   protected Vector _files;
-
+  protected Vector _file_objects;
 
   public IDLExternalCompilerGroup () {
+    super ();
     if (DEBUG)
-      System.out.println ("IDLExternalCompilerGroup (");
+      System.out.println ("IDLExternalCompilerGroup ()");
     _files = new Vector ();
+    _file_objects = new Vector ();
   }
 
-
-  protected Process createProcess (NbProcessDescriptor desc, String[] files, Object type) 
-    throws IOException {
-    FileObject fo = null;
-
-    if (DEBUG) {
-      System.out.println("IDLExternalCompilerGroup: type = " + type);
-      System.out.print ("files(" + files.length + "): "); 
+  public void add (Compiler comp) {
+    if (DEBUG)
+      System.out.print ("add (" + comp + ");");
+    super.add (comp);
+    IDLExternalCompiler ec = (IDLExternalCompiler)comp;
+    if (ec.getIDLFileObject () != null) {
+      _file_objects.add (ec.getIDLFileObject ());
     }
-    _files.add (type);
+  }
+
+  protected Process createProcess (NbProcessDescriptor desc, String[] files) 
+    throws IOException {
+    Thread.dumpStack ();
+    FileObject fo = null;
+    if (DEBUG) {
+      System.out.println ("IDLExternalCompilerGroup::createProcess (" + desc + ", " 
+			  + files + ");");
+    }
+    if (DEBUG) {
+      System.out.println("IDLExternalCompilerGroup:");
+      System.out.print ("files(" + files.length + "): "); 
+      System.out.flush ();
+    }
+    //_files.add (type);
     for (int i=0; i<files.length; i++) {
       //_files.add (files[i]);
-      if (DEBUG)
+      if (DEBUG) {
 	System.out.print (files[i] + ", ");
+	System.out.flush ();
+      }
     }
 
-    if (type instanceof FileObject) {
-      fo = (FileObject) type;
-      //if (fo.isFolder()) {
-      return desc.exec (new IDLFormat (files, fo));
-      //}
-    }
-    throw new IOException("internal error");
+    //fo = findFileObject (files[0]);
+    fo = (FileObject)_file_objects.elementAt (0);
+    return desc.exec (new IDLFormat (files, fo));
+    //throw new IOException("internal error");
   }
-   
+
   /* Starts compilation. It should check which files realy needs to be
    * compiled and compile only those which really need to.
    * <P>
@@ -103,61 +131,23 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
    */
 
   public boolean start () {
-    try {
-      if (super.start()) {
-	if (DEBUG) {
-	  System.out.println ("zkompilovano - jedu javy");
-	  System.out.println ("files(" + _files.size () + "): ");
-	}
-	for (int i=0; i<_files.size (); i++) {
-	  if (DEBUG)
-	    System.out.println (((FileObject)_files.elementAt (i)).getName ());
-	  if (((FileObject)_files.elementAt (i)).getParent () != null)
-	    ((FileObject)_files.elementAt (i)).getParent ().refresh ();
-	  CompilerJob job = new CompilerJob (org.openide.compiler.Compiler.DEPTH_ZERO);
-	  IDLDataObject ido = null;
-	  try {
-	    ido = (IDLDataObject)DataObject.find ((FileObject)_files.elementAt (i));
-	  } catch (DataObjectNotFoundException e) {
-	    e.printStackTrace ();
-	  }
-	  Vector gens = ido.getGeneratedFileObjects ();
-	  JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
-	  //JavaCompilerType jct = (JavaCompilerType)js.getCompiler ();
-	  JavaCompilerType jct = (JavaCompilerType)TopManager.getDefault ().getServices 
-	    ().find(JavaExternalCompilerType.class);
-	  if (DEBUG)
-	    System.out.println ("generated files: " + gens);
-	  for (int j=0; j<gens.size (); j++) {
-	    if (DEBUG)
-	      System.out.println ("prepareJob for " 
-				  + ((FileObject)gens.elementAt (j)).getName ());
-	    jct.prepareJobForFileObject (job, CompilerCookie.Build.class,
-					 (FileObject)gens.elementAt (j));
-	  }
-	  if (DEBUG)
-	    System.out.println ("compile generated files for " 
-				+ ((FileObject)_files.elementAt (i)).getName ());
-	  job.start ().waitFinished ();
+    boolean result = super.start ();
+    if (DEBUG)
+      System.out.println ("end of compilation");
 
-	  if (DEBUG)
-	    System.out.println ("end of compilation");
-	}
-	    
-	return true;
-      } else {
-	return false;
-      }
-    } catch (Exception e) {
-      e.printStackTrace ();
-      return false;
-    }
+    return result;
   }
    
 
   /** 
    */
   public static class IDLFormat extends Format {
+
+    static final long serialVersionUID =1779771962982570995L;
+
+    public static final boolean DEBUG=true;
+
+    //public PrintWriter out;
 
     public static final String TAG_RTCLASSPATH = "rtclasspath";
     public static final String TAG_PACKAGEROOT = "package_root";
@@ -169,9 +159,18 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
     private CORBASupportSettings css;
 
-    static final long serialVersionUID =1779771962982570995L;
     public IDLFormat (String[] files, FileObject fo) {
       super (files);
+      //try {
+      //out = new PrintWriter (new FileOutputStream ("IDLFormat.debug-messages"));
+      //} catch (Exception ex) {
+      //ex.printStackTrace ();
+      //}
+      boolean is_in_root = false;
+      if (fo.getParent ().isRoot ()) {
+	System.out.println ("idl is in root of repository!!!");
+	is_in_root = true;
+      }
 
       css = (CORBASupportSettings) CORBASupportSettings.findObject 
 	(CORBASupportSettings.class, true);
@@ -186,8 +185,16 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
       map.put (TAG_RTCLASSPATH, getRTClasspath ());
       map.put (TAG_PACKAGEROOT, getPackageRoot (fo));
       map.put (TAG_OUTPUTDIR_PARAM, css.getDirParam ());
-      map.put (TAG_PACKAGE_PARAM, css.getPackageParam ());
-      map.put (TAG_PACKAGE, getPackage (fo));
+      
+      // workaround for compilation of file which is in root of repository
+      if (is_in_root) {
+	map.put (TAG_PACKAGE_PARAM, "");
+	map.put (TAG_PACKAGE, "");
+      }
+      else {
+	map.put (TAG_PACKAGE_PARAM, css.getPackageParam ());
+	map.put (TAG_PACKAGE, getPackage (fo));
+      }
       map.put (TAG_PARAMS, params);
       //map.put (TAG_FILES, getFile (fo));
 
@@ -204,9 +211,10 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
       */
       if (DEBUG) {
 	System.out.println ("files: " + files);
-	//System.out.println ("map: " + map);
+	System.out.println ("map: " + map);
 	System.out.println ("file: " + getFile (fo));
       }
+      //throw new RuntimeException ("map:" + map);
     }
 	    
   } // class IDLFormat
@@ -265,6 +273,8 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
       return fo.getPackageName ('/') + " ";
     */
   }
+
+
 }
 
 

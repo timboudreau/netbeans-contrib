@@ -39,6 +39,12 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
   private static final boolean DEBUG = false;
   //private static final boolean DEBUG = true;
 
+  private static final boolean DYNLOAD = true;
+  //private static final boolean DYNLOAD = false;
+
+  //private static final boolean PRODUCTION = true;
+  private static final boolean PRODUCTION = false;
+
   private String[] checkSections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES", 
 				    "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN",
 				    "ORB_OBJECT_ACTIVATION", "DIR_PARAM", 
@@ -149,7 +155,6 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
     return CORBASupport.bundle.getString("CTL_CORBASupport_options");
   }
   
-  static final long serialVersionUID =-4987174194026093658L;
   public CORBASupportSettings () {
     //	setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
     //addOption (getCORBASupportAdvancedSettings ());
@@ -168,6 +173,23 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
     //addOption (getCORBASupportAdvancedSettings ());
     //      setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
     //this.getCookieSet.add (UpdateCookie.class);
+
+    // test for default settings
+    //setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
+    if (DYNLOAD) {
+      loadImpl ();
+      setOrb ("ORBacus for Java 3.1.x");
+      setClientBinding (CORBASupport.CLIENT_IOR_FROM_FILE);
+      setServerBinding (CORBASupport.SERVER_IOR_TO_FILE);
+      generation = CORBASupport.GEN_EXCEPTION;
+    }
+    
+    if (PRODUCTION) {
+      loadImpl ();
+      setOrb ("JDK 1.2 ORB");
+      setClientBinding (CORBASupport.CLIENT_NS);
+      setServerBinding (CORBASupport.SERVER_NS);
+    }
   }
 
   /*
@@ -996,6 +1018,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 	(CORBASupportSettings.class, true);
       for (int i=1; folders.hasMoreElements (); ) {
 	FileObject fo = (FileObject)folders.nextElement ();
+	if (DEBUG)
+	  System.out.println (fo.getName ());
 	if (fo.toString ().equals ("CORBA")) {
 	  FileObject[] files = fo.getChildren ();
 	  for (i = 0; i<files.length ; i++) {

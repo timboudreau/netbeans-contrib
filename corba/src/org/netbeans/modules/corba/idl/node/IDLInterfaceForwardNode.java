@@ -13,7 +13,7 @@
 
 package com.netbeans.enterprise.modules.corba.idl.node;
 
-import org.openide.nodes.CookieSet;
+import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 
@@ -21,44 +21,41 @@ import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
 import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
-import com.netbeans.enterprise.modules.corba.idl.src.TypeElement;
+import com.netbeans.enterprise.modules.corba.idl.src.InterfaceForwardElement;
 
 /**
- * Class IDLTypeNode
+ * Class IDLInterfaceNode
  *
  * @author Karel Gardas
  */
-public class IDLTypeNode extends IDLAbstractNode {
+public class IDLInterfaceForwardNode extends IDLAbstractNode {
 
-  TypeElement _type;
-  private static final String TYPE_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/type";
+  InterfaceForwardElement _interface;
 
-  String name;
+  private static final String INTERFACE_ICON_BASE =
+    "com/netbeans/enterprise/modules/corba/idl/node/interface";
 
-  public IDLTypeNode (TypeElement value) {
-    super (new IDLDocumentChildren ((IDLElement)value));
-    setIconBase (TYPE_ICON_BASE);
-    _type = value;
-    setCookieForDataObject (_type.getDataObject ());
-    if (_type != null) {
-      name = _type.getName ();
-      //name = _type.getType ();
-    }
-    else 
-      name = "NoName :)";
+  public IDLInterfaceForwardNode (InterfaceForwardElement value) {
+    //super (new IDLDocumentChildren ((IDLElement)value));
+    super (Children.LEAF);
+    setIconBase (INTERFACE_ICON_BASE);
+    _interface = value;
+    setCookieForDataObject (_interface.getDataObject ());
   }
 
   public IDLElement getIDLElement () {
-    return _type;
+    return _interface;
   }
 
   public String getDisplayName () {
-    return name;
+    if (_interface != null)
+      return _interface.getName ();
+    else 
+      return "NoName :)";
   }
 
   public String getName () {
-    return "type";
+    return "interface";
   }
 
   public SystemAction getDefaultAction () {
@@ -69,20 +66,22 @@ public class IDLTypeNode extends IDLAbstractNode {
   protected Sheet createSheet () {
     Sheet s = Sheet.createDefault ();
     Sheet.Set ss = s.get (Sheet.PROPERTIES);
-    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of typedef") {
+    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of interface") {
       public Object getValue () {
-	return _type.getName ();
+	return _interface.getName ();
       }
     });
-    ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
+    ss.put (new PropertySupport.ReadOnly ("abstract", String.class, "abstract", "is interface abstract") {
       public Object getValue () {
-	return _type.getType ().getName ();
+	if (_interface.isAbstract ())
+	  return "yes";
+	else
+	  return "no";
       }
     });
+
     return s;
   }
-	    
-
 
 }
 
@@ -90,3 +89,4 @@ public class IDLTypeNode extends IDLAbstractNode {
  * $Log
  * $
  */
+

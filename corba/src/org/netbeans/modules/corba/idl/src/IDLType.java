@@ -70,10 +70,13 @@ public class IDLType {
   // CORBA 2.2 types
   public static final int WCHAR = 1000;
   public static final int WSTRING = 1010;
-
+  public static final int NATIVE = 1020;
 
   // COBRA Object
   public static final int OBJECT = 2000;
+
+  // CORBA 2.3 types
+  public static final int VALUEBASE = 3000;
 
   public IDLType () {
     dim = new Vector ();

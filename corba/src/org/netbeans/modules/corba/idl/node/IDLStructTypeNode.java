@@ -13,9 +13,11 @@
 
 package com.netbeans.enterprise.modules.corba.idl.node;
 
-import org.openide.nodes.*;
+import org.openide.nodes.CookieSet;
+import org.openide.nodes.Sheet;
+import org.openide.nodes.PropertySupport;
 
-import com.netbeans.enterprise.modules.corba.idl.src.*;
+import com.netbeans.enterprise.modules.corba.idl.src.TypeElement;
 
 /**
  * Class IDLStructTypeNode

@@ -26,6 +26,8 @@ import org.openide.nodes.Node;
 
 public class GenerateImplAction extends CookieAction {
 
+  static final long serialVersionUID =7123829348277092914L;
+
   //private String name = NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
   private String generate = NbBundle.getBundle (CORBASupport.class).getString 
     ("ACT_GENERATE");
@@ -36,7 +38,6 @@ public class GenerateImplAction extends CookieAction {
   
   private String name;
 
-  static final long serialVersionUID =7123829348277092914L;
   /** @return set of needed cookies */
   protected Class[] cookieClasses () {
     return new Class[] { IDLNodeCookie.class };
@@ -110,6 +111,7 @@ public class GenerateImplAction extends CookieAction {
 
 /*
  * <<Log>>
+ *  13   Gandalf   1.12        2/8/00   Karel Gardas    
  *  12   Gandalf   1.11        11/27/99 Patrik Knakal   
  *  11   Gandalf   1.10        11/4/99  Karel Gardas    - update from CVS
  *  10   Gandalf   1.9         11/4/99  Karel Gardas    update from CVS

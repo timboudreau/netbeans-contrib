@@ -19,7 +19,6 @@ public class DeclaratorElement extends TypeElement {
 
   private Vector dim;
 
-  static final long serialVersionUID =3868013264433712706L;
   public DeclaratorElement (int id) {
     super(id);
     dim = new Vector ();
@@ -58,12 +57,13 @@ public class DeclaratorElement extends TypeElement {
     }
     return super.getType ();
   }
-
-  public void jjtClose () {
+  /*
+    public void jjtClose () {
     super.jjtClose ();
     //System.out.println ("DeclaratorElement.jjtClose ();");
     setName (((Identifier)getMember (0)).getName ());
     //getType ().setDimension (getDimension ());
-  }
-}
+    }
+  */}
+
 

@@ -20,22 +20,19 @@ public class InterfaceElement extends IDLElement {
   public static final boolean DEBUG = false;
   //public static final boolean DEBUG = true;
 
-  private Vector inherited_from;
+  private InterfaceHeaderElement header;
   private Vector body;
 
-  static final long serialVersionUID =-6011564487281259081L;
   public InterfaceElement(int id) {
     super(id);
-    inherited_from = new Vector ();
     body = new Vector ();
   }
    
   public InterfaceElement(IDLParser p, int id) {
     super(p, id);
-    inherited_from = new Vector ();
     body = new Vector ();
   }
-
+  /*
   public void addParent (Identifier x) {
     inherited_from.addElement (x);
   }
@@ -43,11 +40,19 @@ public class InterfaceElement extends IDLElement {
   public void setParent (Vector parents) {
     inherited_from = parents;
   }
-  
+  */  
   public Vector getParents () {
-    return inherited_from;
+    return header.getInheritedParents ();
   }
-
+  /*
+  public void setAbstract (boolean value) {
+    is_abstract = value;
+  }
+  */
+  public boolean isAbstract () {
+    return header.isAbstract (); 
+  }
+  
   public void addMemberOfBody (IDLElement e) {
     body.addElement (e);
   }
@@ -61,23 +66,18 @@ public class InterfaceElement extends IDLElement {
     // first header
     if (DEBUG)
       System.out.println ("InterfaceElement.jjtClose ()");
-    int counter = 0;
-    int max = super.getMembers ().size ();
     Vector _members = super.getMembers ();
-    if (max >= 1) {
-      setName (((Identifier)_members.elementAt (counter)).getName ());
-      setLine (((Identifier)_members.elementAt (counter)).getLine ());
+    header = (InterfaceHeaderElement)_members.elementAt (0);
+    setName (header.getName ());
+    setLine (header.getLine ());
+    setColumn (header.getColumn ());
+    // remove InterfaceHeader
+    _members.remove (0);
+    int max = super.getMembers ().size ();
+    for (int i=0; i<max; i++) {
+      addMemberOfBody ((IDLElement)_members.elementAt (i));
     }
-    counter++;
-    while ((counter < max) && (_members.elementAt (counter)) instanceof Identifier) {
-      //addParent ((Identifier)_members.elementAt (counter));
-      counter++;
-    }
-    while (counter < max) {
-      addMemberOfBody ((IDLElement)_members.elementAt (counter));
-      counter++;
-    }
-
+    
     // reformating attributes from one attribute with other to many attribute
     for (int i=0; i<max; i++) {
       if (_members.elementAt (i) instanceof AttributeElement) {
@@ -86,9 +86,11 @@ public class InterfaceElement extends IDLElement {
 	//for (int j=0; j<attrs.size (); j++) {
 	for (int j=attrs.size () - 1; j >= 0; j--) {
 	  AttributeElement attr = new AttributeElement (-1);
-	  Identifier id = new Identifier (-1);
-	  id.setName ((String)attrs.elementAt (j));
-	  attr.setName ((String)attrs.elementAt (j));
+	  //Identifier id = new Identifier (-1);
+	  //id.setName ((String)attrs.elementAt (j));
+	  attr.setName (((DeclaratorElement)attrs.elementAt (j)).getName ());
+	  attr.setLine (((DeclaratorElement)attrs.elementAt (j)).getLine ());
+	  attr.setColumn (((DeclaratorElement)attrs.elementAt (j)).getColumn ());
 	  attr.setType (parent.getType ());
 	  attr.setReadOnly (parent.getReadOnly ());
 	  attr.setParent (this);

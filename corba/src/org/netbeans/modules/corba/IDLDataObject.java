@@ -15,7 +15,7 @@ package com.netbeans.enterprise.modules.corba;
 
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.io.*;
+//import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -23,6 +23,7 @@ import java.util.*;
 import org.openide.*;
 import org.openide.cookies.OpenCookie;
 import org.openide.cookies.CompilerCookie;
+import org.openide.cookies.LineCookie;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
 import org.openide.windows.*;
@@ -42,6 +43,8 @@ import org.openide.compiler.CompilerJob;
 import org.openide.compiler.ExternalCompiler;
 import org.openide.execution.NbProcessDescriptor;
 
+import com.netbeans.developer.modules.loaders.java.JavaCompilerType;
+import com.netbeans.developer.modules.loaders.java.JavaExternalCompilerType;
 
 import com.netbeans.enterprise.modules.corba.settings.*;
 import com.netbeans.enterprise.modules.corba.idl.src.*;
@@ -55,6 +58,8 @@ import com.netbeans.enterprise.modules.corba.idl.generator.*;
 */
 
 public class IDLDataObject extends MultiDataObject {
+  
+  static final long serialVersionUID =-7151972557886707595L;
 
   //public static final boolean DEBUG = true;
   private static final boolean DEBUG = false;
@@ -81,7 +86,11 @@ public class IDLDataObject extends MultiDataObject {
 
   private ImplGenerator generator;
 
-  static final long serialVersionUID =-7151972557886707595L;
+  private PositionRef position_of_element;
+
+  private int _line;
+  private int _column;
+
   public IDLDataObject (final FileObject obj, final MultiFileLoader loader)
     throws DataObjectExistsException {
     super(obj, loader);
@@ -93,7 +102,8 @@ public class IDLDataObject extends MultiDataObject {
     MultiDataObject.Entry entry = getPrimaryEntry ();
     CookieSet cookies = getCookieSet ();
 
-    cookies.add (new EditorSupport (entry));
+    //cookies.add (new EditorSupport (entry));
+    cookies.add (new IDLEditorSupport (entry));
     cookies.add (new IDLCompilerSupport.Compile (entry));
     // added for implementation generator
     cookies.add (new IDLNodeCookie () {
@@ -131,6 +141,7 @@ public class IDLDataObject extends MultiDataObject {
       getIdlInterfaces ();
       createPossibleNames ();
     */
+
     update ();
   }
 
@@ -146,10 +157,17 @@ public class IDLDataObject extends MultiDataObject {
    */
   protected Node createNodeDelegate () {
     //return new DataNode (this, Children.LEAF);
+    if (DEBUG)
+      System.out.println ("createNodeDelegate");
     try {
       idlNode = new IDLNode (this);
       idlNode.update ();
-    }	catch (Exception e) {
+      if (status == STATUS_ERROR) {
+	if (DEBUG)
+	  System.out.println ("set error icon...");
+	idlNode.setIconBase (IDLNode.IDL_ERROR_ICON);
+      }
+    } catch (Exception e) {
       e.printStackTrace ();
     }
     return idlNode;
@@ -162,6 +180,57 @@ public class IDLDataObject extends MultiDataObject {
     return HelpCtx.DEFAULT_HELP;
   }
 
+  public void openAtPosition (int line_pos, int offset) {
+    if (DEBUG)
+      System.out.println ("openAtPosition (" + line_pos + ", " + offset + ");");
+    LineCookie line_cookie = (LineCookie)getCookie (LineCookie.class);
+    if (line_cookie != null) {
+      Line line = line_cookie.getLineSet().getOriginal (line_pos - 1);
+      line.show (Line.SHOW_GOTO, offset - 1);
+    }
+  }
+
+  public void openAtLinePosition () {
+    openAtPosition (_line, 1);
+  }
+
+  public void setLinePosition (int line) {
+    if (DEBUG)
+      System.out.println ("setLinePosition: " + line);
+    _line = line;
+  }
+
+  public int getLinePosition () {
+    if (DEBUG)
+      System.out.println ("getLinePosition: " + _line);
+    return _line;
+  }
+
+  public void setColumnPosition (int column) {
+    if (DEBUG)
+      System.out.println ("setColumnPosition: " + column);
+    _column = column;
+  }
+
+  public int getColumnPosition () {
+    if (DEBUG)
+      System.out.println ("getColumnPosition: " + _column);
+    return _column;
+  }
+
+  public void setPositionRef (PositionRef ref) {
+    if (DEBUG)
+      System.out.println ("setPositionRef");
+    position_of_element = ref;
+  }
+
+
+  public PositionRef getPositionRef () {
+    if (DEBUG)
+      System.out.println ("getPositionRef");
+    return position_of_element;
+  }
+
 
   public Compiler createCompiler (CompilerJob job, Class type) {
     if (DEBUG)
@@ -172,14 +241,48 @@ public class IDLDataObject extends MultiDataObject {
       new NotSetuped ();
       return null;
     }
-    ExternalCompiler.ErrorExpression eexpr = new ExternalCompiler.ErrorExpression 
-      ("blabla", css.getErrorExpression (), css.file (), 
-       css.line (), css.column (), css.message ());
 
+    ExternalCompiler.ErrorExpression eexpr = new ExternalCompiler.ErrorExpression 
+      ("blabla", css.getErrorExpression (), css.file (), css.line (), css.column (), 
+       css.message ());
+
+    
     FileObject fo = this.getPrimaryFile ();
     NbProcessDescriptor nb = css.getIdl ();
-    ExternalCompiler ec = new IDLExternalCompiler (job, this.getPrimaryFile (), type, nb, eexpr);
+    ExternalCompiler ec = new IDLExternalCompiler (this.getPrimaryFile (), type, nb, eexpr);
+    
+    job.add (ec);
 
+    Vector gens = getGeneratedFileObjects ();
+    //JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
+    //JavaCompilerType jct = (JavaCompilerType)js.getCompiler ();
+    JavaCompilerType jct = (JavaCompilerType)TopManager.getDefault ().getServices 
+      ().find(JavaExternalCompilerType.class);
+    if (DEBUG)
+      System.out.println ("generated files: " + gens);
+    FileSystem fs = null;
+    try {
+      fs = getPrimaryFile ().getFileSystem ();
+    } catch (FileStateInvalidException ex) {
+      ex.printStackTrace ();
+    }
+
+    String package_name = "";
+    for (int j=0; j<gens.size (); j++) {
+      if (DEBUG)
+	System.out.println ("add compiler to job for " 
+			    + ((FileObject)gens.elementAt (j)).getName ());
+
+      package_name = ((FileObject)gens.elementAt (j)).getPackageNameExt ('/', '.');
+      
+      if (DEBUG)
+	System.out.println ("package name: " + package_name);
+
+      // future extension: jct.prepareIndirectCompiler 
+      //                    (type, fs, package_name, "text to status line");
+      job.add (jct.prepareIndirectCompiler (type, fs, package_name));
+    }
+    
     return ec;
   }
 
@@ -530,7 +633,8 @@ public class IDLDataObject extends MultiDataObject {
   public void startParsing () {
     parse ();
 
-    //((Element)src).xDump (" ");
+    //if (src != null)
+    //  src.xDump (" ");
     /*
       if (src != null)
       createKeys ();
@@ -545,7 +649,9 @@ public class IDLDataObject extends MultiDataObject {
       if (DEBUG)
 	System.out.println ("parsing of " + getPrimaryFile ().getName ());
       src = (IDLElement)parser.Start ();
-      if (idlNode != null)
+      //src.xDump (" ");
+      src.setDataObject (this);
+      if (idlNode != null) 
 	idlNode.setIconBase (IDLNode.IDL_ICON_BASE);
       status = STATUS_OK;
       if (DEBUG)
@@ -553,17 +659,30 @@ public class IDLDataObject extends MultiDataObject {
       if (DEBUG)
 	System.out.println ("parse OK :-)");
     } catch (ParseException e) {
-      if (DEBUG)
+      if (DEBUG) {
 	System.out.println ("parse exception");
-      if (idlNode != null)
+	e.printStackTrace ();
+      }
+      if (idlNode != null) {
 	idlNode.setIconBase (IDLNode.IDL_ERROR_ICON);
+      } else {
+	if (DEBUG)
+	  System.out.println ("can't setup error icon!");
+      }
       status = STATUS_ERROR;
       src = null;
     } catch (TokenMgrError e) {
-      if (idlNode != null)
+      if (idlNode != null) {
 	idlNode.setIconBase (IDLNode.IDL_ERROR_ICON);
-      if (DEBUG)
+      } else {
+	if (DEBUG)
+	  System.out.println ("can't setup error icon!");
+      }
+      if (DEBUG) {
 	System.out.println ("parser error!!!");
+	e.printStackTrace ();
+      }
+      status = STATUS_ERROR;
       src = null;
     } catch (java.io.FileNotFoundException e) {
       e.printStackTrace ();
@@ -640,6 +759,7 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  22   Gandalf   1.21        2/8/00   Karel Gardas    
  *  21   Gandalf   1.20        11/27/99 Patrik Knakal   
  *  20   Gandalf   1.19        11/9/99  Karel Gardas    - better exception 
  *       handling for CORBA 2.3 types
