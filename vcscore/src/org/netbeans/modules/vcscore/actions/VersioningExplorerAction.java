@@ -45,6 +45,8 @@ public class VersioningExplorerAction extends NodeAction {
     }
 
     protected boolean enable(Node[] nodes) {
+        return true;
+        /*
         if (nodes.length < 1) return false;
         for (int i = 0; i < nodes.length; i++) {
             DataObject dataObj = (DataObject) nodes[i].getCookie(DataObject.class);
@@ -62,6 +64,7 @@ public class VersioningExplorerAction extends NodeAction {
             }
         }
         return false;
+         */
     }
     
     public String getName() {
@@ -100,7 +103,9 @@ public class VersioningExplorerAction extends NodeAction {
                 } catch (FileStateInvalidException exc) {
                     continue;
                 }
-                filesByFS.put(fo.getPackageNameExt('/', '.'), fs.getSystemName());
+                if (VcsCommandsAction.isVcsFileSystem(fs)) {
+                    filesByFS.put(fo.getPackageNameExt('/', '.'), fs.getSystemName());
+                }
             }
         }
         return filesByFS;
