@@ -129,6 +129,11 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String PROPERTY_USER_PARAMS = "userParams";
     
     /**
+     * A boolean property, if true a window which shows the output of the command will pop-up.
+     */
+    public static final String PROPERTY_DISPLAY_PLAIN_OUTPUT = "display";
+
+    /**
      * Whether to run this command on all files or ignore unimportant.
      * If true, all files including unimportant will be processed, if false only files which are important will be processed.
      */
