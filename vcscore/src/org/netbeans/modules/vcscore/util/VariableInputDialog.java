@@ -937,9 +937,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
         for (Iterator it = awtSelectorsByConditions.keySet().iterator(); it.hasNext(); ) {
             String[] selectorVarConditions = (String[]) it.next();
             java.awt.Component selectorComponent = (Component) awtSelectorsByConditions.get(selectorVarConditions);
-            Object cmp = disabledComponents.get(selectorComponent);
-            if(cmp != null && selectorComponent.isEnabled())
-                selectorComponent.setEnabled(VariableInputComponent.isVarConditionMatch(selectorVarConditions, vars));            
+            if(!disabledComponents.containsKey(selectorComponent))
+                selectorComponent.setEnabled(VariableInputComponent.isVarConditionMatch(selectorVarConditions, vars)); 
         }
         if (resetVars) this.vars = vars;
         for (Iterator it = eventsToAdjust.iterator(); it.hasNext(); ) {
