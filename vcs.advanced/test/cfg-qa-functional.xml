@@ -63,6 +63,7 @@ Microsystems, Inc. All Rights Reserved.
             <patternset>
     		<include name="complete/common/Availability.class"/>
     		<include name="complete/common/FilesystemSettings.class"/>
+    		<include name="complete/common/MountingWizard.class"/>
             </patternset>
         </testset>
     </testbag>
