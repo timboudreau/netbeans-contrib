@@ -45,6 +45,14 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
      */
     private Character labelMnemonic;
     /**
+     * The accessibility name of this variable field in the Customizer.
+     */
+    private String a11yName;
+    /**
+     * The accessibility description of this variable field in the Customizer.
+     */
+    private String a11yDescription;
+    /**
      * The value of the variable.
      */
     private String value;         // The value of this variable
@@ -114,6 +122,8 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
         this.order = order;
         this.executable = false;
         this.labelMnemonic = null; // no mnemonics by default
+        this.a11yName = null; // no accessibility name by default
+        this.a11yDescription = null; // no accessibility description by default
     }
 
     public String getName () { return name; }
@@ -124,6 +134,12 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
     
     public Character getLabelMnemonic() { return labelMnemonic; }
     public void setLabelMnemonic(Character labelMnemonic) { this.labelMnemonic = labelMnemonic; }
+    
+    public String getA11yName() { return a11yName; }
+    public void setA11yName(String a11yName) { this.a11yName = a11yName; }
+    
+    public String getA11yDescription() { return a11yDescription; }
+    public void setA11yDescription(String a11yDescription) { this.a11yDescription = a11yDescription; }
     
     public String getValue () { return value;  }
     public void setValue (String value) { this.value = value;  }
