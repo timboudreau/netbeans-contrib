@@ -13,13 +13,5 @@ Name: org/netbeans/modules/corba/IDLDataLoader.class
 OpenIDE-Module-Class: Loader
 Install-Before: org.netbeans.modules.java.JavaDataObject
 
-Name: org/netbeans/modules/corba/browser/ns/ContextNode.class
-OpenIDE-Module-Class: Node
-Type: Environment
-
-Name: org/netbeans/modules/corba/browser/ir/IRRootNode.class
-OpenIDE-Module-Class: Node
-Type: Environment
-
 Name: org/netbeans/modules/corba/ioranalyzer/IORDataLoader.class
 OpenIDE-Module-Class: Loader
