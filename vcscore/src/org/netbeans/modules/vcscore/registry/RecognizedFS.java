@@ -46,8 +46,8 @@ public class RecognizedFS extends Object implements Serializable {
     
     public static synchronized RecognizedFS getDefault() {
         if (defaultInstance == null) {
-        //faw    GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
-        //faw    defaultInstance = settings.getRecognizedFS();
+            GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
+            defaultInstance = settings.getRecognizedFS();
             if (defaultInstance == null) {
                 defaultInstance = new RecognizedFS();
             }

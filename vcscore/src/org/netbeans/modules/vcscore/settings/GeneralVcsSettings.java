@@ -13,10 +13,13 @@
 
 package org.netbeans.modules.vcscore.settings;
 
-import org.openide.options.SystemOption;
-import org.openide.util.NbBundle;
 import java.io.File;
 import java.util.LinkedList;
+
+import org.openide.options.SystemOption;
+import org.openide.util.NbBundle;
+
+import org.netbeans.modules.vcscore.registry.RecognizedFS;
 
 /**
  * The settings for all VCS filesystems.
@@ -30,7 +33,7 @@ public class GeneralVcsSettings extends SystemOption {
     public static final String PROP_HIDE_SHADOW_FILES  = "hideShadowFiles"; // NOI18N
     public static final String PROP_AUTO_DETECT        = "autoDetect"; //NOI18N
     public static final String PROP_DEFAULT_PROFILE    = "defaultProfile"; // NOI18N
-
+    public static final String PROP_RECOGNIZED_FS      = "recognizedFS"; // NOI18N
     
     public static final int AUTO_REFRESH_NO_REFRESH = 0;
     public static final int AUTO_REFRESH_ON_DIR_OPEN = 1;
@@ -57,7 +60,7 @@ public class GeneralVcsSettings extends SystemOption {
     
     /** Get human presentable name */
     public String displayName() {
-        return NbBundle.getBundle(VcsSettings.class).getString("CTL_VcsSettings");
+        return NbBundle.getBundle(GeneralVcsSettings.class).getString("CTL_VcsSettings");
     }
     
     /** Whether these settings overide the filesystem settings.
@@ -175,6 +178,14 @@ public class GeneralVcsSettings extends SystemOption {
      */
     public String getDefaultProfile() {
         return (String) getProperty(PROP_DEFAULT_PROFILE);
+    }
+    
+    public RecognizedFS getRecognizedFS() {
+        return (RecognizedFS) getProperty(PROP_RECOGNIZED_FS);
+    }
+    
+    public void setRecognizedFS(RecognizedFS recognizedFS) {
+        putProperty(PROP_RECOGNIZED_FS, recognizedFS, true);
     }
     
 }
