@@ -32,15 +32,13 @@ public class JndiRootCtxKey extends Object {
     
     
     public boolean equals (Object other) {
-        if (other == null)
-            return false;
         if (!(other instanceof JndiRootCtxKey))
             return false;
         if (this.env == null && ((JndiRootCtxKey)other).getName() == null)
             return true;
         if (this.env == null && ((JndiRootCtxKey)other).getName() != null)
             return false;
-        return (this.getName().equals (((JndiRootCtxKey)other).getName()));
+        return (this.getName().equals (((JndiRootCtxKey)other).getName()) && ((JndiRootCtxKey)other).getIndex() == this.index);
     }
     
     public int hashCode () {
