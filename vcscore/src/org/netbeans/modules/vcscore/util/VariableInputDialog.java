@@ -69,6 +69,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private ArrayList actionList = new ArrayList();
     private ActionListener closeListener = null;
     private ArrayList historyListeners = new ArrayList();
+    private ArrayList focusListenersToCallBeforeValidate = new ArrayList();
     private int historySize = 0;
     private int currentHistory = 0;
     private int promptAreaNum = 0;
@@ -400,6 +401,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
      */
     private boolean testValidInput() {
         if (inputDescriptor == null) return true;
+        for (Iterator flIt = focusListenersToCallBeforeValidate.iterator(); flIt.hasNext(); ) {
+            FocusListener fl = (FocusListener) flIt.next();
+            fl.focusLost(null);
+        }
         VariableInputValidator validator = inputDescriptor.validate();
         boolean valid = validator.isValid();
         if (!valid) {
@@ -672,12 +677,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 component.setValue(field.getText());
             }
         });
-        field.addFocusListener(new FocusListener() {
+        FocusListener l;
+        field.addFocusListener(l = new FocusListener() {
             public void focusGained(FocusEvent fevt) {}
             public void focusLost(FocusEvent fevt) {
                 component.setValue(field.getText());
             }
         });
+        focusListenersToCallBeforeValidate.add(l);
         addActionToProcess(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 component.setValue(field.getText());
