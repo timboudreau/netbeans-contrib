@@ -101,7 +101,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
                 if (visualizer.isOpened()) {
                     visualizer.requestFocus();
                 } else {
-                    visualizer.open();
+                    visualizer.open(null);
                 }
             }
         }

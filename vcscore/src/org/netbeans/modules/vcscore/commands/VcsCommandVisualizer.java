@@ -7,13 +7,16 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.awt.event.ActionListener;
 import java.util.Map;
+
+import org.netbeans.api.vcs.commands.CommandTask;
 
 /**
  * This class should be used to display the graphical output of the running command.
@@ -77,8 +80,11 @@ public interface VcsCommandVisualizer {
 
     /**
      * Open the visualizer.
+     * If there is a GUI wrapper defined, that wrapper should be used to display
+     * the visualizer.
+     * @param wrapper The GUI wrapper or <code>null</code>
      */
-    public abstract void open();
+    public abstract void open(Wrapper wrapper);
     
     /**
      * Tell, whether the visualizer is currently opened.
@@ -91,5 +97,30 @@ public interface VcsCommandVisualizer {
      * Request the focus for this visualizer. See {@link org.openide.windows.TopComponent#requestFocus}.
      */
     public abstract void requestFocus();
+    
+    /**
+     * The wrapper of the visualizer.
+     */
+    public static interface Wrapper {
+        
+        /**
+         * After instatiation this method is called with the task that is
+         * wrapped. The task can be already finished when this method is called.
+         */
+        public void setTask(CommandTask task);
+    
+        /**
+         * Wrap a visualizer component.
+         * This method is to be used to display the visualizer if wrapper is defined.
+         * @param visualizerComponent The component to wrap
+         * @param showStatus Whether to show the status of the command (running/finished)
+         * @param showCancel Whether to provide a possibility to cancel the command
+         * @param showClose Whether to provide a possibility to close the dialog
+         * @return The action listener, that is notified when the dialog should be closed.
+         */
+        public ActionListener wrap(javax.swing.JComponent visualizerComponent,
+                                   boolean showStatus, boolean showClose);
+        
+    }
     
 }

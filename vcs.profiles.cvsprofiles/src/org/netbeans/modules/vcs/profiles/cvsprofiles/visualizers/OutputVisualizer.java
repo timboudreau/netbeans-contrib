@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import org.openide.DialogDisplayer;
@@ -73,19 +74,36 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     
     public abstract Map getOutputPanels();
     
-    public void open() {
+    public void open(Wrapper w) {
         outputMap = getOutputPanels();        
         if(outputMap == null)
             return;
         Iterator it = outputMap.keySet().iterator();
-        while(it.hasNext()){
-            String fileName = (String)it.next();             
-            JComponent component = (JComponent)outputMap.get(fileName);
-            OutputTopComponent out = new OutputVisualizer.OutputTopComponent();
-            out.setOutputPanel(component);
-            out.setFileName(fileName);
-            out.open(WindowManager.getDefault().getCurrentWorkspace());                      
-        }   
+        if (w != null) {
+            if (outputMap.size() == 1) {
+                String fileName = (String) it.next(); 
+                JComponent component = (JComponent) outputMap.get(fileName);
+                component.putClientProperty("wrapper-title", fileName+"["+commandName+"]");
+                w.wrap(component, true, true);
+            } else {
+                JTabbedPane tabbs = new JTabbedPane();
+                while(it.hasNext()){
+                    String fileName = (String)it.next();             
+                    JComponent component = (JComponent)outputMap.get(fileName);
+                    tabbs.add(fileName+"["+commandName+"]", component);
+                }
+                w.wrap(tabbs, true, true);
+            }
+        } else {
+            while(it.hasNext()){
+                String fileName = (String)it.next();             
+                JComponent component = (JComponent)outputMap.get(fileName);
+                OutputTopComponent out = new OutputVisualizer.OutputTopComponent();
+                out.setOutputPanel(component);
+                out.setFileName(fileName);
+                out.open(WindowManager.getDefault().getCurrentWorkspace());                      
+            }
+        }
         opened = true;
     }    
     

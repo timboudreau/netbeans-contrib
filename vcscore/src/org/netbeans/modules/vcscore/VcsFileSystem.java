@@ -4157,6 +4157,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                 new UserQuestionException(message) {
                                     public void confirmed() {
                                         CommandTask exec = null;
+                                        DialogVisualizerWrapper dialogWrapper = createDialogWrapper();
                                         synchronized (editCommandExecutors) {
                                             CommandTask executor = (CommandTask) editCommandExecutors.get(filePath);
                                             if (executor != null) {
@@ -4165,9 +4166,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                 }
                                             }
                                             if (!editCommandExecutors.containsKey(filePath)) {
-                                                CommandSupport cmd = getCommandSupport("EDIT");
-                                                Command command = cmd.createCommand();
-                                                command.setFiles(new FileObject[] { findResource(name) });
+                                                Command command = createCommand("EDIT",  name, dialogWrapper);
                                                 boolean customized = VcsManager.getDefault().showCustomizer(command);
                                                 if (customized) {
                                                     exec = command.execute();
@@ -4178,21 +4177,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                             }
                                         }
                                         if (exec != null) {
-                                            try {
-                                                exec.waitFinished(0);
-                                            } catch (InterruptedException iex) {
-                                                // Interrupted, so we continue...
-                                            }
+                                            waitForCommand(exec, dialogWrapper);
                                         }
                                     }
                                 }, g("EXC_CannotDeleteReadOnly", file.toString()));
                         } else {
                             CommandTask exec = null;
+                            DialogVisualizerWrapper dialogWrapper = createDialogWrapper();
                             synchronized (editCommandExecutors) {
                                 if (!editCommandExecutors.containsKey(filePath)) {
-                                    CommandSupport cmd = getCommandSupport("EDIT");
-                                    Command command = cmd.createCommand();
-                                    command.setFiles(new FileObject[] { findResource(name) });
+                                    Command command = createCommand("EDIT",  name, dialogWrapper);
                                     boolean customized = VcsManager.getDefault().showCustomizer(command);
                                     if (customized) {
                                         exec = command.execute();
@@ -4203,11 +4197,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                 }
                             }
                             if (exec != null) {
-                                try {
-                                    exec.waitFinished(0);
-                                } catch (InterruptedException iex) {
-                                    // Interrupted, so we continue...
-                                }
+                                waitForCommand(exec, dialogWrapper);
                             }
                         }
                     }
@@ -4235,6 +4225,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         throw new UserQuestionException(message) {
                             public void confirmed() {
                                 CommandTask exec = null;
+                                DialogVisualizerWrapper dialogWrapper = createDialogWrapper();
                                 synchronized (lockCommandExecutors) {
                                     CommandTask executor = (CommandTask) lockCommandExecutors.get(filePath);
                                     if (executor != null) {
@@ -4243,9 +4234,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                         }
                                     }
                                     if (!lockCommandExecutors.containsKey(filePath)) {
-                                        CommandSupport cmd = getCommandSupport("LOCK");
-                                        Command command = cmd.createCommand();
-                                        command.setFiles(new FileObject[] { findResource(name) });
+                                        Command command = createCommand("LOCK",  name, dialogWrapper);
                                         boolean customized = VcsManager.getDefault().showCustomizer(command);
                                         if (customized) {
                                             exec = command.execute();
@@ -4256,21 +4245,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                     }
                                 }
                                 if (exec != null) {
-                                    try {
-                                        exec.waitFinished(0);
-                                    } catch (InterruptedException iex) {
-                                        // Interrupted, so we continue...
-                                    }
+                                    waitForCommand(exec, dialogWrapper);
                                 }
                             }
                         };
                     } else {
                         CommandTask exec = null;
+                        DialogVisualizerWrapper dialogWrapper = createDialogWrapper();
                         synchronized (lockCommandExecutors) {
                             if (!lockCommandExecutors.containsKey(filePath)) {
-                                CommandSupport cmd = getCommandSupport("LOCK");
-                                Command command = cmd.createCommand();
-                                command.setFiles(new FileObject[] { findResource(name) });
+                                Command command = createCommand("LOCK",  name, dialogWrapper);
                                 boolean customized = VcsManager.getDefault().showCustomizer(command);
                                 if (customized) {
                                     exec = command.execute();
@@ -4281,11 +4265,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             }
                         }
                         if (exec != null) {
-                            try {
-                                exec.waitFinished(0);
-                            } catch (InterruptedException iex) {
-                                // Interrupted, so we continue...
-                            }
+                            waitForCommand(exec, dialogWrapper);
                         }
                     }
                 }
@@ -4298,6 +4278,43 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     return g("EXC_CannotLockReadOnly", file.toString());
                 }
             };
+        }
+    }
+    
+    /** Create a dialog wrapper, if necessary. */
+    private static DialogVisualizerWrapper createDialogWrapper() {
+        if (EventQueue.isDispatchThread()) {
+            return new DialogVisualizerWrapper();
+        } else {
+            return null;
+        }
+    }
+    
+    /** Create a command of a given name, acting on a given file and associate
+     *  a dialog wrapper with it. */
+    private Command createCommand(String cmdName, String fileName,
+                                  DialogVisualizerWrapper wrapper) {
+        CommandSupport cmd = getCommandSupport(cmdName);
+        Command command = cmd.createCommand();
+        command.setFiles(new FileObject[] { findResource(fileName) });
+        if (wrapper != null && command instanceof VcsDescribedCommand) {
+            ((VcsDescribedCommand) command).setVisualizerWrapper(wrapper);
+        }
+        return command;
+    }
+    
+    /** Wait safely for the command. A special modal dialog wrapper is used
+     *  when we should wait in AWT thread. */
+    private static void waitForCommand(CommandTask exec, DialogVisualizerWrapper dialog) {
+        if (dialog != null) {
+            //DialogVisualizerWrapper dialog = new DialogVisualizerWrapper(exec);
+            dialog.show(); // The dialog will wait for the command to finish
+        } else {
+            try {
+                exec.waitFinished(0);
+            } catch (InterruptedException iex) {
+                // Interrupted, so we continue...
+            }
         }
     }
 

@@ -94,7 +94,22 @@ public interface VcsDescribedCommand extends Command, TextOutputCommand,
      * @return The array of files to act on.
      */
     public File[] getDiskFiles();
+    
+    /**
+     * Set a wrapper for the visualizer.
+     * A GUI output of the command (visualizer) will be displayed in this wrapper,
+     * if any GUI output is available.
+     * @param wrapper The wrapper for the command's GUI visualizer
+     */
+    public void setVisualizerWrapper(VcsCommandVisualizer.Wrapper wrapper);
 
+    /**
+     * Get a wrapper for the visualizer.
+     * If there is a wrapper defined, the command visualizer will be displayed
+     * in this wrapper.
+     */
+    public VcsCommandVisualizer.Wrapper getVisualizerWrapper();
+    
     public Object clone();
 
 }

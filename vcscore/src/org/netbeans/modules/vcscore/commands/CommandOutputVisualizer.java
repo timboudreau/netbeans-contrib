@@ -13,13 +13,16 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.Actions;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -54,7 +57,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     private CommandTask task;
     private VcsCommandExecutor vce;
     private java.awt.event.ActionListener killListener = null;
-    
+    private java.awt.event.ActionListener closeWrapperListener = null;
     
     private static final long serialVersionUID = -8901790341334731237L;
     
@@ -101,7 +104,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     public void setVcsTask(VcsDescribedTask task) {
         this.task = (CommandTask) task;
         this.vce = task.getExecutor();
-        killListener = new CommandKillListener();
+        killListener = new CommandKillListener(this.task);
         outputPanel.addKillActionListener(killListener);
         outputPanel.setExec(vce.getExec());
         String title;
@@ -143,6 +146,24 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
      */
     public boolean openAfterCommandFinish() {
         return false;
+    }
+    
+    public void open(Wrapper wrapper) {
+        if (wrapper == null) {
+            open();
+        } else {
+            outputPanel.putClientProperty("wrapper-title", getDisplayName());
+            closeWrapperListener = wrapper.wrap(outputPanel, false, false);
+            Component window = outputPanel.getParent();
+            while (window != null && !(window instanceof java.awt.Window)) {
+                window = window.getParent();
+            }
+            if (window != null) {
+                outputPanel.removeKillActionListener(killListener);
+                killListener = new CommandKillListener(this.task, window);
+                outputPanel.addKillActionListener(killListener);
+            }
+        }
     }
 
     /**
@@ -231,6 +252,9 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     public void setExitStatus(int exit) {
         outputPanel.setStatus(CommandProcessor.getExitStatusString(exit));
         outputPanel.commandFinished(true);
+        if (closeWrapperListener != null) {
+            outputPanel.addKillActionListener(closeWrapperListener);
+        }
     }
 
     public void addCloseListener(TopComponentCloseListener l) {
@@ -268,23 +292,42 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         }
     }
     
-    class CommandKillListener implements java.awt.event.ActionListener {
+    static class CommandKillListener implements java.awt.event.ActionListener {
+        
+        private CommandTask task;
+        private Component owner;
+        
+        CommandKillListener(CommandTask task) {
+            this(task, null);
+        }
+        
+        CommandKillListener(CommandTask task, Component owner) {
+            this.task = task;
+            this.owner = owner;
+        }
+        
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            //if (pool != null) {
-                String name = vce.getCommand().getDisplayName();
-                if (name == null || name.length() == 0) name = vce.getCommand().getName();
+            String name = task.getDisplayName();//vce.getCommand().getDisplayName();
+            if (name == null || name.length() == 0) name = task.getName();//vce.getCommand().getName();
+            else name = Actions.cutAmpersand(name);
+            String message = java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.killCommand"),
+                                               new Object[] { name });
+            if (owner == null) {
                 NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation (
-                    java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.killCommand"),
-                                                   new Object[] { name }),
-                    NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
+                    message, NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
                 if (NotifyDescriptor.Confirmation.OK_OPTION.equals (DialogDisplayer.getDefault ().notify (nd))) {
                     task.stop();
-                    //synchronized (this) {
-                    //    if (pool != null) pool.kill(vce);
-                    //}
                 }
-            //}
+            } else {
+                int confirmed = JOptionPane.showConfirmDialog(owner, message,
+                    NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.QuestionTitle"),
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (confirmed == JOptionPane.YES_OPTION) {
+                    task.stop();
+                }
+            }
         }
+        
     }
     
     private static class OutputDisplayer extends Object implements Runnable {

@@ -329,6 +329,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         }
         ec.preprocessCommand(cmd, vars, dCommand.getPreferredExec());
         VcsCommandVisualizer visualizer = userTask.getVisualizerGUI(false, false);
+        final VcsCommandVisualizer.Wrapper wrapper = dCommand.getVisualizerWrapper();
+        if (wrapper != null) wrapper.setTask(task);
         if (visualizer == null) {
             if (VcsCommandIO.getBooleanProperty(ec.getCommand(), VcsCommand.PROPERTY_DISPLAY_INTERACTIVE_OUTPUT)) {
                 visualizer = userTask.getVisualizerGUI(true, true);
@@ -340,7 +342,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             final VcsCommandVisualizer fvisualizer = visualizer;
             javax.swing.SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    fvisualizer.open();
+                    fvisualizer.open(wrapper);
                 }
             });
         }
@@ -353,7 +355,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     final VcsCommandVisualizer fvisualizer = visualizer;
                     javax.swing.SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
-                            fvisualizer.open();
+                            fvisualizer.open(wrapper);
                         }
                     });
                 }
