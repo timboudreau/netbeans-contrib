@@ -22,7 +22,7 @@ import java.util.Map;
  * <p>
  * <codE>JCOMPONENT(VAR1 VAR2 VAR3, fullpackage.ClassName)</code>
  *
- * <p>Note: current framework implements only one var bindings.
+ * <p>Note: current VID framework implements only one var bindings.
  *
  * @author Petr Kuzel
  */
@@ -43,6 +43,7 @@ public interface NestableInputComponent {
     /**
      * Called with the updated map of variables.
      * @param variables The map of variable values by their names
+     * @deprecated there is already VariableInputNest.getCommandHashtable()
      */
     public void updatedVars(Map variables);
     
@@ -50,8 +51,13 @@ public interface NestableInputComponent {
      * Set a historical value. The component should adapt it's state
      * accodring to the provided value.
      * @param historicalValue The historical value.
+     * @deprecated does not support multivalued NICes. Also there is already
+     * VariableInputNest.getValue()
      */
     public void setHistoricalValue(String historicalValue);
+
+    ///** Nest have changed, Adapt state to it. */
+    //public void reload();
 
     /**
      * Tests current value validity and for valid
