@@ -208,7 +208,7 @@ public class VariableInputDescriptor extends Object {
             if (inputId == INPUT_LABEL && inputArgs.length > 0) {
                 descriptor.label = VcsUtilities.getBundleString(resourceBundles, inputArgs[0]);
                 if (inputArgs.length > 1 && inputArgs[1].startsWith(INPUT_STR_ACCESSIBILITY)) {
-                    setAccessibility(descriptor, inputArgs[1].substring(INPUT_STR_ACCESSIBILITY.length() + 1), resourceBundles);
+                    setAccessibility(descriptor, inputArgs[1].substring(INPUT_STR_ACCESSIBILITY.length() + 1, inputArgs[1].length() - 1), resourceBundles);
                 }
             } else if (inputId == INPUT_HELP_ID && inputArgs.length > 0) {
                 descriptor.helpID = inputArgs[0];
