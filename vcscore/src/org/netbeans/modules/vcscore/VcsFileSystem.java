@@ -45,6 +45,7 @@ import org.openide.util.WeakListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
 import org.netbeans.modules.vcscore.cache.CacheFile;
+import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
@@ -197,7 +198,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient VcsAction action = null;
     private transient VcsFactory factory = null;
 
-    private transient Vector unimportantNames = null;
     private Boolean processUnimportantFiles = Boolean.FALSE;
 
     /**
@@ -603,15 +603,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param name the file name
      */
     public void markUnimportant(String name) {
-        D.deb("==== unimportant("+name+") ====");
-        if (!unimportantNames.contains(name)) unimportantNames.addElement(name);
+        CacheReference ref = (CacheReference)findReference(name);
+        if (ref != null) {
+            ref.markUnimportant();
+        }
     }
-
+    
     public boolean isImportant(String name) {
-        //D.deb("isImportant("+name+")");
-        //D.deb("unimportantNames = "+unimportantNames);
-        //D.deb("contains() = "+unimportantNames.contains(name));;
-        return !unimportantNames.contains(name);
+        CacheReference ref = (CacheReference)findReference(name);
+        if (ref != null) {
+            ref.isImportant();
+        }
+        return true;
     }
 
     /**
@@ -829,7 +832,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     protected void init() {
         D.deb ("init()"); // NOI18N
-        if (unimportantNames == null) unimportantNames = new Vector();
         if (tempFiles == null) tempFiles = new Vector();
         //cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
         cache = getVcsFactory().getFileCacheProvider();
