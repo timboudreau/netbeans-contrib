@@ -1016,7 +1016,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="onRoot">
-	  <value>true</value>
+	  <value>false</value>
 	</property>
         <property name="disabledOnStatus">
           <value>"", "Up-to-date", "Locally Added", "Locally Modified", "Needs Checkout", "Needs Patch", "Needs Merge", "File had conflicts on merge"</value>
