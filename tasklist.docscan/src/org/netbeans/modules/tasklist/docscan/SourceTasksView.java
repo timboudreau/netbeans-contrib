@@ -30,9 +30,9 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.Lookup;
 import org.openide.util.UserCancelException;
+import org.openide.util.lookup.Lookups;
 import org.openide.util.actions.SystemAction;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.*;
@@ -42,15 +42,14 @@ import org.openide.windows.TopComponent;
 
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.spi.project.ui.support.LogicalViews;
-import org.netbeans.spi.project.ui.LogicalViewProvider;
+import org.netbeans.spi.project.Sources;
+import org.netbeans.spi.project.SourceGroup;
 
 
 /**
@@ -1303,52 +1302,23 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         try {
             Node[] selected = op.select(Util.getString("sel_title"), Util.getString("sel-head"), content, new NodeAcceptor() {
                 public boolean acceptNodes(Node[] nodes) {
-                    return nodes.length == 1 && nodes[0] != content && nodes[0].getCookie(DataFolder.class) != null;
+                    return nodes.length == 1 && nodes[0] != content && nodes[0].getLookup().lookup(FileObject.class) != null;
                 }
             });
 
-            DataObject dobj = (DataObject) selected[0].getCookie(DataObject.class);
             resultsSnapshot = null;
             updateRecent(selectedFolder);
-            selectedFolder = dobj.getPrimaryFile();
+            selectedFolder = (FileObject) selected[0].getLookup().lookup(FileObject.class);
 
             handleAllFiles();
         } catch (UserCancelException e) {
             // no folders selected keep previous one
+        } finally {
+            icons = null;
         }
     }
 
-    /** @deprecated logical view over repository */
-    private Node repositoryView() {
-        Node repo = RepositoryNodeFactory.getDefault().repository(new DataFilter() {
-            public boolean acceptDataObject(DataObject obj) {
-                return obj instanceof DataObject.Container;
-            }
-        });
-        Children kids = new Children.Array();
-        Node[] nodes = repo.getChildren().getNodes(true);
-        for (int i = 0; i<nodes.length; i++) {
-            DataObject dobj = (DataObject) nodes[i].getCookie(DataObject.class);
-            try {
-                FileSystem fs = dobj.getPrimaryFile().getFileSystem();
-                if (fs.isReadOnly()) continue;
-                if (fs.isValid() == false) continue;
-                kids.add(new Node[] {new FilterNode(nodes[i])});
-            } catch (FileStateInvalidException e) {
-                // do not add to chooser
-            }
-        }
-        final Node content = new AbstractNode(kids) {
-            public void setName(String name) {
-                super.setName(name);
-                super.setIconBase("org/netbeans/modules/tasklist/docscan/repository");  // NOI18N
-            }
-        };
-
-        content.setName(Util.getString("fs"));
-        return content;
-    }
-
+    static Node icons = null;
 
     /** Logical view over project */
     private Node projectView() {
@@ -1367,8 +1337,28 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             Project project = FileOwnerQuery.getOwner(roots[0]);
             if (projects.contains(project)) continue;
             projects.add(project);
-            LogicalViewProvider viewProvider = LogicalViews.physicalView(project);
-            kids.add(new Node[] {viewProvider.createLogicalView()});  // TODO #41718 filter out dist, build and nbproject J2SE project output folders
+
+            Sources sources = (Sources) project.getLookup().lookup(Sources.class);
+            if (sources == null) {
+//                LogicalViewProvider viewProvider = LogicalViews.physicalView(project);
+//                kids.add(new Node[] {viewProvider.createLogicalView()});  // TODO #41718 filter out dist, build and nbproject J2SE project output folders
+            } else {
+                SourceGroup[] group =sources.getSourceGroups(Sources.TYPE_GENERIC);
+                for (int i=0; i<group.length; i++) {
+                    FileObject folder = group[i].getRootFolder();
+                    if (folder.isFolder() == false) continue;
+                    kids.add(new Node[] {new FolderNode(folder)});
+
+                    if (icons == null) {
+                        try {
+                            DataObject dobj = DataObject.find(folder);
+                            icons = dobj.getNodeDelegate();
+                        } catch (DataObjectNotFoundException e) {
+                            // ignore
+                        }
+                    }
+                }
+            }
         }
         final Node content = new AbstractNode(kids) {
             public void setName(String name) {
@@ -1377,8 +1367,60 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             }
         };
 
-        content.setName(Util.getString("fs"));
+        content.setName(Util.getString("projects"));
         return content;
+    }
+
+    /** Visualizes folder structure. */
+    private static class FolderNode extends AbstractNode {
+
+        private final FileObject fileObject;
+
+        public FolderNode(FileObject fileObject) {
+            super(new FolderContent(fileObject), Lookups.singleton(fileObject));
+            this.fileObject = fileObject;
+        }
+
+        public String getDisplayName() {
+            return fileObject.getName();
+        }
+
+        public Image getIcon(int type) {
+            // XXX how to dynamically get icon (that is subject to L&F)
+            return icons.getIcon(type);
+        }
+
+        public Image getOpenedIcon(int type) {
+            // XXX how to dynamically get icon (that is subject to L&F)
+            return icons.getOpenedIcon(type);
+        }
+
+        private static class FolderContent extends Children.Keys {
+
+            private final FileObject fileObject;
+
+            public FolderContent(FileObject fileObject) {
+                this.fileObject = fileObject;
+            }
+
+            protected void addNotify() {
+                FileObject[] fo = fileObject.getChildren();
+                setKeys(Arrays.asList(fo));
+            }
+
+            protected void removeNotify() {
+                setKeys(Collections.EMPTY_SET);
+            }
+
+            protected Node[] createNodes(Object key) {
+                FileObject fo = (FileObject) key;
+                if (fo.isFolder()) {
+                    return new Node[] {new FolderNode(fo)};
+                } else {
+                    return new Node[0];
+                }
+            }
+        }
     }
 
     private void updateRecent(FileObject fo) {
