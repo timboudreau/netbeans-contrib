@@ -142,7 +142,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         }
 
         boolean skipCode = settings().getSkipComments();
-        List tasks = null;
+        List tasks;
     
         if (skipCode) {
             tasks = scanCommentsOnly(env);
@@ -174,9 +174,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
      */
     private List scanCommentsOnly(SuggestionContext env) {
         ArrayList newTasks = new ArrayList();
-        SourceCodeCommentParser sccp = null;
-        boolean washComment = true;
-
+        SourceCodeCommentParser sccp;
         String suffix = env.getFileObject().getExt();
             
         // @todo These parameters should be configured somewhere.

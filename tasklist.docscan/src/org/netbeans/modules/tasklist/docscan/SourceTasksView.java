@@ -964,7 +964,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
-    private class DelegateAction extends AbstractAction {
+    private static class DelegateAction extends AbstractAction {
         AbstractButton target;
 
         DelegateAction(AbstractButton target) {
@@ -1057,7 +1057,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
-    private String createLabel(FileObject fo) {
+    private static String createLabel(FileObject fo) {
         String path;
         File file = FileUtil.toFile(fo);
         if (file == null) {
@@ -1179,7 +1179,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         addRecent(recentFolders, fo);
     }
 
-    private void addRecent(java.util.List recentFolders, FileObject fo) {
+    private static void addRecent(java.util.List recentFolders, FileObject fo) {
         if (fo == null) return;
         if (recentFolders.contains(fo) == false) {
             if (recentFolders.size() == RECENT_ITEMS_COUNT) {
@@ -1256,7 +1256,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return ret;
     }
 
-    private class TabState {
+    private static class TabState {
         boolean filtered;  // filter enabled
         Filter filter; // last filter
     }

@@ -276,7 +276,7 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
                 lastDate = dateEnd + 4;
             }
 
-            String range = "";
+            String range;
             if (rangeEnd != -1) {
                 range = line.subSequence(firstDate, rangeEnd).toString() + year;
             } else if (listEnd != -1) {

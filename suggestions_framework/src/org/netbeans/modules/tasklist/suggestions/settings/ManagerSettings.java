@@ -221,20 +221,20 @@ public final class ManagerSettings implements Node.Handle {
             throws SAXException {
             if (name.equals("type")) { // NOI18N
                 if (parsingDisabled) {
-                    String type = (String)attrs.getValue("id"); // NOI18N
+                    String type = attrs.getValue("id"); // NOI18N
                     if (disabled == null) {
                         disabled = new HashSet(50);
                     }
                     disabled.add(type);
                 } else if (parsingNoConfirm) {
-                    String id = (String)attrs.getValue("id"); // NOI18N
+                    String id = attrs.getValue("id"); // NOI18N
                     if (noconfirm == null) {
                         noconfirm = new HashSet(50);
                     }
                     SuggestionType type = SuggestionTypes.getDefault().getType(id);
                     noconfirm.add(type);
                 } else if (parsingExpanded) {
-                    String id = (String)attrs.getValue("id"); // NOI18N
+                    String id = attrs.getValue("id"); // NOI18N
                     if (expanded == null) {
                         expanded = new HashSet(50);
                     }
@@ -250,9 +250,9 @@ public final class ManagerSettings implements Node.Handle {
             } else if (name.equals("expanded")) { // NOI18N
                 parsingExpanded = true;
             } else if (name.equals("scan-preference")) { // NOI18N
-                String event = (String)attrs.getValue("event"); // NOI18N
-                String enabled = (String)attrs.getValue("enabled"); // NOI18N
-                String delay = (String)attrs.getValue("delay"); // NOI18N
+                String event = attrs.getValue("event"); // NOI18N
+                String enabled = attrs.getValue("enabled"); // NOI18N
+                String delay = attrs.getValue("delay"); // NOI18N
                 if ((event == null) || (enabled == null) || (delay == null)) {
                     ErrorManager.getDefault().log(ErrorManager.WARNING, "Got scan-preference event="+event+", enabled="+enabled+", "+delay);
                     return;

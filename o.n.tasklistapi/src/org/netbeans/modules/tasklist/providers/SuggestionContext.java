@@ -32,7 +32,7 @@ import java.io.IOException;
  */
 public final class SuggestionContext {
 
-    private DataObject dataObject;
+    private final DataObject dataObject;
 
     private String cachedString;
 

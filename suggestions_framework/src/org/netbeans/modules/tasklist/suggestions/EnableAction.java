@@ -140,9 +140,6 @@ public final class EnableAction extends CallableSystemAction
             JMenu menu = (JMenu)e.getSource();
 
 	    // Add the disabled types
-	    SuggestionManagerImpl manager =
-		(SuggestionManagerImpl)SuggestionManager.getDefault();
-
             int n = 0;
             SuggestionTypes types = SuggestionTypes.getDefault();
             
@@ -156,12 +153,11 @@ public final class EnableAction extends CallableSystemAction
                 }
             }
             if (n == 0) {
-		JMenuItem item = createMenuItem(
-                                    NbBundle.getMessage(EnableAction.class,
-                                                        "Empty"), null); // NOI18N
-		item.setEnabled(false);
-		menu.add(item);
-	    }            
+        		JMenuItem item = createMenuItem(
+                    NbBundle.getMessage(EnableAction.class, "Empty"), null); // NOI18N
+                item.setEnabled(false);
+                menu.add(item);
+            }
         }
 
         // Property I attach suggestion types to on menu items
@@ -181,13 +177,9 @@ public final class EnableAction extends CallableSystemAction
         public void actionPerformed(ActionEvent e) {
             JMenuItem item = (JMenuItem)e.getSource();
             SuggestionType type = (SuggestionType)(item.getClientProperty(TYPE));
-            String category = null;
-            if (type != null) {
-                category = type.getLocalizedName();
-            }
-            
-	    SuggestionManagerImpl manager =
-		(SuggestionManagerImpl)SuggestionManager.getDefault();
+            assert type != null;
+            SuggestionManagerImpl manager =
+                (SuggestionManagerImpl)SuggestionManager.getDefault();
             manager.setEnabled(type.getName(), true, false);
         }
     }

@@ -119,11 +119,11 @@ public class RewriteAction extends NodeAction
                 //   "no editor cookie!");
             }
 	    EditCookie ec = (EditCookie)dobj.getCookie(EditCookie.class);
-	    if (ec != null) { 
+	    if (ec == null) {
 	    	OpenCookie oc = (OpenCookie)dobj.getCookie(OpenCookie.class);
-		oc.open();
+		    if (oc != null) oc.open();
 	    } else {
-		ec.edit();
+		    ec.edit();
 	    }
             doc = TLUtils.getDocument(dobj);
 	    if (doc == null) {

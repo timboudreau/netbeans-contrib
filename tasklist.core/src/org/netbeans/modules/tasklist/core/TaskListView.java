@@ -1442,7 +1442,7 @@ for (int i = 0; i < columns.length; i++) {
 
         // find prev candidate
 
-        TreeNode prev = null;
+        TreeNode prev;
         int index = last.getParent().getIndex(last);
         assert index != -1;
         index--;

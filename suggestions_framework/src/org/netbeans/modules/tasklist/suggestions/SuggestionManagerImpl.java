@@ -503,6 +503,9 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                     }
                     prevType = s.getSType();
                 }
+                if (group == null) {
+                    group = new ArrayList(50);
+                }
                 group.add(s);
             }
             if ((group != null) && (group.size() > 0)) {
@@ -629,8 +632,8 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
 
         if ((request != null) /* once it was dispatched in must be completed regardless && (request == broker.getCurrRequest())*/) {
             return broker.getSuggestionsList();
-        } else if (request != null) {
-            return null;
+//        } else if (request != null) {
+//            return null;
         } else {
             return getList();
         }

@@ -111,7 +111,7 @@ abstract public class Suggestion {
      * @param action Action to perform when the suggestion should be fixed. May 
      *    be null.
      */
-    protected Suggestion(String type, String summary, SuggestionPerformer action) {
+    protected Suggestion(final String type, final String summary, final SuggestionPerformer action) {
         this.type = type;
         this.summary = summary;
         this.action = action;
@@ -158,7 +158,7 @@ abstract public class Suggestion {
      *
      * @param summary The summary of the task.
      */
-    public void setSummary(String summary) {
+    public void setSummary(final String summary) {
         if (summary == null) {
             throw new NullPointerException();
         }
@@ -185,7 +185,7 @@ abstract public class Suggestion {
      *
      * @param details The details of the task
      */
-    public void setDetails(String details) {
+    public void setDetails(final String details) {
         this.details = details;
     }
 
@@ -233,7 +233,7 @@ abstract public class Suggestion {
      *
      * @param priority The priority of the task.
      */
-    public void setPriority(SuggestionPriority priority) {
+    public void setPriority(final SuggestionPriority priority) {
         this.priority = priority;
     }
 
@@ -256,7 +256,7 @@ abstract public class Suggestion {
      *
      * @param icon The icon to be shown with the task.
      */
-    public void setIcon(Image icon) {
+    public void setIcon(final Image icon) {
         this.icon = icon;
     }
 
@@ -278,7 +278,7 @@ abstract public class Suggestion {
      *
      * @param line The line associated with the suggestion.
      */
-    public void setLine(Line line) {
+    public void setLine(final Line line) {
         this.line = line;
     }
 
@@ -299,7 +299,7 @@ abstract public class Suggestion {
      *
      * @param action The action that the task represents.
      */
-    public void setAction(SuggestionPerformer action) {
+    public void setAction(final SuggestionPerformer action) {
         this.action = action;
     }
 
@@ -321,7 +321,7 @@ abstract public class Suggestion {
      *
      * @param type The type name for this suggestion
      */
-    protected void setType(String type) {
+    protected void setType(final String type) {
         this.type = type;
     }
 

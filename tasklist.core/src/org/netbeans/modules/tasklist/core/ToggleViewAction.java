@@ -97,7 +97,7 @@ PropertyChangeListener, Presenter.Menu {
                 if (act != null)
                     act.requestActive();
             }
-        } else if (visible) {
+        } else {
             TopComponent act = WindowManager.getDefault().
                 getRegistry().getActivated();
             if (act == null)

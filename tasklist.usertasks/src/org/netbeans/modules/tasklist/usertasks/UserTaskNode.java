@@ -336,9 +336,9 @@ class UserTaskNode extends TaskNode {
     
     public javax.swing.Action getPreferredAction() {
         if (item.getParent() == null)
-            return (Action) SystemAction.get(NewTaskAction.class);
+            return SystemAction.get(NewTaskAction.class);
         else
-            return (Action) SystemAction.get(ShowTaskAction.class);
+            return SystemAction.get(ShowTaskAction.class);
     }
     
     public boolean canRename() {

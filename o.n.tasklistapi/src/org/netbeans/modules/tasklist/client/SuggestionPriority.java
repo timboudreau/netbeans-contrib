@@ -46,7 +46,7 @@ final public class SuggestionPriority implements Comparable {
         }
     }
 
-    private SuggestionPriority(int priority) {
+    private SuggestionPriority(final int priority) {
         this.priority = priority;
     }
 
@@ -94,7 +94,7 @@ final public class SuggestionPriority implements Comparable {
         }
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(final Object o) {
         return ((SuggestionPriority)o).priority - priority;
     }
 
@@ -112,7 +112,7 @@ final public class SuggestionPriority implements Comparable {
      * @param n integer representation of a priority
      * @return priority
      */
-    public static SuggestionPriority getPriority(int n) {
+    public static SuggestionPriority getPriority(final int n) {
         switch (n) {
             case 1:
                 return HIGH;

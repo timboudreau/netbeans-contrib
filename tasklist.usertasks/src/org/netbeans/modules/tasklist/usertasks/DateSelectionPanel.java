@@ -505,7 +505,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
      * A small little renderer so I can get the text centered, and todays day
      * in red...
      */
-    private class CalendarRenderer extends DefaultTableCellRenderer {
+    private static class CalendarRenderer extends DefaultTableCellRenderer {
         private Integer today;
         private Color   defaultColor;
         

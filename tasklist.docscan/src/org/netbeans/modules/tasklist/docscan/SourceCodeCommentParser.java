@@ -99,7 +99,7 @@ final class SourceCodeCommentParser {
      * parser treats everything as comments, and should hence "work" for all
      * unknown file types ;)
      */
-    private class SourceParser {
+    private static class SourceParser {
         
         /**
          * Create a new instance of the SourceParser
@@ -138,7 +138,7 @@ final class SourceCodeCommentParser {
          * @param doc the document to parse
          */
         public void setDocument(SuggestionContext env) {
-            text = (String) env.getCharSequence(); //XXX downcast
+            text = env.getCharSequence().toString();
 
             if (pattern != null) {
                 matcher = pattern.matcher(text);
@@ -185,7 +185,7 @@ final class SourceCodeCommentParser {
      * create single line comments, and a block of lines that are treated as
      * a comment.
      */
-    private class CommentParser extends SourceParser {
+    private static class CommentParser extends SourceParser {
         /**
          * Create a new instance of the comment parser that only supports
          * a "single-line" comments

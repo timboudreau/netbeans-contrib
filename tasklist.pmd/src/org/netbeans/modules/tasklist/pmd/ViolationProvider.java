@@ -128,7 +128,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                 return null;
             }
 
-            String text = (String) env.getCharSequence();
+            String text = env.getCharSequence().toString();
             Reader reader = new StringReader(text);
             // XXX got an unexplained NPE in here somewhere...
             ClassElement[] topClazzes = cookie.getSource().getClasses();

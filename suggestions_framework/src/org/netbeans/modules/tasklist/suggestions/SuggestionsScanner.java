@@ -174,7 +174,6 @@ public final class SuggestionsScanner implements Cancellable {
                 scanFolder(folder, recursive);
             }
         } finally {
-            list = null;
             scanned.clear();
         }
     }

@@ -118,7 +118,7 @@ public final class SuggestionProviders {
             docProviders = new ArrayList(20);
             Iterator it = getProviders().iterator();
             while (it.hasNext()) {
-                Object next = (Object) it.next();
+                Object next = it.next();
                 if (next instanceof DocumentSuggestionProvider) {
                     docProviders.add(next);
                 }

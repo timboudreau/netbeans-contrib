@@ -111,9 +111,9 @@ implements ExPropertyEditor {
         if (val == null) {
             return "";
         } else {
-            StringBuffer sb = new StringBuffer(500);
             TaskTags tags = (TaskTags)val;
             return tags.getScanRegexp().pattern();
+//            StringBuffer sb = new StringBuffer(500);
 //            TaskTag[] tgs = tags.getTags();
 //            String[] prios = Task.getPriorityNames();
 //            for (int i = 0; i < tgs.length; i++) {

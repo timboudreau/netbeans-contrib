@@ -62,7 +62,7 @@ table.setGridColor((java.awt.Color)javax.swing.UIManager.getDefaults().get("Labe
     }
     
     public TableModel getModel() {
-        return (TableModel) treeTable.getModel();
+        return treeTable.getModel();
     }
     
     public TableColumnModel getHeaderModel() {

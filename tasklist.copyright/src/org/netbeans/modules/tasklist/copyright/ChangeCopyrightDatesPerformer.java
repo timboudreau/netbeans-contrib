@@ -71,10 +71,8 @@ public class ChangeCopyrightDatesPerformer implements SuggestionPerformer {
                 year);
              preview = newdoc.getText(0, newdoc.getLength());
          } catch (BadLocationException ex) {
-             ErrorManager.getDefault().notify(
-             ErrorManager.WARNING,
-             ex);
-             ex.printStackTrace();
+             ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
+             return null;
          }
 
          //return NbBundle.getMessage(CopyrightChecker.class,
@@ -160,7 +158,7 @@ public class ChangeCopyrightDatesPerformer implements SuggestionPerformer {
     /**
      * @param begin Position within the document to start
      */
-    private void substitute(Document doc, int rangeEnd, int begin, int listEnd,
+    private static void substitute(Document doc, int rangeEnd, int begin, int listEnd,
     int dateEnd, String year) {
         if (rangeEnd != -1) {
             // Replace the end of the range
@@ -190,7 +188,7 @@ public class ChangeCopyrightDatesPerformer implements SuggestionPerformer {
         }
     }
     
-    private Element getElement(Document d, int linenumber) {
+    private static Element getElement(Document d, int linenumber) {
         if (d == null) {
             ErrorManager.getDefault().log(ErrorManager.USER, "d was null");
             return null;

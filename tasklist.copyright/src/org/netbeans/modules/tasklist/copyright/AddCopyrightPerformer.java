@@ -265,7 +265,7 @@ public class AddCopyrightPerformer implements SuggestionPerformer {
     }    
     /** Returns true if the given line (starting at str+index) begins
      * with the given comment prefix (after an optional range of whitespace) */
-    private boolean startsWithComment(String str, int index, int len,
+    private static boolean startsWithComment(String str, int index, int len,
     String commentPrefix) {
         while ((index < len) &&
         (Character.isSpaceChar(str.charAt(index)))) {

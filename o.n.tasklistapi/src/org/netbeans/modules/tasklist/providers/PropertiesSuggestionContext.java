@@ -33,7 +33,7 @@ final class PropertiesSuggestionContext {
             char[] buf = new char[1024*64];
             StringBuffer sb = new StringBuffer();
             Reader r = new InputStreamReader(new BufferedInputStream(fo.getInputStream()), "ISO8859-1");  // NOI18N
-            int len = -1;
+            int len;
             while (true) {
                 len = r.read(buf);
                 if (len == -1) break;

@@ -923,8 +923,7 @@ err.log("Couldn't find current nodes...");
                 // of subtracting there, we drop the add and subtract altogether
 
                 // Go to the given line
-                Line line = null;
-                line = TLUtils.getLineByNumber(dataobject, lineno + 1);
+                Line line = TLUtils.getLineByNumber(dataobject, lineno + 1);
                 /*
                 try {
                     LineCookie lc = (LineCookie)dataobject.getCookie(LineCookie.class);

@@ -35,7 +35,7 @@ final class XMLSuggestionContext {
             String encoding = XMLEncodingHelper.detectEncoding(new BufferedInputStream(fo.getInputStream(), 2157));
             if (encoding == null) return null;
             Reader r = new InputStreamReader(new BufferedInputStream(fo.getInputStream()), encoding);
-            int len = -1;
+            int len;
             while (true) {
                 len = r.read(buf);
                 if (len == -1) break;
