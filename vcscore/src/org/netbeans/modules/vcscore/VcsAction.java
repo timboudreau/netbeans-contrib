@@ -57,6 +57,8 @@ public class VcsAction extends NodeAction implements ActionListener {
 
     private ArrayList switchableList;
     
+    private javax.swing.event.MenuKeyListener ctrlListener;
+    
     private Node[] actionCommandsSubTrees = null; // the commands subtrees to construct actions from
 
     boolean CTRL_Down = false;
@@ -675,11 +677,13 @@ public class VcsAction extends NodeAction implements ActionListener {
                 //} else {
                 //    submenu = new JMenuPlus();
                 //}
+//                submenu.addMenuKeyListener(ctrlListener);
                 addMenu(child, submenu, onDir, onFile, onRoot, statuses);
                 parent.add(submenu);
                 item = submenu;
             } else {
                 item = createItem(cmd.getName());
+//                item.addMenuKeyListener(ctrlListener);
                 parent.add(item);
             }
             if (disabled) {
@@ -742,7 +746,8 @@ public class VcsAction extends NodeAction implements ActionListener {
             menu.setIcon(getIcon());
         }
         JMenu mn = (JMenu)menu;
-        mn.addMenuKeyListener(new CtrlMenuKeyListener());
+        ctrlListener = new CtrlMenuKeyListener();
+        mn.addMenuKeyListener(ctrlListener);
         mn.addMenuListener(new javax.swing.event.MenuListener() {
             public void menuDeselected(javax.swing.event.MenuEvent e) {
 //                deselectedMenu();
@@ -985,17 +990,21 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
 
     private class CtrlMenuKeyListener implements javax.swing.event.MenuKeyListener {
-        public void menuKeyTyped(final javax.swing.event.MenuKeyEvent p1) {
+        public void menuKeyTyped(javax.swing.event.MenuKeyEvent p1) {
         }
-        public void menuKeyPressed(final javax.swing.event.MenuKeyEvent p1) {
-            boolean newCTRL_Down = (p1.CTRL_MASK == p1.getModifiers());
+        public void menuKeyPressed(javax.swing.event.MenuKeyEvent p1) {
+            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || p1.isControlDown();
+//            System.out.println("key pressed=" + newCTRL_Down);
+//            System.out.println("is down=" + p1.isControlDown());
             changeCtrlSigns(newCTRL_Down);
             CTRL_Down = newCTRL_Down;
         }
-        public void menuKeyReleased(final javax.swing.event.MenuKeyEvent p1) {
-            boolean newCTRL_Down = (p1.CTRL_MASK == p1.getModifiers());
-            changeCtrlSigns(newCTRL_Down);
-            CTRL_Down = newCTRL_Down;
+        public void menuKeyReleased(javax.swing.event.MenuKeyEvent p1) {
+            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || !p1.isControlDown();
+//            System.out.println("key Released=" + newCTRL_Down);
+//            System.out.println("keykode=" + p1.getKeyText(p1.getKeyCode()));
+            changeCtrlSigns(!newCTRL_Down);
+            CTRL_Down = !newCTRL_Down;
         }
     }
 
