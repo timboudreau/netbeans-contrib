@@ -53,7 +53,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <folder name="Runtime">
 		<file name="JndiRootNode.instance">
 		  <attr name="instanceClass" stringvalue="org.netbeans.modules.jndi.JndiRootNode"/>
-		  <attr name="instanceCreate" methodValue="org.netbeans.modules.jndi.JndiRootNode.getDefault"/>
+		  <attr name="instanceCreate" methodvalue="org.netbeans.modules.jndi.JndiRootNode.getDefault"/>
 		</file>
 	    </folder>
             <folder name="Services">
