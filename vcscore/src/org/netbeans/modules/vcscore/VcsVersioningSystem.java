@@ -483,7 +483,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             }
             //FileStatusProvider status = fileSystem.getStatusProvider();
             for (int i = 0; i < files.length; i++) {
-                if (fileSystem.isFilterBackupFiles() && files[i].endsWith(fileSystem.getBackupExtension()) ||
+                if (files[i].endsWith(fileSystem.getBackupExtension()) ||
                     !isShowUnimportantFiles() &&
                         !fileSystem.isImportant((name.length() == 0) ? files[i] : name + "/" + files[i]) ||
                     //!isShowLocalFiles() && cache != null && status != null &&  -- makes problems, since every file is initially local

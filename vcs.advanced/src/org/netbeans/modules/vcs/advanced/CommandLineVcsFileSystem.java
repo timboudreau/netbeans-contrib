@@ -237,7 +237,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
         setIgnoreListSupport(new GenericIgnoreListSupport());
         setCreateBackupFiles(true);
-        setFilterBackupFiles(true);
         sharedPasswordChangeListener = new SharedPasswordListener();
         SharedPasswords.getInstance().addPropertyChangeListener(
             org.openide.util.WeakListener.propertyChange(sharedPasswordChangeListener,
@@ -1025,6 +1024,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             String[] files = VcsUtilities.getQuotedStrings(qfiles);
             localFilesFilteredOut = new Vector(Arrays.asList(files));
         } else localFilesFilteredOut = null;
+        setAdditionalFileFilter(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                if (!localFileFilterCaseSensitive) name = name.toUpperCase();
+                if (localFilesFilteredOut == null) return true;
+                else return !localFilesFilteredOut.contains(name);
+            }
+        });
         firePropertyChange(PROP_LOCAL_FILES_FILTERED_OUT, null, localFilesFilteredOut);
     }
     
@@ -1138,13 +1144,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
             String name = (String) it.next();
             if (name.startsWith(VAR_FS_PROPERTY_PREFIX)) {
-                String propertyName = name.substring(VAR_FS_PROPERTY_PREFIX.length());
+                final String propertyName = name.substring(VAR_FS_PROPERTY_PREFIX.length());
                 PropertyDescriptor pd = (PropertyDescriptor) propertyDescriptorsByNames.get(propertyName);
                 if (pd == null) {
-                    final NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_NoSuchProperty", propertyName));
-                    org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
+                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             // Present the dialog asynchronously not to block the current thread.
+                            NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_NoSuchProperty", propertyName));
                             DialogDisplayer.getDefault().notify(nd);
                         }
                     });
@@ -1264,17 +1270,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
 
-    public FilenameFilter getLocalFileFilter() {
-        return new FilenameFilter() {
-                   public boolean accept(File dir, String name) {
-                       if (!localFileFilterCaseSensitive) name = name.toUpperCase();
-                       if (localFilesFilteredOut == null) return true;
-                       else return !localFilesFilteredOut.contains(name);
-                       //return !name.equalsIgnoreCase("CVS"); // NOI18N
-                   }
-               };
-    }
-    
     /**
      * Finds out, whether the configuration file name is a temporary configuration.
      * Temporary configurations are saved during serialization of the FS.
@@ -1513,7 +1508,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setProfile(ProfilesFactory.getDefault().getProfile(configFileName), false);
         setIgnoreListSupport(new GenericIgnoreListSupport());
         if (!isCreateBackupFilesSet()) setCreateBackupFiles(true);
-        if (!isFilterBackupFilesSet()) setFilterBackupFiles(true);
         // Be conservative, create the VersioningFS only when REVISION_LIST command is defined.
         setCreateVersioningSystem(false);
         // We're deserializing the FS. There might be some necessary conversions in variable values:

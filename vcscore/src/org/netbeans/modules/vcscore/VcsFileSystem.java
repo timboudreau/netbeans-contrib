@@ -137,15 +137,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String PROP_ANNOTATION_PATTERN = "annotationPattern"; // NOI18N
     public static final String PROP_ANNOTATION_TYPES = "annotationTypes"; // NOI18N
     public static final String PROP_COMMAND_NOTIFICATION = "commandNotification"; // NOI18N
-    public static final String PROP_IGNORED_GARBAGE_FILES = "ignoredGarbageFiles"; // NOI18N
     public static final String PROP_PASSWORD = "password"; // NOI18N
     public static final String PROP_REMEMBER_PASSWORD = "rememberPassword"; // NOI18N
     public static final String PROP_CREATE_RUNTIME_COMMANDS = "createRuntimeCommands"; // NOI18N
     public static final String PROP_CREATE_VERSIONING_EXPLORER = "createVersioningExplorer"; // NOI18N
     public static final String PROP_CREATE_BACKUP_FILES = "createBackupFiles"; // NOI18N
-    public static final String PROP_FILTER_BACKUP_FILES = "filterBackupFiles"; // NOI18N
     public static final String PROP_PROMPT_FOR_VARS_FOR_EACH_FILE = "promptForVarsForEachFile"; // NOI18N
     public static final String PROP_VCS_REFRESH_TIME = "vcsRefreshTime"; // NOI18N
+    public static final String PROP_FILE_FILTER = "fileFilter"; // NOI18N
+    
     protected static final String PROP_USE_UNIX_SHELL = "useUnixShell"; // NOI18N
     protected static final String PROP_NOT_MODIFIABLE_STATUSES = "notModifiableStatuses"; // NOI18N
 
@@ -404,13 +404,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private transient IntegritySupportMaintainer integritySupportMaintainer = null;
 
-    /** regexp of ignorable children */
-    private String ignoredGarbageFiles = ""; // NOI18N
-
-    /** regexp matcher for ignoredFiles, null if not needed */
-    private transient Pattern ignoredGarbageRE = null;
     private Boolean createBackupFiles = null;
-    private Boolean filterBackupFiles = null;
 
     private transient VersioningFileSystem versioningSystem = null;
 
@@ -618,37 +612,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    public String getIgnoredGarbageFiles () {
-        return ignoredGarbageFiles;
-    }
-
-    public synchronized void setIgnoredGarbageFiles (String nue) throws IllegalArgumentException {              
-        if (! nue.equals (ignoredGarbageFiles)) {
-            if (nue.length () > 0) {
-                try {
-                    ignoredGarbageRE = Pattern.compile(nue);
-                } catch (PatternSyntaxException rese) {
-                    IllegalArgumentException iae = new IllegalArgumentException (rese.getMessage());
-                    ErrorManager.getDefault ().annotate (
-                        iae, 
-                        ErrorManager.USER,
-                        null,
-                        NbBundle.getMessage(VcsFileSystem.class, 
-                            "EXC_InvalidRegularExpressionForIgnoredFiles", 
-                             rese.getLocalizedMessage()),
-                        rese,
-                        new java.util.Date());
-                    throw iae;
-                }
-            } else {
-                ignoredGarbageRE = null;
-            }
-            ignoredGarbageFiles = nue;            
-            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, null); // NOI18N            
-            refreshExistingFolders();
-        }
-    }
-
     protected void refreshExistingFolders() {
         refreshExistingFolders(null);
     }
@@ -686,21 +649,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (this.createBackupFiles == null || createBackupFiles != this.createBackupFiles.booleanValue()) {
             this.createBackupFiles = createBackupFiles ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_CREATE_BACKUP_FILES, null, this.createBackupFiles);
-        }
-    }
-
-    protected boolean isFilterBackupFilesSet() {
-        return filterBackupFiles != null;
-    }
-
-    public boolean isFilterBackupFiles() {
-        return filterBackupFiles != null && filterBackupFiles.booleanValue();
-    }
-
-    public void setFilterBackupFiles(boolean filterBackupFiles) {
-        if (this.filterBackupFiles == null || filterBackupFiles != this.filterBackupFiles.booleanValue()) {
-            this.filterBackupFiles = filterBackupFiles ? Boolean.TRUE : Boolean.FALSE;
-            firePropertyChange(PROP_FILTER_BACKUP_FILES, null, this.filterBackupFiles);
         }
     }
 
@@ -1884,15 +1832,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         last_useUnixShell = useUnixShell;
         updateEnvironmentVars();
         init();
-        if (ignoredGarbageFiles == null) {
-            ignoredGarbageFiles = "";
-        } else if (ignoredGarbageFiles.length () > 0) {
-            try {
-                ignoredGarbageRE = Pattern.compile(ignoredGarbageFiles);
-            } catch (PatternSyntaxException rese) {
-                ErrorManager.getDefault ().notify(rese);
-            }
-        }
         if (versioningFileSystemShowGarbageFiles == null) {
             versioningFileSystemShowGarbageFiles = "";
         }
@@ -3101,8 +3040,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     String[] getLocalFiles(String name) {
         File dir = new File(getRootDirectory(), name);
         if (!dir.canRead()) return new String[0];
-        localFilenameFilter.setOptionalFilter(getLocalFileFilter());
-        String files[] = dir.list(localFilenameFilter);
+        String files[] = dir.list();
         if (files == null) return new String[0]; // is null when dir is not a directory
         return files;
     }
@@ -3253,14 +3191,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("children = "+files);
         //System.out.println("  children = "+VcsUtilities.arrayToString(files));
         if (versioningSystem != null) addVersioningFolderListener(name);
-
-        for (int i = 0; i < files.length; i++) {
-            if (isFilterBackupFiles() && files[i].endsWith(getBackupExtension()) ||
-                ignoredGarbageRE != null && ignoredGarbageRE.matcher(files[i]).find()) {
-
-                files[i] = null;
-            }
-        }
         return files;
     }
 
@@ -4578,8 +4508,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    public FilenameFilter getLocalFileFilter() {
-        return null;
+    /**
+     * The subclasses can define their own filename filter. This additional
+     * filename filter can be set through this method.
+     */
+    protected final void setAdditionalFileFilter(FilenameFilter additionalFileFilter) {
+        localFilenameFilter.setOptionalFilter(additionalFileFilter);
+        firePropertyChange(PROP_FILE_FILTER, null, getFileFilter());
+    }
+    
+    /**
+     * Get the filename filter of this file system. This file system does not
+     * filter these files itself.
+     */
+    public FilenameFilter getFileFilter() {
+        return localFilenameFilter;
     }
 
     /**
