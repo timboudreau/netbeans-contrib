@@ -1318,9 +1318,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+    // handle select folder life-time
     static Node icons = null;
 
-    /** Logical view over project */
+    /** Logical view over opened projects */
     private Node projectView() {
 
         Children kids = new Children.Array();
@@ -1387,12 +1388,20 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         public Image getIcon(int type) {
             // XXX how to dynamically get icon (that is subject to L&F)
-            return icons.getIcon(type);
+            if (icons != null) {
+                return icons.getIcon(type);
+            } else {
+                return super.getIcon(type);
+            }
         }
 
         public Image getOpenedIcon(int type) {
             // XXX how to dynamically get icon (that is subject to L&F)
-            return icons.getOpenedIcon(type);
+            if (icons != null) {
+                return icons.getOpenedIcon(type);
+            } else {
+                return super.getOpenedIcon(type);
+            }
         }
 
         private static class FolderContent extends Children.Keys {
