@@ -41,6 +41,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.SimpleBeanInfo;
 import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.event.ChangeEvent;
@@ -60,7 +61,7 @@ public class ComponentGenerator {
     
     Hashtable operators = new Hashtable();
     HashSet componentNames;
-    ArrayList components;
+    protected ArrayList components;
     int maxComponentCodeLength = 0;
     ComponentRecord _container;
     String _package;
@@ -512,6 +513,12 @@ public class ComponentGenerator {
      */   
     public ComponentGenerator(Properties props) {
         maxComponentCodeLength = Integer.parseInt(props.getProperty("max.code.length")); // NOI18N
+        JemmyProperties.setCurrentTimeout("ComponentOperator.WaitComponentTimeout", 0); // NOI18N
+        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
+        addOperatorRecords(props);
+    }
+        
+    public void addOperatorRecords(Properties props) {        
         int i;
         String operator;
         String code[], internalLogic[], defaultCode[] = new String[maxComponentCodeLength];
@@ -545,8 +552,6 @@ public class ComponentGenerator {
             boolean rec = Boolean.valueOf(props.getProperty("operator."+operator+".recursion", defRecursion)).booleanValue(); // NOI18N
             addOperator(operator, props.getProperty("operator."+operator+".prefix",""), props.getProperty("operator."+operator+".suffix",""), props.getProperty("operator."+operator+".method"), code, null, rec); // NOI18N
         }
-        JemmyProperties.setCurrentTimeout("ComponentOperator.WaitComponentTimeout", 0); // NOI18N
-        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
    }
 
     String getPackage() {
@@ -704,7 +709,7 @@ public class ComponentGenerator {
     
     
     
-    ComponentRecord addComponent(ComponentOperator componentOperator, ContainerOperator containerOperator, ComponentRecord parentComponent ) {
+    protected ComponentRecord addComponent(ComponentOperator componentOperator, ContainerOperator containerOperator, ComponentRecord parentComponent ) {
         String className = componentOperator.getClass().getName();
         OperatorRecord operatorRecord = (OperatorRecord) operators.get( className.substring(className.lastIndexOf('.')+1,className.length()) );
         if ( null==operatorRecord ) return null;
@@ -730,6 +735,7 @@ public class ComponentGenerator {
             } catch (Exception e) {}
         }
         if (componentOperator.getSource()!=containerOperator.getSource()) {
+            if (isTopComponent(componentOperator.getSource())) return null;
             int index;
             if (parentComponent==null) {
                 index = searchForIndex( componentOperator, containerOperator, identification );
@@ -748,12 +754,16 @@ public class ComponentGenerator {
         return null;
     }
     
+    protected boolean isTopComponent(Component comp) {
+        return (comp instanceof Window)||(comp instanceof JInternalFrame);
+    }
+    
     /** grabs given visible container identified by ContainerOperator
      * @param _grabIcons boolean true when grab icons of components
      * @param _container Container to grab
      * @param _package String package name of generated source code */    
     public void grabComponents( Container _container, String _package, boolean _grabIcons ) {
-        ContainerOperator container = (ContainerOperator)Operator.createOperator(_container);
+        ContainerOperator container = (ContainerOperator)createOperator(_container);
         this._package = _package;
         this._grabIcons = _grabIcons;
         components = new ArrayList();
@@ -783,13 +793,17 @@ public class ComponentGenerator {
                     if (record==null) record = parent;
                     comps = ((ContainerOperator)component).getComponents();
                     for (i=comps.length-1; i>=0; i--) {
-                        queue.add(Operator.createOperator(comps[i]));
+                        queue.add(createOperator(comps[i]));
                         parentQueue.add(record);
                     }
                 }
             }
         }
     }   
+    
+    protected ComponentOperator createOperator(Component comp) {
+        return Operator.createOperator(comp);
+    }
     
     private static class TabOperator extends ContainerOperator {
         JTabbedPaneOperator tabPane;
@@ -807,7 +821,7 @@ public class ComponentGenerator {
         }
         public Component[] getComponents() {
             selectTab();
-            return tabPane.getComponents();
+            return new Component[]{tabPane.getSelectedComponent()};
         }
         public void selectTab() {
             tabPane.selectPage(index);

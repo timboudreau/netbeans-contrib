@@ -29,12 +29,20 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.File;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
 import java.util.Properties;
 
 import org.netbeans.jemmy.ComponentChooser;
 import org.netbeans.jemmy.operators.*;
 import org.netbeans.jemmy.util.PNGEncoder;
 import java.awt.image.BufferedImage;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /** class observing CTRL-F12 key and launching ComponentGenerator
@@ -46,11 +54,13 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     String directory;
     String packageName;
     JLabel help;
-    Component window;
+    Component window,focused;
     ComponentGenerator gen;
     ComponentGeneratorPanel panel;
     boolean screenShot;
     boolean showEditor;
+    static final Border focusedBorder=BorderFactory.createLineBorder(Color.red, 1);
+    Border lastBorder;
     
     /** Creates new ComponentGeneratorRunnable
      * @param screenShot boolean true when create screen shot
@@ -63,42 +73,81 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         this.directory = directory;
         this.packageName = packageName;
         help = panel.getHelpLabel();
-        gen = new ComponentGenerator(properties);
+
+        GeneratorProvider prov = (GeneratorProvider)Lookup.getDefault().lookup(GeneratorProvider.class);
+        if (prov==null) {
+            gen = new ComponentGenerator(properties);
+        } else {
+            gen = prov.getInstance(properties);
+        }
+
+//        gen=new org.netbeans.modules.testtools.generator.JellyComponentGenerator(properties);
+        
         this.panel = panel;
         this.screenShot = screenShot;
         this.showEditor = showEditor;
     }
 
+    static JComponent getJComponent(Component c) {
+        if (c instanceof JComponent) return (JComponent)c;
+        if (c instanceof JFrame) return ((JFrame)c).getRootPane();
+        if (c instanceof JDialog) return ((JDialog)c).getRootPane();
+        return null;
+    }
+    
     /** called when event is dispatched
      * @param aWTEvent aWTEvent
      */    
-    public void eventDispatched(java.awt.AWTEvent aWTEvent) {
-        if ((aWTEvent instanceof KeyEvent)&&(aWTEvent.getID()==KeyEvent.KEY_RELEASED)&&(((KeyEvent)aWTEvent).getKeyCode()==KeyEvent.VK_F12)&&(((KeyEvent)aWTEvent).getModifiers()==KeyEvent.CTRL_MASK)) {
-            if (window==null) {
-                window=(Component)aWTEvent.getSource();
-                while (!((window instanceof Window)||(window instanceof JInternalFrame))) {
-                    window = window.getParent();
+    public synchronized void eventDispatched(java.awt.AWTEvent aWTEvent) {
+        if (aWTEvent instanceof FocusEvent) {
+            if (aWTEvent.getID()==FocusEvent.FOCUS_GAINED) {
+                focused=(Component)aWTEvent.getSource();
+                while (!gen.isTopComponent(focused)) {
+                    focused = focused.getParent();
                 }
+                JComponent rootPane=getJComponent(focused);
+                if (rootPane!=null){
+                    lastBorder=rootPane.getBorder();
+                    rootPane.setBorder(focusedBorder);
+                }
+            } else if (aWTEvent.getID()==FocusEvent.FOCUS_LOST) {
+                removeFocus();
+            }
+        } else if ((aWTEvent instanceof KeyEvent)&&(aWTEvent.getID()==KeyEvent.KEY_RELEASED)&&(((KeyEvent)aWTEvent).getKeyCode()==KeyEvent.VK_F12)&&(((KeyEvent)aWTEvent).getModifiers()==KeyEvent.CTRL_MASK)) {
+            if (focused!=null) {
+                window=focused;
             } else {
                 Toolkit.getDefaultToolkit().beep();
             }
         }
     }    
 
+    void removeFocus() {
+        if (focused!=null) {
+            JComponent rootPane=getJComponent(focused);
+            if (rootPane!=null){
+                rootPane.setBorder(lastBorder);
+            }
+            focused=null;
+        }
+    }
     
     /** method implementing Runnable interface
      */    
     public void run() {
         try {
-            Toolkit.getDefaultToolkit().addAWTEventListener(this, AWTEvent.MOUSE_EVENT_MASK|AWTEvent.KEY_EVENT_MASK);
             PrintStream out;
             File file;
             boolean write;
             while (!Thread.currentThread().interrupted()) {
+                focused=null;
+                Toolkit.getDefaultToolkit().addAWTEventListener(this, AWTEvent.KEY_EVENT_MASK|AWTEvent.FOCUS_EVENT_MASK);
                 while (window==null) {
                     Thread.currentThread().sleep(100);
                 }
+                Toolkit.getDefaultToolkit().removeAWTEventListener(this);
                 help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Processing")); // NOI18N
+                removeFocus();
                 try {
                     gen.grabComponents((Container)window, packageName, showEditor);
                     BufferedImage shot=null;
@@ -137,6 +186,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         } catch (InterruptedException ie) {
         } finally {
             Toolkit.getDefaultToolkit().removeAWTEventListener(this);
+            removeFocus();
         }
     }
    
