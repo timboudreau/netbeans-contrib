@@ -452,6 +452,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     }
     
     private boolean diffingPathFollows = false;
+    private String projectPathContinued = null;
     
     /** Parse the output of "ss dir -R -F- && ss diff -R" commands
      * ss dir -R -F- gives the subfolders in the given folder
@@ -462,8 +463,20 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         //System.out.println("outputData("+line+")");
         if (line == null) return;
         String file = line.trim();
-        if (!diffingPathFollows && file.startsWith(PROJECT_PATH)) { // Listing of a folder from "dir" will follow
-            String folder = file.substring(PROJECT_PATH.length(), file.length() - 1);
+        if (!diffingPathFollows && (projectPathContinued != null || file.startsWith(PROJECT_PATH))) { // Listing of a folder from "dir" will follow
+            String folder;
+            if (projectPathContinued != null) {
+                folder = projectPathContinued + file;
+            } else {
+                folder = file.substring(PROJECT_PATH.length());
+            }
+            if (folder.endsWith(":")) {
+                folder = folder.substring(0, folder.length() - 1);
+                projectPathContinued = null;
+            } else {
+                projectPathContinued = folder;
+                return ;
+            }
             folder = folder.replace(File.separatorChar, '/');
             if (folder.startsWith(relDir)) {
                 folder = folder.substring(relDir.length());
