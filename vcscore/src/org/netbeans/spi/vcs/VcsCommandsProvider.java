@@ -69,7 +69,7 @@ public abstract class VcsCommandsProvider extends Object {
      * Paired with command name creates a unique command identification.
      * MUST be redefined to return meaningful value, it's not abstract just for
      * compatability reasons.
-     * @return The type of the provided VCS.
+     * @return The unique type of the provided VCS.
      * @since 1.13
      */
     public String getType() {
