@@ -1426,6 +1426,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = gridy;
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.weightx = 1; // These two (fill + weightx) are necessary for WEST anchor.
         gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 8, 0);
         gridBagConstraints1.gridwidth = 2;
         variablePanel.add(chbox, gridBagConstraints1);
