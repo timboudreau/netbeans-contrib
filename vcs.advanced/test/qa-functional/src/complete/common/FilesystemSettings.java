@@ -386,10 +386,17 @@ public class FilesystemSettings extends NbTestCase {
         refreshTime.setValue("1000");
         sheet.close();
         createFile(workingDirectory + File.separator + "B_File.java", true);
-        APIController.sleep(18000);
-        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|B_File");
-        fileNode.select();
+        APIController.sleep(20000);
+        String[] children = filesystemNode.getChildren();
+        int count = children.length;
+        boolean found = false;
+        for(int i=0; i<count; i++) if (children[i].startsWith("B_File")) found = true;
+        api.getFilesystemsTab();
         filesystemNode.select();
+        if (!found) {
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Refresh time does not work." + printChildren(filesystemNode));
+        }
         new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
     }
