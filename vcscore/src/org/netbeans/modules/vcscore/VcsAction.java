@@ -277,7 +277,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-            if (dd.getPrimaryFile().isFolder()) return true;
+            if (dd != null && dd.getPrimaryFile().isFolder()) return true;
         }
         return false;
     }
@@ -292,7 +292,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-            if (!dd.getPrimaryFile().isFolder()) return true;
+            if (dd != null && !dd.getPrimaryFile().isFolder()) return true;
         }
         return false;
     }
@@ -307,6 +307,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
+            if (dd == null) return false;
             String path = dd.getPrimaryFile().getPackageNameExt('/','.');
             //String path = getNodePath(nodes[i]);
             if (path.length() == 0) return true;
