@@ -71,10 +71,10 @@ public class CvsAnnotateVisualizer extends OutputVisualizer {
             filePath = rootDir+File.separator+fileName;
             debug("filePath:"+filePath);
             File file = new File(filePath);
-            output.put(file.getName(),showAnnotations(file));
-        }            
+            output.put(file.getPath(),showAnnotations(file));
+        }
  
-            return output;
+        return output;
     }
     
     private javax.swing.JComponent showAnnotations(File file) {

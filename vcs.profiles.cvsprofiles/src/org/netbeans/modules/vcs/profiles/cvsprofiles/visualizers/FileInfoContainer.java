@@ -25,4 +25,14 @@ import java.io.*;
  */
 public abstract class FileInfoContainer {
     public abstract File getFile();
+    
+    public String getToolTipText() {
+        File file = getFile();
+        if (file != null) {
+            return file.getAbsolutePath();
+        } else {
+            return null;
+        }
+    }
+    
 }

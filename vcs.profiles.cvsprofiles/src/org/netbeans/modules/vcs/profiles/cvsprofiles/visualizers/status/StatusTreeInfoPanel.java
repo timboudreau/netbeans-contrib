@@ -395,8 +395,10 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         try {
             Method method1 = classa.getMethod("getStatus", null);     // NOI18N
             Method method2 = classa.getMethod("getFile", null);     // NOI18N
+            Method methodT = classa.getMethod("getToolTipText", null);     // NOI18N
             model.setColumnDefinition(0, column1, method1, true, new StatusComparator());
             model.setColumnDefinition(1, column2, method2, true, new FileComparator());
+            model.setColumnToolTipGetter(1, methodT);
         } catch (NoSuchMethodException exc) {
             Thread.dumpStack();
         } catch (SecurityException exc2) {

@@ -159,26 +159,26 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
                 StatusTreeInfoPanel treePanel = new StatusTreeInfoPanel(file, getCommandsProvider());
                 if(files.size() == 1){
                     treePanel.setDataToDisplay(resultList);
-                    output.put(file.getName(),treePanel);
+                    output.put(file.getPath(),treePanel);
                     return output;
                     //return treePanel;
                 }else{
                     treePanel.setDataToDisplay(findResultList(file)); 
                     //tabPane.addTab(file.getName(), treePanel);
-                    output.put(file.getName(),treePanel);
+                    output.put(file.getPath(),treePanel);
                 }
             } else {
                 StatusInfoPanel statPanel = new StatusInfoPanel(getCommandsProvider());
                 if(files.size() == 1 && statusInformation != null && file != null){
                     statusInformation.setFile(file);
                     statPanel.setData(statusInformation);
-                    output.put(file.getName(),statPanel);
+                    output.put(file.getPath(),statPanel);
                     return output;
                     //return statPanel;
                 }else{
                     statPanel.setData(findStatusInfo(file)); 
                     //tabPane.addTab(file.getName(), statPanel);
-                    output.put(file.getName(),statPanel);
+                    output.put(file.getPath(),statPanel);
                 }
             }
         }

@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcscore.util.table;
 
+import org.openide.ErrorManager;
 import org.openide.util.*;
 //import org.netbeans.lib.cvsclient.command.*;
 import java.util.*;
@@ -41,6 +42,7 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       protected HashMap columnValueParams;
       protected HashMap columnSorted;
       protected HashMap columnComparators;
+      protected HashMap columnToolTipSetters;
       
       private List list;
       
@@ -72,6 +74,7 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
           columnValueSetters = new HashMap();
           columnValueParams = new HashMap();
           columnComparators = new HashMap();
+          columnToolTipSetters = new HashMap();
           setDirection(true);
           setActiveColumn(0);
       }
@@ -100,12 +103,43 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
               }
               return value;
           } catch (IllegalAccessException exc) {
-              return "";
+              ErrorManager.getDefault().notify(exc);
           } catch (IllegalArgumentException exc2) {
-              return "";
+              ErrorManager.getDefault().notify(exc2);
           } catch (java.lang.reflect.InvocationTargetException exc3) {
-              return "";
+              ErrorManager.getDefault().notify(exc3);
           }
+          return ""; // NOI18N
+      }
+      
+      /**
+       * Get the tooltip text at the given position.
+       * @return The tooltip text or <code>null</code>.
+       */
+      public String getTooltipTextAt(int row, int column) {
+          if (row < 0 || row >= getRowCount()) return null;
+          Integer columnInt = new Integer(column);
+          Method toolTipGetter = (Method) columnToolTipSetters.get(columnInt);
+          if (toolTipGetter == null) {
+              return null;
+          }
+          Object info = list.get(row);
+          Object[] params = (Object[])columnValueParams.get(columnInt);
+          try {
+              Object value = toolTipGetter.invoke(info, params);
+              if (value == null) {
+                  return null;
+              } else {
+                  return value.toString();
+              }
+          } catch (IllegalAccessException exc) {
+              ErrorManager.getDefault().notify(exc);
+          } catch (IllegalArgumentException exc2) {
+              ErrorManager.getDefault().notify(exc2);
+          } catch (java.lang.reflect.InvocationTargetException exc3) {
+              ErrorManager.getDefault().notify(exc3);
+          }
+          return null;
       }
       
       
@@ -164,6 +198,11 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
             columnValueSetters.put(integ, reflectionGetter);
             columnValueParams.put(integ, params);
             columnComparators.put(integ, comp);
+      }
+      
+      public void setColumnToolTipGetter(int columnNumber, Method reflectionGetter) {
+          Integer integ = new Integer(columnNumber);
+          columnToolTipSetters.put(integ, reflectionGetter);
       }
       
 /*      public Method getColumnGetterMethod(int columnNumber) {

@@ -21,6 +21,7 @@ import javax.swing.*;
 import java.awt.*;
 import javax.swing.event.*;
 import java.lang.reflect.Method;
+import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import javax.accessibility.*;
 
@@ -220,12 +221,50 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
   protected void recreateModel() {
       files = new ArrayList(filesBackup);
       tblTable.clearSelection();
-      TableInfoModel model = (TableInfoModel)createTable(); 
+      TableInfoModel model = createTable(); 
       tblTable.setModel(model);
+      initRenderers(tblTable, model);
       initColumnSizes(tblTable);
       if (!isTreeDisabled()) {
           // !!!needs to be after table setup, because it deletes the list
           trDirStructure.setModel(new DefaultTreeModel(createTree(topDirectory)));
+      }
+  }
+  
+  /**
+   * Initialize the cell renderers.
+   */
+  private static void initRenderers(JTable table, final TableInfoModel model) {
+      
+      class ToolTipCellRenderer implements TableCellRenderer {
+          
+          int column;
+          private TableCellRenderer parent;
+          
+          public ToolTipCellRenderer(int column, TableCellRenderer parent) {
+              this.column = column;
+              if (parent == null) {
+                  parent = new DefaultTableCellRenderer();
+              }
+              this.parent = parent;
+          }
+          
+          public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+              Component c = parent.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+              if (c instanceof JComponent) {
+                  String toolTipText = model.getTooltipTextAt(row, column);
+                  if (toolTipText != null) {
+                      ((JComponent) c).setToolTipText(toolTipText);
+                  }
+              }
+              return c;
+          }
+      }
+      
+      int n = table.getColumnCount();
+      for (int i = 0; i < n; i++) {
+          TableColumn column = table.getColumnModel().getColumn(i);
+          column.setCellRenderer(new ToolTipCellRenderer(i, column.getCellRenderer()));
       }
   }
   
@@ -271,12 +310,13 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
       String  column1 = NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("TableInfoModel.fileName"); // NOI18N
         try {
             Method method1 = classa.getMethod("getFile", null);     // NOI18N
-//            model.setColumnDefinition(0, column1, method1, true, new FileComparator(topDirectory.getAbsolutePath()));
+            Method methodT = classa.getMethod("getToolTipText", null);     // NOI18N
             model.setColumnDefinition(0, column1, method1, true, new FileComparator());            
+            model.setColumnToolTipGetter(0, methodT);
         } catch (NoSuchMethodException exc) {
-            Thread.dumpStack();
+            ErrorManager.getDefault().notify(exc);
         } catch (SecurityException exc2) {
-            Thread.dumpStack();
+            ErrorManager.getDefault().notify(exc2);
         }
       return model;
   }    
@@ -288,7 +328,7 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
       return rootNode;
   }
   
-  private TableModel createTable() {
+  private TableInfoModel createTable() {
       TableInfoModel model = createTableModel();
       Iterator it = files.iterator();
       while (it.hasNext()) {
@@ -297,7 +337,7 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
               model.addElement(info);
           }
       }
-      return (TableModel)model;
+      return model;
   }
   
     /** creates subdirectory structure for the directory returned in the status command

@@ -93,16 +93,18 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
                 return;
             Iterator it = outputMap.keySet().iterator();
             if (outputMap.size() == 1) {
-                String fileName = (String) it.next();
-                JComponent component = (JComponent) outputMap.get(fileName);
-                component.putClientProperty("wrapper-title", fileName+"["+commandName+"]");
+                String filePath = (String) it.next();
+                JComponent component = (JComponent) outputMap.get(filePath);
+                component.putClientProperty("wrapper-title", getFileName(filePath)+"["+commandName+"]");
+                component.setToolTipText(filePath);
                 w.wrap(component, true, true);
             } else {
                 JTabbedPane tabbs = new JTabbedPane();
                 while(it.hasNext()){
-                    String fileName = (String)it.next();
-                    JComponent component = (JComponent)outputMap.get(fileName);
-                    tabbs.add(fileName+"["+commandName+"]", component);
+                    String filePath = (String)it.next();
+                    JComponent component = (JComponent)outputMap.get(filePath);
+                    component.setToolTipText(filePath);
+                    tabbs.add(getFileName(filePath)+"["+commandName+"]", component);
                 }
                 w.wrap(tabbs, true, true);
             }
@@ -118,14 +120,24 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
             return;
         Iterator it = outputMap.keySet().iterator();
         while (it.hasNext()) {
-            String fileName = (String)it.next();
-            JComponent component = (JComponent)outputMap.get(fileName);
+            String filePath = (String)it.next();
+            JComponent component = (JComponent)outputMap.get(filePath);
             OutputTopComponent out = new OutputVisualizer.OutputTopComponent();
             out.setOutputPanel(component);
-            out.setFileName(fileName);
+            out.setFileName(getFileName(filePath));
+            out.setToolTipText(filePath);
             out.open(WindowManager.getDefault().getCurrentWorkspace());
         }
         opened = true;
+    }
+    
+    private static String getFileName(String filePath) {
+        String fileName = filePath;
+        int nameIndex = filePath.lastIndexOf('/');
+        if (nameIndex >= 0) {
+            fileName = filePath.substring(nameIndex + 1);
+        }
+        return fileName;
     }
     
     

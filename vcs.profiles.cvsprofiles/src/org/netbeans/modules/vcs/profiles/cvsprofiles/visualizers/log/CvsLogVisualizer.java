@@ -105,21 +105,21 @@ public class CvsLogVisualizer extends OutputVisualizer {
                 LogTreeInfoPanel treePanel = new LogTreeInfoPanel(file);
                 if(files.size() == 1){                    
                     treePanel.setDataToDisplay(resultList);
-                    output.put(file.getName(),treePanel);                    
+                    output.put(file.getPath(),treePanel);                    
                     return output;
                 }else{
                     treePanel.setDataToDisplay(findResultList(file));                     
-                    output.put(file.getName(),treePanel);
+                    output.put(file.getPath(),treePanel);
                 }
             }else{
                 LogInfoPanel logPanel = new LogInfoPanel(isTag);
                 if(files.size() == 1){
                     logPanel.setData(logInfo);
-                    output.put(file.getName(),logPanel);                    
+                    output.put(file.getPath(),logPanel);                    
                     return output;
                 }else{
                     logPanel.setData(findLogInfo(file));                     
-                    output.put(file.getName(),logPanel);
+                    output.put(file.getPath(),logPanel);
                 }
             }
         }        
