@@ -413,15 +413,15 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     
     private void loadCurrentConfig() {
         org.openide.nodes.Node commands = null;
-        org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName);
-        try {
-            commands = (org.openide.nodes.Node) CommandLineVcsAdvancedCustomizer.readConfig (doc);
-        } catch (org.w3c.dom.DOMException exc) {
-            org.openide.TopManager.getDefault().notifyException(exc);
+        if (configFileName != null) {
+            org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName);
+            try {
+                commands = (org.openide.nodes.Node) CommandLineVcsAdvancedCustomizer.readConfig (doc);
+            } catch (org.w3c.dom.DOMException exc) {
+                org.openide.TopManager.getDefault().notifyException(exc);
+            }
         }
-        if (commands != null) {
-            this.setCommands(commands);
-        }
+        this.setCommands(commands);
     }
     
     private void saveCurrentConfig() {
