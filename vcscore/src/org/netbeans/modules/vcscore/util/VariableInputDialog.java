@@ -685,7 +685,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                             if (value != null) {
                                 value = Variables.expand(vars, value, false);
                             }
-                            if (!component.needsPreCommandPerform()) {
+                            if (!component.needsPreCommandPerform() && value != null) {
                                 vars.put(component.getVariable(), value);
                             }
                         }
