@@ -6,11 +6,19 @@ import java.util.logging.Logger;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.editors.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
+import org.netbeans.modules.tasklist.usertasks.editors.PriorityTableCellEditor;
+import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.PercentsTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.SummaryTreeCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
@@ -42,6 +50,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
         getTree().setToggleClickCount(3);
         //getTree().setEditable(true);
         setAutoCreateColumnsFromModel(false);
+        setDefaultEditor(SuggestionPriority.class, new PriorityTableCellEditor());
     }
 
     public Node createNode(Object obj) {
@@ -143,5 +152,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
         tcm.getColumn(11).setCellRenderer(dcr);
         tcm.getColumn(12).setCellRenderer(dcr);
         tcm.getColumn(13).setCellRenderer(dcr);
+        tcm.getColumn(UserTaskTreeTableNode.PERCENT_COMPLETE).
+            setCellEditor(new PercentsTableCellEditor());
     }
 }

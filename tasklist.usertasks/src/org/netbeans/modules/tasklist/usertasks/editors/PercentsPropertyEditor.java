@@ -15,33 +15,21 @@ package org.netbeans.modules.tasklist.usertasks.editors;
 
 import java.awt.Component;
 import java.beans.PropertyEditorSupport;
+import java.util.logging.Level;
 import javax.swing.JProgressBar;
 import javax.swing.UIManager;
+import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 
 /**
  * PropertyEditor for percents field.
  */
 public class PercentsPropertyEditor extends PropertyEditorSupport {
-    private static final String COMPUTED =
-        NbBundle.getMessage(PercentsPropertyEditor.class, "Computed"); // NOI18N
-    
     private static String[] TAGS = {
-        COMPUTED,
-        "0%", "5%", "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%", "50%", // NOI18N
-        "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%" // NOI18N
+        "0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", // NOI18N
+        "55", "60", "65", "70", "75", "80", "85", "90", "95", "100" // NOI18N
     };
-    
-    /**
-     * Used to combine 2 properties: percentComplete and progressComputed
-     */
-    public static final class Value {
-        /** 0..100 progress of a task in percents */
-        public int progress;
-        
-        /** true = value is computed*/
-        public boolean computed;
-    }
     
     private static JProgressBar progressBar;
     
@@ -51,41 +39,12 @@ public class PercentsPropertyEditor extends PropertyEditorSupport {
         progressBar.setBackground(UIManager.getColor("Table.background")); // NOI18N
     }
     
-    public String[] getTags() {
-        return TAGS;
-    }
-    
-    public String getAsText() {
-        Value v = (Value) getValue();
-        if (v.computed)
-            return COMPUTED;
-        else
-            return Integer.toString(v.progress);
-    }
-
-    public void setAsText(String text) throws java.lang.IllegalArgumentException {
-        Value v = new Value();
-        if (text.equals(COMPUTED)) {
-            v.computed = true;
-        } else {
-            text = text.trim();
-            if (text.endsWith("%")) // NOI18N
-                text = text.substring(0, text.length() - 1);
-            try {
-                v.progress = Integer.parseInt(text);
-            } catch(NumberFormatException e) {
-                throw new IllegalArgumentException(e.getMessage());
-            }
-        }
-        setValue(v);
-    }
-    
     public boolean isPaintable() {
         return true;
     }
 
     public void paintValue(java.awt.Graphics gfx, java.awt.Rectangle box) {
-        int n = ((Value) getValue()).progress;
+        int n = ((Integer) getValue()).intValue();
         progressBar.setValue(n);
         progressBar.setString(n + "%"); // NOI18N
         int height = box.height > 15 ? 15 : box.height;
@@ -97,4 +56,21 @@ public class PercentsPropertyEditor extends PropertyEditorSupport {
         progressBar.paint(gfx);
         gfx.translate(-box.x, -box.y - y);
     }
+    
+    public void setAsText(String text) throws java.lang.IllegalArgumentException {
+        try {
+            setValue(new Integer(text));
+        } catch (NumberFormatException e) {
+            IllegalArgumentException iae = 
+                new java.lang.IllegalArgumentException("Not a number"); // TODO
+            ErrorManager.getDefault().annotate(iae, ErrorManager.USER, 
+                iae.getMessage(), 
+                iae.getMessage(), e, new java.util.Date());
+            throw iae;
+        }
+    }
+    
+    public String[] getTags() {
+        return TAGS;
+    }    
 }

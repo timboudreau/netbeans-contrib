@@ -191,28 +191,19 @@ final class UserTaskNode extends AbstractNode {
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_doneProperty")); // NOI18N
             ss.put(p);
             
-            p = new PropertySupport.Reflection(item, Integer.TYPE, "getPercentComplete", "setPercentComplete") { // NOI18N
-                public Object getValue() {
-                    UserTask task = (UserTask) instance;
-                    PercentsPropertyEditor.Value v = 
-                        new PercentsPropertyEditor.Value();
-                    v.progress = task.getPercentComplete();
-                    v.computed = task.isProgressComputed();
-                    return v;
-                }
-                public void setValue(Object value) {
-                    UserTask task = (UserTask) instance;
-                    PercentsPropertyEditor.Value v = 
-                        (PercentsPropertyEditor.Value) value;
-                    task.setProgressComputed(v.computed);
-                    if (!v.computed)
-                        task.setPercentComplete(v.progress);
-                }
-            };
+            p = new PropertySupport.Reflection(item, Integer.TYPE, 
+                "getPercentComplete", "setPercentComplete"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_PERCENT);
             p.setPropertyEditorClass(PercentsPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_percentCompleteProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_percentCompleteProperty")); // NOI18N
+            ss.put(p);
+            
+            p = new PropertySupport.Reflection(item, Boolean.TYPE, 
+                "isProgressComputed", "setProgressComputed"); // NOI18N
+            p.setName("progressComputed");
+            p.setDisplayName("Compute Progress"); // TODO: i18n
+            p.setShortDescription("Should the progress be computed automatically"); // TODO: i18n
             ss.put(p);
             
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getEffort", null);
@@ -223,6 +214,13 @@ final class UserTaskNode extends AbstractNode {
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
+            p = new PropertySupport.Reflection(item, Boolean.TYPE, 
+                "isEffortComputed", "setEffortComputed"); // NOI18N
+            p.setName("effortComputed");
+            p.setDisplayName("Compute Effort"); // TODO: i18n
+            p.setShortDescription("Should the effort be computed automatically"); // TODO: i18n
+            ss.put(p);
+            
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getRemainingEffort", null);
             p.setName("remainingEffort");
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_remainingEffortProperty")); // NOI18N
@@ -239,6 +237,13 @@ final class UserTaskNode extends AbstractNode {
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
+            p = new PropertySupport.Reflection(item, Boolean.TYPE, 
+                "isSpentTimeComputed", "setSpentTimeComputed"); // NOI18N
+            p.setName("spentTimeComputed");
+            p.setDisplayName("Compute Spent Time"); // TODO: i18n
+            p.setShortDescription("Should the spent time be computed automatically"); // TODO: i18n
+            ss.put(p);
+            
             p = new PropertySupport.Reflection(item, String.class, "getDetails", "setDetails"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_DETAILS);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_detailsProperty")); // NOI18N
