@@ -129,7 +129,12 @@ public class ClazzNodeTest extends JellyTestCase {
         assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class")); //NOI18N
         assertNull(Repository.getDefault().findResource(SRC_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class")); //NOI18N
         
-        delete(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class"); //NOI18N
+        srcNode = new JavaNode(testFSName + '|' + DST_PACKAGE.replace('.', '|') + '|' + NAME_TEST_FILE);
+        srcNode.cut();
+        
+        dstNode = new FolderNode(testFSName + "|" + SRC_PACKAGE.replace('.', '|'));
+        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste"));
+        new EventTool().waitNoEvent(1000);
     }
 
     public static void delete(String file) {
