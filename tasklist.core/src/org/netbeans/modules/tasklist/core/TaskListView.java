@@ -316,6 +316,20 @@ public abstract class TaskListView extends ExplorerPanel
             }
         }
         node.destroy();
+        
+        // Select the root node, such that the empty tasklist has
+        // a context menu - but only if there are no items in the list
+        if (!tasklist.getRoot().hasSubtasks()) {
+            // See http://www.netbeans.org/issues/show_bug.cgi?id=27696
+            try {
+                getExplorerManager().setSelectedNodes(
+                    new Node[] { getExplorerManager().getRootContext() }
+                );
+            } catch (PropertyVetoException e) {
+                TopManager.getDefault().getErrorManager().notify(
+                                           ErrorManager.INFORMATIONAL, e);
+            }
+        }
     }
     
     // Workaround - is this no longer necessary?
