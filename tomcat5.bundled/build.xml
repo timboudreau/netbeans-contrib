@@ -20,8 +20,8 @@ Microsystems, Inc. All Rights Reserved.
   <target name="init" depends="default.init">
     <ant dir="${nb_all}/tomcatint/external" target="unscramble"/>
     <patternset id="tomcatint/tomcat5/bundled.files">
-      <include name="${nb.modules/eager.dir}/tomacat5-bundled.jar"/>
-      <include name="${tomcat.filename}"/>
+      <include name="${nb.modules/eager.dir}/tomcat5-bundled.jar"/>
+      <include name="${tomcat.filename}/**"/>
     </patternset>
     <path id="cp">
         <pathelement location="${tomcatint/tomcat5.dir}/${nb.modules.dir}/tomcat40.jar"/>
