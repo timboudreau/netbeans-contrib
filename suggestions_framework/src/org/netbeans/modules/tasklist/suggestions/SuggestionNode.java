@@ -157,8 +157,8 @@ class SuggestionNode extends TaskNode {
             Property p;
             p = new Reflection(item, String.class, "getSummary", null /* Don't allow users to edit this "setDescription" */); // NOI18N
             p.setName(TaskListView.PROP_TASK_SUMMARY);
-            p.setDisplayName(NbBundle.getMessage(TaskNode.class, "Description")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(TaskNode.class, "DescriptionHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(SuggestionsView.class, "SuggestionsRoot")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(SuggestionsView.class, "SuggestionsRootHint")); // NOI18N
             ss.put(p);
 
             p = new Reflection(item, Integer.TYPE,

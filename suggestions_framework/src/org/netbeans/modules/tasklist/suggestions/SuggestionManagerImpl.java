@@ -220,6 +220,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         SuggestionProvider is allowed-through. When null, it means there's
         no filter in effect and all should pass through. */
     SuggestionProvider unfiltered = null;
+    /** When non null, a filter is in effect and only the unfilteredType
+     * is showing. */
+    SuggestionType unfilteredType = null;
     
     
     /** Called when the Suggestions View is opened */
@@ -417,12 +420,34 @@ final public class SuggestionManagerImpl extends SuggestionManager
         } else {
             disabled.add(id);
         }
+
+        // Enable/disable providers "live"        
+        toggleProvider(type, enabled);
+
+        if (!dontSave) {
+            writeTypeRegistry();
+        }
         
+    }
+
+    /** Enable/disable a provider identified by a type. The provider
+     * will only be disabled if all of its OTHER types are disabled. */
+    private void toggleProvider(SuggestionType type, boolean enable) {
         // Update the suggestions list: when disabling, rip out suggestions
         // of the same type, and when enabling, trigger a recompute in case
         // we have pending suggestions
         SuggestionProvider provider = getProvider(type);
-        if (enabled) {
+        // XXX Note - there could be multiple providers for a type!
+        // You really should iterate here!!!
+        toggleProvider(provider, type, enable, false);
+    }
+
+    /** Same as toggleProvider, but the allTypes parameter allows you
+     * to specify that ALL the types should be enabled/disabled */
+    private void toggleProvider(SuggestionProvider provider, 
+                                SuggestionType type, boolean enable,
+                                boolean allTypes) {
+        if (enable) {
             // XXX This isn't exactly right. Make sure we do the
             // right life cycle for each provider.
             provider.notifyPrepare();
@@ -433,21 +458,38 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 ((DocumentSuggestionProvider)provider).docShown(document, dataobject);
             }
         } else {
+            if (!allTypes) {
+                String typeNames[] = provider.getTypes();
+                for (int j = 0; j < typeNames.length; j++) {
+                    if (!typeNames[j].equals(type.getName())) {
+                        if (isEnabled(typeNames[j])) {
+                            // Found other enabled provider - bail
+                            getList().removeCategory(type);
+                            return;
+                        }
+                    }
+                }
+            }
+            
             // Remove suggestions of this type
             if (provider instanceof DocumentSuggestionProvider) {
                 ((DocumentSuggestionProvider)provider).docHidden(document, dataobject);
             }
             provider.notifyStop();
             provider.notifyFinish();
-
-            getList().removeCategory(type); // XXX should only do this once!
+            
+            String typeNames[] = provider.getTypes();
+            for (int j = 0; j < typeNames.length; j++) {
+                if (isEnabled(typeNames[j])) {
+                    // Found other enabled provider - bail
+                    getList().removeCategory(type);
+                    return;
+                }
+            }
         }
-
-        if (!dontSave) {
-            writeTypeRegistry();
-        }
-        
     }
+
+
 
     Set getDisabledTypes() {
         return disabled;
@@ -521,26 +563,41 @@ final public class SuggestionManagerImpl extends SuggestionManager
      *     null if the view should not be filtered (e.g. show all)
      */
     void notifyFiltered(SuggestionList tasklist, SuggestionType type) {
-        // "Flatten" the list when I'm filtering so that I don't show
-        // category nodes!
+        SuggestionType prevFilterType = unfilteredType;
+        unfilteredType = type;
+
         if (type != null) {
+            // "Flatten" the list when I'm filtering so that I don't show
+            // category nodes!
+            List oldList = tasklist.getTasks();
+
+            List allTasks = new ArrayList(oldList.size());
+            allTasks.addAll(oldList);
             tasklist.clear();
-       
-            Collection values = tasklist.getCategoryTasks();
-            if (values != null) {
-                Iterator it = values.iterator();
-                ArrayList list = new ArrayList(200);
-                while (it.hasNext()) {
-                    SuggestionImpl s = (SuggestionImpl)it.next();
-                    if (s.hasSubtasks()) {
-			    // XXX This will break when I do subtypes or common-grouping
-                        list.addAll(s.getSubtasks());
+            Collection types = SuggestionTypes.getTypes().getAllTypes();
+            Iterator it = types.iterator();
+            while (it.hasNext()) {
+                SuggestionType t = (SuggestionType)it.next();
+                ArrayList list = new ArrayList(100);
+                Iterator all = allTasks.iterator();
+                SuggestionImpl category = 
+                    tasklist.getCategoryTask(t, false);
+                tasklist.removeCategory(category, true);
+                while (all.hasNext()) {
+                    SuggestionImpl sg = (SuggestionImpl)all.next();
+                    if (sg.getSType() == t) {
+                        if ((sg == category) &&
+                            sg.hasSubtasks()) { // category node
+                            list.addAll(sg.getSubtasks());
+                        } else {
+                            list.add(sg);
+                        }
                     }
                 }
-                tasklist.addRemove(list, null, false, null);
+                register(t.getName(), list, null, tasklist, true);
             }
+
         } else {
-            // "Merge" the list when I'm going to no-filter
             tasklist.clearCategoryTasks();
             List oldList = tasklist.getTasks();
             List suggestions = new ArrayList(oldList.size());
@@ -553,62 +610,87 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 SuggestionImpl s = (SuggestionImpl)it.next();
                 if (s.getSType() != prevType) {
                     if (group != null) {
-                        register(prevType.getName(), group, null, tasklist, true);
+                        register(prevType.getName(), group, null, 
+                                 tasklist, true);
                         group.clear();
                     } else {
                         group = new ArrayList(50);
                     }
                     prevType = s.getSType();
-                    group.add(s);
                 }
+                group.add(s);
             }
             if ((group != null) && (group.size() > 0)) {
                 register(prevType.getName(), group, null, tasklist, true);
             }
         }
-        
-        /** TODO Get this working; it's currently a bit broken so commented
-            out
 
-            
         unfiltered = null;
-        Collection types = SuggestionTypes.getTypes().getAllTypes();
-        Iterator it = types.iterator();
 
-        // TODO
-        // XXX Wouldn't it be faster to iterate over the providers
-        // and check each one? Here I risk notifying the same provider
-        // more than once - and inconsistently!
+        // XXX Do NOT NOT NOT confuse disabling modules for performance
+        // (to achieve filtering) with disabling modules done by the
+        // user! In particular, applying a filter and then removing it
+        // should not leave previously undisabled module disabled!
 
-
-        
+        List providers = getProviders();
+        SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
+        ListIterator it = providers.listIterator();
         while (it.hasNext()) {
-            SuggestionType t = (SuggestionType)it.next();
-            SuggestionProvider provider = getProvider(t);
-            if (provider == null) {
-                // Some types don't have providers
-                continue;
-            }
-            boolean enabled = (type == t);
-            // XXX TODO Keep track of the previous state of each
-            // provider
-            if (enabled) {
-                provider.notifyRun();
-                if ((document != null) &&
-                  (provider instanceof DocumentSuggestionProvider)) {
-                  ((DocumentSuggestionProvider)provider).docShown(document, dataobject);
-                }
+            SuggestionProvider provider = (SuggestionProvider)it.next();
 
-                unfiltered = provider;
+            // XXX This will process diabled providers/types as well!
+
+
+            String typeNames[] = provider.getTypes();
+            if (type != null) {
+                // We're adding a filter: gotta disable all providers
+                // that do not provide the given type
+                boolean enabled = false;
+                for (int j = 0; j < typeNames.length; j++) {
+                    SuggestionType tp = suggestionTypes.getType(typeNames[j]);
+                    if (tp == type) {
+                        enabled = true;
+                    }
+                }
+                if (enabled) {
+                    // The provider should be enabled - it provides info
+                    // for this type
+                    unfiltered = provider;
+                    // The provider is already enabled - we're coming
+                    // from an unfiltered view (and disabled providers
+                    // in an unfiltered view shouldn't be available as
+                    // filter categories)
+                    //SuggestionType sg = suggestionTypes.getType(typeNames[0]);
+                    //toggleProvider(provider, sg, true, true);
+                } else {
+                    SuggestionType sg = suggestionTypes.getType(typeNames[0]);
+                    toggleProvider(provider, sg, false, true);
+                }
             } else {
-                if (provider instanceof DocumentSuggestionProvider) {
-                   ((DocumentSuggestionProvider)provider).docHidden(document, dataobject);
+                // We're removing a filter: enable all providers
+                // (that are not already disabled by the user); and
+                // don't enable a module that's already enabled (the
+                // previously filtered type - prevFilterType)
+                boolean isPrev = false;
+                for (int j = 0; j < typeNames.length; j++) {
+                    SuggestionType tp = suggestionTypes.getType(typeNames[j]);
+                    if (prevFilterType == tp) {
+                        // This provider is responsible for the previous
+                        // filter - nothing to do (already enabled)
+                        // bail
+                        isPrev = true;
+                        break;
+                    }
                 }
-                provider.notifyStop();
-            }
-        }
+                if (isPrev) {
+                    continue;
+                }
 
-        */
+                SuggestionType sg = suggestionTypes.getType(typeNames[0]);
+                toggleProvider(provider, sg, true, true);
+            }
+
+        }
     }
 
     /** @return The SuggestionProvider responsible for providing suggestions
@@ -1052,29 +1134,22 @@ final public class SuggestionManagerImpl extends SuggestionManager
         highlightNode(view, node, line);
     }
     
+    /** Number of tasks we allow before for a type before dropping
+     * the task into a sublevel with a category task containing the
+     * tasks of that type.
+     */
+    private static final int MAX_INLINE = 4;
+    
     /** Add and remove lists of suggestions from the suggestion
      * registry.
      * <p>
-     * The tasks will remain in the list until the IDE is shut down,
-     * or until the user performs the tasks, or until the tasks are explicitly
-     * removed by you.
-     * <p>
-     * Note: if these suggestion corresponds to a disabled suggestion type,
-     * they will not be added to the list.  To avoid computing Suggestion
-     * objects in the first place, check isEnabled().
-     * <p>
-     * Note: only suggestions created by calling {@link createSuggestions}
-     * should be registered here.
-     * <p>
-     * @todo Consider adding a "time-to-live" attribute here where you
-     *   can indicate the persistence of the task; some suggestions should
-     *   probably expire if the user doesn't act on it for 5(?) minutes,
-     *   others should perhaps survive even IDE restarts.
+     * @todo Handle null parameter for the type!
      *
      * @param add List of suggestions that should be added
      * @param remove List of suggestions that should be removed. Note that
      *    the remove is performed before the add, so if a task appears
      *    in both list it will not be removed.
+     * @param type Type of all items - or null if nonhomogeneous list
      *
      */
     public void register(String type, List add, List remove) {
@@ -1142,20 +1217,64 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
         }
         */
+
+        // XXX This code is broken for "incremental" updates - if you
+        // add repeatedly, I won't move old ones into the category
+        // list....  
+        // Here's an idea - should I attempt to make a count of
+        // the number of tasks for each type, stored with my
+        // type hashmap? Then I can quickly find this scenario
+        // and move the types
         
-        SuggestionImpl category = tasklist.getCategoryTask(type);
-        // XXX Do I need to set the parent field on each item?
-        synchronized(this) {
-            tasklist.addRemove(adds, removeList, false, category);
+        SuggestionImpl category = tasklist.getCategoryTask(type, false);
+        if ((adds != null) && (adds.size() > MAX_INLINE) && 
+            (unfilteredType == null)) {
+            // TODO - show the first two "inlined" ? Or hide all below
+            // the category node
+
+            if (category == null) {
+                // Now should have subtasks, but previously we didn't;
+                // remove the tasks from the top list
+                category = tasklist.getCategoryTask(type, true);
+                synchronized(this) {
+                    if (removeList != null) {
+                        tasklist.addRemove(null, removeList, false, null);
+                    }
+                    tasklist.addRemove(adds, null, false, category);
+                }
+            } else {
+                // Updating tasks within the category node
+                tasklist.addRemove(adds, removeList, false, category);
+            }
+
+            // Leave category task around? Or simply make it invisible?
+            // (Need new Task attribute and appropriate handling in filter
+            // and export methods.)    By leaving it around, we don't reorder
+            // the tasks on the user.
+            //tasklist.removeCategory((SuggestionImpl)suggestions.get(0).getParent(), false);
+            
+            updateCategoryCount(category, sizeKnown); // TODO: skip this when filtered
+        } else {
+
+            if (category == null) {
+                // Didn't have category nodes before and don't need to
+                // now either...
+                tasklist.addRemove(adds, removeList, false, null);
+            } else {
+                // Had category nodes before but don't need them anymore...
+                // remove the tasks from the top list
+                synchronized(this) {
+                    if (removeList != null) {
+                        tasklist.addRemove(null, removeList, false, category);
+                    }
+                    if (adds != null) {
+                        tasklist.addRemove(adds, null, false, null);
+                    }
+                }
+                tasklist.removeCategory(category, true);
+            }
         }
 
-        // Leave category task around? Or simply make it invisible?
-        // (Need new Task attribute and appropriate handling in filter
-        // and export methods.)    By leaving it around, we don't reorder
-        // the tasks on the user.
-        //tasklist.removeCategory((SuggestionImpl)suggestions.get(0));
-
-        updateCategoryCount(category, sizeKnown); // TODO: skip this when filtered
     } 
     
     /** When true, we're in the process of switching files, so a register
@@ -1206,6 +1325,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            // if ((unfiltered == null) || (provider == unfiltered))
             provider.docOpened(document, dataobject);
         }
     }
@@ -1230,7 +1350,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
-            provider.docEdited(document, event, dataobject);
+            if ((unfiltered == null) || (provider == unfiltered)) {
+                provider.docEdited(document, event, dataobject);
+            }
         }
     }
 
@@ -1255,7 +1377,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
-            provider.docEditedStable(document, event, dataobject);
+            if ((unfiltered == null) || (provider == unfiltered)) {
+                provider.docEditedStable(document, event, dataobject);
+            }
         }
     }
     
@@ -1273,7 +1397,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
-            provider.docShown(document, dataobject);
+            if ((unfiltered == null) || (provider == unfiltered)) {
+                provider.docShown(document, dataobject);
+            }
         }
     }
 
@@ -1292,7 +1418,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
-            provider.docHidden(document, dataobject);
+            if ((unfiltered == null) || (provider == unfiltered)) {
+                provider.docHidden(document, dataobject);
+            }
         }
     }
 
@@ -1522,12 +1650,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	      so factor this into a validation method or something like that
 	      along with the propertyChange code, e.g. isCurrentEditorObject
     */
-    private static int findId = 1;
-
     private void findCurrentFile(boolean delayed) {
 	// Unregister previous listeners
 	if (current != null) {
-	    //System.err.println("Removing component listener from " + tcToDO(current));
 	    current.removeComponentListener(this);
 	    current = null;
             
@@ -1822,7 +1947,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	
 	// Unregister previous listeners
 	if (current != null) {
-	    //System.err.println("Removing component listener from " + tcToDO(current));
 	    current.removeComponentListener(this);
 	    current = null;
 	}

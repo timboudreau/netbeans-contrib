@@ -44,12 +44,13 @@ final public class SuggestionList extends TaskList {
     }
     
 
-    synchronized SuggestionImpl getCategoryTask(SuggestionType type) {
+    synchronized SuggestionImpl getCategoryTask(SuggestionType type,
+                                                boolean create) {
         SuggestionImpl category = null;
         if (categoryTasks != null) {
             category = (SuggestionImpl)categoryTasks.get(type);
         }
-        if (category == null) {
+        if (create && (category == null)) {
             category = new SuggestionImpl();
 
             category.setSummary(type.getLocalizedName());
@@ -77,9 +78,12 @@ final public class SuggestionList extends TaskList {
     }
     private Map categoryTasks = null;
     
-    synchronized void removeCategory(SuggestionImpl s) {
-        SuggestionImpl category = (SuggestionImpl)s.getParent();
-        if ((category != null) && !category.hasSubtasks()) {
+    /** Remove the given category node, if unused.
+        @param force If true, remove the category node even if it has subtasks
+    */
+    synchronized void removeCategory(SuggestionImpl category, boolean force) {
+        //SuggestionImpl category = (SuggestionImpl)s.getParent();
+        if ((category != null) && (force || !category.hasSubtasks())) {
             remove(category);
             categoryTasks.remove(category.getSType());
         }
@@ -87,6 +91,10 @@ final public class SuggestionList extends TaskList {
     
     synchronized void removeCategory(SuggestionType type) {
         List tasks = getTasks();
+        if (tasks == null) {
+            categoryTasks = null;
+            return;
+        }
         Iterator ti = tasks.iterator();
         ArrayList removeTasks = new ArrayList(50);
         while (ti.hasNext()) {
