@@ -17,23 +17,16 @@ package org.netbeans.modules.latex.guiproject;
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import org.apache.tools.ant.module.api.AntProjectCookie;
-import org.apache.tools.ant.module.api.support.TargetLister;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.latex.guiproject.ui.ProjectSettings;
 import org.netbeans.modules.latex.guiproject.ui.PropertiesDialogPanel;
 import org.netbeans.modules.latex.model.Utilities;
@@ -44,14 +37,13 @@ import org.netbeans.modules.latex.model.structural.Model;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.StructuralNodeFactory;
 import org.netbeans.spi.project.ActionProvider;
+import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.ui.CustomizerProvider;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
-import org.openide.NotifyDescriptor;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -61,11 +53,9 @@ import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.util.RequestProcessor;
+import org.openide.util.Mutex;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
-import org.openide.xml.XMLUtil;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
@@ -96,7 +86,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         this.masterFile = masterFile;
         source = new LaTeXSourceImpl(masterFile);
         source.addDocumentChangedListener(source.weakDocumentChangedListener(this, source));
-        lookup = Lookups.fixed(new Object[] {this, GenericSources.genericOnly(this), source, new LaTeXGUIProjectOpenedHookImpl(this)});
+        lookup = Lookups.fixed(new Object[] {this, GenericSources.genericOnly(this), source, new LaTeXGUIProjectOpenedHookImpl(this), new LaTeXAuxiliaryConfigurationImpl(this)});
     }
     
     public Lookup getLookup() {
@@ -268,7 +258,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     public void nodesAdded(LaTeXSource.DocumentChangeEvent evt) {
         updateContainedFilesCache();
     }
-    
+
     private static class MainStructuralNode extends FilterNode {
         
         public MainStructuralNode(Node original) {
@@ -364,20 +354,4 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         }
     }
     
-//    private static class AuxiliaryConfigurationImpl implements AuxiliaryConfiguration {
-//
-//        public Element getConfigurationFragment(String elementName, String namespace, boolean shared) {
-//            if (elementName == null || elementName.indexOf(':') != -1 || namespace == null) {
-//                throw new IllegalArgumentException("Illegal elementName and/or namespace"); // NOI18N
-//            }
-//            return helper.getConfigurationFragment(elementName, namespace, shared);
-//        }
-//
-//        public void putConfigurationFragment(Element fragment, boolean shared) throws IllegalArgumentException {
-//        }
-//
-//        public boolean removeConfigurationFragment(String elementName, String namespace, boolean shared) throws IllegalArgumentException {
-//        }
-//        
-//    }
 }
