@@ -180,7 +180,7 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
     protected void writeCSS(Writer writer) throws IOException {
         writer.write(
             "    body { background-color:white; color:black }\n" + // NOI18N
-            "    td { text-align:left; background-color:#eeeeee }\n" + // NOI18N
+            "    td { text-align:left; vertical-align:text-top; background-color:#eeeeee }\n" + // NOI18N
             "    th { text-align:center; background-color:#222288; color:white }\n" + // NOI18N
             "    td.sum { text-align:left }\n" + // NOI18N
             "    td.sumdone { text-align:left; background-color:#cccccc }\n" + // NOI18N
