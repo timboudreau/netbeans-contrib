@@ -52,6 +52,7 @@ public class ChooseDirDialog extends JDialog {
     private void initComponents(){
         chooser = new JFileChooser ();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setFileHidingEnabled(false);
 
         if( initialDir != null ){
             chooser.setCurrentDirectory(initialDir);

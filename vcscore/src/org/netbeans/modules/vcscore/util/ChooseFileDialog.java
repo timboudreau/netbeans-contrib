@@ -67,6 +67,7 @@ public class ChooseFileDialog extends JDialog {
     private void initComponents() {
         chooser = new JFileChooser ();
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setFileHidingEnabled(false);
         if (propFileFilter) chooser.setFileFilter (new PropertiesFileFilter ());
 
         if (initialDir != null) {
