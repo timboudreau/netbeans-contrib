@@ -34,12 +34,16 @@ final class PropertiesSuggestionContext {
             StringBuffer sb = new StringBuffer();
             Reader r = new InputStreamReader(new BufferedInputStream(fo.getInputStream()), "ISO8859-1");  // NOI18N
             int len;
-            while (true) {
-                len = r.read(buf);
-                if (len == -1) break;
-                sb.append(buf, 0, len);
+            try {
+                while (true) {
+                    len = r.read(buf);
+                    if (len == -1) break;
+                    sb.append(buf, 0, len);
+                }
+                return sb.toString();
+            } finally {
+                r.close();
             }
-            return sb.toString();
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
         }

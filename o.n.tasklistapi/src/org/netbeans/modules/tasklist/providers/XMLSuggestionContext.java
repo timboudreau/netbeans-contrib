@@ -16,10 +16,7 @@ package org.netbeans.modules.tasklist.providers;
 import org.openide.filesystems.FileObject;
 import org.openide.ErrorManager;
 
-import java.io.Reader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.BufferedInputStream;
+import java.io.*;
 
 /**
  * Dedicated XML document context that is faster than generic one.
@@ -32,16 +29,31 @@ final class XMLSuggestionContext {
         try {
             char[] buf = new char[1024*64];
             StringBuffer sb = new StringBuffer();
-            String encoding = XMLEncodingHelper.detectEncoding(new BufferedInputStream(fo.getInputStream(), 2157));
-            if (encoding == null) return null;
-            Reader r = new InputStreamReader(new BufferedInputStream(fo.getInputStream()), encoding);
-            int len;
-            while (true) {
-                len = r.read(buf);
-                if (len == -1) break;
-                sb.append(buf, 0, len);
+            InputStream input = new BufferedInputStream(fo.getInputStream(), 2157);
+            String encoding = null;
+            try {
+                encoding = XMLEncodingHelper.detectEncoding(input);
+            } finally {
+                try {
+                    input.close();
+                } catch (IOException ex) {
+                    // already closed
+                }
             }
-            return sb.toString();
+            if (encoding == null) return null;
+
+            Reader r = new InputStreamReader(new BufferedInputStream(fo.getInputStream()), encoding);
+            try {
+                int len;
+                while (true) {
+                    len = r.read(buf);
+                    if (len == -1) break;
+                    sb.append(buf, 0, len);
+                }
+                return sb.toString();
+            } finally {
+                r.close();
+            }
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
         }
