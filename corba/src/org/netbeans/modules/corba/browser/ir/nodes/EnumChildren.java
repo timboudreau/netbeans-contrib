@@ -14,6 +14,8 @@
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
+import org.openide.TopManager;
+import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.netbeans.modules.corba.browser.ir.util.Refreshable;
@@ -36,8 +38,16 @@ public class EnumChildren extends Children.Keys implements Refreshable {
 
 
     public void createKeys(){
-        String[] members = this.enum.members();
-        setKeys(members);
+        try {
+            String[] members = this.enum.members();
+            setKeys(members);
+        }catch (final SystemException e) {
+            setKeys (new java.lang.Object[0]);
+            java.awt.EventQueue.invokeLater ( new Runnable () {
+                public void run () {
+                    TopManager.getDefault().notify ( new NotifyDescriptor.Exception (e));
+                }});
+        }
     }
 
 

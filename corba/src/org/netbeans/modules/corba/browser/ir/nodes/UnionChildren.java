@@ -16,6 +16,7 @@ package org.netbeans.modules.corba.browser.ir.nodes;
 import org.omg.CORBA.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.*;
 import org.netbeans.modules.corba.browser.ir.util.Refreshable;
 import org.netbeans.modules.corba.browser.ir.nodes.keys.IRTypeCodeKey;
 
@@ -36,11 +37,19 @@ public class UnionChildren extends Children.Keys implements Refreshable {
 
 
     public void createKeys(){
-        UnionMember[] members = this.union.members();
-        java.lang.Object[] keys = new java.lang.Object[members.length];
-        for (int i = 0; i<members.length; i++)
-            keys[i] = new IRTypeCodeKey ( members[i].name, members[i].type, members[i].label);
-        setKeys(keys);
+        try {
+            UnionMember[] members = this.union.members();
+            java.lang.Object[] keys = new java.lang.Object[members.length];
+            for (int i = 0; i<members.length; i++)
+                keys[i] = new IRTypeCodeKey ( members[i].name, members[i].type, members[i].label);
+            setKeys(keys);
+        }catch (final SystemException e) {
+            setKeys ( new java.lang.Object[0]);
+            java.awt.EventQueue.invokeLater (new Runnable () {
+                public void run () {
+                    TopManager.getDefault().notify ( new NotifyDescriptor.Exception (e));
+                }});
+        }
     }
 
 

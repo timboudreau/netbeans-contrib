@@ -45,11 +45,19 @@ public class ContainerChildren extends Children.Keys implements Refreshable {
 
 
     public void createKeys () {
-        Contained[] contained = container.contents (DefinitionKind.dk_all, true);
-        java.lang.Object[] keys = new java.lang.Object [contained.length];
-        for (int i=0; i<keys.length; i++)
-            keys[i] = new IRContainedKey ( contained[i]);
-        setKeys (keys);
+        try {
+            Contained[] contained = container.contents (DefinitionKind.dk_all, true);
+            java.lang.Object[] keys = new java.lang.Object [contained.length];
+            for (int i=0; i<keys.length; i++)
+                keys[i] = new IRContainedKey ( contained[i]);
+            setKeys (keys);
+        }catch (final SystemException e) {
+            setKeys ( new java.lang.Object[0]);
+            java.awt.EventQueue.invokeLater ( new Runnable () {
+                public void run () {
+                    TopManager.getDefault().notify ( new NotifyDescriptor.Exception (e));
+                }});
+        }
     }
 
     /*
@@ -74,7 +82,7 @@ public class ContainerChildren extends Children.Keys implements Refreshable {
                     // if MARSHAL exception ocured, try to introspect
                     // object in another way.
                     try{
-                        dk = contained.describe().kind;
+                        dk = contained.def_kind();
                     }catch (org.omg.CORBA.MARSHAL marshalException){
                         if (contained._is_a("IDL:omg.org/CORBA/OperationDef:1.0")){
                             operation = true;
@@ -125,9 +133,12 @@ public class ContainerChildren extends Children.Keys implements Refreshable {
                         nodes[0] = new IREnumDefNode(contained);
                         return nodes;
                     }
-                }catch(Throwable t){
-                    t.printStackTrace();
-                    return null;
+                }catch(final Throwable t){
+                    java.awt.EventQueue.invokeLater ( new Runnable () {
+                        public void run () {
+                            TopManager.getDefault().notify ( new NotifyDescriptor.Exception (t));
+                        }});
+                    return new Node[0];
                 }
             }
         }
