@@ -24,7 +24,7 @@ import javax.swing.JComponent;
 /**
  * A simple interface for providing a fixed set of panels for a wizard.
  * To use, simply implement <code>createPanel()</code> to create the 
- * appropriate UI component for a give String ID (one of the ones passed 
+ * appropriate UI component for a given step (a unique String ID - one of the ones passed 
  * in the constructor in the <code>steps</code> array), and implement 
  * <code>finish()</code> to do whatever should be done when the wizard is
  * finished.
@@ -35,7 +35,8 @@ import javax.swing.JComponent;
  * UI components they create, updating the settings Map when the user changes
  * their input.
  * <p>
- * Super-simple example:
+ * Super-simple one-pane wizard example - if the checkbox is checked, the user
+ * can continue:
  * <pre>
  * public class MyProvider extends WizardPanelProvider {
  *    public MyProvider() {
@@ -62,6 +63,7 @@ import javax.swing.JComponent;
  *             controller.setCanFinish(true); <font color="gray">//won't matter if we called setProblem() with non-null</font>
  *          }
  *       });
+ *       return result;
  *    }
  *
  *    protected abstract Object finish (Map settings) throws WizardException {
@@ -87,7 +89,9 @@ public abstract class WizardPanelProvider {
      * used in a <code>WizardBranchController</code>, where the first pane 
      * will determine the title, and the titles of the sub-wizards will never be 
      * shown.
-     * @param steps A set of unique IDs identifying each panel of this wizard
+     * @param steps A set of unique IDs identifying each step of this wizard.  Each
+     *   ID must occur only once in the array of steps.
+     *   
      * @param descriptions A set of human-readable descriptions corresponding
      *  1:1 with the unique IDs passed as the <code>steps</code> parameter
      */

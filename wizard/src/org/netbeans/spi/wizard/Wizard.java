@@ -70,11 +70,6 @@ import javax.swing.JComponent;
  * of Strings terminated with the special ID <code>UNDETERMINED_STEP</code>;
  * as the set of following steps becomes known, it should fire <code>
  * stepsChange()</code> to any registered WizardListeners.
- * <p>
- * For cases of simple wizards which contain no branching, see 
- * SimpleWizard, for which you need only provide an implementation of 2 
- * methods on <code>SimpleWizard.Info</code>.
- * 
  * @see WizardPanelProvider
  * @see WizardBranchController
  * @see org.netbeans.api.wizard.WizardDisplayer
