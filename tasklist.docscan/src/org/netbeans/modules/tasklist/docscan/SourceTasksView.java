@@ -317,8 +317,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 LOCATION_COLUMN_UID, // UID -- never change (part of serialization
                 PROP_SUGG_LOC,
                 String.class,
-                "Position", // TODO i18n
-                "Task's file and line position",
+                Util.getString("position"),
+                Util.getString("position_desc"),
                 true,
                 visible,
                 width
@@ -689,9 +689,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private AbstractButton getOpenedFiles() {
         if (openedFiles == null) {
-            // TODO i18n
-            JToggleButton button = new JToggleButton("Opened Files");
-            button.setToolTipText("Shows tasks in all edited files (o)");
+            JToggleButton button = new JToggleButton(Util.getString("opened"));
+            button.setToolTipText(Util.getString("opened_desc"));
             group.add(button);
             button.setSelected(getMode() == OPENED_FILES_MODE);
             button.addActionListener(dispatcher);

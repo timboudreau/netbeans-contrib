@@ -215,8 +215,8 @@ public class SuggestionNode extends TaskNode {
 
             p = new Reflection(item, String.class, "getLocation", null); // NOI18N
             p.setName(SuggestionsView.PROP_SUGG_LOC);
-            p.setDisplayName("Location"); //TODO i18n
-            p.setShortDescription("Task's file and line position");
+            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "position"));
+            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "position_desc"));
             // #38190 FIXME instead of renderer we do not have access to
             p.setPropertyEditorClass(LocationPropertyEditor.class);
             ss.put(p);

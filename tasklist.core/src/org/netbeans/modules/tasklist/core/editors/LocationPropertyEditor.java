@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.tasklist.core.editors;
 
+import org.openide.util.NbBundle;
+
 import java.beans.PropertyEditorSupport;
 
 /**
@@ -32,12 +34,12 @@ public class LocationPropertyEditor extends PropertyEditorSupport {
     }
 
     private String translate(String location) {
-        if (location == null) return "<Unknown>";  //TODO i18n
+        if (location == null) return NbBundle.getMessage(LocationPropertyEditor.class, "unknown");
         int pathEnd = location.lastIndexOf('/');  // NOI18N
         if (pathEnd > 0 ) {
             String path = location.substring(0, pathEnd);
             String filePos = location.substring(pathEnd + 1);
-            return filePos + "     (" + path + ")";
+            return filePos + "     (" + path + ")";   // NOI18N
         } else {
             return location;
         }
