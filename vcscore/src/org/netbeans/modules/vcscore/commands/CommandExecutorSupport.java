@@ -126,7 +126,7 @@ public class CommandExecutorSupport extends Object {
         String fullName = (String) vars.get("PATH");
         String paths = (String) vars.get("PATHS");
         boolean confirmed = false;
-        if (fileSystem.isImportant(fullName)) {
+        if (fullName == null || fileSystem.isImportant(fullName)) {
             String numFiles = (String) vars.get("NUM_FILES");
             vars.put("NUM_FILES", ""+numImportant(fileSystem, paths, (String) vars.get("PS")));
             confirmation = Variables.expand(vars, confirmation, true);
