@@ -13,60 +13,56 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="tasklist/bugs" default="netbeans" basedir=".">
-
+    <import file="../../nbbuild/default.xml"/>
+    
     <property name="nb_all" value="../.."/>
-
-    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-
-    <property name="nbm_alias" value="nb_ide"/>
-    <property name="homepage.base" value="netbeans.org"/>
-    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-    <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
     <property file="../version.properties"/>
   
-    <target name="compile">
-        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
-            <classpath>
-                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-                <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
-                <pathelement location="${nb_all}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <!-- tasklist api -->
-                <pathelement path="../api/src"/>
-                <!-- tasklist core -->
-                <pathelement path="../core/src"/>
-                <!--<pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> XXX -->
-                <fileset dir="../../core/external">
-                    <include name="xml-apis*.jar"/>
-                </fileset>
-            </classpath>
+    <target name="init" depends="default.init">
+      <patternset id="tasklist/bugs.files">
+        <include name="${nb.modules.dir}/tasklist-bugs.jar"/>
+      </patternset>
+      <path id="cp">
+        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+        <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+        <pathelement path="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
+        <pathelement path="${tasklist/core.dir}/${nb.modules/autoload.dir}/tasklist-core.jar"/>
+      </path>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
+            <classpath refID="cp"/>
         </javac>
     </target>
 
     <target name="jars" depends="compile">
-        <mkdir dir="netbeans/modules"/>
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../version.properties"/>
         <filter token="tl.bugs.spec" value="${tl.bugs.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/tasklist-bugs.jar"
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/tasklist-bugs.jar"
                 manifest="manifest-subst.mf"
                 basedir="src"
 	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
 	        compress="false">
-            <locale name="ja"/>
-        </locjar>
+        </jar>
     </target>
 
     <target name="netbeans" depends="jars">
-        <genlist targetname="nbm" outputfiledir="netbeans"/>
+        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/tasklist-bugs.jar">
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+                <patternset refID="tasklist/bugs.files"/>
+           </fileset>
+        </genlist>
     </target>
 
     <target name="nbm" depends="netbeans">
-        <makenbm file="../tasklist-bugs.nbm"
-                 topdir="."
-                 module="netbeans/modules/tasklist-bugs.jar"
+        <makenbm file="tasklist-bugs.nbm"
+                 productdir="${netbeans.dest.dir}/${cluster.dir}"
+                 module="${nb.modules.dir}/tasklist-bugs.jar"
                  homepage="http://tasklist.${homepage.base}/updates/tasklist-bugs.html"
                  distribution="http://${dist.base}/tasklist-bugs.nbm"
                  needsrestart="false">
@@ -79,11 +75,14 @@ Microsystems, Inc. All Rights Reserved.
         <style in="module-updates.xml" out="../www/updates/tasklist-bugs.html" style="../www/updates/updates.xsl"/>
     </target>
     
-    <target name="clean">
+    <target name="clean" depends="init">
         <delete>
             <fileset dir="src">
                 <include name="**/*.class"/>
             </fileset>
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+               <patternset refID="tasklist/bugs.files"/>
+            </fileset>            
         </delete>
         <delete file="manifest-subst.mf"/>
         <delete file="../tasklist-bugs.nbm"/>
