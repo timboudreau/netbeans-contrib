@@ -124,7 +124,7 @@ public class Variables {
     private static final String REPLACE = "_"; // NOI18N
     
     private static final String[] VARS_SYS_PROP = {
-        "netbeans.home", "netbeans.user", "java.home", "file.separator", // NOI18N
+        "netbeans.user", "java.home", "file.separator", // NOI18N
         "os.name", "os.arch", "os.version", "user.name", "user.home", // NOI18N
     };
     
