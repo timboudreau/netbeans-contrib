@@ -17,7 +17,6 @@ Microsystems, Inc. All Rights Reserved.
   <import file="../nbbuild/default.xml"/> 
 
   <property name="stdprofiles" value="cvsprofiles, pvcs, vss"/>
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
   <property name="build.compiler.debug" value="on"/>
 
   <target name="init" depends="default.init">
@@ -47,10 +46,6 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/config/*.xml"/>
-    </makelayer>
-    
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
@@ -63,10 +58,6 @@ Microsystems, Inc. All Rights Reserved.
       <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
         <include name="org/netbeans/modules/vcs/profiles/**/*"/>
 	<exclude name="org/netbeans/modules/vcs/profiles/config/*_XX.*"/>
-      </fileset>
-      <fileset dir="src/">
-        <include name="org/netbeans/modules/vcs/profiles/**/*.java"/>
-        <include name="org/netbeans/modules/vcs/profiles/**/*.form"/>
       </fileset>
     </jar>
   </target>

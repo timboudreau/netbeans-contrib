@@ -12,13 +12,13 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd" [
-  <!ENTITY includefiles_config SYSTEM "layer-includes-config.xml">
-]>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
 <filesystem>
+
   <folder name="vcs">
     <folder name="config">
-      &includefiles_config;
+      <file name="cvs.xml" url="/org/netbeans/modules/vcs/profiles/cvsprofiles/config/cvs.xml"/>
     </folder>
     <folder name="versioningMenu">
       <file name="cvs.xml">

@@ -16,7 +16,6 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcsgeneric/profiles/subversion" default="netbeans" basedir=".">
   <import file="../../../nbbuild/default.xml"/>
 
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
   <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="${nb_all}/nbbuild/nbantext.jar"/>
   
   <target name="init" depends="default.init">
@@ -43,9 +42,6 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/subversion/layer-includes-config.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/subversion/config/*.xml"/>
-    </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>

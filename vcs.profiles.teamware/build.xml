@@ -15,7 +15,6 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcsgeneric/profiles/teamware" default="netbeans" basedir=".">
   <import file="../../../nbbuild/default.xml"/>
     
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
   <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="${nb_all}/nbbuild/nbantext.jar"/>
   
   <property name="teamware.jar" value="org-netbeans-modules-vcs-profiles-teamware.jar"/>
@@ -47,9 +46,6 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/teamware/layer-includes-config.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/teamware/config/*.xml"/>
-    </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
 
     <!-- Provide a default value for buildnumber -->

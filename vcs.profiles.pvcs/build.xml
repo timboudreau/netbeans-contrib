@@ -8,14 +8,12 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="vcsgeneric/profiles/pvcs" default="netbeans" basedir=".">
   <import file="../../../nbbuild/default.xml"/>
-
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
 
   <target name="init" depends="default.init">
     <patternset id="vcsgeneric/profiles/pvcs.files">
@@ -43,10 +41,6 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/pvcs/layer-includes-config.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/pvcs/config/*.xml"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/pvcs/config/*_XX.*"/>
-    </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
@@ -54,7 +48,6 @@ Microsystems, Inc. All Rights Reserved.
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	 excludes="org/netbeans/modules/vcs/profiles/pvcs/mf-layer_XX.xml,org/netbeans/modules/vcs/profiles/pvcs/config/pvcsLoc_XX.xml"
          compress="false">
     </jar>
   </target>

@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -26,7 +26,6 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext1}/nbantext.jar"/>
   <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbroot1}/nbbuild/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext1}/nbantext.jar"/>
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext1}/nbantext.jar"/>
   <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="${nb_all}/nbbuild/nbantext.jar"/>
 
   <target name="init" depends="default.init">
@@ -53,9 +52,6 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/clearcase/layer-includes-config.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/clearcase/config/*.xml"/>
-    </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
@@ -63,12 +59,7 @@ Microsystems, Inc. All Rights Reserved.
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nbroot1}/nbbuild/standard-jar-excludes.txt"
-	 excludes="org/netbeans/modules/vcs/profiles/clearcase/mf-layer_XX.xml"
 	 compress="${build.package.compress}">
-      <fileset dir="src/" excludesfile="${nbroot1}/nbbuild/standard-jar-excludes.txt">
-        <include name="**/*"/>
-	<exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/*_XX.*"/>
-      </fileset>
     </jar>
     <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
       <enabled dir="${netbeans.dest.dir}/${cluster.dir}">

@@ -8,17 +8,16 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd" [
-  <!ENTITY includefiles_config SYSTEM "layer-includes-config.xml">
-]>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
 <filesystem>
   <folder name="vcs">
     <folder name="config">
-      &includefiles_config;
+      <file name="st40.xml" url="/org/netbeans/modules/vcs/profiles/starteam/config/st40.xml"/>
     </folder>
   </folder>
 </filesystem>
