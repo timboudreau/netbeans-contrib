@@ -20,6 +20,8 @@ import javax.swing.event.EventListenerList;
 
 import org.openide.util.Lookup;
 
+import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
+
 /**
  *
  * @author  Martin Entlicher
@@ -80,9 +82,13 @@ public final class VersioningRepository extends Object implements java.io.Serial
     
     public final void addVersioningFileSystem(VersioningFileSystem vfs) {
         boolean fireIt;
+        boolean firstFSAdded = false;
         synchronized (this) {
             String systemName = vfs.getSystemName();
             if (!names.containsKey(systemName)) {
+                if (verSystems.size() == 0) {
+                    firstFSAdded = true;
+                }
                 verSystems.add(vfs);
                 verSystemsCopy = new ArrayList(verSystems);
                 // mark as a listener on changes in the file system
@@ -94,6 +100,13 @@ public final class VersioningRepository extends Object implements java.io.Serial
         }
         if (fireIt) {
             fireVerSystem(vfs, true);
+        }
+        if (firstFSAdded) {
+            javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    VersioningExplorer.getRevisionExplorer().open();
+                }
+            });
         }
     }
     
