@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<!--
+   -                 Sun Public License Notice
+   - 
+   - The contents of this file are subject to the Sun Public License
+   - Version 1.0 (the "License"). You may not use this file except in
+   - compliance with the License. A copy of the License is available at
+   - http://www.sun.com/
+   - 
+   - The Original Code is NetBeans. The Initial Developer of the Original
+   - Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+   - Microsystems, Inc. All Rights Reserved.
+  -->
+  <title>User Tasks</title>
+  <link rel="StyleSheet" href="ide.css" type="text/css">
+</head>
+<body>
+<h2> User Tasks View </h2>
+<p>The <a href="http://tasklist.netbeans.org"><b>tasklist-usertasks</b></a>
+module lets you record your own todo list. Tasks have properties like
+priority, description, date created, last modification date, etc. You
+can choose which properties are visible in the tasklist, and sort by
+any column. The task list is stored in a standard format which can be
+read by other calendar applications, such as Evolution, Korganizer, and
+others. <br>
+</p>
+<p>You can also <a href="translators.html">export</a> the tasklist to
+HTML or XML. To show the user
+tasks window, click this icon in the
+tasklist toolbar: <img src="taskView.gif"> or choose "Window", "User
+Tasks" from the main menu.
+</p>
+<p>The user task list allows you to record tasks for yourself.
+For example, "Bring ethernet cable to work tomorrow", or
+if you're looking at some code, "Refactor the Engine class".
+These "todo items" are recorded into a tasklist file which is
+stored in a standard format, which means you can open the file
+in other calendar tools such as Gnome's Evolution, KDE's
+Korganizer, and many commercial tools as well.
+</p>
+<p>Recurring tasks, like "Mom's birthday tomorrow!" are not supported
+yet but task # <a
+ href="http://tasklist.netbeans.org/issues/show_bug.cgi?id=26455">26445</a>
+is tracking it.<br>
+</p>
+<p>You can search for tasks/filter them using the <a href="filter.html">filter
+dialog</a>.<br>
+</p>
+<p>Tasks can have an associated file position (filename and line
+number)
+or a URL. Then, when you select the "Go to Task" action on the task,
+the given position is shown in the source editor or a browser window.
+</p>
+<p>You can customize which task properties are shown in the list,
+change the sorting order, etc. See the <a href="table-operation.html">Using
+the Table</a> document
+for details on how to do that.
+</p>
+<p>Right click with the mouse to bring up the local menu and choose one
+of the available <a href="actions.html">actions</a> (some of them are
+also available in the local menu bar).<br>
+</p>
+<p>By default, there is a "global" tasklist where your tasks are
+stored. This tasklist is kept in the user directory, although
+you can change its location. You can however use multiple tasklists.
+This allows you to have one (or more) tasklist per project, for
+example. To create a new tasklist, use the "New From Template"
+feature in the IDE, and drill into "TaskList" and select iCalendar.
+When you've picked a name and a location,
+a new empty tasklist is created and shown.
+</p>
+<p>You can treat the tasklist files like any other source content
+and put it under version control, share it with other users, etc.<br>
+</p>
+<p>There are also some <a href="options.html">options</a> associated
+with the user tasks view.<br>
+</p>
+<hr>Comments &amp; requests to <a
+ href="mailto:dev@tasklist.netbeans.org"><code>dev@tasklist.netbeans.org</code></a>.
+Further information at <a href="http://tasklist.netbeans.org/"><code>http://tasklist.netbeans.org</code></a>.
+</body>
+</html>

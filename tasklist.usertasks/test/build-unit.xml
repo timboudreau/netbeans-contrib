@@ -31,8 +31,7 @@ Microsystems, Inc. All Rights Reserved.
     <!-- ========= -->
     
     <target name="unit-compiler">
-        <buildTests srcDir="unit/src"
-            compileExcludes="org/netbeans/usertasks/modules/jars/">
+        <buildTests srcDir="unit/src">
             <classpath>
                 <pathelement location="../build/classes"/>
                 <pathelement location="../../core/src"/>
@@ -90,12 +89,8 @@ Microsystems, Inc. All Rights Reserved.
     	<!-- this classpath will be used for compiling tests against jars -->
 	<path id="compiletest.classpath">        
             <pathelement location="../../../nbbuild/netbeans/modules/autoload/tasklist-api.jar"/>
-                <!-- XXX -->
-                <!--<pathelement location="../../../nbbuild/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <pathelement location="../../openide/io/netbeans/modules/org-openide-io.jar"/>-->
-
-             	<pathelement path="${junit.path}"/>
-	    	<pathelement path="${xerces.path}"/>
+            <pathelement path="${junit.path}"/>
+	    <pathelement path="${xerces.path}"/>
 	</path>
     </target>
         
@@ -106,9 +101,6 @@ Microsystems, Inc. All Rights Reserved.
 	        <pathelement location="../src"/>
                 <pathelement location="../../api/src"/>
                 
-	        <!--<fileset dir="../../../openide/netbeans/lib">
-                    <include name="openide*.jar"/>
-                </fileset>-->
 	        <pathelement path="${junit.path}"/>
 		<pathelement path="${xerces.path}"/>
                 <pathelement location="../../core/src"/>
@@ -119,14 +111,6 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using IDE classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against installed IDE -->
     	<path id="compiletest.classpath">        
-	        <!--<fileset dir="${netbeans.home}/lib">
-                    <include name="openide*.jar"/>
-                </fileset>-->
-                <!-- XXX -->
-                <!--<fileset dir="${netbeans.home}/modules/autoload">
-                    <include name="openide-*.jar"/>
-                </fileset>-->
-                
 	        <pathelement path="${junit.path}"/>
 		<pathelement path="${xerces.path}"/>
     	</path>
@@ -143,7 +127,6 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using jars classpath."/>
         <!-- this classpath will be used for executing tests against jars -->
 	<path id="codetest.classpath">
-            <!--<pathelement location="../../../openide/netbeans/lib/openide.jar"/>-->
     	</path>
     </target>
         
@@ -151,13 +134,6 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using srcs classpath."/>
         <!-- this classpath will be used for executing tests against sources -->
     	<path id="codetest.classpath">
-           <!--<pathelement location="../../../openide/loaders/netbeans/lib/openide-loaders.jar"/>-->
-           
-           <!-- Working sources should take precedence over usertasks.jar: -->
-           <!--<pathelement location="../src"/>
-           <pathelement location="../../../openide/netbeans/lib/openide.jar"/>
-           <pathelement location="../../api/netbeans/modules/autoload/tasklist-api.jar"/>
-           <pathelement location="../../core/src"/>-->
     	</path>
     </target>
     
@@ -165,14 +141,8 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using IDE classpath."/>
         <!-- this classpath will be used for executing tests against installed IDE -->
     	<path id="codetest.classpath">
-        	<pathelement location="${netbeans.home}/lib/openide.jar"/>
-                <pathelement location="${netbeans.home}/lib/openide-loaders.jar"/>        
-                <!-- XXX -->
-                <!--<fileset dir="${netbeans.home}/modules/autoload">
-                    <include name="openide-*.jar"/>
-                </fileset>-->
+            <pathelement location="${netbeans.home}/lib/openide.jar"/>
+            <pathelement location="${netbeans.home}/lib/openide-loaders.jar"/>        
     	</path>
     </target>
-    
-
 </project>

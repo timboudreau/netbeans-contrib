@@ -37,7 +37,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.Filter;
@@ -92,9 +91,6 @@ ExplorerManager.Provider, ExportImportProvider {
         NbBundle.getMessage(UserTaskView.class, 
         "default-filter-name"); // NOI18N
 
-    /** default columns */
-    private static ColumnsConfiguration cc;
-    
     private static final long serialVersionUID = 1;
 
     private static final Image ICON = Utilities.loadImage(
@@ -113,7 +109,7 @@ ExplorerManager.Provider, ExportImportProvider {
     static {
         // repaint the view if the number of working hours per day has
         // changed (spent time, rem. effort and effort columns should be
-        // repainted
+        // repainted)
         Settings.getDefault().addPropertyChangeListener(
             new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent e) {
@@ -531,30 +527,6 @@ ExplorerManager.Provider, ExportImportProvider {
             tt.getSortingModel(), getFilter()));
     }
 
-    /**
-     * Store current column configuration to settings
-     */
-    protected void storeColumnsConfiguration() {
-        if (tt == null)
-            return;
-        
-        ColumnsConfiguration columns = getDefaultColumns();
-        tt.storeColumns(columns);
-    }
-
-    /**
-     * Restore column configuration from settings
-     */
-    protected void loadColumnsConfiguration() {
-        if (UTUtils.LOGGER.isLoggable(Level.FINER))
-            Thread.dumpStack();
-        if (tt == null)
-            return;
-        
-        ColumnsConfiguration cc = getDefaultColumns();
-        tt.loadColumns(cc);
-    }
-    
     /** 
      * Expand nodes and select the particular item, IF the list
      * view is showing
@@ -646,8 +618,6 @@ ExplorerManager.Provider, ExportImportProvider {
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        loadColumnsConfiguration();
-        
         JPanel toolbars = new JPanel();
         toolbars.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
 
@@ -685,33 +655,6 @@ ExplorerManager.Provider, ExportImportProvider {
      */
     protected SystemAction[] getGlobalToolBarActions() {
         return null;
-    }
-
-    /**
-     * Returns default configuration for visible columns
-     *
-     * @return default columns configuration
-     */
-    protected ColumnsConfiguration getDefaultColumns() {
-        if (cc != null)
-            return cc;
-
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = fs.findResource("TaskList/" + USER_CATEGORY + "/columns.settings"); // NOI18N
-        assert fo != null : "Missing config TaskList/" + USER_CATEGORY + "/columns.settings";  // NOI18N
-
-        try {
-            DataObject dobj = DataObject.find(fo);
-            InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
-            cc = (ColumnsConfiguration) ic.instanceCreate();
-        } catch (ClassNotFoundException e) {
-            ErrorManager.getDefault().notify(e);
-        } catch (DataObjectNotFoundException e) {
-            ErrorManager.getDefault().notify(e);
-        } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
-        }
-        return cc;
     }
 
     /**
@@ -773,8 +716,6 @@ ExplorerManager.Provider, ExportImportProvider {
     protected void componentClosed() {
         getList().destroy();
         
-        storeColumnsConfiguration();
-
  	Iterator it = views.iterator();
         while (it.hasNext()) {
             WeakReference wr = (WeakReference) it.next();
@@ -790,7 +731,6 @@ ExplorerManager.Provider, ExportImportProvider {
         super.componentDeactivated();
         assert initialized : "#37438 dangling componentDeactivated event, no componentOpened() called at " + this;
         ExplorerUtils.activateActions(manager, false);
-        storeColumnsConfiguration();
     }
 
     /**

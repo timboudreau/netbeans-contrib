@@ -135,69 +135,6 @@ public class UserTasksTreeTable extends NodesTreeTable {
         }
     }
 
-    /**
-     * Configures columns in this tree table
-     *
-     * @param cc columns configuration
-     */
-    public void loadColumns(ColumnsConfiguration cc) {
-        assert cc != null : "cc == null"; // NOI18N
-        
-        this.createDefaultColumnsFromModel();
-
-        ArrayList newc = new ArrayList();
-        TableColumnModel tcm = getColumnModel();
-        assert tcm != null : "tcm == null"; // NOI18N
-
-        String[] p = cc.getProperties();
-        String sc = cc.getSortingColumn();
-        boolean so = cc.getSortingOrder();
-        int[] w = cc.getWidths();
-        
-        for (int i = 0; i < p.length; i++) {
-            for (int j = 0; j < tcm.getColumnCount(); j++) {
-                String s = UserTasksTreeTableModel.COLUMN_PROPERTIES[
-                    tcm.getColumn(j).getModelIndex()];
-                if (s.equals(p[i])) {
-                    TableColumn c = tcm.getColumn(j);
-                    newc.add(c);
-                    tcm.removeColumn(c);
-                    c.setPreferredWidth(w[i]);
-                    break;
-                }
-            }
-        }
-        while (tcm.getColumnCount() > 0) {
-            tcm.removeColumn(tcm.getColumn(0));
-        }
-        for (int i = 0; i < newc.size(); i ++) {
-            TableColumn c = (TableColumn) newc.get(i);
-            tcm.addColumn(c);
-        }
-    }
-
-    /**
-     * Saves columns data
-     *
-     * @param cc columns configuration
-     */
-    public void storeColumns(ColumnsConfiguration cc) {
-        assert cc != null : "cc == null"; // NOI18N
-        
-        TableColumnModel ctm = getColumnModel();
-        assert ctm != null : "ctm == null"; // NOI18N
-        
-        int[] w = new int[ctm.getColumnCount()];
-        String[] p = new String[ctm.getColumnCount()];
-        for (int i = 0; i < ctm.getColumnCount(); i++) {
-            TableColumn c = ctm.getColumn(i);
-            w[i] = c.getWidth();
-            p[i] = UserTasksTreeTableModel.COLUMN_PROPERTIES[c.getModelIndex()];
-        }
-        
-        cc.setValues(p, w, null, false);
-    }
-
     public void createDefaultColumnsFromModel() {
         super.createDefaultColumnsFromModel();
         TableColumnModel tcm = getColumnModel();

@@ -87,14 +87,14 @@ Microsystems, Inc. All Rights Reserved.
     <!-- ========= -->
     
     <target name="unit-compiler" depends="set_classpath">
-        <ant dir="." antfile="${xtest.module_harness.antfile}"
-             target="buildtests">
-           <!-- This property contains directories to compile.
-    	        These directories will be compiled separately. 
-                   example: <property name="compile.srcdir" value="unit/src1;unit/src2"/>
-             -->
-           <property name="compile.srcdir" value="unit/src"/>
-       </ant>
+        <buildTests srcDir="unit/src">
+            <classpath>
+                <pathelement location="../build/classes"/>
+                <pathelement location="../../../nbbuild/netbeans/ide4/modules/autoload/tasklist-api.jar"/>
+                <pathelement location="../../../nbbuild/netbeans/platform4/core/openide.jar"/>
+                <pathelement location="../../../nbbuild/netbeans/platform4/core/openide-loaders.jar"/>
+            </classpath> 
+        </buildTests>
     </target>
 
     <!-- ================ -->
@@ -104,39 +104,30 @@ Microsystems, Inc. All Rights Reserved.
     <!-- This target is executed from test-executor in newly created Project -->
     <!-- Name of this task is defined in cfg-xxx.xml -->
     <!-- This target executes tests inside IDE -->
-    <target name="runidetest" depends="set_classpath">
-        <ant dir="." antfile="${xtest.module_harness.antfile}"
-             target="test">
-           <property name="xtest.exectype" value="ide"/>
-        </ant>
+    <target name="runidetest">
+        <executeTests pluginName="ide" classpath="">
+            <classpath>
+                <pathelement location="../build/classes"/>
+                <pathelement location="../../core/src"/>
+                <pathelement location="../../../nbbuild/netbeans/ide4/modules/autoload/tasklist-api.jar"/>
+                <pathelement location="../../../nbbuild/netbeans/platform4/core/openide.jar"/>
+                <pathelement location="../../../nbbuild/netbeans/platform4/core/openide-loaders.jar"/>
+            </classpath> 
+        </executeTests>
     </target>
     
     <!-- This target is executed from test-executor in newly created Project -->
     <!-- Name of this task is defined in cfg-xxx.xml init,-->
     <!-- This target executes standalone tests -->
-    <target name="runcodetest" depends="set_classpath">
-        <ant dir="." antfile="${xtest.module_harness.antfile}"
-             target="test">
-           <property name="xtest.exectype" value="code"/>
-        </ant>
-    </target>
-
-    <!-- =============================================================
-        Following targets are for "advanced" users who needs more 
-        compilacated classpathes, which depends on way of execution.
-        ============================================================= -->
-
-    <!-- this "switch" will decide how to create classpath -->
-    <target name="which-classpath">
-        <condition property="jarcode.classpath">
-            <equals arg1="${xtest.source.location}" arg2="jar"/>
-        </condition>
-        <condition property="srccode.classpath">
-            <equals arg1="${xtest.source.location}" arg2="src"/>
-        </condition>
-        <condition property="idecode.classpath">
-            <equals arg1="${xtest.source.location}" arg2="ide"/>
-        </condition>
+    <target name="runcodetest">
+        <executeTests pluginName="jvm">
+            <classpath>
+                <pathelement location="../build/classes"/>
+                <pathelement location="../../../nbbuild/netbeans/ide4/modules/autoload/tasklist-api.jar"/>
+                <pathelement location="../../../nbbuild/netbeans/platform4/core/openide.jar"/>
+                <pathelement location="../../../nbbuild/netbeans/platform4/core/openide-loaders.jar"/>
+            </classpath> 
+        </executeTests>
     </target>
 
     <!-- ========================= -->
@@ -146,7 +137,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="prepare-compile-classpath"
          depends="jarcompile-classpath,srccompile-classpath,idecompile-classpath"/>
     
-    <target name="jarcompile-classpath" depends="which-classpath" if="jarcode.classpath">
+    <target name="jarcompile-classpath" if="jarcode.classpath">
         <echo message="Using jars classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against jars -->
 	<path id="compiletest.classpath">        
@@ -162,7 +153,7 @@ Microsystems, Inc. All Rights Reserved.
 	</path>
     </target>
         
-    <target name="srccompile-classpath" depends="which-classpath" if="srccode.classpath">
+    <target name="srccompile-classpath" if="srccode.classpath">
         <echo message="Using srcs classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against sources -->
     	<path id="compiletest.classpath">        
@@ -176,7 +167,7 @@ Microsystems, Inc. All Rights Reserved.
 	</path>
     </target>
     
-    <target name="idecompile-classpath" depends="which-classpath" if="idecode.classpath">
+    <target name="idecompile-classpath" if="idecode.classpath">
         <echo message="Using IDE classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against installed IDE -->
     	<path id="compiletest.classpath">        
@@ -200,7 +191,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="prepare-codetest-classpath" 
             depends="jartest-classpath,srctest-classpath,idetest-classpath"/>
     
-    <target name="jartest-classpath" depends="which-classpath" if="jarcode.classpath">
+    <target name="jartest-classpath" if="jarcode.classpath">
         <echo message="Using jars classpath."/>
         <!-- this classpath will be used for executing tests against jars -->
 	<path id="codetest.classpath">
@@ -208,7 +199,7 @@ Microsystems, Inc. All Rights Reserved.
     	</path>
     </target>
         
-    <target name="srctest-classpath" depends="which-classpath" if="srccode.classpath">
+    <target name="srctest-classpath" if="srccode.classpath">
         <echo message="Using srcs classpath."/>
         <!-- this classpath will be used for executing tests against sources -->
     	<path id="codetest.classpath">
@@ -219,7 +210,7 @@ Microsystems, Inc. All Rights Reserved.
     	</path>
     </target>
     
-    <target name="idetest-classpath" depends="which-classpath" if="idecode.classpath">
+    <target name="idetest-classpath" if="idecode.classpath">
         <echo message="Using IDE classpath."/>
         <!-- this classpath will be used for executing tests against installed IDE -->
     	<path id="codetest.classpath">

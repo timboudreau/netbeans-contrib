@@ -32,6 +32,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.EventObject;
@@ -54,6 +55,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -62,6 +65,7 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.UserTasksTreeTableModel;
 
 
 /**
@@ -75,6 +79,31 @@ import org.netbeans.modules.tasklist.usertasks.UTUtils;
  * @author Scott Violet
  */
 public class TreeTable extends JTable {
+    /**
+     * Columns configuration
+     */
+    private static final class ColumnsConfig implements Serializable {
+        /** 
+         * Model indexes for visible columns
+         */
+        public int[] columns;
+        
+        /**
+         * Widths of the columns in pixels
+         */
+        public int[] columnWidths;
+        
+        /**
+         * Model index or -1
+         */
+        public int sortedColumn = -1;
+        
+        /**
+         * Sorting order
+         */
+        public boolean ascending;
+    }
+    
     /**
      * Expanded nodes and selection.
      * See setExpandedNodesAndSelection/getExpandedNodesAndSelection
@@ -527,7 +556,67 @@ public class TreeTable extends JTable {
     protected Object readResolveNode(Object parent, Object node) {
         return node;
     }
+
+    /**
+     * Returns the columns configuration that could be serialized.
+     *
+     * @return columns configuration (visible columns, sorting etc.)
+     */
+    public Serializable getColumnsConfig() {
+        ColumnsConfig cc = new ColumnsConfig();
+        
+        TableColumnModel ctm = getColumnModel();
+        assert ctm != null : "ctm == null"; // NOI18N
+        
+        cc.columns = new int[ctm.getColumnCount()];
+        for (int i = 0; i < ctm.getColumnCount(); i++) {
+            TableColumn c = ctm.getColumn(i);
+            cc.columns[i] = c.getModelIndex();
+            cc.columnWidths[i] = c.getWidth();
+        }
+        
+        cc.sortedColumn = getSortingModel().getSortedColumn();
+        cc.ascending = !getSortingModel().isSortOrderDescending();
+        
+        return cc;
+    }
     
+    /**
+     * Sets columns configuration read from a stream.
+     *
+     * @param c columns configuration
+     */
+    public void setColumnsConfig(Serializable c) {
+    /*    assert c != null : "c == null"; // NOI18N
+        
+        this.createDefaultColumnsFromModel();
+
+        ColumnsConfig cc = (ColumnsConfig) c;
+        
+        ArrayList newc = new ArrayList();
+        TableColumnModel tcm = getColumnModel();
+        assert tcm != null : "tcm == null"; // NOI18N
+
+        for (int i = 0; i < cc.columns.length; i++) {
+            for (int j = 0; j < tcm.getColumnCount(); j++) {
+                TableColumn c = tcm.getColumn(j);
+                if (cc.columns[i] == tcm.getcolu) {
+                    newc.add(c);
+                    tcm.removeColumn(c);
+                    c.setPreferredWidth(w[i]);
+                    break;
+                }
+            }
+        }
+        while (tcm.getColumnCount() > 0) {
+            tcm.removeColumn(tcm.getColumn(0));
+        }
+        for (int i = 0; i < newc.size(); i ++) {
+            TableColumn c = (TableColumn) newc.get(i);
+            tcm.addColumn(c);
+        }*/
+    }
+
     /**
      * Writes the state of expanded nodes to a stream. Only one object
      * will be written.

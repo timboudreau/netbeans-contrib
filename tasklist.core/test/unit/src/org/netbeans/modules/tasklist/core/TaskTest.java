@@ -176,7 +176,7 @@ public class TaskTest extends TestCase {
                 if (t == c2) tlCallbacks[1] = true;
             }
 
-            public void removedTask(Task pt, Task t) {
+            public void removedTask(Task pt, Task t, int index) {
                 System.out.println("removedTask:" + t);
             }
 
@@ -230,7 +230,7 @@ public class TaskTest extends TestCase {
                 fail("Unexpected event");
             }
 
-            public void removedTask(Task pt, Task t) {
+            public void removedTask(Task pt, Task t, int index) {
                 System.out.println("removedTask:" + t);
             }
 
@@ -288,7 +288,7 @@ public class TaskTest extends TestCase {
                 System.out.println("addedTask:" + t);
             }
 
-            public void removedTask(Task pt, Task t) {
+            public void removedTask(Task pt, Task t, int index) {
                 System.out.println("removedTask:" + t);
                 if (c1 == t) tlCallbacks[0] = true;
                 if (c2 == t) tlCallbacks[1] = true;
