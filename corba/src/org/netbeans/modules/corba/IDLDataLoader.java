@@ -115,11 +115,17 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     }
 
     public boolean getHide () {
+	if (DEBUG)
+	    System.out.println ("IDLDataLoader::getHide () -> " + _M_hide_generated_files);
 	return _M_hide_generated_files;
     }
 
     public void setHide (boolean __value) {
+	if (DEBUG)
+	    System.out.println ("IDLDataLoader::setHide (" + __value + ");");
+	boolean __old = _M_hide_generated_files;
 	_M_hide_generated_files = __value;
+	this.firePropertyChange ("_M_hide_generated_files", null, null);
     }
 
     public boolean folderIsInCache (FileObject __folder) {

@@ -160,6 +160,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     public static Vector IRChildren;
     
     private boolean _M_loaded = false;
+    private boolean _M_in_init = false;
     //private boolean deserealization;
 
     /** @return human presentable name */
@@ -177,6 +178,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     }
 
     public void init () {
+	_M_in_init = true;
 	/*
 	  //names = new Vector (5);
 	  initOrb ();
@@ -194,7 +196,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	  
         // test for default settings
         //setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
-        if (DYNLOAD || !PRODUCTION) {
+        if (DYNLOAD && !PRODUCTION) {
 	    setOrb ("ORBacus for Java 3.1.x");
 	    /*
 	      loadImpl ();
@@ -212,27 +214,39 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
             //setServerBinding (CORBASupport.SERVER_NS);
         }
 
+	_M_in_init = false;
     }
-    /*
-      public void readExternal (ObjectInput __in) 
-      throws java.io.IOException, 
-      java.lang.ClassNotFoundException {
-      if (DEBUG)
-      System.out.println ("CORBASupportSettings::readExternal (" + __in + ")");
-      //deserealization = true;
-      super.readExternal (__in);
-      //deserealization = false;
+    
+    public void readExternal (ObjectInput __in) 
+	throws java.io.IOException, 
+	       java.lang.ClassNotFoundException {
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::readExternal (" + __in + ")");
+	_M_in_init = true;
+	//deserealization = true;
+	super.readExternal (__in);
+	IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
+	    (IDLDataLoader.class, true);
+	//System.out.println ("CORBASupportSettings (IDLDataLoader)__in.readObject ()");
+	__loader = (IDLDataLoader)__in.readObject ();
+	//System.out.println ("CORBASupportSettings done");
+	_M_in_init = false;
+	//deserealization = false;
+	//this.setOrb (_M_orb_name);
+    }
+    
+    
+    public void writeExternal (ObjectOutput __out) throws IOException {
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::writeExternal (" + __out + ")");
+	//_M_implementations.writeExternal (__out);
+	//((BeanContextSupport)_M_implementations).writeObject (__out);
+	super.writeExternal (__out);
+	IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
+	    (IDLDataLoader.class, true);
+	__out.writeObject (__loader);
       }
-    */
-    /*
-      public void writeExternal (ObjectOutput __out) throws IOException {
-      if (DEBUG)
-      System.out.println ("CORBASupportSettings::writeExternal (" + __out + ")");
-      //_M_implementations.writeExternal (__out);
-      //((BeanContextSupport)_M_implementations).writeObject (__out);
-      super.writeExternal (__out);
-      }
-    */
+    
     /*
       private void writeObject (java.io.ObjectOutputStream __out) throws IOException {
       if (DEBUG)
@@ -331,6 +345,18 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	if (__settings != null)
 	    __settings.setJavaTemplateTable ();
 	firePropertyChange ("_M_orb_name", __old, _M_orb_name);
+	this.cacheThrow ();
+
+	if (!_M_in_init) {
+	    boolean __orb_hide = this.getActiveSetting ().hideGeneratedFiles ();
+	    IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
+		(IDLDataLoader.class, true);
+	    boolean __old_hide = __loader.getHide ();
+	    //System.out.println ("__orb_hide: " + __orb_hide);
+	    //System.out.println ("__old_hide: " + __old_hide);
+	    //if (__old_hide != __orb_hide)
+	    __loader.setHide (__orb_hide);
+	}
     }
 
     /*
@@ -1325,4 +1351,5 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
       }
     */
 }
+
 

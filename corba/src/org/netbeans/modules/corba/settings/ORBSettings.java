@@ -846,9 +846,12 @@ public class ORBSettings implements java.io.Serializable {
 	if (_M_property_change_support == null)
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	boolean __old = _M_hide_generated_files;
-        _M_hide_generated_files = __value;
-	firePropertyChange ("_M_hide_generated_files", __old, _M_hide_generated_files);       
+        _M_hide_generated_files = __value;	
+	firePropertyChange ("_M_hide_generated_files", __old, _M_hide_generated_files);
 	this.cacheThrow ();
+	IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
+	    (IDLDataLoader.class, true);
+	__loader.setHide (_M_hide_generated_files);       
     }
     /*
       public void setAdvancedOrbOptions (String orb) {

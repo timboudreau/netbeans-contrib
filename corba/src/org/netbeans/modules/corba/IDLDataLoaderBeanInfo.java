@@ -34,6 +34,24 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
     private static PropertyDescriptor[] descriptors;
 
 
+    // initialization of the array of descriptors
+    static {
+	//System.out.println ("// initialization of the array of descriptors");
+        try {
+            descriptors = new PropertyDescriptor[] {
+		new PropertyDescriptor ("_M_hide_generated_files", IDLDataLoader.class,
+					"getHide", "setHide")
+		    };
+	    // hidden options for serialization
+	    descriptors[0].setHidden (true);
+
+	    //System.out.println ("// initialization of the array of descriptors");
+	} catch (IntrospectionException ex) {
+            //throw new InternalError ();
+            ex.printStackTrace ();
+        }
+    }
+
     /** Default constructor.
     */
     public IDLDataLoaderBeanInfo() {
@@ -67,6 +85,7 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
     private static void initializeDescriptors () {
         final ResourceBundle bundle =
             NbBundle.getBundle(IDLDataLoaderBeanInfo.class);
+	//System.out.println ("initializeDescriptors");
         try {
             descriptors =  new PropertyDescriptor[] {
                                new PropertyDescriptor ("displayName", IDLDataLoader.class,
