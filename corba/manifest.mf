@@ -13,3 +13,6 @@ Install-Before: com.netbeans.developer.modules.loaders.java.JavaDataObject
 Name: com/netbeans/enterprise/modules/corba/settings/CORBASupportSettings.class
 OpenIDE-Module-Class: Option
 
+Name: com/netbeans/enterprise/modules/corba/browser/ns/ContextNode.class
+OpenIDE-Module-Class: Node
+Type: Environment
