@@ -157,7 +157,7 @@ public class Settings extends SystemOption {
                     new TaskTag("XXX", SuggestionPriority.MEDIUM),
                     new TaskTag("PENDING", SuggestionPriority.MEDIUM),
                     // CVS merge conflict:
-                    //new TaskTag("\<\<\<\<\<\<\<", SuggestionPriority.HIGH),
+                    new TaskTag("<<<<<<<", SuggestionPriority.HIGH),
 
                     // Additional candidates: HACK, WORKAROUND, REMOVE, OLD
                 });;

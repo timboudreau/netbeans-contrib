@@ -82,12 +82,24 @@ public final class TaskTags implements Externalizable {
                 if (i > 0) {
                     sb.append('|');
                 }
-                // \W instead of \b: Workarond for issue 30250
-                sb.append("\\W"); // NOI18N
-                // "escape" the string here such that regexp meta
-                // characters are handled literally
                 String s = tgs[i].getToken();
                 int n = s.length();
+                // Insert token/boundary separator when we're dealing
+                // with text tokens, since you probably don't want
+                // a TODO match in a comment like
+                // "and now process GLYPTODON content".
+                // However, for non-token tags, such as "<<<<<<<" don't
+                // insert word boundary markers since it won't work - there's
+                // no word on the right...
+                if (Character.isJavaIdentifierPart(s.charAt(0))) {
+                    // isJavaIdentifierPart - roughly matches what regex
+                    // considers a word ([a-zA-Z_0-9])
+
+                    // \W instead of \b: Workarond for issue 30250
+                    sb.append("\\W"); // NOI18N
+                }
+                // "escape" the string here such that regexp meta
+                // characters are handled literally
                 for (int j = 0; j < n; j++) {
                     char c = s.charAt(j);
                     // regexp metachar?
@@ -101,7 +113,9 @@ public final class TaskTags implements Externalizable {
                     }
                     sb.append(c);
                 }
-                sb.append("\\b"); // NOI18N
+                if (Character.isJavaIdentifierPart(s.charAt(n-1))) {
+                    sb.append("\\b"); // NOI18N
+                }
             }
             try {
                 regexp = new RE(sb.toString());
