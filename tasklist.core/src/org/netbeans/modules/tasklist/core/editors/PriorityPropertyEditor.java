@@ -109,6 +109,10 @@ implements EnhancedPropertyEditor {
      * @return value
      */
     private int getIntValue() {
-        return ((SuggestionPriority) getValue()).intValue();
+        Object v = getValue();
+        if (v instanceof SuggestionPriority)
+            return ((SuggestionPriority) v).intValue();
+        else
+            return SuggestionPriority.LOW.intValue();
     }
 }
