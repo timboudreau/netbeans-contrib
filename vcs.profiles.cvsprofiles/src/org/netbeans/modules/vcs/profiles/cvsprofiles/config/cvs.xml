@@ -202,6 +202,12 @@ Microsystems, Inc. All Rights Reserved.
       <value if="IS_OS2">cmd /C "${CD} ${QUOTE}${ROOTDIR}${PS}.${QUOTE}&amp;&amp;  </value>
       <value>/bin/sh -c "${CD} ${QUOTE}${ROOTDIR}${QUOTE}; </value>
     </variable>
+      <variable name="RUN_NO_CD" basic="false">
+        <value if="IS_WINNT">cmd /X /C "</value>
+        <value if="IS_WIN9X">${SHELL} -c "</value>
+        <value if="IS_OS2">cmd /C "</value>
+        <value>/bin/sh -c "</value>
+      </variable>
     <variable name="QUOTE" basic="false">
       <value if="BUILT-IN">"</value>
       <value if="IS_OS2">"</value>
@@ -237,6 +243,11 @@ Microsystems, Inc. All Rights Reserved.
       <value>${RUN} ${CVS_DEF_EXE} </value>
       <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} </value>
     </variable>
+      <variable name="EXECUTE_NO_CD" basic="false">
+        <value>${RUN_NO_CD} ${CVS_DEF_EXE} </value>
+        <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class -d ${QUOTE}${CVSROOT}${QUOTE} </value>
+      </variable>
+
     <variable name="CDM_EXECUTE" basic="false">
       <value>${RUNCDM} ${CVS_DEF_EXE} </value>
       <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${MODDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} </value>
@@ -2927,7 +2938,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="LOGIN_CHECK">
       <property name="exec">
-        <value>${EXECUTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}</value>
+        <value>${EXECUTE_NO_CD} -f checkout -c ${NUR}</value>
       </property>
     </command>
     <command name="CONNECTION_LOGIN">
@@ -3088,7 +3099,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LOGIN_CHECK">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}</value>
+          <value>${EXECUTE_NO_CD} -f checkout -c ${NUR}</value>
         </property>
       </command>
       <command name="SET_GLOBAL_LOGIN_STATE">
