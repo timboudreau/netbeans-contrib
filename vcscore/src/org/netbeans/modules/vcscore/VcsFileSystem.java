@@ -224,6 +224,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     private volatile boolean offLine; // is set in the constructor
     private volatile int autoRefresh; // is set in the constructor
+    
+    private volatile boolean commandNotification; // is set in the constructor
 
     private Collection notModifiableStatuses = Collections.EMPTY_SET;
 
@@ -283,6 +285,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     public boolean getExpertMode() {
         return expertMode;
+    }
+    
+    public void setCommandNotification(boolean commandNotification) {
+         this.commandNotification = commandNotification;
+    }
+    
+    public boolean isCommandNotification() {
+        return commandNotification;
     }
 
     public CommandsPool getCommandsPool() {
