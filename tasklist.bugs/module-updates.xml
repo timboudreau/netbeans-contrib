@@ -1,7 +1,7 @@
 <updates>
 
     <!-- not yet released -->
-    <update version="0.11">
+    <update version="0.13">
         <change>Local toolbar with refresh and view bug actions added</change>
         <change>View bug action shows bug from proper database</change>
     </update>
