@@ -86,6 +86,16 @@ public class Table extends AbstractMap {
         }
         return value;
     }
+    
+    public synchronized Collection values() {
+        ArrayList list = new ArrayList();
+        for (Iterator iterator = entries.iterator(); iterator.hasNext(); ) {
+            Entry entry = (Entry) iterator.next();
+            if (entry == null) list.add(null);
+            else list.add(entry.getValue());
+        }
+        return list;
+    }
 
     private class Entry implements Map.Entry {
         private Object key;
@@ -175,6 +185,24 @@ public class Table extends AbstractMap {
             Entry entry = (Entry) iterator.next();
             if (entry == null) return null;
             return entry.getKey();
+        }
+    }
+
+    private class EnumValues implements Enumeration {
+        private Iterator iterator;
+        
+        public EnumValues() {
+            iterator = entries.iterator();
+        }
+        
+        public boolean hasMoreElements() {
+            return iterator.hasNext();
+        }
+        
+        public Object nextElement() {
+            Entry entry = (Entry) iterator.next();
+            if (entry == null) return null;
+            return entry.getValue();
         }
     }
 }
