@@ -108,7 +108,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             else
                 j2eeSpecComboBox.setSelectedItem(NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_1"));
             
-            selectServerID(serverID);
+            if (serverID != null)
+                selectServerID(serverID);
         }
 
     }
@@ -125,6 +126,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
      */
     // XXX: copied from java/freeform:SourceFoldersPanel.getLocationDisplayName
     public static String getLocationDisplayName(PropertyEvaluator evaluator, File base, String val) {
+        if (val == null)
+            return ""; // NOI18N
         File f = Util.resolveFile(evaluator, base, val);
         if (f == null) {
             return val;
