@@ -139,9 +139,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient VcsAction action = null;
     private transient VcsFactory factory = null;
 
-    private transient ErrorCommandDialog errorDialog = null;
-    private transient volatile boolean lastCommandState = true;
-    private transient volatile boolean lastCommandFinished = true;
+    //private transient ErrorCommandDialog errorDialog = null;
+    //private transient volatile boolean lastCommandState = true;
+    //private transient volatile boolean lastCommandFinished = true;
 
     private transient Vector unimportantNames = null;
     private Boolean processUnimportantFiles = Boolean.FALSE;
@@ -340,10 +340,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
+    /*
     public boolean getLastCommandState () { return lastCommandState; }
     public void setLastCommandState (boolean lastCommandState) { this.lastCommandState = lastCommandState; }
     public boolean getLastCommandFinished () { return lastCommandFinished; }
     public void setLastCommandFinished (boolean lastCommandFinished) { this.lastCommandFinished = lastCommandFinished; }
+     */
     
     /** Return the working directory of the file system. 
      *  To that, relative mountpoints are added later to enable compilation etc.
@@ -627,7 +629,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 possibleFileStatusesMap = new HashMap();
             }
         }
-        errorDialog = new ErrorCommandDialog(null, new JFrame(), false);
+        //errorDialog = new ErrorCommandDialog(null, new JFrame(), false);
         try {
             setInitRootDirectory(rootFile);
         } catch (PropertyVetoException e) {
@@ -694,6 +696,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return statusesTable;
     }
 
+    /*
     public ErrorCommandDialog getErrorDialog() {
         return errorDialog;
     }
@@ -701,6 +704,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setErrorDialog(ErrorCommandDialog errDlg) {
         errorDialog = errDlg;
     }
+     */
 
     //-------------------------------------------
     //public long getCacheId(){
