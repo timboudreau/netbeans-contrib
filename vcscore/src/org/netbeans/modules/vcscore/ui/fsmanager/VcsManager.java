@@ -20,6 +20,7 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -244,7 +245,8 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         
         
         public RecognizeAction(){
-            super(NbBundle.getMessage(VcsManager.class, "VCSManager.cbRecognize"));
+            super(NbBundle.getMessage(VcsManager.class, "VCSManager.btnNew"));
+            putValue(Action.MNEMONIC_KEY, new Integer(NbBundle.getMessage(VcsManager.class, "ACS_btnNew_mnc").charAt(0)));
         }
         
 
@@ -259,7 +261,8 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         static final long serialVersionUID = -1839566741005638541L;
         
         public UnrecognizeAction() {
-            super(NbBundle.getMessage(VcsManager.class, "VCSManager.cbUnrecognize"));
+            super(NbBundle.getMessage(VcsManager.class, "VCSManager.btnRemove"));
+            putValue(Action.MNEMONIC_KEY, new Integer(NbBundle.getMessage(VcsManager.class, "ACS_VcsManager.btnRemove_mnc").charAt(0)));
             getExplorerManager().addPropertyChangeListener(this);
         }
         
@@ -282,7 +285,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
                     Object option = DialogDisplayer.getDefault().notify(
                         new NotifyDescriptor.Confirmation(
                             NbBundle.getMessage(VcsManager.class, "MSG_ConfirmFSRemoval", info.getFSRoot().getAbsolutePath()),
-                            NbBundle.getMessage(VcsManager.class, "VCSManager.cbUnrecognize"),
+                            NbBundle.getMessage(VcsManager.class, "VCSManager.btnRemove"),
                             NotifyDescriptor.YES_NO_OPTION));
                     if (NotifyDescriptor.YES_OPTION == option) {
                         FSRegistry.getDefault().unregister(info);
@@ -301,7 +304,8 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         static final long serialVersionUID = -3243779028704471940L;
         
         public CustomizeAction(){
-            super(NbBundle.getMessage(VcsManager.class, "VCSManager.cbCustomize"));
+            super(NbBundle.getMessage(VcsManager.class, "VCSManager.btnEdit"));
+            putValue(Action.MNEMONIC_KEY, new Integer(NbBundle.getMessage(VcsManager.class, "ACS_VcsManager.lblEdit_mnc").charAt(0)));
             getExplorerManager().addPropertyChangeListener(this);
         }
         
