@@ -53,9 +53,9 @@ Microsystems, Inc. All Rights Reserved.
       <exclude name="org/netbeans/modules/corba/idl/compiler/"/>
       <classpath>
 	<pathelement location="../openide/openide-13javac-workaround.jar"/>
-        <fileset dir="../openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
+        <pathelement location="../openide/netbeans/lib/openide.jar"/>
+        <pathelement location="../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
+        <pathelement location="../java/srcmodel/netbeans/modules/autoload/java-src-model.jar"/>
 	<pathelement location="../java/netbeans/modules/java.jar"/>
 	<pathelement location="compiletime/idlj.jar"/>
 	<pathelement location="compiletime/corbanscs.jar"/>
