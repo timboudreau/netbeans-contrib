@@ -48,7 +48,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="prepare-docs">
-      <!-- ant dir="../jemmy/" target="api"/ -->
+      <ant dir="../jemmy/" target="api"/>
       <mkdir dir="netbeans/docs"/>
       <zip zipfile="netbeans/docs/jemmy-javadoc.zip"
              basedir="../jemmy/www/javadoc"
