@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore.commands;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import javax.swing.SwingUtilities;
 
 import org.openide.windows.Workspace;
 import org.openide.windows.Mode;
@@ -114,29 +115,49 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     /**
      * Receive a line of standard output.
      */
-    public void stdOutputLine(String line) {
-        outputPanel.getStdOutputArea().append(line + "\n");
+    public void stdOutputLine(final String line) {
+        // to prevent deadlocks, append output in the AWT thread
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run () {
+                outputPanel.getStdOutputArea().append(line + "\n");
+            }
+        });
     }
     
     /**
      * Receive a line of error output.
      */
-    public void errOutputLine(String line) {
-        outputPanel.getErrOutputArea().append(line + "\n");
+    public void errOutputLine(final String line) {
+        // to prevent deadlocks, append output in the AWT thread
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run () {
+                outputPanel.getErrOutputArea().append(line + "\n");
+            }
+        });
     }
 
     /**
      * Receive the data output.
      */
-    public void stdOutputData(String[] data) {
-        outputPanel.getStdDataOutputArea().append(VcsUtilities.arrayToString(data) + "\n");
+    public void stdOutputData(final String[] data) {
+        // to prevent deadlocks, append output in the AWT thread
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run () {
+                outputPanel.getStdDataOutputArea().append(VcsUtilities.arrayToString(data) + "\n");
+            }
+        });
     }
     
     /**
      * Receive the error data output.
      */
-    public void errOutputData(String[] data) {
-        outputPanel.getErrDataOutputArea().append(VcsUtilities.arrayToString(data) + "\n");
+    public void errOutputData(final String[] data) {
+        // to prevent deadlocks, append output in the AWT thread
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run () {
+                outputPanel.getErrDataOutputArea().append(VcsUtilities.arrayToString(data) + "\n");
+            }
+        });
     }
     
     public void setExitStatus(int exit) {
