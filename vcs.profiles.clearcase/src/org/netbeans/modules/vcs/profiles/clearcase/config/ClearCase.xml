@@ -45,8 +45,8 @@ Microsystems, Inc. All Rights Reserved.
         </variable>
     </variables>
     <commands>
-        <command displayName="ClearCase" name="ROOT">
-            <command displayName="Refresh" name="LIST">
+        <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_ROOT)" name="ROOT">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Refresh)" name="LIST">
                 <property name="data.size.index">
                     <value>-1</value>
                 </property>
@@ -81,7 +81,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>(.*$)</value>
                 </property>
             </command>
-            <command displayName="Refresh Recursively" name="LIST_SUB">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Refresh_Recursively)" name="LIST_SUB">
                 <property name="onFile">
                     <value>false</value>
                 </property>
@@ -90,7 +90,7 @@ Microsystems, Inc. All Rights Reserved.
                 </property>
             </command>
             <separator/>
-            <command displayName="Check In" name="CHECKIN">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_In)" name="CHECKIN">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseCMD} checkin -c ${QUOTE}${REASON}${QUOTE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -104,7 +104,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>true</value>
                 </property>
             </command>
-            <command displayName="Check Out Reserved" name="CHECKOUT RESERVED">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_Out_Reserved)" name="CHECKOUT RESERVED">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseCMD} checkout -c ${QUOTE}${REASON}${QUOTE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -118,7 +118,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>true</value>
                 </property>
             </command>
-            <command displayName="Check Out Unreserved" name="CHECKOUT UNRESERVED">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_Out_Unreserved)" name="CHECKOUT UNRESERVED">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseCMD} checkout -c ${QUOTE}${REASON}${QUOTE} -unreserved ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -133,7 +133,7 @@ Microsystems, Inc. All Rights Reserved.
                 </property>
             </command>
             <separator/>
-            <command displayName="Undo Checkout" name="UNDO CHECKOUT">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Undo_Checkout)" name="UNDO CHECKOUT">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseCMD} unco -keep ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -144,7 +144,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>true</value>
                 </property>
             </command>
-            <command displayName="Unreserve" name="UNRESERVE">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Unreserve)" name="UNRESERVE">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseCMD} unreserve ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -155,7 +155,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>true</value>
                 </property>
             </command>
-            <command displayName="Add To Source Control" name="ADD">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Add_To_Source_Control)" name="ADD">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseDLG} /addtosrc ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -167,7 +167,7 @@ Microsystems, Inc. All Rights Reserved.
                 </property>
             </command>
             <separator/>
-            <command displayName="Find Checkouts" name="FIND CHECKOUTS">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Find_Checkouts)" name="FIND CHECKOUTS">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseCMD} lscheckout ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -178,7 +178,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>true</value>
                 </property>
             </command>
-            <command displayName="History" name="HISTORY">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_History)" name="HISTORY">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseCMD} lshistory -graphical ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -189,7 +189,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>true</value>
                 </property>
             </command>
-            <command displayName="Version Tree" name="VERSION TREE">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Version_Tree)" name="VERSION TREE">
                 <property name="exec">
                     <value>${RUN} clearvtree ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -201,7 +201,7 @@ Microsystems, Inc. All Rights Reserved.
                 </property>
             </command>
             <separator/>
-            <command displayName="Properties Of Version" name="PROPERTIES OF VERSION">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Properties_Of_Version)" name="PROPERTIES OF VERSION">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseCMD} describe ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -212,7 +212,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>true</value>
                 </property>
             </command>
-            <command displayName="Compare With Previous Version" name="COMPARE WITH PREVIOUS">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Compare_With_Previous_Version)" name="COMPARE WITH PREVIOUS">
                 <property name="exec">
                     <value>${RUN} ${ClearCaseCMD} diff -g -predecessor ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
@@ -223,7 +223,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>true</value>
                 </property>
             </command>
-            <command displayName="Compare With..." name="COMPARE WITH">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Compare_With)" name="COMPARE WITH">
                 <property name="exec">
                     <value>${ClearCaseCMD} diff -g -predecessor ${QUOTE}${CONVERSION_VAR_0}${PS}${CONVERSION_VAR_1}${QUOTE} ${NUR}</value>
                 </property>
