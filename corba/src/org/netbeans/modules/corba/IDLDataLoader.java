@@ -61,12 +61,11 @@ public class IDLDataLoader extends MultiFileLoader {
        super(IDLDataObject.class);
        if (DEBUG)
          System.out.println ("IDLDataLoader...");
-       initialize();
    }
 
    /** Does initialization. Initializes display name,
     * extension list and the actions. */
-   private void initialize () {
+   protected void initialize () {
       setDisplayName(NbBundle.getBundle(IDLDataLoader.class).
 		     getString("PROP_IDLLoader_Name"));
       ExtensionList ext = new ExtensionList ();

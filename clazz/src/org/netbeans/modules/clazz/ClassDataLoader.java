@@ -42,10 +42,9 @@ public final class ClassDataLoader extends MultiFileLoader {
   /** Creates a new ClassDataLoader */
   public ClassDataLoader () {
     super (ClassDataObject.class);
-    initialize();
   }
 
-  private void initialize () {
+  protected void initialize () {
     setDisplayName(NbBundle.getBundle(ClassDataLoader.class).
                    getString("PROP_ClassLoader_Name"));
     setActions (new SystemAction [] {
@@ -164,6 +163,8 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 /*
  * Log
+ *  10   Gandalf   1.9         10/1/99  Jaroslav Tulach Loaders extends 
+ *       SharedClassObject
  *  9    Gandalf   1.8         8/31/99  Ian Formanek    Correctly provides 
  *       FileSystemAction on its data objects
  *  8    Gandalf   1.7         6/9/99   Ian Formanek    ToolsAction
