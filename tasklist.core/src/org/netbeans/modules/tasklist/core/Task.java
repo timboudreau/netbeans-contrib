@@ -35,6 +35,31 @@ import org.openide.util.NbBundle;
 /** 
  * Class which represents a task in the tasklist.
  *
+ * <p>
+ * Field "temporary":
+ * Here's a little background on that field.  Earlier, there used to be a
+ * single tasklist window which contained both your user entered tasks, as
+ * well as "dynamic" items like TODOs scanned from your source code. You
+ * obviously don't want these TODOs showing up in your user task list file -
+ * or even cause a tasklist filesave when they're added or modified. Thus,
+ * the temporary attribute.
+ * 
+ * We don't need it now since we have separate views for user tasks
+ * (persistent) and dynamic tasks (temporary). However, one of the feedback
+ * datapoints from the UI review was that the distinction between user tasks
+ * and suggestions is a bit murky (especially in the area of TODOs which the
+ * user did enter - but in the source code). Afterall, VS.NET and Eclipse
+ * have single tasklist windows, not multiple (although granted their user
+ * task support is a bit more limited).
+ * 
+ * So if we'll have a single view in the future the concept may become useful
+ * again - but of course various other code changes will be necessary, so we
+ * don't need to hang on to this attribute now. 
+ *
+ * This attribute was used during saving, in firing change events and in
+ * FormatTranslators.
+ * </p>
+ *
  * @author Tor Norbye 
  * @author Tim Lebedkov
  */
@@ -96,7 +121,6 @@ public class Task extends Suggestion implements Cloneable {
      * except the subtask list) has changed */
     public static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
-    protected boolean temporary;
     protected TaskList list;
     protected boolean visitable;
 
@@ -161,26 +185,6 @@ public class Task extends Suggestion implements Cloneable {
         updatedValues();
     }
     
-    /** Set the "temporary" status of the task. Temporary tasks
-	are not saved in the todo list, and they may be deleted
-	automatically by the IDE when appropriate. For example,
-	tasks added as source files are scanned will be deleted
-	when you open another file.
-    */
-    public void setTemporary(boolean temp) {
-	temporary = temp;
-    }
-    
-    /** Get the "temporary" status of the task. Temporary tasks
-	are not saved in the todo list, and they may be deleted
-	automatically by the IDE when appropriate. For example,
-	tasks added as source files are scanned will be deleted
-	when you open another file.
-    */
-    public boolean isTemporary() {
-	return temporary;
-    }
-
     /** @return true iff this task is "visitable"; returns true
      * if this node has its own content, false if it's just a "category"
      * node. Used for keyboard traversal: if you press Next (F12) you
@@ -201,7 +205,7 @@ public class Task extends Suggestion implements Cloneable {
     protected void updatedValues() {
         if (!silentUpdate) {
             supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
-	    if (!isTemporary() && (list != null)) {
+	    if (list != null) {
 		list.markChanged(this);
 	    }
         }
@@ -210,7 +214,7 @@ public class Task extends Suggestion implements Cloneable {
     protected void updatedStructure() {
         if (!silentUpdate) {
             supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-	    if (!isTemporary() && (list != null)) {
+	    if (list != null) {
 		list.markChanged(this);
 	    }
         }
@@ -698,7 +702,6 @@ public class Task extends Suggestion implements Cloneable {
         But the list of subitems should be unique. You get the idea.
     */
     protected void copyFrom(Task from) {
-        temporary = from.temporary;
         list = from.list;
         visitable = from.visitable;
 

@@ -24,7 +24,6 @@ import org.openide.util.NbBundle;
 
 /**
  * This class represents the tasklist itself
- * <p>
  *
  * @author Tor Norbye
  */
@@ -111,9 +110,7 @@ public class TaskList { // XXX remove the publicness
 	    it = removeList.listIterator();
 	    while (it.hasNext()) {
 		Task task = (Task)it.next();
-		if (!task.isTemporary()) {
-		    modified = true;
-		}
+                modified = true;
 		remove(task);
 	    }
 	}
@@ -129,9 +126,7 @@ public class TaskList { // XXX remove the publicness
 	    it = addList.listIterator();
 	    while (it.hasNext()) {
 		Task task = (Task)it.next();
-		if (!task.isTemporary()) {
-		    modified = true;
-		}
+                modified = true;
             }
 
 	    // User insert: prepend to the list
@@ -169,9 +164,7 @@ public class TaskList { // XXX remove the publicness
         // User insert: prepend to the list
         parent.addSubtask(task, append);
 
-	if (!task.isTemporary()) {
-	    needSave = true;
-	}
+        needSave = true;
         
         // Show the new item
 	// XXX fix this
@@ -202,9 +195,7 @@ public class TaskList { // XXX remove the publicness
         // User insert: prepend to the list
         parent.addSubtask(task, after);
 
-	if (!task.isTemporary()) {
-	    needSave = true;
-	}
+        needSave = true;
         
         // Show the new item
 	// XXX fix this
@@ -226,9 +217,7 @@ public class TaskList { // XXX remove the publicness
         } else {
             root.removeSubtask(task);
         }
-	if (!task.isTemporary()) {
-	    needSave = true;
-	}
+        needSave = true;
      
         // Ensure that we're not showing any markers for this item
 	notifyRemoved(task);
