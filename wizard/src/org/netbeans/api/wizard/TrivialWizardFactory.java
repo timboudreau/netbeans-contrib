@@ -17,13 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import org.netbeans.modules.wizard.MergeMap;
 import org.netbeans.modules.wizard.InstructionsPanel;
 import org.netbeans.spi.wizard.Wizard;
@@ -60,6 +61,15 @@ class TrivialWizardFactory extends WizardDisplayer {
         prev.setDefaultCapable(true);
         
         help.setVisible (false);
+        
+        final JPanel inner = new JPanel();
+        inner.setLayout (new BorderLayout());
+        
+        final JLabel problem = new JLabel("  ");
+        Color fg = UIManager.getColor ("nb.errorColor");
+        problem.setForeground (fg == null ? Color.BLUE : fg);
+        inner.add (problem, BorderLayout.SOUTH);
+        problem.setPreferredSize (new Dimension (20,20));
         
         
         JPanel buttons = new JPanel() {
@@ -100,6 +110,7 @@ class TrivialWizardFactory extends WizardDisplayer {
         
         panel.add (instructions, BorderLayout.WEST);
         panel.add (buttons, BorderLayout.SOUTH);
+        panel.add (inner, BorderLayout.CENTER);
         
         final List buttonlist = Arrays.asList(new JButton[] {
             next, prev, finish, cancel
@@ -115,7 +126,7 @@ class TrivialWizardFactory extends WizardDisplayer {
             wizard.navigatingTo(first, settings)
         };
         instructions.setCurrentStep (first);
-        panel.add (centerPanel[0], BorderLayout.CENTER);
+        inner.add (centerPanel[0], BorderLayout.CENTER);
         prev.setEnabled (false);
         next.setEnabled (wizard.getNextStep() != null);
         finish.setEnabled (wizard.canFinish());
@@ -132,11 +143,11 @@ class TrivialWizardFactory extends WizardDisplayer {
                         settings.push(nextId);
                         JComponent comp = wizard.navigatingTo (nextId, settings);
                         instructions.setCurrentStep (nextId);
-                        panel.add (comp, BorderLayout.CENTER);
-                        panel.remove (currCenter);
-                        panel.invalidate();
-                        panel.revalidate();
-                        panel.repaint();
+                        inner.add (comp, BorderLayout.CENTER);
+                        inner.remove (currCenter);
+                        inner.invalidate();
+                        inner.revalidate();
+                        inner.repaint();
                         centerPanel[0] = comp;
                         comp.requestFocus();
                         update();
@@ -146,12 +157,12 @@ class TrivialWizardFactory extends WizardDisplayer {
                         settings.popAndCalve();
                         JComponent pcomp = wizard.navigatingTo (prevId, settings);
                         instructions.setCurrentStep (prevId);
-                        panel.add (pcomp, BorderLayout.CENTER);
-                        panel.remove (currCenter);
+                        inner.add (pcomp, BorderLayout.CENTER);
+                        inner.remove (currCenter);
                         centerPanel[0] = pcomp;
-                        panel.invalidate();
-                        panel.revalidate();
-                        panel.repaint();
+                        inner.invalidate();
+                        inner.revalidate();
+                        inner.repaint();
                         pcomp.requestFocus();
                         update();
                         break;
@@ -171,11 +182,11 @@ class TrivialWizardFactory extends WizardDisplayer {
                                 JComponent comp1 = wizard.navigatingTo (id, settings);
                                 instructions.setCurrentStep (id);
                                 if (comp1 != centerPanel[0]) {
-                                    panel.add (comp1, BorderLayout.CENTER);
-                                    panel.remove (centerPanel[0]);
+                                    inner.add (comp1, BorderLayout.CENTER);
+                                    inner.remove (centerPanel[0]);
                                     centerPanel[0] = comp1;
-                                    panel.validate();
-                                    panel.repaint();
+                                    inner.validate();
+                                    inner.repaint();
                                     comp1.requestFocus();
                                 }
                             } catch (NoSuchElementException ex) {
@@ -194,7 +205,19 @@ class TrivialWizardFactory extends WizardDisplayer {
                         dlg.dispose();
                         break;
                     default : assert false;
+                    
+                    
                 }
+                String prob = wizard.getProblem();
+                Border b = prob == null ? BorderFactory.createEmptyBorder (1, 0, 0, 0)
+                    : BorderFactory.createMatteBorder (1, 0, 0, 0, problem.getForeground());
+                
+                Border b1 = BorderFactory.createCompoundBorder (
+                        BorderFactory.createEmptyBorder (0, 12, 0, 12), b);
+                
+                problem.setBorder (b1);
+                problem.setText (prob == null ? " " : prob);
+                
                 
             }
             
@@ -202,6 +225,11 @@ class TrivialWizardFactory extends WizardDisplayer {
                 next.setEnabled (wizard.getNextStep() != null);
                 finish.setEnabled (wizard.canFinish());
                 prev.setEnabled (wizard.getPreviousStep() != null);
+                if (next.isEnabled()) {
+                    next.getRootPane().setDefaultButton(next);
+                } else if (finish.isEnabled()) {
+                    finish.getRootPane().setDefaultButton(finish);
+                }
             }
         };
         next.addActionListener(buttonListener);
@@ -226,6 +254,15 @@ class TrivialWizardFactory extends WizardDisplayer {
                         prev.getRootPane().setDefaultButton(null);
                     }
                 }
+                String prob = wizard.getProblem();
+                Border b = prob == null ? BorderFactory.createEmptyBorder (1, 0, 0, 0)
+                    : BorderFactory.createMatteBorder (1, 0, 0, 0, problem.getForeground());
+                
+                Border b1 = BorderFactory.createCompoundBorder (
+                        BorderFactory.createEmptyBorder (0, 12, 0, 12), b);
+                
+                problem.setBorder (b1);
+                problem.setText (prob == null ? " " : prob);
             }
         };
         l.stepsChanged(wizard);

@@ -99,7 +99,8 @@ public abstract class WizardBranchController {
      *  have been writing information into
      */
     protected Wizard getWizardForStep(String step, Map settings) {
-        return getPanelProviderForStep(step, settings).createWizard();
+        WizardPanelProvider provider = getPanelProviderForStep(step, settings);
+        return provider == null ? null : provider.createWizard();
     }
 
     /**

@@ -81,7 +81,7 @@ final class SimpleWizard implements Wizard {
     }
     
     public JComponent navigatingTo(String id, Map settings) {
-        assert SwingUtilities.isEventDispatchThread();
+//        assert SwingUtilities.isEventDispatchThread();
         assert Arrays.asList (info.getSteps()).contains(id);
         JComponent result = (JComponent) ids2panels.get(id);
         currID = id;

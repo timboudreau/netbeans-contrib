@@ -36,6 +36,18 @@ public class BranchingWizardTest extends TestCase {
         return suite;
     }
     
+    public void setUp() throws Exception {
+//        javax.swing.UIManager.setLookAndFeel (new javax.swing.plaf.metal.MetalLookAndFeel());
+    }
+    
+    public void testManual() {
+        //Uncomment to actually show a wizard and play with it during the
+        //test
+        
+//        Wizard wiz = new MultiBranchController().createWizard();
+//        WizardDisplayer.showWizard(wiz);
+    }    
+    
     public void testSettingsAffectNavigation() {
         BranchControllerImpl bci = new BranchControllerImpl();
         BranchingWizard wiz = (BranchingWizard) bci.createWizard();
@@ -94,10 +106,7 @@ public class BranchingWizardTest extends TestCase {
         assertSame (panel4, panel2);
     }
 
-    public void testCreateSecondary() {
-//        Wizard wiz = new MultiBranchController().createWizard();
-//        WizardDisplayer.showWizard(wiz);
-    }
+
     
     private static class WL implements Wizard.WizardListener {
         private Wizard wiz;
@@ -240,6 +249,7 @@ public class BranchingWizardTest extends TestCase {
             aesthetic.addActionListener(this);
             practical.addActionListener (this);
             neither.addActionListener (this);
+            controller.setProblem ("You must state sort of dude you are");
             this.settings = settings;
             return result;
         }
@@ -293,6 +303,7 @@ public class BranchingWizardTest extends TestCase {
             food.addActionListener(this);
             colors.addActionListener (this);
             neither.addActionListener (this);
+            controller.setProblem ("You must choose a preference");
             this.settings = settings;
             return result;
         }
@@ -435,7 +446,6 @@ public class BranchingWizardTest extends TestCase {
             
             JPanel result = new JPanel();
             result.setLayout (new FlowLayout());
-            result.setBackground (Color.ORANGE);
             JCheckBox box = new JCheckBox ("I have no use for Wizards");
             
             boolean sel = Boolean.TRUE.equals (settings.get("dislikesWizards"));

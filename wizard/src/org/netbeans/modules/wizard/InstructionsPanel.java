@@ -25,6 +25,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.image.BufferedImage;
+import javax.accessibility.Accessible;
 import javax.swing.JComponent;
 import javax.swing.UIManager;
 import org.netbeans.spi.wizard.Wizard;
@@ -47,6 +48,10 @@ public class InstructionsPanel extends JComponent implements WizardListener {
 
     public InstructionsPanel (Wizard wiz) {
         this (null, wiz);
+        Font f = UIManager.getFont ("Tree.font");
+        if (f != null) {
+            setFont (f);
+        }
     }
     
     public void addNotify() {
@@ -98,6 +103,12 @@ public class InstructionsPanel extends JComponent implements WizardListener {
                 if (selected) {
                     g.setFont (f.deriveFont (Font.BOLD));
                 }
+                
+                int width = fm.stringWidth(curr);
+                while (width > getWidth() - (ins.left + ins.right) && curr.length() > 5) {
+                    curr = curr.substring(0, curr.length() - 5) + "...";
+                }
+                
                 g.drawString (curr, x, y);
                 if (selected) {
                     g.setFont (f);
@@ -113,6 +124,7 @@ public class InstructionsPanel extends JComponent implements WizardListener {
         repaint();
     }
     
+    private int historicWidth = Integer.MIN_VALUE;
     public Dimension getPreferredSize() {
         Font f = getFont() != null ? getFont() : UIManager.getFont("controlFont");
         Graphics g = getGraphics();
@@ -137,6 +149,9 @@ public class InstructionsPanel extends JComponent implements WizardListener {
         if (Integer.MIN_VALUE == w) {
             w = 250;
         }
+        //Make sure we can grow but not shrink
+        w = Math.max (w, historicWidth);
+        historicWidth = w;
         return new Dimension (w,  ins.top + ins.bottom + ((h + 3) * steps.length));
     }
     
