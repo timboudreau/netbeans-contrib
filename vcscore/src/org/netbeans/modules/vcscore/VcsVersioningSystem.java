@@ -61,7 +61,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     private VcsFileSystem fileSystem;
     //private VersioningFileSystem.Status status;
     private VersioningFileSystem.Versions versions;
-    private FileStatusListener fileStatus;
+    //private FileStatusListener fileStatus;
     private Hashtable revisionListsByName;
 
     
@@ -83,12 +83,14 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     }
     
     private void initListeners() {
+        /*
         fileStatus = new FileStatusListener() {
             public void annotationChanged(FileStatusEvent ev) {
                 fireFileStatusChanged(ev);
             }
         };
         fileSystem.addFileStatusListener(WeakListener.fileStatus(fileStatus, fileSystem));
+         */
     }
 
     /*
@@ -412,5 +414,35 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         }
         
     }
+    
+    /*
+    private class FileStatusEventAdapter extends FileStatusEvent {
+        
+        private FileStatusEvent eventOrig;
+        
+        public FileStatusEventAdapter(FileStatusEvent event) {
+            eventOrig = event;
+        }
+        
+        public FileSystem getFileSystem() {
+            return VcsVersioningSystem.this;
+        }
+        
+        public boolean hasChanged(FileObject file) {
+            FileObject fileOrig = fileSystem.findFileObject(file.getPackageNameExt('/', '.'));
+            if (fileOrig == null) return false;
+            return eventOrig.hasChanged(fileOrig);
+        }
+        
+        public boolean isNameChange() {
+            return eventOrig.isNameChange();
+        }
+        
+        public boolean isIconChange() {
+            return eventOrig.isIconChange();
+        }
+        
+    }
+     */
     
 }

@@ -677,6 +677,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Set s = Collections.synchronizedSet(hs);
         fireFileStatusChanged (new FileStatusEvent(this, s, true, true));
         checkScheduledStates(s);
+        if (versioningSystem != null) versioningSystem.statusChanged(path, recursively);
     }
     
     /**
@@ -701,6 +702,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
          */
         //statusChanged(fo.getParent().getPackageNameExt('/', '.'), false);
         //System.out.println("fo = "+fo+" and parent = "+fo.getParent()+" refreshed.");
+        if (versioningSystem != null) versioningSystem.statusChanged(name);
     }
     
     /**

@@ -18,7 +18,10 @@ import java.beans.PropertyVetoException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import javax.swing.event.EventListenerList;
 
@@ -99,6 +102,40 @@ public abstract class VersioningFileSystem extends AbstractFileSystem {
         return null;
     }
         
+    /**
+     * Perform refresh of status information on all children of a directory
+     * @param path the directory path
+     * @param recursivey whether to refresh recursively
+     */
+    public void statusChanged (String path, boolean recursively) {
+        //D.deb("statusChanged("+path+")"); // NOI18N
+        FileObject fo = findResource(path);
+        if (fo == null) return;
+        //D.deb("I have root = "+fo.getName()); // NOI18N
+        Enumeration enum = fo.getChildren(recursively);
+        HashSet hs = new HashSet();
+        while(enum.hasMoreElements()) {
+            fo = (FileObject) enum.nextElement();
+            hs.add(fo);
+            //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
+        }
+        Set s = Collections.synchronizedSet(hs);
+        fireFileStatusChanged (new FileStatusEvent(this, s, true, true));
+        //checkScheduledStates(s);
+    }
+    
+    /**
+     * Perform refresh of status information of a file
+     * @param name the full file name
+     */
+    public void statusChanged (String name) {
+        FileObject fo = findResource(name);
+        //System.out.println("findResource("+name+") = "+fo);
+        if (fo == null) return;
+        fireFileStatusChanged (new FileStatusEvent(this, fo, true, true));
+        //checkScheduledStates(Collections.singleton(fo));
+    }
+    
     public SystemAction[] getRevisionActions(FileObject fo, Set revisionItems) {
         return NO_ACTIONS;
     }
