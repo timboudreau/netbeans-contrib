@@ -105,7 +105,7 @@ Contributor(s): Daniel Blaukopf.
                 <property name="refreshCurrentFolder">
                     <value>true</value>
                 </property>
-            </command>~
+            </command>
             <command displayName="Commit" name="CHECKIN">
                 <property name="inputDescriptor">
                     <value>PROMPT_FOR(COMMENT, "Comment:", "")</value>
