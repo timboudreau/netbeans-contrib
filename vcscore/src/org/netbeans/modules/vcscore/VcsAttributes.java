@@ -326,21 +326,12 @@ public class VcsAttributes extends DefaultAttributes {
                     CacheReference ref = fileSystem.getCacheReference(name);
                     if (ref != null) {
                         ref.setVirtual(false);
-                        try {
-                            DataObject.find (fileSystem.findFileObject(name)).setValid (false);
-                        } catch (PropertyVetoException pve) {}
                     }
                 }
                 else if (VirtualsDataLoader.class.getName().equals(value)) {
                     CacheReference ref = fileSystem.getCacheReference(name);
                     if (ref != null) {
                         ref.setVirtual(true);
-                        /* We should not invalidate the DataObject here.
-                         * If it happens not to exist, it would be unnecessarily created.
-                        try {
-                            DataObject.find (fileSystem.findFileObject(name)).setValid (false);
-                        } catch (PropertyVetoException pve) {}
-                         */
                     }
                     return;
                 }
