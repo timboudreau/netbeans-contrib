@@ -212,8 +212,8 @@ public class CommandOutputTopComponent extends TopComponent {
      * Open the component on the given workspace.
      */
     public void open() {       
-        super.open();
-        requestVisible();
+        super.open();       
+        requestActive();
     }
 
     public void addVisualizer(String name, JComponent component, boolean selected){
