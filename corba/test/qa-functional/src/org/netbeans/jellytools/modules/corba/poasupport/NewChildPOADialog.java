@@ -63,7 +63,29 @@ public class NewChildPOADialog extends JDialogOperator {
     public static final String ITEM_NO_IMPLICIT_ACTIVATION = "NO_IMPLICIT_ACTIVATION"; 
     private JButtonOperator _btOK;
     private JButtonOperator _btCancel;
+    
+    // VisiBroker 4
+    private JLabelOperator _lblBindSupport;
+    private JComboBoxOperator _cboBindSupport;
+    public static final String ITEM_BY_POA = "BY_POA"; 
+    public static final String ITEM_BY_INSTANCE = "BY_INSTANCE"; 
+    public static final String ITEM_NONE = "NONE"; 
 
+    // Orbix 2000
+    private JLabelOperator _lblObjectDeactivation;
+    private JComboBoxOperator _cboObjectDeactivation;
+    public static final String ITEM_DELIVER = "DELIVER"; 
+    public static final String ITEM_DISCARD = "DISCARD"; 
+    public static final String ITEM_HOLD = "HOLD"; 
+    private JLabelOperator _lblPersistenceMode;
+    private JComboBoxOperator _cboPersistenceMode;
+    public static final String ITEM_INDIRECT_PERSISTENCE = "INDIRECT_PERSISTENCE"; 
+    public static final String ITEM_DIRECT_PERSISTENCE = "DIRECT_PERSISTENCE"; 
+    private JLabelOperator _lblWellKnownAddressing;
+    private JComboBoxOperator _cboWellKnownAddressing;
+    private JLabelOperator _lblWorkQueue;
+    private JComboBoxOperator _cboWorkQueue;
+    
 
     //******************************
     // Subcomponents definition part
@@ -289,6 +311,106 @@ public class NewChildPOADialog extends JDialogOperator {
         return _btCancel;
     }
 
+    /** Tries to find "Bind Support:" JLabel in this dialog.
+     * @return JLabelOperator
+     */
+    public JLabelOperator lblBindSupport() {
+        if (_lblBindSupport==null) {
+            _lblBindSupport = new JLabelOperator(this, "Bind Support:");
+        }
+        return _lblBindSupport;
+    }
+
+    /** Tries to find null JComboBox in this dialog.
+     * @return JComboBoxOperator
+     */
+    public JComboBoxOperator cboBindSupport() {
+        if (_cboBindSupport==null) {
+            _cboBindSupport = new JComboBoxOperator(this, 8);
+        }
+        return _cboBindSupport;
+    }
+    
+    /** Tries to find "Object Deactivation:" JLabel in this dialog.
+     * @return JLabelOperator
+     */
+    public JLabelOperator lblObjectDeactivation() {
+        if (_lblObjectDeactivation==null) {
+            _lblObjectDeactivation = new JLabelOperator(this, "Object Deactivation:");
+        }
+        return _lblObjectDeactivation;
+    }
+
+    /** Tries to find null JComboBox in this dialog.
+     * @return JComboBoxOperator
+     */
+    public JComboBoxOperator cboObjectDeactivation() {
+        if (_cboObjectDeactivation==null) {
+            _cboObjectDeactivation = new JComboBoxOperator(this, 8);
+        }
+        return _cboObjectDeactivation;
+    }
+    
+    /** Tries to find "Persistence Mode:" JLabel in this dialog.
+     * @return JLabelOperator
+     */
+    public JLabelOperator lblPersistenceMode() {
+        if (_lblPersistenceMode==null) {
+            _lblPersistenceMode = new JLabelOperator(this, "Persistence Mode:");
+        }
+        return _lblPersistenceMode;
+    }
+
+    /** Tries to find null JComboBox in this dialog.
+     * @return JComboBoxOperator
+     */
+    public JComboBoxOperator cboPersistenceMode() {
+        if (_cboPersistenceMode==null) {
+            _cboPersistenceMode = new JComboBoxOperator(this, 9);
+        }
+        return _cboPersistenceMode;
+    }
+    
+    /** Tries to find "Well Known Addressing:" JLabel in this dialog.
+     * @return JLabelOperator
+     */
+    public JLabelOperator lblWellKnownAddressing() {
+        if (_lblWellKnownAddressing==null) {
+            _lblWellKnownAddressing = new JLabelOperator(this, "Well Known Addressing:");
+        }
+        return _lblWellKnownAddressing;
+    }
+
+    /** Tries to find null JComboBox in this dialog.
+     * @return JComboBoxOperator
+     */
+    public JComboBoxOperator cboWellKnownAddressing() {
+        if (_cboWellKnownAddressing==null) {
+            _cboWellKnownAddressing = new JComboBoxOperator(this, 10);
+        }
+        return _cboWellKnownAddressing;
+    }
+    
+    /** Tries to find "Work Queue:" JLabel in this dialog.
+     * @return JLabelOperator
+     */
+    public JLabelOperator lblWorkQueue() {
+        if (_lblWorkQueue==null) {
+            _lblWorkQueue = new JLabelOperator(this, "Work Queue:");
+        }
+        return _lblWorkQueue;
+    }
+
+    /** Tries to find null JComboBox in this dialog.
+     * @return JComboBoxOperator
+     */
+    public JComboBoxOperator cboWorkQueue() {
+        if (_cboWorkQueue==null) {
+            _cboWorkQueue = new JComboBoxOperator(this, 11);
+        }
+        return _cboWorkQueue;
+    }
+    
 
     //****************************************
     // Low-level functionality definition part

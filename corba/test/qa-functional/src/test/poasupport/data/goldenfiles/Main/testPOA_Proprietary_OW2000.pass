@@ -1,0 +1,138 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+package data.poasupport.additional;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.ThreadPolicyValue;
+import java.util.Properties;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextHelper;
+import org.omg.CosNaming.NameComponent;
+public class Orbix2000 {
+    
+    /** Creates new Orbix2000 */
+    public Orbix2000() {
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        
+        try {
+            // setting system properties is necessary in order to use this ORB in JDK
+            Properties props = System.getProperties();
+            props.put("org.omg.CORBA.ORBClass", "com.iona.corba.art.artimpl.ORBImpl");
+            props.put("org.omg.CORBA.ORBSingletonClass", "com.iona.corba.art.artimpl.ORBSingleton");
+            System.setProperties(props);
+            ORB orb = ORB.init(args, props);
+            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            
+            Policy[] _policies;
+            
+            org.omg.CORBA.Any _wkaPolicyAny1 = orb.create_any();
+            _wkaPolicyAny1.insert_string("String1_INDIRECT_WellKnownAddressing");
+            org.omg.CORBA.Any _wqPolicyAny1 = orb.create_any();
+            _wqPolicyAny1.insert_Object(String2_INDIRECT_WorkQueue);
+            _policies = new Policy[] {
+                orb.create_policy(com.iona.corba.IT_CORBA.WELL_KNOWN_ADDRESSING_POLICY_ID.value, _wkaPolicyAny1),
+                orb.create_policy(com.iona.corba.IT_WorkQueue.WORK_QUEUE_POLICY_ID.value, _wqPolicyAny1)
+            };
+            POA myPOA1 = poa.create_POA("MyPOA1", null, _policies);
+            
+            org.omg.CORBA.Any _wkaPolicyAny2 = orb.create_any();
+            _wkaPolicyAny2.insert_string("String1_DIRECT_WellKnownAddressing");
+            org.omg.CORBA.Any _odPolicyAny2 = orb.create_any();
+            com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValueHelper.insert(_odPolicyAny2, com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValue.DISCARD);
+            org.omg.CORBA.Any _wqPolicyAny2 = orb.create_any();
+            _wqPolicyAny2.insert_Object(String2_DIRECT_WorkQueue);
+            org.omg.CORBA.Any _pmPolicyAny2 = orb.create_any();
+            com.iona.corba.IT_PortableServer.PersistenceModePolicyValueHelper.insert(_pmPolicyAny2, com.iona.corba.IT_PortableServer.PersistenceModePolicyValue.DIRECT_PERSISTENCE);
+            _policies = new Policy[] {
+                orb.create_policy(com.iona.corba.IT_CORBA.WELL_KNOWN_ADDRESSING_POLICY_ID.value, _wkaPolicyAny2),
+                orb.create_policy(com.iona.corba.IT_PortableServer.OBJECT_DEACTIVATION_POLICY_ID.value, _odPolicyAny2),
+                orb.create_policy(com.iona.corba.IT_WorkQueue.WORK_QUEUE_POLICY_ID.value, _wqPolicyAny2),
+                orb.create_policy(com.iona.corba.IT_PortableServer.PERSISTENCE_MODE_POLICY_ID.value, _pmPolicyAny2),
+                poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT)
+            };
+            POA myPOA2 = poa.create_POA("MyPOA2", null, _policies);
+            
+            org.omg.CORBA.Any _wkaPolicyAny3 = orb.create_any();
+            _wkaPolicyAny3.insert_string("String1_HOLD_WellKnownAddressing");
+            org.omg.CORBA.Any _odPolicyAny3 = orb.create_any();
+            com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValueHelper.insert(_odPolicyAny3, com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValue.HOLD);
+            org.omg.CORBA.Any _wqPolicyAny3 = orb.create_any();
+            _wqPolicyAny3.insert_Object(String2_HOLD_WorkQueue);
+            _policies = new Policy[] {
+                orb.create_policy(com.iona.corba.IT_CORBA.WELL_KNOWN_ADDRESSING_POLICY_ID.value, _wkaPolicyAny3),
+                orb.create_policy(com.iona.corba.IT_PortableServer.OBJECT_DEACTIVATION_POLICY_ID.value, _odPolicyAny3),
+                orb.create_policy(com.iona.corba.IT_WorkQueue.WORK_QUEUE_POLICY_ID.value, _wqPolicyAny3)
+            };
+            POA myPOA3 = poa.create_POA("MyPOA3", null, _policies);
+            // add your creating of object implementation here
+            
+            // the server will use Naming Service
+            org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+            if (ns == null)
+                throw new RuntimeException();
+            NamingContext nc = NamingContextHelper.narrow(ns);
+            if (nc == null)
+                throw new RuntimeException();
+            
+            // create and bind Naming Contexts
+            // paste code retrieved using the Copy Client/Server Code action
+            // (on the corresponding node in the Naming Service Browser) here
+            NameComponent[] nc1Name = new NameComponent[1];
+            NamingContext nc1 = null;
+            for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+                nc1Name[0] = new NameComponent();
+                nc1Name[0].id = hierarchy_of_contexts[i*2];
+                nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+                try {
+                    nc1 = nc.bind_new_context(nc1Name);
+                    nc = nc1;
+                } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+                    org.omg.CORBA.Object o = nc.resolve(nc1Name);
+                    if (o == null)
+                        throw new RuntimeException();
+                    nc1 = NamingContextHelper.narrow(o);
+                    if (nc1 == null)
+                        throw new RuntimeException();
+                    nc = nc1;
+                }
+            }
+            
+            // bind names with the Naming Service
+            NameComponent[] aName = new NameComponent[1];
+            aName[0] = new NameComponent();
+            aName[0].id = name_of_server[0];
+            aName[0].kind = name_of_server[1];
+            nc.bind(aName, poa.servant_to_reference(/*servant_variable*/));
+            poa.the_POAManager().activate();
+            myPOA1.the_POAManager().activate();
+            myPOA2.the_POAManager().activate();
+            myPOA3.the_POAManager().activate();
+            orb.run();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}

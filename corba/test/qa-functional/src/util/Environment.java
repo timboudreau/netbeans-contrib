@@ -24,6 +24,8 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.JarFileSystem;
 import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.Repository;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 
 public class Environment {
     
@@ -247,6 +249,14 @@ public class Environment {
     
     public static FileObject findFileObject (String path) {
         return Repository.getDefault().findResource(path);
+    }
+    
+    public static DataObject getDataObject (FileObject fo) {
+        try {
+            return DataObject.find (fo);
+        } catch (DataObjectNotFoundException e) {
+            return null;
+        }
     }
     
     public static String getActiveORBName () {

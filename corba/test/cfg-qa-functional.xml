@@ -71,6 +71,23 @@ Microsystems, Inc. All Rights Reserved.
 		</testset>
 	</testbag>
 
+	<testbag testattribs="((stable,full) and jdk13),appjdk13" executor="ide" name="testbag_jdk13" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/app/JDK13Inh.class"/>
+				<include name="test/app/JDK13Tie.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
+	<testbag testattribs="stable,local,ir" executor="ide" name="testbag_IR" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/ircopycode/Main.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
     <resultsprocessor name="qa-functional" antfile="build.xml" target="test_report"/>
     <compiler name="compile" default="true" antfile="build_qa-functional.xml" target="default-compiler"/>
     <executor name="ide" antfile="build_qa-functional.xml" target="runidetest"/>

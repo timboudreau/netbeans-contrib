@@ -72,6 +72,8 @@ public class Main extends JellyTestCase {
         test.addTest(new Main("testPOA_CreateServant"));
         test.addTest(new Main("testPOA_RenamePOAChild"));
         test.addTest(new Main("testPOA_DumpFile"));
+        test.addTest(new Main("testPOA_Proprietary_VB4X"));
+        test.addTest(new Main("testPOA_Proprietary_OW2000"));
         return test;
     }
     
@@ -334,6 +336,84 @@ public class Main extends JellyTestCase {
         ev.waitNoEvent(1000);
 
         dumpFile(poaNode1, poaFileName1);
+        compareReferenceFiles ();
+    }
+    
+    public void testPOA_Proprietary_VB4X () {
+        Environment.loadORBEnvironment("VB4X");
+
+        new JavaNode (exp.repositoryTab ().tree (), "|data|poasupport|additional|VisiBroker4").open ();
+        ev.waitNoEvent(1000);
+        
+        NewChildPOADialog di;
+        
+        new RootPOANode (exp.repositoryTab ().tree (), "|data|poasupport|additional|VisiBroker4|class VisiBroker4|RootPOA").addChildPOA();
+        di = new NewChildPOADialog ();
+        di.cboBindSupport().selectItem (NewChildPOADialog.ITEM_BY_INSTANCE);
+        di.oK (); di.waitClosed();
+        new RootPOANode (exp.repositoryTab ().tree (), "|data|poasupport|additional|VisiBroker4|class VisiBroker4|RootPOA").addChildPOA();
+        di = new NewChildPOADialog ();
+        di.cboBindSupport().selectItem (NewChildPOADialog.ITEM_BY_POA);
+        di.oK (); di.waitClosed();
+        new RootPOANode (exp.repositoryTab ().tree (), "|data|poasupport|additional|VisiBroker4|class VisiBroker4|RootPOA").addChildPOA();
+        di = new NewChildPOADialog ();
+        di.cboBindSupport().selectItem (NewChildPOADialog.ITEM_NONE);
+        di.oK (); di.waitClosed();
+
+        EditorWindowOperator ewo = new EditorWindowOperator ();
+        EditorOperator eo = ewo.getEditor ("VisiBroker4");
+        ev.waitNoEvent(1000);
+        eo.waitModified(true);
+        eo.close(true);
+
+        dumpFile("|data|poasupport|additional|VisiBroker4", "VisiBroker4");
+        compareReferenceFiles ();
+    }
+    
+    public void testPOA_Proprietary_OW2000 () {
+        Environment.loadORBEnvironment("OW2000");
+
+        new JavaNode (exp.repositoryTab ().tree (), "|data|poasupport|additional|Orbix2000").open ();
+        ev.waitNoEvent(1000);
+        
+        NewChildPOADialog di;
+
+        new RootPOANode (exp.repositoryTab ().tree (), "|data|poasupport|additional|Orbix2000|class Orbix2000|RootPOA").addChildPOA();
+        di = new NewChildPOADialog ();
+        di.cboObjectDeactivation().selectItem (NewChildPOADialog.ITEM_DELIVER);
+        di.cboPersistenceMode().selectItem(0);
+        di.cboWellKnownAddressing().clearText();
+        di.cboWellKnownAddressing().typeText("String1_INDIRECT_WellKnownAddressing");
+        di.cboWorkQueue().clearText();
+        di.cboWorkQueue().typeText("String2_INDIRECT_WorkQueue");
+        di.oK (); di.waitClosed();
+
+        new RootPOANode (exp.repositoryTab ().tree (), "|data|poasupport|additional|Orbix2000|class Orbix2000|RootPOA").addChildPOA();
+        di = new NewChildPOADialog ();
+        di.cboObjectDeactivation().selectItem (NewChildPOADialog.ITEM_DISCARD);
+        di.cboPersistenceMode().selectItem(1);
+        di.cboWellKnownAddressing().clearText();
+        di.cboWellKnownAddressing().typeText("String1_DIRECT_WellKnownAddressing");
+        di.cboWorkQueue().clearText();
+        di.cboWorkQueue().typeText("String2_DIRECT_WorkQueue");
+        di.oK (); di.waitClosed();
+
+        new RootPOANode (exp.repositoryTab ().tree (), "|data|poasupport|additional|Orbix2000|class Orbix2000|RootPOA").addChildPOA();
+        di = new NewChildPOADialog ();
+        di.cboObjectDeactivation().selectItem (NewChildPOADialog.ITEM_HOLD);
+        di.cboWellKnownAddressing().clearText();
+        di.cboWellKnownAddressing().typeText("String1_HOLD_WellKnownAddressing");
+        di.cboWorkQueue().clearText();
+        di.cboWorkQueue().typeText("String2_HOLD_WorkQueue");
+        di.oK (); di.waitClosed();
+
+        EditorWindowOperator ewo = new EditorWindowOperator ();
+        EditorOperator eo = ewo.getEditor ("Orbix2000");
+        ev.waitNoEvent(1000);
+        eo.waitModified(true);
+        eo.close(true);
+
+        dumpFile("|data|poasupport|additional|Orbix2000", "Orbix2000");
         compareReferenceFiles ();
     }
     

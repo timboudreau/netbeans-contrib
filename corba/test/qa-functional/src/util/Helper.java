@@ -50,9 +50,12 @@ public class Helper {
         try {
             ExClipboard clip = TopManager.getDefault().getClipboard();
             Transferable str = (Transferable) clip.getContents(null);
-            return str.getTransferData(DataFlavor.stringFlavor).toString ();
+            Object o = str.getTransferData(DataFlavor.stringFlavor);
+            return o.toString ();
         } catch (IOException e) {
+            e.printStackTrace();
         } catch (UnsupportedFlavorException e) {
+            e.printStackTrace();
         }
         return null;
     }

@@ -11,16 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-interface A {
-    void opA ();
-};
+package org.netbeans.jellytools.modules.corba.actions;
 
-module B {
-    interface C {
-        void opC ();
-    };
-};
+import org.netbeans.jellytools.actions.Action;
 
-valuetype D {
-    void opD ();
-};
+public class RemoveInterfaceRepositoryAction extends Action {
+
+    public RemoveInterfaceRepositoryAction() {
+        super(null, "Remove Interface Repository");
+    }
+}

@@ -1,0 +1,90 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+abstract interface A {
+    void opA ();
+};
+
+interface B : A {
+    void opB ();
+};
+
+valuetype D {
+    void opD ();
+};
+
+valuetype E : D supports B {
+    readonly attribute A aa;
+    private boolean bo;
+    factory init (in B bb);
+    factory init2 (in long x, in char acd);
+};
+
+exception Exc {
+    string message;
+};
+
+module M {
+    abstract 
+	interface B {};
+    interface A : B {
+        ::M::B op (in ::M::B aa, inout ::M::B bb, out ::M::B cc) raises (Exc) context ("a*");
+    };
+};
+
+struct S {
+    long LL;
+    struct S2 {
+        boolean bb;
+        char cc;
+    } sss;
+};
+
+union U switch (long) {
+    case 0: long L1;
+    case 1: string<20> S1;
+    default: boolean B1;
+};
+
+typedef ::M::B C;
+typedef B CR;
+
+valuetype VT {
+    attribute long PA;
+};
+valuetype VT2 : VT {
+    public long PL;
+    private long ax;
+};
+
+valuetype VT3 : VT supports A, B {
+};
+
+valuetype VT4 {
+    private long ax;
+};
+
+
+custom valuetype VT5 {
+};
+
+valuetype VT6 : truncatable VT4 {
+};
+
+const string STR = "\"A\"\n";
+const char CH = '\n';
+const long LO = 10;
+const float FL = 0.45;
+
+typedef VT4 VT410[10];
+typedef sequence<sequence<string,1> > SEQSEQ;
