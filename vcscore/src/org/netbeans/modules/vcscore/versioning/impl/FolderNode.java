@@ -378,10 +378,11 @@ class FolderNode extends AbstractNode {
                     firePropertyChange(PROP_STICKY, oldState, newState);
                 }
 
-                // XXX why this forward
+                // Refresh annotation and/or icon of this node
                 if (ev.isNameChange()) {
                     fireDisplayNameChange(null, null);
-                } else if (ev.isIconChange()) {
+                }
+                if (ev.isIconChange()) {
                     fireIconChange();
                 }
             }
