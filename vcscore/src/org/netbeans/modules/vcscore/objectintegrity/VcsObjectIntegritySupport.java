@@ -97,6 +97,8 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private transient Set pathsToAnalyze;
     private transient RequestProcessor.Task analyzerTask;
     private transient boolean activated = false;
+    private transient java.security.PrivilegedAction initializer;
+    private transient Object initializeLock = new Object();
     
     private transient OperationListener operationListener;
     private transient CacheHandlerListener cacheHandlerListaner;
@@ -119,6 +121,35 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      */
     public VcsObjectIntegritySupport() {
         //System.out.println("VOIS Created.");
+    }
+    
+    /** Creates a new instance of VcsObjectIntegritySupport and sets the initializer
+     * process. The initialized object is obtained from run() method and
+     * non-transient fields are copied from it.
+     */
+    public VcsObjectIntegritySupport(java.security.PrivilegedAction initializer) {
+        this.initializer = initializer;
+    }
+    
+    private void initialize() {
+        synchronized (initializeLock) {
+            if (initializer != null) {
+                VcsObjectIntegritySupport newVOIS = (VcsObjectIntegritySupport) initializer.run();
+                if (newVOIS != null) copyDataFrom(newVOIS);
+                initializer = null; // Already initialized.
+            }
+        }
+    }
+    
+    private void copyDataFrom(VcsObjectIntegritySupport vois) {
+        synchronized (objectsWithLocalFiles) {
+            objectsWithLocalFiles.putAll(vois.objectsWithLocalFiles);
+            filesMap.putAll(vois.filesMap);
+        }
+        synchronized (primaryLocalFiles) {
+            primaryLocalFiles.addAll(vois.primaryLocalFiles);
+        }
+        ignoredSecondaryLocalFiles.addAll(vois.ignoredSecondaryLocalFiles);
     }
     
     /**
@@ -248,6 +279,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 }
             }
         }
+        initialize(); // Assure, that we're initialized.
         for (Iterator objIt = objects.iterator(); objIt.hasNext(); ) {
             DataObject dobj = (DataObject) objIt.next();
             FileObject primary = dobj.getPrimaryFile();
@@ -327,12 +359,14 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      * Return the map of primary file names with a set of local secondary files.
      */
     public Map getObjectsWithLocalFiles() {
+        initialize(); // Assure, that we're initialized.
         synchronized (objectsWithLocalFiles) {
             return Collections.unmodifiableMap(new HashMap(objectsWithLocalFiles));
         }
     }
     
     public void addIgnoredFiles(String[] ignoredFilePaths) {
+        initialize(); // Assure, that we're initialized.
         ignoredSecondaryLocalFiles.addAll(Arrays.asList(ignoredFilePaths));
         //System.out.println("ignoredSecondaryLocalFiles = "+ignoredSecondaryLocalFiles);
         boolean changed = false;
@@ -387,6 +421,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         if (cFile instanceof CacheDir || cFile.isLocal()) return ;
         String path = getFilePath(cFile, fsRootPath);
         if (path != null) {
+            initialize(); // Assure, that we're initialized.
             boolean wasLocal;
             synchronized (primaryLocalFiles) {
                 wasLocal = primaryLocalFiles.remove(path);
@@ -429,6 +464,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         if (cFile instanceof CacheDir || cFile.isLocal()) return ;
         String path = getFilePath(cFile, fsRootPath);
         if (path != null) {
+            initialize(); // Assure, that we're initialized.
             boolean changed = false;
             synchronized (objectsWithLocalFiles) {
                 // If it was a primary file, remove all local secondary files:
@@ -455,6 +491,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         //System.out.println("VOIS.statusChanged("+cFile+")");
         String path = getFilePath(cFile, fsRootPath);
         if (path != null) {
+            initialize(); // Assure, that we're initialized.
             boolean changed = false;
             if (cFile.isLocal()) {
                 synchronized (objectsWithLocalFiles) {
@@ -510,6 +547,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         if (ignoredSecondaryLocalFiles == null) {
             ignoredSecondaryLocalFiles = Collections.synchronizedSet(new HashSet());
         }
+        initializeLock = new Object();
     }
     
     /**

@@ -18,8 +18,10 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import org.openide.filesystems.FileObject;
 
@@ -66,10 +68,7 @@ public final class IntegritySupportMaintainer extends Object
     }
 
     private synchronized void initVOIS() {
-        objectIntegritySupport = (VcsObjectIntegritySupport) fileSystem.getRoot().getAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME);
-        if (objectIntegritySupport == null) {
-            objectIntegritySupport = new VcsObjectIntegritySupport();
-        }
+        objectIntegritySupport = new VcsObjectIntegritySupport(new IntegritySupportMaintainer.VOISInitializer(fileSystem.getRoot()));
         vOISChangeListener = WeakListener.propertyChange(this, objectIntegritySupport);
         objectIntegrityActivator.activate(objectIntegritySupport);
         objectIntegritySupport.addPropertyChangeListener(vOISChangeListener);
@@ -153,6 +152,20 @@ public final class IntegritySupportMaintainer extends Object
                 org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, ioex);
             }
         }
+    }
+    
+    private static final class VOISInitializer extends Object implements java.security.PrivilegedAction {
+        
+        private FileObject rootFO;
+        
+        public VOISInitializer(FileObject rootFO) {
+            this.rootFO = rootFO;
+        }
+        
+        public Object run() {
+            return rootFO.getAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME);
+        }
+        
     }
     
 }
