@@ -318,8 +318,9 @@ public class GeneralCommandAction extends NodeAction {
                 }
             } else {
                 Lookup.Result fileObjects = nodes[i].getLookup().lookup(new Lookup.Template(FileObject.class));
-                if (fileObjects != null) {
-                    if (!checkFileObjects(fileObjects.allInstances())) return false;
+                Collection fos = fileObjects.allInstances();
+                if (fos.size() > 0) {
+                    if (!checkFileObjects(fos)) return false;
                 } else {
                     DataObject dataObj;
                     dataObj = (DataObject)nodes[i].getCookie(DataObject.class);

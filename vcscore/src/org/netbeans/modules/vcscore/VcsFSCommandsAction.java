@@ -117,8 +117,8 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
                 filesWithMessages.put(messageFiles.toArray(new FileObject[0]), message);
             } else {
                 Lookup.Result fileObjects = nodes[i].getLookup().lookup(new Lookup.Template(FileObject.class));
-                if (fileObjects != null) {
-                    Collection fos = fileObjects.allInstances();
+                Collection fos;
+                if (fileObjects != null && (fos = fileObjects.allInstances()).size() > 0) {
                     FileObject one = (FileObject) fos.iterator().next();
                     addAllFromSingleFS(one, fos, files);
                 } else {

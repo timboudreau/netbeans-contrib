@@ -20,6 +20,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -181,8 +182,9 @@ public class VcsGlobalCommandsAction extends SystemAction implements Presenter.M
         if (n != null) {
             for (int i = 0; i < n.length; i++) {
                 Lookup.Result fileObjects = n[i].getLookup().lookup(new Lookup.Template(FileObject.class));
-                if (fileObjects != null) {
-                    foList.addAll(fileObjects.allInstances());
+                Collection fos = fileObjects.allInstances();
+                if (fos.size() > 0) {
+                    foList.addAll(fos);
                 } else {
                     DataObject obj = (DataObject)n[i].getCookie (DataObject.class);
                     if (obj != null) {
