@@ -245,7 +245,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      * @param command the command to get the executor for
      * @param variables the <code>Hashtable</code> of (variable name, variable value) pairs
      * @return the command executor or null when no executor is found. If command is instance of {@link UserCommand}, an instance of {@link ExecuteCommand} is returned.
-     * @deprecated This method is retained for compatibility only.
+     * @deprecated This method is retained for compatibility only. XXX how to replace usages? It's called from 31 places.
      */
     public VcsCommandExecutor getCommandExecutor(VcsCommand command, Hashtable variables) {
         if (command instanceof UserCommand) {

@@ -155,17 +155,18 @@ final class FolderChildren extends Children.Keys implements FileChangeListener, 
         public boolean isVisible(FileObject file) {
 
             VersioningFileSystem versioningFS;
+            boolean visibleByFS  = true;
             try {
                 versioningFS = VersioningFileSystem.findFor(file.getFileSystem());
                 if (versioningFS != null) {
                     File iofile = FileUtil.toFile(file);
-                    return versioningFS.getFileFilter().accept(iofile.getParentFile(), iofile.getName());
+                    visibleByFS = versioningFS.getFileFilter().accept(iofile.getParentFile(), iofile.getName());
                 }
             } catch (FileStateInvalidException e) {
             }
 
-            // fallback
-            return vquery.isVisible(file);
+            // merge with visibility query results (hide .bak etc.) 
+            return visibleByFS && vquery.isVisible(file);
         }
 
         public void addChangeListener(ChangeListener listener) {
