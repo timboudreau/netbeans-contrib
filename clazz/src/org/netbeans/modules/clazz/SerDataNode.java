@@ -33,11 +33,11 @@ final class SerDataNode extends ClassDataNode {
   static final long serialVersionUID = -2645179282674800246L;
 
   private static final String SER_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/ser";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/ser"; // NOI18N
   private static final String SER_MAIN_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/serMain";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/serMain"; // NOI18N
   private static final String SER_ERROR_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/serError";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/serError"; // NOI18N
 
   /** Constructs bean data node with asociated data object.
   */
@@ -77,6 +77,7 @@ final class SerDataNode extends ClassDataNode {
 
 /*
  * Log
+ *  10   src-jtulach1.9         1/13/00  David Simonek   i18n
  *  9    src-jtulach1.8         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  8    src-jtulach1.7         6/11/99  Jaroslav Tulach System.out commented

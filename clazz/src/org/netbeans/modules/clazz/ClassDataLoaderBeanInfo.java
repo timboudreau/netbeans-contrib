@@ -55,11 +55,11 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
     if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) ||
         (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
       if (icon == null)
-        icon = loadImage("/com/netbeans/developer/modules/loaders/clazz/resources/class.gif");
+        icon = loadImage("/com/netbeans/developer/modules/loaders/clazz/resources/class.gif"); // NOI18N
       return icon;
     } else {
       if (icon32 == null)
-        icon32 = loadImage ("/com/netbeans/developer/modules/loaders/clazz/resources/class32.gif");
+        icon32 = loadImage ("/com/netbeans/developer/modules/loaders/clazz/resources/class32.gif"); // NOI18N
       return icon32;
     }
   }
@@ -69,10 +69,10 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
       NbBundle.getBundle(ClassDataLoaderBeanInfo.class);
     try {
       descriptors =  new PropertyDescriptor[] {
-        new PropertyDescriptor ("displayName", ClassDataLoader.class,
-                                "getDisplayName", null),
-        new PropertyDescriptor ("extensions", ClassDataLoader.class,
-                                "getExtensions", "setExtensions")
+        new PropertyDescriptor ("displayName", ClassDataLoader.class, // NOI18N
+                                "getDisplayName", null), // NOI18N
+        new PropertyDescriptor ("extensions", ClassDataLoader.class, // NOI18N
+                                "getExtensions", "setExtensions") // NOI18N
       };
       descriptors[0].setDisplayName(bundle.getString("PROP_Name"));
       descriptors[0].setShortDescription(bundle.getString("HINT_Name"));
@@ -87,6 +87,7 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
 
 /*
 * Log
+*  6    src-jtulach1.5         1/13/00  David Simonek   i18n
 *  5    src-jtulach1.4         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
 *  4    src-jtulach1.3         6/9/99   Ian Formanek    ---- Package Change To 

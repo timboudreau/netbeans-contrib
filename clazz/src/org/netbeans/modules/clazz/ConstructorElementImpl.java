@@ -63,7 +63,7 @@ class ConstructorElementImpl extends MemberElementImpl
         curPar = reflPars[i];
         // create method parameter
         parameters[i] = new MethodParameter(
-          "", Type.createFromClass(curPar),
+          "", Type.createFromClass(curPar), // NOI18N
           (curPar.getModifiers() & Modifier.FINAL) == 0
         );
       }
@@ -111,7 +111,7 @@ class ConstructorElementImpl extends MemberElementImpl
   /** Unsupported, always return empty string.
   */
   public String getBody () {
-    return "";
+    return ""; // NOI18N
   }
 
   /** Empty implementation
@@ -129,6 +129,7 @@ class ConstructorElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  10   src-jtulach1.9         1/13/00  David Simonek   i18n
 *  9    src-jtulach1.8         11/27/99 Patrik Knakal   
 *  8    src-jtulach1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment

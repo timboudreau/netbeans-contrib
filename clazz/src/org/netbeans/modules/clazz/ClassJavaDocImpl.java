@@ -36,7 +36,7 @@ class ClassJavaDocImpl extends Object implements JavaDoc {
    * @return the whole text
    */
   public String getRawText() {
-    return "";
+    return ""; // NOI18N
   }
   
   /** Set the raw text of the comment.
@@ -51,7 +51,7 @@ class ClassJavaDocImpl extends Object implements JavaDoc {
    * @return the plain text
    */
   public String getText() {
-    return "";
+    return ""; // NOI18N
   }
   
   /** Set the actual text.
@@ -138,6 +138,7 @@ class ClassJavaDocImpl extends Object implements JavaDoc {
 }
 /*
  * Log
+ *  3    Gandalf   1.2         1/13/00  David Simonek   i18n
  *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  1    Gandalf   1.0         6/9/99   Petr Hrebejk    

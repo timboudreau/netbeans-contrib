@@ -68,10 +68,10 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   /** constant for applet */
   private static final int APPLICATION = 2;
 
-  /** Name of "arguments" property. */
-  private final static String  PROP_ARGV = "Arguments";
-  /** Name of "execution" property. */
-  private final static String  PROP_EXECUTION = "Execution";
+  /** Name of arguments property. */
+  private final static String  PROP_ARGV = "Arguments"; // NOI18N
+  /** Name of execution property. */
+  private final static String  PROP_EXECUTION = "Execution"; // NOI18N
 
   // variables ...................................................................................
 
@@ -176,7 +176,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
       throw new IOException (ex.toString ());
     }
     if (bean == null) throw new IOException ();
-    FileObject serFile = f.getPrimaryFile ().createData (newName, "ser");
+    FileObject serFile = f.getPrimaryFile ().createData (newName, "ser"); // NOI18N
     FileLock lock = null;
     ObjectOutputStream oos = null;
     try {
@@ -343,7 +343,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     StringBuffer buf = new StringBuffer();
     for (int i = 0; i < parArray.length; i++) {
       buf.append(parArray[i]);
-      if ((i + 1) != parArray.length) buf.append(" ");
+      if ((i + 1) != parArray.length) buf.append(" "); // NOI18N
     }
     return buf.toString();
   }
@@ -380,7 +380,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   private String existInFolder(DataFolder f) throws UserCancelException {
     FileObject fo = getPrimaryFile();
     String name = fo.getName();
-    String ext = "ser";
+    String ext = "ser"; // NOI18N
     String destName = fo.getName();
     if (f.getPrimaryFile().getFileObject(name, ext) != null) {
       // file with the same name exists - ask user what to do
@@ -532,6 +532,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  27   Gandalf   1.26        1/13/00  David Simonek   i18n
  *  26   Gandalf   1.25        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  25   Gandalf   1.24        8/18/99  Jaroslav Tulach #2641

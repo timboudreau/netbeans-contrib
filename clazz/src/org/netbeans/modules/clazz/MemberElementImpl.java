@@ -49,7 +49,7 @@ static final long serialVersionUID =-6841890195552268874L;
   public int getModifiers () {
     if (data instanceof Class) {
       // Class doesn't implement Member interface...
-      // and moreover we must throw away "interface" modifier if present
+      // and moreover we must throw away interface modifier if present
       try {
         return ((Class)data).getModifiers() & (~Modifier.INTERFACE);
       } catch (Exception exc) {
@@ -74,7 +74,7 @@ static final long serialVersionUID =-6841890195552268874L;
         Utilities.getClassName((Class)data) :
         ((Member)data).getName();
       
-      int lastDot = fullName.lastIndexOf(".");
+      int lastDot = fullName.lastIndexOf("."); // NOI18N
       name = (lastDot == -1) ?
         Identifier.create(fullName) :
         Identifier.create(fullName, fullName.substring(lastDot + 1));
@@ -99,6 +99,8 @@ static final long serialVersionUID =-6841890195552268874L;
 
 /*
 * Log
+*  12   src-jtulach1.11        1/13/00  David Simonek   i18n
+*  11   src-jtulach1.10        1/13/00  David Simonek   i18n
 *  10   src-jtulach1.9         1/10/00  Petr Hamernik   Identifier creating 
 *       improved.
 *  9    src-jtulach1.8         1/5/00   David Simonek   #2564

@@ -119,8 +119,8 @@ final class ClassElementNodeFactory extends DefaultFactory {
       ch.setFilter (cel);
       n.setActions(getDefaultActions());
       n.setIconBase (element.isInterface () ? 
-        "/com/netbeans/developer/modules/loaders/clazz/resources/interfaceBr" :
-        "/com/netbeans/developer/modules/loaders/clazz/resources/classBr"
+        "/com/netbeans/developer/modules/loaders/clazz/resources/interfaceBr" : // NOI18N
+        "/com/netbeans/developer/modules/loaders/clazz/resources/classBr" // NOI18N
       );
       return n;
     }
@@ -185,6 +185,7 @@ final class ClassElementNodeFactory extends DefaultFactory {
 
 /*
 * Log
+*  12   src-jtulach1.11        1/13/00  David Simonek   i18n
 *  11   src-jtulach1.10        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
 *  10   src-jtulach1.9         7/9/99   Petr Hrebejk    Factory chaining fixed

@@ -31,8 +31,8 @@ import org.openide.actions.*;
 public final class ClassDataLoader extends MultiFileLoader {
 
   /** Extension constants */
-  private static final String SER_EXT = "ser";
-  private static final String CLASS_EXT = "class";
+  private static final String SER_EXT = "ser"; // NOI18N
+  private static final String CLASS_EXT = "class"; // NOI18N
 
   private static final char INNER_CLASS_DIVIDER = '$';
 
@@ -164,6 +164,7 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 /*
  * Log
+ *  13   Gandalf   1.12        1/13/00  David Simonek   i18n
  *  12   Gandalf   1.11        11/27/99 Patrik Knakal   
  *  11   Gandalf   1.10        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment

@@ -42,26 +42,26 @@ class ClassDataNode extends DataNode implements Runnable {
   static final long serialVersionUID = -1543899241509520203L;
 
   /** Properties */
-  private final static String PROP_CLASS_NAME = "className";
-  private final static String PROP_IS_JAVA_BEAN = "isJavaBean";
-  private final static String PROP_IS_APPLET = "isApplet";
-  private final static String PROP_IS_EXECUTABLE = "isExecutable";
-  private final static String PROP_FILE_PARAMS = "fileParams";
-  private final static String PROP_EXECUTION = "execution";
+  private final static String PROP_CLASS_NAME = "className"; // NOI18N
+  private final static String PROP_IS_JAVA_BEAN = "isJavaBean"; // NOI18N
+  private final static String PROP_IS_APPLET = "isApplet"; // NOI18N
+  private final static String PROP_IS_EXECUTABLE = "isExecutable"; // NOI18N
+  private final static String PROP_FILE_PARAMS = "fileParams"; // NOI18N
+  private final static String PROP_EXECUTION = "execution"; // NOI18N
 
-  private final static String EXECUTION_SET_NAME     = "Execution";
+  private final static String EXECUTION_SET_NAME     = "Execution"; // NOI18N
 
   /** Icon bases for icon manager */
   private final static String CLASS_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/class";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/class"; // NOI18N
   private final static String CLASS_MAIN_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/classMain";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/classMain"; // NOI18N
   private final static String ERROR_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/classError";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/classError"; // NOI18N
   private final static String BEAN_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/bean";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/bean"; // NOI18N
   private final static String BEAN_MAIN_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/beanMain";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/beanMain"; // NOI18N
 
   /** a flag whether the children of this object are only items declared
   * by this class, or all items (incl. inherited)
@@ -266,6 +266,7 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  27   Gandalf   1.26        1/13/00  David Simonek   i18n
  *  26   Gandalf   1.25        1/5/00   David Simonek   
  *  25   Gandalf   1.24        10/29/99 Jesse Glick     Using undeprecated 
  *       variant of *Support.addProperties.

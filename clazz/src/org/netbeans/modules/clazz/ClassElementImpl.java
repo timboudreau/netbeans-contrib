@@ -68,7 +68,7 @@ static final long serialVersionUID =-8717988834353784544L;
   public Identifier getSuperclass() {
     if (superClass == null) {
       Class sc = ((Class)data).getSuperclass();
-      superClass = Identifier.create(sc == null ? "" : sc.getName());
+      superClass = Identifier.create(sc == null ? "" : sc.getName()); // NOI18N
     }
     return superClass;
   }
@@ -374,6 +374,7 @@ static final long serialVersionUID =-8717988834353784544L;
 
 /*
 * Log
+*  14   src-jtulach1.13        1/13/00  David Simonek   i18n
 *  13   src-jtulach1.12        1/5/00   David Simonek   #2642
 *  12   src-jtulach1.11        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment

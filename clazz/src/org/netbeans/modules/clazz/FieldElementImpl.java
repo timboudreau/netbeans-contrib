@@ -55,7 +55,7 @@ static final long serialVersionUID =-4800326520399939102L;
   /** PENDING - don't know how to implement...
   */
   public String getInitValue () {
-    return "";
+    return ""; // NOI18N
   }
 
   /** Not supported. Throws SourceException.
@@ -78,6 +78,7 @@ static final long serialVersionUID =-4800326520399939102L;
 
 /*
 * Log
+*  7    src-jtulach1.6         1/13/00  David Simonek   i18n
 *  6    src-jtulach1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
 *  5    src-jtulach1.4         8/9/99   Ian Formanek    Generated Serial Version 
