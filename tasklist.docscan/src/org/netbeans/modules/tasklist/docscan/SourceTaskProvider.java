@@ -43,28 +43,28 @@ import org.netbeans.modules.tasklist.providers.SuggestionContext;
  * This class scans the given document for source tasks. It does
  * not provide any fix action.
  *
- * @todo Move the regexp code into tasktags.
- * @todo I should use Line objects for the tasks - especially the
- *       copyright ones - and get rid of getLineContext() and replace
- *       it with Line.getText()
  * @todo If you have multiple hits on the same line, don't create a new
  *       task!
- * @todo PERFORMANCE OPTIMIZE THIS THING!
- * @todo Should I use FileObjects instead of DataObjects when passing
- *       file identity around? It seems weird that I don't allow
- *       scanning on secondary files (although it seems right in the
- *       cases I can think of - we don't want to scan .class files,
- *       .o files, .form files, ...)
+ * @todo PERFORMANCE OPTIMIZE scanCommnetsOnly()
  *
  * @author Tor Norbye
  * @author Trond Norbye
  */
-public class SourceTaskProvider extends DocumentSuggestionProvider
+public final class SourceTaskProvider extends DocumentSuggestionProvider
     implements PropertyChangeListener {
 
     final static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
 
+    // recent request
+    private Object request = null;
+
+    /** The list of tasks we're currently showing for recent request */
+    private List showingTasks = null;
+
+    // context being scanned for recent request
     private SuggestionContext env;
+
+    private Settings settings;
 
     /**
      * Return the typenames of the suggestions that this provider
@@ -79,19 +79,21 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
 
     public void notifyFinish() {
         Cache.store();
+        settings = null;
     }
 
     public void notifyPrepare() {
         // Cache.load(); too slow call it here
+        settings = (Settings)Settings.findObject(Settings.class, true);
     }
+
 
     /**
      * The given document has been "shown"; it is now visible.
      * <p>
-     * @param document The document being shown
+     * @param env The document being shown
      */
     public void docShown(SuggestionContext env) {
-        Settings settings = (Settings)Settings.findObject(Settings.class, true);
         settings.addPropertyChangeListener(this);
     }
 
@@ -99,18 +101,20 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
      * The given document has been "hidden"; it's still open, but
      * the editor containing the document is not visible.
      * <p>
-     * @param document The document being hidden
+     * @param env The document being hidden
      */
     public void docHidden(SuggestionContext env) {
-        Settings settings = (Settings)Settings.findObject(Settings.class, true);
         settings.removePropertyChangeListener(this);
      }
 
     public void propertyChange(PropertyChangeEvent ev) {
-        if (Settings.PROP_SCAN_TAGS == ev.getPropertyName()) {
-            tokensChanged();
+        // is comes asynchronously from settings
+        // if everything goes well it rescan suggestions
+        // for recently opened document
+        if (Settings.PROP_SCAN_TAGS.equals(ev.getPropertyName())
+        ||  Settings.PROP_SCAN_SKIP.equals(ev.getPropertyName())) {
+            rescan();
         }
-        rescan();
     }
 
     public void rescan(SuggestionContext env, Object request) {
@@ -125,7 +129,9 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         manager.register(TYPE, newTasks, showingTasks, request);
         showingTasks = newTasks;
     }
-    
+
+    // Q: why it this one requestless?
+    // A; because it synchronously returns results
     public List scan(final SuggestionContext env) {
 
         SuggestionManager manager = SuggestionManager.getDefault();
@@ -145,14 +151,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
             // ignore cache
         }
 
-        // Initialize the regular expression, if necessary
-        // XXX Move to parent
-        Settings settings =
-            (Settings)Settings.findObject(Settings.class, true);
-        if (tags == null) {
-            tags = settings.getTaskTags();
-            regexp = tags.getScanRegexp();
-        }
         boolean skipCode = settings.getSkipComments();
         List tasks = null;
         if (skipCode) {
@@ -171,17 +169,10 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
             manager.register(TYPE, null, showingTasks, request);
-	    showingTasks = null;
-	}     
+            showingTasks = null;
+        }
     }
 
-
-    private void tokensChanged() {
-	// XXX Probably should synchronize here -- especially when I get
-	// the scanning code into a separate thread running in the background
-        tags = null;
-	regexp = null;
-    }
 
     /**
      * Given the contents of a buffer, scan it for todo items.
@@ -223,6 +214,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         
         TaskTag matchTag = null;
         try {
+            Pattern regexp = settings.getTaskTags().getScanRegexp();
             while (sccp.getNextLine(cl)) {
                 // I am inside a comment, scan for todo-items:
                 Matcher matcher = regexp.matcher(cl.line);
@@ -300,7 +292,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
             int lineno = 1;
             int len = text.length();
 
-            Matcher matcher = regexp.matcher(text);
+            Matcher matcher = settings.getTaskTags().getScanRegexp().matcher(text);
             while (index < len && matcher.find(index)) {
                 int begin = matcher.start();
 	            int end   = matcher.end();
@@ -365,7 +357,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     }
     
     private TaskTag getTag(CharSequence text, int start, int end) {
-        TaskTag tag = tags.getTag(text, start, end);
+        TaskTag tag = settings.getTaskTags().getTag(text, start, end);
         return tag;
     }    
 
@@ -373,14 +365,4 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         rescan(env, request);
     }
 
-    /** The list of tasks we're currently showing in the tasklist */
-    private List showingTasks = null;
-
-    private Object request = null;
-
-    /** Regular expression used for matching tasks in the todolist */
-    private Pattern regexp = null;
-
-    /** Set of tags used for scanning. Equivalent to the regexp above. */
-    private TaskTags tags = null;
 }

@@ -45,6 +45,14 @@ import java.lang.reflect.InvocationTargetException;
  * Scans for suggestions by delegating to
  * plugged-in providers.
  *
+ * @todo Should I use FileObjects instead of DataObjects when passing
+ *       file identity around? It seems weird that I don't allow
+ *       scanning on secondary files (although it seems right in the
+ *       cases I can think of - we don't want to scan .class files,
+ *       .o files, .form files, ...). Pros: DataObject layer is a classification
+ *       layer that defines EditorCookies etc. Cons: Too many dependencies
+ *       on possibly slow and leaking code.
+ *
  * @author Petr Kuzel
  */
 public final class SuggestionsScanner implements Cancellable {
