@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<project name="corba" default="netbeans" basedir=".">
+
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM"/>
+  <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar"/>
+
+  <target name="compile">
+    <javac srcdir="src" destdir="src">
+      <classpath>
+        <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
+	<pathelement location="${nbroot}/openidex/netbeans/lib/ext/openidex.jar"/>
+	<pathelement location="${nbroot}/java/netbeans/modules/java.jar"/>
+	<pathelement location="${nbroot}/editor/netbeans/modules/editor.jar"/>
+	<pathelement location="${nbroot}/editor/netbeans/lib/ext/nb-editor.jar"/>
+	<pathelement location="/usr/local/gj_libs/idlj.jar"/> <!-- must be somewhere else -->
+	<pathelement location="release/lib/ext/corbaext.jar"/>
+	<pathelement location="release/lib/ext/idlcompilers.jar"/>
+	<pathelement location="${nbroot}/core/netbeans/lib/developer.jar"/>
+	<pathelement location="${nbroot}/projects/netbeans/modules/projects.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="tojar">
+    <tojar srcdir="src" unpackeddir="tojar"/>
+  </target>
+
+  <target name="jars" depends="tojar,compile">
+    <mkdir dir="netbeans/modules"/>
+    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+    <copyfile src="manifest.mf" dest="manifest-subst.mf" filtering="on"/>
+    <jar jarfile="netbeans/modules/corba.jar"
+         manifest="manifest-subst.mf"
+         basedir="src"
+	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+	 compress="false"/>
+  </target>
+
+  <target name="javahelp">
+    <copydir src="javahelp" dest="netbeans/docs"/>
+  </target>
+
+  <target name="release">
+    <copydir src="release" dest="netbeans"/>
+  </target>
+
+  <target name="netbeans" depends="jars,javahelp,release"/>
+<!-- TODO:
+  <target name="nbm" depends="netbeans">
+    <makenbm file="corba.nbm"
+             topdir="."
+	     manifest="manifest-subst.mf"
+	     homepage="http://applet.netbeans.org/"
+	     distribution="http://www.netbeans.org/download/nbms/40/applet.nbm">
+      <license file="../nbbuild/standard-nbm-license.txt"/>
+      <description>
+        Corba ...
+      </description>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
+    </makenbm>
+  </target>
+-->
+  <target name="clean">
+    <delete dir="src">
+      <include name="**/*.class"/>
+      <include name="**/*.jar"/>
+    </delete>
+    <delete file="manifest-subst.mf"/>
+    <delete file="applet.nbm"/>
+    <deltree dir="netbeans"/>
+    <deltree dir="Info"/>
+  </target>
+
+</project>
