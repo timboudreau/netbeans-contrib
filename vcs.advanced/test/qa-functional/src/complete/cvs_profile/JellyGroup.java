@@ -21,6 +21,7 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.actions.Action;
+import org.netbeans.jellytools.actions.ActionNoBlock;
 import org.netbeans.jellytools.actions.DeleteAction;
 import org.netbeans.jellytools.modules.vcscore.GroupVerificationOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSGroupsFrameOperator;
@@ -131,7 +132,7 @@ public class JellyGroup extends CVSStub {
     }
     
     public void addVCSGroup (VCSGroupsFrameOperator vgf, String name) {
-        new Action (null, "Add VCS Group").performPopup(new Node (vgf.treeVCSGroupsTreeView(), ""));
+        new ActionNoBlock (null, "Add VCS Group").performPopup(new Node (vgf.treeVCSGroupsTreeView(), ""));
         NbDialogOperator dia = new NbDialogOperator ("Add VCS Group");
         JTextFieldOperator text = new JTextFieldOperator (dia);
         text.clearText();

@@ -20,6 +20,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 import org.netbeans.jellytools.actions.DeleteAction;
+import org.netbeans.jellytools.modules.vcscore.VCSCommandsInOutputOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSAddAction;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSCommitAction;
@@ -298,6 +299,7 @@ public class JellyAddFeatures extends CVSStub {
     }
     
     public void testToStandardOutput () {
+        closeAllVCSOutputs();
         Text4.waitStatus("Up-to-date; 1.1");
         Text4.cvsNode ().cVSUpdate ();
         CVSUpdateFileAdvDialog up = new CVSUpdateFileAdvDialog ();
@@ -306,10 +308,8 @@ public class JellyAddFeatures extends CVSStub {
         up.waitClosed ();
         Text4.waitHistory("Update");
         
-        closeAllVCSOutputs();
-        viewOutput("UPDATE_CMD", Text4);
-        VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("UPDATE_CMD");
-        String str = coo.txtStandardError().getText ();
+        VCSCommandsInOutputOperator coo = new VCSCommandsInOutputOperator ("Update - " + Text4.name ());
+        String str = coo.txtErrorOutput().getText ();
         getLog ().println ("Standard Error:");
         getLog ().println (str);
         assertTrue ("Standard error does not contain this text: Checking out text4", str.indexOf ("Checking out text4") >= 0);
@@ -401,8 +401,10 @@ public class JellyAddFeatures extends CVSStub {
         
         closeAllVCSOutputs ();
         viewOutput(rc);
-        VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Remove");
-        assertTrue ("Execution string does not contain -t", coo.txtExecutionString().getText ().indexOf ("-t") >= 0);
+        VCSCommandsInOutputOperator coo = new VCSCommandsInOutputOperator ("Remove");
+	// !!! commented because there is no output with execution string
+        //assertTrue ("Execution string does not contain -t", coo.txtExecutionString().getText ().indexOf ("-t") >= 0);
+	
         /*String str = coo.txtStandardOutput().getText ();
         assertTrue ("Standard Output does not contain text: -> main loop with CVSROOT=", str.indexOf ("-> main loop with CVSROOT=") >= 0);
         assertTrue ("Standard Output does not contain text: cvs remove: file `text5' still in working directory", str.indexOf ("cvs remove: file `text5' still in working directory") >= 0);
