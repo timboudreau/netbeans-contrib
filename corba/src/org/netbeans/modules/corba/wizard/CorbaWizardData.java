@@ -35,6 +35,7 @@ public class CorbaWizardData extends Object {
   private String bindMethod;
   private Object idlSource;
   private DataFolder destinationPackage;
+  private String name;
 
   /** Creates new CorbaWizardData */
   public CorbaWizardData() {
@@ -65,6 +66,10 @@ public class CorbaWizardData extends Object {
   public String getCORBAImpl() {
     return this.impl;
   }
+
+  public String getName () {
+    return this.name;
+  }
   
   public String getBindMethod () {
     return this.bindMethod;
@@ -84,6 +89,10 @@ public class CorbaWizardData extends Object {
   
   public DataFolder getDestinationPackage () {
     return this.destinationPackage;
+  }
+
+  public void setName (String name) {
+    this.name = name;
   }
   
 }
