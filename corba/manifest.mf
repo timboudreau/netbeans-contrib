@@ -5,7 +5,7 @@ OpenIDE-Module-Description: org.netbeans.modules.corba.docs.corba
 OpenIDE-Module-Install: org/netbeans/modules/corba/IDLModule.class
 OpenIDE-Module-Specification-Version: 1.4
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1, IDE/1 > 1.24
 Class-Path: docs/corba.jar
 
 Name: org/netbeans/modules/corba/IDLDataLoader.class

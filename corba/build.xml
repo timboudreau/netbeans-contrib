@@ -15,8 +15,11 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="corba" default="netbeans" basedir=".">
 
+  <property name="nbroot" location=".."/>
   <property name="binroot" location="../../nbextra"/>
   <property name="nbext" location="../nbbuild"/>
+  <property name="homepage.base" value="netbeans.org"/>
+  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" location="${nbext}/bcl-license.txt"/>
 
   <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
@@ -136,7 +139,7 @@ Microsystems, Inc. All Rights Reserved.
     <makenbm file="corba.nbm"
              topdir="."
              module="netbeans/modules/corba.jar"
-	     homepage="http://corba.${homepage.base}/corba.html"
+	     homepage="http://corba.${homepage.base}/"
 	     distribution="http://${dist.base}/corba.nbm" >
       <license file="${license.file}" />
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
