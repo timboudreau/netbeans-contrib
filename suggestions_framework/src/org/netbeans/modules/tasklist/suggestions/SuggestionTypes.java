@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.util.Map;
+import java.util.Iterator;
 import java.util.Collection;
 
 /** Registry of all suggestion types. This is singleton and it also keeps
@@ -69,6 +70,25 @@ final public class SuggestionTypes {
             return null;
         
         return (SuggestionType)allTypes.get(name);
+    }
+
+    /** Returns SuggestionType instance for the given description of the type
+     * @param name suggestion type (localized) name
+     * @return instance describing suggestion type */    
+    public final SuggestionType findTypeByDesc(String name) {
+        loadTypes();
+        
+        if (allTypes == null)
+            return null;
+
+        Iterator it = allTypes.values().iterator();
+        while (it.hasNext()) {
+            SuggestionType t = (SuggestionType)it.next();
+            if (t.getLocalizedName().equals(name)) {
+                return t;
+            }
+        }
+        return null;
     }
 
     /** Returns a collection containing all the registered SuggestionTypes.

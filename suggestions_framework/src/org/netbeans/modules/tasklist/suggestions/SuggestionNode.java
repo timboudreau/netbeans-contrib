@@ -98,7 +98,8 @@ class SuggestionNode extends TaskNode {
             // is there)
             return new SystemAction[] {
                 SystemAction.get(FilterAction.class),
-                SystemAction.get(EnableAction.class),
+                //SystemAction.get(EnableAction.class),
+                SystemAction.get(EditTypesAction.class),
                 null
             };
         } else {
@@ -113,7 +114,8 @@ class SuggestionNode extends TaskNode {
                     SystemAction.get(FilterAction.class),
                     null,
                     SystemAction.get(DisableAction.class),
-                    SystemAction.get(EnableAction.class),
+                    SystemAction.get(EditTypesAction.class),
+                    //SystemAction.get(EnableAction.class),
                     null,
                     SystemAction.get(ExportAction.class),
                     null,
@@ -128,7 +130,8 @@ class SuggestionNode extends TaskNode {
                     SystemAction.get(FilterAction.class),
                     null,
                     SystemAction.get(DisableAction.class),
-                    SystemAction.get(EnableAction.class),
+                    SystemAction.get(EditTypesAction.class),
+                    //SystemAction.get(EnableAction.class),
                     null,
                     SystemAction.get(ExportAction.class),
                     null,

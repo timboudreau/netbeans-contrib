@@ -395,8 +395,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
      *    {@link Suggestion} documentation for how Suggestion Types
      *    are registered and named.
      * @param enabled True iff the suggestion type should be enabled
+     * @param batch If true, don't save the registry file. Used for batch
+     *       updates where we call setEnabled repeatedly and plan to
+     *       call writeTypeRegistry() at the end.
      */
-    public synchronized void setEnabled(String id, boolean enabled) {
+    public synchronized void setEnabled(String id, boolean enabled,
+                                        boolean dontSave) {
         SuggestionType type = SuggestionTypes.getTypes().getType(id);
 
         if (disabled == null) {
@@ -435,7 +439,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
             getList().removeCategory(type); // XXX should only do this once!
         }
 
-        writeTypeRegistry();
+        if (!dontSave) {
+            writeTypeRegistry();
+        }
         
     }
 
@@ -1655,7 +1661,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	updates on our behalf! */
     public void componentHidden(ComponentEvent e) {
         //super.componentHidden();
-	err.log("componentHidden");
+	//err.log("componentHidden");
 	findCurrentFile(true);
     }
 
@@ -1845,6 +1851,43 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 setCursorLine(line);
             }
         }
+    }
+
+    /** Enable/disable/confirm the given collections of SuggestionTypes */
+    void editTypes(List enabled, List disabled, List confirmation) {
+        Iterator it = enabled.iterator();
+        while (it.hasNext()) {
+            SuggestionType type = (SuggestionType)it.next();
+            if (!isEnabled(type.getName())) {
+                setEnabled(type.getName(), true, true);
+            }
+        }
+
+        it = disabled.iterator();
+        while (it.hasNext()) {
+            SuggestionType type = (SuggestionType)it.next();
+            if (isEnabled(type.getName())) {
+                setEnabled(type.getName(), false, true);
+            }
+        }
+
+        Iterator allIt = SuggestionTypes.getTypes().getAllTypes().iterator();
+        while (allIt.hasNext()) {
+            SuggestionType t = (SuggestionType)allIt.next();
+            it = confirmation.iterator();
+            boolean found = false;
+            while (it.hasNext()) {
+                SuggestionType type = (SuggestionType)it.next();
+                if (type == t) {
+                    found = true;
+                    break;
+                }
+            }
+            setConfirm(t, !found, false);
+        }
+        
+        // Flush changes to disk
+        writeTypeRegistry();
     }
     
     

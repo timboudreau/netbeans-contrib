@@ -55,6 +55,10 @@ import org.netbeans.modules.tasklist.core.Filter;
 
 /**
  * Let the re-enable disabled suggestion types
+ * <p>
+ * <b>XXX Note - this class is no longer used. Remove it as soon as
+ *  the "Edit Suggestions..." functionality is "complete".</b>
+ * <p>
  *
  * @author  Tor Norbye
  */
@@ -189,7 +193,7 @@ public class EnableAction extends CallableSystemAction
             
 	    SuggestionManagerImpl manager =
 		(SuggestionManagerImpl)SuggestionManager.getDefault();
-            manager.setEnabled(type.getName(), true);
+            manager.setEnabled(type.getName(), true, false);
         }
     }
 }
