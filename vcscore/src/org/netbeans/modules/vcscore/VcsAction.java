@@ -30,6 +30,7 @@ import org.openide.cookies.SaveCookie;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.Debug;
+import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.caching.VcsFSCache;
 import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
@@ -270,7 +271,8 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
         ArrayList executors = new ArrayList();
         boolean[] askForEachFile = null;
-        String quoting = fileSystem.getQuoting();
+        //String quoting = fileSystem.getQuoting();
+        String quoting = "${QUOTE}";
         if (files.size() > 1) {
             askForEachFile = new boolean[1];
             askForEachFile[0] = true;
@@ -279,11 +281,12 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
         boolean cmdCanRunOnMultipleFilesInFolder = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER);
         CommandsPool pool = fileSystem.getCommandsPool();
+        VariableValueAdjustment valueAdjustment = fileSystem.getVarValueAdjustment();
         VcsCommandExecutor vce;
         Hashtable vars = fileSystem.getVariablesAsHashtable();
         if (additionalVars != null) vars.putAll(additionalVars);
         do {
-            setVariables(files, vars, quoting);
+            setVariables(files, vars, quoting, valueAdjustment);
             vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
             preprocessStatus = pool.preprocessCommand(vce, vars, askForEachFile);
             //System.out.println("VcsAction.doCommand(): CommandsPool.preprocessCommand() = "+preprocessStatus+", askForEachFile = "+((askForEachFile.length > 0) ? ""+askForEachFile : ""+askForEachFile[0]));
@@ -301,7 +304,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 Table singleFileTable = new Table();
                 Object singleFile = files.keys().nextElement();
                 singleFileTable.put(singleFile, files.get(singleFile));
-                setVariables(singleFileTable, vars, quoting);
+                setVariables(singleFileTable, vars, quoting, valueAdjustment);
             } else if (cmdCanRunOnMultipleFilesInFolder) {
                 singleFolderTable = new Table();
                 Enumeration keys = files.keys();
@@ -320,7 +323,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                         singleFolderTable.put(file, files.get(file));
                     }
                 }
-                setVariables(singleFolderTable, vars, quoting);
+                setVariables(singleFolderTable, vars, quoting, valueAdjustment);
             }
             executors.add(vce);
             if (stdoutListener != null) vce.addOutputListener(stdoutListener);
@@ -744,16 +747,23 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param files the table of files
      * @param vars the table of variables to extend
      * @param quoting the quotation string used when more than one file is to be processed
+     * @param valueAdjustment the variable value adjustment utility object
      */
-    protected static void setVariables(Table files, Hashtable vars, String quoting) {
+    protected static void setVariables(Table files, Hashtable vars, String quoting,
+                                       VariableValueAdjustment valueAdjustment) {
         // At first, find the first file and set the variables
         String fullName = (String) files.keys().nextElement();
         FileObject fo = (FileObject) files.get(fullName);
         boolean isFileFolder = fo.isFolder();
         String path = VcsUtilities.getDirNamePart(fullName);
         String file = VcsUtilities.getFileNamePart(fullName);
-        path = path.replace('/', java.io.File.separatorChar);
-        fullName = fullName.replace('/', java.io.File.separatorChar);
+        String separator = (String) vars.get("PS");
+        char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
+        path = path.replace('/', separatorChar);
+        fullName = fullName.replace('/', separatorChar);
+        file = valueAdjustment.adjustVarValue(file);
+        path = valueAdjustment.adjustVarValue(path);
+        fullName = valueAdjustment.adjustVarValue(fullName);
         if (fullName.length() == 0) fullName = ".";
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
@@ -774,15 +784,17 @@ public class VcsAction extends NodeAction implements ActionListener {
             if (fullName.length() == 0) fullName = ".";
             isFileFolder |= fo.isFolder();
             file = VcsUtilities.getFileNamePart(fullName);
-            fullName = fullName.replace('/', java.io.File.separatorChar);
+            fullName = fullName.replace('/', separatorChar);
+            file = valueAdjustment.adjustVarValue(file);
+            fullName = valueAdjustment.adjustVarValue(fullName);
             vfiles.append(file);
-            vfiles.append(java.io.File.separator);
+            vfiles.append(separatorChar);
             qfiles.append(quoting);
             qfiles.append(file);
             qfiles.append(quoting);
             qfiles.append(" ");
             paths.append(fullName);
-            paths.append(java.io.File.separator+java.io.File.separator);
+            paths.append(""+separatorChar+separatorChar);
             qpaths.append(quoting);
             qpaths.append(fullName);
             qpaths.append(quoting);
