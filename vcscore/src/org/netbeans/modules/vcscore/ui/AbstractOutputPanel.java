@@ -45,6 +45,8 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
+import org.openide.explorer.propertysheet.PropertyPanel;
+import org.openide.nodes.PropertySupport;
 import org.openide.util.NbBundle;
 
 /**
@@ -333,7 +335,6 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     }
     
     private void viewTextLog() {
-        PropertyEditor editor = PropertyEditorManager.findEditor(String.class);
         javax.swing.JTextArea outputArea = getStdOutputArea();
         String value;
         if (outputCollector != null) {
@@ -357,9 +358,18 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                 }
             }
         }
-        editor.setValue(value);
-        java.awt.Component c = editor.getCustomEditor();
-        DialogDescriptor dd = new DialogDescriptor(c, NbBundle.getBundle(OutputPanel.class).getString("CMD_TextOutput"));
+        final String finalValue = value;
+        PropertySupport.ReadOnly property = new PropertySupport.ReadOnly("value", String.class, "", "") {
+            public Object getValue() {
+                return finalValue;
+            }
+        };
+        java.awt.Component c = new PropertyPanel(property, PropertyPanel.PREF_CUSTOM_EDITOR);
+        javax.swing.JButton closeButton = new javax.swing.JButton(NbBundle.getMessage(AbstractOutputPanel.class, "OutputPanel.Close"));
+        closeButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AbstractOutputPanel.class, "ACSD_OutputPanel.Close"));
+        DialogDescriptor dd = new DialogDescriptor(c, NbBundle.getBundle(OutputPanel.class).getString("CMD_TextOutput"),
+                                                   true, new Object[] { closeButton }, closeButton,
+                                                   DialogDescriptor.DEFAULT_ALIGN, null, null);
         DialogDisplayer ddisp = DialogDisplayer.getDefault();
         ddisp.notify(dd);
     }
