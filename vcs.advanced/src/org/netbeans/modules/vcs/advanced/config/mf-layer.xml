@@ -77,13 +77,6 @@ Microsystems, Inc. All Rights Reserved.
      <folder name="Mount">
        <folder name="VCS">
         <file name="org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings" url="GenericVCSMountFS.settings">
-          <!-- [CDATA[
-          <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
-          <settings version="1.0">
-            <instanceof class="org.openide.filesystems.FileSystem"/>
-            <instance class="org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem"/>
-          </settings>
-          ]] -->
           <attr name="template" boolvalue="true"/>
           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
           <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/vcsGeneric.gif" />
@@ -91,6 +84,7 @@ Microsystems, Inc. All Rights Reserved.
           <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator.singleton"/>
           <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/config/templatesGEN_VCS_FS.html"/>
         </file>
+        <attr name="org-netbeans-modules-vcscore-wizard-mountcvs-CvsMountFS.settings/org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings" boolvalue="true" />
        </folder>
      </folder>
    </folder>
