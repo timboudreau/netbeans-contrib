@@ -48,6 +48,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.explorer.propertysheet.PropertyPanel;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 /**
  * AbstractOutputPanel.java
@@ -98,6 +99,29 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK),
         "discard"); //NOI18N
         getActionMap().put("discard", discardAction);//NOI18N
+        if (Utilities.getOperatingSystem() == Utilities.OS_MAC &&
+            System.getProperty("java.version").equals("1.4.2_05")) {
+            macOSHack();
+        }
+    }
+    
+    /**
+     * Increase the preferred size of buttons and labels because of issue #51404.
+     * TODO Remove this when the problem is fixed.
+     */
+    private void macOSHack() {
+        adjustPreferredSize(btnStd);
+        adjustPreferredSize(btnErr);
+        adjustPreferredSize(btnStop);
+        if (btnDataStd != null) adjustPreferredSize(btnDataStd);
+        if (btnDataErr != null) adjustPreferredSize(btnDataErr);
+        adjustPreferredSize(lblStatus);
+    }
+    
+    private void adjustPreferredSize(JComponent c) {
+        Dimension d = c.getPreferredSize();
+        d.width += 10;
+        c.setPreferredSize(d);
     }
     
     /**
@@ -418,6 +442,14 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                 btnStop.setVisible(false);
                 if (!ignoreFailure && exit != CommandTask.STATUS_SUCCEEDED && outputCollector.isCmdOutput(1)) {
                     btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
+                }
+                /**
+                 * Increase the preferred size of buttons and labels because of issue #51404.
+                 * TODO Remove this when the problem is fixed.
+                 */
+                if (Utilities.getOperatingSystem() == Utilities.OS_MAC &&
+                    System.getProperty("java.version").equals("1.4.2_05")) {
+                    adjustPreferredSize(lblStatus);
                 }
             }
         });
