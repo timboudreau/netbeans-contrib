@@ -76,7 +76,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
                     return null;
                 }             
                 
-            },
+            }/*,
             new PropertySupport.ReadWrite(
             "control", //NOI18N
             Boolean.TYPE,
@@ -89,7 +89,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
                 public void setValue(Object obj){
                     //
                 }
-            }
+            }*/
         };
         
         treeTableView1.setProperties(properties);
