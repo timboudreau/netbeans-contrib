@@ -13,14 +13,14 @@
 package org.netbeans.modules.vcscore.turbo;
 
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
 import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.DirReaderListener;
 import org.netbeans.modules.vcscore.VcsDirContainer;
+import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 /**
  * Various utility methods eliminating boilerplate constructions
@@ -47,6 +47,7 @@ public final class TurboUtil {
     public static void refreshFolder(FileObject folder) {
         if (folder.isFolder() == false) return;
         FileObject[] files = folder.getChildren();
+        // XXX it would be faster to issue batch command instead of set of commands
         for (int i = 0; i < files.length; i++) {
             FileObject fileObject = files[i];
             Turbo.getRepositoryMeta(fileObject);
@@ -61,6 +62,7 @@ public final class TurboUtil {
         if (folder.isFolder() == false) return;
 
         FileObject[] files = folder.getChildren();
+        // XXX it would be faster to issue batch command instead of set of commands
         for (int i = 0; i < files.length; i++) {
             FileObject fileObject = files[i];
             refreshRecursively(fileObject); // recursion
@@ -70,30 +72,72 @@ public final class TurboUtil {
     /**
      * Populates cache by command output ({@link VcsCache#readDirFinished}).
      *
+     * @param fileSystem filesystem that allows to properly match command
+     *   output to fileobjects
      * @param path directory that was read by VcsDirReader relative to the filesystem root
      * @param rawData vector of <CODE>String[]</CODE> that describes files and subdirectories
      * @param success whether the refresh command succeeded.
      */
-    public static void populateCache(String path, Collection rawData, boolean success) {
+    public static void populateCache(FileSystem fileSystem, String path, Collection rawData, boolean success) {
 
+        // XXX for dir results we can tip local files
+
+//        for (Iterator it = rawData.iterator(); it.hasNext(); ) {
+//            String[] elements = (String[]) it.next();
+//            String elemName = RefreshCommandSupport.getFileName(elements);
+//        }
+
+        // path is folder relative to FS root then raw data contains children
+        FileObject folder = fileSystem.findResource(path);    // "" denotes root
+        assert folder.isFolder();
+
+        FileObject[] localCandidates = folder.getChildren();
+        Iterator it = rawData.iterator();
+        while (it.hasNext()) {
+            String[] next = (String[]) it.next();
+            String fileName = next[0]; // contains trailing '/' (or pathSeparator?) for dirs
+            String status = next[1];
+            String revision = next[3];
+
+            FileObject fo = folder.getFileObject(fileName);
+
+            if (fo.isData()) {
+                FileProperties fprops = new FileProperties();
+                fprops.setName(fileName);
+                fprops.setStatus(status);
+                fprops.setRevision(revision);
+                Turbo.setMeta(fo, fprops);
+            } else {
+                FileProperties fprops = new FileProperties();
+                fprops.setName(fileName);
+                fprops.setStatus(status);  // TODO what status to set here, we want to say that it's not local
+                Turbo.setMeta(fo, fprops);
+            }
+        }
     }
 
 
     /**
      * Returns FileReaderListener implementation that populates
-     * the cache from the command data.
+     * the cache from the command data execuded over given FS.
+     *
+     * @param fs filesystem that allows to properly match command
+     *   output to fileobjects
      */
-    public static FileReaderListener fileReaderListener() {
-        return FileReaderListenerImpl.getInstance();
+    public static FileReaderListener fileReaderListener(FileSystem fs) {
+        return new FileReaderListenerImpl(fs);
     }
 
 
     /**
      * Returns DirReaderListener implementation that populates
-     * the cache from the command data.
+     * the cache from the command data execuded over given FS.
+     *
+     * @param fs filesystem that allows to properly match command
+     *   output to fileobjects
      */
-    public static DirReaderListener dirReaderListener() {
-        return DirReaderListenerImpl.getInstance();
+    public static DirReaderListener dirReaderListener(FileSystem fs) {
+        return new DirReaderListenerImpl(fs);
     }
 
     /**
@@ -101,45 +145,50 @@ public final class TurboUtil {
      */
     static final class FileReaderListenerImpl implements FileReaderListener {
 
-        private static FileReaderListener instance;
+        private final FileSystem fileSystem;
 
-        private FileReaderListenerImpl() {
-        }
-
-        public synchronized static FileReaderListener getInstance() {
-            if (instance == null) {
-                instance = new FileReaderListenerImpl();
-            }
-            return instance;
+        private FileReaderListenerImpl(FileSystem fileSystem) {
+            this.fileSystem = fileSystem;
         }
 
         public void readFileFinished(String path, Collection rawData) {
-            // TODO what is rawData format? can I delegate to populateCache?
+            populateCache(fileSystem, path, rawData, true);
         }
 
     }
 
     static final class DirReaderListenerImpl implements DirReaderListener {
 
-        private static DirReaderListener instance;
+        private final FileSystem fileSystem;
 
-        private DirReaderListenerImpl() {
-        }
-
-        public synchronized static DirReaderListener getInstance() {
-            if (instance == null) {
-                instance = new DirReaderListenerImpl();
-            }
-            return instance;
+        private DirReaderListenerImpl(FileSystem fileSystem) {
+            this.fileSystem = fileSystem;
         }
 
         public void readDirFinished(String path, Collection rawData, boolean success) {
-            // TODO what is rawData format? can I delegate to populateCache?
+            populateCache(fileSystem, path, rawData, success);
         }
 
+        // it's typically comming from refresh recursively command all other commands
+        // use sequence of readDirFinished or readFileFinished  TODO what's diference? diferent contract for the same purpose?
         public void readDirFinishedRecursive(String path, VcsDirContainer rawData, boolean success) {
-            // TODO what is rawData format? can I delegate to populateCache?
+            // TODO check this it's taken from sample debuging on linux
+            // VcsCache:888
+
+            // path is folder relative to FS root then raw data contains children
+            FileObject folder = fileSystem.findResource(path);    // "" denotes root
+            assert folder.isFolder();
+
+            Map fileToRawData = (Map) rawData.getElement(); // it's a hashmap<name, rawData.element>
+            Collection extractedRawData = fileToRawData.values();
+            populateCache(fileSystem, path, extractedRawData, success);
+
+            VcsDirContainer subdirs[] = rawData.getSubdirContainers();
+            for (int i = 0; i < subdirs.length; i++) {
+                VcsDirContainer container = subdirs[i];
+                String containerPath = container.getPath();  // path relative to fs root
+                readDirFinishedRecursive(containerPath, container, success);  // recursion
+            }
         }
     }
-
 }

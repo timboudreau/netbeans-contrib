@@ -32,7 +32,7 @@ implementation except <code>children(folderName)</code> method.
 <p>
 Disk layer use FileObject attributes to store data
 instead of custom format. All recent file statuses persist.
-TODO Default attributes implemenaion may be perfomance problem.
+TODO default attributes implemenaion has performance problem.
 
 <p>
 Memory layer is not hierachical but two simple plain maps
@@ -47,6 +47,11 @@ can hang forever. It may need to be fixed in future by setting
 timeouts (and possibly killing worker threads). However client's
 interface will stay the same.
 
+<p>
+Debuggility - small contract containing mainly methods without
+behaviour modification parameters (i.e. dedicate methods instead
+of one method taking a strategy constant passed all around and
+invisible on thread dumps). Some asserts scattered all around code.
 
 <h3>Status</h3>
 

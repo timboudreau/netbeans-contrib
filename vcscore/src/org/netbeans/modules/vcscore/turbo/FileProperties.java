@@ -45,6 +45,10 @@ public final class FileProperties {
 
     private boolean canUpdate = true;
 
+    public FileProperties() {
+        retrieval = System.currentTimeMillis();
+    }
+
     /** Clients must access using {@link IgnoreList#forFolder}.*/
     IgnoreList getIgnoreList() {
         return ignoreList;

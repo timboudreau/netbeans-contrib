@@ -21,6 +21,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.api.vcs.VcsManager;
 
 import java.io.File;
@@ -36,20 +37,26 @@ final class Repository {
      * Can return null on failure = unknown status.
      */
     public static FileProperties get(FileObject fileObject) {
-        refresh(fileObject);
-        return null;
-
+        if (refresh(fileObject)) {
+            FileProperties fprops = Turbo.getCachedMeta(fileObject);
+            assert fprops != null; // is was loaded by dirReaderListener
+            return fprops;
+        } else {
+            return null;
+        }
     }
 
     /**
      * Run REFRESH on the repository directory.
      * It delegates to profile provider.
+     *
+     * @return true if command for sure reported some results to listeners
      */
-    private static void refresh(FileObject cacheDir) {
+    private static boolean refresh(FileObject cacheDir) {
         CommandSupport engine = null;
 
+        FileSystem fsystem = null;
         try {
-            FileSystem fsystem;
             fsystem = cacheDir.getFileSystem();
             if (fsystem instanceof VcsFileSystem) {
                 boolean offLine = ((VcsFileSystem)fsystem).isOffLine();
@@ -68,11 +75,21 @@ final class Repository {
             Command cmd = engine.createCommand();
             if (cmd instanceof VcsDescribedCommand) {
                 ((VcsDescribedCommand) cmd).setDiskFiles(new File[] { FileUtil.toFile(cacheDir) });
-                ((VcsDescribedCommand) cmd).addDirReaderListener(TurboUtil.dirReaderListener());
+                ((VcsDescribedCommand) cmd).addDirReaderListener(TurboUtil.dirReaderListener(fsystem));
                 VcsManager.getDefault().showCustomizer(cmd);
-                cmd.execute();  // TODO check if I get data in synchonous manner
+                CommandTask task = cmd.execute();
+                try {
+                    task.waitFinished(10000); // give it 10s
+                    // the command is not killed, it continues and will probably asynchronously report results
+                    // I think it's OK, anyway it could be prevented by special dirReaderListener that would ignore results
+                    return task.isFinished();
+                } catch (InterruptedException e) {
+                    return false;
+                }
             }
         }
+
+        return false;
     }
 
 }

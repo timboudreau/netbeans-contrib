@@ -419,7 +419,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (executionContext instanceof VcsFileSystem) {
 
             if (Turbo.implemented()) {
-                vcmd.addFileReaderListener(TurboUtil.fileReaderListener());
+                vcmd.addFileReaderListener(TurboUtil.fileReaderListener((VcsFileSystem)executionContext));
                 return;
             }
 
