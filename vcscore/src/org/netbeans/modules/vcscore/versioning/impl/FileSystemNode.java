@@ -47,7 +47,7 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
     /** message that gives name to the root */
     private static java.text.MessageFormat formatRoot;
 
-    private final FileObject root;
+    private FileObject root;
 
     /**
     * @param root folder to work on
@@ -259,6 +259,10 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
         if (org.openide.filesystems.FileSystem.PROP_SYSTEM_NAME.equals(ev.getPropertyName()) ||
             org.openide.filesystems.FileSystem.PROP_DISPLAY_NAME.equals(ev.getPropertyName())) {
             initDisplayName ();
+        }
+        if (org.openide.filesystems.FileSystem.PROP_ROOT.equals(ev.getPropertyName())) {
+            this.root = fileSystem().getRoot();
+            setChildren(new FolderChildren(root));
         }
     }
 
