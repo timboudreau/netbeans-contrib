@@ -1,7 +1,5 @@
-Manifest-Version: 1.0
 Netbeans-Module: Version 1.00
-Created-By: 1.2 (Sun Microsystems Inc.)
-Netbeans-Module-Name: RMI Loader Module
+Netbeans-Module-Name: RMI Support Module
 Netbeans-Module-Install: com/netbeans/enterprise/modules/loaders/java/RMIModule.class
 
 Name: com/netbeans/enterprise/modules/rmi/RMIDataLoader.class
