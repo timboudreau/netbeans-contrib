@@ -25,6 +25,7 @@ import org.openide.util.Utilities;
 
 /**
  *  Bean info for TaskEdSettings
+ * @author Tor Norbye
  */
 public class SettingsBeanInfo extends SimpleBeanInfo {
 
@@ -54,7 +55,7 @@ public class SettingsBeanInfo extends SimpleBeanInfo {
 				       Settings.class),
 		new PropertyDescriptor(Settings.PROP_SCAN_SKIP,
 				       Settings.class),
-		new PropertyDescriptor(Settings.PROP_SCAN_REGEXP,
+		new PropertyDescriptor(Settings.PROP_SCAN_TAGS,
 				       Settings.class)
 	    };
 
@@ -76,11 +77,13 @@ public class SettingsBeanInfo extends SimpleBeanInfo {
 			    "HINT_SCAN_SKIP"));	    //NOI18N
 	    desc[i].setDisplayName(NbBundle.getMessage(
 					       SettingsBeanInfo.class,
-			    "PROP_SCAN_REGEXP"));	    //NOI18N
+			    "PROP_SCAN_TAGS"));	    //NOI18N
+            desc[i].setPropertyEditorClass(TaskTagEditor.class);
 	    desc[i++].setShortDescription(NbBundle.getMessage(
 					      SettingsBeanInfo.class,
-			    "HINT_SCAN_REGEXP"));	    //NOI18N
+			    "HINT_SCAN_TAGS"));	    //NOI18N
 	} catch (IntrospectionException ex) {
+            ex.printStackTrace();
 	    throw new InternalError();
 	}
 	return desc;

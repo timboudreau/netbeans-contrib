@@ -18,7 +18,7 @@ import org.netbeans.api.tasklist.DocumentSuggestionProvider;
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.*;
 
-
+import java.beans.*;
 import javax.swing.text.*;
 import javax.swing.event.*;
 import java.awt.*;
@@ -49,7 +49,8 @@ import org.openide.loaders.DataObject;
  */
 
 
-public class SourceTaskProvider extends DocumentSuggestionProvider {
+public class SourceTaskProvider extends DocumentSuggestionProvider
+    implements PropertyChangeListener {
 
     final private static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
     
@@ -70,6 +71,13 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
     /** List updated by the Source Scanner */
     private TaskList tasklist = null;
 
+    private DataObject dataobject = null;
+    private Document document = null;
+    private Object request = null;
+
+    private void rescan() {
+        rescan(document, dataobject, request);
+    }
     
     /**
      * The given document has been "shown"; it is now visible.
@@ -77,15 +85,43 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      * @param document The document being shown
      */
     public void docShown(Document document, DataObject dataobject) {
-        skipCode = ((Settings)Settings.
-                             findObject(Settings.class, true)).getSkipComments();
+        Settings settings = (Settings)Settings.findObject(Settings.class, true);
+        settings.addPropertyChangeListener(this);
+        skipCode = settings.getSkipComments();
     }
+
+    /**
+     * The given document has been "hidden"; it's still open, but
+     * the editor containing the document is not visible.
+     * <p>
+     * @param document The document being hidden
+     */
+    public void docHidden(Document document, DataObject dataobject) {
+        Settings settings = (Settings)Settings.findObject(Settings.class, true);
+        settings.removePropertyChangeListener(this);
+
+        //System.out.println("docHidden(" + document + ")");
+	if (scanner != null) {
+	    scanner = null;
+        }        
+     }
 
     private boolean skipCode = ((Settings)Settings.
                              findObject(Settings.class, true)).getSkipComments();
 
-    
+    public void propertyChange(PropertyChangeEvent ev) {
+        if (Settings.PROP_SCAN_TAGS == ev.getPropertyName()) {
+            if (scanner != null) {
+                scanner.tokensChanged();
+            }
+            rescan();
+        }
+    }
+
     public void rescan(Document doc, DataObject dobj, Object request) {
+        dataobject = dobj;
+        document = doc;
+        this.request = request;
         List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
 
@@ -124,6 +160,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
                 null,
                 this);
             s.setLine(subtask.getLine());
+            s.setPriority(subtask.getPriority());
             if (tasks == null) {
                 tasks = new ArrayList(tasklist.getTasks().size());
             }
@@ -134,19 +171,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
     }
     
     
-    /**
-     * The given document has been "hidden"; it's still open, but
-     * the editor containing the document is not visible.
-     * <p>
-     * @param document The document being hidden
-     */
-    public void docHidden(Document document, DataObject dataobject) {
-        //System.out.println("docHidden(" + document + ")");
-	if (scanner != null) {
-	    scanner = null;
-        }        
-     }
-
     public void clear(Document document, DataObject dataobject,
                       Object request) {
 	// Remove existing items

@@ -14,9 +14,7 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
-
+import org.netbeans.api.tasklist.SuggestionPriority;
 import org.openide.options.SystemOption;
 import org.openide.util.NbBundle;
 import org.openide.awt.StatusDisplayer;
@@ -34,9 +32,9 @@ public class Settings extends SystemOption {
     // Option labels
     public static final String
 	PROP_SCAN_SOURCES	= "scanSources",	//NOI18N
-	PROP_SCAN_REGEXP	= "scanRegexp",		//NOI18N
 	PROP_SCAN_SKIP  	= "skipComments",	//NOI18N
-	PROP_SCAN_DELAY		= "scanDelay";		//NOI18N
+	PROP_SCAN_DELAY		= "scanDelay",		//NOI18N
+	PROP_SCAN_TAGS		= "taskTags";		//NOI18N
     
     /** Return the signleton cppSettings */
     public static Settings getDefault() {
@@ -145,44 +143,37 @@ public class Settings extends SystemOption {
 	//Done above: firePropertyChange(PROP_SCAN_DELAY, null, d);	
     }
 
+    public TaskTags getTaskTags() {
+        if (tags == null) {
+            TaskTags d = (TaskTags)getProperty(PROP_SCAN_TAGS);
+            if (d != null) {
+                tags = d;
+            } else {
+                tags = new TaskTags();
+                tags.setTags(new TaskTag[] {
+                    new TaskTag("@todo", SuggestionPriority.MEDIUM),
+                    new TaskTag("TODO", SuggestionPriority.MEDIUM),
+                    new TaskTag("FIXME", SuggestionPriority.MEDIUM),
+                    new TaskTag("XXX", SuggestionPriority.MEDIUM),
+                    new TaskTag("PENDING", SuggestionPriority.MEDIUM),
+                    // CVS merge conflict:
+                    //new TaskTag("\<\<\<\<\<\<\<", SuggestionPriority.HIGH),
 
-    /** Sets the scan regular expression - used during scanning for
-	todo items
-    */
-    public void setScanRegexp(String regexp) {
-        String t = getScanRegexp();
-        if (t.equals(regexp))
-            return;
-
-	if (regexp.trim().length() == 0) {
-	    // Use default
-	    regexp = NbBundle.getMessage(Settings.class,
-					 "DefaultScanRegexp"); //NOI18N
-	}
-
-	// Try compiling the regular expression to make sure it's valid
-	try {
-	    new RE(regexp);
-	} catch (RESyntaxException e) {
-	    // Internal error: the regexp should have been validated when
-	    // the user edited it
-            StatusDisplayer.getDefault ().setStatusText(
-                                            e.getLocalizedMessage());
-	    throw new IllegalArgumentException();	    
-	}	
-        putProperty(PROP_SCAN_REGEXP, regexp, true);
+                    // Additional candidates: HACK, WORKAROUND, REMOVE, OLD
+                });;
+            }
+        }
+        return tags;
     }
 
-    /** Gets the scan regular expression - used during scanning for
-	todo items
-    */
-    public String getScanRegexp() {
-        String regexp = (String)getProperty(PROP_SCAN_REGEXP);
-        if (regexp == null) {
-	    return NbBundle.getMessage(Settings.class,
-				   "DefaultScanRegexp"); //NOI18N
-        } else {
-            return regexp;
-        }
+    private TaskTags tags = null;
+
+    /** Sets the skip-outside-of-comments property
+     * @param doSkip True iff you want to skip tasks outside of comments
+     */
+    public void setTaskTags(TaskTags scanTasks) {
+        tags = scanTasks;
+	putProperty(PROP_SCAN_TAGS, tags, true);
+	//firePropertyChange(PROP_SCAN_TAGS, null, b);	
     }
 }
