@@ -3110,6 +3110,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (dir == null || !dir.exists() || !dir.canRead()) return new String[0];
         localFilenameFilter.setOptionalFilter(getLocalFileFilter());
         String files[] = dir.list(localFilenameFilter);
+        if (files == null) return new String[0]; // is null when dir is not a directory
         return files;
     }
 
