@@ -19,6 +19,7 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.IntrospectionException;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.*;
 import java.lang.ref.*;
 
@@ -103,21 +104,25 @@ public class VcsMountFromTemplateAction extends NodeAction {
              */
         }
         
+        TemplateWizard wizard = null;
         Cookie c = n == null ? null : (Cookie)n.getCookie (Cookie.class);
         if (c != null) {
             TemplateWizard t = c.getTemplateWizard ();
             if (t != null) {
-                return t;
+                wizard = t;
             }
         }
         
-        TemplateWizard    defaultWizard = getStandardWizard();
+        if (wizard == null) {
+            wizard = getStandardWizard();
+        }
 
         //targetFolder = n == null ? null :(DataFolder)n.getCookie (DataFolder.class);
          //don't show help button!
-        defaultWizard.putProperty("WizardPanel_helpDisplayed",Boolean.FALSE);       // NOI18N
+        wizard.putProperty("WizardPanel_helpDisplayed",Boolean.FALSE);       // NOI18N
+        wizard.setTitleFormat(new MessageFormat(NbBundle.getBundle(VcsMountFromTemplateAction.class).getString("MountWizardTitleFormat")));
 
-        return defaultWizard;
+        return wizard;
     }
 
     /** Getter for standard wizard.
