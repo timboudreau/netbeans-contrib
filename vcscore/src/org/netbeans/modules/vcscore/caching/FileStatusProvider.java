@@ -59,6 +59,12 @@ public interface FileStatusProvider {
     public String getFileRevision(String fullName);
     
     /**
+     * Get the sticky information of a file (i.e. the current branch).
+     * @param fullName the name of the file with respect to the filesystem root.
+     */
+    public String getFileSticky(String fullName);
+    
+    /**
      * Get an additional attribute to a file. This attribute can be specific
      * to the given version control system.
      * @param fullName the name of the file with respect to the filesystem root.
