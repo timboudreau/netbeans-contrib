@@ -49,8 +49,8 @@ public class VcsUtilities {
 
     private static final String SYSTEM_ENV_PREFIX = "Env-";
 
-    private static HashMap systemEnvVariables = null;
-    private static final Object systemEnvVariablesLock = new Object();
+    //private static HashMap systemEnvVariables = null;
+    //private static final Object systemEnvVariablesLock = new Object();
     
     private static ClassLoader sfsClassLoader = null;
     private static boolean sfsCLReset = false;
@@ -647,7 +647,10 @@ public class VcsUtilities {
             synchronized (systemEnvVariablesLock) {
                 if (systemEnvVariables == null) {
          */
-                    systemEnvVariables = new HashMap();
+        // Do not cache the system properties. Get the fresh set every time.
+        // We can not listen on properties changes, therefore we must obtain
+        // the fresh set again and again.
+                    HashMap systemEnvVariables = new HashMap();
                     for (Enumeration enum = System.getProperties().propertyNames(); enum.hasMoreElements(); ) {
                         String key = (String) enum.nextElement();
                         if (key.startsWith(SYSTEM_ENV_PREFIX)) {
