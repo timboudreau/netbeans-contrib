@@ -27,7 +27,15 @@ Microsystems, Inc. All Rights Reserved.
     <testbag testattribs="stable" executor="ide" name="testbag_1" resultsprocessor="unit">
         <testset dir="unit/src">
             <patternset>
-                <include name="**/*Test.class"/>
+                <include name="**/BookmarkServiceTest.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+
+    <testbag testattribs="stable" executor="code" name="testbag_2" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+                <include name="**/NavigationServiceTest.class"/>
             </patternset>
         </testset>
     </testbag>

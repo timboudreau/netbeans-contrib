@@ -38,6 +38,11 @@ import org.netbeans.api.bookmarks.*;
  */
 public class NavigationServiceTest extends NbTestCase {
     
+    static {
+        // Get Lookup right to begin with.
+        ActionsInfraHid.class.getName();
+    }
+    
     public NavigationServiceTest(String name) {
         super(name);
     }
@@ -99,23 +104,7 @@ public class NavigationServiceTest extends NbTestCase {
             }
         });
         // activate the top component
-        SwingUtilities.invokeAndWait(new Runnable() {
-            public void run() {
-                tc.open();
-                tc.requestFocus();
-            }
-        });
-        final boolean [] done = new boolean[1];
-        Runnable wait = new Runnable() { 
-            public void run() {
-                done[0] = true;
-            }
-        };
-        SwingUtilities.invokeLater(wait);
-        // wait for the win sys
-        while (! done[0]) {
-            Thread.sleep(1000);
-        }
+        ActionsInfraHid.UT.setActivated(tc);
         assertEquals("our top component should be activated",
             WindowManager.getDefault().getRegistry().getActivated(), tc);
 
@@ -162,23 +151,7 @@ public class NavigationServiceTest extends NbTestCase {
             }
         });
         // activate the top component
-        SwingUtilities.invokeAndWait(new Runnable() {
-            public void run() {
-                tc.open();
-                tc.requestFocus();
-            }
-        });
-        final boolean [] done = new boolean[1];
-        Runnable wait = new Runnable() { 
-            public void run() {
-                done[0] = true;
-            }
-        };
-        SwingUtilities.invokeLater(wait);
-        // wait for the win sys
-        while (! done[0]) {
-            Thread.sleep(1000);
-        }
+        ActionsInfraHid.UT.setActivated(tc);
         assertEquals("our top component should be activated",
             WindowManager.getDefault().getRegistry().getActivated(), tc);
         
@@ -227,23 +200,7 @@ public class NavigationServiceTest extends NbTestCase {
             }
         });
         // activate the top component
-        SwingUtilities.invokeAndWait(new Runnable() {
-            public void run() {
-                tc.open();
-                tc.requestFocus();
-            }
-        });
-        final boolean [] done = new boolean[1];
-        Runnable wait = new Runnable() { 
-            public void run() {
-                done[0] = true;
-            }
-        };
-        SwingUtilities.invokeLater(wait);
-        // wait for the win sys
-        while (! done[0]) {
-            Thread.sleep(1000);
-        }
+        ActionsInfraHid.UT.setActivated(tc);
         assertEquals("our top component should be activated",
             WindowManager.getDefault().getRegistry().getActivated(), tc);
 
@@ -272,23 +229,7 @@ public class NavigationServiceTest extends NbTestCase {
     public void testCannotNavigateWhenNotActivated() throws Exception {
         final TopComponent tc1 = new TopComponent();
         // activate the top component
-        SwingUtilities.invokeAndWait(new Runnable() {
-            public void run() {
-                tc1.open();
-                tc1.requestFocus();
-            }
-        });
-        final boolean [] done = new boolean[1];
-        Runnable wait = new Runnable() { 
-            public void run() {
-                done[0] = true;
-            }
-        };
-        SwingUtilities.invokeLater(wait);
-        // wait for the win sys
-        while (! done[0]) {
-            Thread.sleep(1000);
-        }
+        ActionsInfraHid.UT.setActivated(tc1);
         final TopComponent tc = new TopComponent();
         NavigationService ns = NavigationService.getDefault();
         assertTrue("1. Should be impossible to navigate back", ! ns.canNavigateBackward());
