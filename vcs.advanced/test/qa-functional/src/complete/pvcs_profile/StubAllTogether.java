@@ -15,33 +15,33 @@ package complete.pvcs_profile;
 
 import complete.GenericStub.GenericNode;
 import java.io.File;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.StringTokenizer;
-import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.netbeans.jellytools.EditorOperator;
 import org.netbeans.jellytools.EditorWindowOperator;
-import org.netbeans.jellytools.NbDialogOperator;
-import org.netbeans.jellytools.NewWizardOperator;
 import org.netbeans.jellytools.TopComponentOperator;
+import org.netbeans.jellytools.actions.Action;
 import org.netbeans.jellytools.actions.DeleteAction;
-import org.netbeans.jellytools.actions.PropertiesAction;
+import org.netbeans.jellytools.actions.OpenAction;
+import org.netbeans.jellytools.modules.vcscore.GroupVerificationOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.PVCSAddAction;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.PVCSGetAction;
+import org.netbeans.jellytools.modules.vcsgeneric.actions.RefreshRevisionsAction;
+import org.netbeans.jellytools.modules.vcsgeneric.nodes.PVCSFileNode;
 import org.netbeans.jellytools.modules.vcsgeneric.pvcs.*;
-import org.netbeans.jellytools.modules.vcsgeneric.pvcs.AddCommandOperator;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
-import org.netbeans.jellytools.properties.*;
+import org.netbeans.jellytools.properties.PropertySheetOperator;
+import org.netbeans.jellytools.properties.PropertySheetTabOperator;
+import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.jellytools.util.StringFilter;
-import org.netbeans.jemmy.operators.JTextFieldOperator;
-import org.netbeans.jemmy.operators.JTreeOperator;
 import org.netbeans.junit.NbTestSuite;
+import org.netbeans.modules.vcscore.runtime.RuntimeCommand;
 import org.openide.util.Utilities;
+
 
 public class StubAllTogether extends PVCSStub {
     
@@ -65,19 +65,19 @@ public class StubAllTogether extends PVCSStub {
         suite.addTest(new StubAllTogether("testViewHistory"));
         suite.addTest(new StubAllTogether("testUnlockFile"));
         suite.addTest(new StubAllTogether("testGetMissingFile"));
-/*        suite.addTest(new StubAllTogether("testRemoveRevision"));
+        suite.addTest(new StubAllTogether("testRemoveRevision"));
         suite.addTest(new StubAllTogether("testCreateOwnRevision"));
         suite.addTest(new StubAllTogether("testCheckoutRevision"));
         suite.addTest(new StubAllTogether("testLockFile"));
         suite.addTest(new StubAllTogether("testCreateBranch"));
         suite.addTest(new StubAllTogether("testVersioningExplorer"));
         
-        suite.addTest(new AdditionalFeatures("testViewOldRevision"));
-        suite.addTest(new AdditionalFeatures("testCompareRevisions"));
-        suite.addTest(new AdditionalFeatures("testAddToGroup"));
-        suite.addTest(new AdditionalFeatures("testCheckinGroup"));
-        suite.addTest(new AdditionalFeatures("testVerifyGroup"));
-*/        
+        suite.addTest(new StubAllTogether("testViewOldRevision"));
+        suite.addTest(new StubAllTogether("testCompareRevisions"));
+        suite.addTest(new StubAllTogether("testAddToGroup"));
+        suite.addTest(new StubAllTogether("testCheckinGroup"));
+        suite.addTest(new StubAllTogether("testVerifyGroup"));
+        
         suite.addTest(new StubAllTogether("testUnmount"));
         return suite;
     }
@@ -119,7 +119,7 @@ public class StubAllTogether extends PVCSStub {
     
     public void testAddSingleFile () {
 //        NewWizardOperator.create("Java Classes|Main", A_File.parent ().node (), A_File.name ());
-        A_File.save ("/** This is testing file.\n */\n\n public class Testing_File {\n\n }\n");
+        A_File.save ("/** This is testing file.\n */\n\n public class Testing_File {\n }\n");
         refresh (A_File.parent ());
         
         A_File.waitStatus ("Local");
@@ -150,13 +150,16 @@ public class StubAllTogether extends PVCSStub {
         addCommand.setChangeDescription("Initial revision.");
         addCommand.ok();
         addCommand.waitClosed ();
+        RuntimeCommand breakpoint = history.getBreakpoint();
         B_File.waitHistory ("Add");
+        history.setBreakpoint (breakpoint);
         D_File.waitHistory ("Add");
+        history.breakpoint();
         B_File.waitStatus ("Current");
         D_File.waitStatus ("Current");
     }
     
-    public void testAddFileWithLock() throws Exception {
+    public void testAddFileWithLock() {
         C_File.save ("Initial save");
 //        C_File.save (1, ""); // bug in add command - serial execution needed
         refresh (C_File.parent ());
@@ -193,7 +196,7 @@ public class StubAllTogether extends PVCSStub {
         A_File.waitStatus ("Current; 1.1");
     }
     
-    public void testModifyFile() throws Exception {
+    public void testModifyFile() {
         A_File.waitStatus ("Current; 1.1");
         A_File.save ("/** This is testing A_File.java file.\n */\n public class Testing_File {\n     int i;\n }\n");
 //        new OpenAction().perform(A_File.pvcsNode ());
@@ -201,7 +204,7 @@ public class StubAllTogether extends PVCSStub {
         A_File.waitStatus ("Locally Modified; 1.1");
     }
 
-    public void testViewDifferences() throws Exception {
+    public void testViewDifferences() {
         A_File.waitStatus ("Locally Modified; 1.1");
         A_File.pvcsNode ().pVCSDiff ();
         DiffCommandOperator diff = new DiffCommandOperator (A_File.filename (0));
@@ -213,15 +216,14 @@ public class StubAllTogether extends PVCSStub {
         try {
             out.println ("!!!! ==== Comparing revisions: HEAD and Local ==== !!!!");
             dumpDiffGraphical (tco);
+            compareReferenceFiles();
         } finally {
             tco.close();
             waitIsShowing(tco.getSource());
         }
-
-        compareReferenceFiles();
     }
     
-    public void testCheckinFile() throws Exception {
+    public void testCheckinFile() {
         A_File.waitStatus ("Locally Modified; 1.1");
         A_File.pvcsNode ().pVCSPut ();
         PutCommandOperator putCommand = new PutCommandOperator(A_File.filename (0));
@@ -234,7 +236,7 @@ public class StubAllTogether extends PVCSStub {
         assertTrue ("A_File remained read-write after check in", A_File.isNotWriteable());
     }
     
-    public void testViewHistory() throws Exception {
+    public void testViewHistory() {
         assertNotNull ("UserName field is null", username);
         StringFilter sf = new StringFilter ();
         sf.addReplaceAllFilter(username, "<username>");
@@ -262,7 +264,7 @@ public class StubAllTogether extends PVCSStub {
         coo.waitClosed();
     }
 
-    public void testUnlockFile() throws Exception {
+    public void testUnlockFile() {
         C_File.waitStatus ("Current; 1.1");
         C_File.waitLock (true);
         unlockFile (C_File, null, null, null);
@@ -270,7 +272,7 @@ public class StubAllTogether extends PVCSStub {
         C_File.waitLock (false);
     }
 
-    public void testGetMissingFile() throws Exception {
+    public void testGetMissingFile() {
         C_File.waitStatus ("Current");
         new DeleteAction().perform(C_File.pvcsNode ());
         assertConfirmObjectDeletionYes(null);
@@ -286,10 +288,192 @@ public class StubAllTogether extends PVCSStub {
         GetCommandOperator get = new GetCommandOperator (C_File.filename (0));
         get.ok ();
         get.waitClosed ();
+        C_File.waitHistory ("Get");
 
         C_File.waitStatus ("Current");
         C_File.waitLock (false);
-        assertTrue ("C_File remained read-write after check in", C_File.isNotWriteable());
+        assertTrue ("C_File remained read-write after check out", C_File.isNotWriteable());
+    }
+
+    public void testRemoveRevision() {
+        D_File.waitStatus ("Current");
+        D_File.pvcsNode ().pVCSRemoveRevision();
+        assertQuestionYesDialog("Are you sure you want to remove the last revision of the file \"" + D_File.filename (0) + "\"?");
+        RemoveCommandOperator removeCommand = new RemoveCommandOperator(D_File.filename (0));
+        removeCommand.ok();
+        removeCommand.waitClosed ();
+        D_File.waitHistory("Remove Revision");
+        assertInformationDialog("The last revision of the file \"D_File.java\" was removed successfully.");
+        String status = Utilities.isWindows() ? "Locally Modified" : "Current"; // Workaround until #27634 is fixed.
+        D_File.waitStatus (status);
+    }
+
+    public void testCreateOwnRevision() {
+        String status = Utilities.isWindows() ? "Locally Modified" : "Current"; // Workaround until #27634 is fixed.
+        D_File.waitStatus (status);
+        D_File.pvcsNode ().pVCSPut ();
+        PutCommandOperator putCommand = new PutCommandOperator(D_File.filename (0));
+        putCommand.setChangeDescription("Assigning own number.");
+        putCommand.checkCheckTheWorkfileInAndImmediatelyOut(true);
+        putCommand.setAssignARevisionNumber("2.0");
+        putCommand.setAssignAVersionLabel("My_Version");
+        putCommand.ok();
+        putCommand.waitClosed ();
+        D_File.waitHistory ("Put");
+        D_File.waitStatus ("Current");
+    }
+
+    public void testCheckoutRevision() {
+        D_File.waitStatus ("Current");
+        D_File.pvcsNode ().pVCSGet ();
+        GetCommandOperator getCommand = new GetCommandOperator(D_File.filename (0));
+        getCommand.setSpecificRevision("2.0");
+        getCommand.checkSetTheDateAndTimeOfTheFileToTheCurrentTime(true);
+        getCommand.ok();
+        getCommand.waitClosed ();
+        D_File.waitHistory ("Get");
+        D_File.pvcsNode ();
+        Date fileTime = new Date(new File (D_File.file ()).lastModified());
+        Date currentTime = new Date();
+        long timeGap = currentTime.getTime() - fileTime.getTime();
+        assertTrue ("Unable to set current time during checkout.", timeGap <= 10000);
+    }
+
+    public void testLockFile() {
+        D_File.waitStatus ("Current");
+        D_File.waitLock (false);
+        lockFile(D_File, null, null);
+        D_File.waitStatus ("Current; 2.1");
+        D_File.waitLock (true);
+    }
+
+    public void testCreateBranch() {
+        D_File.waitStatus ("Current; 2.1");
+        D_File.waitLock (true);
+        D_File.pvcsNode ().pVCSPut ();
+        PutCommandOperator putCommand = new PutCommandOperator(D_File.filename (0));
+        putCommand.setChangeDescription("Starting new branch.");
+        putCommand.checkCheckInTheWorkfileEvenIfUnchanged(true);
+        putCommand.checkApplyALockOnCheckout(true);
+        putCommand.setAssignAVersionLabel("MyBranch");
+        putCommand.checkFloatLabelWithTheTipRevision(true);
+        putCommand.checkStartABranch(true);
+        putCommand.ok();
+        putCommand.waitClosed ();
+        D_File.waitHistory ("Put");
+        D_File.waitStatus ("Current; 2.0.1.1");
+        D_File.waitLock (true);
+    }
+
+    public void testVersioningExplorer() {
+        closeAllVCSWindows();
+        D_File.waitStatus ("Current; 2.0.1.1");
+        D_File.waitLock (true);
+        D_File.pvcsNode ().versioningExplorer();
+        newVersioningFrame();
+        D_File.pvcsVersioningNode();
+        D_File.pvcsVersioningNode("|2.0  Assigning own number.|2.0.1|2.0.1.0  Starting new branch.").select();
+        closeAllVCSWindows();
+    }
+
+    public void testViewOldRevision() {
+        closeAllVCSWindows();
+        A_File.waitStatus ("Current");
+        A_File.pvcsNode ().versioningExplorer();
+        newVersioningFrame ();
+        A_File.pvcsVersioningNode("|1.1  Three lines have changed.").select();
+        new OpenAction().perform(A_File.pvcsVersioningNode("|1.0  Initial revision."));
+        String editorContents = new EditorOperator("A_File.java 1.0").getText();
+        info.println ("==== A_File 1.0 getText ====");
+        info.println (editorContents);
+        info.println ("========");
+        assertEquals ("Incorrect version of A_File was opened. - A_File.java 1.0 - not excepted file content", editorContents, "/** This is testing file.\n */\n\n public class Testing_File {\n }\n");
+        closeAllVCSWindows();
+    }
+
+    public void testCompareRevisions() {
+        closeAllVCSWindows();
+        A_File.waitStatus ("Current");
+        A_File.pvcsNode ().versioningExplorer();
+        newVersioningFrame();
+        A_File.pvcsVersioningNode("|1.0  Initial revision.");
+        new Action (null, "Diff").perform (
+            A_File.pvcsVersioningNode("|1.0  Initial revision.")
+        );
+        EditorWindowOperator ewo = new EditorWindowOperator ();
+        TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + A_File.filename (0));
+        try {
+            out.println ("!!!! ==== Comparing revisions: 1.0 and Local ==== !!!!");
+            dumpDiffGraphical (tco);
+            compareReferenceFiles();
+        } finally {
+            tco.close();
+            waitIsShowing(tco.getSource());
+        }
+//        String headRevisionContents = "/** This is testing file.\n */\n\n public class Testing_File {\n\n }\n";
+//        String workingRevisionContents = "/** This is testing A_File.java file.\n */\n\n public class Testing_File {\n     int i;\n }\n";
+    }
+
+    public void testAddToGroup() {
+        closeAllVCSWindows();
+        B_File.waitStatus ("Current");
+        B_File.pvcsNode ().includeInVCSGroupDefaultGroup();
+        openGroupsFrame();
+        B_File.pvcsGroupNode(DEFAULT_GROUP, " [Current]").select ();
+    }
+
+    public void testCheckinGroup() {
+        closeAllVCSWindows();
+        B_File.waitStatus ("Current");
+        B_File.pvcsNode ().pVCSGet ();
+        GetCommandOperator getCommand = new GetCommandOperator(B_File.filename (0));
+        getCommand.checkLockForTheCurrentUser(true);
+        getCommand.checkCheckOutWritableWorkfile(true);
+        getCommand.ok();
+        getCommand.waitClosed ();
+        B_File.waitHistory ("Get");
+        B_File.save ("/** This is testing B_File.java file.\n */\n public class B_File {\n     int i = 1;\n }\n");
+        openGroupsFrame();
+
+        closeAllProperties();
+        new PVCSFileNode (vgf.treeVCSGroupsTreeView(), DEFAULT_GROUP).select (); // stabilization
+        sleep (2000); // stabilization
+        new PVCSFileNode (vgf.treeVCSGroupsTreeView(), DEFAULT_GROUP).properties ();
+        PropertySheetOperator pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, DEFAULT_GROUP);
+        PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
+        new StringProperty(pst, "Description").setStringValue("Checked in from VCS group.");
+        sleep (2000); // stabilization
+        pso.close ();
+        
+        new PVCSFileNode (vgf.treeVCSGroupsTreeView(), DEFAULT_GROUP).pVCSPut ();
+        PutCommandOperator putCommand = new PutCommandOperator(B_File.filename (0));
+        String changeDescription = putCommand.getChangeDescription();
+        out.println ("DEFAULT_GROUP - Put Description: " + changeDescription); // "Checked in from VCS group.\n"
+        putCommand.ok();
+        putCommand.waitClosed ();
+        B_File.waitHistory ("Put");
+        
+        closeAllVCSWindows ();
+        B_File.pvcsNode ().versioningExplorer();
+        newVersioningFrame();
+        B_File.pvcsVersioningNode(".java [Current]");
+        new RefreshRevisionsAction ().perform (B_File.pvcsVersioningNode ());
+        B_File.waitHistory ("REVISION_LIST");
+        B_File.pvcsVersioningNode (" [Current]|1.1  Checked in from VCS group.").select();
+        
+        compareReferenceFiles();
+    }
+
+    public void testVerifyGroup() {
+        closeAllVCSWindows();
+        openGroupsFrame();
+        vgf.verifyVCSGroup(DEFAULT_GROUP);
+        GroupVerificationOperator verifyDialog = new GroupVerificationOperator();
+        verifyDialog.checkRemoveFilesFromGroup(true);
+        dumpVerifyGroupTable(verifyDialog.tabNotChangedFiles());
+        verifyDialog.correctGroup();
+        verifyDialog.waitClosed ();
+        new Node (vgf.treeVCSGroupsTreeView(), DEFAULT_GROUP).waitChildNotPresent(B_File.name ());
     }
 
 }
