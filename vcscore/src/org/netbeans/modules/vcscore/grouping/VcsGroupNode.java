@@ -81,7 +81,7 @@ public class VcsGroupNode extends AbstractNode {
  */
 
     // Create the popup menu:
-    protected SystemAction[] createActions() {
+    public SystemAction[] getActions() {
         Node[] childs = getChildren().getNodes();
         Set actions = new HashSet();
         HashMap map = new HashMap();
@@ -155,7 +155,7 @@ public class VcsGroupNode extends AbstractNode {
         toReturn[toReturn.length - 1] = SystemAction.get (PropertiesAction.class);
         return toReturn;
     }
-
+    
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
         // When you have help, change to:
@@ -294,6 +294,7 @@ public class VcsGroupNode extends AbstractNode {
         retValue = super.getCookie(clazz);
         return retValue;
     }
+    
     
     private static class ShadowOnlyDataFilter implements DataFilter {
         
