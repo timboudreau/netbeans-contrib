@@ -3696,11 +3696,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
             synchronized (lockCommandExecutors) {
                 VcsCommandExecutor[] executors = (VcsCommandExecutor[]) lockCommandExecutors.get(filePath);
-                int i;
-                for (i = 0; i < executors.length; i++) {
-                    if (getCommandsPool().isRunning(executors[i])) break;
+                if (executors != null) {
+                    int i;
+                    for (i = 0; i < executors.length; i++) {
+                        if (getCommandsPool().isRunning(executors[i])) break;
+                    }
+                    if (i == executors.length) lockCommandExecutors.remove(filePath);
                 }
-                if (i == executors.length) lockCommandExecutors.remove(filePath);
                 if (shouldLock(name)) {
                     if (isPromptForLockOn ()) {
                         VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
