@@ -157,9 +157,13 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
 
     private InputStream lookupClass() throws IOException {
 	InputStream is = null;
-	ClassPath classPath = ClassPath.getClassPath(null, ClassPath.EXECUTE);
 	String resName = className.getInternalName() + ".class";
+	ClassPath classPath = ClassPath.getClassPath(null, ClassPath.COMPILE);
 	FileObject fo = classPath.findResource(resName);
+	if (fo == null) {
+	    classPath = ClassPath.getClassPath(null, ClassPath.EXECUTE);
+	    fo = classPath.findResource(resName);
+	}
 	is = (fo != null)
 	    ? fo.getInputStream() 
 	    : getClass().getClassLoader().getResourceAsStream(resName);
