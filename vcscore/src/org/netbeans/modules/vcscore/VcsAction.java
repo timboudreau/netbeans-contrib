@@ -1100,10 +1100,12 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
         if (module.length() > 0) {
             module = module.replace('/', separatorChar);
-            module += separatorChar;
             module = valueAdjustment.adjustVarValue(module);
         }
         vars.put("MODULE", module);
+        if (module.length() > 0) {
+            module += separatorChar;
+        }
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
         vars.put("DIR", path); // NOI18N
