@@ -57,7 +57,7 @@ public class FilesystemSettings extends NbTestCase {
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
         suite.addTest(new FilesystemSettings("testAnnotationPattern"));
-//        suite.addTest(new FilesystemSettings("testCommandNotification"));
+        suite.addTest(new FilesystemSettings("testCommandNotification"));
         suite.addTest(new FilesystemSettings("testProcessAllFiles"));
         return suite;
     }
@@ -119,6 +119,7 @@ public class FilesystemSettings extends NbTestCase {
         createFile(workingDirectory + File.separator + "A_File.java", true);
         createFile(workingDirectory + File.separator + "A_File.class", true);
         api.getFilesystemsTab();
+        APIController.sleep(20000);
         selectNode(new String[] {filesystem, "A_File"}, false);
     }
     /** Creates new file or directory at given place.
@@ -127,9 +128,13 @@ public class FilesystemSettings extends NbTestCase {
      * @throws Any unexpected exception thrown during test.
      */
     public void createFile(String name, boolean isFile) throws Exception {
-        File file = new File(name);
-        if (isFile) file.createNewFile();
-        else file.mkdirs();
+        if (isFile) {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(name));
+            writer.write("/** This is testing file.\n */\n\n public class Testing_File {\n }\n");
+            writer.flush();
+            writer.close();
+        }
+        else new File(name).mkdirs();
     }
     /** Checks whether "Annotation Pattern" property works correctly.
      * @throws Any unexpected exception thrown during test.
@@ -149,7 +154,7 @@ public class FilesystemSettings extends NbTestCase {
         String node = filesystem + "|>> A_File [No] <<";
         assertNotNull("Can't select " + node, api.getFilesystemsTab().selectNode(node));
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        MainFrame.getMainFrame().pushMenuNoBlock(UNMOUNT_MENU);
+        MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
         System.out.println(". done !");
     }
     
@@ -181,8 +186,8 @@ public class FilesystemSettings extends NbTestCase {
             fail("Command Notification property does not work.");
         } catch (org.netbeans.jemmy.TimeoutExpiredException e) {}
         JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        MainFrame.getMainFrame().pushMenuNoBlock(UNMOUNT_MENU);
+        selectNode(new String[] {filesystem}, true);
+        MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
         System.out.println(". done !");
     }
 
@@ -190,7 +195,7 @@ public class FilesystemSettings extends NbTestCase {
      * @throws Any unexpected exception thrown during test.
      */
     public void testProcessAllFiles() throws Exception {
-        System.out.print(".. Testing command notification property ..");
+        System.out.print(".. Testing process all files property ..");
         filesystem = "Empty " + workingDirectory;
         mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
         APIController.sleep(2000);
@@ -206,7 +211,9 @@ public class FilesystemSettings extends NbTestCase {
         CommandsHistory commandsHistory = new CommandsHistory();
         if (!commandsHistory.compareProcessedFiles("A_File.class", filesystem, "Lock"))
             throw new Exception("Error: Wrong processed files of Lock command.");
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        MainFrame.getMainFrame().pushMenuNoBlock(UNMOUNT_MENU);
+        api.getFilesystemsTab();
+        selectNode(new String[] {filesystem}, true);
+        MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
+        System.out.println(". done !");
     }
 }
