@@ -21,46 +21,54 @@ Microsystems, Inc. All Rights Reserved.
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="../nbbuild/standard-nbm-license.txt"/>
+  <property name="license.file" value="${nbext}/standard-nbm-license.txt"/>
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
 
-  <target name="prepare-lib">
-    <ant dir="../jemmy/" target="jar"/>
+  <target name="compile-lib">
+    <ant dir="${nbroot}/jemmy/" target="jar"/>
     <mkdir dir="netbeans/modules/ext"/>
-    <copy file="../jemmy/jemmy.jar" tofile="netbeans/modules/ext/jemmy.jar" filtering="off"/>
+    <copy file="${nbroot}/jemmy/jemmy.jar" tofile="netbeans/modules/ext/jemmy.jar" filtering="off"/>
   </target>
 
-  <target name="compile" depends="prepare-lib">
+  <target name="compile" depends="compile-lib">
   <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath>
         <pathelement location="netbeans/modules/ext/jemmy.jar"/>
         <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
-        <fileset dir="${nbroot}/openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
+        <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar" />
         <!-- Hopefully set up by nbbuild/build.xml: -->
         <pathelement location="${jdkhome}/lib/tools.jar"/>
       </classpath>
     </javac>
   </target>
-
-  <target name="prepare-docs">
-      <ant dir="../jemmy/" target="api"/>
+  
+  <target name="javadoc" unless="jemmy.javadoc.uptodate">
+      <ant dir="${nbroot}/jemmy/" target="api"/>
       <mkdir dir="netbeans/docs"/>
       <zip zipfile="netbeans/docs/jemmy-javadoc.zip"
-             basedir="../jemmy/www/javadoc"
+             basedir="${nbroot}/jemmy/www/javadoc"
              compress="true">
       </zip>
   </target>
 
-  <target name="jars" depends="compile,prepare-docs">
-    <mkdir dir="netbeans/modules"/>
-    <!-- tstamp>
+  <target name="prepare-docs">
+      <uptodate property="jemmy.javadoc.uptodate" targetfile="netbeans/docs/jemmy-javadoc.zip" >
+  	      <srcfiles dir= "${nbroot}/jemmy/src" includes="**/*.java"/>
+      </uptodate>
+      <antcall target="javadoc"/>
+  </target>
+
+  <target name="timestamp" unless="buildnumber">
+    <tstamp>
         <format property="buildnumber" pattern="yyyyMMddhhmm"/>
-    </tstamp -->
+    </tstamp>
+  </target>
+    
+  <target name="jars" depends="compile,prepare-docs,timestamp">
+    <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     <locjar jarfile="netbeans/modules/jemmysupport.jar"
@@ -79,15 +87,15 @@ Microsystems, Inc. All Rights Reserved.
     <makenbm file="jemmysupport.nbm"
              topdir="."
              module="netbeans/modules/jemmysupport.jar"
-	     homepage="http://jemmy.${homepage.base}"
-	     distribution="http://${dist.base}/jemmysupport.nbm">
+	         homepage="http://jemmy.${homepage.base}"
+	         distribution="http://${dist.base}/jemmysupport.nbm">
       <license file="${license.file}"/>
 <!--      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/> -->
     </makenbm>
   </target>
 
   <target name="realclean" depends="clean">
-    <ant dir="../jemmy/" target="clean"/>
+    <ant dir="${nbroot}/jemmy/" target="clean"/>
   </target>
 
   <target name="clean">
