@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -57,8 +57,9 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
 import org.netbeans.spi.project.ui.support.LogicalViews;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
-import org.netbeans.spi.project.Sources;
-import org.netbeans.spi.project.SourceGroup;
+import org.netbeans.api.project.Sources;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.ProjectUtils;
 
 
 /**
@@ -1331,17 +1332,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             if (projects.contains(project)) continue;
             projects.add(project);
 
-            Sources sources = (Sources) project.getLookup().lookup(Sources.class);
-            if (sources == null) {
-//                LogicalViewProvider viewProvider = LogicalViews.physicalView(project);
-//                kids.add(new Node[] {viewProvider.createLogicalView()});  // TODO #41718 filter out dist, build and nbproject J2SE project output folders
-            } else {
+            Sources sources = ProjectUtils.getSources(project);
                 SourceGroup[] group =sources.getSourceGroups(Sources.TYPE_GENERIC);
                 for (int i=0; i<group.length; i++) {
                     FileObject folder = group[i].getRootFolder();
                     if (folder.isFolder() == false) continue;
                     kids.add(new Node[] {new FolderNode(folder)});
-
+                    // XXX use SourceGroup getter methods
                     if (icons == null) {
                         try {
                             DataObject dobj = DataObject.find(folder);
@@ -1351,7 +1348,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                         }
                     }
                 }
-            }
         }
         final Node content = new AbstractNode(kids) {
             public void setName(String name) {
