@@ -21,6 +21,8 @@ import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.util.NbBundle;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -49,7 +51,7 @@ public final class TaskTagsPanel extends javax.swing.JPanel
         this.tags = tags;
 
         TaskTag[] tagy = tags.getTags();
-        model = new DefaultTableModel(new Object[0][0], new String[] {"Pattern", "Priority"}) {
+        model = new DefaultTableModel(new Object[0][0], new String[] {Util.getString("pat-col"), Util.getString("pri-col")}) {
             Class[] types = new Class [] {
                 String.class, SuggestionPriority.class
             };
@@ -70,6 +72,12 @@ public final class TaskTagsPanel extends javax.swing.JPanel
             });
         }
         patternsTable.setModel(model);
+
+        patternsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                updateSensitivity();
+            }
+        });
 
         TableColumn sportColumn = patternsTable.getColumnModel().getColumn(1);
         JComboBox combo = new JComboBox();
@@ -269,18 +277,26 @@ public final class TaskTagsPanel extends javax.swing.JPanel
     public void actionPerformed(ActionEvent actionEvent) {
         Object source = actionEvent.getSource();
         if (source == addButton) {
-            NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine("Pattern", "New Task Pattern");
+            NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine(Util.getString("pat-col"), Util.getString("new-pat"));
             DialogDisplayer.getDefault().notify(d);
-            String text = d.getInputText();
-            model.addRow(new Object[] {text, SuggestionPriority.MEDIUM});
+            if (d.getValue() == NotifyDescriptor.OK_OPTION) {
+                String text = d.getInputText();
+                if (text.length() > 0) {
+                    model.addRow(new Object[] {text, SuggestionPriority.MEDIUM});
+                }
+            }
         } else if (source == changeButton) {
             int row = patternsTable.getSelectedRow();
             String pattern = (String) model.getValueAt(row, 0);
-            NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine("Pattern", "Edit Task Pattern");
+            NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine(Util.getString("pat-col"), Util.getString("edit-pat"));
             d.setInputText(pattern);
             DialogDisplayer.getDefault().notify(d);
-            String text = d.getInputText();
-            model.setValueAt(text, row, 0);
+            if (d.getValue() == NotifyDescriptor.OK_OPTION) {
+                String text = d.getInputText();
+                if (text.length() > 0) {
+                    model.setValueAt(text, row, 0);
+                }
+            }
         } else if (source == deleteButton) {
             int row = patternsTable.getSelectedRow();
             model.removeRow(row);

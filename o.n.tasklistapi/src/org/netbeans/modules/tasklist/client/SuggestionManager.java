@@ -116,6 +116,9 @@ abstract public class SuggestionManager {
      *       should be worded so that we get a consistent set of
      *       descriptions.
      *
+     * @todo Support multiple actions solving found problems instead
+     *       of current practice (reporting it as several suggestions).
+     *
      */
     abstract public Suggestion createSuggestion(String type,
                                                 String summary,
