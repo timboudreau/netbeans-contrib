@@ -169,18 +169,13 @@ class ReferenceScanner extends Scanner implements ByteCodes {
                         // Find number of unique table addresses.
                         // The default path is skipped so we find the
                         // number of alternative paths here.
-                        BitSet bitset = new BitSet();
+                        Set set = new HashSet();
                         int length = (int)(high - low + 1);
                         for (int i = 0; i < length; i++) {
                             int jumpAddr = (int)intAt (tbl, i) + offset;
-                            bitset.set( jumpAddr );
+                            set.add(new Integer(jumpAddr));
                         }
-                        length = bitset.length();
-                        for (int i = 0; i < length; i++) {
-                            if ( bitset.get(i) ) {
-                                codePaths++;
-                            }
-                        }
+                        codePaths += set.size();
 
 			offset = tbl + (int)((high - low + 1) << 2);
 			break;
@@ -193,18 +188,13 @@ class ReferenceScanner extends Scanner implements ByteCodes {
 			tbl += 2 << 2; 			// two int header
 
                         // Find number of unique table addresses
-                        BitSet bitset = new BitSet();
+                        Set set = new HashSet();
                         for (int i = 0; i < nints; i += 2) {
                             // use the address half of each pair
                             int jumpAddr = (int)intAt (tbl, i + 1) + offset;
-                            bitset.set( jumpAddr );
+                            set.add(new Integer(jumpAddr));
                         }
-                        int length = bitset.length();
-                        for (int i = 0; i < length; i++) {
-                            if ( bitset.get(i) ) {
-                                codePaths++;
-                            }
-                        }
+                        codePaths += set.size();
                         
 			offset = tbl + (nints << 2);
 			break;
