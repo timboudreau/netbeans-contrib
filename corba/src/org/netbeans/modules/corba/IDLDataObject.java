@@ -1007,7 +1007,7 @@ public class IDLDataObject extends MultiDataObject
                     __params += " -I\"" + __file_system.getDisplayName() + "\"";
             }
  */
-            __params += " -I\"" + FileUtils.getRealPackageName(this.getPrimaryFile()) + "\"";
+            __params += " -W\"" + FileUtils.getRealPackageName(this.getPrimaryFile()) + "\"";
             __params += " \"" + __file_name + "\"";
             if (DEBUG)
                 System.out.println("cpp params: " + __params);

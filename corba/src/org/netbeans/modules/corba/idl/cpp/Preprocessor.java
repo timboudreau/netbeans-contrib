@@ -400,10 +400,7 @@ public class Preprocessor {
         if (pos < str.length ())
             error ("Include command expects one argument only: " + str);
         else {
-            if (file != null)
-                new Preprocessor (file.getParent(), fn, defines, sysDirs, output, _systemFile).perform ();
-            else if (fobj != null)
-                new Preprocessor (FileUtils.getRealFileName(fobj.getParent()), fn, defines, sysDirs, output, _systemFile).perform ();
+            new Preprocessor (pwd, fn, defines, sysDirs, output, _systemFile).perform ();
             output.println ("# " + line + " \"" + filename + "\" 2");
             lineHeight = 1;
         }
@@ -1257,17 +1254,23 @@ public class Preprocessor {
     }
     
     private BufferedReader getInput() throws PreprocessorException {
-        if (systemFile) {
+        file = null;
+        if (!systemFile) {
+            if (filename != null) {
+                file = new File (filename);
+                if (!file.isAbsolute())
+                    file = new File (pwd, filename);
+            }
+            if (file != null  &&  (!file.exists ()  ||  !file.isFile ()  ||  !file.canRead ()))
+                file = null;
+        }
+        if (file == null) {
             for (int a = 0; a < sysDirs.length; a ++) {
                 file = new File (sysDirs[a], filename);
                 if (file != null  &&  file.exists ()  &&  file.isFile()  &&  file.canRead ())
                     break;
                 file = null;
             }
-        } else {
-            file = new File (pwd, filename);
-            if (file != null  &&  (!file.exists ()  ||  !file.isFile ()  ||  !file.canRead ()))
-                file = null;
         }
         if (file != null) {
             try {
