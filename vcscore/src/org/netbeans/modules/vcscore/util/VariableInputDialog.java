@@ -810,7 +810,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                             disablerVars.add(variable);
                             disabledComponents.put(components[j], disablerVars);
                         }
-                        if (enable && disablerVars != null) enable = false;
+                        //if (enable && disablerVars != null) enable = false;
                         //System.err.println("  components["+j+"] = "+enable);
                         //System.err.print("  "+components[j].getClass()+", "+components[j].hashCode());
                         /*
@@ -821,7 +821,31 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         }
                         System.out.println("  disabledComponents = "+disabledComponents.get(components[j]));
                          */
-                        components[j].setEnabled(enable);
+                        components[j].setEnabled(enable && disablerVars == null);
+                        VariableInputComponent vic = (VariableInputComponent) componentsByVars.get(vars[i]);
+                        if (vic != null) {
+                            VariableInputComponent[] svic = vic.subComponents();
+                            if (svic.length > 0) {
+                                //String[] svars = new String[svic.length];
+                                List svars = new ArrayList();
+                                for (int k = 0; k < svic.length; k++) {
+                                    String varName = svic[k].getVariable();
+                                    if (svic[k].getComponent() == VariableInputDescriptor.INPUT_RADIO_BTN) {
+                                        //String subValue = svic[k].getValue();
+                                        //varName += "/"+((subValue == null) ? "" : subValue);
+                                        VariableInputComponent[] ssvic = svic[k].subComponents();
+                                        for (int l = 0; l < ssvic.length; l++) {
+                                            svars.add(ssvic[l].getVariable());
+                                        }
+                                    } else if (!varName.equals(vars[i])) {
+                                        svars.add(varName);
+                                    }
+                                }
+                                if (svars.size() > 0) {
+                                    enableComponents((String[]) svars.toArray(new String[0]), enable, variable);
+                                }
+                            }
+                        }
                     }
                 }
             }
