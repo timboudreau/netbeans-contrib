@@ -248,7 +248,8 @@ public class SourceCodeCommentParser {
                     if (idx != java.lang.Integer.MAX_VALUE) {
                         // This line contains the start of a comment!!!!
                         if (idx == lineIdx) {
-                            ret.line = line.substring(idx + lineComment.length());
+                            // XXX " " is a shortcut for #38651
+                            ret.line = " " + line.substring(idx + lineComment.length());
                             ret.lineno = lineno;
                             return true;
                         } else {
@@ -273,8 +274,9 @@ public class SourceCodeCommentParser {
                     line = line.substring(0, idx);
                     inComment = false;
                 }
-                
-                ret.line = line;
+
+                // XXX " " is a shortcut for #38651
+                ret.line = " " + line;
                 ret.lineno = lineno;
                 return true;
             }
