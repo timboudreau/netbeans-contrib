@@ -60,7 +60,7 @@ Microsystems, Inc. All Rights Reserved.
         <makenbm file="tasklist-api.nbm"
                  productdir="${netbeans.dest.dir}/${cluster.dir}"
                  module="${nb.modules/autoload.dir}/tasklist-api.jar"
-                 homepage="http://tasklist.${homepage.base}/"
+                 homepage="http://tasklist.${homepage.base}/updates/tasklist-api.html"
                  distribution="http://${dist.base}/tasklist-api.nbm"
                  needsrestart="false">
             <license file="${license.file}"/>
@@ -68,6 +68,10 @@ Microsystems, Inc. All Rights Reserved.
         </makenbm>
     </target>
   
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-api.html" style="../www/updates/updates.xsl"/>
+    </target>
+    
     <target name="clean" depends="init">
         <delete>
             <fileset dir="." includes="**/*.class"/>

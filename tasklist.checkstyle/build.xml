@@ -79,15 +79,18 @@ Microsystems, Inc. All Rights Reserved.
         <makenbm file="../tasklist-checkstyle.nbm"
                  topdir="."
                  module="netbeans/modules/eager/tasklist-checkstyle.jar"
-                 homepage="http://tasklist.${homepage.base}/"
+                 homepage="http://tasklist.${homepage.base}/updates/tasklist-checkstyle.html"
                  distribution="http://${dist.base}/tasklist-checkstyle.nbm"
                  needsrestart="false">
             <license file="${license.file}"/>
-            <notification file="module-updates.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
-  
+
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-checkstyle.html" style="../www/updates/updates.xsl"/>
+    </target>
+      
     <target name="clean">
         <delete>
             <fileset dir="src">

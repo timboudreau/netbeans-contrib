@@ -75,7 +75,7 @@ Microsystems, Inc. All Rights Reserved.
         <makenbm file="../tasklist-html.nbm"
                  topdir="."
                  module="netbeans/modules/tasklist-html.jar"
-                 homepage="http://tasklist.${homepage.base}/"
+                 homepage="http://tasklist.${homepage.base}/updates/tasklist-html.html"
                  distribution="http://${dist.base}/tasklist-html.nbm"
                  needsrestart="false">
             <license name="tasklist-html-license.txt">
@@ -84,11 +84,14 @@ Microsystems, Inc. All Rights Reserved.
                 <text>For the Java HTML Tidy library:</text>
                 <file location="../external/jtidy-license.txt"/>
             </license>
-            <notification file="module-updates.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
   
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-html.html" style="../www/updates/updates.xsl"/>
+    </target>
+    
     <target name="clean">
         <delete>
             <fileset dir="src">

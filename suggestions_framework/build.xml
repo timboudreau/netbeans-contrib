@@ -63,7 +63,7 @@ Microsystems, Inc. All Rights Reserved.
         <makenbm file="suggestions-framework.nbm"
                  productdir="${netbeans.dest.dir}/${cluster.dir}"
                  module="${nb.modules/autoload.dir}/suggestions-framework.jar"
-                 homepage="http://tasklist.${homepage.base}/"
+                 homepage="http://tasklist.${homepage.base}/updates/suggestions-framework.html"
                  distribution="http://${dist.base}/suggestions-framework.nbm"
                  needsrestart="false">
             <license file="${license.file}"/>
@@ -71,6 +71,10 @@ Microsystems, Inc. All Rights Reserved.
         </makenbm>
     </target>
   
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/suggestions-framework.html" style="../www/updates/updates.xsl"/>
+    </target>
+    
     <target name="clean" depends="init">
         <delete>
             <fileset dir="src">

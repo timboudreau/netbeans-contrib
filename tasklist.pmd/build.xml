@@ -83,15 +83,19 @@ Microsystems, Inc. All Rights Reserved.
         <makenbm file="../tasklist-pmd.nbm"
                  topdir="."
                  module="netbeans/modules/eager/tasklist-pmd.jar"
-                 homepage="http://tasklist.${homepage.base}/"
+                 homepage="http://tasklist.${homepage.base}/updates/tasklist-pmd.html"
                  distribution="http://${dist.base}/tasklist-pmd.nbm"
                  needsrestart="false">
-            <license file="${license.file}"/>
-            <notification file="module-updates.txt"/>
+            <license file="${license.file}"/>            
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
- 
+
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-pmd.html" style="../www/updates/updates.xsl"/>
+    </target>
+    
+     
     <target name="release"/>
     <target name="javahelp"/>
  

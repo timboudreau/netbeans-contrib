@@ -10,15 +10,13 @@ http://www.sun.com/
 The Original Code is NetBeans. The Initial Developer of the Original
 Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
--->
-
-<project name="tasklist/copyright" default="netbeans" basedir=".">
+--><project basedir="." default="netbeans" name="tasklist/copyright">
 
     <property name="nb_all" value="../.."/>
 
-    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+    <taskdef classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="makenbm"/>
+    <taskdef classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="genlist"/>
+    <taskdef classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar" name="locjar"/>
 
     <property name="nbm_alias" value="nb_ide"/>
     <property name="homepage.base" value="netbeans.org"/>
@@ -27,7 +25,7 @@ Microsystems, Inc. All Rights Reserved.
     <property file="../version.properties"/>
   
     <target name="compile">
-        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
+        <javac debug="${build.compiler.debug}" deprecation="${build.compiler.deprecation}" destdir="src" source="1.4" srcdir="src">
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
                 <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
@@ -42,38 +40,35 @@ Microsystems, Inc. All Rights Reserved.
         </javac>
     </target>
 
-    <target name="jars" depends="compile">
+    <target depends="compile" name="jars">
         <mkdir dir="netbeans/modules"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../version.properties"/>
         <filter token="tl.copyright.spec" value="${tl.copyright.spec}"/>
-        <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/tasklist-copyright.jar"
-                manifest="manifest-subst.mf"
-                basedir="src"
-	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	        compress="false">
+        <copy file="manifest.mf" filtering="on" tofile="manifest-subst.mf"/>
+        <locjar basedir="src" compress="false" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt" jarfile="netbeans/modules/tasklist-copyright.jar" manifest="manifest-subst.mf">
             <locale name="ja"/>
         </locjar>
     </target>
 
-    <target name="netbeans" depends="jars">
-        <genlist targetname="nbm" outputfiledir="netbeans"/>
+    <target depends="jars" name="netbeans">
+        <genlist outputfiledir="netbeans" targetname="nbm"/>
     </target>
 
-    <target name="nbm" depends="netbeans">
-        <makenbm file="../tasklist-copyright.nbm"
-                 topdir="."
-                 module="netbeans/modules/tasklist-copyright.jar"
-                 homepage="http://tasklist.${homepage.base}/"
-                 distribution="http://${dist.base}/tasklist-docscan.nbm"
-                 needsrestart="false">
+    <target depends="netbeans" name="nbm">
+        <makenbm distribution="http://${dist.base}/tasklist-copyright.nbm" file="../tasklist-copyright.nbm" 
+            homepage="http://tasklist.${homepage.base}/updates/tasklist-copyright.html" 
+            module="netbeans/modules/tasklist-copyright.jar" 
+            needsrestart="false" topdir=".">
             <license file="${license.file}"/>
-            <notification file="module-updates.txt"/>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+            <signature alias="${nbm_alias}" keystore="${keystore}" storepass="${storepass}"/>
         </makenbm>
     </target>
   
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-copyright.html" style="../www/updates/updates.xsl"/>
+    </target>
+    
     <target name="clean">
         <delete>
             <fileset dir="src">
@@ -94,7 +89,7 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <!-- This target will only work *inside* the IDE! -->
-    <target name= "test" depends="jars" description="Test the module inside the running IDE." >
+    <target depends="jars" description="Test the module inside the running IDE." name="test">
        <nbinstaller action="reinstall" module="netbeans/modules/tasklist-copyright.jar"/>
     </target>
 </project>

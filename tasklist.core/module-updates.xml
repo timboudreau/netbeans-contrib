@@ -1,0 +1,7 @@
+<updates>
+    <update version="1.21">
+        <change>Filtering dialog polished</change>
+        <change>Several memory leaks eliminated</change>
+    </update>
+</updates>
+    

@@ -1,0 +1,16 @@
+<updates>
+    <update version="1.3">
+    <change>Forgot to include the HTML Tidy library in the NBM.</change>
+    </update>
+
+    <update version="1.0">
+    <change>NetBeans 3.5 version</change>
+    </update>
+
+    <update version="0.8.31">
+    <change>Fix HTML Rewrite action such that it can operate on not-yet-open
+    data objects (it opens the document before processing it.)</change>
+    <change>Also change action name to something a little bit more meaningful:
+    JTidy: Clean up &amp; Format...</change>
+    </update>
+</updates>

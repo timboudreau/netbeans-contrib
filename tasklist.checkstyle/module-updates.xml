@@ -1,0 +1,9 @@
+<updates>
+    <update version="0.10">
+        <change>Works also for unsaved modified documents</change>
+    </update>
+
+    <update version="0.1">
+        <change>First version.</change>
+    </update>
+</updates>

@@ -1,0 +1,25 @@
+<updates>
+    <update version="1.12">
+    <change>Dedicated window for source TODOs introduced. It
+    can be opened from Window menu or toolbar.
+    It shows only source tasks for either all files
+    or current file.</change>
+    <change>Copyright suggestions moved to separate module</change>
+    </update>
+
+    <update version="1.7">
+    <change>Major cleanup - should be quite a bit more efficient now</change>
+    <change>Also use JDK1.4 regex library instead of org.apache.regexp</change>
+    </update>
+
+    <update version="1.4">
+    <change>Allow missing-copyright suggestions to automatically insert
+    copyrights chosen by the user</change>
+    </update>
+
+    <update version="1.3">
+    <change>Add CVS merge conflict tag to default tag list (&lt;&lt;&lt;&lt;&lt;&lt;&lt;)
+    with high priority</change>
+    </update>
+
+</updates>

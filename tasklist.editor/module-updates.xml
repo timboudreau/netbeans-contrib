@@ -1,0 +1,22 @@
+<updates>
+
+    <update version="1.4">
+    <change>Editor implementation independent functionality moved to core,
+    now it holds just one NetBeans editor and UserTasks
+    module depenedent action.</change>
+    </update>
+
+    <update version="1.3">
+    <change>Use new Line API</change>
+    </update>
+
+    <update version="1.2">
+    <change>Fix bug 32100 - handle New Task correctly when the current source
+    in the source file is inside a .jar file</change>
+    </update>
+
+    <update version="1.0">
+    <change>NetBeans 3.5 version</change>
+    </update>
+
+</updates>

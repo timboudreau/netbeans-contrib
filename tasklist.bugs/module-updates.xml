@@ -1,0 +1,11 @@
+<updates>
+    <update version="0.10">
+        <change>removed icon from the toolbar "tasklist"</change>
+    </update>
+    
+    <update version="0.6.19">
+        <change>Bugzilla &amp; issuezilla integration</change>
+        <change>New Query designer &amp; action</change>
+    </update>
+</updates>
+

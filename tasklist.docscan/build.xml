@@ -64,7 +64,7 @@ Microsystems, Inc. All Rights Reserved.
         <makenbm file="tasklist-docscan.nbm"
                  productdir="${netbeans.dest.dir}/${cluster.dir}"
                  module="${nb.modules.dir}/tasklist-docscan.jar"
-                 homepage="http://tasklist.${homepage.base}/"
+                 homepage="http://tasklist.${homepage.base}/updates/tasklist-docscan.html"
                  distribution="http://${dist.base}/tasklist-docscan.nbm"
                  needsrestart="false">
             <license file="${license.file}"/>
@@ -72,7 +72,11 @@ Microsystems, Inc. All Rights Reserved.
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
-  
+
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-docscan.html" style="../www/updates/updates.xsl"/>
+    </target>
+      
     <target name="clean" depends="init">
         <delete>
             <fileset dir="src">
