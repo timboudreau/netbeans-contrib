@@ -42,7 +42,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   implements AbstractFileSystem.List, AbstractFileSystem.Info,
   AbstractFileSystem.Change, FileSystem.Status, Serializable {
 
-  private Debug E=new Debug("CommandLineVcsFileSystem",true );
+  private Debug E=new Debug("CommandLineVcsFileSystem", false);
   private Debug D=E;
 
   private static final int REFRESH_TIME = 0;
@@ -607,6 +607,29 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   }
 
 
+  // create local folder for existing VCS folder that is missing
+  private void checkLocalFolder (String name) throws java.io.IOException {
+    StringTokenizer st = new java.util.StringTokenizer (name, "/");
+    String dir = null;
+    while(st.hasMoreElements()) {
+      dir = dir==null ? (String) st.nextElement () : dir + "/" + (String) st.nextElement ();
+      File f = getFile (dir);
+      if(f.exists ()) continue;
+      
+      Object[] errorParams = new Object[] {
+        f.getName (),
+        getDisplayName (),
+        f.toString ()
+      };
+        
+      boolean b = f.mkdir();
+      if (!b) {
+        throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"), errorParams));
+      }
+      D.deb ("local dir created='"+dir+"'");
+    } 
+  }
+  
   //-------------------------------------------
   //
   // Change
@@ -639,6 +662,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
       throw new IOException(MessageFormat.format (g("EXC_FolderAlreadyExist"), errorParams));
     }
     
+    checkLocalFolder (name.substring (0, name.lastIndexOf ("/")));
+    
     boolean b = f.mkdir();
     if (!b) {
       throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"), errorParams));
@@ -669,6 +694,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
       f.toString (),
     };
 
+    checkLocalFolder (name.substring (0, name.lastIndexOf ("/")));
+    
     if (!f.createNewFile ()) {
       throw new IOException(MessageFormat.format (g("EXC_DataAlreadyExist"), errorParams));
     }
@@ -734,11 +761,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------  
   /* Test whether this file can be written to or not.
+   * All folders are not read only, they are created before writting into them.
    * @param name the file to test
    * @return <CODE>true</CODE> if file is read-only
    */
   public boolean readOnly (String name) {
     //D.deb("readOnly('"+name+"')");
+    if(folder(name)) return false;
     return !getFile (name).canWrite ();
   }
   
@@ -802,6 +831,19 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
    */
   public void lock (String name) throws IOException {
     D.deb("lock('"+name+"')");
+    VcsFile vcsFile = cache.getFile (name);
+    // *.orig is a temporary file created by AbstractFileObject 
+    // on saving every file to enable undo if saving fails
+    if(vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return;
+    else {
+      D.deb ("on file:"+vcsFile.toString());
+      NotifyDescriptor.Confirmation confirm = new NotifyDescriptor.Confirmation ("Do you wish to lock the file for changes ?", NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
+      if(TopManager.getDefault ().notify (confirm).equals (NotifyDescriptor.Confirmation.OK_OPTION)) {
+        Vector files = new Vector();
+        files.add (name);
+        new VcsActionImpl (this).doLock (files);
+      }
+    } 
   }
 
   /** Does nothing to unlock the file.
@@ -849,6 +891,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  36   Gandalf   1.35        8/31/99  Pavel Buzek     
  *  35   Gandalf   1.34        8/31/99  Pavel Buzek     
  *  34   Gandalf   1.33        8/7/99   Ian Formanek    Martin Entlicher's 
  *       improvements

@@ -295,6 +295,7 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         8/31/99  Pavel Buzek     
  *  8    Gandalf   1.7         6/30/99  Ian Formanek    reflected change in 
  *       enhanced property editors
  *  7    Gandalf   1.6         6/9/99   Ian Formanek    ---- Package Change To 

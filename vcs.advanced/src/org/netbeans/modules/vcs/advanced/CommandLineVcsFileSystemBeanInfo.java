@@ -25,7 +25,7 @@ import com.netbeans.enterprise.modules.vcs.util.*;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
-  private static Debug E=new Debug("CommandLineVcsFileSystemBeanInfo",true);
+  private static Debug E=new Debug("CommandLineVcsFileSystemBeanInfo", false);
   private static Debug D=E;
 
   /** Array of property descriptors. */
@@ -120,6 +120,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  12   Gandalf   1.11        8/31/99  Pavel Buzek     
 *  11   Gandalf   1.10        8/7/99   Ian Formanek    Icon for VCS Filesystem
 *  10   Gandalf   1.9         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
