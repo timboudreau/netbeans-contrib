@@ -87,9 +87,9 @@ public class UpdateInfoPanel extends JPanel{
         FontMetrics fm = btnErr.getFontMetrics(font);
         int height = fm.getHeight();
         Dimension dim = toolbar.getPreferredSize();
-        toolbar.setPreferredSize(new Dimension(dim.width,height+4));
-        toolbar.setMaximumSize(new Dimension(dim.width,height+4));
-        toolbar.setMinimumSize(new Dimension(dim.width,height+4));
+        toolbar.setPreferredSize(new Dimension(dim.width,height+6));
+        toolbar.setMaximumSize(new Dimension(dim.width,height+6));
+        toolbar.setMinimumSize(new Dimension(dim.width,height+6));
         errTextArea = new JTextArea();
         errTextArea.setEditable(false);
         errTextArea.getDocument().addDocumentListener(new DocumentListener(){
@@ -232,9 +232,9 @@ public class UpdateInfoPanel extends JPanel{
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(1, 2, 1, 1);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 2, 1, 1);
         add(spCentral, gridBagConstraints);
 
         toolbar.setBorder(null);
@@ -266,8 +266,8 @@ public class UpdateInfoPanel extends JPanel{
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 1);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(2, 2, 0, 1);
         add(toolbar, gridBagConstraints);
         toolbar.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.toolbar"));
         toolbar.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.toolbar"));
