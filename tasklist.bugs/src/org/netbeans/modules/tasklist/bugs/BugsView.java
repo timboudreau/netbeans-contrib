@@ -14,12 +14,12 @@
 package org.netbeans.modules.tasklist.bugs;
 
 import java.util.Date;
+import org.netbeans.modules.tasklist.core.ColumnProperty;
 
 
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.core.TaskListView.ColumnProperty;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
