@@ -58,8 +58,6 @@ public class AnnotatePanel extends javax.swing.JPanel {
     
     public AnnotatePanel() {
         initComponents ();
-        setPreferredSize(new java.awt.Dimension(750, 400));
-        setMinimumSize(new java.awt.Dimension(750, 400));          
         tblAnnotat.setShowGrid(false);
         tblAnnotat.setBorder(null);
         tblAnnotat.setRowSelectionAllowed(true);
@@ -135,6 +133,8 @@ public class AnnotatePanel extends javax.swing.JPanel {
         spAnnotat = new javax.swing.JScrollPane();
         tblAnnotat = new javax.swing.JTable();
 
+        FormListener formListener = new FormListener();
+
         setLayout(new java.awt.GridBagLayout());
 
         pnlHead.setLayout(new java.awt.GridBagLayout());
@@ -153,37 +153,29 @@ public class AnnotatePanel extends javax.swing.JPanel {
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 1;
-        gridBagConstraints.insets = new java.awt.Insets(12, 6, 5, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 6, 5, 11);
         pnlHead.add(txWorkFile, gridBagConstraints);
 
-        cbRevisionList.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbRevisionListActionPerformed(evt);
-            }
-        });
+        cbRevisionList.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 11);
         pnlHead.add(cbRevisionList, gridBagConstraints);
 
-        cbAuthorList.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbAuthorListActionPerformed(evt);
-            }
-        });
+        cbAuthorList.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(5, 6, 12, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 6, 12, 11);
         pnlHead.add(cbAuthorList, gridBagConstraints);
 
         lblRevision.setLabelFor(cbRevisionRange);
@@ -200,22 +192,18 @@ public class AnnotatePanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(5, 12, 12, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 12, 12, 0);
         pnlHead.add(lblAuthor, gridBagConstraints);
 
-        cbRevisionRange.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbRevisionRangeActionPerformed(evt);
-            }
-        });
+        cbRevisionRange.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
         pnlHead.add(cbRevisionRange, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -227,8 +215,6 @@ public class AnnotatePanel extends javax.swing.JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         add(pnlHead, gridBagConstraints);
 
-        spAnnotat.setMinimumSize(new java.awt.Dimension(600, 100));
-        spAnnotat.setPreferredSize(new java.awt.Dimension(600, 50));
         spAnnotat.setViewportView(tblAnnotat);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -242,6 +228,22 @@ public class AnnotatePanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 12, 11, 11);
         add(spAnnotat, gridBagConstraints);
 
+    }
+
+    // Code for dispatching events from components to event handlers.
+
+    private class FormListener implements java.awt.event.ActionListener {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            if (evt.getSource() == cbRevisionList) {
+                AnnotatePanel.this.cbRevisionListActionPerformed(evt);
+            }
+            else if (evt.getSource() == cbAuthorList) {
+                AnnotatePanel.this.cbAuthorListActionPerformed(evt);
+            }
+            else if (evt.getSource() == cbRevisionRange) {
+                AnnotatePanel.this.cbRevisionRangeActionPerformed(evt);
+            }
+        }
     }//GEN-END:initComponents
 
     private void cbRevisionRangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbRevisionRangeActionPerformed
@@ -268,16 +270,16 @@ public class AnnotatePanel extends javax.swing.JPanel {
   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox cbAuthorList;
-    private javax.swing.JPanel pnlHead;
-    private javax.swing.JScrollPane spAnnotat;
+    private javax.swing.JComboBox cbRevisionList;
     private javax.swing.JComboBox cbRevisionRange;
-    private javax.swing.JTable tblAnnotat;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblAuthor;
     private javax.swing.JLabel lblRevision;
     private javax.swing.JLabel lblWorkFile;
+    private javax.swing.JPanel pnlHead;
+    private javax.swing.JScrollPane spAnnotat;
+    private javax.swing.JTable tblAnnotat;
     private javax.swing.JTextField txWorkFile;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JComboBox cbRevisionList;
-    private javax.swing.JLabel lblAuthor;
     // End of variables declaration//GEN-END:variables
 
     private static final long serialVersionUID = -2618655204542546204L;    

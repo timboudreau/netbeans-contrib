@@ -86,8 +86,6 @@ final class StatusInfoPanel extends JPanel {
         head.setUpdateTableInRealTime(true);
         ColumnSortListener listen = new ColumnSortListener(tblExistingTags);
         head.addMouseListener(listen);
-        setPreferredSize(new java.awt.Dimension(700, 450));
-        setMinimumSize(new java.awt.Dimension(700, 450));        
       
       model = new TableInfoModel();
       Class classa = StatusInformation.SymName.class;

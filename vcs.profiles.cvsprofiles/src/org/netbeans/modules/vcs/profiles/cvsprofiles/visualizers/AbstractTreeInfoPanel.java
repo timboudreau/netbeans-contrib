@@ -22,7 +22,6 @@ import java.awt.*;
 import javax.swing.event.*;
 import java.lang.reflect.Method;
 import org.openide.util.NbBundle;
-import org.openide.awt.SplittedPanel;
 import javax.accessibility.*;
 
 import org.netbeans.modules.vcscore.util.table.*;
@@ -50,7 +49,7 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JTree trDirStructure;
   private javax.swing.JScrollPane jScrollPane2;
-  private SplittedPanel split;
+  private JSplitPane split;
   private JComponent component;
   protected javax.swing.JTable tblTable;
     
@@ -67,28 +66,20 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
     public void postInit() {
         component = initPanel();
         pnlStatus.add(component, BorderLayout.CENTER);
-        split.setSplitDragable(true);
-        split.setSplitAbsolute(false);
-        split.setSplitTypeChangeEnabled(true);
-        split.setSplitPosition(30);
+        split.setResizeWeight(0);
+        split.setDividerLocation(split.getMinimumDividerLocation());
     }
     
     public void resetPanel(JComponent comp){
         pnlStatus.remove(component);
         pnlStatus.add(comp,BorderLayout.CENTER);
-        split.setSplitDragable(true);
-        split.setSplitAbsolute(false);
-        split.setSplitTypeChangeEnabled(true);
-        split.setSplitPosition(30);
     }
     
     /** the same as AbstractTreeInfoPanel(File topDir) but it disables the tree.
      */
     public AbstractTreeInfoPanel() {
         initComponents ();
-        split = new SplittedPanel();
-        split.add(initTree(),SplittedPanel.ADD_LEFT);
-        split.add(initRightPanel(),SplittedPanel.ADD_RIGHT);
+        split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, initTree(), initRightPanel());
         add(split, BorderLayout.CENTER);
         tblTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() { 
@@ -126,15 +117,12 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
         tblTable.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.table"));//NOI18N
         tblTable.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.table"));//NOI18N
         pnlTree.setLayout(new java.awt.BorderLayout());
-        pnlTree.setPreferredSize(new java.awt.Dimension(200, 300));
-        pnlTree.setMinimumSize(new java.awt.Dimension(200, 300));
         pnlButtons.setLayout(new javax.swing.BoxLayout(pnlButtons, javax.swing.BoxLayout.X_AXIS));
         pnlTree.add(pnlButtons, java.awt.BorderLayout.NORTH);
         jTabbedPane1.setTabPlacement(javax.swing.SwingConstants.BOTTOM);
-        jTabbedPane1.setPreferredSize(new java.awt.Dimension(500, 400));
-        jScrollPane1.setMinimumSize(new java.awt.Dimension(100, 70));
+        jTabbedPane1.setPreferredSize(new java.awt.Dimension(80, 60));
         trDirStructure.setShowsRootHandles(true);
-        trDirStructure.setMinimumSize(new java.awt.Dimension(80, 60));
+        trDirStructure.setPreferredSize(new java.awt.Dimension(80, 60));
         trDirStructure.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 trDirStructureValueChanged(evt);

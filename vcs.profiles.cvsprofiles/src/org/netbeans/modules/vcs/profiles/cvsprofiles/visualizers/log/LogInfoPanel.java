@@ -66,11 +66,9 @@ public class LogInfoPanel extends javax.swing.JPanel {
         listPanel.add(lblList, java.awt.BorderLayout.NORTH);
         if (isTag) {            
             JSplitPane split = new JSplitPane();
-            split.setPreferredSize(new java.awt.Dimension(600, 350));
-            split.setMinimumSize(new java.awt.Dimension(600, 250));
             split.add(initSymNames(),JSplitPane.LEFT);
             split.add(initRevisionList(),JSplitPane.RIGHT);  
-            split.setDividerLocation(250);
+            split.setDividerLocation(200);
             listPanel.add(split, java.awt.BorderLayout.CENTER);
         } else {
             listPanel.add(initRevisionList(), java.awt.BorderLayout.CENTER);
@@ -85,10 +83,6 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints1.weightx = 1.0;
         gridBagConstraints1.weighty = 0.5;
         add(listPanel, gridBagConstraints1);
-        
-        setPreferredSize(new java.awt.Dimension(750, 400));
-        setMinimumSize(new java.awt.Dimension(750, 400));
-        
         fillSymNames();
     }
     
@@ -382,11 +376,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         add(pnlHead, gridBagConstraints);
 
-        spRevLog.setMinimumSize(new java.awt.Dimension(300, 100));
-        spRevLog.setPreferredSize(new java.awt.Dimension(300, 100));
         taRevLog.setEditable(false);
         taRevLog.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, taRevLog.getFont().getSize() - 1));
-        taRevLog.setMinimumSize(new java.awt.Dimension(300, 40));
         spRevLog.setViewportView(taRevLog);
         taRevLog.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.Log"));
 
