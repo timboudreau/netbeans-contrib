@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.io.Serializable;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
@@ -27,7 +28,7 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  *
  * @author  Martin Entlicher
  */
-public class VariableValueAdjustment {
+public class VariableValueAdjustment implements Serializable {
 
     /** The variable name, that contains characters, that need to be prepended
      * by a special prefix character before execution.
@@ -43,6 +44,7 @@ public class VariableValueAdjustment {
     private HashSet adjustedChars = null;
     private HashSet adjustedVars = null;
     
+    static final long serialVersionUID = 2773459026157834845L;
     /** Creates new VariableValueAdjustment */
     public VariableValueAdjustment() {
     }
