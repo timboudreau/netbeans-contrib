@@ -177,7 +177,7 @@ public class Availability extends NbTestCase {
         assertTrue(command + " command failed", history.isCommandSuccessed(filesystem, command));
         api.getRuntimeTab();
         CommandsHistory commandsHistory = new CommandsHistory();
-        if (!commandsHistory.compareStatus("Succeeded", filesystem, command))
+        if (!commandsHistory.compareStatus("Finished", filesystem, command))
             throw new Exception("Error: Wrong status of " + command + " command.");
         if (!commandsHistory.compareCommandName("LOCK", filesystem, command))
             throw new Exception("Error: Wrong command name of " + command + " command.");
