@@ -26,39 +26,46 @@ public class UU {
         if (sdata == null || sdata.length() < 3) {
             return;
         }
-        char[] data = sdata.toCharArray();
-        int byteLength = data[0] - 32;
-        int length = 1 + (byteLength / 3) * 4;
-        if ((byteLength % 3) > 0) {
-            length += 1 + byteLength % 3;
-        }
-        for (int i = 1, offset = 0; i < length - 1;) {
-            while (data[i] >= 96 || data[i] < 32) {
-                i ++;
+        try {
+            char[] data = sdata.toCharArray();
+            int byteLength = data[0] - 32;
+            int length = 1 + (byteLength / 3) * 4;
+            if ((byteLength % 3) > 0) {
+                length += 1 + byteLength % 3;
             }
-            if (i >= length - 1) {
-                break;
-            }
-            int char0 = data[i++];
-            int char1 = data[i++];
-            if (char0 == '\u0001' || char1 == '\u0001') {
-                break;
-            }
-            out.write((char0 - 32) << 2 | (char1 - 32) >> 4);
-            if (i >= length) {
-                // only one byte
-            } else {
-                int char2 = data[i++];
-                int value = (char1 - 32) << 4 | (char2 - 32) >> 2;
-                out.write(value & 0xff);
+            for (int i = 1, offset = 0; i < length - 1;) {
+                while (data[i] >= 96 || data[i] < 32) {
+                    i ++;
+                }
+                if (i >= length - 1) {
+                    break;
+                }
+                int char0 = data[i++];
+                int char1 = data[i++];
+                if (char0 == '\u0001' || char1 == '\u0001') {
+                    break;
+                }
+                out.write((char0 - 32) << 2 | (char1 - 32) >> 4);
                 if (i >= length) {
-                    // only 2 bytes
+                    // only one byte
                 } else {
-                    int char3 = data[i++];
-                    value = (char2 - 32) << 6 | (char3 - 32);
+                    int char2 = data[i++];
+                    int value = (char1 - 32) << 4 | (char2 - 32) >> 2;
                     out.write(value & 0xff);
+                    if (i >= length) {
+                        // only 2 bytes
+                    } else {
+                        int char3 = data[i++];
+                        value = (char2 - 32) << 6 | (char3 - 32);
+                        out.write(value & 0xff);
+                    }
                 }
             }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            ArrayIndexOutOfBoundsException e2 =
+                new ArrayIndexOutOfBoundsException("Error decoding '" + sdata + "': " + e.getMessage());
+            e2.initCause(e);
+            throw e2;
         }
     }
     
