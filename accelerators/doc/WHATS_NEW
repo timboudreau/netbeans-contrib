@@ -1,0 +1,66 @@
+Version 0.3.1
+-------------
+1) Updated project directory structure according to 
+http://www.netbeans.org/devhome/sources/structure.html
+
+
+--------------------------------------------------------------------------------
+
+Version 0.3.0
+-------------
+1) Search results for each filesystem are displayed as soon as 
+   they are available, not until the search process finishes.
+
+--------------------------------------------------------------------------------
+
+Version 0.2.2
+-------------
+1) Fixed a lock which occurred in the multi-threaded search implementation.
+   This will hopefully solve all problems of the human race.
+
+Known problems/issues:
+----------------------
+As usual: let me know and I'll try to fix them. 
+
+
+Version 0.2.1
+-------------
+1) Fixed an exception which occurred because of multi-threading. The root node of
+   the search result tree was recreated, while a method used to expand all
+   filesystems was in execution (in another thread). This resulted in an 
+   exception because the tree lost all its children. Those two code sequences 
+   are now synchronized.
+2) Ant build script cleanups
+3) A nbm module is now included in the distribution
+
+
+Known problems/issues:
+----------------------
+The known problems are unknown :)
+
+--------------------------------------------------------------------------------
+
+Version 0.2
+-----------
+1) Dialog settings are kept between different invocations
+2) Keyboard navigation/selection in the filesystems table. If you're in
+   the search text field, you may use the arrow keys to change the selection
+   from the file systems table. To enable/disable a filesystem use CTRL-SPACE
+   or ALT-SPACE. Try using SHIFT-CTRL-SPACE and SHIFT-ALT-SPACE and see
+   what happens.
+3) Search is done in a separate thread, so that the dialog remains responsive.
+4) New tree icons
+
+
+Known problems/issues:
+----------------------
+1) There may be some multi-threading problems which I haven't caught while
+   testing. The main problem seemed to be Swing + multiple threads, but
+   I hope this is a story of the past. But if still here, please report them 
+   to me.
+
+--------------------------------------------------------------------------------
+
+Version 0.1
+-----------
+Initial release.

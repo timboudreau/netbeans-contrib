@@ -1,0 +1,7 @@
+OpenIDE-Module: accelerators
+OpenIDE-Module-Name: accelerators
+OpenIDE-Module-Long-Description: All kind of useful shortcuts
+OpenIDE-Module-Display-Category: Tools
+OpenIDE-Module-Layer: ro/level7/netbeans/mf-layer.xml
+Created-By: NetBeans
+OpenIDE-Module-Specification-Version: 0.3.1

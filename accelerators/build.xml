@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+                 Sun Public License Notice
+
+ The contents of this file are subject to the Sun Public License
+ Version 1.0 (the "License"). You may not use this file except in
+ compliance with the License. A copy of the License is available at
+ http://www.sun.com/
+ 
+ The Original Code is NetBeans. The Initial Developer of the Original
+ Code is Leon Chiver. Portions Copyright 2002 Leon Chiver
+ All Rights Reserved.
+
+ --><project basedir="." default="all" name="accelerators">
+    
+    <property file="build.properties"/>
+    
+    <taskdef classname="org.netbeans.nbbuild.MakeNBM" name="makenbm">
+        <classpath>
+            <fileset dir="${nbantext.jar.dir}" includes="nbantext.jar"/>
+        </classpath>
+    </taskdef>
+    
+    <target description="Common initialization stuff" name="init">
+        <property name="zip.name" value="accelerators-${current.version}.zip"/>
+        <property name="nbm.name" value="accelerators-${current.version}.nbm"/>
+    </target>
+
+    <target depends="init" description="Compiles the project" name="compile">
+        <mkdir dir="classes"/>
+        <javac debug="true" deprecation="true" destdir="classes" srcdir="src">
+            <classpath>
+                <fileset dir="${openide.jar.dir}">
+                  <include name="openide*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target depends="init,compile" description="Creates jar files from the compiled classes" name="jars">
+        <mkdir dir="dist"/>
+        <delete>          
+            <fileset dir="dist" includes="accelerators.jar"/>
+        </delete>
+        <jar compress="false" jarfile="dist/accelerators.jar" manifest="manifest.mf">
+            <fileset dir="classes">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir="src">
+                <exclude name="**/*.java"/>
+                <exclude name="**/*.form"/>
+                <exclude name="**/.nbattrs"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target depends="init,jars" description="Build the module." name="all"/>
+
+    <!-- This target will only work *inside* the IDE! -->
+    <target depends="init,jars" description="Test the module inside the running IDE." name="test">
+        <nbinstaller action="reinstall" module="dist/accelerators.jar"/>
+    </target>
+    
+    <target depends="init" description="Clean all build products." name="clean">
+        <delete dir="classes"/>
+        <delete dir="dist"/>
+        <delete>
+            <fileset dir="." includes="${zip.name},${nbm.name}"/>
+            <fileset defaultexcludes="false" dir="." includes="**/*.class,**/*~"/>
+        </delete>
+    </target>
+
+    
+    
+    <target depends="init,all" description="Prepare the module for distribution via Auto Update." name="nbm">
+        <mkdir dir="netbeans/modules"/>
+        <!-- Put whatever should go into an IDE installation under it, so: -->
+        <copy file="dist/accelerators.jar" tofile="netbeans/modules/accelerators.jar"/>
+        <!-- You need nbantext.jar to load the nbm task. This JAR is created when making a NetBeans build, -->
+        <!-- or you can checkout just the pseudomodule nbbuild from cvs.netbeans.org and run: ant bootstrap -->
+        <makenbm file="${nbm.name}" homepage="http://accelerators.netbeans.org" module="dist/accelerators.jar" topdir=".">
+            <!--
+            <license file="/SOMEWHERE/SOME/LICENSE/TEXT.txt"/>
+            -->
+        </makenbm>
+        <delete dir="netbeans"/>
+        <delete dir="Info"/>
+    </target>
+</project>
