@@ -111,8 +111,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         offLineCheckBox = new javax.swing.JCheckBox();
         editCheckBox = new javax.swing.JCheckBox();
         promptEditCheckBox = new javax.swing.JCheckBox();
+        promptEditLabel = new javax.swing.JLabel();
+        promptEditTextField = new javax.swing.JTextField();
         lockCheckBox = new javax.swing.JCheckBox();
         promptLockCheckBox = new javax.swing.JCheckBox();
+        promptLockLabel = new javax.swing.JLabel();
+        promptLockTextField = new javax.swing.JTextField();
         debugCheckBox = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         cmdButton = new javax.swing.JButton();
@@ -383,6 +387,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
         gridBagConstraints6.gridy = 0;
+        gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints6.insets = new java.awt.Insets(12, 0, 0, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
@@ -399,6 +404,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
         gridBagConstraints6.gridy = 1;
+        gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints6.insets = new java.awt.Insets(0, 0, 12, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -415,6 +421,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
         gridBagConstraints6.gridy = 2;
+        gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints6.insets = new java.awt.Insets(0, 0, 0, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
@@ -431,11 +438,40 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
         gridBagConstraints6.gridy = 3;
+        gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints6.insets = new java.awt.Insets(5, 24, 5, 11);
+        gridBagConstraints6.insets = new java.awt.Insets(5, 24, 0, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints6.weightx = 1.0;
         advancedPanel.add(promptEditCheckBox, gridBagConstraints6);
+        
+        promptEditLabel.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.promptEditLabel.text"));
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 1;
+        gridBagConstraints6.gridy = 4;
+        gridBagConstraints6.insets = new java.awt.Insets(5, 48, 5, 5);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(promptEditLabel, gridBagConstraints6);
+        
+        promptEditTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                promptEditTextFieldActionPerformed(evt);
+            }
+        });
+        
+        promptEditTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                promptEditTextFieldFocusLost(evt);
+            }
+        });
+        
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 2;
+        gridBagConstraints6.gridy = 4;
+        gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 0, 0, 11);
+        gridBagConstraints6.weightx = 1.0;
+        advancedPanel.add(promptEditTextField, gridBagConstraints6);
         
         lockCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.lockCheckBox.text"));
         lockCheckBox.addActionListener(new java.awt.event.ActionListener() {
@@ -446,7 +482,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
-        gridBagConstraints6.gridy = 4;
+        gridBagConstraints6.gridy = 5;
+        gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints6.insets = new java.awt.Insets(0, 0, 5, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
@@ -462,12 +499,41 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
-        gridBagConstraints6.gridy = 5;
+        gridBagConstraints6.gridy = 6;
+        gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints6.insets = new java.awt.Insets(0, 24, 12, 11);
+        gridBagConstraints6.insets = new java.awt.Insets(0, 24, 0, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints6.weightx = 1.0;
         advancedPanel.add(promptLockCheckBox, gridBagConstraints6);
+        
+        promptLockLabel.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.promptLockLabel.text"));
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 1;
+        gridBagConstraints6.gridy = 7;
+        gridBagConstraints6.insets = new java.awt.Insets(5, 48, 12, 5);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(promptLockLabel, gridBagConstraints6);
+        
+        promptLockTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                promptLockTextFieldActionPerformed(evt);
+            }
+        });
+        
+        promptLockTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                promptLockTextFieldFocusLost(evt);
+            }
+        });
+        
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 2;
+        gridBagConstraints6.gridy = 7;
+        gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 0, 7, 11);
+        gridBagConstraints6.weightx = 1.0;
+        advancedPanel.add(promptLockTextField, gridBagConstraints6);
         
         debugCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.debugCheckBox.text"));
         debugCheckBox.addActionListener(new java.awt.event.ActionListener() {
@@ -478,7 +544,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
-        gridBagConstraints6.gridy = 6;
+        gridBagConstraints6.gridy = 8;
+        gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints6.insets = new java.awt.Insets(0, 0, 0, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
@@ -507,7 +574,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
-        gridBagConstraints6.gridy = 8;
+        gridBagConstraints6.gridy = 9;
+        gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         gridBagConstraints6.weighty = 1.0;
@@ -532,7 +600,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jLabel7.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.otherLabel.text"));
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 0;
-        gridBagConstraints6.gridy = 6;
+        gridBagConstraints6.gridy = 8;
         gridBagConstraints6.insets = new java.awt.Insets(0, 12, 0, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
         advancedPanel.add(jLabel7, gridBagConstraints6);
@@ -540,6 +608,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
         gridBagConstraints6.gridy = 7;
+        gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.VERTICAL;
         advancedPanel.add(jLabel8, gridBagConstraints6);
         
@@ -675,6 +744,52 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
     }//GEN-END:initComponents
 
+    private void promptEditTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_promptEditTextFieldFocusLost
+        // Add your handling code here:
+        VcsConfigVariable var = getFSVariable(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
+        var.setValue(promptEditTextField.getText());
+    }//GEN-LAST:event_promptEditTextFieldFocusLost
+
+    private void promptLockTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_promptLockTextFieldFocusLost
+        // Add your handling code here:
+        VcsConfigVariable var = getFSVariable(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
+        var.setValue(promptLockTextField.getText());
+    }//GEN-LAST:event_promptLockTextFieldFocusLost
+
+    private void promptLockTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promptLockTextFieldActionPerformed
+        // Add your handling code here:
+        VcsConfigVariable var = getFSVariable(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
+        var.setValue(promptLockTextField.getText());
+    }//GEN-LAST:event_promptLockTextFieldActionPerformed
+
+    private void promptEditTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promptEditTextFieldActionPerformed
+        // Add your handling code here:
+        VcsConfigVariable var = getFSVariable(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
+        var.setValue(promptEditTextField.getText());
+    }//GEN-LAST:event_promptEditTextFieldActionPerformed
+
+    private HashMap fsVars = new HashMap();
+    private VcsConfigVariable getFSVariable(String varName) {
+        VcsConfigVariable var = (VcsConfigVariable) fsVars.get(varName);
+        if (var == null) {
+            Vector vars = fileSystem.getVariables();
+            for (int i = vars.size() - 1; i >= 0; i--) {
+                VcsConfigVariable testVar = (VcsConfigVariable) vars.get(i);
+                if (varName.equals(testVar.getName())) {
+                    var = testVar;
+                    break;
+                }
+            }
+            if (var == null) {
+                var = new VcsConfigVariable(varName, "", "", false, false, false, null);
+            }
+            fsVars.put(varName, var);
+            vars.add(var);
+            fileSystem.setVariables(vars);
+        }
+        return var;
+    }
+    
     private void deleteEnvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteEnvButtonActionPerformed
         // Add your handling code here:
         int row = envTable.getSelectedRow();
@@ -770,23 +885,31 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void promptLockCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promptLockCheckBoxActionPerformed
         // Add your handling code here:
         fileSystem.setPromptForLockOn(promptLockCheckBox.isSelected());
+        promptLockLabel.setEnabled(promptLockCheckBox.isSelected());
+        promptLockTextField.setEnabled(promptLockCheckBox.isSelected());
     }//GEN-LAST:event_promptLockCheckBoxActionPerformed
 
     private void lockCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lockCheckBoxActionPerformed
         // Add your handling code here:
         promptLockCheckBox.setEnabled(lockCheckBox.isSelected());
         fileSystem.setLockFilesOn(lockCheckBox.isSelected());
+        promptLockLabel.setEnabled(promptLockCheckBox.isEnabled() && promptLockCheckBox.isSelected());
+        promptLockTextField.setEnabled(promptLockCheckBox.isEnabled() && promptLockCheckBox.isSelected());
     }//GEN-LAST:event_lockCheckBoxActionPerformed
 
     private void promptEditCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promptEditCheckBoxActionPerformed
         // Add your handling code here:
         fileSystem.setPromptForEditOn(promptEditCheckBox.isSelected());
+        promptEditLabel.setEnabled(promptEditCheckBox.isSelected());
+        promptEditTextField.setEnabled(promptEditCheckBox.isSelected());
     }//GEN-LAST:event_promptEditCheckBoxActionPerformed
 
     private void editCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editCheckBoxActionPerformed
         // Add your handling code here:
         promptEditCheckBox.setEnabled(editCheckBox.isSelected());
         fileSystem.setCallEditFilesOn(editCheckBox.isSelected());
+        promptEditLabel.setEnabled(promptEditCheckBox.isEnabled() && promptEditCheckBox.isSelected());
+        promptEditTextField.setEnabled(promptEditCheckBox.isEnabled() && promptEditCheckBox.isSelected());
     }//GEN-LAST:event_editCheckBoxActionPerformed
 
     private void debugCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugCheckBoxActionPerformed
@@ -1106,8 +1229,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private javax.swing.JCheckBox offLineCheckBox;
     private javax.swing.JCheckBox editCheckBox;
     private javax.swing.JCheckBox promptEditCheckBox;
+    private javax.swing.JLabel promptEditLabel;
+    private javax.swing.JTextField promptEditTextField;
     private javax.swing.JCheckBox lockCheckBox;
     private javax.swing.JCheckBox promptLockCheckBox;
+    private javax.swing.JLabel promptLockLabel;
+    private javax.swing.JTextField promptLockTextField;
     private javax.swing.JCheckBox debugCheckBox;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JButton cmdButton;
@@ -1653,16 +1780,24 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         editCheckBox.setSelected(fileSystem.isCallEditFilesOn());
         promptEditCheckBox.setSelected(fileSystem.isPromptForEditOn());
         promptEditCheckBox.setEnabled(editCheckBox.isSelected());
+        promptEditLabel.setEnabled(editCheckBox.isSelected() && fileSystem.isPromptForEditOn());
+        promptEditTextField.setEnabled(editCheckBox.isSelected() && fileSystem.isPromptForEditOn());
         lockCheckBox.setSelected(fileSystem.isLockFilesOn());
         promptLockCheckBox.setSelected(fileSystem.isPromptForLockOn());
         promptLockCheckBox.setEnabled(lockCheckBox.isSelected());
+        promptLockLabel.setEnabled(lockCheckBox.isSelected() && fileSystem.isPromptForLockOn());
+        promptLockTextField.setEnabled(lockCheckBox.isSelected() && fileSystem.isPromptForLockOn());
         offLineCheckBox.setSelected(fileSystem.isOffLine());
         boolean isEdit = fileSystem.isEnabledEditFiles();
         editCheckBox.setEnabled(isEdit);
         promptEditCheckBox.setEnabled(isEdit && editCheckBox.isSelected());
+        String message = (String) fileSystem.getVariablesAsHashtable().get(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
+        promptEditTextField.setText((message == null) ? "" : message);
         boolean isLock = fileSystem.isEnabledLockFiles();
         lockCheckBox.setEnabled(isLock);
         promptLockCheckBox.setEnabled(isLock && lockCheckBox.isSelected());
+        message = (String) fileSystem.getVariablesAsHashtable().get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
+        promptLockTextField.setText((message == null) ? "" : message);
     }
     
     //-------------------------------------------

@@ -305,7 +305,7 @@
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="0" insetsBottom="0" insetsLeft="0" insetsRight="11" insetsTop="12" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="2" gridX="1" gridY="0" insetsBottom="0" insetsLeft="0" insetsRight="11" insetsTop="12" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
@@ -321,7 +321,7 @@
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="1" insetsBottom="12" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="2" gridX="1" gridY="1" insetsBottom="12" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
@@ -337,7 +337,7 @@
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="2" insetsBottom="0" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="2" gridX="1" gridY="2" insetsBottom="0" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
@@ -353,7 +353,31 @@
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="3" insetsBottom="5" insetsLeft="24" insetsRight="11" insetsTop="5" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="2" gridX="1" gridY="3" insetsBottom="0" insetsLeft="24" insetsRight="11" insetsTop="5" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+                </Constraint>
+              </Constraints>
+            </Component>
+            <Component class="javax.swing.JLabel" name="promptEditLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.promptEditLabel.text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                  <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="1" gridX="1" gridY="4" insetsBottom="5" insetsLeft="48" insetsRight="5" insetsTop="5" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+                </Constraint>
+              </Constraints>
+            </Component>
+            <Component class="javax.swing.JTextField" name="promptEditTextField">
+
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="promptEditTextFieldActionPerformed"/>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="promptEditTextFieldFocusLost"/>
+              </Events>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                  <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="2" gridY="4" insetsBottom="0" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
@@ -369,7 +393,7 @@
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="4" insetsBottom="5" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="2" gridX="1" gridY="5" insetsBottom="5" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
@@ -385,7 +409,31 @@
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="5" insetsBottom="12" insetsLeft="24" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="2" gridX="1" gridY="6" insetsBottom="0" insetsLeft="24" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+                </Constraint>
+              </Constraints>
+            </Component>
+            <Component class="javax.swing.JLabel" name="promptLockLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.promptLockLabel.text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                  <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="1" gridX="1" gridY="7" insetsBottom="12" insetsLeft="48" insetsRight="5" insetsTop="5" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+                </Constraint>
+              </Constraints>
+            </Component>
+            <Component class="javax.swing.JTextField" name="promptLockTextField">
+
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="promptLockTextFieldActionPerformed"/>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="promptLockTextFieldFocusLost"/>
+              </Events>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                  <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="2" gridY="7" insetsBottom="7" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
@@ -401,14 +449,14 @@
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="6" insetsBottom="0" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="2" gridX="1" gridY="8" insetsBottom="0" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
             <Container class="javax.swing.JPanel" name="jPanel2">
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="14" fill="0" gridHeight="1" gridWidth="1" gridX="1" gridY="8" insetsBottom="11" insetsLeft="12" insetsRight="11" insetsTop="12" ipadX="0" ipadY="0" weightX="0.0" weightY="1.0"/>
+                  <GridBagConstraints anchor="14" fill="0" gridHeight="1" gridWidth="2" gridX="1" gridY="9" insetsBottom="11" insetsLeft="12" insetsRight="11" insetsTop="12" ipadX="0" ipadY="0" weightX="0.0" weightY="1.0"/>
                 </Constraint>
               </Constraints>
 
@@ -474,14 +522,14 @@
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="6" insetsBottom="0" insetsLeft="12" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="8" insetsBottom="0" insetsLeft="12" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel8">
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="10" fill="3" gridHeight="1" gridWidth="1" gridX="1" gridY="7" insetsBottom="0" insetsLeft="0" insetsRight="0" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="10" fill="3" gridHeight="1" gridWidth="2" gridX="1" gridY="7" insetsBottom="0" insetsLeft="0" insetsRight="0" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
