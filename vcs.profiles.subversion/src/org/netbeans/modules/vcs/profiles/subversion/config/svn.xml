@@ -26,22 +26,22 @@ Contributor(s): Steve Benigan.
   </condition>
   
   <variables>
-    <variable name="URL" basic="true" label="URL" localFile="false" localDir="false" executable="false" order="0">
+    <variable name="URL" basic="true" label="URL" localFile="false" localDir="false" executable="false" order="1">
       <value xml:space="preserve"></value>
     </variable>
-    <variable name="BRANCH" basic="true" label="Branch" localFile="false" localDir="false" executable="false" order="1">
+    <variable name="BRANCH" basic="true" label="Branch" localFile="false" localDir="false" executable="false" order="2">
       <value xml:space="preserve"></value>
     </variable>
-    <variable name="USER" basic="true" label="User" localFile="false" localDir="false" executable="false" order="2">
+    <variable name="USER" basic="true" label="User" localFile="false" localDir="false" executable="false" order="3">
       <value xml:space="preserve"></value>
     </variable>
-    <variable name="D_MESSAGE" basic="true" label="Default Comment" localFile="false" localDir="false" executable="false" order="3">
+    <variable name="D_MESSAGE" basic="true" label="Default Comment" localFile="false" localDir="false" executable="false" order="4">
       <value xml:space="preserve"></value>
     </variable>
-    <variable name="DIFFCMD" basic="true" label="Default Diff Command" localFile="true" localDir="false" executable="false" order="4">
+    <variable name="DIFFCMD" basic="true" label="Default Diff Command" localFile="true" localDir="false" executable="false" order="5">
       <value xml:space="preserve"></value>
     </variable>
-    <variable name="DEFAULT_EDITOR" basic="true" label="Default Editor" localFile="true" localDir="false" executable="false" order="5">
+    <variable name="DEFAULT_EDITOR" basic="true" label="Default Editor" localFile="true" localDir="false" executable="false" order="6">
       <value xml:space="preserve"></value>
     </variable>
     <variable name="AUTH" basic="false">
@@ -60,7 +60,7 @@ Contributor(s): Steve Benigan.
     <variable name="LOCAL_FILES_FILTERED_OUT" basic="false">
       <value xml:space="preserve">.svn</value>
     </variable>
-    <variable name="MAX_CMD_LENGTH" basic="false">
+    <variable name="MAX_CMD_LENGTH" basic="false" if="IS_WINDOWS">
       <value xml:space="preserve">1000</value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES" basic="false">
@@ -121,7 +121,7 @@ Contributor(s): Steve Benigan.
           <value xml:space="preserve">true</value>
         </property>
         <property name="exec">
-          <value xml:space="preserve">${PREFIX}${SVN_CMD} co $[? REVISION][-r ${REVISION} ][]${QUIET}${NONRECURSIVE}${NOAUTHCACHE}${NONINTERACTIVE}${REMOTE_FILE} . ${AUTH}${POSTFIX}</value>
+          <value xml:space="preserve">${PREFIX}${SVN_CMD} co $[? REVISION][-r ${REVISION} ][]${QUIET}${NONRECURSIVE}${NOAUTHCACHE}${NONINTERACTIVE}${REMOTE_FILE} ${QMPATHS} ${AUTH}${POSTFIX}</value>
         </property>
         <property name="supportsAdvancedMode">
           <value xml:space="preserve">true</value>
@@ -141,8 +141,11 @@ ASK_FOR_EXPERT(NONINTERACTIVE, Non-Interactive, "false",ACCESSIBILITY(DESCRIPTIO
         <property name="refreshProcessedFiles">
           <value xml:space="preserve">false</value>
         </property>
-        <property name="refreshCurrentFolder">
+        <property name="refreshParentFolder">
           <value xml:space="preserve">true</value>
+        </property>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value> -N </value>
         </property>
         <property name="onFile">
           <value xml:space="preserve">false</value>
@@ -180,25 +183,41 @@ PROMPT_FOR_EXPERT(DIFF3, diff3-cmd, "",ACCESSIBILITY(DESCRIPTION_Text field for 
         <property name="refreshCurrentFolder">
           <value xml:space="preserve">true</value>
         </property>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value> -N </value>
+        </property>
+      </command>
+      <command name="COMMIT_TEMPLATE_GETTER">
+        <property name="exec">
+          <value xml:space="preserve" if="IS_WINDOWS">${PREFIX} </value>
+          <value xml:space="preserve">${PREFIX} echo a | ${SVN_CMD} ci --editor-cmd cat --non-interactive ${AUTH}${QMPATHS}${POSTFIX}</value>
+        </property>
+	<property name="data.regex">
+	  <value>^($|[^La].*$|.[^o)].*$|..[^gb].*$|...[^ o].*$|....[^mr].*$|.....[^et].*$|......[^s,].*$|.......[^s ].*$|........[^ac].*$|.........[^g)].*$|..........[^eo].*$|...........[^ n].*$|............[^ut].*$|.............[^ni].*$)</value>
+	</property>
+	<property name="ignoreFail">
+	  <value>true</value>
+	</property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>        
       </command>
       <command name="Commit" displayName="Commit">
         <property name="display">
           <value xml:space="preserve">true</value>
         </property>
         <property name="exec">
-          <value xml:space="preserve">${PREFIX}${SVN_CMD} ci ${Q_MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${NONRECURSIVE}$[? TARGETS][--targets ${TARGETS} ][]${FORCE}${NOAUTHCACHE}${NONINTERACTIVE}$[? EDITORCMD][--editor-cmd ${EDITORCMD} ][]$[? ENCODING][--encoding ${ENCODING} ][]${AUTH}${QMPATHS}${POSTFIX}</value>
+          <value xml:space="preserve">${PREFIX}${SVN_CMD} ci -F ${QUOTE}${TEMPLATE_FILE}${QUOTE} ${QUIET}${NONRECURSIVE}$[? TARGETS][--targets ${TARGETS} ][]${FORCE}${NOAUTHCACHE}${NONINTERACTIVE}$[? EDITORCMD][--editor-cmd ${EDITORCMD} ][]$[? ENCODING][--encoding ${ENCODING} ][]${AUTH}${QMPATHS}${POSTFIX}</value>
         </property>
         <property name="inputDescriptor">
           <value xml:space="preserve">LABEL(SVN Commit,ACCESSIBILITY(DESCRIPTION_Dialog for svn commit command))
-PROMPT_FOR_EXPERT(MESSAGE, Message, "",ACCESSIBILITY(DESCRIPTION_Text field for message argument of commit command;;MNEMONIC_M),,)
-PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument of commit command;;MNEMONIC_F),,SELECTOR_FILE)
+PROMPT_FOR_FILE(TEMPLATE_FILE, "Message:", {FILE_OUTPUT_OF_COMMIT_TEMPLATE_GETTER(0)}, ACCESSIBILITY(DESCRIPTION_Text field for message argument of commit command;;MNEMONIC_M), 10, 40)
 ASK_FOR_EXPERT(QUIET, Quiet, "false",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument of commit command;;MNEMONIC_Q),"-q ", "")
 ASK_FOR_EXPERT(NONRECURSIVE, Non-Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument of commit command;;MNEMONIC_N),"-N ", "")
 PROMPT_FOR_EXPERT(TARGETS, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field for targets argument of commit command;;MNEMONIC_T),,SELECTOR_FILE)
 ASK_FOR_EXPERT(FORCE, Force, "false",ACCESSIBILITY(DESCRIPTION_Check box for false argument of commit command;;MNEMONIC_F),"--force ", "")
 ASK_FOR_EXPERT(NOAUTHCACHE, No Auth cache, "false",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument of commit command;;MNEMONIC_A),"--no-auth-cache ", "")
 ASK_FOR_EXPERT(NONINTERACTIVE, Non-Interactive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument of commit command;;MNEMONIC_I),"--non-interactive ", "")
-PROMPT_FOR_EXPERT(EDITORCMD, Editor Command, "",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument of commit command;;MNEMONIC_D),,)
 PROMPT_FOR_EXPERT(ENCODING, Encoding, "",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument of commit command;;MNEMONIC_E),,)
  </value>
         </property>
@@ -214,8 +233,11 @@ PROMPT_FOR_EXPERT(ENCODING, Encoding, "",ACCESSIBILITY(DESCRIPTION_Text field fo
         <property name="onFile">
           <value xml:space="preserve">true</value>
         </property>
-        <property name="refreshCurrentFolder">
+        <property name="refreshParentFolder">
           <value xml:space="preserve">true</value>
+        </property>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value> -N </value>
         </property>
         <property name="labelMnemonic">
           <value xml:space="preserve">c</value>
@@ -247,6 +269,12 @@ ASK_FOR_EXPERT(QUIET, Quiet, "false",ACCESSIBILITY(DESCRIPTION_Check box for qui
         </property>
         <property name="labelMnemonic">
           <value xml:space="preserve">A</value>
+        </property>
+        <property name="refreshParentFolder">
+          <value xml:space="preserve">true</value>
+        </property>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value> -N </value>
         </property>
         <property name="runOnMultipleFiles">
           <value xml:space="preserve">true</value>
@@ -768,9 +796,6 @@ PROMPT_FOR(PROPNAME, Property Name, "",ACCESSIBILITY(DESCRIPTION_Text field for 
         </property>
       </command>
       <command name="LIST" displayName="Refresh">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
         <property name="exec">
           <value xml:space="preserve">org.netbeans.modules.vcs.profiles.subversion.list.SubversionListCommand.class LIST_CMD</value>
         </property>
@@ -812,9 +837,6 @@ PROMPT_FOR(PROPNAME, Property Name, "",ACCESSIBILITY(DESCRIPTION_Text field for 
         </property>
       </command>
       <command name="LIST_SUB" displayName="Refresh Recursively">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
         <property name="exec">
           <value xml:space="preserve"></value>
         </property>
@@ -1186,378 +1208,6 @@ PROMPT_FOR(PROPNAME, Property Name, "",ACCESSIBILITY(DESCRIPTION_Text field for 
         </property>
         <property name="exec">
           <value xml:space="preserve">${PREFIX}${SVN_CMD} pdel ${QUIET}${RECURSIVE}$[? REVISION][-r ${REVISION} ][]${REVPROP}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${PROPNAME} ${QUOTE}${URL}${QUOTE}${POSTFIX}</value>
-        </property>
-      </command>
-    </command>
-    <command name="ECHO" displayName="ECHO">
-      <command name="EXECUTE" displayName="Execute">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="inputDescriptor">
-          <value xml:space="preserve">LABEL(Execute Any Command,ACCESSIBILITY(DESCRIPTION_Dialog for executing a command))
-PROMPT_FOR(EXECUTE, Execute, "",ACCESSIBILITY(DESCRIPTION_Text field for execute command;;MNEMONIC_E),,)</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${EXECUTE}</value>
-        </property>
-      </command>
-      <command name="ECHO_ROOTDIR" displayName="echo ROOTDIR">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo ROOTDIR=${ROOTDIR}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="ECHO_MODULE" displayName="echo MODULE">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo MODULE=${MODULE}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_6_1" displayName="echo PS">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo PS=${PS}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <separator />
-      <command name="STATUS_1_1_7_1" displayName="echo FILE">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo FILE=${FILE}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_7_1_1" displayName="echo QFILE">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo QFILE=${QFILE}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1" displayName="echo PATH">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo PATH=${PATH}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1" displayName="echo QPATH">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo QPATH=${QPATH}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">false</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_1" displayName="echo DIR">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo DIR=${DIR}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_2_2" displayName="echo MIMETYPE">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo MIMETYPE=${MIMETYPE}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_3_1" displayName="echo FILE_IS_FOLDER">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo FILE_IS_FOLDER=${FILE_IS_FOLDER}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <separator />
-      <command name="STATUS_1_1_2" displayName="echo FILES">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo FILES=${FILES}${POSTFIX}</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_2_1" displayName="echo QFILES">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo QFILES=${QFILES}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_2" displayName="echo PATHS">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo PATH=${PATHS}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_3" displayName="echo QPATHS">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo QPATHS=${QPATHS}${POSTFIX}</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_4" displayName="echo MPATHS">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo MPATHS=${MPATHS}${POSTFIX}</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_5" displayName="echo QMPATHS">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo QMPATHS=${QMPATHS}${POSTFIX}</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_4_1" displayName="echo NUM_FILES">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo NUM_FILES=${NUM_FILES}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_5_1" displayName="echo MULTIPLE_FILES">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo MULTIPLE_FILES=${MULTIPLE_FILES}${POSTFIX}</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
-        </property>
-      </command>
-      <command name="STATUS_1_1_5_1_1" displayName="echo FILE_IS_FOLDER">
-        <property name="display">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="exec">
-          <value xml:space="preserve">${PREFIX}echo FILE_IS_FOLDER=${FILE_IS_FOLDER}${POSTFIX}</value>
-        </property>
-        <property name="runOnMultipleFiles">
-          <value xml:space="preserve">true</value>
-        </property>
-        <property name="data.revision.index">
-          <value xml:space="preserve">0</value>
-        </property>
-        <property name="data.regex">
-          <value xml:space="preserve">^([ ADMCI\?!~]{1})([ MC]{1})([ L]{1})([ \+]{1})([ S]{1})([ ]{1})([ ]{1})([ \*]{1}) *([0-9]*) *([0-9]*) *([^ ]*) *(.*$)</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value xml:space="preserve">"M","Modified"</value>
         </property>
       </command>
     </command>
