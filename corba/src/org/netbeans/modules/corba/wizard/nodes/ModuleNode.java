@@ -19,6 +19,8 @@ import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
 import org.netbeans.modules.corba.wizard.nodes.utils.*;
 import org.netbeans.modules.corba.wizard.nodes.actions.*;
+import org.netbeans.modules.corba.wizard.nodes.gui.ModulePanel;
+import org.netbeans.modules.corba.wizard.nodes.gui.ExPanel;
 
 /** 
  *
@@ -43,13 +45,16 @@ public class ModuleNode extends FMNode {
             SystemAction.get (CreateConstantAction.class),
             SystemAction.get (CreateEnumAction.class),
             SystemAction.get (CreateExceptionAction.class),
+            SystemAction.get (CreateFwdDclAction.class),
             SystemAction.get (CreateInterfaceAction.class),
             SystemAction.get (CreateModuleAction.class),
             SystemAction.get (CreateStructAction.class),
             SystemAction.get (CreateUnionAction.class),
+            SystemAction.get (CreateValueBoxAction.class),
+            SystemAction.get (CreateValueTypeAction.class),
             null,
             SystemAction.get (DestroyAction.class),
-            SystemAction.get (RenameAction.class)
+            SystemAction.get (EditAction.class)
         };
     }
   
@@ -66,6 +71,22 @@ public class ModuleNode extends FMNode {
         }
         code = code + fill + "};\n";
         return code;
+    }
+    
+    public ExPanel getEditPanel () {
+        ModulePanel p = new ModulePanel ();
+        p.setName (this.getName());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof ModulePanel) {
+            String newName  = ((ModulePanel)p).getName();
+            if (!this.key.getName().equals(newName)) {
+                this.setName (newName);
+                this.key.setName (newName);
+            }
+        }
     }
   
 }

@@ -36,11 +36,17 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import org.netbeans.modules.corba.utils.Assertion;
+
 public class IDLParser {
 
   public static Map _S_keyword_map;
 
   private boolean _M_is_template = false;
+
+  private String _M_orig_file_name;
+  private String _M_file_name;
+  private int _M_counter = 1;
 
   static {
     // I use this map for checking if some identifier don't clash with IDL keyword
@@ -160,11 +166,11 @@ SKIP :
  /* added for skipping comment at the end of file without newline */
 | < "//" (~["\n"])* >
 | <"/*" (~["*"])* "*" (~["/"] (~["*"])* "*")* "/">
-
+	/*
 | <"#" ([" ","\t"])* (["0"-"9"])+ (["a"-"z","A"-"Z","0"-"9","_"])*
   (([" ","\t"])* "\"" (~["\""])+ "\""
   ([" ","\t"])* (["0"-"9"])* ([" ","\t"])* (["0"-"9"])*)? "\n" >
-
+	*/
 /* 
  * matching for preprocessor directives
  */
@@ -172,7 +178,9 @@ SKIP :
 	  | <"#" ([" ","\t"])* (["a"-"z","A"-"Z","0"-"9","_"])+ ([" ","\t"])*  
 	  (["a"-"z","A"-"Z","0"-"9","_","/", "\\", " ", "<", ">", "\"", "."])* (["\n"])* >
 	*/
+	/*
 | <"#" ([" ", "~", "{", "}", ":", ",", "=", "+", "-", "(", ")", "<", ">", "[", "]", "'", "\"", "\\", "|", "^", "&", "*", "/", "%", "~", "\t", "a"-"z", "A"-"Z", "0"-"9", "_", ".", "!", "?", "'", "`"])* (["\n"])* >
+	*/
 	/*
 	  | <"#" ([" ","\t"])* (["a"-"z","A"-"Z","0"-"9","_"])+ ([" ","\t"])*  
 	  (["a"-"z","A"-"Z","0"-"9"])+ (["\""])+ (["a"-"z","A"-"Z","0"-"9","_"])+ (["\""])+ (["\n"])* >
@@ -190,8 +198,99 @@ SKIP :
 SimpleNode Start () #IDLElement : {}
 {
    specification ()
+       /*
+	 |
+	 ( directive_cpp () )*
+       */
    { return jjtThis; }
 }
+
+void cpp_directive() :
+{
+    Token __t;
+    String __line = null;
+    String __file_name = null;
+    ArrayList __code_list = new ArrayList ();
+    String __code = null;
+}
+{
+  "#" 
+  __t=<DECIMALINT> { __line = __t.image; }
+  ( __t=<FILE> | __t=<STRING> ) { __file_name = __t.image; }
+  (__t=<DECIMALINT> { __code = __t.image; __code_list.add (__code); } )*
+  { 
+      //System.out.println ("# " + __line + " " + __file_name + " " + __code_list);
+      // we have to cat both `"' from __file_name
+      __file_name = __file_name.substring (1, __file_name.length () - 1);
+      //System.out.println ("__file_name: `" + __file_name + "'");
+      if (_M_orig_file_name == null) {
+	  _M_orig_file_name = __file_name;
+	  //System.out.println ("_M_orig_file_name: `" + _M_orig_file_name + "'");
+      }
+      _M_file_name = __file_name;
+      if (_M_orig_file_name.equals (_M_file_name)
+	  && __code_list.contains ("2")) {
+	  //System.out.println ("line: " + __line);
+	  Integer __int = new Integer (__line);
+	  //System.out.println ("__int: " + __int);
+	  _M_counter = __t.beginLine - __int.intValue () + 1;
+	  //System.out.println ("counter: " + _M_counter);
+      }
+  } 
+}
+
+void pragma() :
+{}
+{
+  LOOKAHEAD(3)
+  pragma_id()
+|
+  LOOKAHEAD(3)
+  pragma_prefix()
+|
+      //LOOKAHEAD(2)
+  pragma_version()
+}
+
+void pragma_id() :
+{
+  Token __t;
+  String __name;
+  String __id;
+}
+{
+  "#" "pragma" "ID" __t=<ID> { __name = __t.image; }
+  __t=<STRING> { __id = __t.image; }
+  { System.out.println ("#pragma ID " + __name + " " + __id); }
+}
+
+void pragma_prefix() :
+{
+  Token __t;
+  String __prefix;
+}
+{
+  "#" "pragma" "prefix" __t=<STRING> { __prefix = __t.image; }
+  { 
+    System.out.println ("#pragma prefix " + __prefix); 
+  }
+}
+
+void pragma_version() :
+{
+    Token __t;
+    String __name;
+    String __version;
+}
+{
+  "#" "pragma" "version" __t=<ID> { __name = __t.image; }
+  __t=<FLOATONE> { __version = __t.image; } 
+  // we have to check if __t suite form:  (["0"-"9"])+ "." (["0"-"9"])
+  //__t=( (["0"-"9"])+ "." (["0"-"9"]) )
+  { System.out.println ("#pragma version " + __name + " " + __version);} 
+}
+
+
 /* Production 1 */
 
 void specification() :
@@ -218,6 +317,11 @@ void definition() :
   module() ";"
 |
   value() ";"
+|
+  LOOKAHEAD(2)
+  cpp_directive()
+|
+  pragma()
 }
 
 /* Production 3 */
@@ -229,7 +333,8 @@ void module() #ModuleElement :
   "module" id = identifier() 
    { jjtThis.setName (id.getName ()); 
      jjtThis.setLine (id.getLine ());
-     jjtThis.setColumn (id.getColumn ()); } 
+     jjtThis.setColumn (id.getColumn ());
+     jjtThis.setFileName (id.getFileName ()); } 
   /*  "{" ( definition() )* "}" */
   // I prefer not empty module as described in IDL grammer
   "{" ( definition() )+ "}"
@@ -266,6 +371,7 @@ void forward_dcl() #InterfaceForwardElement :
     jjtThis.setName (id.getName ());
     jjtThis.setLine (id.getLine ());
     jjtThis.setColumn (id.getColumn ());
+    jjtThis.setFileName (id.getFileName ());
   }
 }
 
@@ -285,7 +391,8 @@ void interface_header() #InterfaceHeaderElement :
   { 
     jjtThis.setName (name.getName ());
     jjtThis.setLine (name.getLine ());
-    jjtThis.setColumn (name.getColumn ()); 
+    jjtThis.setColumn (name.getColumn ());
+    jjtThis.setFileName (name.getFileName ());
   }
 
   [ ( inher = inheritance_spec() ) 
@@ -314,6 +421,11 @@ void export() :
   attr_dcl() ";"
 |
   op_dcl() ";"
+|
+  LOOKAHEAD(2)
+  cpp_directive()
+|
+  pragma()
 }
 
 /* Production 10 */
@@ -407,7 +519,8 @@ void value_forward_dcl() #ValueForwardElement :
     { 
       jjtThis.setName (__id.getName ());
       jjtThis.setLine (__id.getLine ());
-      jjtThis.setColumn (__id.getColumn ()); 
+      jjtThis.setColumn (__id.getColumn ());
+      jjtThis.setFileName (__id.getFileName ());
     }
 }
 
@@ -424,6 +537,7 @@ void value_box_dcl() #ValueBoxElement :
       jjtThis.setName (__id.getName ());
       jjtThis.setLine (__id.getLine ());
       jjtThis.setColumn (__id.getColumn ());
+      jjtThis.setFileName (__id.getFileName ());
   }
   __type = type_spec()
   {
@@ -442,6 +556,7 @@ void value_abs_dcl() #ValueAbsElement :
     jjtThis.setName (id.getName ());
     jjtThis.setLine (id.getLine ());
     jjtThis.setColumn (id.getColumn ()); 
+    jjtThis.setFileName (id.getFileName ());
   }
   value_inheritance_spec()
   "{" ( export() )* "}"
@@ -469,6 +584,7 @@ void value_header() #ValueHeaderElement :
     jjtThis.setName (name.getName ());
     jjtThis.setLine (name.getLine ());
     jjtThis.setColumn (name.getColumn ());
+    jjtThis.setFileName (name.getFileName ());
   }
   value_inheritance_spec()
 }
@@ -487,10 +603,10 @@ void value_inheritance_spec() #ValueInheritanceSpecElement :
 
   __v_name = value_name() 
   { 
-      if (jjtThis.getTruncatable ())
-          __values.addElement ("truncatable " + __v_name);
-      else 
-          __values.addElement (__v_name);
+      //if (jjtThis.getTruncatable ())
+      //__values.addElement ("truncatable " + __v_name);
+      //else 
+      __values.addElement (__v_name);
   }
   ( "," __v_name = value_name() { __values.addElement (__v_name);} )* ]
 
@@ -547,6 +663,7 @@ void init_dcl() #InitDclElement :
       jjtThis.setName (__id.getName ());
       jjtThis.setLine (__id.getLine ());
       jjtThis.setColumn (__id.getColumn ());
+      jjtThis.setFileName (__id.getFileName ());
   }
   "(" [ __params = init_param_decls() { jjtThis.setParams (__params);} ] ")" ";"
 }
@@ -578,6 +695,7 @@ InitParamDeclElement init_param_decl() #InitParamDeclElement :
       jjtThis.setName (__declarator.getName ());
       jjtThis.setColumn (__declarator.getColumn ());
       jjtThis.setLine (__declarator.getLine ());
+      jjtThis.setFileName (__declarator.getFileName ());
   }
   {
       return jjtThis;
@@ -600,17 +718,13 @@ void const_dcl() #ConstElement :
   { IDLType type; String exp, name; Identifier id;}
   "const" type = const_type() id = identifier() "=" exp = const_exp()
   { 
-    if (type != null)
-      jjtThis.setType (type.name);
-    else
-      System.out.println ("ERROR!! type is null");
-    if (id != null) {
-      jjtThis.setName (id.getName ()); 
-      jjtThis.setLine (id.getLine ());
-      jjtThis.setColumn (id.getColumn ());
-    }
-    else
-      System.out.println ("ERROR!! id is null");
+    Assertion.assert (type != null);
+    Assertion.assert (id != null);
+    jjtThis.setType (type.name);
+    jjtThis.setName (id.getName ()); 
+    jjtThis.setLine (id.getLine ());
+    jjtThis.setColumn (id.getColumn ());
+    jjtThis.setFileName (id.getFileName ());
     jjtThis.setExpression (exp);
   }
 }
@@ -837,18 +951,21 @@ void type_dcl() #TypeElement :
   { 
     jjtThis.setName (type.name); 
     jjtThis.setType (new IDLType (IDLType.STRUCT, "struct"));
+    //jjtThis.setFileName (type.getFileName ());
   }
 |
   type = union_type()
   { 
     jjtThis.setName (type.name);
     jjtThis.setType (new IDLType (IDLType.UNION, "union"));
+    //jjtThis.setFileName (type.getFileName ());
   }
 |
   type = enum_type()
   { 
     jjtThis.setName (type.name);
     jjtThis.setType (new IDLType (IDLType.ENUM, "enum"));
+    //jjtThis.setFileName (type.getFileName ());
   }
 |
   "native" name = simple_declarator()
@@ -857,6 +974,7 @@ void type_dcl() #TypeElement :
     jjtThis.setType (new IDLType (IDLType.NATIVE, "native"));
     jjtThis.setLine (name.getLine ());
     jjtThis.setColumn (name.getColumn ());
+    jjtThis.setFileName (name.getFileName ());
   }
  
 }
@@ -1043,6 +1161,7 @@ SimpleDeclarator simple_declarator() #SimpleDeclarator :
     jjtThis.setName (id.getName ());
     jjtThis.setLine (id.getLine ());
     jjtThis.setColumn (id.getColumn ());
+    jjtThis.setFileName (id.getFileName ());
     
     return jjtThis;
   }
@@ -1284,6 +1403,7 @@ IDLType struct_type() #StructTypeElement :
      jjtThis.setName (name);
      jjtThis.setLine (id.getLine ());
      jjtThis.setColumn (id.getColumn ());
+     jjtThis.setFileName (id.getFileName ());
      
    } 
 
@@ -1311,6 +1431,11 @@ void member() #MemberElement :
   { IDLType type; String name = "";}
   type = type_spec() { jjtThis.setType (type); jjtThis.setName (name);} 
   declarators() ";"
+|
+  LOOKAHEAD(2)
+  cpp_directive()
+|
+  pragma()
 }
 
 /* Production 72 */
@@ -1333,6 +1458,7 @@ IDLType union_type() #UnionTypeElement :
       jjtThis.setType (__type);
       jjtThis.setLine (__id.getLine ());
       jjtThis.setColumn (__id.getColumn ());
+      jjtThis.setFileName (__id.getFileName ());
    } 
 
   "switch" "(" __switch_type = switch_type_spec() ")" 
@@ -1380,7 +1506,7 @@ void casex() #UnionMemberElement :
 {}
 {
   { String cases = "", tmp = ""; IDLType type; Vector tmp_vec; DeclaratorElement element; }
-  ( tmp = case_label() {cases += tmp + ", ";} )+ tmp_vec = element_spec() 
+  ( tmp = case_label() {cases += tmp + ", ";} )+ [ pragma() ] tmp_vec = element_spec() 
   {
     type = (IDLType)tmp_vec.elementAt (0);
     element = (DeclaratorElement)tmp_vec.elementAt (1);
@@ -1388,7 +1514,8 @@ void casex() #UnionMemberElement :
     jjtThis.setCases (cases.substring (0, cases.length () - 2));
     jjtThis.setName (element.getName ());
     jjtThis.setLine (element.getLine ());
-    jjtThis.setColumn (element.getColumn ());    
+    jjtThis.setColumn (element.getColumn ());
+    jjtThis.setFileName (element.getFileName ());
   } 
   ";"
 }
@@ -1437,8 +1564,9 @@ IDLType enum_type() #EnumTypeElement :
      jjtThis.setType (type);
      jjtThis.setLine (id.getLine ());
      jjtThis.setColumn (id.getColumn ());
+     jjtThis.setFileName (id.getFileName ());
    } 
-  "{" enumerator() ( "," enumerator() )* "}"
+  "{" [ pragma() ] enumerator() ( "," [ pragma() ] enumerator() )* "}"
   { return type;}
 }
 
@@ -1455,6 +1583,7 @@ void enumerator() #ConstElement :
      jjtThis.setName (id.getName ());
      jjtThis.setLine (id.getLine ());
      jjtThis.setColumn (id.getColumn ());
+     jjtThis.setFileName (id.getFileName ());
   }
 }
 
@@ -1546,6 +1675,7 @@ ArrayDeclarator array_declarator() #ArrayDeclarator :
     jjtThis.setName (id.getName ());
     jjtThis.setLine (id.getLine ());
     jjtThis.setColumn (id.getColumn ());
+    jjtThis.setFileName (id.getFileName ());
     return jjtThis;
   }
 }
@@ -1574,6 +1704,7 @@ void attr_dcl() #AttributeElement :
     jjtThis.setName (name.getName ());
     jjtThis.setLine (name.getLine ());
     jjtThis.setColumn (name.getColumn ());
+    jjtThis.setFileName (name.getFileName ());
   } 
   ( "," other = simple_declarator() {jjtThis.addOther (other);} )*
 }
@@ -1588,6 +1719,7 @@ void except_dcl() #ExceptionElement :
     jjtThis.setName (id.getName ());
     jjtThis.setLine (id.getLine ());
     jjtThis.setColumn (id.getColumn ());
+    jjtThis.setFileName (id.getFileName ());
   }
   "{" ( member() )* "}"
 }
@@ -1611,6 +1743,7 @@ void op_dcl() #OperationElement :
       jjtThis.setName (name.getName ());
       jjtThis.setLine (name.getLine ());
       jjtThis.setColumn (name.getColumn ());
+      jjtThis.setFileName (name.getFileName ());
     }
     parameter_dcls()
     [ exceptions = raises_expr() {jjtThis.setExceptions (exceptions);} ] 
@@ -1661,6 +1794,7 @@ void param_dcl() #ParameterElement :
     jjtThis.setName (name.getName ()); 
     jjtThis.setLine (name.getLine ()); 
     jjtThis.setColumn (name.getColumn ()); 
+    jjtThis.setFileName (name.getFileName ());
   }
 }
 
@@ -1828,9 +1962,13 @@ Identifier identifier() #Identifier :
 	  __ex.currentToken = t;
 	  throw __ex;
       }
-
+      //System.out.println ("creating Identifier: " + __id);
       jjtThis.setName (__id); 
-      jjtThis.setLine (t.beginLine);
+      jjtThis.setLine (t.beginLine - _M_counter);
+      //System.out.println ("orig line: " + t.beginLine);
+      //System.out.println ("line: " + (t.beginLine - _M_counter));
+      //System.out.println ("file: " + _M_file_name);
+      jjtThis.setFileName (_M_file_name);
       //if (!__underscore)
       jjtThis.setColumn (t.beginColumn - 1);
       //else
@@ -2047,6 +2185,10 @@ TOKEN :
 	      | (["0"-"9"])+ 
 	      )
        (["d","D"])  >
+|
+  < VERSION : ( (["0"-"9"])+ "." (["0"-"9"])+ ) >
+|
+  <  FILE : ( "\"" ( (~["\"","\n","\r"]) )* "\"" ) >
 }
 
 

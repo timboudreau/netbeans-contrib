@@ -22,6 +22,7 @@ import org.openide.nodes.Node;
 import org.netbeans.modules.corba.wizard.nodes.actions.*;
 import org.netbeans.modules.corba.wizard.nodes.utils.*;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
+import org.netbeans.modules.corba.wizard.nodes.gui.ExPanel;
 
 /** 
  *
@@ -36,6 +37,7 @@ public class IdlFileNode extends FMNode implements Node.Cookie {
     public IdlFileNode () {
         super (null);
         this.getCookieSet().add (this);
+        
         this.setName ("Idl Node");
         this.setIconBase(ICON_BASE);
     }
@@ -54,10 +56,13 @@ public class IdlFileNode extends FMNode implements Node.Cookie {
             SystemAction.get (CreateConstantAction.class),
             SystemAction.get (CreateEnumAction.class),
             SystemAction.get (CreateExceptionAction.class),
+            SystemAction.get (CreateFwdDclAction.class),
             SystemAction.get (CreateInterfaceAction.class),
             SystemAction.get (CreateModuleAction.class),
             SystemAction.get (CreateStructAction.class),
-            SystemAction.get (CreateUnionAction.class)
+            SystemAction.get (CreateUnionAction.class),
+            SystemAction.get (CreateValueBoxAction.class),
+            SystemAction.get (CreateValueTypeAction.class)
         };
     }
   
@@ -74,6 +79,10 @@ public class IdlFileNode extends FMNode implements Node.Cookie {
     public void generate (PrintWriter out) throws IOException {
         out.println (generateSelf (0));
     }
+    
+    public String generate () {
+        return this.generateSelf(0);
+    }
   
     public boolean canDestroy () {
         return false;
@@ -81,6 +90,13 @@ public class IdlFileNode extends FMNode implements Node.Cookie {
   
     public boolean canRename () {
         return false;
+    }
+    
+    public ExPanel getEditPanel() {
+        return null;
+    }
+    
+    public void reInit (ExPanel p) {
     }
   
 }

@@ -25,8 +25,8 @@ public class POAActivatorElement extends POAMemberElement {
     
     public String getDefaultVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getString("FMT_DefaultPOAActivatorVarName") + String.valueOf(counter)))
+        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultPOAActivatorVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getString("FMT_DefaultPOAActivatorVarName") + String.valueOf(counter);
+        return POASupport.getPOASettings().getDefaultPOAActivatorVarName() + String.valueOf(counter);
     }
 }

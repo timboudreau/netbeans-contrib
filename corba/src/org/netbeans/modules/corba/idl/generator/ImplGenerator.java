@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.text.MessageFormat;
 
 import java.io.PrintStream;
+import java.io.File;
 
 import java.lang.reflect.Modifier;
 
@@ -38,6 +39,7 @@ import java.beans.PropertyChangeEvent;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
+import org.openide.filesystems.FileStateInvalidException;
 
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -110,7 +112,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private boolean showMessage; // Fix of showing message when the sync is disabled
     private boolean _M_exception_occured;
-    private IDLElement _M_src;
+    private static IDLElement _M_src;
 
     private String IMPLBASE_IMPL_PREFIX;
     private String IMPLBASE_IMPL_POSTFIX;
@@ -165,8 +167,7 @@ public class ImplGenerator implements PropertyChangeListener {
     private static HashMap _S_idl_mapping_names;
 
     static {
-
-
+	ImplGenerator.initKeywordsMaps ();
     }
 
     public ImplGenerator (IDLDataObject _do) {
@@ -233,6 +234,9 @@ public class ImplGenerator implements PropertyChangeListener {
         _M_src = __src;
     }
 
+    private static IDLElement getSources () {
+	return _M_src;
+    }
 
     public void setOpen (boolean __value) {
 	_M_open = __value;
@@ -317,7 +321,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	_S_idl_mapping_names.put ("Operations", __object);
 	_S_idl_mapping_names.put ("POA", __object);
 	_S_idl_mapping_names.put ("POATie", __object);
-	_S_idl_mapping_names.put ("PackagePackage", __object);
+	//_S_idl_mapping_names.put ("Package", __object);
     }
 
 
@@ -341,6 +345,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     public static String idl_name2java_name (String __name) {
+	//boolean DEBUG=true;
 	if (DEBUG)
 	    System.out.println ("idl_name2java_name () <- " + __name);
 	String __result;
@@ -515,6 +520,13 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
+    private static boolean is_absolute_scope_name (String __name) {
+	if (__name.indexOf ("::") == 0)
+	    return true;
+	return false;
+    }
+
+
     private boolean is_scope_type (IDLType __type) {
 	if (DEBUG)
 	    System.out.println ("isScopeType (" + __type.getName () + ");");
@@ -604,158 +616,199 @@ public class ImplGenerator implements PropertyChangeListener {
         }
     }
 
-
-    public static IDLElement findModule (String name, IDLElement from) {
-        if (DEBUG)
-            System.out.println ("ImplGenerator::findModule (" + name + ", " + from.getName () + ":" // NOI18N
-                                + from + ");"); // NOI18N
-        if (from.getName ().equals (name)) {
-            return from;
-        }
-        else {
-            if (findModuleIn (name, from) != null)
-                return findModuleIn (name, from);
-            else
-                if (from.getParent () != null) {
-                    return findModule (name, from.getParent ());
-                }
-            return null;
-        }
-    }
-
-
-    public static IDLElement findModuleIn (String name, IDLElement from) {
-
-        if (from == null)
-            return null;
-
-        if (DEBUG)
-            System.out.println ("ImplGenerator::findModuleIn (" + name + ", " + from.getName () // NOI18N
-                                + ":" + from + ");"); // NOI18N
-
-        Vector mm = from.getMembers ();
-        IDLElement retval = null;
-        for (int i=0; i<mm.size (); i++) {
-            if (from.getMember (i) instanceof ModuleElement
-                    || from.getMember (i) instanceof InterfaceElement) {
-                if (((IDLElement)from.getMember (i)).getName ().equals (name)) {
-                    retval = from.getMember (i);
-                    break;
-                }
-            }
-        }
-
-        return retval;
-    }
+    /*
+      public static List findModule (String __name, IDLElement __from) {
+      if (DEBUG)
+      System.out.println ("ImplGenerator::findModule ("
+      + __name + ", " + __from.getName () + ":" // NOI18N
+      + __from + ");"); // NOI18N
+      //if (__from.getName ().equals (__name)) {
+      //List __tmp = new ArrayList ();
+      //__tmp.add (from);
+      //return __tmp;
+      //}
+      //else {
+    
+      if (ImplGenerator.findModuleIn (__name, __from) != null)
+      return ImplGenerator.findModuleIn (__name, __from);
+      else
+      if (__from.getParent () != null) {
+      return ImplGenerator.findModule (__name, __from.getParent ());
+      }
+      return null;
+      }
 
 
-    public static IDLElement findElementByName (String name, IDLElement from) {
-        // constructed type by name
-        if (DEBUG)
-            System.out.println ("ImplGenerator::findElementByName (" + name + ", " + from.getName () // NOI18N
-                                + ":" + from + ");"); // NOI18N
-        //from = findType (name, from);
-        Vector mm = from.getMembers ();
-        IDLElement result = null;
-        // for absolute sope names
-        if (isAbsoluteScopeName (name)) {
-            IDLElement tmp_from = findTopLevelModuleForName (name, from);
-            String tmp_name = getSimpleName (name);
-            result = findElementInElement (name, tmp_from);
-
-            return result;
-        }
-
-        if (isScopeName (name)) {
-            IDLElement tmp_from = findModuleForScopeName (name, from);
-            String tmp_name = getSimpleName (name);
-            result = findElementInElement (name, tmp_from);
-
-            return result;
-        }
-        result = findElementInElement (name, from);
-        if (result != null)
-            return result;
-        else
-            if (from.getParent () != null)
-                return findElementByName (name, from.getParent ());
-        return null;
-    }
+      public static List findModuleIn (String __name, IDLElement __from) {
+      return ImplGenerator.findModuleIn (__name, __from, new ArrayList ());
+      }
 
 
-    public static IDLElement findModuleForScopeName (String name, IDLElement from) {
-        if (DEBUG)
-            System.out.println ("ImplGenerator::findModuleForScopeName (" + name + ", " + // NOI18N
-                                from.getName () + ":" + from + ");"); // NOI18N
-        StringTokenizer st = new StringTokenizer (name, "::"); // NOI18N
-        String retval = ""; // NOI18N
-        String s1;
-        IDLElement fm = findModule (st.nextToken (), from);
-        while (st.hasMoreTokens ()) {
-            s1 = st.nextToken ();
-            if (st.hasMoreTokens ()) {
-                // in s1 in module name
-                fm = findModuleIn (s1, fm);
-            } else {
-                // in s1 is name of type
-                break;
-            }
-        }
+      public static List findModuleIn (String __name, IDLElement __from, List __lexical_cut) {
+      
+      if (__from == null)
+      return null;
+      
+      if (DEBUG)
+      System.out.println ("ImplGenerator::findModuleIn ("
+      + __name + ", " + __from.getName () // NOI18N
+      + ":" + __from + ");"); // NOI18N
+      
+      Vector __mm = __from.getMembers ();
+      int __start = -1;
+      Iterator __iter = __lexical_cut.iterator ();
+      while (__start == -1 && __iter.hasNext ()) {
+      __start = __mm.indexOf (__iter.next ());
+      }
+      if (DEBUG)
+      System.out.println ("start index: " + __start);
+      if (__start == -1) {
+      // we didn't find any element from __lexical_cut in __mm
+      // => we can search whole __mm from the end to the begining
+      __start = __mm.size () - 1;
+      }
+      if (DEBUG)
+      System.out.println ("start index2: " + __start);
+      List __retval = null;
+      for (int __i=__start; __i>=0; __i--) {
+      if (__from.getMember (__i) instanceof ModuleElement
+      || __from.getMember (__i) instanceof InterfaceElement) {
+      if (((IDLElement)__from.getMember (__i)).getName ().equals (__name)) {
+      if (__retval == null)
+      __retval = new ArrayList ();
+      __retval.add (__from.getMember (__i));
+      }
+      }
+      }
+      return __retval;
+      }
+    */
+    /*
+      public static IDLElement findElementByName (String __name, IDLElement __from) {
+      // constructed type by name
+      //if (DEBUG)
+      System.out.println ("ImplGenerator::findElementByName ("
+      + __name + ", " + __from.getName () // NOI18N
+      + ":" + __from + ");"); // NOI18N
+      Thread.dumpStack ();
+      //from = findType (name, from);
+      //Vector __mm = __from.getMembers ();
+      IDLElement __result = null;
+      // for absolute sope names
+      if (ImplGenerator.isAbsoluteScopeName (__name)) {
+      //IDLElement __tmp_from = ImplGenerator.findTopLevelModuleForName
+      //(__name, __from);
+      //String __tmp_name = ImplGenerator.getSimpleName (__name);
+      //__result = ImplGenerator.findElementInElement (__name, __tmp_from);
+      List __list_name = ImplGenerator.scope_name2list (__name);
+      IDLElement __element = ImplGenerator.getSources ();
+      List __modules = new ArrayList ();
+      __modules.add (__element);
+      List __l_cut = ImplGenerator.makeLexicalCut (__from);
+      List __tmp_result = ImplGenerator.findElementsByScopeName
+      (__list_name, __modules, __l_cut);
+      if (__tmp_result.size () > 0)
+      return (IDLElement)__tmp_result.get (0);
+      return null;
+      }
 
-        return fm;
-    }
+      if (ImplGenerator.isScopeName (__name)) {
+      //IDLElement __tmp_from = ImplGenerator.findModuleForScopeName (__name, __from);
+      //String __tmp_name = ImplGenerator.getSimpleName (__name);
+      //__result = ImplGenerator.findElementInElement (__name, __tmp_from);
+      return __result;
+      }
+      //__result = ImplGenerator.findElementInElement (__name, __from);
+      __result = ImplGenerator.findElementUpward (__name, __from);
+      //if (__result != null)
+      //return __result;
+      //else
+      //if (__from.getParent () != null)
+      //return ImplGenerator.findElementByName (__name, __from.getParent ());
+      
+      //return null;
+      return __result;
+      }
+    */
+    /*
+      public static IDLElement findModuleForScopeName (String name, IDLElement from) {
+      if (DEBUG)
+      System.out.println ("ImplGenerator::findModuleForScopeName (" + name + ", " + // NOI18N
+      from.getName () + ":" + from + ");"); // NOI18N
+      StringTokenizer st = new StringTokenizer (name, "::"); // NOI18N
+      String retval = ""; // NOI18N
+      String s1;
+      IDLElement fm = (IDLElement)(findModule (st.nextToken (), from)).get (0);
+      while (st.hasMoreTokens ()) {
+      s1 = st.nextToken ();
+      if (st.hasMoreTokens ()) {
+      // in s1 in module name
+      fm = (IDLElement)(findModuleIn (s1, fm)).get (0);
+      } else {
+      // in s1 is name of type
+      break;
+      }
+      }
+      
+      return fm;
+      }
+    */
 
+    /*
+      public IDLElement findModuleForScopeType (IDLType type, IDLElement from) {
+      if (DEBUG)
+      System.out.println ("ImplGenerator::findModuleForScopeType (" + type + ", " // NOI18N
+      + from.getName () + ":" + from + ");"); // NOI18N
+      if (type.getType () == IDLType.SEQUENCE)
+      return findModuleForScopeName (type.ofType ().getName (), from);
+      else
+      return findModuleForScopeName (type.getName (), from);
+      }
+    */
+    /*
+      public static IDLElement findTopLevelModuleForName (String __name, IDLElement __from) {
+      if (DEBUG)
+      System.out.println ("ImplGenerator::findTopLevelModuleForName ("
+      + __name + ", " // NOI18N
+      + __from.getName () + ":" + __from + ");"); // NOI18N
+      StringTokenizer __st = new StringTokenizer (__name, "::"); // NOI18N
+      String __retval = ""; // NOI18N
+      String __s1;
+      IDLElement __fm = __from;
+      // find top level IDLElement
+      while (__fm.getParent () != null) {
+      __fm = __fm.getParent ();
+      }
+      //fm = findModuleIn (st.nextToken (), from);
+      while (__st.hasMoreTokens ()) {
+      __s1 = __st.nextToken ();
+      if (__st.hasMoreTokens ()) {
+      // in s1 in module name
+      __fm = (IDLElement)(ImplGenerator.findModuleIn (__s1, __fm)).get (0);
+      } else {
+      // in s1 is name of type
+      break;
+      }
+      }
+      
+      return __fm;
+      }
+    */
 
-    public IDLElement findModuleForScopeType (IDLType type, IDLElement from) {
-        if (DEBUG)
-            System.out.println ("ImplGenerator::findModuleForScopeType (" + type + ", " // NOI18N
-                                + from.getName () + ":" + from + ");"); // NOI18N
-        if (type.getType () == IDLType.SEQUENCE)
-            return findModuleForScopeName (type.ofType ().getName (), from);
-        else
-            return findModuleForScopeName (type.getName (), from);
-    }
+    /*
+      public IDLElement findTopLevelModuleForType (IDLType type, IDLElement from) {
+      if (DEBUG)
+      System.out.println ("ImplGenerator::findTopLevelModuleForType (" + type + ", " // NOI18N
+      + from.getName () + ":" + from + ");"); // NOI18N
+      if (type.getType () == IDLType.SEQUENCE)
+      return this.findTopLevelModuleForName (type.ofType ().getName (), from);
+      else
+      return this.findTopLevelModuleForName (type.getName (), from);
+      
+      }
+    */
 
-
-    public static IDLElement findTopLevelModuleForName (String name, IDLElement from) {
-        if (DEBUG)
-            System.out.println ("ImplGenerator::findTopLevelModuleForName (" + name + ", " // NOI18N
-                                + from.getName () + ":" + from + ");"); // NOI18N
-        StringTokenizer st = new StringTokenizer (name, "::"); // NOI18N
-        String retval = ""; // NOI18N
-        String s1;
-        IDLElement fm = from;
-        // find top level IDLElement
-        while (fm.getParent () != null) {
-            fm = fm.getParent ();
-        }
-        //fm = findModuleIn (st.nextToken (), from);
-        while (st.hasMoreTokens ()) {
-            s1 = st.nextToken ();
-            if (st.hasMoreTokens ()) {
-                // in s1 in module name
-                fm = findModuleIn (s1, fm);
-            } else {
-                // in s1 is name of type
-                break;
-            }
-        }
-
-        return fm;
-    }
-
-    public IDLElement findTopLevelModuleForType (IDLType type, IDLElement from) {
-        if (DEBUG)
-            System.out.println ("ImplGenerator::findTopLevelModuleForType (" + type + ", " // NOI18N
-                                + from.getName () + ":" + from + ");"); // NOI18N
-        if (type.getType () == IDLType.SEQUENCE)
-            return this.findTopLevelModuleForName (type.ofType ().getName (), from);
-        else
-            return this.findTopLevelModuleForName (type.getName (), from);
-
-    }
-
-
+    
     public String ctype2package (IDLElement __type) {
         // checking modules
         if (DEBUG)
@@ -806,22 +859,469 @@ public class ImplGenerator implements PropertyChangeListener {
         return name;
     }
 
+    
+    private static List elementParents (IDLElement __element) {
+	if (__element.getParent () == null
+	    || __element.getParent ().getParent () == null) {
+	    return new ArrayList ();
+	}
 
-    public static IDLElement findElementInElement (String __name, IDLElement __element) {
-        __name = ImplGenerator.nameFromScopeName (__name);
+	List __result = new ArrayList ();
+	__result.add (__element.getParent ());
+	__result.addAll (ImplGenerator.elementParents (__element.getParent ()));
+	return __result;
+    }
+
+    private static List makeLexicalCut (IDLElement __element) {
+	List __result = ImplGenerator.elementParents (__element);
+	__result.add (0, __element);
+	return __result;
+    }
+
+    private static IDLElement findElementUpward (String __name, IDLElement __from) {
+	System.out.println ("findElementUpward (" + __name + ", " + __from + ");");
+	List __result = new ArrayList ();
+	List __l_cut = ImplGenerator.makeLexicalCut (__from);
+	System.out.println ("__l_cut: " + __l_cut);
+	List __parents = ImplGenerator.elementParents (__from);
+	System.out.println ("__parents: " + __parents);
+	Iterator __iter_parents = __parents.iterator ();
+	while (__iter_parents.hasNext ()) {
+	    IDLElement __parent = (IDLElement)__iter_parents.next ();
+	    List __name_list = new ArrayList ();
+	    __name_list.add (__name);
+	    List __tmp = ImplGenerator.findElementInElement
+		(__name_list, __parent, __l_cut, false);
+	    if (__tmp != null)
+		__result.addAll (__tmp);
+	}
+	System.out.println ("__result: " + __result);
+	if (__result.size () > 0)
+	    return (IDLElement)__result.get (0);
+	return null;
+    }
+
+
+    private static List scope_name2list (String __name) {
+	if (DEBUG)
+	    System.out.println ("scope_name2list (" + __name + ");");
+        StringTokenizer __st = new StringTokenizer (__name, "::"); // NOI18N
+	String __s = null;
+	List __result = new ArrayList ();
+        while (__st.hasMoreTokens ()) {
+            __s = __st.nextToken ();
+	    __result.add (__s);
+        }
+	if (DEBUG)
+	    System.out.println ("scope_name2list () -> " + __result);
+	return __result;
+    }
+    /*
+      private static List findElementsByScopeName (List __name, List __from,
+      List __lexical_cut) {
+      System.out.println ("findElementsByScopeName (" + __name + ", " + __from + ", "
+      + __lexical_cut + ");");
+      List __result = new ArrayList ();
+      Iterator __name_iter = __name.iterator ();
+      Iterator __from_iter = __from.iterator ();
+      
+      while (__name_iter.hasNext ()) {
+      String __tmp_name = (String)__name_iter.next ();
+      //List __result = new ArrayList ();
+      if (__name_iter.hasNext ()) {
+      // container
+      while (__from_iter.hasNext ()) {
+      IDLElement __module = (IDLElement)__from_iter.next ();
+      List __tmp = ImplGenerator.findModuleIn
+      (__tmp_name, __module, __lexical_cut);
+      if (__tmp != null)
+      __result.addAll (__tmp);
+      }
+      __name.remove (0);
+      __result = ImplGenerator.findElementsByScopeName
+      (__name, __result, __lexical_cut);
+      }
+      else {
+      // simple name => we have to find elements by calling findElementInElement
+      while (__from_iter.hasNext ()) {
+      IDLElement __module = (IDLElement)__from_iter.next ();
+      List __name_list = new ArrayList ();
+      __name_list.add (__tmp_name);
+      List __tmp = ImplGenerator.findElementInElement
+      (__name_list, __module, __lexical_cut, false);
+      if (__tmp != null)
+      __result.addAll (__tmp);
+      }
+      //return __result;
+      }
+      }
+      System.out.println ("findElementsByScopeName () -> " + __result);
+      return __result;
+      }
+    */
+
+    private static IDLElement find_element_by_type (IDLType __type, IDLElement __from) {
+	if (DEBUG)
+            System.out.println ("ImplGenerator::find_element_by_type ("
+				+ __type + ", " // NOI18N
+                                + __from.getName () + ":" + __from + ");"); // NOI18N
+        if (__type.getType () == IDLType.SEQUENCE)
+            return ImplGenerator.find_element_by_name (__type.ofType ().getName (), __from);
+        else
+            return ImplGenerator.find_element_by_name (__type.getName (), __from);
+    }
+
+
+    private static IDLElement find_element_by_name (String __name, IDLElement __from) {
+	Assertion.assert (__name != null && __from != null);
+	//boolean DEBUG=true;
+	if (DEBUG)
+	    System.out.println ("find_element_by_name (" + __name + ", " + __from + ");");
+	IDLElement __result = null;
+	List __lexical_cut = ImplGenerator.makeLexicalCut (__from);
+	List __list_name = ImplGenerator.scope_name2list (__name);
+	List __list_parents = ImplGenerator.elementParents (__from);
+	List __list_find = new ArrayList ();
+	List __visited = new ArrayList ();
+	Stack __c_stack = new Stack ();
+	List __tmp_list = new ArrayList (__list_parents);
+	Collections.reverse (__tmp_list);
+	__c_stack.addAll (__tmp_list);
+	Stack __n_stack = new Stack ();
+	__tmp_list = new ArrayList (__list_name);
+	Collections.reverse (__tmp_list);
+	__n_stack.addAll (__tmp_list);
+	IDLElement __container = null;
+	//if (ImplGenerator.is_container (__from)) {
+	//__container = __from;
+	//__c_stack.add (__from);
+	//}
+	//else {
+	__container = __from.getParent ();
+	//}
+	if (ImplGenerator.is_absolute_scope_name (__name)) {
+	    IDLElement __top_level_module = (IDLElement)__list_parents.get
+		(__list_parents.size () - 1);
+	    if (DEBUG) {
+		System.out.println ("top level module: " + __top_level_module);
+		System.out.println ("top level element: "
+				    + __top_level_module.getParent ());
+	    }
+	    __container = __top_level_module.getParent ();
+	    //__c_stack.addAll (new ArrayList ());
+	    __c_stack = new Stack ();
+	}
+	/*
+	  boolean __include_lexical_cat = false;
+	  if (__list_name.size () > 1) {
+	  // scope name
+	  __include_lexical_cat = true;
+	  }
+	*/
+	boolean __include_lexical_cat = true;
+	//int __debug_count = 0;
+	//int __max_count = 30;
+	    
+	// computing find list
+	for (;;) {
+	    //if (__debug_count == __max_count) {
+	    //	System.out.println ("Abort");
+	    //	return null;
+	    //}
+	    //__debug_count++;
+	    //if (DEBUG)
+	    //System.out.println ("__debug_count: " + __debug_count);
+	    if (DEBUG) {
+		System.out.println ("__c_stack: " + __c_stack);
+		System.out.println ("__n_stack: " + __n_stack);
+		System.out.println ("__list_name: " + __list_name);
+		System.out.println ("__list_parents: " + __list_parents);
+		System.out.println ("__container: " + __container);
+	    }
+	    __list_find = new ArrayList ();
+	    if (!__c_stack.empty ()) {
+		//
+		// we are in container
+		//
+		List __c_list = new ArrayList ();
+		__c_list.addAll (__c_stack);
+		List __reverse_list_parents = new ArrayList ();
+		__reverse_list_parents.addAll (__list_parents);
+		Collections.reverse (__reverse_list_parents);
+		Collections.reverse (__c_list);
+		if (DEBUG) {
+		    System.out.println ("__c_list: " + __c_list);
+		    System.out.println ("__reverse_list_parents: "
+					+ __reverse_list_parents);
+		}
+		List __tmp_list_name = new ArrayList (__list_name);
+		Collections.reverse (__tmp_list_name);
+		__tmp_list_name.remove (0);
+		if (DEBUG)
+		    System.out.println ("__tmp_list_name: " + __tmp_list_name);
+		boolean __right_context = true;
+		//
+		// We have to check is we are int context where finded element 
+		// can appear.
+		// module A {
+		//   interface parent {};
+		//   interface test : A::parent {};
+                // };
+		// so in case of finding A::parent for interface test
+		// we can test if we are int context same as context for 
+		// provided scope name e.g. A::parent
+		// if so we can then try to find name 'parent' instead of 'A'
+		//
+		if (__c_list.size () < __tmp_list_name.size ()) {
+		    __right_context = false;
+		}
+		else {
+		    for (int __i=0; __i<__tmp_list_name.size (); __i++) {
+			IDLElement __module = (IDLElement)__c_list.get (__i);
+			String __module_name = (String)__tmp_list_name.get (__i);
+			if (!__module.getName ().equals (__module_name)) {
+			    __right_context = false;
+			    break;
+			}
+		    }
+		}
+		if (__right_context) {
+		    //
+		    // we are in right context and so we can try to find simple name
+		    // from provided scope name
+		    //
+		    if (DEBUG)
+			System.out.println ("right context");
+		    __list_find.add (__list_name.get (__list_name.size () - 1));
+		    if (__n_stack.size () > 2) {
+			//
+			// our context has more then 2 containers
+			// and so we have to add root of provided scope name into list
+			// for finding for case of existence of same context 
+			// in this context
+			// e.g.
+			// module A {
+			//   module B {
+			//     module A {
+			//       module B {
+			//         interafce parent {};
+                        //       };
+			//     };
+			//     interface test : A::B::parent {};
+			//   };
+			// };
+			// 
+			// Note: we have to test it for context deeper than 1
+			//       because OMG IDL semantics disallow context same name
+			//       as its parent e.g. this is invalid:
+			// 
+			//       module A {
+			//         module A {
+			//           interafce parent {};
+                        //         };
+			//       };
+			//      
+			//
+			__list_find.add (__n_stack.peek ());
+		    }
+		}
+		else {
+		    //
+		    // we are not in right context and so we have to try find
+		    // first name of scope name
+		    //
+		    if (DEBUG)
+			System.out.println ("wrong context");
+		    __list_find.add (__n_stack.peek ());
+		}
+	    }
+	    List __c_list = new ArrayList ();
+	    __c_list.addAll (__c_stack);
+	    List __parents = new ArrayList ();
+	    __parents.addAll (__list_parents);
+	    Collections.reverse (__parents);
+	    if (__c_list.size () < __parents.size ()) {
+		if (__c_list.size () == 0) {
+		    // try to find 'root' module for reopening
+		    if (DEBUG)
+			System.out.println ("try to find 'root' module for reopening");
+		    IDLElement __root = (IDLElement)__parents.get (0);
+		    if (DEBUG)
+			System.out.println ("possible 'root': " + __root.getName ());
+		    __list_find.add (__root.getName ());
+		    __list_find.add (__n_stack.peek ());
+		}
+		else {
+		    // compare both __c_list and __parents
+		    boolean __same = true;
+		    for (int __i=0; __i<__c_list.size (); __i++) {
+			IDLElement __element = (IDLElement)__c_list.get (__i);
+			IDLElement __parent = (IDLElement)__parents.get (__i);
+			if (!__element.getName ().equals (__parent.getName ())) {
+			    // we are not int same module context as need for reopening
+			    __same = false;
+			    break;
+			}
+		    }
+		    if (__same) {
+			// try to find module for reopening
+			IDLElement __module = (IDLElement)__parents.get
+			    (__c_list.size ());
+			if (DEBUG)
+			    System.out.println ("adding module for possible reopening: "
+						+ __module.getName ());
+			__list_find.add (__module.getName ());
+		    }
+		}
+	    }
+	    if (__c_list.size () == 0 && __parents.size () == 0) {
+		// we are in top level element
+		// and we are finding something at this top level
+		__list_find.add (__n_stack.peek ());
+	    }
+	    if (__list_name.size () == 1) {
+		// simple name
+		__list_find.add (__list_name.get (0));
+	    }
+	    if (DEBUG)
+		System.out.println ("__list_find: " + __list_find);
+	    List __found = null;
+	    try {
+		__found = ImplGenerator.findElementInElement
+		    (__list_find, __container, __lexical_cut, __include_lexical_cat);
+	    } catch (Exception __ex) {
+		__ex.printStackTrace ();
+	    }
+	    if (DEBUG)
+		System.out.println ("__found: " + __found);
+	    if (__found != null && __found.size () > 0) {
+		IDLElement __first = null;
+		for (int __k=0; __k<__found.size (); __k++) {
+		    if (__visited.indexOf (__found.get (__k)) > -1) {
+			if (DEBUG)
+			    System.out.println ("visited element: " + __found.get (__k));
+			continue;
+		    }
+		    __first = (IDLElement)__found.get (__k);
+		    if (ImplGenerator.is_container (__first)) {
+			if (DEBUG)
+			    System.out.println ("found container: " + __first);
+			//if (__n_stack.size () > 1) {
+			String __last_name = (String)__list_name.get
+			    (__list_name.size () - 1);
+			if (DEBUG)
+			    System.out.println ("__last_name: " + __last_name);
+			if (__last_name.equals (__first.getName ())) {
+			    if (DEBUG)
+				System.out.println ("target element");
+			    // we found target element (InterfaceElement)
+			    __result = __first;
+			    //break;
+			    return __result;
+			}
+			if (__list_name.indexOf (__first.getName ()) > -1) {
+			    if (DEBUG)
+				System.out.println ("one of scope name");
+			    // we found one name from scope
+			    // => we have to open this scope and find other name
+			    __container = __first;
+			    //__n_stack.pop ();
+			    __c_stack.push (__container);
+			    break;
+			}
+			else {
+			    if (DEBUG)
+				System.out.println ("reopened module");
+			    __container = __first;
+			    __c_stack.push (__container);
+			    break;
+			}
+		    }
+		    else {
+			// found element
+			if (DEBUG)
+			    System.out.println ("found element: " + __first);
+			__result = __first;
+			//break;
+			return __result;
+		    }
+		}
+		if (__first == null) {
+		    // all founded elements were visited
+		    if (__container.getParent () == null)
+			return __result;
+		    __visited.add (__container);
+		    __container = __container.getParent ();
+		    if (!__c_stack.empty ())
+			__c_stack.pop ();
+		    else
+			return __result;
+		}
+	    }
+	    else {
+		// not found element niether container
+		if (__container == null || __container.getParent () == null)
+		    return __result;
+		__visited.add (__container);
+		__container = __container.getParent ();
+		if (!__c_stack.empty ())
+		    __c_stack.pop ();
+		else
+		    return __result;
+	    }
+	}
+	//return __result;
+    }
+    
+
+    private static List findElementInElement (List __list_name, IDLElement __element,
+					      List __lexical_cut,
+					      boolean __include_lexical_cat) {
+        //__name = ImplGenerator.nameFromScopeName (__name);
         if (__element == null)
             return null;
-
+	//boolean DEBUG=true;
         if (DEBUG)
-            System.out.println ("ImplGenerator::findElementInElement (" + __name + ", " // NOI18N
-                                + __element.getName () + ":" + __element + ");"); // NOI18N
+	    System.out.println ("ImplGenerator::findElementInElement ("
+				+ __list_name + ", " // NOI18N
+				+ __element.getName () + ":" + __element + ", "
+				+ __lexical_cut + ", " + __include_lexical_cat
+				+ ");"); // NOI18N
+	if (DEBUG)
+	    __element.dump ("");
+	List __result = new ArrayList ();
+
         Vector __mm = __element.getMembers ();
+	int __start = -1;
+	Iterator __iter = __lexical_cut.iterator ();
+	while (__start == -1 && __iter.hasNext ()) {
+	    __start = __mm.indexOf (__iter.next ());
+	}
+	if (!__include_lexical_cat)
+	    __start--;
+	if (DEBUG)
+	    System.out.println ("start index: " + __start);
+	if (__start <= -1) {
+	    // we didn't find any element from __lexical_cut in __mm
+	    // => we can search whole __mm from the end to the begining
+	    __start = __mm.size () - 1;
+	}
+	if (DEBUG)
+	    System.out.println ("start index2: " + __start);
         IDLElement __tmp_element = null;
 
-        for (int __i=0; __i<__mm.size (); __i++) {
-            if (DEBUG)
-                System.out.println ("i = " + __i); // NOI18N
+	String __name = null;
+        for (int __i=__start; __i>=0; __i--) {
+	    Iterator __name_iterator = __list_name.iterator ();
+	    while (__name_iterator.hasNext ()) {
+		__name = (String)__name_iterator.next ();
+		if (DEBUG)
+		    System.out.println (__i + ". finding: " + __name);
+		if (DEBUG)
+		    System.out.println ("i = " + __i); // NOI18N
 	    __tmp_element = __element.getMember (__i);
+	    if (DEBUG)
+		System.out.println ("__tmp_element: " + __tmp_element);
             if (__tmp_element instanceof TypeElement) {
                 if (DEBUG)
                     System.out.println ("type element"); // NOI18N
@@ -832,7 +1332,8 @@ public class ImplGenerator implements PropertyChangeListener {
                         __tmp_element = __tmp_element.getMember (0);
                         if (DEBUG)
                             System.out.println ("element: " + __tmp_element+ " : " + __tmp_element.getName ()); // NOI18N
-                        return __tmp_element;
+                        //return __tmp_element;
+			__result.add (__tmp_element);
                     }
 		    // we need to check all children
 		    // e.g.
@@ -855,7 +1356,8 @@ public class ImplGenerator implements PropertyChangeListener {
 				System.out.println ("element: " + __tmp_element // NOI18N
 						    + " : " // NOI18N
 						    + __tmp_element.getName ()); // NOI18N
-			    return __tmp_element;
+			    //return __tmp_element;
+			    __result.add (__tmp_element);
 			}
 		    }
 		    // end of children checks
@@ -871,11 +1373,8 @@ public class ImplGenerator implements PropertyChangeListener {
 		    }
 		    
                     if (__tmp_del.getName ().equals (__name)) {
-                        //__tmp_element = __element.getMember (__i).getMember (0);
-                        //if (DEBUG)
-                        //    System.out.println ("element: " + __tmp_element+ " : " + __tmp_element.getName ()); // NOI18N
-                        //return __tmp_element;
-			return __tmp_del;
+			//return __tmp_del;
+			__result.add (__tmp_del);
                     }
                 }
 		if ((__tmp_element.getMembers ().size () > 1)
@@ -892,7 +1391,8 @@ public class ImplGenerator implements PropertyChangeListener {
 			if (DEBUG)
 			    System.out.println ("element: " + __tmp_element+ " : " // NOI18N
 						+ __tmp_element.getName ());
-			return __tmp_element;
+			//return __tmp_element;
+			__result.add (__tmp_element);
 		    }
 		}
             }
@@ -903,8 +1403,8 @@ public class ImplGenerator implements PropertyChangeListener {
                     if (DEBUG)
                         System.out.println ("element: " + __tmp_element + " : " // NOI18N
 					    + __tmp_element.getName ());
-                    return __tmp_element;
-
+                    //return __tmp_element;
+		    __result.add (__tmp_element);
                 }
             }
             if (ImplGenerator.is_interface (__tmp_element)) {
@@ -914,8 +1414,8 @@ public class ImplGenerator implements PropertyChangeListener {
                     if (DEBUG)
                         System.out.println ("element: " + __tmp_element + " : " // NOI18N
 					    + __tmp_element.getName ());
-                    return __tmp_element;
-
+                    //return __tmp_element;
+		    __result.add (__tmp_element);
                 }
             }
             if (ImplGenerator.is_value (__tmp_element)) {
@@ -925,8 +1425,8 @@ public class ImplGenerator implements PropertyChangeListener {
                     if (DEBUG)
                         System.out.println ("element: " + __tmp_element + " : " // NOI18N
 					    + __tmp_element.getName ());
-                    return __tmp_element;
-
+                    //return __tmp_element;
+		    __result.add (__tmp_element);
 		}
 	    }
 	    if (ImplGenerator.is_valuebox (__tmp_element)) {
@@ -936,7 +1436,8 @@ public class ImplGenerator implements PropertyChangeListener {
                     if (DEBUG)
 			System.out.println ("element: " + __tmp_element + " : " // NOI18N
 					    + __tmp_element.getName ());
-                    return __tmp_element;
+                    //return __tmp_element;
+		    __result.add (__tmp_element);
 		}
 		if (__tmp_element.getMembers ().size () > 1
 		    && ImplGenerator.is_constructed_type (__tmp_element.getMember (1))) {
@@ -952,12 +1453,28 @@ public class ImplGenerator implements PropertyChangeListener {
 			    System.out.println ("element: " + __constr_type // NOI18N
 						+ " : " // NOI18N
 						+ __constr_type.getName ());		    
-			return __constr_type;
+			//return __constr_type;
+			__result.add (__constr_type);
 		    }
 		}
             }
-        }
-        return null;
+            if (ImplGenerator.is_module (__tmp_element)) {
+                if (DEBUG)
+                    System.out.println ("module element"); // NOI18N
+                if (__tmp_element.getName ().equals (__name)) {
+                    if (DEBUG)
+                        System.out.println ("element: " + __tmp_element + " : " // NOI18N
+					    + __tmp_element.getName ());
+                    //return __tmp_element;
+		    __result.add (__tmp_element);
+                }
+            }
+
+	    } // while
+	}
+	if (__result.size () > 0)
+	    return __result;
+	return null;
     }
 
     
@@ -977,6 +1494,20 @@ public class ImplGenerator implements PropertyChangeListener {
 	if (__element instanceof InterfaceElement)
 	    return true;
 	return false;
+    }
+
+
+    private static boolean is_module (IDLElement __element) {
+	if (__element instanceof ModuleElement)
+	    return true;
+	return false;
+    }
+
+
+    private static boolean is_container (IDLElement __element) {
+	return (ImplGenerator.is_module (__element) 
+		|| ImplGenerator.is_interface (__element)
+		|| ImplGenerator.is_value (__element));
     }
 
 
@@ -1010,6 +1541,16 @@ public class ImplGenerator implements PropertyChangeListener {
 	    return false;
     }
 
+
+    private static boolean is_array (IDLElement __element) {
+	if (ImplGenerator.is_declarator (__element)) {
+	    DeclaratorElement __declarator = (DeclaratorElement)__element;
+	    if (__declarator.getDimension ().size () > 0)
+		return true;
+	}
+	return false;
+    }
+
     
     private static boolean is_native (IDLElement __element) {
 	IDLType __idl_type = ((TypeElement)__element).getType ();
@@ -1018,6 +1559,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	else
 	    return false;
     }    
+
+
     private Type create_type_from_name (String __name, int __array_dimension) {
 	Type __type = Type.createClass (org.openide.src.Identifier.create (__name));
 	return this.create_type_from_type (__type, __array_dimension);
@@ -1038,7 +1581,11 @@ public class ImplGenerator implements PropertyChangeListener {
 	Type __java_type = null;
 	if (DEBUG) {
 	    System.out.println ("__idl_type: " + __idl_type);
+	    System.out.println ("__orig_type: " + __orig_type);
+	    System.out.println ("__mode: " + __mode);
 	    System.out.println ("__start_element: " + __start_element);
+	    System.out.println ("__array_counter: " + __array_counter);
+	    System.out.println ("__orig_type_element: " + __orig_type_element);
 	}
 	if ((__java_type = this.type2java (__idl_type)) != null) {
 	    if (__mode == Parameter.IN) {
@@ -1062,29 +1609,46 @@ public class ImplGenerator implements PropertyChangeListener {
 		}
 	    }
 	}
-	if (this.is_absolute_scope_type (__idl_type) 
-	    || this.is_scope_type (__idl_type)) {
-	    IDLElement __top_level_module = null;
-	    if (this.is_absolute_scope_type (__idl_type))
-		__top_level_module = this.findTopLevelModuleForType 
-		    (__idl_type, __start_element);
-	    if (this.is_scope_type (__idl_type))
-		__top_level_module = this.findModuleForScopeType 
-		    (__idl_type, __start_element);
-            IDLElement __element_for_type = this.findElementInElement 
-		(__idl_type.getName (), __top_level_module);
-	    if (__element_for_type != null) {
-		if (__orig_type_element == null)
-		    __orig_type_element = __element_for_type;
-		IDLType __new_type = this.create_child_from_type (__idl_type);
-		return this.type2java (__new_type, __orig_type, __mode, __package, 
-				       __top_level_module, __array_counter, 
-				       __orig_type_element);
-	    }
-	}
+	//if (this.is_absolute_scope_type (__idl_type) 
+	//|| this.is_scope_type (__idl_type)) {
+	    /*
+	      IDLElement __top_level_module = null;
+	      if (this.is_absolute_scope_type (__idl_type))
+	      __top_level_module = this.findTopLevelModuleForType 
+	      (__idl_type, __start_element);
+	      if (this.is_scope_type (__idl_type))
+	      __top_level_module = this.findModuleForScopeType 
+	      (__idl_type, __start_element);
+	    */
+	    /*
+	      IDLElement __element_for_type = this.findElementInElement 
+	      (__idl_type.getName (), __top_level_module);
+	    */
+	//IDLElement __element_for_type = ImplGenerator.find_element_by_type
+	//(__idl_type, __start_element);
+	//if (__element_for_type != null) {
+	//if (__orig_type_element == null)
+	//__orig_type_element = __element_for_type;
+	//IDLType __new_type = this.create_child_from_type (__idl_type);
+		//return this.type2java (__new_type, __orig_type, __mode, __package, 
+		//__top_level_module, __array_counter, 
+		//__orig_type_element);
+	//return this.type2java (__new_type, __orig_type, __mode, __package, 
+	//__start_element, __array_counter, 
+	//__orig_type_element);
+	//}
+	//}
+	/*
+	  IDLElement __element_for_type = this.findElementInElement 
+	  (__idl_type.getName (), __start_element);
+	*/
+	/*
+	  IDLElement __element_for_type = ImplGenerator.findElementUpward
+	  (__idl_type.getName (), __start_element);
+	*/
+	IDLElement __element_for_type = ImplGenerator.find_element_by_type
+	    (__idl_type, __start_element);
 
-	IDLElement __element_for_type = this.findElementInElement 
-	    (__idl_type.getName (), __start_element);
 	if (__element_for_type != null) {
 	    if (DEBUG)
 		System.out.println ("found element: " + __element_for_type.getName ());
@@ -1097,6 +1661,21 @@ public class ImplGenerator implements PropertyChangeListener {
 		TypeElement __parent = (TypeElement)__element_for_type.getParent ();
 		IDLType __parent_type = __parent.getType ();
 		DeclaratorElement __declarator = (DeclaratorElement)__element_for_type;
+		if (__mode != Parameter.IN && (this.is_sequence (__parent) 
+					       || this.is_array (__declarator))) {
+		    if (DEBUG)
+			System.out.println ("->spec handling for inout|out declarators");
+		    // handling for cases
+		    // typedef sequence<long, 10> A; || typedef long A[10];
+		    // typedef A B;
+		    // interface test { void op (inout B p);
+		    //                           ^ it has to be mapped to:
+		    // AHolder
+		    String __name = this.ctype2package 
+			(__package, __element_for_type);
+		    return this.create_type_from_name (__name + "Holder", 0);
+		}
+		
 		if (this.is_sequence (__parent)) {
 		    //__new_type = null; // new IDLType (...);
 		    __new_type = new IDLType (__parent_type.ofType ().getType (),
@@ -1186,6 +1765,9 @@ public class ImplGenerator implements PropertyChangeListener {
 		}
 		else {
 		    // inout || out parameter
+		    if (DEBUG)
+			System.out.println ("inout|out of constructed type|interface"
+					    + "|value[box]: " + __idl_type.getName ());
 		    String __name = "";
 		    if (__array_counter > 0)
 			__name = this.ctype2package (__package, __orig_type_element) 
@@ -1198,6 +1780,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    }
 	}
 	if (__start_element.getParent () != null) {
+	    //System.out.println ("end :-)");
 	    return this.type2java (__idl_type, __orig_type, __mode, __package, 
 				   __start_element.getParent (), __array_counter,
 				   __orig_type_element);
@@ -1245,36 +1828,8 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     public String exception2java (String __ex, String __package, IDLElement __element) {
-        if (DEBUG)
-            System.out.println ("-- is exception with absolute scope name"); // NOI18N
-
-        if (this.isAbsoluteScopeName (__ex)) {
-            // is absolute scope name
-            IDLElement __tmp = this.findTopLevelModuleForName (__ex, __element);
-            IDLElement __element_for_exception = this.findElementInElement (__ex, __tmp);
-            String __full_name =""; // NOI18N
-            if (__package.length() >0) 
-                __full_name = __package + "."; // NOI18N
-            __full_name += this.ctype2package (__element_for_exception);
-
-            return __full_name;
-        }
-        if (DEBUG)
-            System.out.println ("-- is exception with scope name"); // NOI18N
-        if (this.isScopeName (__ex)) {
-            IDLElement __tmp = this.findModuleForScopeName (__ex, __element);
-            IDLElement __element_for_exception = this.findElementInElement (__ex, __tmp);
-            String __full_name =""; // NOI18N
-            if (__package.length() >0) 
-                __full_name = __package + "."; // NOI18N
-            __full_name += this.ctype2package (__element_for_exception);
-
-            return __full_name;
-
-        }
-        if (DEBUG)
-            System.out.println ("-- is exception with normal name"); // NOI18N
-        IDLElement __element_for_exception = this.findElementByName (__ex, __element);
+	IDLElement __element_for_exception = ImplGenerator.find_element_by_name
+	    (__ex, __element);
         if (DEBUG)
             System.out.println ("element_for_exception: " + __element_for_exception.getName () + " : " // NOI18N
                                 + __element_for_exception);
@@ -1290,8 +1845,12 @@ public class ImplGenerator implements PropertyChangeListener {
     public MethodElement[] attribute2java (AttributeElement __attr) {
         String __package = _M_ido.getPrimaryFile ().getParent ().getPackageName ('.');
         IDLElement __parent_element = __attr.getParent ();
-        Type __attr_type = this.type2java (__attr.getType (), Parameter.IN, 
-					   __package, __parent_element);
+	/*
+	  Type __attr_type = this.type2java (__attr.getType (), Parameter.IN, 
+	  __package, __parent_element);
+	*/
+	Type __attr_type = this.type2java (__attr.getType (), Parameter.IN, 
+					   __package, __attr);
 	MethodElement __geter = new MethodElement ();
 	MethodElement __seter = new MethodElement ();
 	int __attr_length = 1;
@@ -1351,8 +1910,13 @@ public class ImplGenerator implements PropertyChangeListener {
             System.out.println ("operation2java"); // NOI18N
         String __package = _M_ido.getPrimaryFile ().getParent ().getPackageName ('.');
         IDLElement __parent_element = __operation.getParent ();
-        Type __rettype = this.type2java (__operation.getReturnType (), Parameter.IN, 
-					 __package, __parent_element);
+	/*
+	  Type __rettype = this.type2java (__operation.getReturnType (), Parameter.IN, 
+	  __package, __parent_element);
+	*/
+	Type __rettype = this.type2java (__operation.getReturnType (), Parameter.IN, 
+					 __package, __operation);
+	
 	MethodElement __oper = new MethodElement ();
         if (DEBUG) {
             System.out.println ("operation: " + __operation.getName ()); // NOI18N
@@ -1376,8 +1940,12 @@ public class ImplGenerator implements PropertyChangeListener {
             for (int __i=0; __i<__operation.getParameters ().size (); __i++) {
                 ParameterElement __p 
 		    = (ParameterElement)__operation.getParameters ().elementAt (__i);
-                Type __ptype = this.type2java (__p.getType (), __p.getAttribute (), 
-					       __package, __parent_element);
+		/*
+		  Type __ptype = this.type2java (__p.getType (), __p.getAttribute (), 
+		  __package, __parent_element);
+		*/
+		Type __ptype = this.type2java (__p.getType (), __p.getAttribute (), 
+					       __package, __operation);
                 __params[__i] = new MethodParameter
 		    (this.idl_name2java_name (__p.getName ()), __ptype, false);
             }
@@ -1394,7 +1962,7 @@ public class ImplGenerator implements PropertyChangeListener {
                 __excs[__i] = org.openide.src.Identifier.create
 		    (this.exception2java 
 		     ((String)__operation.getExceptions ().elementAt (__i),
-		      __package, __parent_element));
+		      __package, __operation));
             }
             __oper.setExceptions (__excs);
 
@@ -1436,26 +2004,29 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    public static List get_all_interfaces (IDLElement __element) {
+    public static List get_all_interfaces (IDLElement __element, ObjectFilter __filter) {
 	//return this.get_interfaces (this._M_src);
-	return ImplGenerator.get_elements_from_element (__element, new InterfaceFilter (),
-							true);
+	return ImplGenerator.get_elements_from_element (__element, __filter, true);
     }
 
+
+    public static List get_all_interfaces (IDLElement __element) {
+	return ImplGenerator.get_all_interfaces (__element, new InterfaceFilter ());
+    }
     
-    public List get_all_interfaces () {
-	return ImplGenerator.get_all_interfaces (this._M_src);
+
+    public List get_all_interfaces (ObjectFilter __filter) {
+	return ImplGenerator.get_all_interfaces (this._M_src, __filter);
     }
 
 
-    public static List get_all_values (IDLElement __element) {
-	return ImplGenerator.get_elements_from_element (__element, new ValueFilter (),
-							true);
+    public static List get_all_values (IDLElement __element, ObjectFilter __filter) {
+	return ImplGenerator.get_elements_from_element (__element, __filter, true);
     }
 
 
-    private List get_all_values () {
-	return ImplGenerator.get_all_values (this._M_src);
+    private List get_all_values (ObjectFilter __filter) {
+	return ImplGenerator.get_all_values (this._M_src, __filter);
     }
 
 
@@ -1487,8 +2058,12 @@ public class ImplGenerator implements PropertyChangeListener {
 	    List __tmp_parents = __executor[__i].getParents (__element);
 	    for (int __j=0; __j<__tmp_parents.size (); __j++) {
 		String __name_of_parent = (String)__tmp_parents.get (__j);
+		/*
+		  IDLElement __parent
+		  = this.findElementByName (__name_of_parent, __element);
+		*/
 		IDLElement __parent
-		    = this.findElementByName (__name_of_parent, __element);
+		    = this.find_element_by_name (__name_of_parent, __element);
 		if (__parent == null) {
 		    throw new SymbolNotFoundException (__name_of_parent);
 		}
@@ -1672,7 +2247,9 @@ public class ImplGenerator implements PropertyChangeListener {
     private static String element2java_name (IDLDataObject __ido, IDLElement __element,
 					     String __prefix, String __posfix) {
         String __default_package 
-	    = __ido.getPrimaryFile ().getParent ().getPackageName ('.') + ".";
+	    = __ido.getPrimaryFile ().getParent ().getPackageName ('.');
+	if (!__default_package.equals (""))
+	    __default_package += ".";
 	String __package = ImplGenerator.modules2package (__element);
 	String __name = "";
 	//String __interface_name = this.element2repo_id (__interface, "", "_", "");
@@ -1920,7 +2497,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	}
 	//throw new AssertionException ();
 	//System.out.println (__element);
-	System.out.println ("element: " + __element);
+	if (DEBUG)
+	    System.out.println ("element: " + __element);
 	Assertion.assert (false);
 	return null;
     }
@@ -2014,9 +2592,9 @@ public class ImplGenerator implements PropertyChangeListener {
 	String __name = "";
 	if (__element instanceof FieldElement) {
 	    FieldElement __field  = __clazz.getField (__element.getName ());
-	    if (__field == null)
-		System.out.println ("can't find: " + __element.getName () + " in: " + __clazz);
-	    
+	    Assertion.assert (__field != null);
+	    //if (__field == null)
+	    //System.out.println ("can't find: " + __element.getName () + " in: " + __clazz);
 	    __name = this.create_block_name_from_element (__field);
 	    this.work_with_guarded (__action, __field, __name, __editor);
 	    return;
@@ -2025,10 +2603,11 @@ public class ImplGenerator implements PropertyChangeListener {
 	    MethodElement __tmp = (MethodElement)__element;
 	    MethodElement __method = __clazz.getMethod 
 		(__tmp.getName (), this.method_parameters2types (__tmp.getParameters ()));
-	    if (__method == null) {
-		System.out.println ("can't find __tmp: " + __tmp);
-		System.out.println ("in __clazz: " + __clazz);
-	    }
+	    Assertion.assert (__method != null);
+	    //if (__method == null) {
+	    //System.out.println ("can't find __tmp: " + __tmp);
+	    //System.out.println ("in __clazz: " + __clazz);
+	    //}
 	    __name = this.create_block_name_from_element (__method);
 	    this.work_with_guarded (__action, __method, __name, __editor);
 	    return;
@@ -2037,6 +2616,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    ConstructorElement __tmp = (ConstructorElement)__element;
 	    ConstructorElement __constr = __clazz.getConstructor 
 		(this.method_parameters2types (__tmp.getParameters ()));
+	    Assertion.assert (__constr != null);
 	    __name = this.create_block_name_from_element (__constr);
 	    this.work_with_guarded (__action, __constr, __name, __editor);
 	    return;
@@ -2186,7 +2766,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public void interface2java (ClassElement __clazz, InterfaceElement __interface)
 	throws SymbolNotFoundException {
-
+	//boolean DEBUG=true;
         if (DEBUG)
 	    System.out.println ("ImplGenerator::interface2java (__clazz, " 
 				+ __interface.getName () + ");"); // NOI18N
@@ -2420,10 +3000,14 @@ public class ImplGenerator implements PropertyChangeListener {
 		&& __name.endsWith (ImplGenerator.POSTFIX_OF_FIELD_NAME))
 		__delegation_fields.add (__fields[__i]);
 	}
-	FieldElement[] __tmp_fields = new FieldElement[0];
-	FieldElement[] __fields_for_remove = (FieldElement[])__delegation_fields.toArray
-	    (__tmp_fields);
-	__target.removeFields (__fields_for_remove);
+	if (__delegation_fields.size () > 0) {
+	    FieldElement[] __tmp_fields = new FieldElement[0];
+	    FieldElement[] __fields_for_remove = (FieldElement[])__delegation_fields.toArray
+		(__tmp_fields);
+	    //System.out.println ("__target: " + __target);
+	    //System.out.println ("__fields_for_remove: " + __fields_for_remove);
+	    __target.removeFields (__fields_for_remove);
+	}
     }
 
 
@@ -2657,6 +3241,12 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
+    private String generating_message (String __msg) {
+	if (__msg.startsWith ("."))
+	    return __msg.substring (1);
+	return __msg;
+    }
+
     private void interface2java (InterfaceElement __element)
 	throws SymbolNotFoundException, RecursiveInheritanceException, java.io.IOException {
         if (DEBUG) {
@@ -2669,7 +3259,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    return;
 	}
 
-	RecursiveInheritanceChecker.check (__element);
+	//RecursiveInheritanceChecker.check (__element);
 
 	_M_elements_for_guard_blocks = new LinkedList ();
 
@@ -2706,7 +3296,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	if (DEBUG)
 	    System.out.println ("Generate " + __package + "." // NOI18N
 				+ __impl_name + " ..."); // NOI18N
-	java.lang.Object[] __arr = new Object[] {__package + "." + __impl_name};
+	String __msg = this.generating_message (__package + "." + __impl_name);
+	java.lang.Object[] __arr = new Object[] {__msg};
 	TopManager.getDefault ().setStatusText 
 	    (MessageFormat.format (CORBASupport.GENERATE, __arr));
 
@@ -2838,7 +3429,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	if (DEBUG)
 	    System.out.println ("Generate " + __package + "." // NOI18N
 				+ __impl_name + " ..."); // NOI18N
-	java.lang.Object[] __arr = new Object[] {__package + "." + __impl_name};
+	String __msg = this.generating_message (__package + "." + __impl_name);
+	java.lang.Object[] __arr = new Object[] {__msg};
 	TopManager.getDefault ().setStatusText 
 	    (MessageFormat.format (CORBASupport.GENERATE, __arr));
 
@@ -2906,13 +3498,17 @@ public class ImplGenerator implements PropertyChangeListener {
 		//while (__piter.hasNext ()) {
 		//InitParamDeclElement __param = (InitParamDeclElement)__piter.next ();
 		InitParamDeclElement __param = (InitParamDeclElement)__list.get (__i);
-                Type __ptype = this.type2java (__param.getType (), Parameter.IN, 
-					       __package, __parent_element);
+		/*
+		  Type __ptype = this.type2java (__param.getType (), Parameter.IN, 
+		  __package, __parent_element);
+		*/
+		Type __ptype = this.type2java (__param.getType (), Parameter.IN, 
+					       __package, __factory);
                 __params[__i] = new MethodParameter
 		    (this.idl_name2java_name (__param.getName ()), __ptype, false);
             }
             __method.setParameters (__params);
-
+	    
             this.setBodyOfMethod (__method);
             //__clazz.addMethod (__oper); // now addMethod throws SourceExcetion
         } catch (SourceException e) {
@@ -2925,6 +3521,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private void value_factory2java (ClassElement __clazz, List __factories)
 	throws SourceException {
+	//boolean DEBUG=true;
 	if (DEBUG)
 	    System.out.println ("value_factory2java");
 	InitDclElement __element = (InitDclElement)__factories.get (0);
@@ -2956,16 +3553,16 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private void value_factory2java (List __factories)
 	throws SymbolNotFoundException, RecursiveInheritanceException, java.io.IOException {
-	/*
-	  if (DEBUG) {
-	  System.out.println ("value_factory2java: " + __element.getName ()); // NOI18N
-	  System.out.println ("name: " + _M_ido.getPrimaryFile ().getName ()); // NOI18N
-	  }
-	*/
+	//boolean DEBUG=true;
 	if (__factories.size () == 0)
 	    return;
 	InitDclElement __element = (InitDclElement)__factories.get (0);
 	ValueAbsElement __value = (ValueAbsElement)__element.getParent ();
+	if (DEBUG) {
+	    System.out.println ("value_factory2java: " + __element.getName ()); // NOI18N
+	    System.out.println ("of value: " + __value.getName ()); // NOI18N
+	    System.out.println ("name: " + _M_ido.getPrimaryFile ().getName ()); // NOI18N
+	}
 	String __super_name = __value.getName () + "ValueFactory";
         String __impl_name = this.VALUE_FACTORY_IMPL_PREFIX + __value.getName ()
 	    + this.VALUE_FACTORY_IMPL_POSTFIX;
@@ -2989,7 +3586,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	if (DEBUG)
 	    System.out.println ("Generate " + __package + "." // NOI18N
 				+ __impl_name + " ..."); // NOI18N
-	java.lang.Object[] __arr = new Object[] {__package + "." + __impl_name};
+	String __msg = this.generating_message (__package + "." + __impl_name);
+	java.lang.Object[] __arr = new Object[] {__msg};
 	TopManager.getDefault ().setStatusText 
 	    (MessageFormat.format (CORBASupport.GENERATE, __arr));
 
@@ -3081,9 +3679,16 @@ public class ImplGenerator implements PropertyChangeListener {
 	// status of _M_ido is equal to IDLDataObject.STATUS_OK
 	_M_src = _M_ido.getSources ();
         //Vector members = _M_src.getMembers ();     // update for working with modules :-))
+	String __file_name = "";
+	try {
+	    String __filesystem = _M_ido.getPrimaryFile ().getFileSystem ().getDisplayName ();
+	    __file_name = __filesystem + File.separator
+		+ _M_ido.getPrimaryFile ().toString ();
+	} catch (FileStateInvalidException __ex) {
+	}
         List __members = new ArrayList ();
-	__members.addAll (this.get_all_interfaces ());
-	__members.addAll (this.get_all_values ());
+	__members.addAll (this.get_all_interfaces (new FileInterfaceFilter (__file_name)));
+	__members.addAll (this.get_all_values (new FileValueFilter (__file_name)));
 	//__members.addAll (this.get_all_factories ());
         for (int i=0; i<__members.size (); i++) {
 	    try {
@@ -3093,7 +3698,8 @@ public class ImplGenerator implements PropertyChangeListener {
                     this.interface2java ((InterfaceElement)__members.get (i));
 		if (__members.get (i) instanceof ValueElement) {
                     this.value2java ((ValueElement)__members.get (i));
-		    List __factories = this.get_all_factories ();
+		    List __factories = this.get_all_factories
+			((IDLElement)__members.get (i));
 		    this.value_factory2java (__factories);
 		}
 		//if (__members.get (i) instanceof InitDclElement)

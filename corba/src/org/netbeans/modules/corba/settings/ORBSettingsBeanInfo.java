@@ -163,7 +163,37 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
 		       new PropertyDescriptor ("_M_valuefactory_impl_postfix", // NOI18N
 					       ORBSettings.class,
 					       "getValueFactoryImplPostfix", // NOI18N
-					       "setValueFactoryImplPostfix")
+					       "setValueFactoryImplPostfix"),
+		       /*
+			 new PropertyDescriptor ("_M_cpp_directories", // NOI18N
+			 ORBSettings.class,
+			 "getCPPDirectories", // NOI18N
+			 "setCPPDirectories"),
+			 new PropertyDescriptor ("_M_cpp_defined_symbols", // NOI18N
+			 ORBSettings.class,
+			 "getCPPDefinedSymbols", // NOI18N
+			 "setCPPDefinedSymbols"),
+			 new PropertyDescriptor ("_M_cpp_undefined_symbols", // NOI18N
+			 ORBSettings.class,
+			 "getCPPUndefinedSymbols", // NOI18N
+			 "setCPPUndefinedSymbols")
+		       */
+		       new PropertyDescriptor ("_M_cpp_params", // NOI18N
+					       ORBSettings.class,
+					       "getCPPParams", // NOI18N
+					       "setCPPParams"),
+		       new PropertyDescriptor ("_M_find_method", // NOI18N
+					       ORBSettings.class,
+					       "getFindMethod", // NOI18N
+					       "setFindMethod"),
+		       new PropertyDescriptor ("_M_tie_class_prefix", // NOI18N
+					       ORBSettings.class,
+					       "getTieClassPrefix", // NOI18N
+					       "setTieClassPrefix"),
+		       new PropertyDescriptor ("_M_tie_class_postfix", // NOI18N
+					       ORBSettings.class,
+					       "getTieClassPostfix", // NOI18N
+					       "setTieClassPostfix")
 			   };
 
             desc[0].setDisplayName (ORBSettingsBundle.PROP_SKELS);
@@ -288,6 +318,30 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
 	    desc[31].setDisplayName (ORBSettingsBundle.PROP_VALUEFACTORY_IMPL_POSTFIX);
 	    desc[31].setShortDescription (ORBSettingsBundle.HINT_VALUEFACTORY_IMPL_POSTFIX);
 	    desc[31].setExpert (true);
+
+	    // CPP Options
+	    /*
+	      desc[32].setDisplayName (ORBSettingsBundle.PROP_CPP_DIRECTORIES);
+	      desc[32].setShortDescription (ORBSettingsBundle.HINT_CPP_DIRECTORIES);
+	      desc[33].setDisplayName (ORBSettingsBundle.PROP_CPP_DEFINED_SYMBOLS);
+	      desc[33].setShortDescription (ORBSettingsBundle.HINT_CPP_DEFINED_SYMBOLS);
+	      desc[34].setDisplayName (ORBSettingsBundle.PROP_CPP_UNDEFINED_SYMBOLS);
+	      desc[34].setShortDescription (ORBSettingsBundle.HINT_CPP_UNDEFINED_SYMBOLS);
+	    */
+	    desc[32].setDisplayName (ORBSettingsBundle.PROP_CPP_PARAMS);
+	    desc[32].setShortDescription (ORBSettingsBundle.HINT_CPP_PARAMS);
+	    // find method
+	    desc[33].setDisplayName (ORBSettingsBundle.PROP_LOOK_FOR_IMPLEMENTATIONS);
+	    desc[33].setShortDescription (ORBSettingsBundle.HINT_LOOK_FOR_IMPLEMENTATIONS);
+            desc[33].setPropertyEditorClass (FinderPropertyEditor.class);
+
+	    desc[34].setDisplayName (ORBSettingsBundle.PROP_TIE_CLASS_PREFIX);
+	    desc[34].setShortDescription (ORBSettingsBundle.HINT_TIE_CLASS_PREFIX);
+	    desc[34].setExpert (true);
+	    desc[35].setDisplayName (ORBSettingsBundle.PROP_TIE_CLASS_POSTFIX);
+	    desc[35].setShortDescription (ORBSettingsBundle.HINT_TIE_CLASS_POSTFIX);
+	    desc[35].setExpert (true);
+	    
         } catch (IntrospectionException ex) {
             //throw new InternalError ();
 	    //if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N

@@ -95,6 +95,7 @@ public class ValueElement extends ValueAbsElement {
 	this.setLine (__header.getLine ());
 	this.setColumn (__header.getColumn ());
         this.setCustom (__header.isCustom ());
+	this.setFileName (__header.getFileName ());
     }
 
 }

@@ -15,6 +15,8 @@ package org.netbeans.modules.corba.settings;
 
 import java.util.StringTokenizer;
 import java.util.Properties;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import org.xml.sax.AttributeList;
 
@@ -45,7 +47,13 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
 
     private Properties _M_template_table;
 
-    
+    private HashMap _M_java_patch_table = new HashMap ();
+
+    private LinkedList _M_wizard_requirements = new LinkedList ();
+
+    private Properties _M_binding_template_code = new Properties ();
+
+    private boolean _M_is_supported = true;
     //private boolean _M_template_code_element;
 	
 
@@ -82,6 +90,8 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
 	    _M_settings.setSupported (true);
 	else
 	    _M_settings.setSupported (false);
+	_M_settings.setJavaTemplateCodePatchTable (_M_java_patch_table);
+	_M_java_patch_table = new HashMap ();
     }
     
     public void handle_poa_settings (String __data,AttributeList __attr)
@@ -118,6 +128,8 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
     public void handle_import (String __data, AttributeList __attr)
 	throws org.xml.sax.SAXException {
 	//System.out.print ("handle_import: " + __data);
+	if (__data == null)
+	    __data = "";
 	_M_import = __data;
     }
     
@@ -141,6 +153,8 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
     public void handle_code (String __data, AttributeList __attr)
 	throws org.xml.sax.SAXException {
 	//System.out.print ("handle_code: " + __data);
+	if (__data == null)
+	    __data = "";
 	_M_code = __data;
     }
     
@@ -302,6 +316,8 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
 	//System.out.println ("properties: " + __data);
 	if (_M_template_table == null)
 	    _M_template_table = new Properties ();
+	if (__data == null)
+	    __data = "";
 	_M_template_table.setProperty (__attr.getValue ("name"), __data);
     }
     
@@ -352,19 +368,28 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
 	throws org.xml.sax.SAXException {
 	if (_M_policy == null)
 	    _M_policy = new POAPolicyDescriptor ();
+	if (__data == null)
+	    __data = "";
 	_M_policy.setPrepareCode (__data);
     }
     
     public void handle_client_binding (String __data, AttributeList __attr)
 	throws org.xml.sax.SAXException {
+	WizardSettings __ws = new WizardSettings (_M_is_supported,
+						  _M_wizard_requirements);
 	_M_binding = new ORBBindingDescriptor ();
 	_M_binding.setName (__attr.getValue ("name"));
 	_M_binding.setTemplateTag (__attr.getValue ("template-tag"));
 	_M_binding.setImport (_M_import);
 	_M_binding.setCode (_M_code);
+	_M_binding.setWizardSettings (__ws);
+	_M_binding.setJavaTemplateCodeTable (_M_binding_template_code);
 	_M_settings.addClientBinding (_M_binding);
 	_M_import = null;
 	_M_code = null;
+	_M_is_supported = true;
+	_M_wizard_requirements = new LinkedList ();
+	_M_binding_template_code = new Properties ();
     }
     
     public void handle_impl_int_prefix (String __data, AttributeList __attr)
@@ -381,6 +406,8 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
 	throws org.xml.sax.SAXException {
 	if (_M_policy == null)
 	    _M_policy = new POAPolicyDescriptor ();
+	if (__data == null)
+	    __data = "";
 	_M_policy.setCreateCode (__data);
     }
     
@@ -431,6 +458,8 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
 	throws org.xml.sax.SAXException {
 	_M_settings.addJavaTemplateCode (_M_template_table);
 	_M_template_table = null;
+	//_M_settings.setJavaTemplateCodePatchTable (_M_java_patch_table);
+	//_M_java_patch_table = new HashMap ();
     }
     
     public void handle_conflicts_with_policy (String __data, AttributeList __attr)
@@ -475,14 +504,21 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
     
     public void handle_server_binding (String __data, AttributeList __attr)
 	throws org.xml.sax.SAXException {
+	WizardSettings __ws = new WizardSettings (_M_is_supported,
+						  _M_wizard_requirements);
 	_M_binding = new ORBBindingDescriptor ();
 	_M_binding.setName (__attr.getValue ("name"));
 	_M_binding.setTemplateTag (__attr.getValue ("template-tag"));
 	_M_binding.setImport (_M_import);
 	_M_binding.setCode (_M_code);
+	_M_binding.setWizardSettings (__ws);
+	_M_binding.setJavaTemplateCodeTable (_M_binding_template_code);
 	_M_settings.addServerBinding (_M_binding);
 	_M_import = null;
 	_M_code = null;
+	_M_is_supported = true;
+	_M_wizard_requirements = new LinkedList ();
+	_M_binding_template_code = new Properties ();
     }
     
     public void handle_poa_pattern (String __data, AttributeList __attr)
@@ -665,6 +701,47 @@ public class ORBSettingsHandlerImpl implements ORBSettingsHandler {
 	_M_settings.getPOASettings ().setDefaultServantManagerVarName (__attr.getValue (0));
     }
 
+    public void handle_patch_code (String __data, AttributeList __meta)
+	throws org.xml.sax.SAXException {
+	//System.out.println ("addJavaTemplateCodePatchPair (2) <-" + __meta.getValue (0) + ", " + __data);
+	//_M_settings.addJavaTemplateCodePatchPair (__meta.getValue (0), __data);
+	if (_M_java_patch_table == null)
+	    _M_java_patch_table = new HashMap ();
+	if (__data == null)
+	    __data = "";
+	_M_java_patch_table.put (__meta.getValue (0), __data);
+    }
+
+    public void handle_wizard_requires (String __data, AttributeList __meta)
+	throws org.xml.sax.SAXException {
+	_M_wizard_requirements.add (new WizardRequirement (__meta.getValue ("value"),
+							   __meta.getValue ("title"),
+							   __meta.getValue ("type")));
+	//System.out.println ("requirements: " + _M_wizard_requirements);
+    }
+
+    public void handle_wizard_does_not_support (String __data, AttributeList __meta)
+	throws org.xml.sax.SAXException {
+	_M_is_supported = false;
+    }
+
+    public void handle_binding_template_code (String __data, AttributeList __meta)
+	throws org.xml.sax.SAXException {
+	//System.out.println ("handle_binding_template_code: " + __meta.getValue ("name") + ": " + __data);
+	if (__data == null)
+	    __data = "";
+	_M_binding_template_code.put (__meta.getValue ("name"), __data);
+    }
+
+    public void handle_tie_class_prefix (String __data, AttributeList __attr)
+	throws org.xml.sax.SAXException {
+	_M_settings.setTieClassPrefix (__attr.getValue (0));
+    }
+
+    public void handle_tie_class_postfix (String __data, AttributeList __attr)
+	throws org.xml.sax.SAXException {
+	_M_settings.setTieClassPostfix (__attr.getValue (0));
+    }
 
     public void endDocument () throws org.xml.sax.SAXException {
 	if (DEBUG)

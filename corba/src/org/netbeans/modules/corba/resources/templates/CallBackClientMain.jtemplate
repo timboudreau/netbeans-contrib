@@ -1,0 +1,59 @@
+/*
+ * __NAME__.java  --  call-back client implementation 
+ *
+ * Created on __DATE__, __TIME__ for __ORB_NAME__
+ * with __CLIENT_BINDING_NAME__ binding.
+ */
+
+package Templates.CORBA;
+
+__SERVER_IMPORT__
+__CLIENT_BINDING_IMPORT__
+/**
+ *
+ * @author  __USER__
+ * @version 
+ */
+public class CallBackClientMain implements Runnable {
+
+    private ORB orb;
+
+    public void run() {
+        try {
+            __ORB_SERVER_RUN__
+    	} catch (Exception ex) {
+            ex.printStackTrace ();
+	}
+    }
+
+    /** Creates new __NAME__ */
+    public CallBackClientMain (ORB _orb) {
+        orb = _orb;
+    }
+
+    /**
+    * @param args the command line arguments
+    */
+    public static void main (String args[]) {
+
+	try {
+	    __ORB_PROPERTIES__
+	    __ORB_INIT__
+	    // create call-back object
+            __POA_INIT__
+	    __SERVANTS_INIT__
+	    __SERVANTS_ACTIVATION__
+	    __POA_ACTIVATION__
+            // run CORBA request handling asynchronously
+	    new Thread(new __NAME__(orb)).start();
+
+            // bind to server object
+
+            __CLIENT_BINDING__
+	} catch (Exception ex) {
+	     ex.printStackTrace ();
+	}
+    }
+}
+
+

@@ -31,9 +31,25 @@ public class InterfacePanel extends ExPanel implements DocumentListener {
     public String getName () {
         return this.name.getText();
     }
+    
+    public void setName (String name) {
+	this.name.setText (name);
+    }
   
     public String getBase () {
         return this.base.getText ();
+    }
+    
+    public void setBase (String base) {
+	this.base.setText (base);
+    }
+    
+    public boolean isAbstract () {
+        return this.abst.isSelected();
+    }
+    
+    public void setAbstract (boolean abst) {
+        this.abst.setSelected (abst);
     }
 
     private void postInitComponents () {
@@ -50,33 +66,34 @@ public class InterfacePanel extends ExPanel implements DocumentListener {
         jLabel2 = new javax.swing.JLabel();
         name = new javax.swing.JTextField();
         base = new javax.swing.JTextField();
+        abst = new javax.swing.JCheckBox();
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
-        setPreferredSize(new java.awt.Dimension(250, 56));
-
-        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_ModuleName"));
+        setPreferredSize(new java.awt.Dimension(250, 90));
+        
+        jLabel1.setText(bundle.getString("TXT_ModuleName"));
         jLabel1.setLabelFor(name);
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.insets = new java.awt.Insets(8, 8, 4, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel1, gridBagConstraints1);
-
-
-        jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_BaseInterfaces"));
+        
+        
+        jLabel2.setText(bundle.getString("TXT_BaseInterfaces"));
         jLabel2.setLabelFor(base);
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
         gridBagConstraints1.insets = new java.awt.Insets(4, 8, 8, 8);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel2, gridBagConstraints1);
-
-
-        name.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_Name"));
+        
+        
         name.setPreferredSize(new java.awt.Dimension(100, 16));
-
+        name.setToolTipText(bundle.getString("TIP_Name"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridwidth = 0;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -84,11 +101,11 @@ public class InterfacePanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(name, gridBagConstraints1);
-
-
-        base.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_BaseInterfaces"));
+        
+        
         base.setPreferredSize(new java.awt.Dimension(100, 16));
-
+        base.setToolTipText(bundle.getString("TIP_BaseInterfaces"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 1;
@@ -98,7 +115,19 @@ public class InterfacePanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(base, gridBagConstraints1);
-
+        
+        
+        abst.setToolTipText(bundle.getString("TIP_InterfaceAbstract"));
+        abst.setText(bundle.getString("TXT_Abstract"));
+        
+        gridBagConstraints1 = new java.awt.GridBagConstraints();
+        gridBagConstraints1.gridwidth = 0;
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.insets = new java.awt.Insets(0, 8, 8, 8);
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints1.weightx = 1.0;
+        add(abst, gridBagConstraints1);
+        
     }//GEN-END:initComponents
 
 
@@ -107,7 +136,10 @@ public class InterfacePanel extends ExPanel implements DocumentListener {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField name;
     private javax.swing.JTextField base;
+    private javax.swing.JCheckBox abst;
     // End of variables declaration//GEN-END:variables
+
+    private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle");    
 
     public void removeUpdate(final javax.swing.event.DocumentEvent p1) {
         checkState ();

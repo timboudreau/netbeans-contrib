@@ -30,13 +30,25 @@ public class AttributePanel extends ExPanel implements DocumentListener {
     public String getName () {
         return this.name.getText ();
     }
+    
+    public void setName (String name) {
+	this.name.setText (name);
+    }
   
     public String getType () {
         return this.type.getText ();
     }
+    
+    public void setType (String type) {
+	this.type.setText (type);
+    }
   
     public boolean isReadOnly () {
         return this.readonly.isSelected ();
+    }
+    
+    public void setReadOnly (boolean ro) {
+	this.readonly.setSelected (ro);
     }
 
     private void postInitComponents () {
@@ -58,28 +70,28 @@ public class AttributePanel extends ExPanel implements DocumentListener {
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
         setPreferredSize(new java.awt.Dimension(250, 88));
-
-        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_ModuleName"));
-
+        
+        jLabel1.setText(bundle.getString("TXT_ModuleName"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.insets = new java.awt.Insets(8, 8, 4, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel1, gridBagConstraints1);
-
-
-        jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_Type"));
-
+        
+        
+        jLabel2.setText(bundle.getString("TXT_Type"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
         gridBagConstraints1.insets = new java.awt.Insets(4, 8, 4, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel2, gridBagConstraints1);
-
-
-        name.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_AttributeName"));
+        
+        
         name.setPreferredSize(new java.awt.Dimension(100, 16));
-
+        name.setToolTipText(bundle.getString("TIP_AttributeName"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridwidth = 0;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -87,11 +99,11 @@ public class AttributePanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(name, gridBagConstraints1);
-
-
-        type.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_AttributeType"));
+        
+        
         type.setPreferredSize(new java.awt.Dimension(100, 16));
-
+        type.setToolTipText(bundle.getString("TIP_AttributeType"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 1;
@@ -100,11 +112,11 @@ public class AttributePanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.insets = new java.awt.Insets(4, 4, 4, 8);
         gridBagConstraints1.weightx = 1.0;
         add(type, gridBagConstraints1);
-
-
-        readonly.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_AttributeMode"));
-        readonly.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_Mode"));
-
+        
+        
+        readonly.setToolTipText(bundle.getString("TIP_AttributeMode"));
+        readonly.setText(bundle.getString("TXT_Mode"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridwidth = 0;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -112,7 +124,7 @@ public class AttributePanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(readonly, gridBagConstraints1);
-
+        
     }//GEN-END:initComponents
 
 
@@ -123,6 +135,8 @@ public class AttributePanel extends ExPanel implements DocumentListener {
     private javax.swing.JTextField type;
     private javax.swing.JCheckBox readonly;
     // End of variables declaration//GEN-END:variables
+
+    private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle");    
 
 
     public void removeUpdate(final javax.swing.event.DocumentEvent p1) {

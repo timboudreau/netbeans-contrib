@@ -17,6 +17,8 @@ import java.util.StringTokenizer;
 import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
 import org.netbeans.modules.corba.wizard.nodes.actions.*;
+import org.netbeans.modules.corba.wizard.nodes.gui.UnionMemberPanel;
+import org.netbeans.modules.corba.wizard.nodes.gui.ExPanel;
 
 /** 
  *
@@ -34,12 +36,6 @@ public class UnionMemberNode extends AbstractMutableLeafNode {
         this.setIconBase (ICON_BASE);
     }
   
-    public SystemAction[] createActions () {
-        return new SystemAction [] {
-            SystemAction.get (DestroyAction.class),
-            SystemAction.get (RenameAction.class)
-        };
-    }
   
     public String generateSelf (int indent) {
         String code = new String ();
@@ -68,8 +64,34 @@ public class UnionMemberNode extends AbstractMutableLeafNode {
 
 
     public void destroy () {
-        ((UnionNode)this.getParentNode ()).canAdd = true;
+        if (((UnionMemberKey)this.key).isDefaultValue())
+            ((UnionNode)this.getParentNode ()).canAdd = true;
         super.destroy ();
     }
     
+    public ExPanel getEditPanel () {
+        UnionMemberPanel p = new UnionMemberPanel();
+        p.setName (this.getName());
+        p.setType (((UnionMemberKey)this.key).getType());
+        p.setLabel (((UnionMemberKey)this.key).getLabel());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof UnionMemberPanel) {
+            UnionMemberPanel up = (UnionMemberPanel) p;
+            String newName = up.getName();
+            String newType = up.getType();
+            String newLabel = up.getLabel();
+            UnionMemberKey key = (UnionMemberKey) this.key;
+            if (! key.getName().equals(newName)) {
+                this.setName (newName);
+                key.setName (newName);
+            }
+            if (! key.getType().equals(newType))
+                key.setType (newType);
+            if (! key.getLabel().equals(newLabel))
+                key.setLabel (newLabel);
+        }
+    }
 }

@@ -68,9 +68,10 @@ public class InterfaceElement extends IDLElement {
             System.out.println ("InterfaceElement.jjtClose ()"); // NOI18N
         Vector _members = super.getMembers ();
         header = (InterfaceHeaderElement)_members.elementAt (0);
-        setName (header.getName ());
-        setLine (header.getLine ());
-        setColumn (header.getColumn ());
+        this.setName (header.getName ());
+        this.setLine (header.getLine ());
+        this.setColumn (header.getColumn ());
+	this.setFileName (header.getFileName ());
         // remove InterfaceHeader
         _members.remove (0);
         int max = super.getMembers ().size ();

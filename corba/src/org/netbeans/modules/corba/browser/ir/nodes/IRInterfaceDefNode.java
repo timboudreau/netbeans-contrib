@@ -43,8 +43,10 @@ public class IRInterfaceDefNode extends IRContainerNode {
             for (int i=0; i<indent; i++)
                 fill = fill + SPACE;
             code = code + fill;
-            if (isAbstract || _interface.is_abstract ())
-                code = code + "abstract ";
+            try {
+                if (isAbstract || _interface.is_abstract ())
+                    code = code + "abstract ";
+            }catch (org.omg.CORBA.SystemException sysExc) {}
             code = code + "interface " + _interface.name () + " {\n";
             return code;
         }
@@ -60,7 +62,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
             try {
                 if (isAbstract || _interface.is_abstract ())
                     code = code + "abstract ";
-            } catch (org.omg.CORBA.BAD_OPERATION bo) {}
+            } catch (org.omg.CORBA.SystemException sysExc) {}
             code = code + "interface " + _interface.name ();
             InterfaceDef[] base = _interface.base_interfaces();
             if (base.length > 0){
@@ -168,10 +170,14 @@ public class IRInterfaceDefNode extends IRContainerNode {
             });
         ss.put ( new PropertySupport.ReadOnly (Util.getLocalizedString("TITLE_Abstract"), String.class, Util.getLocalizedString("TITLE_Abstract"), Util.getLocalizedString ("TIP_InterfaceAbstract")) {
             public java.lang.Object getValue () {
-                if (isAbstract || _interface.is_abstract())
-                    return Util.getLocalizedString ("MSG_Yes");
-                else
+                try {
+                    if (isAbstract || _interface.is_abstract())
+                        return Util.getLocalizedString ("MSG_Yes");
+                    else
+                        return Util.getLocalizedString ("MSG_No");
+                }catch (org.omg.CORBA.SystemException sysExc) {
                     return Util.getLocalizedString ("MSG_No");
+                }
             }
         });
         return s;

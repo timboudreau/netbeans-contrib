@@ -47,4 +47,20 @@ public class StructNode extends SENode {
         code = code + fill + "};\n";
         return code;
     }
+    
+    public ExPanel getEditPanel () {
+        ModulePanel p = new ModulePanel ();
+        p.setName (this.getName());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof ModulePanel) {
+            String newName = ((ModulePanel)p).getName();
+            if (!this.key.getName().equals(newName)) {
+                this.key.setName (newName);
+                this.setName (newName);
+            }
+        }
+    }
 }

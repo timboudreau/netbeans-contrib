@@ -37,6 +37,7 @@ public class IDLElement extends SimpleNode
     private int _M_line;
     private int _M_column;
     private Vector _M_members;
+    private String _M_file_name;
 
     private IDLElement _M_parent;
 
@@ -144,6 +145,14 @@ public class IDLElement extends SimpleNode
             System.out.println ("open action :-))"); // NOI18N
     }
 
+    public void setFileName (String __name) {
+	_M_file_name = __name;
+    }
+
+    public String getFileName () {
+	return _M_file_name;
+    }
+
     public String deepToString (IDLElement element) {
         if (DEBUG)
             System.out.println ("IDLElement::deepToString (" + element + ");"); // NOI18N
@@ -244,7 +253,18 @@ public class IDLElement extends SimpleNode
     }
 
     public String toString() {
-	return IDLParserTreeConstants.jjtNodeName[id] + ":" + this.getName ();
+	/*
+	  return IDLParserTreeConstants.jjtNodeName[id] + ":" + this.getName ()
+	  + " - " + this.hashCode () + " in file: " + this.getFileName ();
+	*/
+	String __value = "unknown";
+	try {
+	    __value = IDLParserTreeConstants.jjtNodeName[id] + ":" + this.getName ()
+		+ " - " + this.hashCode ();
+	} catch (Exception __ex) {
+	    __ex.printStackTrace ();
+	}
+	return __value;
     }
 
 

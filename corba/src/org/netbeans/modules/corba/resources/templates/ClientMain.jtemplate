@@ -8,9 +8,7 @@
 package Templates.CORBA;
 
 __CLIENT_IMPORT__
-
 __CLIENT_BINDING_IMPORT__
-
 /**
  *
  * @author  __USER__
@@ -30,13 +28,11 @@ public class ClientMain {
 	try {
 	    __ORB_PROPERTIES__
 	    __ORB_INIT__
-
 	    __CLIENT_BINDING__
 	} catch (Exception ex) {
 	     ex.printStackTrace ();
 	}
     }
-
 }
 
 

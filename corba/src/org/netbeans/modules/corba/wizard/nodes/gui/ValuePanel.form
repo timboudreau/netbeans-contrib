@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.0" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <SyntheticProperties>
+    <SyntheticProperty name="encoding" type="java.lang.String" value="UTF-8"/>
+  </SyntheticProperties>
+
+  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TXT_ValueName" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
+        </Property>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="North"/>
+        </Constraint>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="1" gridX="-1" gridY="-1" insetsBottom="4" insetsLeft="8" insetsRight="4" insetsTop="8" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="name">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TIP_ValueName" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
+        </Property>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="West"/>
+        </Constraint>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="0" gridX="-1" gridY="-1" insetsBottom="4" insetsLeft="4" insetsRight="8" insetsTop="8" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel2">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TXT_ValueType" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
+        </Property>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="Center"/>
+        </Constraint>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="0" gridY="1" insetsBottom="4" insetsLeft="8" insetsRight="4" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="type">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TIP_ValueType" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
+        </Property>
+      </Properties>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="type"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="East"/>
+        </Constraint>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="0" gridX="1" gridY="1" insetsBottom="4" insetsLeft="4" insetsRight="8" insetsTop="4" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JRadioButton" name="pri">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TXT_ValuePrivate" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
+        </Property>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="South"/>
+        </Constraint>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="0" gridX="0" gridY="2" insetsBottom="4" insetsLeft="8" insetsRight="8" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JRadioButton" name="pub">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TXT_ValuePublic" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
+        </Property>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="South"/>
+        </Constraint>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="0" gridX="0" gridY="3" insetsBottom="8" insetsLeft="8" insetsRight="8" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+  </SubComponents>
+</Form>

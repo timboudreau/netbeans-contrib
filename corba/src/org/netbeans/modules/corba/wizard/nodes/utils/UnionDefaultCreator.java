@@ -18,7 +18,7 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @author  tzezula
  * @version 
  */
-public interface UnionDefaultCreator {
+public interface UnionDefaultCreator extends org.openide.nodes.Node.Cookie {
     public void createUnionDefault ();
     public boolean canAdd ();
 }

@@ -23,8 +23,7 @@ Microsystems, Inc. All Rights Reserved.
   &corba23-generic-impl;
 					    
   <java-template-code>
-    <template-code name='ORB_PROPERTIES'>
-      <![CDATA[// setting system properties is necessary in order to use JavaORB in Java 1.2
+    <template-code name='ORB_PROPERTIES'><![CDATA[// setting system properties is necessary in order to use this ORB in JDK
       Properties props = System.getProperties ();
       props.put ("org.omg.CORBA.ORBClass", "JavaORB.CORBA.ORBSingleton");
       props.put ("org.omg.CORBA.ORBSingletonClass", "JavaORB.CORBA.ORBSingleton");
@@ -36,7 +35,7 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value='-tie'/>
     <dir-param value='-outdir:'/>
     <package-param value='-package:'/>
-    <compiler value='java -classpath {repository} JavaORB.compiler.IdlCompiler {dir_param}{package_root} {package_param}{package} {files} {params}'/>
+    <compiler value='java -classpath {repository} JavaORB.compiler.IdlCompiler {cpp_params} {params} {dir_param}{package_root} {package_param}{package} {files}'/>
     <package-delimiter value='.'/>
     <error-expression value='^([^ ]+), Line ([0-9]+) : (.*)'/>
     <file-position value='1'/>

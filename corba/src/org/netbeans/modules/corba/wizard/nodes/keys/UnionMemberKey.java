@@ -37,9 +37,17 @@ public class UnionMemberKey extends AliasKey {
     public String getLabel () {
         return this.label;
     }
+    
+    public void setLabel (String label) {
+        this.label = label;
+    }
 
     public boolean isDefaultValue () {
         return this.defaultValue;
+    }
+    
+    public void setDefaultValue (boolean dv) {
+        this.defaultValue = dv;
     }
   
 }

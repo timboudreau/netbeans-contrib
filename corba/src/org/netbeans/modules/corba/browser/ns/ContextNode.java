@@ -71,13 +71,15 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             final StartPanel panel = new StartPanel ();
             panel.setPort ((short)900);
             panel.setName (NbBundle.getBundle(ContextNode.class).getString("VAL_Local"));
+	    panel.setKind (NbBundle.getBundle(ContextNode.class).getString
+			   ("VAL_LocalKind"));
             DialogDescriptor dd = new DialogDescriptor (panel, NbBundle.getBundle(ContextNode.class).getString("TXT_LocalNS"),true,DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, DialogDescriptor.BOTTOM_ALIGN, null, null);
             Dialog dlg = TopManager.getDefault().createDialog(dd);
             dlg.setVisible(true);
             if (dd.getValue() == DialogDescriptor.OK_OPTION) {
                 dlg.setVisible (false);
                 dlg.dispose();
-                start (panel.getName(), panel.getPort());
+                start (panel.getName(), panel.getKind (), panel.getPort());
             }
             else {
                 dlg.setVisible (false);
@@ -85,7 +87,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             }
         }
 	
-	public void start (String name, short port) {
+	public void start (String name, String __kind, short port) {
             try {
                 //if (this.wrapper == null) {
 		try {
@@ -123,7 +125,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                     TopManager.getDefault().notify(new NotifyDescriptor.Message (java.text.MessageFormat.format (NbBundle.getBundle(ContextNode.class).getString("TXT_BadPort"),new java.lang.Object[]{new Short (port)}),NotifyDescriptor.Message.ERROR_MESSAGE));
                 }
 		else {
-		    ContextNode.this.bind_new_context (name,"","",ior);
+		    ContextNode.this.bind_new_context (name, __kind, "",ior);
 		}
             }catch (Exception se) {
                 TopManager.getDefault().notify (new NotifyDescriptor.Message (se.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
@@ -436,56 +438,50 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     }
 
 
-    public void bind_new_object (String name, String url, String ior)
-    throws java.net.MalformedURLException, java.io.IOException,
-                org.omg.CosNaming.NamingContextPackage.NotFound,
-                org.omg.CosNaming.NamingContextPackage.AlreadyBound,
-                org.omg.CosNaming.NamingContextPackage.CannotProceed,
-        org.omg.CosNaming.NamingContextPackage.InvalidName {
-        org.omg.CORBA.Object obj = null;
+    public void bind_new_object (String __name, String __kind, String __url, String __ior)
+	throws java.net.MalformedURLException, java.io.IOException,
+	       org.omg.CosNaming.NamingContextPackage.NotFound,
+	       org.omg.CosNaming.NamingContextPackage.AlreadyBound,
+	       org.omg.CosNaming.NamingContextPackage.CannotProceed,
+	       org.omg.CosNaming.NamingContextPackage.InvalidName {
+        org.omg.CORBA.Object __obj = null;
         if (DEBUG)
             System.out.println ("ContextNode::bind_new_object ();");
-        if (!url.equals ("")) {
+        if (!__url.equals ("")) {
             //try {
-            URL uc = new URL (url);
-            String ref;
+            URL __uc = new URL (__url);
+            String __ref;
             //FileInputStream file = new FileInputStream(refFile);
-            BufferedReader in =
-                new BufferedReader(new InputStreamReader(uc.openStream ()));
-            ref = in.readLine();
+            BufferedReader __in =
+                new BufferedReader(new InputStreamReader(__uc.openStream ()));
+            __ref = __in.readLine();
             if (orb == null)
-                lazyInit();
-            obj = orb.string_to_object (ref);
-            if (obj == null)
+                this.lazyInit();
+            __obj = orb.string_to_object (__ref);
+            if (__obj == null)
                 TopManager.getDefault().notify( new NotifyDescriptor.Message(NbBundle.getBundle(ContextNode.class).getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
-            //setName (name);
-            //setKind ("");
-            //}
-            //catch (Exception e) {
-            // e.printStackTrace ();
-            //}
         }
 
-        if (!ior.equals ("")) {
+        if (!__ior.equals ("")) {
             if (orb == null)
-                lazyInit();
-            obj = orb.string_to_object (ior);
-            if (obj == null)
+                this.lazyInit();
+            __obj = orb.string_to_object (__ior);
+            if (__obj == null)
                 TopManager.getDefault().notify( new NotifyDescriptor.Message(NbBundle.getBundle(ContextNode.class).getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
         }
 
         if (context != null) {
             if (DEBUG)
                 System.out.println ("pribindeni objectu");
-            NameHolder context_name = new NameHolder ();
-            NameComponent name_component = new NameComponent (name, ""); // name, kind
+            NameHolder __context_name = new NameHolder ();
+            NameComponent __name_component = new NameComponent (__name, __kind);
             //context_name.value = new NameComponent [1];
-            context_name.value = new NameComponent [1];
-            context_name.value[0] = name_component;
+            __context_name.value = new NameComponent [1];
+            __context_name.value[0] = __name_component;
             //context_name.value[0].id = name;
             //context_name.value[0].kind = "";
             //try {
-            context.bind (context_name.value, obj);
+            context.bind (__context_name.value, __obj);
             //} catch (Exception e) {
             //e.printStackTrace ();
             //}

@@ -48,9 +48,9 @@ public class ServantElement extends POAMemberElement {
     
     public String getDefaultVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getString("FMT_DefaultServantVarName") + String.valueOf(counter)))
+        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultServantVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getString("FMT_DefaultServantVarName") + String.valueOf(counter);
+        return POASupport.getPOASettings().getDefaultServantVarName() + String.valueOf(counter);
     }
 
     public boolean canUseAsServantID(String id) {
@@ -59,9 +59,9 @@ public class ServantElement extends POAMemberElement {
 
     public String getDefaultObjID() {
         int counter = 1;
-        while (!canUseAsServantID(POASupport.getString("FMT_DefaultServantID") + String.valueOf(counter)))
+        while (!canUseAsServantID(POASupport.getPOASettings().getDefaultServantId() + String.valueOf(counter)))
             counter++;
-        return POASupport.getString("FMT_DefaultServantID") + String.valueOf(counter);
+        return POASupport.getPOASettings().getDefaultServantId() + String.valueOf(counter);
     }
 
     public String getObjID () {
@@ -80,9 +80,9 @@ public class ServantElement extends POAMemberElement {
 
     public String getDefaultIDVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getString("FMT_DefaultServantID") + String.valueOf(counter)))
+        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultServantIdVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getString("FMT_DefaultServantID") + String.valueOf(counter);
+        return POASupport.getPOASettings().getDefaultServantIdVarName() + String.valueOf(counter);
     }
 
     public String getIDVarName () {

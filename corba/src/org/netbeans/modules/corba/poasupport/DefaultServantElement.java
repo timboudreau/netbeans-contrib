@@ -25,9 +25,9 @@ public class DefaultServantElement extends POAMemberElement {
     
     public String getDefaultVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getString("FMT_DefaultDefaultServantVarName") + String.valueOf(counter)))
+        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultDefaultServantVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getString("FMT_DefaultDefaultServantVarName") + String.valueOf(counter);
+        return POASupport.getPOASettings().getDefaultDefaultServantVarName() + String.valueOf(counter);
     }
     
 }

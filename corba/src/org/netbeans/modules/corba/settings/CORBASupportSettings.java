@@ -204,6 +204,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
 
     public void setOrb (String __value) {
+	//boolean DEBUG=true;
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::setOrb (" + __value + ")"); // NOI18N
         String __old = _M_orb_name;
@@ -323,7 +324,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		    System.out.print (__prefix + this.debug_tag (__position)
 				      + __postfix);
 		    __position++;
-		    if (__position > 4)
+		    if (__position > 3)
 			__position = 0;
 		}
 		if (DEBUG)
@@ -534,15 +535,24 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		// I have to set all transient variables
 		__serialized_setting.setSupported (__loaded_setting.isSupported ());
 		__serialized_setting.setPOASettings (__loaded_setting.getPOASettings ());
+		__serialized_setting.setJavaTemplateCodeTable 
+		    (__loaded_setting.getJavaTemplateCodeTable ());
+		__serialized_setting.backupJavaTemplateCodeTable ();
 		__serialized_setting.setServerBindings 
 		    (__loaded_setting.getServerBindings ());
 		__serialized_setting.setClientBindings 
 		    (__loaded_setting.getClientBindings ());
-		__serialized_setting.setJavaTemplateCodeTable 
-		    (__loaded_setting.getJavaTemplateCodeTable ());
 		__serialized_setting.setIDLTemplateTable 
 		    (__loaded_setting.getIDLTemplateTable ());
+		__serialized_setting.setJavaTemplateCodePatchTable 
+		    (__loaded_setting.getJavaTemplateCodePatchTable ());
 		__serialized_setting.setLocalBundle (__loaded_setting.getLocalBundle ());
+		if (__serialized_setting.getORBTag () == null) {
+		    if (DEBUG)
+			System.out.println ("old project for "
+					    + __serialized_setting.getName ());
+		    __serialized_setting.setORBTag (__loaded_setting.getORBTag ());
+		}
 		
 		__tmp_implementations.add (__serialized_setting);
 	    }
@@ -743,7 +753,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
 
     public void setORBTag (String __value) {
-	try {
+	//try {
+	//boolean DEBUG=true;
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::setORBTag (" + __value + ")"); // NOI18N
         String __old = _M_orb_tag;
@@ -785,9 +796,9 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    __loader.setHide (__orb_hide);
 	}
 
-	} catch (Exception __ex) {
-	    __ex.printStackTrace ();
-	}
+	//} catch (Exception __ex) {
+	//__ex.printStackTrace ();
+	//}
     }
 
     public String getORBTag () {

@@ -8,9 +8,7 @@
 package Templates.CORBA;
 
 __SERVER_IMPORT__
-
 __SERVER_BINDING_IMPORT__
-
 /**
  *
  * @author  __USER__
@@ -31,17 +29,13 @@ public class ServerMain {
 	    __ORB_PROPERTIES__
 	    __ORB_INIT__
 	    __POA_INIT__
-
 	    __SERVANTS_INIT__
 	    __SERVANTS_ACTIVATION__
-
 	    __SERVER_BINDING__
-        
 	    __POA_ACTIVATION__
 	    __ORB_SERVER_RUN__
 	} catch (Exception ex) {
 	     ex.printStackTrace ();
 	}
     }
-
 }

@@ -73,9 +73,9 @@ public class POAElement {
     
     public String getDefaultVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getString("FMT_DefaultPOAName") + String.valueOf(counter)))
+        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultPOAVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getString("FMT_DefaultPOAName") + String.valueOf(counter);
+        return POASupport.getPOASettings().getDefaultPOAVarName() + String.valueOf(counter);
     }
     
     public boolean canUseAsPOAName(String name) {
@@ -86,9 +86,9 @@ public class POAElement {
         if (isRootPOA())
             return POASupport.getString("LBL_RootPOA_node");
         int counter = 1;
-        while (!canUseAsPOAName(POASupport.getString("FMT_DefaultPOAName") + String.valueOf(counter)))
+        while (!canUseAsPOAName(POASupport.getPOASettings().getDefaultPOAName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getString("FMT_DefaultPOAName") + String.valueOf(counter);
+        return POASupport.getPOASettings().getDefaultPOAName() + String.valueOf(counter);
     }
     
     public ClassElement getDeclaringClass() {

@@ -94,6 +94,7 @@ public class POASourceMaker implements PropertyChangeListener {
     /* Is source modified from the last scanning of POA hierarchy */
     private boolean sourceModified = false;
     private ChangeListener changeListener = null;
+    private PropertyChangeListener weak = WeakListener.propertyChange (this, POASupport.getCORBASettings());
     
     /** Creates new POASourceMaker */
     
@@ -160,15 +161,20 @@ public class POASourceMaker implements PropertyChangeListener {
     /* Methods for analysing POA sources */
     
     public synchronized boolean checkForPOA() {
-        String mBody = getMainBody();
-        if (mBody != null && basicMatch(mBody))
-            return true;
+        try {
+            String mBody = getMainBody();
+            if (mBody != null && basicMatch(mBody))
+                return true;
+        }
+        catch (Exception e) {
+        }
         return false;
     }
     
     private synchronized void reinit() {
         if (je != null)
             je.removeChangeListener(changeListener);
+        POASupport.getCORBASettings().removePropertyChangeListener (weak);
         initialized = false;
         writeable = false;
         try {
@@ -196,7 +202,6 @@ public class POASourceMaker implements PropertyChangeListener {
                 if (orbSettings == null)
                     orbSettings = POASupport.getCORBASettings().getActiveSetting();
                 poaSettings = orbSettings.getPOASettings();
-                PropertyChangeListener weak = WeakListener.propertyChange (this, POASupport.getCORBASettings());
                 POASupport.getCORBASettings().addPropertyChangeListener (weak);
                 if (orbTag != null && orbTag.equals(POASupport.getCORBASettings().getActiveSetting().getORBTag()))
                     writeable = true;
@@ -314,7 +319,7 @@ public class POASourceMaker implements PropertyChangeListener {
                 String servantVarName;
                 String parentPOAVarName;
                 String id;
-                if (servantMatcher.getParenCount() < 4) {
+                if (servantMatcher.getParenCount() <= 4) {
                     servantVarName = servantMatcher.getParen(3);
                     parentPOAVarName = servantMatcher.getParen(2);
                     id = servantMatcher.getParen(1);
@@ -541,6 +546,7 @@ public class POASourceMaker implements PropertyChangeListener {
     
     private void addPOAPoliciesCode(Properties policies, Writer poaCodeWriter) throws IOException {
         
+        poaCodeWriter.write("\n"); // NOI18N
         for (Enumeration names = policies.propertyNames() ; names.hasMoreElements() ;) {
             String name = (String)names.nextElement();
             String template = poaSettings.getPolicyByName(name).getPrepareCode();
@@ -678,6 +684,8 @@ public class POASourceMaker implements PropertyChangeListener {
     
     
     public synchronized boolean isSourceModified() {
+        if (jdo != null)
+            return sourceModified || !jdo.isValid();
         return sourceModified;
     }
     
@@ -726,6 +734,8 @@ public class POASourceMaker implements PropertyChangeListener {
     }
     
     private String toJavaInitializationString (String __str) {
+        if (__str == null)
+            return null;
         StringBuffer __buf = new StringBuffer();
         for (int i = 0; i < __str.length(); i++) {
             char c = __str.charAt(i);
@@ -754,6 +764,8 @@ public class POASourceMaker implements PropertyChangeListener {
     }
     
     private String fromJavaInitializationString (String __str) {
+        if (__str == null)
+            return null;
         StringBuffer __buf = new StringBuffer();
         int i = 0;
         int j = __str.indexOf('\\');

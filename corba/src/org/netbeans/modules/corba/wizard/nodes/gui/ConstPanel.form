@@ -15,7 +15,7 @@
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
-          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" key="TXT_ModuleName"/>
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TXT_ModuleName" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -30,7 +30,7 @@
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
-          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" key="TXT_Type"/>
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TXT_Type" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -45,7 +45,7 @@
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
-          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" key="TXT_Value"/>
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TXT_Value" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -59,11 +59,11 @@
     </Component>
     <Component class="javax.swing.JTextField" name="name">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
-          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" key="TIP_ConstName"/>
-        </Property>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[100, 16]"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TIP_ConstName" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -77,11 +77,11 @@
     </Component>
     <Component class="javax.swing.JTextField" name="type">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
-          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" key="TIP_ConstType"/>
-        </Property>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[100, 16]"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TIP_ConstType" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -95,11 +95,11 @@
     </Component>
     <Component class="javax.swing.JTextField" name="value">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
-          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" key="TIP_ConstValue"/>
-        </Property>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[100, 16]"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties" generateField="true" identifier="bundle" initFormat="java.util.ResourceBundle.getBundle(&quot;{0}&quot;)" key="TIP_ConstValue" replaceFormat="{0}.getString(&quot;{1}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>

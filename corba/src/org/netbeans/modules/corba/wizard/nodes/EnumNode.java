@@ -51,7 +51,8 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
             SystemAction.get (CreateEnumEntryAction.class),
             null,
             SystemAction.get (DestroyAction.class),
-            SystemAction.get (RenameAction.class)};
+            SystemAction.get (EditAction.class)
+        };
     }
   
     public String generateSelf (int indent) {
@@ -88,6 +89,30 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
         descriptor.disableOk();
         dialog = TopManager.getDefault().createDialog (descriptor);
         dialog.setVisible (true);
+    }
+    
+    public ExPanel getEditPanel () {
+        EnumPanel p = new EnumPanel ();
+        p.setName (this.getName());
+        p.setValues (((EnumKey)this.key).getValues());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof EnumPanel) {
+            String newName = ((EnumPanel)p).getName();
+            String newValues = ((EnumPanel)p).getValues();
+            EnumKey key = (EnumKey) this.key;
+            if (!key.getName().equals(newName)) {
+                this.setName(newName);
+                key.setName (newName);
+            }
+            if (!key.getValues().equals(newValues)) {
+                key.setValues (newValues);
+                ((MutableChildren)this.getChildren()).removeAllKeys(false);
+                buildEntries();
+            }
+        }
     }
   
     private void buildEntries () {

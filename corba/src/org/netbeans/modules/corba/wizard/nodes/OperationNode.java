@@ -18,6 +18,8 @@ import org.openide.util.actions.SystemAction;
 import org.openide.nodes.Node;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
 import org.netbeans.modules.corba.wizard.nodes.actions.*;
+import org.netbeans.modules.corba.wizard.nodes.gui.OperationPanel;
+import org.netbeans.modules.corba.wizard.nodes.gui.ExPanel;
 
 /** 
  *
@@ -36,12 +38,6 @@ public class OperationNode extends AbstractMutableLeafNode implements Node.Cooki
         this.setIconBase (ICON_BASE);
     }
   
-    public SystemAction[] createActions () {
-        return new SystemAction [] {
-            SystemAction.get (DestroyAction.class),
-            SystemAction.get (RenameAction.class)
-        };
-    }
   
     public String generateSelf (int indent) {
         String code = new String ();
@@ -75,6 +71,45 @@ public class OperationNode extends AbstractMutableLeafNode implements Node.Cooki
         }
         code = code + ";\n"; // No I18N
         return code;
+    }
+    
+    public ExPanel getEditPanel() {
+        OperationPanel p = new OperationPanel ();
+        p.setName (this.getName());
+        OperationKey key = (OperationKey) this.key;
+        p.setContext (key.getContext());
+        p.setExceptions (key.getExceptions());
+        p.setOneway (key.isOneway());
+        p.setParameters (key.getParameters());
+        p.setReturnType (key.getReturnType());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof OperationPanel) {
+            OperationPanel op = (OperationPanel) p;
+            OperationKey key = (OperationKey) this.key;
+            String newName = op.getName();
+            String newCtx = op.getContext();
+            String newRet = op.getReturnType();
+            String newParams = op.getParameters();
+            String newExcept = op.getExceptions();
+            boolean ow = op.isOneway();
+            if (!key.getName().equals(newName)) {
+                this.setName (newName);
+                key.setName (newName);
+            }
+            if (!key.getContext().equals(newCtx))
+                key.setContext (newCtx);
+            if (!key.getExceptions().equals(newExcept))
+                key.setExceptions (newExcept);
+            if (!key.getParameters().equals(newParams))
+                key.setParameters (newParams);
+            if (!key.getReturnType().equals(newRet))
+                key.setReturnType (newRet);
+            if (key.isOneway() != ow)
+                key.setOneway (ow);
+        }
     }
   
 }

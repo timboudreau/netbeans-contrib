@@ -14,7 +14,11 @@
 package org.netbeans.modules.corba.wizard;
 
 import org.openide.loaders.DataFolder;
+import org.netbeans.modules.corba.IDLDataObject;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.settings.ORBSettingsBundle;
+
+import java.util.HashMap;
 
 
 /** 
@@ -24,25 +28,25 @@ import org.netbeans.modules.corba.settings.CORBASupportSettings;
  */
 public class CorbaWizardData extends Object {
 
+    public static final int CB_CLIENT=16;   // Generate Call-back Client
     public static final int CLIENT=8;   // Generate Client
     public static final int SERVER=4;   // Generate Server
     public static final int IMPL=2;     // Generate Implementation
-    public static final int IDL=1;
   
     private CORBASupportSettings ccs;
     private int generate;                       // What to generate
     private String impl;                        // Name of CORBA Implementation
     private String bindMethod;                  // Selected binding method
-    private Object idlSource;                   // Source of IDL either File Name or IRNode or WizardNode
-    private DataFolder destinationPackage;      // Destination folder
-    private String name;                        // Name of IDL
+    private IDLDataObject idlSource;               // The IDL for which the wizard is started
     private boolean tie;                        // Should generate tie based impls
-    private Object bindingDetails;              // Details about binding either ContextNode or File Name
+    private Object bindingDetails;              // Details about binding
     private String rootInterface;               // The root interface that should be bounded.
+    private String callBackInterface;           // The call-back interface that should be bounded.
     private String defaultOrb;
     private String defaultClientBinding;
     private String defaultServerBinding;
-    private boolean defaultTie;         
+    private String defaultSkeletons;
+    private HashMap defaultJavaTemplateCodePatchTable;
     
 
     /** Creates new CorbaWizardData */
@@ -71,52 +75,61 @@ public class CorbaWizardData extends Object {
         this.rootInterface = rootInterface;
     }
   
+    public void setCallBackInterface (String callBackInterface) {
+        this.callBackInterface = callBackInterface;
+    }
+
     public void setGenerate (int mask) {
         this.generate = mask;
     }
-  
-    public void setSource (Object source) {
-        this.idlSource = source;
-    }
-    
+
     public Object getBindingDetails () {
         return this.bindingDetails;
     }
-    
+
     public String getRootInterface() {
         return this.rootInterface;
     }
   
+    public String getCallBackInterface() {
+        return this.callBackInterface;
+    }
+
     public String getCORBAImpl() {
         return this.impl;
     }
 
-    public String getName () {
-        return this.name;
-    }
   
     public String getBindMethod () {
         return this.bindMethod;
     }
-  
+    
+    public String getClientBindMethod() {
+        return getClientBindMethod(this.bindMethod);
+    }
+
+    public static String getClientBindMethod (String serverBind) {
+        if (serverBind.equals (ORBSettingsBundle.SERVER_NS))
+            return ORBSettingsBundle.CLIENT_NS;
+        if (serverBind.equals (ORBSettingsBundle.SERVER_IOR_TO_FILE))
+            return ORBSettingsBundle.CLIENT_IOR_FROM_FILE;
+        if (serverBind.equals (ORBSettingsBundle.SERVER_IOR_TO_OUTPUT))
+            return ORBSettingsBundle.CLIENT_IOR_FROM_INPUT;
+        if (serverBind.equals (ORBSettingsBundle.SERVER_BINDER))
+            return ORBSettingsBundle.CLIENT_BINDER;
+        return serverBind;
+    }
+
     public int getGenerate(){
         return this.generate;
     }
   
-    public Object getSource () {
+    public void setIdlSource (IDLDataObject object) {
+        this.idlSource = object;
+    }
+  
+    public IDLDataObject getIdlSource () {
         return this.idlSource;
-    }
-  
-    public void setDestinationPackage (DataFolder object) {
-        this.destinationPackage = object;
-    }
-  
-    public DataFolder getDestinationPackage () {
-        return this.destinationPackage;
-    }
-
-    public void setName (String name) {
-        this.name = name;
     }
     
     public boolean getTie () {
@@ -138,9 +151,13 @@ public class CorbaWizardData extends Object {
     public void setDefaultClientBindingValue (String value) {
         this.defaultClientBinding = value;
     }
+
+    public void setDefaultSkeletons (String value){
+        this.defaultSkeletons = value;
+    }
     
-    public void setDefaultTie (boolean tie) {
-      this.defaultTie = tie;
+    public void setDefaultJavaTemplateCodePatchTable(HashMap value) {
+        this.defaultJavaTemplateCodePatchTable = (HashMap)value.clone();
     }
     
     public String getDefaultOrbValue () {
@@ -154,10 +171,21 @@ public class CorbaWizardData extends Object {
     public String getDefaultClientBindingValue () {
         return this.defaultClientBinding;
     }
-    
-    public boolean getDefaultTie () {
-        return this.defaultTie;
+
+    public String getDefaultSkeletons (){
+        return this.defaultSkeletons;
+    }
+
+    public HashMap getDefaultJavaTemplateCodePatchTable() {
+        return this.defaultJavaTemplateCodePatchTable;
     }
     
-  
+    public DataFolder getDestinationPackage () {
+        return this.idlSource.getFolder();
+    }
+    
+    public String getName () {
+        return this.idlSource.getName();
+    }
+     
 }

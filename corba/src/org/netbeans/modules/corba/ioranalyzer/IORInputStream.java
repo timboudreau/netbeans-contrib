@@ -76,7 +76,9 @@ public class IORInputStream {
     }
     
     public short readUnsignedShort () {
-    
+	int i = this.pos % 2;
+	if (i!= 0)
+	    this.pos += 2 - i;
 	if (this.little_endian)
 	    return (short) (this.buf[this.pos++] & (short) 0xff | this.buf[this.pos++]<<8 & (short ) 0xff00);
 	else

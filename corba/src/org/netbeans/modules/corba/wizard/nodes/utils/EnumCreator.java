@@ -18,6 +18,6 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @author  root
  * @version 
  */
-public interface EnumCreator {
+public interface EnumCreator extends org.openide.nodes.Node.Cookie {
     public abstract void createEnum ();
 }

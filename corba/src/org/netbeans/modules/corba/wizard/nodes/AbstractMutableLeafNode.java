@@ -16,8 +16,8 @@ package org.netbeans.modules.corba.wizard.nodes;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.actions.SystemAction;
-import org.netbeans.modules.corba.wizard.nodes.actions.RenameAction;
 import org.netbeans.modules.corba.wizard.nodes.actions.DestroyAction;
+import org.netbeans.modules.corba.wizard.nodes.actions.EditAction;
 import org.netbeans.modules.corba.wizard.nodes.keys.NamedKey;
 /** 
  *
@@ -29,12 +29,14 @@ public abstract class AbstractMutableLeafNode extends AbstractMutableIDLNode {
     /** Creates new AbstractMutableLeafNode */
     public AbstractMutableLeafNode (NamedKey key) {
         super (Children.LEAF, key);
+        this.getCookieSet().add(this);
     }
   
   
     public SystemAction[] createActions () {
-        return new SystemAction[] { SystemAction.get(DestroyAction.class),
-                                    SystemAction.get(RenameAction.class)
+        return new SystemAction[] { 
+            SystemAction.get(DestroyAction.class),
+            SystemAction.get(EditAction.class)
         };
     }
 }

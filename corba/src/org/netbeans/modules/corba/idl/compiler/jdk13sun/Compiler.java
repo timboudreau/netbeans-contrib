@@ -39,6 +39,7 @@ import com.sun.tools.corba.se.idl.UnionEntry;
 import com.sun.tools.corba.se.idl.ValueEntry;
 import com.sun.tools.corba.se.idl.ValueBoxEntry;
 import com.sun.tools.corba.se.idl.InvalidArgument;
+import com.sun.tools.corba.se.idl.PragmaEntry;
 
 import com.sun.tools.corba.se.idl.toJavaPortable.Compile;
 import com.sun.tools.corba.se.idl.toJavaPortable.Util;
@@ -62,15 +63,33 @@ public class Compiler extends com.sun.tools.corba.se.idl.Compile {
 	 * other options
 	 *
 	 */
+	Vector __parser_args = new Vector ();
 	for (int i=0; i<args.length; i++) {
 	    if (DEBUG)
 		System.out.println ("param: " + args[i]); // NOI18N
-	}
+	    if (!args[i].equals ("--directory")) {
+		if (!args[i].equals ("--package")) {
+		    if (!args[i].equals ("--tie")) {
+			if (DEBUG)
+			    System.out.println ("adding parser param: " + args[i]);
+			__parser_args.add (args[i]);
+		    }
+		}
+		else {
+		    // removing package name
+		    i++;
+		}
+	    }
+	    else {
+		// removing directory name
+		i++;
+	    }
+	} 
 	String file_name = args[args.length - 1];
 	if (DEBUG)
 	    System.out.println ("idl name: " + file_name); // NOI18N
-	String[] parser_args = new String[] { file_name };
-
+	String[] parser_args = new String[__parser_args.size ()];
+	parser_args = (String[])__parser_args.toArray (parser_args);
 	Vector names = new Vector ();
 	try {
 	    comp.init (parser_args);
@@ -78,7 +97,10 @@ public class Compiler extends com.sun.tools.corba.se.idl.Compile {
 	    if (en == null)
 		return;
 	    while (en.hasMoreElements ()) {
-		String name = ((SymtabEntry)en.nextElement ()).fullName ();
+                SymtabEntry _se = (SymtabEntry)en.nextElement (); 
+                if (_se instanceof IncludeEntry || _se instanceof PragmaEntry)
+                    continue;
+		String name = _se.fullName ();
 		if (DEBUG)
 		    System.out.println ("element: " + name); // NOI18N
 		if (name.indexOf ('/') == -1) {
@@ -122,11 +144,13 @@ public class Compiler extends com.sun.tools.corba.se.idl.Compile {
 	new_args.addElement (file_name);
 	String[] args2 = (String[])new_args.toArray (new String[] {});
 	if (DEBUG) {
+	    System.out.println ("---");
 	    for (int i=0; i<args2.length; i++) {
 		System.out.println ("new param: " + args2[i]); // NOI18N
 	    }
 	}
-	
+	if (DEBUG)
+	    System.out.println ("Compile.main (" + args2 + ");");
 	Compile.main (args2);
     
     }

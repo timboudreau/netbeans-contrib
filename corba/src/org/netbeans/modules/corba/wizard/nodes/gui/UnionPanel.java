@@ -96,9 +96,17 @@ public class UnionPanel extends ExPanel implements DocumentListener {
     public String getName () {
         return this.name.getText();
     }
+    
+    public void setName (String name) {
+	this.name.setText (name);
+    }
   
     public String getType () {
         return this.type.getText();
+    }
+    
+    public void setType (String type) {
+	this.type.setText (type);
     }
   
 

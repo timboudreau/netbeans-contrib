@@ -30,13 +30,25 @@ public class AliasPanel extends ExPanel implements DocumentListener {
     public String getName () {
         return this.name.getText();
     }
+    
+    public void setName (String name) {
+	this.name.setText (name);
+    }
   
     public String getType () {
         return this.type.getText();
     }
+    
+    public void setType (String type) {
+	this.type.setText (type);
+    }
   
     public String getLength () {
         return this.length.getText();
+    }
+    
+    public void setLength (String length) {
+	this.length.setText (length);
     }
 
     private void postInitComponents () {
@@ -59,38 +71,38 @@ public class AliasPanel extends ExPanel implements DocumentListener {
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
         setPreferredSize(new java.awt.Dimension(250, 80));
-
-        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_ModuleName"));
-
+        
+        jLabel1.setText(bundle.getString("TXT_ModuleName"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.insets = new java.awt.Insets(8, 8, 4, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel1, gridBagConstraints1);
-
-
-        jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_Type"));
-
+        
+        
+        jLabel2.setText(bundle.getString("TXT_Type"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
         gridBagConstraints1.insets = new java.awt.Insets(4, 8, 4, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel2, gridBagConstraints1);
-
-
-        jLabel3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_Length"));
-
+        
+        
+        jLabel3.setText(bundle.getString("TXT_Length"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 2;
         gridBagConstraints1.insets = new java.awt.Insets(4, 8, 8, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel3, gridBagConstraints1);
-
-
-        name.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_AliasName"));
+        
+        
         name.setPreferredSize(new java.awt.Dimension(100, 16));
-
+        name.setToolTipText(bundle.getString("TIP_AliasName"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridwidth = 0;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -98,11 +110,11 @@ public class AliasPanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(name, gridBagConstraints1);
-
-
-        type.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_AliasType"));
+        
+        
         type.setPreferredSize(new java.awt.Dimension(100, 16));
-
+        type.setToolTipText(bundle.getString("TIP_AliasType"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 1;
@@ -112,11 +124,11 @@ public class AliasPanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(type, gridBagConstraints1);
-
-
-        length.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_AliasLength"));
+        
+        
         length.setPreferredSize(new java.awt.Dimension(100, 16));
-
+        length.setToolTipText(bundle.getString("TIP_AliasLength"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 2;
@@ -126,7 +138,7 @@ public class AliasPanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(length, gridBagConstraints1);
-
+        
     }//GEN-END:initComponents
 
 
@@ -138,6 +150,8 @@ public class AliasPanel extends ExPanel implements DocumentListener {
     private javax.swing.JTextField type;
     private javax.swing.JTextField length;
     // End of variables declaration//GEN-END:variables
+
+    private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle");    
 
     public void removeUpdate(final javax.swing.event.DocumentEvent p1) {
         checkState ();

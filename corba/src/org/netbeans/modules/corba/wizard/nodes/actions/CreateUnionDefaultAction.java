@@ -24,7 +24,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.UnionDefaultCreator;
  * @author  tzezula
  * @version 
  */
-public class CreateUnionDefaultAction extends NodeAction {
+public class CreateUnionDefaultAction extends NodeAction implements org.netbeans.modules.corba.wizard.nodes.utils.Create {
 
     /** Creates new CreateUnionDefaultAction */
     public CreateUnionDefaultAction() {
@@ -48,9 +48,17 @@ public class CreateUnionDefaultAction extends NodeAction {
     public String getName () {
       return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateUnionDefault");
     }
+    
+    public String toString() {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_UnionDefault");
+    }
 
     public HelpCtx getHelpCtx () {
       return HelpCtx.DEFAULT_HELP;
+    }
+    
+    public boolean isEnabled(org.openide.nodes.Node[] nodes) {
+        return enable (nodes);
     }
 
 }

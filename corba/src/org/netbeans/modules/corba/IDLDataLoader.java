@@ -14,7 +14,9 @@
 package org.netbeans.modules.corba;
 
 import java.beans.PropertyVetoException;
+
 import java.io.IOException;
+
 import java.util.ResourceBundle;
 import java.util.Map;
 import java.util.Date;
@@ -63,6 +65,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     public static final String IDL_EXTENSION = "idl"; // NOI18N
     
     private static final String JAVA_EXTENSION = "java"; // NOI18N
+    private static final String CLASS_EXTENSION = "class"; // NOI18N
 
     protected transient int fi_counter = 0;
     
@@ -91,6 +94,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	    SystemAction.get(FileSystemAction.class),
 	    null,
 	    SystemAction.get(CompileAction.class),
+	    null,
+	    SystemAction.get(ParseAction.class),
 	    null,
 	    SystemAction.get(GenerateImplAction.class),
 	    null,
@@ -128,7 +133,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	//Thread.dumpStack ();
 	boolean __old = _M_hide_generated_files;
 	_M_hide_generated_files = __value;
-	this.firePropertyChange ("_M_hide_generated_files", null, null); // NOI18N
+	this.firePropertyChange ("_M_hide_generated_files", new Object (), new Object ()); // NOI18N
     }
 
     public boolean folderIsInCache (FileObject __folder) {
@@ -317,7 +322,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	    return __fo;
 	}
 	
-	if (!__ext.equals (IDLDataLoader.JAVA_EXTENSION)) {
+	if (!(__ext.equals (IDLDataLoader.JAVA_EXTENSION)
+	      || __ext.equals (IDLDataLoader.CLASS_EXTENSION))) {
 	    // __for isn't java
 	    return null;
 	}

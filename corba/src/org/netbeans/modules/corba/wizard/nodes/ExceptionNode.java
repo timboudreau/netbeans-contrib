@@ -15,6 +15,8 @@ package org.netbeans.modules.corba.wizard.nodes;
 
 import org.openide.nodes.Node;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
+import org.netbeans.modules.corba.wizard.nodes.gui.ModulePanel;
+import org.netbeans.modules.corba.wizard.nodes.gui.ExPanel;
 /** 
  *
  * @author  root
@@ -44,4 +46,22 @@ public class ExceptionNode extends SENode {
         code = code + fill + "};\n"; // No I18n
         return code;
     }
+    
+    public ExPanel getEditPanel () {
+        ModulePanel p = new ModulePanel ();
+        p.setName (this.getName());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof ModulePanel) {
+            String newName = ((ModulePanel)p).getName();
+            NamedKey key = (NamedKey) this.key;
+            if (! key.getName().equals(newName)) {
+                this.setName (newName);
+                key.setName (newName);
+            }
+        }
+    }
+    
 }

@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.ExceptionCreator;
  *
  * @author  root
  */
-public class CreateExceptionAction extends NodeAction {
+public class CreateExceptionAction extends NodeAction implements org.netbeans.modules.corba.wizard.nodes.utils.Create {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {
@@ -32,15 +32,23 @@ public class CreateExceptionAction extends NodeAction {
     }
   
     protected boolean enable (Node[] nodes) {
-        return nodes.length == 1 && nodes[0] instanceof ExceptionCreator;
+        return nodes.length == 1 && nodes[0].getCookie (ExceptionCreator.class) != null;
     }
 
     public String getName () {
         return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateException");
     }
+   
+    public String toString () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_Exception");
+    }
 
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
+    }
+    
+    public boolean isEnabled(org.openide.nodes.Node[] nodes) {
+        return enable (nodes);
     }
 
 }

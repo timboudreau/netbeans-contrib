@@ -285,6 +285,8 @@ public class POACustomizer extends javax.swing.JPanel implements DocumentListene
             while (it.hasNext())
                 vals.add(((POAPolicyValueDescriptor)it.next()).getName());
             javax.swing.JComboBox combo = new javax.swing.JComboBox(vals);
+            if (vals.size() == 0)
+                combo.setEditable(true);
             label.setLabelFor(combo);
             String ch = policy.getMnemonicCharacter();
             if (ch != null)
@@ -332,8 +334,13 @@ public class POACustomizer extends javax.swing.JPanel implements DocumentListene
         String value = (String)((javax.swing.JComboBox)policyComboBoxes.get(index)).getSelectedItem();
         Properties policies = element.getPolicies();
         String old_value = policies.getProperty(label);
-        if (old_value == null)
-            old_value = ((POAPolicyValueDescriptor)settings.getPolicyByName(label).getValues().get(0)).getName();
+        if (old_value == null) {
+            List _values = settings.getPolicyByName(label).getValues();
+            if (_values.size() > 0)
+                old_value = ((POAPolicyValueDescriptor)_values.get(0)).getName();
+            else
+                old_value = "";
+        }
         if (value.equals(old_value))
             return;
         if (POAChecker.checkPOAPoliciesChange(element, policies, label, value, true)) {
@@ -343,8 +350,10 @@ public class POACustomizer extends javax.swing.JPanel implements DocumentListene
                 l = l.substring(0, l.length()-1);
                 String v;
                 ((javax.swing.JComboBox)policyComboBoxes.get(i)).removeActionListener(propertyComboBoxesListener);
-                if ((v = policies.getProperty(l)) == null)
-                    ((javax.swing.JComboBox)policyComboBoxes.get(i)).setSelectedIndex(0);
+                if ((v = policies.getProperty(l)) == null) {
+                    if (((javax.swing.JComboBox)policyComboBoxes.get(i)).getItemCount() > 0)
+                        ((javax.swing.JComboBox)policyComboBoxes.get(i)).setSelectedIndex(0);
+                }
                 else
                     ((javax.swing.JComboBox)policyComboBoxes.get(i)).setSelectedItem(v);
                 ((javax.swing.JComboBox)policyComboBoxes.get(i)).addActionListener(propertyComboBoxesListener);

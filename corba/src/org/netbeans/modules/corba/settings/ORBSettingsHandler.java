@@ -521,4 +521,17 @@ public interface ORBSettingsHandler extends org.xml.sax.DocumentHandler {
     public void handle_default_servant_var_name (String __data, AttributeList __meta) throws SAXException;
     public void handle_default_servant_manager_var_name (String __data, AttributeList __meta) throws SAXException;
 
+    public void handle_patch_code (String __data, AttributeList __meta) throws SAXException;
+    
+    public void handle_wizard_requires (String __data, AttributeList __meta) throws SAXException;
+    public void handle_wizard_does_not_support (String __data, AttributeList __meta) throws SAXException;
+
+    public void handle_binding_template_code (String __data, AttributeList __meta) throws SAXException;
+
+    public void handle_tie_class_prefix (String __data, AttributeList __meta) throws SAXException;
+    public void handle_tie_class_postfix (String __data, AttributeList __meta) throws SAXException;
+    
+    /*
+      public void handle_ (String __data, AttributeList __meta) throws SAXException;
+    */
 }

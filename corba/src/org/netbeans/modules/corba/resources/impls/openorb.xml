@@ -14,17 +14,18 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
+<!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
 <!ENTITY corba24-poa SYSTEM "corba24-poa.ent">
 <!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
 ]>
 <orb-settings name='OpenORB 1.x' tag='openorb1' supported='false'>
   
+  &corba23-poa;
   &corba24-poa;
   &corba23-generic-impl;
 					    
   <java-template-code>
-    <template-code name='ORB_PROPERTIES'>
-      <![CDATA[// setting system properties is necessary in order to use OpenORB in Java 1.2
+    <template-code name='ORB_PROPERTIES'><![CDATA[// setting system properties is necessary in order to use this ORB in JDK
       Properties props = System.getProperties ();
       props.put ("org.omg.CORBA.ORBClass", "org.openorb.CORBA.ORB");
       props.put ("org.omg.CORBA.ORBSingletonClass", "org.openorb.CORBA.ORBSingleton");
@@ -36,9 +37,9 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value=''/>
     <dir-param value='-d'/>
     <package-param value='-package'/>
-    <compiler value='java -classpath {repository} org.openorb.compiler.IdlCompiler {dir_param}{package_root} {package_param}{package} {files} {params}'/>
+    <compiler value='java -classpath {classpath} org.openorb.compiler.IdlCompiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
     <package-delimiter value='.'/>
-    <error-expression value='^([^ ]+), Line ([0-9]+) : (.*)'/>
+    <error-expression value='^file:([^ ]+):([0-9]+): (.*)'/>
     <file-position value='1'/>
     <line-position value='2'/>
     <column-position value='-1'/>

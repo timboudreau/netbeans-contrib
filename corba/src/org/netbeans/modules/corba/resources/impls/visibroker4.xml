@@ -33,18 +33,17 @@ Microsystems, Inc. All Rights Reserved.
       </value>
       <value name='NONE'>
       </value>
-      <prepare-code><![CDATA[Any _bsPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
+      <prepare-code><![CDATA[org.omg.CORBA.Any _bsPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
         com.inprise.vbroker.PortableServerExt.BindSupportPolicyValueHelper.insert(_bsPolicyAny__$INDEX$__, com.inprise.vbroker.PortableServerExt.BindSupportPolicyValue.__POLICY_VALUE__);]]>
       </prepare-code>
-      <prepare-code-pattern value='Any _bsPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* com.inprise.vbroker.PortableServerExt.BindSupportPolicyValueHelper.insert\(_bsPolicyAny[0-9]+, com.inprise.vbroker.PortableServerExt.BindSupportPolicyValue.([:javastart:][:javapart:]*)\);\n'/>
+      <prepare-code-pattern value='org.omg.CORBA.Any _bsPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* com.inprise.vbroker.PortableServerExt.BindSupportPolicyValueHelper.insert\(_bsPolicyAny[0-9]+, com.inprise.vbroker.PortableServerExt.BindSupportPolicyValue.([:javastart:][:javapart:]*)\);\n'/>
       <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.inprise.vbroker.PortableServerExt.BIND_SUPPORT_POLICY_TYPE.value, _bsPolicyAny__$INDEX$__)]]></create-code>
       <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.inprise.vbroker.PortableServerExt.BIND_SUPPORT_POLICY_TYPE.value, _bsPolicyAny[0-9]+\),?'/>
     </poa-policy>
   </poa-settings>
 
   <java-template-code>
-    <template-code name='ORB_PROPERTIES'>
-      <![CDATA[// setting system properties is necessary to use this ORB in Java 1.2
+    <template-code name='ORB_PROPERTIES'><![CDATA[// setting system properties is necessary in order to use this ORB in JDK
     Properties props = System.getProperties ();
     props.put ("org.omg.CORBA.ORBClass", "com.inprise.vbroker.orb.ORB");
     props.put ("org.omg.CORBA.ORBSingletonClass", "com.inprise.vbroker.orb.ORB");
@@ -52,19 +51,20 @@ Microsystems, Inc. All Rights Reserved.
     </template-code>
   </java-template-code>
 
-  <server-binding name='Proprietary' template-tag='SERVER_BINDING'
+  <server-binding name='Proprietary Binder' template-tag='SERVER_BINDING'
 		local-tag='proprietary_binder'>
-    <code><![CDATA[// Binding to osagent is done automatically by POA]]>      
+    <code><![CDATA[// binding to osagent is done automatically by POA]]>
     </code>
   </server-binding>
 
-  <client-binding name='Proprietary' template-tag='CLIENT_BINDING'
+  <client-binding name='Proprietary Binder' template-tag='CLIENT_BINDING'
 		local-tag='proprietary_binder'>
-    <code><![CDATA[// Visibroker for Java proprietary binder
-      // you must bind to your object implementation
-      // using code which looks like this:
-      // HelloWorld hello = HelloWorldHelper.bind (orb,"/MyPOA","ObjectID".getBytes());
-      // then you can invoke the method:  hello.say ()  etc.]]>    
+    <code><![CDATA[// VisiBroker for Java proprietary binder:
+      /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.bind (orb);
+      if (srv == null)
+      throw new RuntimeException ();
+
+      // add your client code here]]>
     </code>
   </client-binding>
 
@@ -72,7 +72,7 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value=''/>
     <dir-param value='-root_dir'/>
     <package-param value='-package'/>
-    <compiler value='idl2java {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <compiler value='idl2java {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
     <package-delimiter value='.'/>
     <error-expression value='^([^ ]+): ([0-9]+):(.*)'/>
     <file-position value='1'/>

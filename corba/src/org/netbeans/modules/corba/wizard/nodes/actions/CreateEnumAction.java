@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.EnumCreator;
  *
  * @author  root
  */
-public class CreateEnumAction extends NodeAction {
+public class CreateEnumAction extends NodeAction implements org.netbeans.modules.corba.wizard.nodes.utils.Create {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {
@@ -38,10 +38,18 @@ public class CreateEnumAction extends NodeAction {
     public String getName () {
         return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateEnum");
     }
+    
+    public String toString() {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_Enum");
+    }
 
 
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
+    }
+    
+    public boolean isEnabled(org.openide.nodes.Node[] nodes) {
+        return enable (nodes);
     }
   
 }

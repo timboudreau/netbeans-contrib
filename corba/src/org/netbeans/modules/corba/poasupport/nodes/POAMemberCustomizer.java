@@ -43,12 +43,12 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
     private POAMemberElement element;
     private Vector availableImpls;
     private ClassElement ce = null;
-    //    private ImplFinder finder;
+    private ImplFinder finder;
     
     /** Initializes the Form */
     public POAMemberCustomizer(POAMemberElement _element) {
         element = _element;
-/*
+
         FileObject fo = null;
         try {
             fo = ((DataObject)element.getDeclaringClass().getSource().getCookie(DataObject.class)).getPrimaryFile().getParent();
@@ -56,9 +56,12 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
         catch (Exception ex) {
         }
         finder = ImplFinder.getDefault();
-        availableImpls = finder.getAvailableImpls(fo);
- */
-        availableImpls = new Vector();
+        if (element instanceof ServantManagerElement)
+            availableImpls = finder.getAvailableImpls(fo, ImplFinder.SERVANT_MANAGER);
+        else if (element instanceof POAActivatorElement)
+            availableImpls = finder.getAvailableImpls(fo, ImplFinder.ADAPTER_ACTIVATOR);
+        else
+            availableImpls = finder.getAvailableImpls(fo, ImplFinder.SERVANT);
         initComponents ();
         initDynamicComponents();
         varNameLabel.setDisplayedMnemonic(POASupport.getString("MNE_POAMemberCustomizer_VarName").charAt(0));
@@ -92,7 +95,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
         typeNameComboBox.setSelectedItem(element.getTypeName());
         String ctor = element.getConstructor();
         if (ctor != null) {
-            int idx = ctor.lastIndexOf(POASupport.getPOASettings().DOT);
+            int idx = ctor.lastIndexOf(POASupport.getPOASettings().DOT, ctor.indexOf(POASupport.getPOASettings().LBR));
             if (idx != -1)
                 ctor = ctor.substring(idx+1);
         }
@@ -307,8 +310,16 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
             if ((newCtor == null) || (newCtor.equals (""))) { // NOI18N
                 element.setConstructor(null);
             }
-            else
+            else {
+                if (newName != null) {
+                    int idx = newName.lastIndexOf(POASupport.getPOASettings().DOT);
+                    if (idx != -1) {
+                        element.setConstructor(newName.substring(0, idx+1) + newCtor);
+                        return;
+                    }
+                }
                 element.setConstructor(newCtor);
+            }
         }
         else {
             typeNameLabel.setEnabled(false);

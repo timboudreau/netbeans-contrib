@@ -14,15 +14,17 @@
 package org.netbeans.modules.corba.wizard.panels;
 
 
-import java.util.Vector;
-import java.util.List;
+import java.util.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.netbeans.modules.corba.wizard.CorbaWizardData;
+import org.netbeans.modules.corba.wizard.CorbaWizard;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
-import org.netbeans.modules.corba.settings.ORBSettingsWrapper;
-import org.netbeans.modules.corba.settings.ORBSettingsBundle;
 import org.netbeans.modules.corba.settings.ORBBindingDescriptor;
+import org.netbeans.modules.corba.settings.WizardSettings;
+import org.netbeans.modules.corba.settings.WizardRequirement;
+import org.netbeans.modules.corba.settings.ORBSettingsWrapper;
+//import org.netbeans.modules.corba.settings.ORBSettingsBundle;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
@@ -32,7 +34,7 @@ import org.openide.NotifyDescriptor;
  * @version
  */
 
-public class ORBPanel extends AbstractWizardPanel {
+public class ORBPanel extends AbstractCORBAWizardPanel {
     
     
     
@@ -45,6 +47,8 @@ public class ORBPanel extends AbstractWizardPanel {
         this.initialized = false;
         this.css = null;
         initComponents ();
+        putClientProperty(CorbaWizard.PROP_CONTENT_SELECTED_INDEX, new Integer(2));
+        this.setName (org.openide.util.NbBundle.getBundle(PackagePanel.class).getString("TXT_ImplementationsBindings"));
     }
     
     
@@ -63,8 +67,14 @@ public class ORBPanel extends AbstractWizardPanel {
             }
             
             List list = this.css.getActiveSetting ().getServerBindings ();
-            for (int i=0; i< list.size(); i++) {
-                this.bindings.addItem (((ORBBindingDescriptor)list.get(i)).getName ());
+            if (list != null) {
+                ListIterator li = list.listIterator();
+                while (li.hasNext()) {
+                    ORBBindingDescriptor bd = (ORBBindingDescriptor)li.next();
+                    WizardSettings ws = bd.getWizardSettings();
+                    if (ws != null && ws.isSupported())
+                        this.bindings.addItem (bd.getName());
+                }
             }
             
             String value = this.css.getActiveSetting ().getName ();
@@ -73,15 +83,10 @@ public class ORBPanel extends AbstractWizardPanel {
                 this.orbs.setSelectedItem (value);
                 data.setDefaultOrbValue (value);
             }
-            value = this.css.getActiveSetting ().getServerBinding().getValue ();
-            if (value != null){
-                this.bindings.setSelectedItem (value);
-                data.setDefaultServerBindingValue (value);
-            }
             value = this.css.getActiveSetting ().getClientBinding().getValue ();
-            if (value != null){
-                data.setDefaultClientBindingValue (value);
-            }
+            data.setDefaultClientBindingValue (value);
+            value = this.css.getActiveSetting ().getServerBinding().getValue ();
+            data.setDefaultServerBindingValue (value);
             this.orbs.addActionListener ( new ActionListener () {
                 public void actionPerformed (ActionEvent event) {
                     ORBPanel.this.orbChanged (event);
@@ -92,8 +97,7 @@ public class ORBPanel extends AbstractWizardPanel {
                     ORBPanel.this.bindingChanged (event);
                 }
             });
-            data.setDefaultTie (css.getActiveSetting().isTie());
-            this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.INHER);
+            this.bindings.setSelectedItem (data.getDefaultServerBindingValue());
             this.initialized = true;
         }
         
@@ -105,7 +109,11 @@ public class ORBPanel extends AbstractWizardPanel {
         if (value != null){
             this.bindings.setSelectedItem (value);
         }
-        this.tie.setSelected(data.getTie());
+        
+        int mask = data.getGenerate(); 
+        this.bindings.setEnabled (((mask & CorbaWizardData.SERVER) == CorbaWizardData.SERVER)
+                                     || ((mask & CorbaWizardData.CLIENT) == CorbaWizardData.CLIENT)
+                                     || ((mask & CorbaWizardData.CB_CLIENT) == CorbaWizardData.CB_CLIENT));
     }
     
     
@@ -117,7 +125,6 @@ public class ORBPanel extends AbstractWizardPanel {
     public void storeCorbaSettings (CorbaWizardData data){
         data.setCORBAImpl((String)this.orbs.getSelectedItem());
         data.setBindMethod((String)this.bindings.getSelectedItem());
-        data.setTie (this.tie.isSelected());
     }
     
     
@@ -140,8 +147,6 @@ public class ORBPanel extends AbstractWizardPanel {
         jLabel2 = new javax.swing.JLabel();
         orbs = new javax.swing.JComboBox();
         bindings = new javax.swing.JComboBox();
-        tie = new javax.swing.JCheckBox();
-        jLabel3 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
@@ -150,87 +155,56 @@ public class ORBPanel extends AbstractWizardPanel {
         jPanel1.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints2;
         
-        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_OrbImplementations"));
-          jLabel1.setLabelFor(orbs);
-          gridBagConstraints2 = new java.awt.GridBagConstraints();
-          gridBagConstraints2.gridx = 0;
-          gridBagConstraints2.gridy = 0;
-          gridBagConstraints2.insets = new java.awt.Insets(8, 8, 8, 4);
-          gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-          jPanel1.add(jLabel1, gridBagConstraints2);
-          
-          
-        jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_BindingMethod"));
-          jLabel2.setLabelFor(bindings);
-          gridBagConstraints2 = new java.awt.GridBagConstraints();
-          gridBagConstraints2.gridx = 0;
-          gridBagConstraints2.gridy = 1;
-          gridBagConstraints2.insets = new java.awt.Insets(8, 8, 8, 4);
-          gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-          jPanel1.add(jLabel2, gridBagConstraints2);
-          
-          
+        jLabel1.setText(bundle.getString("TXT_OrbImplementations"));
+        jLabel1.setLabelFor(orbs);
         gridBagConstraints2 = new java.awt.GridBagConstraints();
-          gridBagConstraints2.gridx = 1;
-          gridBagConstraints2.gridy = 0;
-          gridBagConstraints2.gridwidth = 0;
-          gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-          gridBagConstraints2.insets = new java.awt.Insets(8, 4, 8, 8);
-          gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-          gridBagConstraints2.weightx = 1.0;
-          gridBagConstraints2.weighty = 1.0;
-          jPanel1.add(orbs, gridBagConstraints2);
-          
-          
-        gridBagConstraints2 = new java.awt.GridBagConstraints();
-          gridBagConstraints2.gridx = 1;
-          gridBagConstraints2.gridy = 1;
-          gridBagConstraints2.gridwidth = 0;
-          gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-          gridBagConstraints2.insets = new java.awt.Insets(8, 4, 8, 8);
-          gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-          jPanel1.add(bindings, gridBagConstraints2);
-          
-          
-        tie.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TIP_TieImpl"));
-          tie.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_TieImpl"));
-          tie.addItemListener(new java.awt.event.ItemListener() {
-              public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                  tieChanged(evt);
-              }
-          }
-          );
-          gridBagConstraints2 = new java.awt.GridBagConstraints();
-          gridBagConstraints2.gridwidth = 0;
-          gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-          gridBagConstraints2.insets = new java.awt.Insets(0, 8, 8, 8);
-          gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-          jPanel1.add(tie, gridBagConstraints2);
-          
-          
-        gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 1;
-        gridBagConstraints1.gridwidth = 0;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets(0, 4, 0, 0);
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints1.weightx = 1.0;
-        add(jPanel1, gridBagConstraints1);
+        gridBagConstraints2.gridx = 0;
+        gridBagConstraints2.gridy = 0;
+        gridBagConstraints2.insets = new java.awt.Insets(12, 12, 6, 6);
+        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel1.add(jLabel1, gridBagConstraints2);
         
         
-        jLabel3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_ImplementationsBindings"));
-        jLabel3.setFont(new java.awt.Font ("Dialog", 0, 18));
+        jLabel2.setText(bundle.getString("TXT_BindingMethod"));
+        jLabel2.setLabelFor(bindings);
+        gridBagConstraints2 = new java.awt.GridBagConstraints();
+        gridBagConstraints2.gridx = 0;
+        gridBagConstraints2.gridy = 1;
+        gridBagConstraints2.insets = new java.awt.Insets(6, 12, 12, 6);
+        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel1.add(jLabel2, gridBagConstraints2);
+        
+        
+        gridBagConstraints2 = new java.awt.GridBagConstraints();
+        gridBagConstraints2.gridx = 1;
+        gridBagConstraints2.gridy = 0;
+        gridBagConstraints2.gridwidth = 0;
+        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints2.insets = new java.awt.Insets(12, 6, 6, 12);
+        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints2.weightx = 1.0;
+        gridBagConstraints2.weighty = 1.0;
+        jPanel1.add(orbs, gridBagConstraints2);
+        
+        
+        gridBagConstraints2 = new java.awt.GridBagConstraints();
+        gridBagConstraints2.gridx = 1;
+        gridBagConstraints2.gridy = 1;
+        gridBagConstraints2.gridwidth = 0;
+        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints2.insets = new java.awt.Insets(6, 6, 12, 12);
+        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel1.add(bindings, gridBagConstraints2);
+        
         
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 0;
-        gridBagConstraints1.gridwidth = -1;
+        gridBagConstraints1.gridwidth = 0;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets(8, 8, 8, 8);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints1.weightx = 1.0;
-        add(jLabel3, gridBagConstraints1);
+        add(jPanel1, gridBagConstraints1);
         
         
         
@@ -244,38 +218,17 @@ public class ORBPanel extends AbstractWizardPanel {
         add(jPanel3, gridBagConstraints1);
         
     }//GEN-END:initComponents
-    
-  private void tieChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tieChanged
-      // Add your handling code here:
-      if (this.tie.isSelected())
-          this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.TIE);
-      else
-          this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.INHER);
       
-  }//GEN-LAST:event_tieChanged
-  
   
   
     private void bindingChanged (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bindingChanged
         // Add your handling code here:
         
         String serverBind = (String)this.bindings.getSelectedItem();
-        String clientBind = "";
         if (serverBind == null)
             return;   //dirty hack
         this.css.getActiveSetting ().setServerBindingFromString (serverBind);
-        if (serverBind.equals (ORBSettingsBundle.SERVER_NS)) {
-            clientBind = ORBSettingsBundle.CLIENT_NS;
-        }
-        else if (serverBind.equals (ORBSettingsBundle.SERVER_IOR_TO_FILE)) {
-            clientBind = ORBSettingsBundle.CLIENT_IOR_FROM_FILE;
-        }
-        else if (serverBind.equals (ORBSettingsBundle.SERVER_IOR_TO_OUTPUT)) {
-            clientBind = ORBSettingsBundle.CLIENT_IOR_FROM_INPUT;
-        }
-        if (serverBind.equals (ORBSettingsBundle.SERVER_BINDER)) {
-            clientBind = ORBSettingsBundle.CLIENT_BINDER;
-        }
+        String clientBind = CorbaWizardData.getClientBindMethod(serverBind);
         this.css.getActiveSetting ().setClientBindingFromString (clientBind);
         
     }//GEN-LAST:event_bindingChanged
@@ -289,24 +242,22 @@ public class ORBPanel extends AbstractWizardPanel {
             this.css.getActiveSetting ().setClientBindingFromString (this.data.getDefaultClientBindingValue());
         if (this.data != null && this.data.getDefaultServerBindingValue() != null)
             this.css.getActiveSetting ().setServerBindingFromString (this.data.getDefaultServerBindingValue());
-        if (this.data != null)
-            if (this.data.getDefaultTie())
-                this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.TIE);
-            else
-                this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.INHER);
         this.css.setOrb ((String) this.orbs.getSelectedItem ());
         if (this.data != null){
             this.data.setDefaultServerBindingValue(this.css.getActiveSetting().getClientBinding().getValue());
             this.data.setDefaultClientBindingValue(this.css.getActiveSetting().getServerBinding().getValue());
-            this.data.setDefaultTie(this.css.getActiveSetting().isTie());
         }
         List list = this.css.getActiveSetting ().getServerBindings ();
         this.bindings.removeAllItems();
-        for ( int i=0; i< list.size(); i++) {
-            this.bindings.addItem (((ORBBindingDescriptor)list.get(i)).getName ());
+        if (list != null) {
+            ListIterator li = list.listIterator();
+            while (li.hasNext()) {
+                ORBBindingDescriptor bd = (ORBBindingDescriptor)li.next();
+                WizardSettings ws = bd.getWizardSettings();
+                if (ws != null && ws.isSupported())
+                    this.bindings.addItem (bd.getName());
+            }
         }
-        this.css.getActiveSetting().setSkeletons (ORBSettingsBundle.INHER);
-        this.tie.setSelected (false);
     }//GEN-LAST:event_orbChanged
     
     
@@ -318,10 +269,10 @@ public class ORBPanel extends AbstractWizardPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JComboBox orbs;
     private javax.swing.JComboBox bindings;
-    private javax.swing.JCheckBox tie;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel3;
     // End of variables declaration//GEN-END:variables
+
+    private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle");    
     
     
     

@@ -18,6 +18,6 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @author  root
  * @version 
  */
-public interface StructCreator {
+public interface StructCreator extends org.openide.nodes.Node.Cookie {
     public void createStruct();
 }

@@ -53,7 +53,7 @@ public class UnionNode extends AbstractMutableContainerNode implements Node.Cook
             SystemAction.get (CreateUnionDefaultAction.class),
             null,
             SystemAction.get (DestroyAction.class),
-            SystemAction.get (RenameAction.class),
+            SystemAction.get (EditAction.class)
         };
     }
   
@@ -119,6 +119,29 @@ public class UnionNode extends AbstractMutableContainerNode implements Node.Cook
 
     public boolean canAdd () {
         return this.canAdd;
+    }
+    
+    public ExPanel getEditPanel() {
+        UnionPanel p = new UnionPanel ();
+        p.setName (this.getName());
+        p.setType (((AliasKey)this.key).getType());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof UnionPanel) {
+            UnionPanel up = (UnionPanel) p;
+            String newName = up.getName();
+            String newType = up.getType();
+            AliasKey key = (AliasKey) this.key;
+            if (! key.getName().equals(newName)) {
+                this.setName (newName);
+                key.setName (newName);
+            }
+            if (! key.getType().equals(newType)) 
+                key.setType (newType);
+            
+        }
     }
 
 }

@@ -15,6 +15,8 @@ package org.netbeans.modules.corba.wizard.nodes;
 
 import java.util.StringTokenizer;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
+import org.netbeans.modules.corba.wizard.nodes.gui.ExPanel;
+import org.netbeans.modules.corba.wizard.nodes.gui.AliasPanel;
 /** 
  *
  * @author  root
@@ -46,6 +48,32 @@ public class AliasNode extends AbstractMutableLeafNode {
         }
         code = code +";\n";
         return code;
+    }
+    
+    public ExPanel getEditPanel () {
+        AliasPanel p = new AliasPanel ();
+        String length = ((AliasKey)this.key).getLength();
+        String type = ((AliasKey)this.key).getType();
+        p.setName (this.getName());
+        p.setLength(length);
+        p.setType(type);
+        return p;
+    }
+    
+    public void reInit (ExPanel panel) {
+        if (panel instanceof AliasPanel) {
+            String newName = ((AliasPanel)panel).getName();
+            if (!newName.equals(this.getName())) {
+                this.setName (newName);
+                ((AliasKey)this.key).setName(newName);
+            }
+            String newType = ((AliasPanel)panel).getType();
+            if (!newType.equals(((AliasKey)this.key).getType()))
+                ((AliasKey)this.key).setType(newType);
+            String newLength = ((AliasPanel)panel).getLength();
+            if (!newLength.equals(((AliasKey)this.key).getLength()))
+                ((AliasKey)this.key).setLength(newLength);
+        }
     }
   
 }

@@ -39,6 +39,7 @@ import com.ibm.idl.UnionEntry;
 import com.ibm.idl.ValueEntry;
 import com.ibm.idl.ValueBoxEntry;
 import com.ibm.idl.InvalidArgument;
+import com.ibm.idl.PragmaEntry;
 
 import com.ibm.idl.toJavaPortable.Compile;
 import com.ibm.idl.toJavaPortable.Util;
@@ -62,23 +63,31 @@ public class Compiler extends com.ibm.idl.Compile {
 	 * other options
 	 *
 	 */
+	Vector __parser_args = new Vector ();
 	for (int i=0; i<args.length; i++) {
 	    if (DEBUG)
 		System.out.println ("param: " + args[i]); // NOI18N
-	}
+	    if (!args[i].equals ("--directory"))
+		if (!args[i].equals ("--package"))
+		    if (!args[i].equals ("--tie"))
+			__parser_args.add (args[i]);
+	} 
 	String file_name = args[args.length - 1];
 	if (DEBUG)
 	    System.out.println ("idl name: " + file_name); // NOI18N
-	String[] parser_args = new String[] { file_name };
-
+	String[] parser_args = new String[__parser_args.size ()];
+	parser_args = (String[])__parser_args.toArray (parser_args);
 	Vector names = new Vector ();
 	try {
 	    comp.init (parser_args);
 	    java.util.Enumeration en = comp.parse ();
-	    if (en == null) 
+	    if (en == null)
 		return;
 	    while (en.hasMoreElements ()) {
-		String name = ((SymtabEntry)en.nextElement ()).fullName ();
+                SymtabEntry _se = (SymtabEntry)en.nextElement (); 
+                if (_se instanceof IncludeEntry || _se instanceof PragmaEntry)
+                    continue;
+		String name = _se.fullName ();
 		if (DEBUG)
 		    System.out.println ("element: " + name); // NOI18N
 		if (name.indexOf ('/') == -1) {
@@ -87,7 +96,7 @@ public class Compiler extends com.ibm.idl.Compile {
 		    if (DEBUG)
 			System.out.println ("top level element: " + name); // NOI18N
 		}
-	    }     
+	    }	
 	} catch (Exception e) {
 	    e.printStackTrace ();
 	}
@@ -122,11 +131,13 @@ public class Compiler extends com.ibm.idl.Compile {
 	new_args.addElement (file_name);
 	String[] args2 = (String[])new_args.toArray (new String[] {});
 	if (DEBUG) {
+	    System.out.println ("---");
 	    for (int i=0; i<args2.length; i++) {
 		System.out.println ("new param: " + args2[i]); // NOI18N
 	    }
 	}
-
+	if (DEBUG)
+	    System.out.println ("Compile.main (" + args2 + ");");
 	Compile.main (args2);
     
     }

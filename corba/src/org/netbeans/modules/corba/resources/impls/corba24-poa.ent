@@ -19,7 +19,7 @@
     <create-code-pattern value='[:javastart:][:javapart:]*.create_thread_policy\(ThreadPolicyValue.([:javastart:][:javapart:]*)\),?'/>
   </poa-policy>
 
-
+<!--
   <poa-policy name='Lifespan' mnemonic_character='L'>
     <value name='TRANSIENT'>
     </value>
@@ -36,19 +36,19 @@
     </value>
     <value name='MULTIPLE_ID'>
     </value>
-    <create-code><![CDATA[__ROOT_POA_VAR_NAME__.create_id_uniqueness_policy(IDUniquenessPolicyValue.__POLICY_VALUE__)]]></create-code>
-    <create-code-pattern value='[:javastart:][:javapart:]*.create_id_uniqueness_policy\(IDUniquenessPolicyValue.([:javastart:][:javapart:]*)\),?'/>
+    <create-code><![CDATA[__ROOT_POA_VAR_NAME__.create_id_uniqueness_policy(IdUniquenessPolicyValue.__POLICY_VALUE__)]]></create-code>
+    <create-code-pattern value='[:javastart:][:javapart:]*.create_id_uniqueness_policy\(IdUniquenessPolicyValue.([:javastart:][:javapart:]*)\),?'/>
   </poa-policy>
 
   <poa-policy name='Id Assignment' mnemonic_character='A'>
-    <value name='USER_ID'>
-      <disable-action name='servant-with-system-id'/>
-    </value>
     <value name='SYSTEM_ID'>
       <disable-action name='servant-with-user-id'/>
     </value>
-    <create-code><![CDATA[__ROOT_POA_VAR_NAME__.create_id_assignment_policy(IDAssignmnetPolicyValue.__POLICY_VALUE__)]]></create-code>
-    <create-code-pattern value='[:javastart:][:javapart:]*.create_id_assignment_policy\(IDAssignmnetPolicyValue.([:javastart:][:javapart:]*)\),?'/>
+    <value name='USER_ID'>
+      <disable-action name='servant-with-system-id'/>
+    </value>
+    <create-code><![CDATA[__ROOT_POA_VAR_NAME__.create_id_assignment_policy(IdAssignmentPolicyValue.__POLICY_VALUE__)]]></create-code>
+    <create-code-pattern value='[:javastart:][:javapart:]*.create_id_assignment_policy\(IdAssignmentPolicyValue.([:javastart:][:javapart:]*)\),?'/>
   </poa-policy>
 
   <poa-policy name='Servant Retention' mnemonic_character='S'>
@@ -99,9 +99,9 @@
   <section-activate-poas value='poa_activate_section'/>
   <section-init-servants value='servant_section'/>
   <root-poa-init value='POA __ROOT_POA_VAR_NAME__ = POAHelper.narrow (__ORB_VAR_NAME__.resolve_initial_references ("RootPOA"));\n\n'/>
-  <create-poa value='POA __POA_VAR_NAME__ = __PARENT_POA_VAR_NAME__.create_POA("__POA_NAME__", __POA_MANAGER__, _policies);\n\n'/>
+  <create-poa value='POA __POA_VAR_NAME__ = __PARENT_POA_VAR_NAME__.create_POA("__POA_NAME__", __POA_MANAGER__, _policies);\n'/>
   <activate-poa value='.the_POAManager().activate();\n'/>
-  <policies-declaration value='Policy[] _policies;\n\n'/>
+  <policies-declaration value='Policy[] _policies;\n'/>
   <policies-header value='_policies = new Policy[] {\n'/>
   <policies-footer value='};\n'/>
   <policies-separator value=','/>
@@ -109,7 +109,7 @@
   <get-poa-manager value='.the_POAManager()'/>
   <servant-class value='org.omg.PortableServer.Servant'/>
   
-  <activate-servant-with-system-id value='ObjectId __ID__ = __PARENT_POA_VAR_NAME__.activate_object(__SERVANT_VAR_NAME__);\n'/>
+  <activate-servant-with-system-id value='byte[] __ID__ = __PARENT_POA_VAR_NAME__.activate_object(__SERVANT_VAR_NAME__);\n'/>
   <activate-servant-with-user-id value='__PARENT_POA_VAR_NAME__.activate_object_with_id("__ID__".getBytes(), __SERVANT_VAR_NAME__);\n'/>
   <create-servant-instance value='__SERVANT_TYPE_NAME__ __SERVANT_VAR_NAME__ = new __SERVANT_CONSTRUCTOR__;\n'/>
   <set-default-servant value='__PARENT_POA_VAR_NAME__.set_servant(__SERVANT_VAR_NAME__._this());\n'/>
@@ -120,15 +120,15 @@
   
   <root-poa-pattern value='POA ([:javastart:][:javapart:]*) = POAHelper.narrow \(([:javastart:][:javapart:]*).resolve_initial_references \("RootPOA"\)\);'/>
   
-  <poa-pattern value='POA ([:javastart:][:javapart:]*) = ([:javastart:][:javapart:]*).create_POA\("([:javastart:][:javapart:]*)", ([:javastart:][:javapart:]*)(.the_POAManager\(\))?, _policies\);'/>
+  <poa-pattern value='POA ([:javastart:][:javapart:]*) = ([:javastart:][:javapart:]*).create_POA\("(.*)", ([:javastart:][:javapart:]*)(.the_POAManager\(\))?, _policies\);'/>
   
   <policies-declaration-pattern value='Policy\[\] _policies;\n'/>
   <policies-header-pattern value='_policies = new Policy\[\] \{\n'/>
   <policies-footer-pattern value='\};\n'/>
   
-  <servant-instance-pattern value='([:javastart:][:javapart:]*) [:javastart:][:javapart:]* = new (.*);\n'/>
+  <servant-instance-pattern value='(\S*) [:javastart:][:javapart:]* = new (.*);\n'/>
   
-  <servant-pattern value='ObjectId ([:javastart:][:javapart:]*) = ([:javastart:][:javapart:]*).activate_object\(([:javastart:][:javapart:]*)\);\n|([:javastart:][:javapart:]*).activate_object_with_id\("([:javastart:][:javapart:]*)".getBytes\(\), ([:javastart:][:javapart:]*)\);\n'/>
+  <servant-pattern value='byte\[\] ([:javastart:][:javapart:]*) = ([:javastart:][:javapart:]*).activate_object\(([:javastart:][:javapart:]*)\);\n|([:javastart:][:javapart:]*).activate_object_with_id\("(.*)".getBytes\(\), ([:javastart:][:javapart:]*)\);\n'/>
   
   <default-servant-pattern value='([:javastart:][:javapart:]*).set_servant\(([:javastart:][:javapart:]*)._this\(\)\);\n'/>
   
@@ -136,7 +136,7 @@
   
   <poa-activator-pattern value='([:javastart:][:javapart:]*).the_activator\(([:javastart:][:javapart:]*)._this\(\)\);\n'/>
   
-
+-->
 </poa-settings>
 
 

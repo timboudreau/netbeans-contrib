@@ -22,7 +22,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.ModuleCreator;
  *
  * @author  root
  */
-public class CreateModuleAction extends NodeAction {
+public class CreateModuleAction extends NodeAction implements org.netbeans.modules.corba.wizard.nodes.utils.Create {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)){ 
@@ -46,8 +46,16 @@ public class CreateModuleAction extends NodeAction {
     public String getName () {
         return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateModule");
     }
+    
+    public String toString () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_Module");
+    }
 
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
     }  
+    
+    public boolean isEnabled(org.openide.nodes.Node[] nodes) {
+        return enable (nodes);
+    }
 }

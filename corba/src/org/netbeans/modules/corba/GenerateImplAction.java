@@ -82,21 +82,26 @@ public class GenerateImplAction extends CookieAction {
 
     protected boolean enable (Node[] activatedNodes) {
         //name = "Update Implementations"; // NOI18N
-	//System.out.println ("GenerateImplAction::enamble (" + activatedNodes + ");");
+	//System.out.println ("GenerateImplAction::enable (" + activatedNodes + ");");
         try {
             IDLDataObject __ido = (IDLDataObject)activatedNodes[0].getCookie 
 		(IDLDataObject.class);
 	    if (__ido == null)
 		throw new AssertionException ("__ido == null");
 	    int __value = __ido.hasGeneratedImplementation ();
+	    String __old_name = _M_name;
             if (__value == 0)
                 _M_name = _M_generate;
             if (__value == 1)
                 _M_name = _M_update_and_generate;
             if (__value == 2)
                 _M_name = _M_update;
+	    this.firePropertyChange ("name", __old_name, _M_name);
+	    //this.firePropertyChange ("name", __old_name, _M_name);
+	    //this.firePropertyChange ("name", __old_name, _M_name);
         } catch (Exception __ex) {
             //__ex.printStackTrace ();
+	    //System.out.println ("-> false");
             return false;
         }
 	//System.out.println ("-> true");

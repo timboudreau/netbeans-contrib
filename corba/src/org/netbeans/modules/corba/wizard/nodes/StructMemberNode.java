@@ -37,12 +37,6 @@ public class StructMemberNode extends AbstractMutableLeafNode  {
         this.setIconBase (ICON_BASE);
     }
   
-    public SystemAction[] createActions () {
-        return new SystemAction [] {
-            SystemAction.get (DestroyAction.class),
-            SystemAction.get (RenameAction.class)
-        };
-    }
   
     public String generateSelf (int indent) {
         String code = new String ();
@@ -58,6 +52,32 @@ public class StructMemberNode extends AbstractMutableLeafNode  {
         }
         code = code + ";\n"; // No I18N
         return code;
+    }
+    
+    public ExPanel getEditPanel () {
+        AliasPanel p = new AliasPanel ();
+        p.setName (this.getName());
+        p.setType (((AliasKey)key).getType());
+        p.setLength (((AliasKey)key).getLength());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof AliasPanel) {
+            AliasPanel ap = (AliasPanel) p;
+            String newName = ap.getName();
+            String newType = ap.getType();
+            String newLength = ap.getLength();
+            AliasKey key = (AliasKey) this.key;
+            if (!key.getName().equals(newName)) {
+                this.setName(newName);
+                key.setName (newName);
+            }
+            if (!key.getType().equals(newType))
+                key.setType (newType);
+            if (!key.getLength().equals(newLength))
+                key.setLength (newLength);
+        }
     }
   
 }

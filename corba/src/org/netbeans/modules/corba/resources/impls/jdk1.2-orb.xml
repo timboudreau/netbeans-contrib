@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value='-ftie'/>
     <dir-param value='-j'/>
     <package-param value='-p'/>
-    <compiler value='idltojava {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <compiler value='idltojava {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
     <package-delimiter value='.'/>
     <error-expression value='^([^ ]+):([0-9]+): (.*)'/>
     <file-position value='1'/>
@@ -34,5 +34,12 @@ Microsystems, Inc. All Rights Reserved.
     
   </idl-compiler-settings>
 
+  <impl-generator-settings>
+
+    <impl-int-prefix value='_'/>
+    <tie-class-prefix value='_'/>
+    <tie-class-postfix value='Tie'/>
+  
+  </impl-generator-settings>
 
 </orb-settings>

@@ -63,7 +63,11 @@ public class TypeElement extends IDLElement {
         //System.out.println ("type: " + getType ().getName ()); // NOI18N
         //}
         //if (getMember (0) instanceof Identifier)
-        setName (((IDLElement)getMember (0)).getName ());
+	IDLElement __first_element = (IDLElement)this.getMember (0);
+        this.setName (__first_element.getName ());
+	this.setLine (__first_element.getLine ());
+	this.setColumn (__first_element.getColumn ());
+	this.setFileName (__first_element.getFileName ());
 
         if ((getMember (0) instanceof StructTypeElement)
                 || (getMember (0) instanceof UnionTypeElement)

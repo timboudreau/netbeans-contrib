@@ -9,7 +9,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="varNameLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/corba/poasupport/Bundle.properties" key="LBL_POAMemberCustomizer_VarName" replaceFormat="POASupport.getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -50,7 +50,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="typeNameLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/corba/poasupport/Bundle.properties" key="LBL_POAMemberCustomizer_TypeName" replaceFormat="POASupport.getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -97,7 +97,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="constructorLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/corba/poasupport/Bundle.properties" key="LBL_POAMemberCustomizer_Ctor" replaceFormat="POASupport.getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">

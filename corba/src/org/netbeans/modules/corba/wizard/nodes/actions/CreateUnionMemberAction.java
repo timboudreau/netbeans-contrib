@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.UnionMemberCreator;
  *
  * @author  root
  */
-public class CreateUnionMemberAction extends NodeAction {
+public class CreateUnionMemberAction extends NodeAction implements org.netbeans.modules.corba.wizard.nodes.utils.Create {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {
@@ -39,9 +39,17 @@ public class CreateUnionMemberAction extends NodeAction {
     public String getName () {
         return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateMember");
     }
+    
+    public String toString () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_UnionMember");
+    }
 
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
+    }
+    
+    public boolean isEnabled(org.openide.nodes.Node[] nodes) {
+        return enable (nodes);
     }
   
 }

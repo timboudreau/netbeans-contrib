@@ -14,10 +14,12 @@
 package org.netbeans.modules.corba.wizard.nodes;
 
 import org.openide.util.actions.SystemAction;
-import org.netbeans.modules.corba.wizard.nodes.actions.RenameAction;
 import org.netbeans.modules.corba.wizard.nodes.actions.DestroyAction;
+import org.netbeans.modules.corba.wizard.nodes.actions.EditAction;
 import org.openide.nodes.Node;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
+import org.netbeans.modules.corba.wizard.nodes.gui.AttributePanel;
+import org.netbeans.modules.corba.wizard.nodes.gui.ExPanel;
 /** 
  *
  * @author  root
@@ -35,12 +37,6 @@ public class AttributeNode extends AbstractMutableLeafNode implements Node.Cooki
         this.setIconBase (ICON_BASE);
     }
   
-    public SystemAction[] createActions () {
-        return new SystemAction [] {
-            SystemAction.get (DestroyAction.class),
-            SystemAction.get (RenameAction.class)
-        };
-    }
   
     public String generateSelf (int indent) {
         String code = new String ();
@@ -56,5 +52,31 @@ public class AttributeNode extends AbstractMutableLeafNode implements Node.Cooki
         }
         code = code + "attribute " + key.getType() + " "+this.getName () +";\n"; // No I18N
         return code;
+    }
+    
+    public ExPanel getEditPanel () {
+        AttributePanel p = new AttributePanel ();
+        String type = ((AttributeKey)this.key).getType();
+        boolean ro = ((AttributeKey)this.key).isReadOnly();
+        p.setName (this.getName());
+        p.setType (type);
+        p.setReadOnly (ro);
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof AttributePanel) {
+            String newName = ((AttributePanel)p).getName();
+            String newType = ((AttributePanel)p).getType();
+            boolean ro = ((AttributePanel)p).isReadOnly();
+            if (!this.getName().equals(newName)) {
+                this.setName (newName);
+                ((AttributeKey)this.key).setName (newName);
+            }
+            if (!newType.equals(((AttributeKey)this.key).getType()))
+                ((AttributeKey)this.key).setType (newType);
+            if (ro != ((AttributeKey)this.key).isReadOnly())
+                ((AttributeKey)this.key).setReadOnly (ro);
+        }
     }
 }

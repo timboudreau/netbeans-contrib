@@ -31,25 +31,49 @@ public class OperationPanel extends ExPanel implements DocumentListener {
     public String getName () {
         return this.name.getText ();
     }
+    
+    public void setName (String name) {
+	this.name.setText (name);
+    }
   
     public String getReturnType () {
         return this.ret.getText ();
+    }
+    
+    public void setReturnType (String ret) {
+	this.ret.setText (ret);
     }
   
     public String getParameters () {
         return this.params.getText ();
     }
+    
+    public void setParameters (String params) {
+	this.params.setText (params);
+    }
   
     public String getExceptions () {
         return this.except.getText ();
+    }
+    
+    public void setExceptions (String except) {
+	this.except.setText (except);
     }
   
     public String getContext () {
         return this.ctx.getText ();
     }
+    
+    public void setContext (String context) {
+	this.ctx.setText(context);
+    }
   
     public boolean isOneway () {
         return this.oneway.isSelected ();
+    }
+    
+    public void setOneway (boolean oneway) {
+	this.oneway.setSelected (oneway);
     }
 
     private void postInitComponents () {

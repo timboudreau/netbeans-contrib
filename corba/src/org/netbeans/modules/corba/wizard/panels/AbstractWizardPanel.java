@@ -47,21 +47,6 @@ public abstract class AbstractWizardPanel extends javax.swing.JPanel implements 
         return HelpCtx.DEFAULT_HELP;
     }
   
-    public void readSettings (Object settings) {
-        if (settings instanceof CorbaWizardData)
-            readCorbaSettings((CorbaWizardData)settings);
-    }
-  
-    public abstract void readCorbaSettings (CorbaWizardData settings);
-  
-  
-    public void storeSettings (Object settings) {
-        if (settings instanceof CorbaWizardData)
-            storeCorbaSettings((CorbaWizardData)settings);
-    }
-  
-    public abstract void storeCorbaSettings (CorbaWizardData settings);
-  
     public void fireChange (Object source) {
         ArrayList lst;
         synchronized (this){
@@ -91,7 +76,6 @@ public abstract class AbstractWizardPanel extends javax.swing.JPanel implements 
      */
     private void initComponents() {//GEN-BEGIN:initComponents
         setLayout(new java.awt.BorderLayout());
-
     }//GEN-END:initComponents
 
 

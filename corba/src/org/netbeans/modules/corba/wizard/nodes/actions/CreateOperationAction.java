@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.OperationCreator;
  *
  * @author  root
  */
-public class CreateOperationAction extends NodeAction {
+public class CreateOperationAction extends NodeAction implements org.netbeans.modules.corba.wizard.nodes.utils.Create {
 
     protected void performAction (Node[] nodes) {
         if ( enable (nodes)) {
@@ -38,9 +38,17 @@ public class CreateOperationAction extends NodeAction {
     public String getName () {
         return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateOperation");
     }
+    
+    public String toString () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_Operation");
+    }
 
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
+    }
+    
+    public boolean isEnabled(org.openide.nodes.Node[] nodes) {
+        return enable (nodes);
     }
   
 }

@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.StructMemberCreator;
  *
  * @author  root
  */
-public class CreateStructMemberAction extends NodeAction {
+public class CreateStructMemberAction extends NodeAction implements org.netbeans.modules.corba.wizard.nodes.utils.Create {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {
@@ -38,8 +38,16 @@ public class CreateStructMemberAction extends NodeAction {
     public String getName () {
         return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateMember");
     }
+    
+    public String toString () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_StructMember");
+    }
 
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
-    }  
+    }
+    
+    public boolean isEnabled(org.openide.nodes.Node[] nodes) {
+        return enable (nodes);
+    }
 }

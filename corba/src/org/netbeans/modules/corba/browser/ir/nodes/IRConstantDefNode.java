@@ -28,7 +28,7 @@ import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.Generatable;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupportFactory;
-
+import org.netbeans.modules.corba.browser.ir.util.StringConvert;
 
 /**
  * Class ConstantDefNode
@@ -79,13 +79,13 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
                 else
                     return "FALSE";
             case TCKind._tk_char:
-                return "\'" + new Character(value.extract_char()).toString() + "\'";
+                return "\'" + StringConvert.convert(value.extract_char()) + "\'";
             case TCKind._tk_wchar:
-                return "\'" + new Character(value.extract_wchar()).toString() + "\'";
+                return "L\'" + StringConvert.convert(value.extract_wchar()) + "\'";
             case TCKind._tk_string:
-                return "\"" + value.extract_string() + "\"";
+                return "\"" + StringConvert.convert(value.extract_string()) + "\"";
             case TCKind._tk_wstring:
-                return "\"" + value.extract_wstring() + "\"";
+                return "L\"" + StringConvert.convert(value.extract_wstring()) + "\"";
             case TCKind._tk_float:
                 return new Float(value.extract_float()).toString();
             case TCKind._tk_double:

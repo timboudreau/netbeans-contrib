@@ -327,6 +327,24 @@ public class ORBSettingsRecognizer implements org.xml.sax.DocumentHandler {
         } else if ("default-servant-manager-var-name".equals(here)) {
             if (fireOnlyIfMixed) throw new IllegalStateException("Unexpected mixed content element or a parser reporting whitespaces via characters() event!");
             handler.handle_default_servant_manager_var_name(buffer.length() == 0 ? null : buffer.toString(), attrs);
+	} else if ("patch-code".equals(here)) {
+            if (fireOnlyIfMixed) throw new IllegalStateException("Unexpected mixed content element or a parser reporting whitespaces via characters() event!");
+            handler.handle_patch_code(buffer.length() == 0 ? null : buffer.toString(), attrs);
+	} else if ("wizard-requires".equals(here)) {
+            if (fireOnlyIfMixed) throw new IllegalStateException("Unexpected mixed content element or a parser reporting whitespaces via characters() event!");
+            handler.handle_wizard_requires(buffer.length() == 0 ? null : buffer.toString(), attrs);
+	} else if ("wizard-does-not-support".equals(here)) {
+            if (fireOnlyIfMixed) throw new IllegalStateException("Unexpected mixed content element or a parser reporting whitespaces via characters() event!");
+            handler.handle_wizard_does_not_support(buffer.length() == 0 ? null : buffer.toString(), attrs);
+	} else if ("binding-template-code".equals(here)) {
+            if (fireOnlyIfMixed) throw new IllegalStateException("Unexpected mixed content element or a parser reporting whitespaces via characters() event!");
+            handler.handle_binding_template_code(buffer.length() == 0 ? null : buffer.toString(), attrs);
+	} else if ("tie-class-prefix".equals(here)) {
+            if (fireOnlyIfMixed) throw new IllegalStateException("Unexpected mixed content element or a parser reporting whitespaces via characters() event!");
+            handler.handle_tie_class_prefix(buffer.length() == 0 ? null : buffer.toString(), attrs);
+	} else if ("tie-class-postfix".equals(here)) {
+            if (fireOnlyIfMixed) throw new IllegalStateException("Unexpected mixed content element or a parser reporting whitespaces via characters() event!");
+            handler.handle_tie_class_postfix(buffer.length() == 0 ? null : buffer.toString(), attrs);
         } else {
             //do not care
         }

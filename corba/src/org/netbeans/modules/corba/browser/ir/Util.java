@@ -226,6 +226,8 @@ public class Util {
             case TCKind._tk_objref:
             case TCKind._tk_union:
             case TCKind._tk_value:
+            case TCKind._tk_abstract_interface:
+            case TCKind._tk_value_box:
                 try {
                     Contained contained = ContainedHelper.narrow (type);
                     if (contained == null)
@@ -234,8 +236,22 @@ public class Util {
                     if (contained == null)
                         return suffix;  // We can not procede, we return at least part of name, can be OK
                     String preffix= myContainer.absolute_name();
-                    if (parent.absolute_name().equals(preffix))
-                        return suffix;
+                    String absName;
+                    if (parent == null) {
+                        absName = "";
+                    }
+                    else {
+                        absName = parent.absolute_name();
+                    }
+                    String partialName = absName;
+                    while (partialName.length()>0) {
+                        if (partialName.equals(preffix))
+                            return suffix;
+                        int index = partialName.lastIndexOf("::");
+                        if (index == -1)
+                            break;
+                        partialName = partialName.substring (0,index);
+                    }
                     return preffix+"::"+suffix;
                 }catch (org.omg.CORBA.SystemException se) {
                     return suffix;

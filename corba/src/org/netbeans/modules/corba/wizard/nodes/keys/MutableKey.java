@@ -33,6 +33,11 @@ public class MutableKey extends Object {
     public final static int UNION_MBR = 11;
     public final static int STRUCT_MBR = 12;
     public final static int ENUM_MBR = 13;
+    public final static int FORWARD_DCL = 14;
+    public final static int VALUE_BOX = 15;
+    public final static int VALUETYPE = 16;
+    public final static int VALUE = 17;
+    public final static int VALUE_FACTORY = 18;
 
     private int kind;  
   

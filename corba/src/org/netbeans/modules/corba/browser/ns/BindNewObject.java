@@ -67,7 +67,7 @@ public class BindNewObject extends NodeAction {
             if (enable (activatedNodes)) {
                 try {
                     ((ContextNode) activatedNodes[0].getCookie(ContextNode.class)).bind_new_object
-                    (p.getName (), p.getUrl (), p.getIOR ());
+                    (p.getName (), p.getKind (), p.getUrl (), p.getIOR ());
                 } catch (Exception e) {
                     if (DEBUG)
                         e.printStackTrace ();

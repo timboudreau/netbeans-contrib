@@ -33,9 +33,17 @@ public class AttributeKey extends NamedKey {
     public String getType () {
         return this.type;
     }
+    
+    public void setType (String type) {
+        this.type = type;
+    }
   
     public boolean isReadOnly () {
         return this.readonly;
+    }
+    
+    public void setReadOnly (boolean ro) {
+        this.readonly = ro;
     }
   
 }

@@ -21,6 +21,7 @@ Microsystems, Inc. All Rights Reserved.
       <file name="Empty.idl" url="templates/Empty.itemplate">
 	<attr name="template" boolvalue="true"/>
 	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/Empty.html"/>
+        <attr name="templateWizardIterator" newvalue="org.netbeans.modules.corba.wizard.IDLWizard" />
       </file>
       <file name="Simple.idl" url="templates/Simple.itemplate">
 	<attr name="template" boolvalue="true"/>
@@ -33,6 +34,10 @@ Microsystems, Inc. All Rights Reserved.
       <file name="ClientMain.java" url="templates/ClientMain.jtemplate">
 	<attr name="template" boolvalue="true"/>
 	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ClientMain.html"/>
+      </file>
+      <file name="CallBackClientMain.java" url="templates/CallBackClientMain.jtemplate">
+	<attr name="template" boolvalue="true"/>
+	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/CallBackClientMain.html"/>
       </file>
       
       <folder name="POA">

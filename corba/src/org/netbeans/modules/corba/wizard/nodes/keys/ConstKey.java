@@ -32,6 +32,9 @@ public class ConstKey extends AliasKey {
         return this.value;
     }
   
+    public void setValue (String value) {
+        this.value = value;
+    }
   
     public String toString () {
         return "ConstKey: " + name;

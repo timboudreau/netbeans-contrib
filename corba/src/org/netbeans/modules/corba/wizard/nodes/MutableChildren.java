@@ -18,12 +18,13 @@ import java.util.Collection;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
+import org.netbeans.modules.corba.wizard.nodes.utils.MoveableNode;
 /** 
  *
  * @author  root
  * @version 
  */
-public class MutableChildren extends Children.Keys {
+public class MutableChildren extends Children.Keys implements MoveableNode {
 
     private ArrayList subNodes;
   
@@ -56,7 +57,12 @@ public class MutableChildren extends Children.Keys {
         this.subNodes.remove (key);
         this.prepareKeys();
     }
-  
+    
+    public void removeAllKeys (boolean notify) {
+        this.subNodes.clear();
+        if (notify)
+            this.prepareKeys();
+    }
   
     public Node[] createNodes (Object key){
         if ( key != null && ( key instanceof MutableKey)){
@@ -88,6 +94,16 @@ public class MutableChildren extends Children.Keys {
                 return new Node [] { new OperationNode ((NamedKey)key)};
             case MutableKey.ATTRIBUTE:
                 return new Node[] { new AttributeNode ((NamedKey)key)};
+            case MutableKey.FORWARD_DCL:
+                return new Node[] { new ForwardDcl ((ForwardDclKey)key)};
+            case MutableKey.VALUE_BOX:
+                return new Node[] { new ValueBoxNode((AliasKey)key)};
+            case MutableKey.VALUETYPE:
+                return new Node[] { new ValueTypeNode ((ValueTypeKey)key)};
+            case MutableKey.VALUE:
+                return new Node[] { new ValueNode ((ValueKey)key)};
+            case MutableKey.VALUE_FACTORY:
+                return new Node[] { new ValueFactoryNode ((ValueFactoryKey)key)};
             default:
                 return new Node[0];
             }
@@ -95,4 +111,26 @@ public class MutableChildren extends Children.Keys {
         return new Node[0];
     }
   
+    public void moveUp(Node node) {
+        NamedKey key = ((AbstractMutableIDLNode)node).key;
+        int index = this.subNodes.indexOf (key);
+        if (index == -1)
+            return; // Uffff
+        Object other = this.subNodes.get (index-1);
+        this.subNodes.set (index-1, key);
+        this.subNodes.set (index, other);
+        this.prepareKeys();
+    }
+    
+    public void moveDown(Node node) {
+        NamedKey key = ((AbstractMutableIDLNode)node).key;
+        int index = this.subNodes.indexOf (key);
+        if (index == -1)
+            return; // Uffff
+        Object other = this.subNodes.get (index+1);
+        this.subNodes.set (index+1,key);
+        this.subNodes.set (index,other);
+        this.prepareKeys();
+    }
+    
 }

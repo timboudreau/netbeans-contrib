@@ -194,6 +194,11 @@
     name CDATA #IMPLIED
   >
 
+  <!ELEMENT patch-code (#PCDATA)>
+  <!ATTLIST patch-code
+    value CDATA #IMPLIED
+  >
+
   <!ELEMENT ext-class-postfix EMPTY>
   <!ATTLIST ext-class-postfix
     value CDATA #IMPLIED
@@ -231,7 +236,7 @@
     value CDATA #IMPLIED
   >
 
-  <!ELEMENT impl-generator-settings (ext-class-postfix|implbase-impl-prefix|impl-int-postfix|implbase-impl-postfix|tie-impl-postfix|tie-impl-prefix|impl-int-prefix|ext-class-prefix|value-impl-prefix|value-impl-postfix|valuefactory-impl-prefix|valuefactory-impl-postfix)*>
+  <!ELEMENT impl-generator-settings (ext-class-postfix|implbase-impl-prefix|impl-int-postfix|implbase-impl-postfix|tie-impl-postfix|tie-impl-prefix|impl-int-prefix|ext-class-prefix|value-impl-prefix|value-impl-postfix|valuefactory-impl-prefix|valuefactory-impl-postfix|tie-class-prefix|tie-class-postfix)*>
 
   <!ELEMENT column-position EMPTY>
   <!ATTLIST column-position
@@ -240,7 +245,7 @@
 
   <!ELEMENT prepare-code (#PCDATA)>
 
-  <!ELEMENT client-binding (import|code)*>
+  <!ELEMENT client-binding (import|code|wizard-requires|wizard-does-not-support|binding-template-code)*>
   <!ATTLIST client-binding
     name CDATA #IMPLIED
     template-tag CDATA #IMPLIED
@@ -294,7 +299,7 @@
     value CDATA #IMPLIED
   >
 
-  <!ELEMENT java-template-code (template-code)*>
+  <!ELEMENT java-template-code (template-code|patch-code)*>
 
   <!ELEMENT conflicts-with-policy EMPTY>
   <!ATTLIST conflicts-with-policy
@@ -322,7 +327,7 @@
     value CDATA #IMPLIED
   >
 
-  <!ELEMENT server-binding (import|code)*>
+  <!ELEMENT server-binding (import|code|wizard-requires|wizard-does-not-support|binding-template-code)*>
   <!ATTLIST server-binding
     name CDATA #IMPLIED
     template-tag CDATA #IMPLIED
@@ -398,3 +403,29 @@
   <!ATTLIST default-servant-manager-var-name
     value CDATA #IMPLIED
   >
+
+  <!ELEMENT wizard-requires EMPTY>
+  <!ATTLIST wizard-requires
+    value CDATA #IMPLIED
+    title CDATA #IMPLIED
+    type  CDATA #IMPLIED
+  >
+
+  <!ELEMENT wizard-does-not-support EMPTY>
+
+  <!ELEMENT binding-template-code (#PCDATA)>
+  <!ATTLIST binding-template-code
+    name CDATA #IMPLIED
+  >
+
+  <!ELEMENT tie-class-prefix EMPTY>
+  <!ATTLIST tie-class-prefix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT tie-class-postfix EMPTY>
+  <!ATTLIST tie-class-postfix
+    value CDATA #IMPLIED
+  >
+
+

@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.corba.idl.node;
 
+import java.io.File;
+
 import java.util.Vector;
 import java.util.Enumeration;
 
@@ -99,6 +101,41 @@ public class IDLDocumentChildren extends Children.Keys {
             return;
 	}
 	
+	Vector __filtered_keys = new Vector ();
+	Vector __tmp = _M_src.getMembers ();
+	if (ido != null) {
+	    // this is a root IDLDocumentChildren => we will filter all members
+	    String __file_name = null;
+	    try {
+		__file_name = ido.getRealFileName ();
+	    } catch (Exception __ex) {
+		__ex.printStackTrace ();
+	    }
+	    //String __file_name = ido.getPrimaryFile ().getName ();
+	    if (DEBUG)
+		System.out.println ("__file_name: " + __file_name);
+	    for (int __i=0; __i<__tmp.size (); __i++) {
+		IDLElement __element = (IDLElement)__tmp.elementAt (__i);
+		if (DEBUG) {
+		    System.out.println ("element: " + __element.getName ());
+		    System.out.println ("in file: " + __element.getFileName ());
+		}
+		if (__element.getFileName () == null) {
+		    if (DEBUG)
+			System.out.println (__element.toString ());
+		    __element.xDump (" ");
+		}
+		if (__element.getFileName ().equals (__file_name)) {
+		    if (DEBUG)
+			System.out.println ("adding into filtered keys");
+		    __filtered_keys.add (__element);
+		}
+	    }
+	}
+	else {
+	    // This is not root IDLDocumentChildren so we don't filter anything
+	    __filtered_keys = __tmp;
+	}
         if (DEBUG) {
             System.out.println ("setKeys (" + _M_src.getName () + ");"); // NOI18N
             Vector tmp = _M_src.getMembers ();
@@ -107,34 +144,8 @@ public class IDLDocumentChildren extends Children.Keys {
             }
             _M_src.xDump (" "); // NOI18N
         }
-        setKeys (_M_src.getMembers ());
-
-        /*
-          for (int i=0; i<src.getMembers ().size (); i++) {
-          refreshKey (src.getMember (i));
-          }
-        */
-        /*
-          org.openide.nodes.Node[] nodes = getNodes ();
-          for (int i=0; i<nodes.length; i++) {
-          try {
-           ((IDLDocumentChildren)nodes[i].getChildren ()).createKeys ();
-          } catch (ClassCastException e) {
-          System.out.println (e);
-          }
-          }
-        */
-        /*
-          Enumeration nodes = nodes ();
-          while (nodes.hasMoreElements ()) {
-          try {
-          ((IDLDocumentChildren)((org.openide.nodes.Node)nodes.nextElement ()).getChildren ()).createKeys ();
-          } catch (ClassCastException e) {
-          //if (DEBUG)
-          //  e.printStackTrace ();
-          }
-          }
-        */
+	this.setKeys (__filtered_keys);
+        //this.setKeys (_M_src.getMembers ());
         if (DEBUG)
 	    System.out.println ("---end of createKeys ()----------"); // NOI18N
     }

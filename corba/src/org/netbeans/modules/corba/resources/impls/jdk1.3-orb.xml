@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value='--tie'/>
     <dir-param value='--directory'/>
     <package-param value='--package'/>
-    <compiler value='java -classpath {classpath}{:}{library} org.netbeans.modules.corba.idl.compiler.jdk13.Compiler {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <compiler value='java -classpath {classpath}{:}{library} org.netbeans.modules.corba.idl.compiler.jdk13.Compiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
     <package-delimiter value='.'/>
     <error-expression value='^([^ ][^\n]+) \\(line ([0-9]+)\\): (.*)'/>
     <file-position value='1'/>
@@ -33,14 +33,5 @@ Microsystems, Inc. All Rights Reserved.
     <message-position value='3'/>
       
   </idl-compiler-settings>
-
-  <impl-generator-settings>
-    
-    <tie-impl-prefix value=''/>
-    <tie-impl-postfix value='ImplTIE'/>
-    <impl-int-prefix value=''/>
-    <impl-int-postfix value='Operations'/>
-    
-  </impl-generator-settings>
 
 </orb-settings>

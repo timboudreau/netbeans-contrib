@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.ConstantCreator;
  *
  * @author  root
  */
-public class CreateConstantAction extends NodeAction {
+public class CreateConstantAction extends NodeAction implements org.netbeans.modules.corba.wizard.nodes.utils.Create {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {
@@ -32,11 +32,15 @@ public class CreateConstantAction extends NodeAction {
     }
   
     protected boolean enable (Node[] nodes) {
-        return nodes.length == 1 && nodes[0].getCookie(ConstantCreator.class) instanceof ConstantCreator;
+        return nodes.length == 1 && nodes[0].getCookie(ConstantCreator.class) != null;
     }
 
     public String getName () {
         return "Create Constant";
+    }
+    
+    public String toString() {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_Constant");
     }
 
     protected String iconResource () {
@@ -48,6 +52,8 @@ public class CreateConstantAction extends NodeAction {
         // If you will provide context help then use:
         // return new HelpCtx (CreateConstantAction.class);
     }
+    
+    
 
     /** Perform extra initialization of this action's singleton.
      * PLEASE do not use constructors for this purpose!
@@ -56,5 +62,9 @@ public class CreateConstantAction extends NodeAction {
      putProperty ("someProp", value);
      }
     */
+    
+    public boolean isEnabled(org.openide.nodes.Node[] nodes) {
+        return enable (nodes);
+    }
   
 }

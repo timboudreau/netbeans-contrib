@@ -215,5 +215,48 @@ public class ORBSettingsBundle {
 
     public static final String CTL_UNSUPPORTED = ORBSettingsBundle.bundle.getString
 	("CTL_UNSUPPORTED");
+
+    // Added for CPP Support
+    /*
+      public static final String PROP_CPP_DIRECTORIES = ORBSettingsBundle.bundle.getString
+      ("PROP_CPP_DIRECTORIES");
+      public static final String HINT_CPP_DIRECTORIES = ORBSettingsBundle.bundle.getString
+      ("HINT_CPP_DIRECTORIES");
+      public static final String PROP_CPP_DEFINED_SYMBOLS = ORBSettingsBundle.bundle.getString
+      ("PROP_CPP_DEFINED_SYMBOLS");
+      public static final String HINT_CPP_DEFINED_SYMBOLS = ORBSettingsBundle.bundle.getString
+      ("HINT_CPP_DEFINED_SYMBOLS");
+      public static final String PROP_CPP_UNDEFINED_SYMBOLS 
+      = ORBSettingsBundle.bundle.getString ("PROP_CPP_UNDEFINED_SYMBOLS");
+      public static final String HINT_CPP_UNDEFINED_SYMBOLS
+      = ORBSettingsBundle.bundle.getString ("HINT_CPP_UNDEFINED_SYMBOLS");
+    */
+    public static final String PROP_CPP_PARAMS = ORBSettingsBundle.bundle.getString
+	("PROP_CPP_PARAMS");
+    public static final String HINT_CPP_PARAMS = ORBSettingsBundle.bundle.getString
+	("HINT_CPP_PARAMS");
+
+    public static final String PROP_LOOK_FOR_IMPLEMENTATIONS 
+	= ORBSettingsBundle.bundle.getString ("PROP_LOOK_FOR_IMPLEMENTATIONS");
+    public static final String HINT_LOOK_FOR_IMPLEMENTATIONS
+	= ORBSettingsBundle.bundle.getString ("HINT_LOOK_FOR_IMPLEMENTATIONS");
+    public static final String PACKAGE = ORBSettingsBundle.bundle.getString
+	("PACKAGE");
+    public static final String PACKAGE_AND_SUB_PACKAGES = ORBSettingsBundle.bundle.getString
+	("PACKAGE_AND_SUB_PACKAGES");
+    public static final String FILESYSTEM = ORBSettingsBundle.bundle.getString
+	("FILESYSTEM");
+    public static final String REPOSITORY = ORBSettingsBundle.bundle.getString
+	("REPOSITORY");
+
+    public static final String PROP_TIE_CLASS_PREFIX = ORBSettingsBundle.bundle.getString
+	("PROP_TIE_CLASS_PREFIX");
+    public static final String HINT_TIE_CLASS_PREFIX = ORBSettingsBundle.bundle.getString
+	("HINT_TIE_CLASS_PREFIX");
+    public static final String PROP_TIE_CLASS_POSTFIX = ORBSettingsBundle.bundle.getString
+	("PROP_TIE_CLASS_POSTFIX");
+    public static final String HINT_TIE_CLASS_POSTFIX = ORBSettingsBundle.bundle.getString
+	("HINT_TIE_CLASS_POSTFIX");
+    
 }
 

@@ -31,6 +31,10 @@ public class EnumKey extends NamedKey {
     public String getValues () {
         return this.values;
     }
+    
+    public void setValues (String values) {
+        this.values = values;
+    }
   
     public String toString () {
         return "EnumKey: "+ name; // No I18N

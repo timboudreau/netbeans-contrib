@@ -1,60 +1,57 @@
 
 <java-template-code>
   
-  <template-code name='ORB_PROPERTIES'>
-    <![CDATA[// setting system properties is necessary in order to use Orbacus in Java 1.2
+  <patch-code value='/*FFJ_CORBA_TODO_SERVER_NAME*/'><![CDATA[<server_name>]]></patch-code>
+
+  <template-code name='ORB_PROPERTIES'><![CDATA[// setting system properties is necessary in order to use this ORB in JDK
     Properties props = System.getProperties ();
     props.put ("org.omg.CORBA.ORBClass", "com.ooc.CORBA.ORB");
     props.put ("org.omg.CORBA.ORBSingletonClass", "com.ooc.CORBA.ORBSingleton");
     System.setProperties (props);]]>
   </template-code>
   
-  <template-code name='POA_INIT'>
-    <![CDATA[BOA boa = ((com.ooc.CORBA.ORB)orb).BOA_init (args, props);]]>
+  <template-code name='POA_INIT'><![CDATA[org.omg.CORBA.BOA boa = ((com.ooc.CORBA.ORB)orb).BOA_init (args, props);]]>
   </template-code>
   
-  <template-code name='SERVANTS_ACTIVATION'>
-    <![CDATA[]]>
-  </template-code>
-  
-  <template-code name='ORB_SERVER_RUN'>
-    <![CDATA[boa.impl_is_ready (null);]]>
-  </template-code>
-  
+  <template-code name='ORB_SERVER_RUN'><![CDATA[boa.impl_is_ready (null);]]></template-code>
   
 </java-template-code>
 
 
 <server-binding name='Proprietary Binder' template-tag='SERVER_BINDING'>
-  <code>
-    <![CDATA[//ORBacus for Java 3.x proprietary binding
-    ((com.ooc.CORBA.ORB)orb).connect(/* place here your object implementation */, "<name of your server>");]]>
+  <wizard-requires value='/*FFJ_CORBA_TODO_SERVER_NAME*/' title='Server name:'
+	   type='string'/>
+  <binding-template-code name='SERVANTS_ACTIVATION'><![CDATA[]]>
+  </binding-template-code>
+  <code><![CDATA[// ORBacus for Java 3.x proprietary binder:
+    ((com.ooc.CORBA.ORB)orb).connect(/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/, "/*FFJ_CORBA_TODO_SERVER_NAME*/");]]>
   </code>
 </server-binding>
 
 
 <client-binding name='Proprietary Binder' template-tag='CLIENT_BINDING'>
-  <code>
-    <![CDATA[//ORBacus for Java 3.x proprietary client binding
+  <wizard-requires value='/*FFJ_CORBA_TODO_SERVER_NAME*/' title='Server name:'
+	   type='string'/>
+  <code><![CDATA[// ORBacus for Java 3.x proprietary binder:
     // get server object from URL
-    //
-    String url = "iiop://<host where the server runs>:<port where the server listens>/<name of your object implementation>";
+    String url = "iiop://<host where the server runs>:<port where the server listens>//*FFJ_CORBA_TODO_SERVER_NAME*/";
     org.omg.CORBA.Object obj = orb.string_to_object (url);
     if (obj == null)
     throw new RuntimeException();
-    // add your code here
-    // something like:  <class> <name> = <class>Helper.narrow (obj);
-    //                  if (<name> == null) throw RuntimeException ();]]>
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here]]>
   </code>
 </client-binding>
-    
     
 <idl-compiler-settings>
 
   <tie-param value='--tie'/>
   <dir-param value='--output-dir'/>
   <package-param value='--package'/>
-  <compiler value='jidl {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+  <compiler value='jidl {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
   <package-delimiter value='.'/>
   <error-expression value='^([^ ]+):([0-9]+): (.*)'/>
   <file-position value='1'/>
@@ -68,6 +65,8 @@
 <impl-generator-settings>
 
   <impl-int-prefix value=''/>
+  <tie-class-prefix value='_'/>
+  <tie-class-postfix value='ImplBase_tie'/>
   
 </impl-generator-settings>
 

@@ -48,6 +48,8 @@ public class InterfaceNode extends FMNode implements Node.Cookie,
         String fill = new String ();
         for (int i=0; i< indent; i++)
             fill = fill + SPACE;
+        if (((InterfaceKey)key).isAbstract())
+            fill = fill + "abstract "; // No I18N
         code = fill + "interface " +  this.getName () + " ";  // No I18N
         if (((InterfaceKey)this.key).getbaseInterfaces().length() > 0) {
             code = code + ": " + ((InterfaceKey)this.key).getbaseInterfaces() + " "; // No I18N
@@ -73,7 +75,7 @@ public class InterfaceNode extends FMNode implements Node.Cookie,
             SystemAction.get (CreateUnionAction.class),
             null,
             SystemAction.get (DestroyAction.class),
-            SystemAction.get (RenameAction.class)
+            SystemAction.get (EditAction.class)
         };
     }
   
@@ -119,8 +121,35 @@ public class InterfaceNode extends FMNode implements Node.Cookie,
                                                                              dialog.dispose ();
                                                                          }
                                                                      });
+        descriptor.disableOk();                                                             
         dialog = tm.createDialog (descriptor);
         dialog.setVisible (true);
+    }
+    
+    public ExPanel getEditPanel() {
+        InterfacePanel p = new InterfacePanel();
+        p.setName (this.getName());
+        p.setBase (((InterfaceKey)this.key).getbaseInterfaces());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof InterfacePanel) {
+            String newName = ((InterfacePanel)p).getName();
+            String newBase = ((InterfacePanel)p).getBase();
+            boolean abst = ((InterfacePanel)p).isAbstract();
+            InterfaceKey key = (InterfaceKey)this.key;
+            if (!newName.equals (key.getName())) {
+                this.setName (newName);
+                key.setName (newName);
+            }
+            if (!newBase.equals (key.getbaseInterfaces())) {
+                key.setBaseInterfaces (newBase);
+            }
+            if (abst != key.isAbstract()) {
+                key.setAbstract (abst);
+            }
+        }
     }
   
 }

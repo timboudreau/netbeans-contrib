@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.AliasCreator;
  *
  * @author  root
  */
-public class CreateAliasAction extends NodeAction {
+public class CreateAliasAction extends NodeAction implements org.netbeans.modules.corba.wizard.nodes.utils.Create {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {
@@ -38,10 +38,17 @@ public class CreateAliasAction extends NodeAction {
     public String getName () {
         return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateAlias");
     }
+    
+    public String toString () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_Alias");
+    }
 
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
     }
 
+    public boolean isEnabled(org.openide.nodes.Node[] nodes) {
+        return enable (nodes);
+    }    
   
 }

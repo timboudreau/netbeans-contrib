@@ -17,6 +17,6 @@ import org.openide.nodes.Node;
 
 public interface CosNamingCookie extends Node.Cookie {
     public void performInteractive();
-    public void start (String name, short port);
+    public void start (String name, String __kind, short port);
     public void stop ();
 }

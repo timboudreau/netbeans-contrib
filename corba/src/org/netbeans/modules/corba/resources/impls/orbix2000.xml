@@ -22,9 +22,58 @@ Microsystems, Inc. All Rights Reserved.
   &corba23-poa;
   &corba23-generic-impl;
 
+  <poa-settings>
+    <poa-policy name='Object Deactivation' mnemonic_character='D'>
+      <value name='DELIVER'>
+      </value>
+      <value name='DISCARD'>
+      </value>
+      <value name='HOLD'>
+      </value>
+      <prepare-code><![CDATA[org.omg.CORBA.Any _odPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
+        com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValueHelper.insert(_odPolicyAny__$INDEX$__, com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValue.__POLICY_VALUE__);]]>
+      </prepare-code>
+      <prepare-code-pattern value='org.omg.CORBA.Any _odPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValueHelper.insert\(_odPolicyAny[0-9]+, com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValue.([:javastart:][:javapart:]*)\);\n'/>
+      <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.iona.corba.IT_PortableServer.OBJECT_DEACTIVATION_POLICY_ID.value, _odPolicyAny__$INDEX$__)]]></create-code>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.iona.corba.IT_PortableServer.OBJECT_DEACTIVATION_POLICY_ID.value, _odPolicyAny[0-9]+\),?'/>
+    </poa-policy>
+
+    <poa-policy name='Persistence Mode' mnemonic_character='P'>
+      <value name='INDIRECT_PERSISTENCE'>
+      </value>
+      <value name='DIRECT_PERSISTENCE'>
+        <require-policy name='Lifespan' value='PERSISTENT'/>
+      </value>
+      <prepare-code><![CDATA[org.omg.CORBA.Any _pmPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
+        com.iona.corba.IT_PortableServer.PersistenceModePolicyValueHelper.insert(_pmPolicyAny__$INDEX$__, com.iona.corba.IT_PortableServer.PersistenceModePolicyValue.__POLICY_VALUE__);]]>
+      </prepare-code>
+      <prepare-code-pattern value='org.omg.CORBA.Any _pmPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* com.iona.corba.IT_PortableServer.PersistenceModePolicyValueHelper.insert\(_pmPolicyAny[0-9]+, com.iona.corba.IT_PortableServer.PersistenceModePolicyValue.([:javastart:][:javapart:]*)\);\n'/>
+      <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.iona.corba.IT_PortableServer.PERSISTENCE_MODE_POLICY_ID.value, _pmPolicyAny__$INDEX$__)]]></create-code>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.iona.corba.IT_PortableServer.PERSISTENCE_MODE_POLICY_ID.value, _pmPolicyAny[0-9]+\),?'/>
+    </poa-policy>
+
+    <poa-policy name='Well Known Addressing' mnemonic_character='W'>
+      <prepare-code><![CDATA[org.omg.CORBA.Any _wkaPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
+        _wkaPolicyAny__$INDEX$__.insert_string("__POLICY_VALUE__");]]>
+      </prepare-code>
+      <prepare-code-pattern value='org.omg.CORBA.Any _wkaPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* _wkaPolicyAny[0-9]+.insert_string\("([:javastart:][:javapart:]*)"\);\n'/>
+      <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.iona.corba.IT_CORBA.WELL_KNOWN_ADDRESSING_POLICY_ID.value, _wkaPolicyAny__$INDEX$__)]]></create-code>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.iona.corba.IT_CORBA.WELL_KNOWN_ADDRESSING_POLICY_ID.value, _wkaPolicyAny[0-9]+\),?'/>
+    </poa-policy>
+
+    <poa-policy name='Work Queue' mnemonic_character='Q'>
+      <prepare-code><![CDATA[org.omg.CORBA.Any _wqPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
+        _wqPolicyAny__$INDEX$__.insert_Object(__POLICY_VALUE__);]]>
+      </prepare-code>
+      <prepare-code-pattern value='org.omg.CORBA.Any _wqPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* _wqPolicyAny[0-9]+.insert_Object\(([:javastart:][:javapart:]*)\);\n'/>
+      <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.iona.corba.IT_WorkQueue.WORK_QUEUE_POLICY_ID.value, _wqPolicyAny__$INDEX$__)]]></create-code>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.iona.corba.IT_WorkQueue.WORK_QUEUE_POLICY_ID.value, _wqPolicyAny[0-9]+\),?'/>
+    </poa-policy>
+  </poa-settings>
+
+
   <java-template-code>
-    <template-code name='ORB_PROPERTIES'>
-      <![CDATA[// setting system properties is necessary to use Orbix 2000 for Java 1.0
+    <template-code name='ORB_PROPERTIES'><![CDATA[// setting system properties is necessary in order to use this ORB in JDK
       Properties props = System.getProperties ();
       props.put ("org.omg.CORBA.ORBClass", "com.iona.corba.art.artimpl.ORBImpl");
       props.put ("org.omg.CORBA.ORBSingletonClass", "com.iona.corba.art.artimpl.ORBSingleton");
@@ -36,7 +85,7 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value=''/>
     <dir-param value='-O'/>
     <package-param value='-P'/>
-    <compiler value='idl {params} -jbase:{dir_param}{package_root}:{package_param}{package} -jpoa:{dir_param}{package_root}:{package_param}{package} {files}'/>
+    <compiler value='idl {cpp_params} {params} -jbase:{dir_param}{package_root}:{package_param}{package} -jpoa:{dir_param}{package_root}:{package_param}{package} {files}'/>
     <package-delimiter value='.'/>
     <error-expression value='^idl: "([^ ]+)", line ([0-9]+): (.*)'/>
     <file-position value='1'/>

@@ -18,7 +18,7 @@ import org.openide.nodes.Node;
 /** Cookie for IDL Node.
 *
 * @author Karel Gardas
-* @version May 21, May 21, 1999
+* @version May 21, 1999
 */
 public interface IDLNodeCookie extends Node.Cookie {
 

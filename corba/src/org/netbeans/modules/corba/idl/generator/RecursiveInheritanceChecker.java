@@ -22,7 +22,9 @@ import org.netbeans.modules.corba.CORBASupport;
 
 import org.netbeans.modules.corba.idl.src.IDLElement;
 import org.netbeans.modules.corba.idl.src.InterfaceElement;
+import org.netbeans.modules.corba.idl.src.DeclaratorElement;
 
+import org.netbeans.modules.corba.utils.Assertion;
 /*
  * @author Karel Gardas
  */
@@ -46,10 +48,10 @@ public class RecursiveInheritanceChecker extends java.lang.Object {
 	    return "";
     }
 
-    public void check (InterfaceElement __interface, Stack __stack) 
+    public void check (IDLElement __element, Stack __stack) 
 	throws RecursiveInheritanceException, SymbolNotFoundException {
 	//System.out.println ("check (" + __interface.getName () + ", " + __stack + ")");
-        String __name = this.getAbsoluteName (__interface);
+        String __name = this.getAbsoluteName (__element);
 	if (__stack.search (__name) != -1) {
 	    //java.lang.Object[] __arr 
 	    //= new java.lang.Object[] {__name, new Integer (__interface.getLine ())};
@@ -57,23 +59,54 @@ public class RecursiveInheritanceChecker extends java.lang.Object {
 	    //throw new RecursiveInheritanceException ("recursive inheritance for interface " + __name + " at line " + __interface.getLine () + ".");
 	    //throw new RecursiveInheritanceException (__msg);
 	    RecursiveInheritanceException __exc = new RecursiveInheritanceException ();
-	    __exc.setLine (__interface.getLine ());
+	    __exc.setLine (__element.getLine ());
 	    __exc.setName (__name);
 	    throw __exc;
 	}
 	__stack.push (__name);
-	Vector __parents = __interface.getParents ();
-	for (int __i=0; __i<__parents.size (); __i++) {
-	    String __parent_name = (String)__parents.elementAt (__i);
-	    InterfaceElement __parent = (InterfaceElement)ImplGenerator.findElementByName 
-		(__parent_name, __interface);
-            if (__parent == null) {
-                throw new SymbolNotFoundException (__parent_name);
-            }
-	    this.check (__parent, __stack);
-	    int __how_many = __stack.search (__name);
-	    for (int __j=1; __j<__how_many; __j++)
-		__stack.pop ();
+	if (__element instanceof InterfaceElement) {
+	    InterfaceElement __interface = (InterfaceElement)__element;
+	    Vector __parents = __interface.getParents ();
+	    for (int __i=0; __i<__parents.size (); __i++) {
+		String __parent_name = (String)__parents.elementAt (__i);
+		//InterfaceElement __parent = (InterfaceElement)ImplGenerator.findElementByName 
+		//(__parent_name, __interface);
+		IDLElement __parent = null;
+		/*
+		  IDLElement __parent = ImplGenerator.findElementByName 
+		  (__parent_name, __interface);
+		*/
+		/*
+		  while (!__parent instanceof InterfaceElement) {
+		*/
+		if (__parent == null) {
+		    throw new SymbolNotFoundException (__parent_name);
+		}
+		this.check (__parent, __stack);
+		int __how_many = __stack.search (__name);
+		for (int __j=1; __j<__how_many; __j++)
+		    __stack.pop ();
+	    }
+	}
+	else if (__element instanceof DeclaratorElement) {
+	    // typedefed interface e.g.
+	    // interface a {};
+	    // typedef a my_a;
+	    // interface x : my_a {};
+	    String __type_name = ((DeclaratorElement)__element).getType ().getName ();
+	    System.out.println ("__type_name: " + __type_name);
+	    IDLElement __type_element = null;
+	    /*
+	      IDLElement __type_element = ImplGenerator.findElementByName 
+	      (__type_name, __element);
+	    */
+	    if (__type_element == null) {
+		throw new SymbolNotFoundException (__type_name);
+	    }
+	}
+	else {
+	    // error
+	    Assertion.assert (false);
 	}
     }
 		       

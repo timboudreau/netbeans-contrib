@@ -31,6 +31,10 @@ public class ModulePanel extends ExPanel implements DocumentListener {
     public String getName () {
         return this.name.getText();
     }
+    
+    public void setName (String name) {
+	this.name.setText (name);
+    }
 
 
     public void postInitComponents () {

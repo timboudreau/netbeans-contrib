@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.corba.settings;
 
+import java.util.Properties;
 
 /*
  * @author Karel Gardas
@@ -26,6 +27,8 @@ public class ORBBindingDescriptor {
     private String _M_local_tag;
     private String _M_import;
     private String _M_code;
+    private WizardSettings _M_wizard_settings;
+    private Properties _M_java_template_table;
 
     public ORBBindingDescriptor () {
     }
@@ -74,6 +77,33 @@ public class ORBBindingDescriptor {
 	_M_code = __value;
     }
 
+    public WizardSettings getWizardSettings () {
+	return _M_wizard_settings;
+    }
+
+    public void setWizardSettings (WizardSettings __settings) {
+	_M_wizard_settings = __settings;
+    }
+
+    public void setJavaTemplateCodeTable (Properties __value) {
+	//System.out.println (this.getName () + "::setJavaTemplateCodeTable <-" + __value);
+	_M_java_template_table = __value;
+    }
+
+    public Properties getJavaTemplateCodeTable () {
+	if (_M_java_template_table == null)
+	    _M_java_template_table = new Properties ();
+	//System.out.println (this.getName () + "::getJavaTemplateCodeTable () -> " + _M_java_template_table);
+	return _M_java_template_table;
+    }
+
+    public void addJavaTemplateCode (String __key, String __value) {
+	//System.out.println ("add property for " + this.getName () + ": " + __key + ": " + __value);
+	if (_M_java_template_table == null)
+	    _M_java_template_table = new Properties ();
+	_M_java_template_table.setProperty (__key, __value);
+    }
+
     public String toString () {
 	StringBuffer __buf = new StringBuffer ();
 	__buf.append ("name: ");
@@ -86,6 +116,10 @@ public class ORBBindingDescriptor {
 	__buf.append (_M_import);
 	__buf.append ("\ncode: ");
 	__buf.append (_M_code);
+	__buf.append ("\nwizard settings: ");
+	__buf.append (_M_wizard_settings);
+	__buf.append ("\ntemplate codes: ");
+	__buf.append (_M_java_template_table);
 	return __buf.toString ();
     }
 }

@@ -16,29 +16,42 @@ package org.netbeans.modules.corba.wizard.nodes;
 import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
 import org.netbeans.modules.corba.wizard.nodes.actions.*;
-/** 
+import org.netbeans.modules.corba.wizard.nodes.gui.ModulePanel;
+import org.netbeans.modules.corba.wizard.nodes.gui.ExPanel;
+/**
  *
  * @author  root
- * @version 
+ * @version
  */
 public class EnumEntryNode extends AbstractMutableLeafNode {
-
+    
     private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/attribute";
-  
+    
     /** Creates new EnumEntryNode */
     public EnumEntryNode(NamedKey key) {
         super (key);
         this.setName (key.getName());
         this.setIconBase (ICON_BASE);
     }
-  
-    public SystemAction[] createActions () {
-        return new SystemAction[] { SystemAction.get (DestroyAction.class),
-                                    SystemAction.get (RenameAction.class)};
-    }
-  
+    
+    
     public String generateSelf ( int indent) {
         return this.getName ();
     }
-  
+    
+    public ExPanel getEditPanel () {
+        ModulePanel p = new ModulePanel ();
+        p.setName (this.getName());
+        return p;
+    }
+    
+    public void reInit (ExPanel p) {
+        if (p instanceof ModulePanel) {
+            String newName = ((ModulePanel)p).getName();
+            if (!((NamedKey)this.key).getName().equals(newName)) {
+                this.setName (newName);
+                ((NamedKey)this.key).setName (newName);
+            }
+        }
+    }
 }

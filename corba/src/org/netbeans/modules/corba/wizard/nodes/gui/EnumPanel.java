@@ -30,9 +30,17 @@ public class EnumPanel extends ExPanel implements DocumentListener {
     public String getName () {
         return this.name.getText();
     }
+    
+    public void setName (String name) {
+	this.name.setText (name);
+    }
   
     public String getValues () {
         return this.values.getText();
+    }
+    
+    public void setValues (String values) {
+	this.values.setText (values);
     }
 
     private void postInitComponents () {
@@ -53,30 +61,30 @@ public class EnumPanel extends ExPanel implements DocumentListener {
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
         setPreferredSize(new java.awt.Dimension(250, 56));
-
-        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_ModuleName"));
+        
+        jLabel1.setText(bundle.getString("TXT_ModuleName"));
         jLabel1.setLabelFor(name);
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.insets = new java.awt.Insets(8, 8, 4, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel1, gridBagConstraints1);
-
-
-        jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_EnumValues"));
+        
+        
+        jLabel2.setText(bundle.getString("TXT_EnumValues"));
         jLabel2.setLabelFor(values);
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
         gridBagConstraints1.insets = new java.awt.Insets(4, 8, 8, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel2, gridBagConstraints1);
-
-
-        name.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_EnumName"));
+        
+        
         name.setPreferredSize(new java.awt.Dimension(100, 16));
-
+        name.setToolTipText(bundle.getString("TIP_EnumName"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridwidth = 0;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -84,11 +92,11 @@ public class EnumPanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(name, gridBagConstraints1);
-
-
-        values.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_EnumValues"));
+        
+        
         values.setPreferredSize(new java.awt.Dimension(100, 16));
-
+        values.setToolTipText(bundle.getString("TIP_EnumValues"));
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 1;
@@ -98,7 +106,7 @@ public class EnumPanel extends ExPanel implements DocumentListener {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(values, gridBagConstraints1);
-
+        
     }//GEN-END:initComponents
 
 
@@ -108,6 +116,8 @@ public class EnumPanel extends ExPanel implements DocumentListener {
     private javax.swing.JTextField name;
     private javax.swing.JTextField values;
     // End of variables declaration//GEN-END:variables
+
+    private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle");    
 
     public void removeUpdate(final javax.swing.event.DocumentEvent p1) {
         checkState();

@@ -32,6 +32,7 @@ import org.openide.filesystems.FileUtil;
 import org.netbeans.modules.corba.idl.node.*;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.netbeans.modules.corba.settings.ORBSettings;
+import org.netbeans.modules.corba.settings.ORBSettingsBundle;
 import org.netbeans.modules.corba.settings.OrbPropertyEditor;
 
 /**
@@ -127,7 +128,9 @@ public class IDLNode extends DataNode {
 		    CORBASupportSettings __css 
 			= (CORBASupportSettings) CORBASupportSettings.findObject
 			(CORBASupportSettings.class, true);
-		    ORBSettings __settings = __css.getSettingByName (__setuped);
+		    ORBSettings __settings = null;
+		    if (__setuped != null)
+			__settings = __css.getSettingByName (__setuped);
 		    if (__setuped != null && __settings != null)
 			return new String (__settings.getName ());
 		    else {
@@ -159,6 +162,34 @@ public class IDLNode extends DataNode {
 		
 		public PropertyEditor getPropertyEditor() {
 		    return new OrbPropertyEditor ();
+		}
+	    });
+
+	ps.put (new PropertySupport.ReadWrite (
+					       "cpp", // NOI18N
+					       String.class,
+					       ORBSettingsBundle.PROP_CPP_PARAMS,
+					       ORBSettingsBundle.HINT_CPP_PARAMS
+					       ) {
+		public Object getValue() {
+		    return IDLNode.this.getIDLDataObject().getCPPParams ();
+		}
+		
+		public void setValue (Object __value) {
+		    if (__value instanceof String) {
+			try {
+			    String __params = (String)__value;
+			    IDLNode.this.getIDLDataObject ().setCPPParams (__params);
+			}
+			catch (java.io.IOException __ex) {
+			    TopManager.getDefault ().notifyException (__ex);
+			    //__ex.printStackTrace ();
+			}
+			catch (IllegalArgumentException __ex) {
+			    TopManager.getDefault ().notifyException (__ex);
+			    //__ex.printStackTrace ();
+			}
+		    }
 		}
 	    });
 	

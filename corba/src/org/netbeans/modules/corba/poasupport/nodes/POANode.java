@@ -361,15 +361,25 @@ public class POANode extends AbstractNode implements java.beans.PropertyChangeLi
                     public Object getValue () {
                         Properties policies = getPOAElement().getPolicies();
                         Object ret = policies.get(policyName);
-                        if (ret == null)
-                            ret = ((POAPolicyValueDescriptor)_ps.getPolicyByName(policyName).getValues().get(0)).getName();
+                        if (ret == null) {
+                            List _values = _ps.getPolicyByName(policyName).getValues();
+                            if (_values.size() > 0)
+                                ret = ((POAPolicyValueDescriptor)_values.get(0)).getName();
+                            else
+                                ret = "";
+                        }
                         return ret;
                     }
                     public void setValue(Object value) {
                         Properties policies = getPOAElement().getPolicies();
                         String old_value = policies.getProperty(policyName);
-                        if (old_value == null)
-                            old_value = ((POAPolicyValueDescriptor)_ps.getPolicyByName(policyName).getValues().get(0)).getName();
+                        if (old_value == null) {
+                            List _values = _ps.getPolicyByName(policyName).getValues();
+                            if (_values.size() > 0)
+                                old_value = ((POAPolicyValueDescriptor)_values.get(0)).getName();
+                            else
+                                old_value = "";
+                        }
                         if (value.equals(old_value))
                             return;
                         if (POAChecker.checkPOAPoliciesChange(getPOAElement(), policies, policyName, (String)value, false))

@@ -29,7 +29,8 @@ import org.netbeans.modules.corba.wizard.nodes.gui.*;
  * @version 
  */
 abstract public class FMNode extends AbstractMutableContainerNode implements Node.Cookie,
-    ModuleCreator, StructCreator, ConstantCreator, ExceptionCreator, AliasCreator, UnionCreator, EnumCreator, InterfaceCreator {
+    ModuleCreator, StructCreator, ConstantCreator, ExceptionCreator, AliasCreator, UnionCreator,
+    EnumCreator, InterfaceCreator, ValueBoxCreator, FwdDclCreator, ValueTypeCreator {
 
     /** Creates new FMNode */
     public FMNode(NamedKey key) {
@@ -54,6 +55,27 @@ abstract public class FMNode extends AbstractMutableContainerNode implements Nod
         descriptor.disableOk();
         this.dialog = tm.createDialog (descriptor);
         this.dialog.setVisible (true);
+    }
+    
+    public void createValueBox () {
+        final ValueBoxPanel panel = new ValueBoxPanel ();
+        TopManager tm = TopManager.getDefault();
+        ExDialogDescriptor descriptor = new ExDialogDescriptor (panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateValueBox"), true,
+        new ActionListener () {
+            public void actionPerformed (ActionEvent event) {
+                if (event.getActionCommand().equals(ExDialogDescriptor.OK)){
+                    String name = panel.getName();
+                    String type = panel.getType();
+                    AliasKey key = new AliasKey (MutableKey.VALUE_BOX,name,type,null);
+                    ((MutableChildren)getChildren()).addKey (key);
+                }
+                dialog.setVisible (false);
+                dialog.dispose ();
+            }
+        });
+        descriptor.disableOk();
+        dialog = tm.createDialog (descriptor);
+        dialog.setVisible (true);
     }
   
     public void createConstant () {
@@ -96,6 +118,27 @@ abstract public class FMNode extends AbstractMutableContainerNode implements Nod
         descriptor.disableOk();
         this.dialog = tm.createDialog (descriptor);
         this.dialog.setVisible (true);
+    }
+    
+    public void createForwardDcl() {
+        final ForwardDclPanel panel = new ForwardDclPanel ();
+        TopManager tm = TopManager.getDefault();
+        ExDialogDescriptor descriptor = new ExDialogDescriptor (panel,java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateFwdDcl"),true,
+                                                                new ActionListener () {
+                                                                    public void actionPerformed (ActionEvent event) {
+                                                                        if (event.getActionCommand().equals(ExDialogDescriptor.OK)) {
+                                                                            String name = panel.getName();
+                                                                            boolean intf = panel.isInterface();
+                                                                            ForwardDclKey key = new ForwardDclKey (MutableKey.FORWARD_DCL,name,intf);
+                                                                            ((MutableChildren)getChildren()).addKey (key);
+                                                                        }
+                                                                        dialog.setVisible (false);
+                                                                        dialog.dispose ();
+                                                                    }
+                                                                });
+       descriptor.disableOk();
+       this.dialog = tm.createDialog (descriptor);
+       this.dialog.setVisible (true);
     }
   
     public void createException () {
@@ -188,7 +231,8 @@ abstract public class FMNode extends AbstractMutableContainerNode implements Nod
                                                                             if (event.getActionCommand().equals(ExDialogDescriptor.OK)) {
                                                                                 String name = panel.getName();
                                                                                 String base = panel.getBase();
-                                                                                InterfaceKey key = new InterfaceKey (MutableKey.INTERFACE,name,base);
+                                                                                boolean abstr = panel.isAbstract();
+                                                                                InterfaceKey key = new InterfaceKey (MutableKey.INTERFACE,name,base,abstr);
                                                                                 ((MutableChildren)getChildren()).addKey (key);
                                                                             }
                                                                             dialog.setVisible (false);
@@ -200,4 +244,29 @@ abstract public class FMNode extends AbstractMutableContainerNode implements Nod
         this.dialog.setVisible (true);
     }
   
+    public void createValueType() {
+        TopManager tm = TopManager.getDefault();
+        final ValueTypePanel p = new ValueTypePanel ();
+        ExDialogDescriptor dd = new ExDialogDescriptor (p,java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateValueType"), true,
+        new ActionListener() {
+            public void actionPerformed (ActionEvent event) {
+                if (event.getActionCommand().equals(ExDialogDescriptor.OK)) {
+                    String name = p.getName();
+                    String base = p.getBase();
+                    String supports = p.getSupports();
+                    boolean isAbstract = p.isAbstract();
+                    boolean isTruncatable = p.isTruncatable();
+                    boolean isCustom = p.isCustom();
+                    ValueTypeKey key = new ValueTypeKey (MutableKey.VALUETYPE, name, base, supports, isAbstract, isCustom, isTruncatable);
+                    ((MutableChildren)FMNode.this.getChildren()).addKey (key);
+                }
+                dialog.setVisible (false);
+                dialog.dispose();
+            }
+        });
+        dd.disableOk();
+        this.dialog = tm.createDialog (dd);
+        this.dialog.setVisible (true);
+    }
+    
 }

@@ -21,48 +21,46 @@ Microsystems, Inc. All Rights Reserved.
   &corba20-generic-impl;
 
   <java-template-code>
+
+    <patch-code value='/*FFJ_CORBA_TODO_SERVER_NAME*/'><![CDATA[<server_name>]]></patch-code>
     
-    <template-code name='ORB_PROPERTIES'>
-      <![CDATA[// setting system properties is necessary for use with VisiBroker for Java in Java 1.2
+    <template-code name='ORB_PROPERTIES'><![CDATA[// setting system properties is necessary in order to use this ORB in JDK
       Properties props = System.getProperties ();
       props.put ("org.omg.CORBA.ORBClass", "com.visigenic.vbroker.orb.ORB");
       props.put ("org.omg.CORBA.ORBSingletonClass", "com.visigenic.vbroker.orb.ORB");
       System.setProperties (props);]]>
     </template-code>
     
-    <template-code name='POA_INIT'>
-      <![CDATA[BOA boa = ((com.visigenic.vbroker.orb.ORB)orb).BOA_init ();]]>
+    <template-code name='POA_INIT'><![CDATA[org.omg.CORBA.BOA boa = ((com.visigenic.vbroker.orb.ORB)orb).BOA_init ();]]>
     </template-code>
 
-    <template-code name='SERVANTS_ACTIVATION'>
-      <![CDATA[boa.obj_is_ready (/* add your object implementation here */);]]>
+    <template-code name='SERVANTS_ACTIVATION'><![CDATA[boa.obj_is_ready (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);]]>
     </template-code>
 
-    <template-code name='ORB_SERVER_RUN'>
-      <![CDATA[boa.impl_is_ready ();]]>
-    </template-code>
-
+    <template-code name='ORB_SERVER_RUN'><![CDATA[boa.impl_is_ready ();]]></template-code>
 
   </java-template-code>
 
 
   <server-binding name='Proprietary Binder' template-tag='SERVER_BINDING'>
-    <code>
-      <![CDATA[// server will use VisiBroker proprietary binder
-      // you must instantiate your implementation like this:
-      // HelloWorld hello = new HelloWorldImpl ("HelloWorld");
-      // in brackets is name which is after starting visible from implementation repository]]>
+    <wizard-requires value='/*FFJ_CORBA_TODO_SERVER_NAME*/' title='Server name:'
+		   type='string'/>
+    <binding-template-code name='SERVANTS_INIT'><![CDATA[// add your creating of object implementation here
+      /*FFJ_CORBA_TODO_SERVANT_CLASS_NAME*/ /*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/ = new /*FFJ_CORBA_TODO_SERVANT_CLASS_NAME*/(/*FFJ_CORBA_TODO_TIE_SERVANT_CTOR_PARAMS*/"/*FFJ_CORBA_TODO_SERVER_NAME*/");]]></binding-template-code>
+    <code><![CDATA[// binding to osagent is done automatically for objects
+      // with explicitly specified names]]>
     </code>
   </server-binding>
 
-
   <client-binding name='Proprietary Binder' template-tag='CLIENT_BINDING'>
-    <code>
-      <![CDATA[// client will use VisiBroker proprietary binder
-      // you must bind to your object implementation
-      // using code which looks like this:
-      // HelloWorld hello = HelloWorldHelper.bind (orb, "HelloWorld");
-      // then you can invoke the method:  hello.say ()  etc.]]>
+    <wizard-requires value='/*FFJ_CORBA_TODO_SERVER_NAME*/' title='Server name:'
+		   type='string'/>
+    <code><![CDATA[// VisiBroker for Java proprietary binder:
+      /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.bind (orb, "/*FFJ_CORBA_TODO_SERVER_NAME*/");
+      if (srv == null)
+      throw new RuntimeException ();
+
+      // add your client code here]]>
     </code>
   </client-binding>
 
@@ -72,7 +70,7 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value=''/>
     <dir-param value='-root_dir'/>
     <package-param value='-package'/>
-    <compiler value='idl2java {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <compiler value='idl2java {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
     <package-delimiter value='.'/>
     <error-expression value='^"([^ ]+)":([0-9]+): (.*)'/>
     <file-position value='1'/>
@@ -86,6 +84,8 @@ Microsystems, Inc. All Rights Reserved.
   <impl-generator-settings>
 
     <impl-int-prefix value=''/>
+    <tie-class-prefix value='_tie_'/>
+    <tie-class-postfix value=''/>
 
   </impl-generator-settings>
 

@@ -155,7 +155,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
         public static final String TAG_PACKAGE_PARAM = "package_param"; // NOI18N
         public static final String TAG_OUTPUTDIR_PARAM = "dir_param"; // NOI18N
         public static final String TAG_PACKAGE = "package"; // NOI18N
-
+	public static final String TAG_CPP_PARAMS = "cpp_params"; // NOI18N
 
         private CORBASupportSettings css;
 
@@ -195,6 +195,13 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 	    if (__setting.isTie ())
 		params += __setting.getTieParam ();
 
+	    String __cpp_params = "";
+	    if (__ido.getCPPParams () != null)
+		__cpp_params += __ido.getCPPParams ();
+	    if (__setting.getCPPParams () != null) 
+		__cpp_params += " " + __setting.getCPPParams ();
+	    
+
             java.util.Map map = getMap ();
 
             map.put (TAG_RTCLASSPATH, getRTClasspath ());
@@ -211,6 +218,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 		map.put (TAG_PACKAGE, getPackage (fo));
             }
             map.put (TAG_PARAMS, params);
+	    map.put (TAG_CPP_PARAMS, __cpp_params);
             //map.put (TAG_FILES, getFile (fo));
 
             //FileSeparator

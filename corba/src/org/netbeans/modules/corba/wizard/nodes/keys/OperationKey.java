@@ -39,21 +39,41 @@ public class OperationKey extends NamedKey {
     public String getReturnType () {
         return this.ret;
     }
+    
+    public void setReturnType (String ret) {
+        this.ret = ret;
+    }
   
     public String getParameters () {
         return this.params;
+    }
+    
+    public void setParameters (String params) {
+        this.params = params;
     }
   
     public String getExceptions () {
         return this.except;
     }
+    
+    public void setExceptions (String except) {
+        this.except = except;
+    }
   
     public String getContext () {
         return this.ctx;
     }
+    
+    public void setContext (String ctx) {
+        this.ctx = ctx;
+    }
   
     public boolean isOneway () {
         return this.oneway;
+    }
+    
+    public void setOneway (boolean ow) {
+        this.oneway = ow;
     }
   
 }

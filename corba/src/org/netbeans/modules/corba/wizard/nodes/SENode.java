@@ -46,7 +46,8 @@ public abstract class SENode extends AbstractMutableContainerNode implements Nod
         return new SystemAction[] {SystemAction.get (CreateStructMemberAction.class),
                                    null,
                                    SystemAction.get (DestroyAction.class),
-                                   SystemAction.get (RenameAction.class)};
+                                   SystemAction.get (EditAction.class)
+                    };
     }
     public void createStructMember() {
         TopManager tm = TopManager.getDefault ();

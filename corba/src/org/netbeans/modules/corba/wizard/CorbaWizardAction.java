@@ -13,17 +13,20 @@
 
 package org.netbeans.modules.corba.wizard;
 
+import org.openide.nodes.Node;
+import org.openide.loaders.DataObject;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.*;
 import java.util.ResourceBundle;
+import org.netbeans.modules.corba.IDLDataObject;
 
 /** 
  *
  * @author  Tomas Zezula
  * @version 1.0
  */
-public class CorbaWizardAction extends CallableSystemAction {
+public class CorbaWizardAction extends NodeAction {
   
     public static final String ICON = "/org/netbeans/modules/corba/wizard/resources/CorbaWizard.gif";
     private static ResourceBundle bundle = null;
@@ -42,8 +45,26 @@ public class CorbaWizardAction extends CallableSystemAction {
         return HelpCtx.DEFAULT_HELP;
     }
   
-    public void performAction () {
-        new CorbaWizard().run();
+    public boolean enable (Node[] nodes) {
+        return true;
+    }
+    
+    public void performAction (Node[] nodes) {
+        CorbaWizard wizard;
+        
+        
+        if (nodes == null || nodes.length != 1) {
+            wizard = new CorbaWizard();
+        } else { 
+            DataObject obj = (DataObject) nodes[0].getCookie (DataObject.class);
+            if (obj instanceof IDLDataObject) {
+                wizard = new CorbaWizard ((IDLDataObject)obj);
+            }
+            else {
+                wizard = new CorbaWizard ();
+            }
+        }
+        wizard.run();
     }
   
     protected String iconResource () {

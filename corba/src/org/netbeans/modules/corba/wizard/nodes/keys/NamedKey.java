@@ -31,6 +31,10 @@ public class NamedKey extends MutableKey {
     public String getName () {
         return this.name;
     }
+    
+    public void setName (String name) {
+        this.name = name;
+    }
   
     public String toString () {
         return "NamedKey: " + name; // No I18N
