@@ -58,6 +58,7 @@ public final class IntegritySupportMaintainer extends Object
     private PropertyChangeListener vOISChangeListener;
     private RequestProcessor.Task saverTask;
     private Map voisToSave;
+    private int saverScheduleTime = SAVER_SCHEDULE_TIME;
 
     /**
      * Create a new IntegritySupportMaintainer.
@@ -107,7 +108,8 @@ public final class IntegritySupportMaintainer extends Object
             //System.out.println("IntegritySupportMaintainer.propertyChange("+propertyName+"), SAVING "+evt.getSource());
             synchronized (voisToSave) {
                 voisToSave.put(fileSystem.getRoot(), evt.getSource());
-                saverTask.schedule(SAVER_SCHEDULE_TIME);
+                saverTask.schedule(saverScheduleTime);
+                //System.out.println("                                        Saver Scheduled At: "+new java.text.SimpleDateFormat("HH:mm:ss:SSS").format(new java.util.Date(System.currentTimeMillis())));
             }
         }
     }
@@ -152,6 +154,8 @@ public final class IntegritySupportMaintainer extends Object
             toSave.putAll(voisToSave);
             voisToSave.clear();
         }
+        //System.out.println("ISM saving START: "+new java.text.SimpleDateFormat("HH:mm:ss:SSS").format(new java.util.Date(System.currentTimeMillis())));
+        long start = System.currentTimeMillis();
         for (Iterator it = toSave.keySet().iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
             VcsObjectIntegritySupport vois = (VcsObjectIntegritySupport) toSave.get(fo);
@@ -159,30 +163,33 @@ public final class IntegritySupportMaintainer extends Object
             File folder = FileUtil.toFile(fo);
             if (folder != null) {
                 File dbFile = new File(folder, DB_FILE_NAME);
-                /*
-                if (!dbFile.exists()) {
-                    dbFile.createNewFile();
-                }
-                if (dbFile.canWrite()) {
-                 */
-                    ObjectOutputStream oout = null;
-                    try {
-                        oout = new ObjectOutputStream(new FileOutputStream(dbFile));
-                        oout.writeObject(vois);
-                    } catch (java.io.IOException ioex) {
-                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
-                    } finally {
-                        if (oout != null) {
-                            try {
-                                oout.close();
-                            } catch (IOException ioex) {
-                                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
-                            }
+                File dbSaveFile = new File(folder, DB_FILE_NAME+"~");
+                ObjectOutputStream oout = null;
+                boolean ok = false;
+                try {
+                    oout = new ObjectOutputStream(new FileOutputStream(dbSaveFile));
+                    oout.writeObject(vois);
+                } catch (java.io.IOException ioex) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+                } finally {
+                    if (oout != null) {
+                        try {
+                            oout.close();
+                            ok = true;
+                        } catch (IOException ioex) {
+                            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
                         }
                     }
-                //}
+                }
+                if (ok) {
+                    dbFile.delete();
+                    dbSaveFile.renameTo(dbFile);
+                }
             }
         }
+        long end = System.currentTimeMillis();
+        saverScheduleTime = Math.max(SAVER_SCHEDULE_TIME, (int) (end - start));
+        //System.out.println("           END  : "+new java.text.SimpleDateFormat("HH:mm:ss:SSS").format(new java.util.Date(System.currentTimeMillis())));
     }
     
     private static final class VOISInitializer extends Object implements java.security.PrivilegedAction {
