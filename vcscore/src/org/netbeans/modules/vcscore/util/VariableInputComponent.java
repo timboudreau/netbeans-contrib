@@ -344,7 +344,15 @@ public class VariableInputComponent extends Object {
             items.append("\", \"\"");
         } else {
             items.append("\", \"");
-            items.append(value);
+            if (VariableInputDescriptor.INPUT_ASK == component) {
+                if (value != null && value.equals(valueSelected)) {
+                    items.append("true");
+                } else {
+                    items.append("false");
+                }
+            } else {
+                items.append(value);
+            }
             items.append('\"');
         }
         if (a11yName != null || a11yDescription != null || labelMnemonic != null) {
