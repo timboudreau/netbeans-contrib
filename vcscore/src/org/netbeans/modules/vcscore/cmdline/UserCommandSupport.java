@@ -497,6 +497,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
                      fileSystem.getRelativeMountPoint(), true);
         cmd.setAdditionalVariables(vars);
+        // Suppose, that the command is already preprocessed.
         //System.out.println("RestrictedFileMap = "+subFiles+", files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
         //System.out.println("\nVARS for cmd = "+cmd+" ARE:"+vars+"\n");
         if (files.size() != subFiles.size()) {
@@ -508,10 +509,16 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 }
             }
             VcsDescribedCommand nextCmd = createNextCommand(remaining, cmd);
-            return createNextCustomizedCommand(nextCmd, remaining, cacheProvider,
-                                               valueAdjustment, new Hashtable(vars),
+            Hashtable newVars = new Hashtable(vars);
+            VcsDescribedCommand nextCustomizedCommand =
+                   createNextCustomizedCommand(nextCmd, remaining, cacheProvider,
+                                               valueAdjustment, newVars,
                                                cmdCanRunOnMultipleFiles,
                                                cmdCanRunOnMultipleFilesInFolder);
+            String newExec = CommandCustomizationSupport.preCustomize(fileSystem, nextCmd.getVcsCommand(), newVars);
+            nextCmd.setPreferredExec(newExec);
+            nextCmd.setAdditionalVariables(newVars);
+            return nextCustomizedCommand;
         }
         //System.out.println("  return "+cmd);
         return cmd;
