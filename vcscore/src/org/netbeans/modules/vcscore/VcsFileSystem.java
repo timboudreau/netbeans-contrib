@@ -70,8 +70,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static final String LOCK_FILES_ON = "LOCKFILES"; // NOI18N
     private static final String PROMPT_FOR_LOCK_ON = "PROMPTFORLOCK"; // NOI18N
 
-    public static final String VAR_QUOTING = "QUOTING"; // NOI18N
+    /**
+     * The value of this variable is used to surround file names.
+     */
+    public static final String VAR_QUOTING = "QUOTE"; // NOI18N
+    /**
+     * The test on this variable can be performed in the exec string to decide
+     * what options to use or what to ask the user for. When the expert mode
+     * is on, this variable is non empty.
+     */
     public static final String VAR_EXPERT_MODE = "EXPERT_MODE"; // NOI18N
+    /**
+     * This variable can contain the display name, which is prepended to the
+     * root path of the file system to create the display name.
+     */
+    public static final String VAR_FS_DISPLAY_NAME = "FS_DISPLAY_NAME"; // NOI18N
 
     private static final String DEFAULT_QUOTING_VALUE = "\\\\\""; // NOI18N
 
@@ -919,7 +932,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public String getQuoting() {
-        String quoting = (String) variablesByName.get(VAR_QUOTING);
+        VcsConfigVariable quotingVar = (VcsConfigVariable) variablesByName.get(VAR_QUOTING);
+        String quoting = null;
+        if (quotingVar != null) quoting = quotingVar.getValue();
         if (quoting == null) quoting = DEFAULT_QUOTING_VALUE;
         return quoting;
     }
@@ -1509,6 +1524,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return the actions retrieved from <code>VcsFactory.getActions(fos)</code>
      */
     public SystemAction[] getActions(Set fos) {
+        /*
+        System.out.print("getActions(");
+        for(Iterator it = fos.iterator(); it.hasNext(); ) {
+            System.out.print(((FileObject) it.next()).getNameExt()+(it.hasNext() ? ", " : ""));
+        }
+        System.out.println(")");
+         */
         return getVcsFactory ().getActions(fos);
     }
 
@@ -1516,8 +1538,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Get a human presentable name of the file system
      */
     public String getDisplayName() {
-        if (commandsRoot != null) {
+        //System.out.println("VcsFileSystem.getDisplayName(): commandsRoot = "+commandsRoot);
+        VcsConfigVariable preDisplayNameVar = (VcsConfigVariable) variablesByName.get(VAR_FS_DISPLAY_NAME);
+        if (preDisplayNameVar != null) {
+            return preDisplayNameVar.getValue() + " " + rootFile.toString();
+        } else if (commandsRoot != null) {
             String VCSName = commandsRoot.getDisplayName();
+            //System.out.println("VCSName = '"+VCSName+"'");
             if (VCSName != null && VCSName.length() > 0) {
                 return VCSName + " " + rootFile.toString();
             }
