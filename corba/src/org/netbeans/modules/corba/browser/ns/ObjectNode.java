@@ -101,6 +101,10 @@ public class ObjectNode extends NamingServiceNode implements Node.Cookie {
             return null;
         }
     }
+    
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
 
 }
 

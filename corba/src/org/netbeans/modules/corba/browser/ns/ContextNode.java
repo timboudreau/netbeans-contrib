@@ -531,6 +531,22 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
         }
     }
     
+    public HelpCtx getHelpCtx () {
+        if (this.context == null) {
+            // The root node of "CORBA Naming Service"
+            // in runtime tab.
+            return HelpCtx.DEFAULT_HELP;
+        }
+        else if (this.valid) {
+            // Context node, the CosNaming directory
+            return HelpCtx.DEFAULT_HELP;
+        }
+        else {
+            // Failed repository node
+            return HelpCtx.DEFAULT_HELP;
+        }
+    }
+    
     protected org.omg.CORBA.InterfaceDef createInterface() {
         return null;
     }

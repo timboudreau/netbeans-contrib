@@ -288,6 +288,10 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
         }
     }
     
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
+    
     private void lazyInit () {
         css = (CORBASupportSettings) CORBASupportSettings.findObject
             (CORBASupportSettings.class, true);

@@ -198,6 +198,9 @@ public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Re
         return this.repository;
     }    
     
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
 }
 
 /*

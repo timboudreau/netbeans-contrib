@@ -14,6 +14,7 @@
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
 import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.corba.browser.ir.util.Removable;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
@@ -34,6 +35,10 @@ public class IRFailedRepositoryNode extends IRLeafNode implements Removable, Nod
         this.getCookieSet().add(this);
         setName(name);
         setIconBase(FAILED_ICON_BASE);
+    }
+    
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
     }
   
     public SystemAction[] createActions(){
