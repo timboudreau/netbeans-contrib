@@ -358,6 +358,11 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
         int n = metrics.length;
         for (int i = 0; i < n; i++)
             metrics[i].resetMetric();
+
+        for (Iterator iter = getMethods().iterator(); iter.hasNext();) {
+            MethodMetrics mm = (MethodMetrics)iter.next();
+	    mm.resetWarningLight();
+	}
     }
 
     ApprovalsFile getApprovalsFile() {
@@ -533,7 +538,7 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
             System.err.println("ClassMetrics reset failed: " + e);
         }
 	
-        changeSupport.firePropertyChange(METRICS_PROP, null, null);
+        firePropertyChange(METRICS_PROP, null, null);
     }
 
     private void firePropertyChange(String propertyName, 
