@@ -73,7 +73,6 @@ public class AnnotatePanel extends javax.swing.JPanel {
         authModel = new DefaultComboBoxModel();
         noRevisionSelected = NbBundle.getBundle(AnnotatePanel.class).getString("AnnotatePanel.noRevisionSelected");
         noAuthorSelected = NbBundle.getBundle(AnnotatePanel.class).getString("AnnotatePanel.noAuthorSelected");
-        revModel.addElement(noRevisionSelected);
         revSet = new LinkedList();
         authModel.addElement(noAuthorSelected);
         authSet = new LinkedList();
@@ -387,6 +386,14 @@ public class AnnotatePanel extends javax.swing.JPanel {
   public void doRepaintAndSort() {
        java.util.Collections.sort(modAnnotations.getList(), modAnnotations);
         // find the previsously selected row.
+       java.util.Collections.sort(revSet, new RevisionComparator());
+       Iterator it = revSet.iterator();
+       revModel.removeAllElements();
+       revModel.addElement(noRevisionSelected);
+       while (it.hasNext()) {
+           revModel.addElement(it.next());
+       }
+       
        tblAnnotat.tableChanged(new TableModelEvent(modAnnotations));
        tblAnnotat.repaint();
   }
@@ -419,7 +426,7 @@ public class AnnotatePanel extends javax.swing.JPanel {
 //          Iterator it = revSet.iterator();
 //          while (it.hasNext()) {
 //              revModel.addElement(it.next());
-          revModel.addElement(rev);
+//          revModel.addElement(rev);
 //          }
       }
   }
