@@ -74,6 +74,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         this.cmd = cmd;
         this.vars = vars;
         //this(fileSystem, cmd, vars);
+        if (preferredExec == null) {
+            preferredExec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
+        }
         this.preferredExec = preferredExec;
         //fileSystem.getCommandsPool().add(this);
     }
@@ -250,16 +253,21 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * This method can be used to do some preprocessing of the command which is to be run.
      * @param vc the command to be preprocessed.
      * @param vars the variables
+     * @param exec the updated execution string. It may contain user input from variable input dialog
      * @return the updated exec property
      */
-    public String preprocessCommand(VcsCommand vc, Hashtable vars) {
+    public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec) {
+        this.preferredExec = exec;
+        /*
         if (!(vc instanceof UserCommand)) return "";
         UserCommand uc = (UserCommand) vc;
         PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, uc, vars);
         String exec = cmdPerf.process();
+         */
         return exec;
     }
     
+    /*
     public void updateExec(String exec) {
         this.preferredExec = exec;
     }
@@ -565,7 +573,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec != null) exec = exec.trim();
         fileSystem.setLastCommandFinished(false);
-        fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
+        //fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
         //if (stdoutNoRegexListener != null) stdoutNoRegexListener.match(cmd.getName()+": "+exec); // NOI18N
 
         StringTokenizer tokens = new StringTokenizer(exec);
@@ -616,11 +624,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * Get the set of files being processed by the command.
      * @return the set of files of type <code>String</code>
      */
-    public Set getFiles() {
+    public Collection getFiles() {
         String file = (String) vars.get("FILE");
-        HashSet set = new HashSet(1);
-        set.add(file);
-        return set;
+        return Collections.singleton(file);
+        //HashSet set = new HashSet(1);
+        //set.add(file);
+        //return set;
     }
     
     /**

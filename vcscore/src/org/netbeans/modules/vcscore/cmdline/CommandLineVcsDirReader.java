@@ -141,16 +141,17 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
      * additionally specify the desired input.
      * @param vc the command to be preprocessed.
      * @param vars the variables
+     * @param exec the updated execution string. It may contain user input from variable input dialog
      * @return the updated exec property
      */
-    public String preprocessCommand(VcsCommand vc, Hashtable vars) {
+    public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec) {
         return (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
     }
 
-    /**
+    /*
      * Update the execution string. It may contain user input now.
      * @param exec the execution string updated with user input.
-     */
+     *
     public void updateExec(String exec) {
     }
     
@@ -173,11 +174,12 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
      * Get the set of files being processed by the command.
      * @return the set of files of type <code>String</code>
      */
-    public Set getFiles() {
+    public Collection getFiles() {
         String file = (String) vars.get("FILE");
-        HashSet set = new HashSet(1);
-        set.add(file);
-        return set;
+        return Collections.singleton(file);
+        //HashSet set = new HashSet(1);
+        //set.add(file);
+        //return set;
     }
     
     /**

@@ -14,7 +14,7 @@
 package org.netbeans.modules.vcscore.commands;
 
 import java.util.Hashtable;
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * The <code>VcsCommand</code> interface should be implemented by any class
@@ -41,15 +41,23 @@ public interface VcsCommandExecutor extends Runnable {
      * additionally specify the desired input.
      * @param vc the command to be preprocessed.
      * @param vars the variables
+     * @param exec the updated execution string. It may contain user input from variable input dialog
      * @return the updated exec property
      */
-    public String preprocessCommand(VcsCommand vc, Hashtable vars);
+    public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec);
     
-    /**
+    /*
+     * Allow to do some postprocessing. This method is called after the command finishes.
+     *
+    public void postprocessCommand();
+     */
+    
+    /*
      * Update the execution string. It may contain user input now.
      * @param exec the execution string updated with user input.
-     */
+     *
     public void updateExec(String exec);
+     */
     
     /**
      * Get the updated execution string. It may contain user input now.
@@ -58,9 +66,9 @@ public interface VcsCommandExecutor extends Runnable {
     
     /**
      * Get the set of files being processed by the command.
-     * @return the set of files of type <code>String</code>
+     * @return the collection of files of type <code>String</code>
      */
-    public Set getFiles();
+    public Collection getFiles();
     
     /**
      * Get the path of the processed files.
