@@ -103,7 +103,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           AbstractFileSystem.List, AbstractFileSystem.Info,
                                                                           AbstractFileSystem.Change, FileSystem.Status,
                                                                           CacheHandlerListener, FileObjectImportantness,
-                                                                          VcsOISActivator, Serializable {
+                                                                          FileObjectExistence, VcsOISActivator, Serializable {
 
     public static interface IgnoreListSupport {
 
@@ -946,7 +946,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return r == null ? 0 : r.getRefreshTime ();
      }
 
+    /**
+     * Returns all existing files in the file system (both folders and data).
+     * Please note, that the name of this method is misguided. It does not return
+     * only existing folders, but also existing files.
+     */
     public Enumeration getExistingFolders() {
+        return this.existingFileObjects(getRoot());
+    }
+
+    /**
+     * Returns all existing files in the file system.
+     */
+    public Enumeration getExistingFiles() {
         return this.existingFileObjects(getRoot());
     }
 
@@ -1539,7 +1551,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void activate(VcsObjectIntegritySupport objectIntegritySupport) {
         FileSystemCache fsCache = CacheHandler.getInstance().getCache(getCacheIdStr());
         if (fsCache != null) {
-            objectIntegritySupport.activate(this, fsCache, getFile("").getAbsolutePath(), this);
+            objectIntegritySupport.activate(this, fsCache, getFile("").getAbsolutePath(), this, this);
         }
     }
 

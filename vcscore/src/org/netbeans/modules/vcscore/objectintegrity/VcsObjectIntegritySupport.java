@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListener;
 
+import org.netbeans.modules.vcscore.FileObjectExistence;
 import org.netbeans.modules.vcscore.FileObjectImportantness;
 import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.cache.CacheDir;
@@ -87,8 +89,12 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private transient FileSystem fileSystem;
     private transient FileSystemCache cache;
     private transient String fsRootPath;
+    private transient FileObjectExistence foExistence;
     private transient FileObjectImportantness foImportantness;
+    /** The DataObjects which need to be analyzed for objects integrity. */
     private transient Set objectsToAnalyze;
+    /** The paths of FileObjects whose DataObjects need to be analyzed for objects integrity. */
+    private transient Set pathsToAnalyze;
     private transient RequestProcessor.Task analyzerTask;
     private transient boolean activated = false;
     
@@ -131,12 +137,15 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      */
     public synchronized void activate(FileSystem fileSystem, FileSystemCache cache,
                                       String fsRootPath,
+                                      FileObjectExistence foExistence,
                                       FileObjectImportantness foImportantness) {
         this.fileSystem = fileSystem;
         this.cache = cache;
         this.fsRootPath = fsRootPath;
+        this.foExistence = foExistence;
         this.foImportantness = foImportantness;
         this.objectsToAnalyze = new HashSet();
+        this.pathsToAnalyze = new HashSet();
         this.analyzerTask = analyzerRequestProcessor.post(this, ANALYZER_SCHEDULE_TIME, Thread.MIN_PRIORITY);
         //analyzerTask.setPriority(Thread.MIN_PRIORITY);
         DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
@@ -216,11 +225,28 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      * add the file names into the integrity list if necessary.
      */
     public void run() {
+        Set paths;
         Set objects;
         boolean changed = false;
         synchronized (objectsToAnalyze) {
+            paths = pathsToAnalyze;
             objects = objectsToAnalyze;
+            pathsToAnalyze = new HashSet();
             objectsToAnalyze = new HashSet();
+        }
+        if (!paths.isEmpty()) {
+            Enumeration existingEnum = foExistence.getExistingFiles();
+            while(existingEnum.hasMoreElements() && !paths.isEmpty()) {
+                FileObject fo = (FileObject) existingEnum.nextElement();
+                if (paths.remove(fo.getPath())) {
+                    try {
+                        DataObject dobj = DataObject.find(fo);
+                        objects.add(dobj);
+                    } catch (DataObjectNotFoundException donfex) {
+                        // Ignored. If the DO does not exist, it can not be analyzed.
+                    }
+                }
+            }
         }
         for (Iterator objIt = objects.iterator(); objIt.hasNext(); ) {
             DataObject dobj = (DataObject) objIt.next();
@@ -368,16 +394,10 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             if (wasLocal) {
                 // It was a local primary file; now it's not local, we need to
                 // analyze the DataObject again.
-                FileObject fo = fileSystem.findResource(path);
-                if (fo != null) {
-                    try {
-                        DataObject dobj = DataObject.find(fo);
-                        synchronized (objectsToAnalyze) {
-                            objectsToAnalyze.add(dobj);
-                        }
-                        analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
-                    } catch (DataObjectNotFoundException donfex) {}
+                synchronized (objectsToAnalyze) {
+                    pathsToAnalyze.add(path);
                 }
+                analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
                 return ;
             }
             boolean changed = false;
@@ -474,16 +494,10 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     if (primaryLocalFiles.remove(path)) {
                         // It was a local primary file; now it's not local, we need to
                         // analyze the DataObject again.
-                        FileObject fo = fileSystem.findResource(path);
-                        if (fo != null) {
-                            try {
-                                DataObject dobj = DataObject.find(fo);
-                                synchronized (objectsToAnalyze) {
-                                    objectsToAnalyze.add(dobj);
-                                }
-                                analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
-                            } catch (DataObjectNotFoundException donfex) {}
+                        synchronized (objectsToAnalyze) {
+                            pathsToAnalyze.add(path);
                         }
+                        analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
                     }
                 }
             }
