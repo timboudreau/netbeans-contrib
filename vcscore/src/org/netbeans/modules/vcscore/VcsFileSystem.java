@@ -93,6 +93,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public static final String VAR_FS_DISPLAY_NAME = "FS_DISPLAY_NAME"; // NOI18N
 
+    /**
+     * This is a prefix, for environment variable. If a variable name starts with
+     * this prefix, it is considered as an environment variable, and its value
+     * is added to the process environment.
+     */
+    public static final String VAR_ENVIRONMENT_PREFIX = "ENVIRONMENT_VAR_";
+
     protected static final int REFRESH_TIME = 15000; // This is default in LocalFileSystem
     protected volatile int refreshTimeToSet = REFRESH_TIME;
 
@@ -141,6 +148,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     /** user variables Vector<String> 'name=value' */
     private Vector variables = new Vector(10);
+    /**
+     * This variable stores the environment variables and their values
+     * in the form: "VAR1=Value1", "VAR2=Value2", etc.
+     */
+    private String[] environmentVars = null;
 
     private transient String password = null;
 
@@ -254,16 +266,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         useUnixShell = unixShell;
         last_useUnixShell = unixShell;
     }
-    
-    /*
-    public void setDoCommandRefresh(boolean doCommandRefresh) {
-        this.doCommandRefresh = doCommandRefresh;
-    }
-    
-    public boolean isDoCommandRefresh() {
-        return this.doCommandRefresh;
-    }
-     */
     
     public void setAcceptUserParams(boolean acceptUserParams) {
         this.acceptUserParams = acceptUserParams;
@@ -452,13 +454,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    /*
-    public boolean getLastCommandState () { return lastCommandState; }
-    public void setLastCommandState (boolean lastCommandState) { this.lastCommandState = lastCommandState; }
-    public boolean getLastCommandFinished () { return lastCommandFinished; }
-    public void setLastCommandFinished (boolean lastCommandFinished) { this.lastCommandFinished = lastCommandFinished; }
-     */
-    
     /** Return the working directory of the file system. 
      *  To that, relative mountpoints are added later to enable compilation etc.
      */
@@ -877,21 +872,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return statusesTable;
     }
 
-    /*
-    public ErrorCommandDialog getErrorDialog() {
-        return errorDialog;
-    }
-
-    public void setErrorDialog(ErrorCommandDialog errDlg) {
-        errorDialog = errDlg;
-    }
-     */
-
-    //-------------------------------------------
-    //public long getCacheId(){
-    //    return cacheId;
-    //}
-
     //-------------------------------------------
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         // cache is transient
@@ -937,6 +917,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return debug;
     }
 
+    /**
+     * Get the environment variables and their values
+     * in the form: "VAR1=Value1", "VAR2=Value2", etc.
+     */
+    public String[] getEnvironmentVars() {
+        return environmentVars;
+    }
+    
+    private void updateEnvironmentVars() {
+        Map systemEnv = VcsUtilities.getSystemEnvVars();
+        Map env = VcsUtilities.addEnvVars(systemEnv, getVariablesAsHashtable(), VAR_ENVIRONMENT_PREFIX);
+        environmentVars = VcsUtilities.getEnvString(env);
+    }
 
     //-------------------------------------------
     public Vector getVariables(){
@@ -1039,6 +1032,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         synchronized (this) {
             variablesByName = new Hashtable(newVarsByName);
         }
+        updateEnvironmentVars();
 
         firePropertyChange(PROP_VARIABLES, old, variables);
     }
@@ -2012,17 +2006,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         files.put(name, findResource(name));
                         VcsAction.doEdit (files, VcsFileSystem.this);
                     }
-                    /*
-                    if (isPromptForLockOn ()) {
-                        boolean result;
-                        NotifyDescriptor.Confirmation confirm = new NotifyDescriptor.Confirmation (g("MSG_EditFileCh"), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION); // NOI18N
-                        result = (TopManager.getDefault ().notify (confirm).equals (NotifyDescriptor.Confirmation.OK_OPTION));
-                        VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
-                        Table files = new Table();
-                        files.put(name, findResource(name));
-                        VcsAction.doEdit (files, this);
-                    }
-                     */
                 }
             }
         }
@@ -2047,47 +2030,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
         }
-        /*
-        new Thread(new Runnable() {
-                       public void run() {
-                           D.deb("lock('"+name+"')"); // NOI18N
-                           D.deb("this = "+this); // NOI18N
-                           //File f = getFile (name);
-                           //if(f.canWrite ()) return;
-                           if (isLockFilesOn ()) {
-                               VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
-                               // *.orig is a temporary file created by AbstractFileObject
-                               // on saving every file to enable undo if saving fails
-                               if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
-                               else if (shouldLock(name)) {
-                                   D.deb ("lock on file:"+vcsFile.toString()); // NOI18N
-                                   setPromptForLockResult(false);
-                                   if (isPromptForLockOn ()) {
-                                       try {
-                                           javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
-                                                       public void run() {
-                                                           boolean result;
-                                                           NotifyDescriptor.Confirmation confirm = new NotifyDescriptor.Confirmation (g("MSG_LockFileCh"), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION); // NOI18N
-                                                           result = (TopManager.getDefault ().notify (confirm).equals (NotifyDescriptor.Confirmation.OK_OPTION));
-                                                           setPromptForLockResult(result);
-                                                       }
-                                                   });
-                                       } catch (InterruptedException e) {
-                                           setPromptForLockResult(true);
-                                       } catch (java.lang.reflect.InvocationTargetException e) {
-                                           setPromptForLockResult(true);
-                                       }
-                                   }
-                                   if (!isPromptForLockOn () || getPromptForLockResult()) {
-                                       Table files = new Table();
-                                       files.put(name, findResource(name));
-                                       VcsAction.doLock (files, VcsFileSystem.this);
-                                   }
-                               }
-                           }
-                       }
-                   }, "VCS-Locking Files").start(); // NOI18N
-         */
         if (!file.canWrite () && file.exists()) {
             throw new IOException() {
                 /** Localized message. */
