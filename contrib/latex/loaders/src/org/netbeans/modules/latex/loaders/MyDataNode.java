@@ -83,7 +83,7 @@ public class MyDataNode extends DataNode implements LaTeXSourceFactory.MainFileL
     }
     
     public String getHtmlDisplayName() {
-        String dName = super.getHtmlDisplayName();
+        String dName = super.getDisplayName();
         
         if (isKnownFile(getDataObject().getPrimaryFile())) {
             if (isMainFile(getDataObject().getPrimaryFile())) {
