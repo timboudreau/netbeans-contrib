@@ -31,32 +31,34 @@ import org.netbeans.modules.vcscore.grouping.VcsGroupNode;
  *
  *
  * @author  Milos Kleint
+ * @deprecated It's here only for backward compatibility.. I guess it can be removed..
  */
 public class AbstractCommandAction extends NodeAction {
 
+    /**
+     * Name of a FileObject attribute. Needs to be set on primary file of a node(dataobject)
+     * in order to trigger the GeneralCommandAction and it's suclasses.
+     * The value of the attribute is the 
+     * @deprecated
+     */
+    
+    public static final String VCS_ACTION_ATTRIBUTE = "VcsActionAttributeCookie"; //NOI18N
+   
     /** 
      * a property accessible via the getValue() method.
      * for VcsGroup nodes it holds the description of the group. Otherwise null.
      * Can be used within the CommandActionSupporters in the modules.
+     * @deprecated
      */
     public static final String GROUP_DESCRIPTION_PROP = "GROUP_DESCRIPTION"; //NOI18N
     /** 
      * a property accessible via the getValue() method.
      * for VcsGroup nodes it holds the display name of the group. Otherwise null.
      * Can be used within the CommandActionSupporters in the modules. eg. for commit message.
+     * @deprecated
      */
     public static final String GROUP_NAME_PROP = "GROUP_NAME"; //NOI18N
     
-    /**
-     * Name of a FileObject attribute. Needs to be set on primary file of a node(dataobject)
-     * in order to trigger the GeneralCommandAction and it's suclasses.
-     * The value of the attribute is the 
-     */
-    
-    public static final String VCS_ACTION_ATTRIBUTE = "VcsActionAttributeCookie"; //NOI18N
-    
-    private HashMap suppMap;
-    private HashSet actionSet;
     
     
     static final long serialVersionUID = 3425234373723671084L;    
@@ -66,146 +68,12 @@ public class AbstractCommandAction extends NodeAction {
 //        System.out.println("constructor abstract");
     }
     
-    protected void initialize() {
-        super.initialize();
-//        System.out.println("Abstract initialized");
-/*        if (getClass().equals(AbstractCommandAction.class)) {
-            addNotify();
-        }
- */
+    protected boolean enable (Node[] nodes) {
+        return false;
     }
     
-    public void uninstall() {
-        removeNotify();
-        actionSet = null;
-        suppMap = null;
-    }
-    
-    protected boolean clearSharedData() {
-        uninstall();
-        return super.clearSharedData();
-    }
     
     protected void performAction (Node[] nodes) {
-    }
-    
-    /**
-     * returns a map with CommandActionSupporters as keys.
-     * values are Sets of activated FileObjects.
-     * returns null, if the action wasn't enabled. (thus none should be).
-     */
-    public HashMap getSupporterMap() {
-        return suppMap;
-    }
-    
-    protected boolean createSupporterMap(Node[] nodes) {
-        if (getValue(GROUP_NAME_PROP) != null) {
-            putValue(GROUP_NAME_PROP, null);
-        }
-        if (getValue(GROUP_DESCRIPTION_PROP) != null) {
-            putValue(GROUP_DESCRIPTION_PROP, null);
-        }
-        if (nodes == null || nodes.length == 0) {
-            suppMap = null;
-            return false;
-        }
-/*        if (getClass() != AbstractCommandAction.class) {
-            System.out.println("------");
-             System.out.println("creatingSupporter map for" + getClass());
-        }
- */
-        suppMap = new HashMap();
-        for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] instanceof VcsGroupNode) {
-                // setValue for recognition by the supporters
-                VcsGroupNode grNode = (VcsGroupNode)nodes[i];
-                putValue(GROUP_DESCRIPTION_PROP, grNode.getShortDescription());
-                putValue(GROUP_NAME_PROP, grNode.getDisplayName());
-                Enumeration childs = nodes[i].getChildren().nodes();
-//                System.out.println("create supp. map for group..");
-                while (childs.hasMoreElements()) {
-                    Node nd = (Node)childs.nextElement();
-                    DataObject dobj = (DataObject)nd.getCookie(DataObject.class);
-                    while (dobj != null && dobj instanceof DataShadow) {
-                        dobj = ((DataShadow)dobj).getOriginal();
-                    }
-                    if (dobj != null) {
-/*                        if (getClass() != AbstractCommandAction.class) {
-                            System.out.println("checking action on data shadow=" + dobj.getName() + "   " + dobj.getClass());
-                        }
- */
-                        if (!checkDataObject(dobj)) return false;
-                    }
-                }
-            } else {
-                DataObject dataObj;
-                dataObj = (DataObject)nodes[i].getCookie(DataObject.class);
-                while (dataObj != null && dataObj instanceof DataShadow) {
-                    dataObj = ((DataShadow)dataObj).getOriginal();
-                }
-//                System.out.println("dataobj =" + dataObj);
-                if (!checkDataObject(dataObj)) return false;
-            }
-        }
-        return true;
-    }
-    
-    private boolean checkDataObject(DataObject dataObj) {
-        if (dataObj == null) {
-            suppMap = null;
-            return false;
-        }
-        FileObject fileOb = dataObj.getPrimaryFile();
-        if (fileOb == null) {
-            suppMap = null;
-            return false;
-        }
-        CommandActionSupporter supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);
-        if (supp != null) {
-            addToMap(suppMap, supp, dataObj.files());
-        } else {
-            suppMap = null;
-//            System.out.println("no supporter found for " + dataObj.getName());
-            // one of the files is not under version control..
-            return false;
-        }
-        return true;
-        
-    }
-
-    protected boolean enable (Node[] nodes) {
-        // debug
-/*        if (nodes != null) {
-            System.out.print("nodes1:");
-            for (int i = 0; i < nodes.length; i++) {
-                System.out.print(nodes[i].getDisplayName() + ", ");
-            }
-            System.out.println("");
-        }
-        Node[] newNodes = TopManager.getDefault().getWindowManager().getRegistry().getActivatedNodes();
-        if (newNodes != null) {
-            System.out.print("nodes2:");
-            for (int i = 0; i < newNodes.length; i++) {
-                System.out.print(newNodes[i].getDisplayName() + ", ");
-            }
-            System.out.println("");
-        }
- */
-        // debug end
-        if (this.getClass().equals(AbstractCommandAction.class)) {
-            if (actionSet == null || actionSet.size() == 0) {
-                return false;
-            }
-        }
-        createSupporterMap(nodes);
-        if (actionSet != null) {
-            Iterator it = actionSet.iterator();
-            while (it.hasNext()) {
-                org.openide.util.actions.SystemAction act = (org.openide.util.actions.SystemAction)it.next();
-                act.isEnabled();
-            }
-        }
-        return false;
     }
     
     public HelpCtx getHelpCtx () {
@@ -213,68 +81,14 @@ public class AbstractCommandAction extends NodeAction {
         // If you will provide context help then use:
         // return new HelpCtx (JavaCvsCommandAction.class);
     }
-    
-    private void addToMap(HashMap map, CommandActionSupporter supporter, Set files) {
-        Set set = (Set)map.get(supporter);
-        if (set == null) {
-            set = new HashSet();
-        }    
-        if (files != null) {
-            Iterator it = files.iterator();
-            while (it.hasNext()) {
-                Object obj = it.next();
-                if (obj != null) {
-                     set.add(obj);
-                }
-            }
-        }
-        map.put(supporter, set);
-    }
-
     public String getName () {
-        return NbBundle.getMessage(AbstractCommandAction.class, "LBL_Action"); //NOI18N
+        return "";
     }
     
 
     protected String iconResource () {
         return null;
     }
-
-    /**
-     * Every action that wants to use the AbstractCommandaction as proxy, should call 
-     * this method in removeNotify() instead of the the default behaviour.
-     */
-
-    public void removeDependantAction(org.openide.util.actions.SystemAction action) {
-        if (action == null) return;
-        if (actionSet == null) {
-            actionSet = new HashSet();
-        }
-        actionSet.remove(action);
-        if (actionSet.size() == 0) {
-//            System.out.println("removing abstract action.");
-            removeNotify();
-        }
-    }
- 
-    /**
-     * Every action that wants to use the AbstractCommandaction as proxy, should call 
-     * this method in addNotify() instead of the the default behaviour.
-     */
-    public void addDependantAction(org.openide.util.actions.SystemAction action) {
-        if (action == null) return;
-        if (actionSet == null) {
-            actionSet = new HashSet();
-        }
-        if (actionSet.size() == 0) {
-//            System.out.println("adding abstract action..");
-            addNotify();
-        }
-        actionSet.add(action);
-    }
     
-    public void reinitialize() {
-//        addNotify();
-    }
     
 }

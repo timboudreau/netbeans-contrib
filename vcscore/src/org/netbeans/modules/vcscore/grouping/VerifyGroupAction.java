@@ -20,6 +20,7 @@ import org.openide.awt.JMenuPlus;
 import javax.swing.JMenu;
 import javax.swing.event.*;
 import java.io.*;
+import java.lang.ref.WeakReference;
 
 import org.openide.awt.Actions;
 import org.openide.awt.JInlineMenu;
@@ -41,13 +42,12 @@ import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
  */
 public class VerifyGroupAction extends GeneralCommandAction {
     
-    private transient VcsGroupNode[] groupNodes;
+    private transient WeakReference groupNodes;
     
     private static final long serialVersionUID = -7382933854093593819L;
     
     public VerifyGroupAction() {
         super();
-        delegateToAbstractAction(false);
     }
 
 
@@ -73,6 +73,7 @@ public class VerifyGroupAction extends GeneralCommandAction {
      * *experimental* annotates the toolbar tooltip according to the supporter's requests.
      */
     protected boolean enable(Node[] nodes) {
+        groupNodes = null;
         if (nodes == null) return false;
         Set nodeList = new HashSet();
         for (int i = 0; i < nodes.length; i++) {
@@ -96,7 +97,7 @@ public class VerifyGroupAction extends GeneralCommandAction {
         if (nodeList.size() == 0) return false;
         VcsGroupNode[] nds = new VcsGroupNode[nodeList.size()];
         nds = (VcsGroupNode[])nodeList.toArray(nds);
-        groupNodes = nds;
+        groupNodes = new WeakReference(nds);
         boolean retValue;
         retValue = super.enable(nds);
         return retValue;
@@ -104,7 +105,15 @@ public class VerifyGroupAction extends GeneralCommandAction {
    
 
    public VcsGroupNode[] getActivatedGroups() {
-       return groupNodes;
+       if (groupNodes == null) {
+           return null;
+       }
+       Object array = groupNodes.get();
+       if (array != null) {
+           VcsGroupNode[] toReturn = (VcsGroupNode[])array;
+           return toReturn;
+       }
+       return null;
    }
     
 }
