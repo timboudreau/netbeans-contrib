@@ -261,16 +261,12 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     public Identifier[] getInterfaces () {
         if (interfaces == null) {
             // create identifier array for interfaces
-            try{
-                Collection reflIntfs = ((ClassFile)data).getInterfaces();            
-                interfaces = new Identifier[reflIntfs.size()];
-                Iterator it = reflIntfs.iterator();
-                for (int i = 0; it.hasNext(); i++) {
-                    ClassName cn = (ClassName)it.next();
-                    interfaces[i] = Identifier.create(cn.getExternalName());
-                }
-            }
-            catch(IOException ioEx){    //### what to do here?
+            Collection reflIntfs = ((ClassFile)data).getInterfaces();            
+            interfaces = new Identifier[reflIntfs.size()];
+            Iterator it = reflIntfs.iterator();
+            for (int i = 0; it.hasNext(); i++) {
+                ClassName cn = (ClassName)it.next();
+                interfaces[i] = Identifier.create(cn.getExternalName());
             }
         }
         return interfaces;
