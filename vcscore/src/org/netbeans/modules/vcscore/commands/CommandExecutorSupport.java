@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
+import org.openide.util.RequestProcessor;
 import org.openide.util.UserCancelException;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
@@ -441,8 +442,8 @@ public class CommandExecutorSupport extends Object {
             } else {
                 RetrievingDialog rd = new RetrievingDialog(fileSystem, dirName, new javax.swing.JFrame(), false);
                 VcsUtilities.centerWindow(rd);
-                Thread t = new Thread(rd, "VCS Recursive Retrieving Thread - "+dirName); // NOI18N
-                t.start();
+                RequestProcessor rp = RequestProcessor.getDefault();
+                rp.post(rd);
             }
         } else {
             statusProvider.refreshDir(dirName); // NOI18N
