@@ -1,0 +1,149 @@
+<ClazzTest>
+  <class ClazzTest>
+    <Fields>
+      <CONSTANT/>
+      <ok/>
+      <testField/>
+    </Fields>
+    <Constructors>
+      <ClazzTest(String)/>
+      <ClazzTest()/>
+    </Constructors>
+    <Methods>
+      <initComponents/>
+      <isOk/>
+      <setOk/>
+      <testMethod/>
+    </Methods>
+    <Bean Patterns>
+      <ok/>
+    </Bean>
+  </class>
+  <Serialized stream>
+    <instance of org.netbeans.test.ClazzTest>
+      <int componentSerializedDataVersion = 4/>
+      <boolean enabled = true/>
+      <long eventMask = 4104/>
+      <boolean focusTraversalKeysEnabled = true/>
+      <boolean focusable = true/>
+      <int height = 0/>
+      <boolean ignoreRepaint = false/>
+      <int isFocusTraversableOverridden = 0/>
+      <boolean isPacked = false/>
+      <boolean nameExplicitlySet = false/>
+      <boolean newEventsOnly = true/>
+      <boolean valid = false/>
+      <boolean visible = true/>
+      <int width = 0/>
+      <int x = 0/>
+      <int y = 0/>
+      <javax.accessibility.AccessibleContext accessibleContext = null/>
+      <java.awt.Color background = instance of javax.swing.plaf.ColorUIResource>
+        <float falpha = 0.0/>
+        <int value = -3355444/>
+        <java.awt.color.ColorSpace cs = null/>
+        <float[] frgbvalue = null/>
+        <float[] fvalue = null/>
+      </java.awt.Color>
+      <java.beans.PropertyChangeSupport changeSupport = null/>
+      <java.awt.Cursor cursor = null/>
+      <java.awt.dnd.DropTarget dropTarget = null/>
+      <java.util.Set[] focusTraversalKeys = null/>
+      <java.awt.Font font = instance of javax.swing.plaf.FontUIResource>
+        <int fontSerializedDataVersion = 1/>
+        <float pointSize = 11.0/>
+        <int size = 11/>
+        <int style = 0/>
+        <java.util.Hashtable fRequestedAttributes = instance of java.util.Hashtable/>
+        <String name = "Dialog"/>
+      </java.awt.Font>
+      <java.awt.Color foreground = instance of javax.swing.plaf.ColorUIResource>
+        <float falpha = 0.0/>
+        <int value = -16777216/>
+        <java.awt.color.ColorSpace cs = null/>
+        <float[] frgbvalue = null/>
+        <float[] fvalue = null/>
+      </java.awt.Color>
+      <java.util.Locale locale = instance of java.util.Locale>
+        <int hashcode = -1/>
+        <String country = "US"/>
+        <String language = "en"/>
+        <String variant = ""/>
+      </java.util.Locale>
+      <java.awt.Dimension minSize = null/>
+      <String name = null/>
+      <java.awt.Font peerFont = null/>
+      <java.util.Vector popups = null/>
+      <java.awt.Dimension prefSize = null/>
+      <"focusL"/>
+      <instance of javax.swing.JComponent.EnableSerializationFocusListener>
+        <javax.swing.JComponent this$0 = instance of org.netbeans.test.ClazzTest/>
+      </instance>
+      <javax.accessibility.AccessibleContext accessibleContext = null/>
+      <instance of java.awt.ComponentOrientation>
+        <int orientation = 7/>
+      </instance>
+      <javax.accessibility.AccessibleContext accessibleContext = null/>
+      <javax.accessibility.AccessibleContext accessibleContext = null/>
+      <int containerSerializedDataVersion = 1/>
+      <boolean focusCycleRoot = false/>
+      <int ncomponents = 0/>
+      <java.awt.Component[] component = java.awt.Component[0]/>
+      <java.awt.LightweightDispatcher dispatcher = null/>
+      <java.awt.LayoutManager layoutMgr = instance of java.awt.BorderLayout>
+        <int hgap = 0/>
+        <int vgap = 0/>
+        <java.awt.Component center = null/>
+        <java.awt.Component east = null/>
+        <java.awt.Component firstItem = null/>
+        <java.awt.Component firstLine = null/>
+        <java.awt.Component lastItem = null/>
+        <java.awt.Component lastLine = null/>
+        <java.awt.Component north = null/>
+        <java.awt.Component south = null/>
+        <java.awt.Component west = null/>
+      </java.awt.LayoutManager>
+      <java.awt.Dimension maxSize = null/>
+      <javax.accessibility.AccessibleContext accessibleContext = null/>
+      <javax.accessibility.AccessibleContext accessibleContext = null/>
+      <int flags = 16393/>
+      <boolean verifyInputWhenFocusTarget = true/>
+      <java.awt.Rectangle _bounds = instance of java.awt.Rectangle>
+        <int height = 0/>
+        <int width = 0/>
+        <int x = 0/>
+        <int y = 0/>
+      </java.awt.Rectangle>
+      <javax.accessibility.AccessibleContext accessibleContext = null/>
+      <javax.swing.ActionMap actionMap = null/>
+      <Float alignmentX = null/>
+      <Float alignmentY = null/>
+      <javax.swing.InputMap ancestorInputMap = null/>
+      <javax.swing.AncestorNotifier ancestorNotifier = null/>
+      <javax.swing.Autoscroller autoscroller = null/>
+      <javax.swing.border.Border border = null/>
+      <javax.swing.event.SwingPropertyChangeSupport changeSupport = null/>
+      <java.util.Hashtable clientProperties = null/>
+      <javax.swing.InputMap focusInputMap = null/>
+      <Object htmlView = null/>
+      <javax.swing.InputVerifier inputVerifier = null/>
+      <javax.swing.event.EventListenerList listenerList = instance of javax.swing.event.EventListenerList>
+        <null/>
+      </javax.swing.event.EventListenerList>
+      <java.awt.Dimension maximumSize = null/>
+      <java.awt.Dimension minimumSize = null/>
+      <java.awt.Rectangle paintImmediatelyClip = instance of java.awt.Rectangle>
+        <int height = 0/>
+        <int width = 0/>
+        <int x = 0/>
+        <int y = 0/>
+      </java.awt.Rectangle>
+      <java.awt.Dimension preferredSize = null/>
+      <javax.swing.TransferHandler transfer = null/>
+      <java.beans.VetoableChangeSupport vetoableChangeSupport = null/>
+      <javax.swing.ComponentInputMap windowInputMap = null/>
+      <boolean ok = false/>
+      <Object testField = null/>
+    </instance>
+  </Serialized>
+</ClazzTest>
