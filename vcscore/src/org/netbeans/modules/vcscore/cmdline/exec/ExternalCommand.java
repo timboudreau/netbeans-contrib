@@ -314,6 +314,8 @@ public class ExternalCommand implements TextInput {
                 outputRequestProcessor.post(new OutputGrabbersProcessor());
             }
         }
+        int exitStatus;
+        SafeRunnable inputRepeater = null;
         try{
             String[] commandArr = null;
             try {
@@ -346,7 +348,6 @@ public class ExternalCommand implements TextInput {
             //    watchDog.start();
             //}
 
-            SafeRunnable inputRepeater = null;
             OutputStream os = proc.getOutputStream();
             if (inputData != null) {
                 try{
@@ -374,6 +375,13 @@ public class ExternalCommand implements TextInput {
             }
 
             int exit = proc.waitFor();
+            exitStatus = exit == 0 ? VcsCommandExecutor.SUCCEEDED
+                                   : VcsCommandExecutor.FAILED;
+        }
+        catch(InterruptedException e){
+            proc.destroy();
+            exitStatus = VcsCommandExecutor.INTERRUPTED;
+        } finally {
             if (inputRepeater != null) {
                 inputRepeater.doStop();
             }
@@ -384,19 +392,6 @@ public class ExternalCommand implements TextInput {
                     // silently ignore, will be a broken pipe
                 }
             }
-            output.doStop();
-            try {
-                output.waitToFinish();
-            } catch (InterruptedException iex) {}
-
-            setExitStatus(exit == 0 ? VcsCommandExecutor.SUCCEEDED
-                                    : VcsCommandExecutor.FAILED);
-        }
-        catch(InterruptedException e){
-            proc.destroy();
-            setExitStatus(VcsCommandExecutor.INTERRUPTED);
-        } finally {
-            //processCommandOutput();
             if (output != null) { // if exec() throws an exception, output == null !
                 output.doStop();
                 boolean finished = false;
@@ -411,8 +406,8 @@ public class ExternalCommand implements TextInput {
                 } while (!finished);
             }
         }
-
-        return getExitStatus();
+        setExitStatus(exitStatus);
+        return exitStatus;
     }
 
     /*
