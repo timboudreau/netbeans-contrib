@@ -16,6 +16,7 @@ package org.netbeans.modules.vcscore.settings;
 import org.openide.options.SystemOption;
 import org.openide.util.NbBundle;
 import java.io.File;
+import java.util.LinkedList;
 
 /**
  * The settings for all VCS filesystems.
@@ -31,7 +32,7 @@ public class GeneralVcsSettings extends SystemOption {
     public static final String PROP_CVS_COMMAND_PATH   = "wizardCvsCommandPath"; //NOI18N
     public static final String PROP_SH_COMMAND_PATH    = "wizardShellCommandPath"; //NOI18N
     public static final String PROP_SSH_WARNINGS_DONE  = "wizardSshWarningsDone"; //NOI18N
-    public static final String PROP_AUTO_DETECT        = "autoDetect";
+    public static final String PROP_AUTO_DETECT        = "autoDetect"; //NOI18N
     
     public static final int AUTO_REFRESH_NO_REFRESH = 0;
     public static final int AUTO_REFRESH_ON_DIR_OPEN = 1;
@@ -46,7 +47,7 @@ public class GeneralVcsSettings extends SystemOption {
     
     private static String wizardShellCommandPath;
     
-    private static java.util.LinkedList wizardDirectoryCache;
+//    private static java.util.LinkedList wizardDirectoryCache;
     
     static final long serialVersionUID = -3279219340064367270L;
     
@@ -64,6 +65,7 @@ public class GeneralVcsSettings extends SystemOption {
         setOffLine(false);
         setUseGlobal(true);
         setWizardSshWarningsDone(false);
+//        setWizardDirectoryCache(new LinkedList());
     }    
     
     /** Get human presentable name */
@@ -174,15 +176,24 @@ public class GeneralVcsSettings extends SystemOption {
         return ((Boolean)getProperty(PROP_HIDE_SHADOW_FILES)).booleanValue();
     }
     
+    /**
+     * contains list of Strings that were previously entered in the cvsfs mount wizard as working directory
+     */
 
     public java.util.LinkedList getWizardDirectoryCache () {
-        if (wizardDirectoryCache == null)
-            wizardDirectoryCache = new java.util.LinkedList ();
-        return wizardDirectoryCache;
+        Object[] arr = (Object[])getProperty(PROP_LAST_DIRECTORIES);
+        LinkedList toReturn = new LinkedList();
+        if (arr != null) {
+            for (int i = 0; i < arr.length; i++) {
+                toReturn.add(arr[i]);
+            }
+        }
+        return toReturn;
     }
     
     public void setWizardDirectoryCache (java.util.LinkedList cache) {
-            wizardDirectoryCache = cache;
+        putProperty(PROP_LAST_DIRECTORIES, cache.toArray());
+        firePropertyChange(PROP_LAST_DIRECTORIES, null, cache.toArray());
     }
     
     public String getWizardCvsCommandPath () {
