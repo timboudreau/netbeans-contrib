@@ -21,7 +21,7 @@ import org.netbeans.jmi.javamodel.JavaClass;
 import org.netbeans.jmi.javamodel.JavaPackage;
 import org.netbeans.jmi.javamodel.Resource;
 import org.netbeans.modules.classfile.ClassFile;
-import org.netbeans.modules.javacore.api.JavaMetamodel;
+import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
