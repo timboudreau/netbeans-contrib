@@ -81,9 +81,9 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
     
     private boolean isTopComponentInIDE(){
         try{
-            Class c = Class.forName("org.openide.windows.TopComponent");
+            Class c = Class.forName("org.openide.windows.TopComponent",true,Thread.currentThread().getContextClassLoader());
             return c.isInstance(testedContainer);
-        }catch(ClassNotFoundException exc){
+        }catch(Exception exc){
             exc.printStackTrace(System.out);            
             return false;
         }
