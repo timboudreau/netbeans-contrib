@@ -828,8 +828,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         addActionToProcess(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
-                int selected = comboBox.getSelectedIndex();
-                component.setValue(subComponents[selected].getValue());
+                int selected2 = comboBox.getSelectedIndex();
+                component.setValue(subComponents[selected2].getValue());
                 if (vars != null) {
                     if (comboBox.isEnabled()) {
                         vars.put(component.getVariable(), component.getValue());
