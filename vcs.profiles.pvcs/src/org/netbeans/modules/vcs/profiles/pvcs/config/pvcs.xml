@@ -69,6 +69,9 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="PROJECT" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectName)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectName_Mnemonic)" localFile="false" localDir="false" executable="false" order="1">
       <value>/</value>
     </variable>
+    <variable name="USER_NAME" basic="true">
+      <value></value>
+    </variable>
     <!-- Quotation that is used for ordinary commands -->
     <variable name="CMD_QUOTE" basic="false">
       <value>\"</value>
