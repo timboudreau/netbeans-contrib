@@ -75,7 +75,7 @@ public final class Validators {
                     ret = ret.substring(e.getClass().getName().length());
                     if (ret.startsWith(":")) ret = ret.substring(1);
                     ret = ret.trim();
-                } else {
+                } else if (ret.indexOf(path) == -1) {
                     ret = path + ": " + ret;
                 }
             } catch (InterruptedException e) {
