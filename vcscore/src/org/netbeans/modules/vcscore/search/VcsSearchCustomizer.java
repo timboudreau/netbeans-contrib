@@ -47,7 +47,13 @@ public class VcsSearchCustomizer extends javax.swing.JPanel implements Customize
         setBorder(new javax.swing.border.TitledBorder(""));
         
         
-        jScrollPane1.setViewportView(statusList);
+        statusList.addMouseListener(new java.awt.event.MouseAdapter() {
+              public void mouseReleased(java.awt.event.MouseEvent evt) {
+                  statusListMouseReleased(evt);
+              }
+          }
+          );
+          jScrollPane1.setViewportView(statusList);
           
           
         gridBagConstraints1 = new java.awt.GridBagConstraints();
@@ -58,7 +64,13 @@ public class VcsSearchCustomizer extends javax.swing.JPanel implements Customize
         add(jScrollPane1, gridBagConstraints1);
         
         
-        findExceptCheckBox.setText(java.util.ResourceBundle.getBundle("org.netbeans.modules.vcscore.search.Bundle").getString("VcsSearchCustomizer.findExceptCheckBox.text"));
+        findExceptCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/search/Bundle").getString("VcsSearchCustomizer.findExceptCheckBox.text"));
+        findExceptCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                findExceptCheckBoxActionPerformed(evt);
+            }
+        }
+        );
         
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridy = 1;
@@ -94,11 +106,11 @@ public class VcsSearchCustomizer extends javax.swing.JPanel implements Customize
     }
 
 
-// Variables declaration - do not modify//GEN-BEGIN:variables
-private javax.swing.JScrollPane jScrollPane1;
-private javax.swing.JList statusList;
-private javax.swing.JCheckBox findExceptCheckBox;
-// End of variables declaration//GEN-END:variables
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JList statusList;
+    private javax.swing.JCheckBox findExceptCheckBox;
+    // End of variables declaration//GEN-END:variables
 
     public void setObject(final Object obj) {
         peer = (VcsSearchType) obj;
