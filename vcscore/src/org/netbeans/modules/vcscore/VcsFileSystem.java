@@ -1617,14 +1617,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void activate(VcsObjectIntegritySupport objectIntegritySupport) {
         if (Turbo.implemented()) {
             // TODO revisit possible side effects of old implementaion
-            objectIntegritySupport.activate(this, null, getFile("").getAbsolutePath(), this);
+            objectIntegritySupport.activate(this, null, FileUtil.normalizeFile(getFile("")).getAbsolutePath(), this);
             return;
         }
 
         // the old implementation
         FileSystemCache fsCache = CacheHandler.getInstance().getCache(getCacheIdStr());
         if (fsCache != null) {
-            objectIntegritySupport.activate(this, fsCache, getFile("").getAbsolutePath(), this);
+            objectIntegritySupport.activate(this, fsCache, FileUtil.normalizeFile(getFile("")).getAbsolutePath(), this);
         }
     }
 
@@ -3105,7 +3105,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 file = new File(path + File.separator);
             }
         }
-        file = FileUtil.normalizeFile(file);
         return file;
     }
 
@@ -4359,7 +4358,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         try { // because of adjustment of the thrown exception
         checkModificationLock(name);
         //final VcsFileSystem current = this;
-        final File file = getFile (name);
+        final File file = FileUtil.normalizeFile(getFile (name));
         final String filePath = file.getAbsolutePath().intern();
         if (!file.exists()) return; // Ignore the lock when the file does not exist.
         if (isReadOnly()) { // I'm on a read-only filesystem => can not lock

@@ -13,6 +13,7 @@
 package org.netbeans.modules.vcscore.turbo.local;
 
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.ErrorManager;
@@ -223,7 +224,7 @@ public final class FileAttributeQuery {
      * @deprecated Internal contract: it allows the VCSFS to address <code>FileObject</code> prenatal situations.
      */
     public void writeAttribute(File file, String id, Object value) {
-        
+        file = FileUtil.normalizeFile(file);
         // It cannot write attribute down to providers until having FileObject that is used in SPI
         // assuming FileUtil.toFileObject is dangerous here otherwise
         // it was done by caller

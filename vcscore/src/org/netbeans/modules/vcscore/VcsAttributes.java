@@ -235,6 +235,7 @@ public class VcsAttributes extends Attributes {
     public Object readAttribute(String name, String attrName) {
         if (FILE_ATTRIBUTE.equals(attrName)) {
             java.io.File file = fileSystem.getFile(name);
+            file = FileUtil.normalizeFile(file);
             if (!file.isAbsolute()) {
                 // It's dangerous to return a file, that is not absolute.
                 // E.g. loaders are broken after a non-absolute file is returned.

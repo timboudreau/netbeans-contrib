@@ -769,7 +769,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 if (executionContext instanceof VcsFileSystem) {
                     String root = ((VcsFileSystem) executionContext).getFile("").getAbsolutePath();
                     for (int i = 0; i < diskFiles.length; i++) {
-                        String path = diskFiles[0].getAbsolutePath();
+                        String path = FileUtil.normalizeFile(diskFiles[0]).getAbsolutePath();
                         if (path.indexOf(root) == 0) {
                             path = path.substring(root.length());
                             while (path.startsWith(java.io.File.separator)) path = path.substring(1);

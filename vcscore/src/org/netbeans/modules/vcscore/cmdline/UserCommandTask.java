@@ -179,7 +179,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         } else {
             File[] diskFiles = cmd.getDiskFiles();
             if (diskFiles != null && diskFiles.length > 0) {
-                path = diskFiles[0].getAbsolutePath();
+                path = FileUtil.normalizeFile(diskFiles[0]).getAbsolutePath();
                 String root = fileSystem.getFile("").getAbsolutePath();
                 if (path.indexOf(root) == 0) {
                     path = path.substring(root.length());
