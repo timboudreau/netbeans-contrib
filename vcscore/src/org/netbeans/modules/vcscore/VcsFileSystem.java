@@ -725,8 +725,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         });
         RepositoryListener wl = /*WeakListener.repository (*/new RepositoryListener() {
             public void fileSystemAdded(RepositoryEvent ev) {
-                System.out.println("fileSystemAdded("+ev.getFileSystem());
-                System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
+                //System.out.println("fileSystemAdded("+ev.getFileSystem());
+                //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
                 if (ev.getFileSystem().equals(VcsFileSystem.this)
                     && !isOffLine()
                     && (deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_RESTART)
@@ -734,14 +734,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
                     //FileCacheProvider cache = getCacheProvider();
                     //if (cache != null) cache.refreshCacheDirRecursive("");
-                    System.out.println("refresh called.");
+                    //System.out.println("refresh called.");
                 }
             }
             public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {
             }
             public void fileSystemRemoved(RepositoryEvent ev) {
                 if (ev.getFileSystem().equals(VcsFileSystem.this)) {
-                    System.out.println("FS "+VcsFileSystem.this+" removed");
+                    //System.out.println("FS "+VcsFileSystem.this+" removed");
                     TopManager.getDefault ().getRepository ().removeRepositoryListener (this);
                 }
             }
@@ -1334,9 +1334,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             createTempPromptFiles(promptFile);
             if (prompt != null && prompt.size() > 0 || ask != null && ask.size() > 0 ||
                 promptFile.size() > 0 || userParamsPromptLabels.size() > 0) {
-                VariableInputDialog dlg = new VariableInputDialog(new java.awt.Frame(), true, file);
+                    
+                VariableInputDialog dlg = new VariableInputDialog(/*new java.awt.Frame(), true, */new String[] { file });
                 dlg.setVCSFileSystem(this, vars);
-                dlg.setCommandDisplayName(cmd.getDisplayName());
+                //dlg.setCommandDisplayName(cmd.getDisplayName());
                 dlg.setFilePromptLabels(promptFile);
                 dlg.setVarPromptLabels(prompt);
                 dlg.setVarAskLabels(ask);
@@ -1344,7 +1345,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (promptFile.size() > 0) dlg.setFilePromptDocumentListener(this, cmd);
                 if (forEachFile == null) dlg.showPromptEach(false);
                 else dlg.setPromptEach(promptForVarsForEachFile);
-                if (dlg.showDialog()) {
+                String title = java.text.MessageFormat.format(
+                    org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.titleWithName"),
+                    new Object[] { cmd.getDisplayName() }
+                );
+                Dialog dialog = TopManager.getDefault().createDialog(new DialogDescriptor(dlg, title, true, dlg.getActionListener()));
+                dialog.show();
+                if (dlg.isValidInput()) {
+                //if (dlg.showDialog()) {
                     String[] values = dlg.getVarPromptValues();
                     int first = 0;
                     Enumeration promptLabels = prompt.keys();
