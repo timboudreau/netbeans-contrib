@@ -395,11 +395,11 @@ public class VcsAction extends NodeAction implements ActionListener {
             if (!child.isLeaf()) {
                 JMenu submenu;
                 String[] props = cmd.getPropertyNames();
-                if (props == null || props.length == 0) {
-                    submenu = new JMenuPlus(cmd.getDisplayName());
-                } else {
-                    submenu = new JMenuPlus();
-                }
+                //if (props == null || props.length == 0) {
+                submenu = new JMenuPlus(cmd.getDisplayName());
+                //} else {
+                //    submenu = new JMenuPlus();
+                //}
                 addMenu(child, submenu, onDir, onFile, onRoot);
                 parent.add(submenu);
             } else {
@@ -418,9 +418,15 @@ public class VcsAction extends NodeAction implements ActionListener {
         Node commands = fileSystem.getCommands();
         //int len = commands.size();
         //int[] lastOrder = new int[0];
-        boolean onDir = isOnDirectory();
-        boolean onFile = isOnFile();
         boolean onRoot = isOnRoot();
+        boolean onDir;
+        boolean onFile;
+        if (onRoot) {
+            onDir = onFile = false;
+        } else {
+            onDir = isOnDirectory();
+            onFile = isOnFile();
+        }
         Children children = commands.getChildren();
         Node[] commandRoots = children.getNodes();
         if (commandRoots.length <= actionCommandSubtree) return null;
