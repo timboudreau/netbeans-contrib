@@ -21,7 +21,7 @@ import org.netbeans.modules.remotefs.core.LogInfo;
  * @version 1.0
  */
 public class FTPLogInfo implements LogInfo {
-
+  static final long serialVersionUID = 4795532037339960289L;
   /** Host name */
   private String host = "localhost";
   /** Port number */

@@ -43,7 +43,8 @@ import org.openide.util.RequestProcessor;
  * @version 1.0
  */
 public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconnect {
-
+  static final long serialVersionUID = -981665601872580022L;
+  
   private static final boolean DEBUG = true;
   
   /** Name of temporary directoty (if user doesn't entry own one) */

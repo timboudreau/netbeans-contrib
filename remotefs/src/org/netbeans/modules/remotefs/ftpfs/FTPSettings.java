@@ -19,6 +19,7 @@ package org.netbeans.modules.remotefs.ftpfs;
  * @version 1.0
  */
 public class FTPSettings extends org.openide.options.SystemOption {
+  static final long serialVersionUID = 6880742148617337695L;  
   
   public static final String PROP_REFRESH_TIME = "refreshtime";
   public static final String PROP_PASSIVE_MODE = "passivemode";
@@ -42,7 +43,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
   /** Holds value of property passiveMode. */
   private static boolean passiveMode = false;
   /** Holds value of property askCacheExternalDelete. */
-  private static boolean askCacheExternalDelete = false;
+  private static boolean askCacheExternalDelete = true;
   /** Holds value of property cacheExternalDelete. */
   private static boolean cacheExternalDelete = false;
   /** Holds value of property askServerExternalDelete. */

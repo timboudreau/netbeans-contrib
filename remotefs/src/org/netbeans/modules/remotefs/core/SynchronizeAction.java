@@ -37,6 +37,8 @@ import org.openide.util.enum.QueueEnumeration;
 * @author Libor Martinek
 */
 public class SynchronizeAction extends CookieAction {
+  static final long serialVersionUID = -1912609165828070616L;  
+    
   /** @return DataFolder class */
   protected Class[] cookieClasses () {
     return new Class[] { DataFolder.class };

@@ -22,6 +22,8 @@ import org.openide.filesystems.FileUtil;
  * @version 1.0
  */
 public class FTPfsModule extends ModuleInstall {
+  static final long serialVersionUID = 2289861663533516525L;
+    
   public FTPfsModule() {
     // A public default constructor is required!
     // Of course, Java makes one by default for a public class too.

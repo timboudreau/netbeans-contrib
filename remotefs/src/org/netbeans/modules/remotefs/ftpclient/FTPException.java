@@ -18,7 +18,7 @@ package org.netbeans.modules.remotefs.ftpclient;
  * @version 1.0
  */
 public class FTPException extends java.io.IOException {
-
+  static final long serialVersionUID = 4008993924766308326L;
   private FTPResponse response;
 
   /** Creates new FTPException
