@@ -102,20 +102,22 @@ public class SerNodeTest extends JellyTestCase {
         tab++;
         writeTabs();
 
-        node.select();
-        String[] names = node.getChildren();
         String text = node.getText();
         if (text.startsWith("String country") || text.startsWith("String language")){
             tab--;
             return;
         }
-        if (names.length == 0 || tab > limit) {
+        
+        if (isLeaf(node) || tab > limit) {
             getRef().println("<" + text + "/>");
             tab--;
             return;
         }
         
         node.expand();
+        node.waitExpanded();
+        String[] names = node.getChildren();
+
         getRef().println("<" + text + ">");
         
         for (int i=0; i<names.length; i++) {
@@ -132,4 +134,9 @@ public class SerNodeTest extends JellyTestCase {
         
         tab--;
     }
+    
+    private static boolean isLeaf(Node node) {
+        return ((org.openide.nodes.Node) node.getOpenideNode()).isLeaf();
+    }
+        
 }

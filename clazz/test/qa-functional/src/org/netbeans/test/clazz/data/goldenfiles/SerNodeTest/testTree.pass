@@ -86,7 +86,8 @@
       <int containerSerializedDataVersion = 1/>
       <boolean focusCycleRoot = false/>
       <int ncomponents = 0/>
-      <java.awt.Component[] component = java.awt.Component[0]/>
+      <java.awt.Component[] component = java.awt.Component[0]>
+      </java.awt.Component[]>
       <java.awt.LightweightDispatcher dispatcher = null/>
       <java.awt.LayoutManager layoutMgr = instance of java.awt.BorderLayout>
         <int hgap = 0/>
