@@ -684,8 +684,11 @@ public class CommandExecutorSupport extends Object {
                     || userParamsPromptLabels.size() > 0) {
                         
                     String file = (String) vars.get("FILE"); // NOI18N
-                    VariableInputDialog dlg = new VariableInputDialog(new String[] { file }, inputDescriptor, expertCondition, vars);
-                    dlg.setVCSFileSystem(fileSystem, vars);
+                    // provide a copy of variables for easy use and modification,
+                    // since I have the original variables locked.
+                    Hashtable dlgVars = new Hashtable(vars);
+                    VariableInputDialog dlg = new VariableInputDialog(new String[] { file }, inputDescriptor, expertCondition, dlgVars);
+                    dlg.setVCSFileSystem(fileSystem, dlgVars);
                     if (cmd.getDisplayName() != null) {
                         dlg.setCmdName(cmd.getDisplayName());
                     } else {
@@ -743,6 +746,9 @@ public class CommandExecutorSupport extends Object {
                     }
                     if (dlg.isValidInput()) {
                         dlg.processActions();
+                        // put the dialog's variables back with all necessary modifications done.
+                        vars.clear();
+                        vars.putAll(dlgVars);
                         if (inputDescriptor != null) {
                             inputDescriptor.addValuesToHistory();
                         }

@@ -768,7 +768,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Thread selection = new Thread("VCS Variable Selector Command") {
+                org.openide.util.RequestProcessor.postRequest(new Runnable() {
                     public void run() {
                         String selected = getSelectorText(commandName, field.getText());
                         //System.out.println("selected = "+selected);
@@ -776,8 +776,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                             field.setText(selected);
                         }
                     }
-                };
-                selection.start();
+                });
             }
         });
         return button;
