@@ -89,6 +89,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private VcsFileSystem fileSystem;
     
     private RuntimeFolderNode runtimeNode;
+    private PropertyChangeListener runtimeNodePropertyChange;
 
     private boolean execStarterLoopStarted = false;
     private boolean execStarterLoopRunning = true;
@@ -105,7 +106,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         this.fileSystem = fileSystem;
         runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
         runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
-        final PropertyChangeListener runtimeNodePropertyChange = new PropertyChangeListener() {
+        runtimeNodePropertyChange = new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT.equals(evt.getPropertyName())) {
                     collectFinishedCmdsNum = ((Integer) evt.getNewValue()).intValue();
@@ -123,21 +124,25 @@ public class CommandsPool extends Object /*implements CommandListener */{
             public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {}
             public void fileSystemRemoved(RepositoryEvent ev) {
                 if (ev.getFileSystem().equals(fileSystem)) {
-                    runtimeNode.removePropertyChangeListener(runtimeNodePropertyChange);
-                    try {
-                        runtimeNode.destroy();
-                    } catch (java.io.IOException exc) {
-                        TopManager.getDefault().notifyException(exc);
-                    }
-                    synchronized (CommandsPool.this) {
-                        execStarterLoopRunning = false;
-                        notifyAll();
-                    }
+                    cleanup();
                     ev.getRepository().removeRepositoryListener(this);
                 }
             }
         });
         //executorStarterLoop();
+    }
+    
+    private void cleanup() {
+        runtimeNode.removePropertyChangeListener(runtimeNodePropertyChange);
+        try {
+            runtimeNode.destroy();
+        } catch (java.io.IOException exc) {
+            TopManager.getDefault().notifyException(exc);
+        }
+        synchronized (this) {
+            execStarterLoopRunning = false;
+            notifyAll();
+        }
     }
     
     /**
