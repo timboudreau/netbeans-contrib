@@ -52,6 +52,8 @@ public class CommandNode extends AbstractNode {
         propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_REVISION, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, Integer.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_CONFIRMATION_MSG, String.class);
+        propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG, String.class);
+        propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
         //propertyClassTypes.put(VcsCommand.PROPERTY_NOT_ON_ROOT, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_NUM_REVISIONS, Integer.TYPE);
@@ -59,7 +61,10 @@ public class CommandNode extends AbstractNode {
         propertyClassTypes.put(VcsCommand.PROPERTY_ON_FILE, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_ON_ROOT, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_HIDDEN, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_DISABLED_ON_STATUS, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED, String.class);
@@ -174,17 +179,17 @@ public class CommandNode extends AbstractNode {
                 });
         String[] propertyNames = cmd.getPropertyNames();
         if (propertyNames.length != 0) {
-            addProperties(set, cmd, propertyClassTypes);
+            addProperties(set, cmd, propertyClassTypes, null);
             if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
                 VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName())) {
 
-                addProperties(set, cmd, list_propertyClassTypes);
+                addProperties(set, cmd, list_propertyClassTypes, new Integer(-1));
             }
         }
     }
     
     private void addProperties(final Sheet.Set set, final VcsCommand cmd,
-                               final HashMap propertyClassTypes) {
+                               final HashMap propertyClassTypes, final Object defaultValue) {
         
         for (Iterator it = propertyClassTypes.keySet().iterator(); it.hasNext(); ) {
             String propertyName = (String) it.next();
@@ -213,8 +218,20 @@ public class CommandNode extends AbstractNode {
                         }
 
                         public void setValue(Object value) {
+                            Object old = getValue();
                             cmd.setProperty(getName(), value);
+                            firePropertyChange(getName(), old, value);
                             //cmd.fireChanged();
+                        }
+                        
+                        public boolean supportsDefaultValue() {
+                            return true;
+                        }
+                        
+                        public void restoreDefaultValue() {
+                            Object old = getValue();
+                            cmd.setProperty(getName(), defaultValue);
+                            firePropertyChange(getName(), old, defaultValue);
                         }
                 });
         }
