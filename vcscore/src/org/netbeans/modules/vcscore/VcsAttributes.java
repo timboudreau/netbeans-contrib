@@ -160,7 +160,7 @@ public class VcsAttributes extends DefaultAttributes {
      *         of the file is returned.
      */
     public Object readAttribute(String name, String attrName) {
-        if (FILE_ATTRIBUTE.equals(name)) {
+        if (FILE_ATTRIBUTE.equals(attrName)) {
             return fileSystem.getFile(name);
         }
         if (VCS_STATUS.equals(attrName)) {
