@@ -64,6 +64,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="libsrc"/>
         <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
+        <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>  <!-- XXX seems to use org.openide.loaders package, if not remove this line  -->
         <pathelement location="${nbroot}/openide/compiler/netbeans/modules/autoload/openide-compiler.jar"/>
         <pathelement location="${nbroot}/openide/execution/netbeans/modules/autoload/openide-execution.jar"/>
         <pathelement location="${nbroot}/java/srcmodel/netbeans/modules/autoload/java-src-model.jar"/>
@@ -195,6 +196,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="libsrc"/>
         <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
+        <!--<pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>-->  <!-- XXX seems to use org.openide.loaders package, if not remove this line  -->
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>

@@ -29,6 +29,7 @@ Microsystems, Inc. All Rights Reserved.
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
             <classpath>
                 <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
+                <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
                 <pathelement location="${nbroot}/openide/compiler/netbeans/modules/autoload/openide-compiler.jar"/>
             </classpath>
         </javac>

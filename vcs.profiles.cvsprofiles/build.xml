@@ -35,6 +35,7 @@ Microsystems, Inc. All Rights Reserved.
       <classpath>        
 	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
+        <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
 	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
