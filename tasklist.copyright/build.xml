@@ -12,54 +12,59 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 --><project basedir="." default="netbeans" name="tasklist/copyright">
 
-    <property name="nb_all" value="../.."/>
+    <import file="../../nbbuild/default.xml"/>
 
-    <taskdef classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="makenbm"/>
-    <taskdef classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="genlist"/>
-    <taskdef classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar" name="locjar"/>
-
-    <property name="nbm_alias" value="nb_ide"/>
-    <property name="homepage.base" value="netbeans.org"/>
-    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-    <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
     <property file="../version.properties"/>
+
+    <target name="init" depends="default.init">
+      <patternset id="tasklist/copyright.files">
+        <include name="${nb.modules.dir}/tasklist-copyright.jar"/>
+      </patternset>
+      
+      <path id="cp">
+        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+        <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+        <pathelement path="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
+        <pathelement path="${tasklist/core.dir}/${nb.modules/autoload.dir}/tasklist-core.jar"/>
+        <pathelement location="${editor.dir}/${nb.modules.dir}/ext/nb-editor.jar"/>
+        <pathelement location="${editor.dir}/${nb.modules.dir}/editor.jar"/>
+      </path>
+    </target>
   
-    <target name="compile">
-        <javac debug="${build.compiler.debug}" deprecation="${build.compiler.deprecation}" destdir="src" source="1.4" srcdir="src">
-            <classpath>
-                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-                <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
-                <pathelement location="${nb_all}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <!-- tasklist api (not yet packaged) -->
-                <pathelement path="../api/src"/>
-                <!-- tasklist core (net yet packaged) -->
-                <pathelement path="../core/src"/>
-                <pathelement location="../../editor/netbeans/modules/ext/nb-editor.jar"/>
-               <pathelement location="../../editor/netbeans/modules/editor.jar"/>
-            </classpath>
+    <target name="compile" depends="init">
+        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
+            <classpath refID="cp"/>
         </javac>
     </target>
 
-    <target depends="compile" name="jars">
-        <mkdir dir="netbeans/modules"/>
+    <target name="jars" depends="compile">
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../version.properties"/>
         <filter token="tl.copyright.spec" value="${tl.copyright.spec}"/>
-        <copy file="manifest.mf" filtering="on" tofile="manifest-subst.mf"/>
-        <locjar basedir="src" compress="false" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt" jarfile="netbeans/modules/tasklist-copyright.jar" manifest="manifest-subst.mf">
-            <locale name="ja"/>
-        </locjar>
+        <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/tasklist-copyright.jar"
+             manifest="manifest-subst.mf"
+             basedir="src"
+	     excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
+	     compress="false"/>
     </target>
 
-    <target depends="jars" name="netbeans">
-        <genlist outputfiledir="netbeans" targetname="nbm"/>
+    <target name="netbeans" depends="jars">
+        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/tasklist-copyright.jar">
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+                <patternset refID="tasklist/copyright.files"/>
+           </fileset>
+        </genlist>
     </target>
 
-    <target depends="netbeans" name="nbm">
-        <makenbm distribution="http://${dist.base}/tasklist-copyright.nbm" file="../tasklist-copyright.nbm" 
+    <target name="nbm" depends="netbeans">
+        <makenbm distribution="http://${dist.base}/tasklist-copyright.nbm" file="tasklist-copyright.nbm" 
             homepage="http://tasklist.${homepage.base}/updates/tasklist-copyright.html" 
-            module="netbeans/modules/tasklist-copyright.jar" 
-            needsrestart="false" topdir=".">
+            productdir="${netbeans.dest.dir}/${cluster.dir}"
+            module="${nb.modules.dir}/tasklist-copyright.jar" 
+            needsrestart="false">
             <license file="${license.file}"/>
             <signature alias="${nbm_alias}" keystore="${keystore}" storepass="${storepass}"/>
         </makenbm>
@@ -74,11 +79,12 @@ Microsystems, Inc. All Rights Reserved.
             <fileset dir="src">
                 <include name="**/*.class"/>
             </fileset>
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+               <patternset refID="tasklist/copyright.files"/>
+            </fileset>
         </delete>
         <delete file="manifest-subst.mf"/>
-        <delete file="../tasklist-copyright.nbm"/>
-        <delete dir="netbeans"/>
-        <delete dir="Info"/>
+        <delete file="tasklist-copyright.nbm"/>
         <delete dir="javadoc"/>
     </target>
 
@@ -89,7 +95,7 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <!-- This target will only work *inside* the IDE! -->
-    <target depends="jars" description="Test the module inside the running IDE." name="test">
+    <target name="test" depends="jars" description="Test the module inside the running IDE.">
        <nbinstaller action="reinstall" module="netbeans/modules/tasklist-copyright.jar"/>
     </target>
 </project>
