@@ -15,9 +15,9 @@
 package org.netbeans.modules.latex.guiproject;
 import java.io.File;
 import java.io.IOException;
-
-
 import java.io.InputStream;
+import java.io.OutputStream;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 
 import org.openide.filesystems.FileObject;
@@ -104,14 +104,36 @@ public class CreateNewLaTeXProject {
         
         FileLock lock = null;
         
+        OutputStream out = null;
+        InputStream  ins = null;
+        
         try {
-            ep.load(targetBuildSettings.getInputStream());
+            ins = targetBuildSettings.getInputStream();
+            ep.load(ins);
+            ins.close();
             ep.setProperty("mainfile", mainFile.getAbsolutePath());
             lock = targetBuildSettings.lock();
-            ep.store(targetBuildSettings.getOutputStream(lock));
+            out = targetBuildSettings.getOutputStream(lock);
+            ep.store(out);
         } finally {
             if (lock != null)
                 lock.releaseLock();
+            
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            }
+            
+            if (ins != null) {
+                try {
+                    ins.close();
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            }
         }
         
         return metadataDirFO;

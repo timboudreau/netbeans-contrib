@@ -63,7 +63,7 @@ public class LaTeXGUIProjectFactory implements ProjectFactory {
             
             EditableProperties p = new EditableProperties();
             
-            p.load(settings.getInputStream());
+            p.load(settings.getInputStream()); //TODO: close the stream.
             String mainFileName = p.getProperty("mainfile");
             
             if (mainFileName == null)

@@ -48,7 +48,7 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="nbm-modules">
-        <ant dir="ant" target="nbm" />
+        <ant dir="ant/antint" target="nbm" />
         <ant dir="auted" target="nbm" />
         <ant dir="bibtex" target="nbm" />
         <ant dir="branding" target="nbm" />
@@ -77,6 +77,7 @@ Microsystems, Inc. All Rights Reserved.
         <antcall target="clean-modules" />
         <antcall target="build-modules" />
         <antcall target="test-modules" />
+        <antcall target="nbm-modules" />
     </target>
 
 </project>

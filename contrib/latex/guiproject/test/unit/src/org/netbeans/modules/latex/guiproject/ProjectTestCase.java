@@ -17,12 +17,15 @@ package org.netbeans.modules.latex.guiproject;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -41,15 +44,35 @@ public class ProjectTestCase extends NbTestCase {
     
     private static FileObject copyFile(String resource, FileObject dest) throws IOException {
         FileLock lock = null;
+        InputStream ins = null;
+        OutputStream out = null;
         
         try {
             lock = dest.lock();
-            FileUtil.copy(ProjectTestCase.class.getResourceAsStream(resource), dest.getOutputStream(lock));
+            ins  = ProjectTestCase.class.getResourceAsStream(resource);
+            out  = dest.getOutputStream(lock);
+            FileUtil.copy(ins, out);
 	    
 	    return dest;
         } finally {
             if (lock != null)
                 lock.releaseLock();
+            
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            }
+            
+            if (ins != null) {
+                try {
+                    ins.close();
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            }
         }
     }
     
@@ -115,12 +138,26 @@ public class ProjectTestCase extends NbTestCase {
         LaTeXSource source = ((LaTeXSource) ProjectManager.getDefault().findProject(prj).getLookup().lookup(LaTeXSource.class));
         LaTeXSource.Lock lock = null;
         
-        try {
-            lock = source.lock(true);
-        } finally  {
-            if (lock != null)
-                source.unlock(lock);
-        }
+//        try {
+//            lock = source.lock(true);
+//        } finally  {
+//            if (lock != null)
+//                source.unlock(lock);
+//        }
         
+//        System.err.println("source=" + source);
+        try {
+//            System.err.println("ProjectTestCase.parseProject trying to obtain lock");
+            lock = source.lock(true);
+//            System.err.println("ProjectTestCase.parseProject lock obtained=" + lock);
+        } finally {
+            if (lock != null) {
+//                System.err.println("ProjectTestCase.parseProject unlock the lock");
+                source.unlock(lock);
+//                System.err.println("ProjectTestCase.parseProject unlocking done");
+            } else {
+//                System.err.println("ProjectTestCase.parseProject no unlocking (lock == null)");
+            }
+        }
     }
 }

@@ -70,6 +70,10 @@ Contributor(s): Jan Lahoda
            <file name="CountWordsAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CountWordsAction"/>
            </file>
+           
+           <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow">
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance" />
+           </file>
        </folder>
        <folder name="Window">
             <file name="ViewStructualTabAction.shadow">
@@ -87,6 +91,7 @@ Contributor(s): Jan Lahoda
            <file name="org-netbeans-modules-latex-ui-actions-CiteAction.instance"/>
            <file name="org-netbeans-modules-latex-ui-actions-RefAction.instance"/>
            <file name="org-netbeans-modules-latex-ui-actions-InstallDictionaryAction.instance" />
+           <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance" />
 
            <!--Toolbar actions:-->
             <file name="Emph.instance">

@@ -14,27 +14,22 @@
  */
 package org.netbeans.modules.latex.guiproject;
 
+import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.awt.Image;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.modules.latex.guiproject.ui.ProjectSettings;
 import org.netbeans.modules.latex.guiproject.ui.PropertiesDialogPanel;
-
-
 import org.netbeans.modules.latex.model.Utilities;
-
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
@@ -42,38 +37,30 @@ import org.netbeans.modules.latex.model.structural.Model;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.StructuralNodeFactory;
 import org.netbeans.spi.project.ActionProvider;
-import org.netbeans.spi.project.AuxiliaryConfiguration;
-
 import org.netbeans.spi.project.ui.CustomizerProvider;
-
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-
-
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.ProxyLookup;
+import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.Lookups;
-
-import org.w3c.dom.Element;
+import org.openide.util.lookup.ProxyLookup;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class LaTeXGUIProject implements Project, ProjectInformation, LogicalViewProvider, ActionProvider, CustomizerProvider {
+public class LaTeXGUIProject implements Project, ProjectInformation, LogicalViewProvider, ActionProvider, CustomizerProvider, LaTeXSource.DocumentChangedListener {
     
     private FileObject dir;
     private FileObject masterFile;
@@ -96,7 +83,33 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         this.dir = dir;
         this.masterFile = masterFile;
         source = new LaTeXSourceImpl(masterFile);
+        source.addDocumentChangedListener(source.weakDocumentChangedListener(this, source));
         lookup = Lookups.fixed(new Object[] {this, GenericSources.genericOnly(this), source});
+	
+//	assureParsed();
+    }
+    
+    private void assureParsed() {
+        RequestProcessor.getDefault().postRequest(new Runnable() {
+	    public void run() {
+	        LaTeXSource.Lock lock = null;
+		
+//                System.err.println("source=" + source);
+		try {
+//                    System.err.println("LaTeXGUIProject.assureParsed trying to obtain lock");
+		    lock = source.lock(true);
+//                    System.err.println("LaTeXGUIProject.assureParsed trying lock obtained=" + lock);
+		} finally {
+                    if (lock != null) {
+//                        System.err.println("LaTeXGUIProject.assureParsed unlock the lock");
+                        source.unlock(lock);
+//                        System.err.println("LaTeXGUIProject.assureParsed unlocking done");
+                    } else {
+//                        System.err.println("LaTeXGUIProject.assureParsed no unlocking (lock == null)");
+                    }
+		}
+	    }
+	});
     }
     
     public Lookup getLookup() {
@@ -211,14 +224,23 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         return FileUtil.toFile(dir);
     }
     
-    /*package private*/boolean contains(FileObject file) {
+    private Collection containedFilesCache;
+    
+    /*package private*/synchronized boolean contains(FileObject file) {
         //TODO: more effeciently:
-        DocumentNode doc = source.getDocument();
-        
-        if (doc == null)
+        if (containedFilesCache == null)
             return Utilities.getDefault().compareFiles(source.getMainFile(), file);
-        else
-            return doc.getFiles().contains(file);
+        else {
+//            System.err.println("file=" + file);
+//            
+//            for (Iterator i = containedFilesCache.iterator(); i.hasNext(); ) {
+//                FileObject actualFile = (FileObject) i.next();
+//                
+//                System.err.println("testing file=" + actualFile + ": equals=" + actualFile.equals(file) + ", toFile.equals=" + FileUtil.toFile(actualFile).equals(FileUtil.toFile(file)));
+//            }
+            
+            return containedFilesCache.contains(file);
+        }
     }
     
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
@@ -238,6 +260,22 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         } else {
             settings.rollBack();
         }
+    }
+
+    private synchronized void updateContainedFilesCache() {
+        containedFilesCache = new HashSet(source.getDocument().getFiles());
+    }
+    
+    public void nodesRemoved(LaTeXSource.DocumentChangeEvent evt) {
+        updateContainedFilesCache();
+    }
+
+    public void nodesChanged(LaTeXSource.DocumentChangeEvent evt) {
+        updateContainedFilesCache();
+    }
+
+    public void nodesAdded(LaTeXSource.DocumentChangeEvent evt) {
+        updateContainedFilesCache();
     }
     
     private static class MainStructuralNode extends FilterNode {

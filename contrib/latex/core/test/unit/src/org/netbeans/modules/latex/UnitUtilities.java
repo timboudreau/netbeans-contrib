@@ -16,27 +16,20 @@ package org.netbeans.modules.latex;
 
 
 import java.beans.PropertyVetoException;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
-import javax.swing.text.PlainDocument;
 import junit.framework.Assert;
 import org.netbeans.junit.NbTestCase;
-import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.impl.NBUtilities;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
@@ -144,27 +137,39 @@ public class UnitUtilities extends ProxyLookup {
             if (doc != null)
                 return doc;
             
-            InputStream  fis = ((FileObject) obj).getInputStream();
-            int          read;
-            StringBuffer test = new StringBuffer();
-            
-            while ((read = fis.read()) != (-1)) {
-                test.append((char) read);
-            }
+            InputStream  fis = null;
             
             try {
-                doc = new DefaultStyledDocument();//new PlainDocument();
+                fis = ((FileObject) obj).getInputStream();
+                int          read;
+                StringBuffer test = new StringBuffer();
                 
-                doc.insertString(0, test.toString(), null);
-                doc.putProperty(Document.StreamDescriptionProperty,  obj);
+                while ((read = fis.read()) != (-1)) {
+                    test.append((char) read);
+                }
                 
-                file2Document.put(obj, doc);
-                return doc;
-            } catch (BadLocationException e) {
-                System.err.println("Should !never! happen:");
-                e.printStackTrace();
-                
-                return null;
+                try {
+                    doc = new DefaultStyledDocument();//new PlainDocument();
+                    
+                    doc.insertString(0, test.toString(), null);
+                    doc.putProperty(Document.StreamDescriptionProperty,  obj);
+                    
+                    file2Document.put(obj, doc);
+                    return doc;
+                } catch (BadLocationException e) {
+                    System.err.println("Should !never! happen:");
+                    e.printStackTrace();
+                    
+                    return null;
+                }
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        ErrorManager.getDefault().notify(e);
+                    }
+                }
             }
         }
         

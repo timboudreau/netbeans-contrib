@@ -39,12 +39,12 @@ public class LaTeXFileOwnerQuery implements FileOwnerQueryImplementation {
     }
 
     public Project getOwner(FileObject file) {
-//        System.err.println("getOwner-FO(" + file + ")");
         for (Iterator i = LaTeXGUIProjectFactorySourceFactory.instanceCreate().mainFile2Project.values().iterator(); i.hasNext(); ) {
             LaTeXGUIProject p = (LaTeXGUIProject) i.next();
             
-            if (p.contains(file))
+            if (p.contains(file)) {
                 return p;
+            }
         }
         
         return null;
