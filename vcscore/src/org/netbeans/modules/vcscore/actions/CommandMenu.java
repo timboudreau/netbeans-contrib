@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -544,6 +545,8 @@ public class CommandMenu extends JMenuPlus {
                 buff.append(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer2.text")); //NOI18N
             }
             textArea.setText(buff.toString());
+            textArea.getAccessibleContext().setAccessibleName(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer.a11yName")); // NOI18N
+            textArea.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer.a11yDesc")); // NOI18N
             textArea.setBackground(label1.getBackground());
             textArea.setColumns(50);
             int columnWidth = textArea.getFontMetrics(textArea.getFont()).charWidth('m');
@@ -562,6 +565,8 @@ public class CommandMenu extends JMenuPlus {
             
             Actions.setMenuText(box, NbBundle.getMessage(CommandMenu.class, "CommandMenu.firstTimerBox"), true); //NOI18N
             box.setSelected(false);
+            box.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandMenu.class, "CommandMenu.firstTimerBox.a11yDesc")); // NOI18N
+            box.setToolTipText(NbBundle.getMessage(CommandMenu.class, "CommandMenu.firstTimerBox.a11yDesc")); // NOI18N
             gridBagConstraints1 = new java.awt.GridBagConstraints();
             gridBagConstraints1.gridx = 0;
             gridBagConstraints1.gridy = 4;
@@ -571,11 +576,15 @@ public class CommandMenu extends JMenuPlus {
             gridBagConstraints1.weighty = 0.0;
             panel.add(box, gridBagConstraints1);
             
-            String title = NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer.title"); //NOI18N            
+            String title = NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer.title"); //NOI18N
+            panel.getAccessibleContext().setAccessibleDescription(title);
             DialogDescriptor dd;
+            JButton commandButton = null;
             if (commandName != null) {
-                Object[] options = new Object[] { commandName, NotifyDescriptor.CANCEL_OPTION };
-                dd = new DialogDescriptor(panel, title, true, options, commandName,
+                commandButton = new JButton(commandName);
+                commandButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandMenu.class, "CommandMenu.firstTimer.button.a11yDesc", commandName)); // NOI18N
+                Object[] options = new Object[] { commandButton, NotifyDescriptor.CANCEL_OPTION };
+                dd = new DialogDescriptor(panel, title, true, options, commandButton,
                 DialogDescriptor.DEFAULT_ALIGN, null, null);
             } else {
                 dd = new DialogDescriptor(panel, title, true,
@@ -589,8 +598,8 @@ public class CommandMenu extends JMenuPlus {
             Object retValue = DialogDisplayer.getDefault().notify(ddFin);
             
             // Assure, that one of the buttons was pressed. If not, do nothing.
-            if (commandName == null && !NotifyDescriptor.OK_OPTION.equals(retValue) ||
-            commandName != null && !commandName.equals(retValue)) return false;
+            if (commandButton == null && !NotifyDescriptor.OK_OPTION.equals(retValue) ||
+            commandButton != null && !commandButton.equals(retValue)) return false;
             if (box.isSelected()) {
                 GeneralVcsSettings settings = (GeneralVcsSettings)SharedClassObject.findObject(GeneralVcsSettings.class, true);
                 settings.setAdvancedNotification(false);
