@@ -2957,6 +2957,20 @@ Microsystems, Inc. All Rights Reserved.
 	<value>2</value>
       </property>
     </command>
+    <command name="REVISION_ANNOTATE" displayName="ResourceMsg1(CVS_ANNOTATE)">
+      <property name="labelMnemonic">
+          <value>ResourceMsg1(CVS_ANNOTATE_Mnemonic)</value>
+      </property>
+      <property name="exec">
+        <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} annotate -r ${REVISION} ${QFILE} ${NUR}</value>
+      </property>
+      <property name="numRevisions">
+	<value>1</value>
+      </property>
+      <property name="visualizer">
+        <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.annotate.CvsAnnotateVisualizer</value>
+      </property>
+    </command>
     <command name="REVISION_OPEN">
       <property name="exec">
         <value>${CDW_EXECUTE} -f update -p $[? REVISION] [-r ${REVISION}] [] ${QFILE} ${NUR}</value>
