@@ -25,6 +25,7 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
+import org.openide.text.DataEditorSupport;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
@@ -97,12 +98,12 @@ public class RewriteAction extends NodeAction
         DataObject dobj;
         if (item != null) {
             Line l = item.getLine();
-            dobj = l.getDataObject();
+            dobj = DataEditorSupport.findDataObject(l);
         } else {
             dobj = (DataObject)node[0].getCookie(DataObject.class);
-            if (dobj == null) {
-                return;
-            }
+        }
+        if (dobj == null) {
+            return;
         }
         Document doc = TLUtils.getDocument(dobj);
         if (doc == null) {
