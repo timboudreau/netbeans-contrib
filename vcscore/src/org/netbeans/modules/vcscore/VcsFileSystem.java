@@ -2458,11 +2458,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
         //String result = annotateName (name, files);
-        String fontColor = "<font color='!controlShadow'>";
-        if(javax.swing.UIManager.getDefaults().getColor("Tree.selectionBackground").equals(javax.swing.UIManager.getDefaults().getColor("controlShadow"))){
-            fontColor = "<font color='!Tree.selectionBorderColor'>";
-        }
-        result = Utilities.replaceString(result,name, name + fontColor);
         return result;
     }
 
