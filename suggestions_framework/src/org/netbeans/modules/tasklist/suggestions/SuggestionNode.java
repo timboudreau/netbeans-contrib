@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -58,8 +58,10 @@ class SuggestionNode extends TaskNode {
         this.item = item;
         if (item.getAction() instanceof LineSuggestionPerformer) {
             setDefaultAction(SystemAction.get(GoToTaskAction.class));
-        } else {
+        } else if (item.getAction() != null) {
             setDefaultAction(SystemAction.get(AutoFixAction.class));
+        } else {
+            setDefaultAction(null);
         }
     }
 

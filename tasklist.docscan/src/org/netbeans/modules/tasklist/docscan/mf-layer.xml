@@ -17,8 +17,8 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Suggestions">
       <folder name="Types">
-        <file name="org-netbeans-modules-tastklist-docscan-copyright_suggestion.xml" url="copyright_suggestion.xml"/>
-        <file name="org-netbeans-modules-tastklist-docscan-scanned_task.xml" url="scanned_task.xml"/>
+        <file name="org-netbeans-modules-tasklist-docscan-copyright_suggestion.xml" url="copyright_suggestion.xml"/>
+        <file name="org-netbeans-modules-tasklist-docscan-scanned_task.xml" url="scanned_task.xml"/>
       </folder>
     </folder>
 

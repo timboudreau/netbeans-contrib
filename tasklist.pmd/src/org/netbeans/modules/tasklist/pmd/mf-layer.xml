@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+  <folder name="Suggestions">
+      <folder name="Types">
+        <file name="pmd-rule_violation.xml" url="rule_violation.xml"/>
+      </folder>
+  </folder>
+  <folder name="Services">
+       <folder name="SuggestionProviders">
+          <file name="pmd-ViolationProvider.instance">
+             <attr name="instanceOf" stringvalue="org.netbeans.api.tasklist.SuggestionProvider"/>
+             <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.pmd.ViolationProvider"/>
+          </file>
+       </folder>
+  </folder>
+</filesystem>
