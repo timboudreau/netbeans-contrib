@@ -16,6 +16,8 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
+import org.netbeans.api.tasklist.SuggestionContext;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -74,10 +76,9 @@ public class SourceCodeCommentParser {
     /**
      * Set the document to parse
      * @param doc the document to parse
-     * @throws javax.swing.text.BadLocationException if anythings goes wrong
      */
-    public void setDocument(Document doc) throws BadLocationException {
-        parser.setDocument(doc);
+    public void setDocument(SuggestionContext env) {
+        parser.setDocument(env);
     }
     
     /**
@@ -140,10 +141,9 @@ public class SourceCodeCommentParser {
         /**
          * Set the document to parse
          * @param doc the document to parse
-         * @throws javax.swing.text.BadLocationException when....
          */
-        public void setDocument(Document doc) throws BadLocationException {
-            String text = DocumentUtil.extractString(doc);
+        public void setDocument(SuggestionContext env) {
+            String text = (String) env.getCharSequence(); //XXX downcast
             this.doc = new BufferedReader(new StringReader(text));
             lineno = 0;
             rest = null;

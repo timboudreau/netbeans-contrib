@@ -28,10 +28,12 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import java.util.regex.*;
+import java.io.IOException;
 
 import org.openide.ErrorManager;
 import org.openide.text.Line;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 
 // I was tempted to use BaseDocument here, since it has various
 // advantages such as utilities for computing line numbers, access
@@ -70,6 +72,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
 
     // navigate to suggestion line
     private static final SuggestionPerformer GOTO_PERFORMER = new GotoLineSuggestionPerformer();
+    private SuggestionContext env;
 
     /**
      * Return the typenames of the suggestions that this provider
@@ -87,7 +90,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
      * <p>
      * @param document The document being shown
      */
-    public void docShown(Document document, DataObject dataobject) {
+    public void docShown(SuggestionContext env) {
         Settings settings = (Settings)Settings.findObject(Settings.class, true);
         settings.addPropertyChangeListener(this);
     }
@@ -98,7 +101,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
      * <p>
      * @param document The document being hidden
      */
-    public void docHidden(Document document, DataObject dataobject) {
+    public void docHidden(SuggestionContext env) {
         Settings settings = (Settings)Settings.findObject(Settings.class, true);
         settings.removePropertyChangeListener(this);
      }
@@ -110,11 +113,10 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         rescan();
     }
 
-    public void rescan(Document doc, DataObject dobj, Object request) {
-        dataobject = dobj;
-        document = doc;
+    public void rescan(SuggestionContext env, Object request) {
+        this.env = env;
         this.request = request;
-        List newTasks = scan(doc, dobj);
+        List newTasks = scan(env);
         SuggestionManager manager = SuggestionManager.getDefault();
 
         if ((newTasks == null) && (showingTasks == null)) {
@@ -124,7 +126,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         showingTasks = newTasks;
     }
     
-    public List scan(Document doc, DataObject dobj) {
+    public List scan(final SuggestionContext env) {
         SuggestionManager manager = SuggestionManager.getDefault();
         if (!manager.isEnabled(TYPE)) {
             return null;
@@ -141,15 +143,15 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         boolean skipCode = settings.getSkipComments();
         List tasks = null;
         if (skipCode) {
-            tasks = scanCommentsOnly(doc, dobj);
+            tasks = scanCommentsOnly(env);
         } else {
-            tasks = scanAll(doc, dobj);
+            tasks = scanAll(env);
         }
         return tasks;
     }
     
     
-    public void clear(Document document, DataObject dataobject,
+    public void clear(SuggestionContext env,
                       Object request) {
 	// Remove existing items
         if (showingTasks != null) {
@@ -172,12 +174,12 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
      * @param doc The document to scan
      * @param dobj The data object whose primary file should be scanned
      */
-    private List scanCommentsOnly(Document doc, DataObject dobj) {
+    private List scanCommentsOnly(SuggestionContext env) {
         ArrayList newTasks = new ArrayList();
         SourceCodeCommentParser sccp = null;
         boolean washComment = true;
 
-        String suffix = dobj.getPrimaryFile().getExt();
+        String suffix = env.getFileObject().getExt();
             
         // @todo These parameters should be configured somewhere.
         //       Since I don't know how I am going to store the data, I 
@@ -201,12 +203,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
             sccp = new SourceCodeCommentParser();
         }
 
-        try {
-            sccp.setDocument(doc);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-            return null;
-        }
+        sccp.setDocument(env);
         SourceCodeCommentParser.CommentLine cl =
             new SourceCodeCommentParser.CommentLine();
         
@@ -255,7 +252,13 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                                                 description,
                                                 null,
                                                 this);
-                    item.setLine(TLUtils.getLineByNumber(dobj, cl.lineno));
+                    try {
+                        DataObject dataObject = DataObject.find(env.getFileObject());
+                        item.setLine(TLUtils.getLineByNumber(dataObject, cl.lineno));
+                    } catch (IOException ex) {
+
+                    }
+
                     if (matchTag != null) {
                         item.setPriority(matchTag.getPriority());
                     }
@@ -275,10 +278,10 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
      * @param doc The document to scan
      * @param dobj The data object whose primary file should be scanned
      */
-    private List scanAll(Document doc, DataObject dobj) {
+    private List scanAll(SuggestionContext env) {
         ArrayList newTasks = new ArrayList();
  
-      	String text = DocumentUtil.extractString(doc);
+      	CharSequence text = env.getCharSequence();
 
         TaskTag matchTag = null;
         try {
@@ -328,7 +331,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                 
                 index = end;
                 
-                String description = text.substring(begin, nonwhite+1);
+                String description = text.subSequence(begin, nonwhite+1).toString();
 
                 SuggestionManager manager = SuggestionManager.getDefault();
                 Suggestion item = 
@@ -336,7 +339,8 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                                              description,
                                              null,
                                              this);
-                item.setLine(TLUtils.getLineByNumber(dobj, lineno));
+                DataObject dataObject = DataObject.find(env.getFileObject());
+                item.setLine(TLUtils.getLineByNumber(dataObject, lineno));
                 if (matchTag != null) {
                     item.setPriority(matchTag.getPriority());
                 }
@@ -350,14 +354,14 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         return newTasks;
     }
     
-    private TaskTag getTag(String text, int start, int end) {
-        String token = text.substring(start, end).trim();
+    private TaskTag getTag(CharSequence text, int start, int end) {
+        String token = text.subSequence(start, end).toString().trim();
         TaskTag tag = tags.getTag(token);
         return tag;
     }    
 
     private void rescan() {
-        rescan(document, dataobject, request);
+        rescan(env, request);
     }
 
 
@@ -381,8 +385,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
 
-    private DataObject dataobject = null;
-    private Document document = null;
     private Object request = null;
 
     /** Regular expression used for matching tasks in the todolist */

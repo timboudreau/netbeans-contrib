@@ -38,6 +38,7 @@ import org.openide.explorer.view.*;
 import org.openide.nodes.*;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -63,17 +64,17 @@ import org.openide.src.Identifier;
 public class ViolationProvider extends DocumentSuggestionProvider {
 
     final private static String TYPE = "pmd-violations"; // NOI18N
+    private SuggestionContext env;
 
     public String[] getTypes() {
         return new String[] { TYPE };
     }
 
     // javadoc in super()
-    public void rescan(Document doc, DataObject dobj, Object request) {
-        dataobject = dobj;
-        document = doc;
+    public void rescan(SuggestionContext env, Object request) {
+        this.env = env;
         this.request = request;
-        List newTasks = scan(doc, dobj);
+        List newTasks = scan(env);
         SuggestionManager manager = SuggestionManager.getDefault();
 
         if ((newTasks == null) && (showingTasks == null)) {
@@ -84,10 +85,10 @@ public class ViolationProvider extends DocumentSuggestionProvider {
     }
 
     void rescan() {
-        rescan(document, dataobject, request);
+        rescan(env, request);
     }
     
-    public List scan(Document doc, DataObject dobj) {
+    public List scan(SuggestionContext env) {
         List tasks = null;
         try {
             
@@ -96,22 +97,16 @@ public class ViolationProvider extends DocumentSuggestionProvider {
             return null;
         }
 
+        DataObject dataObject = DataObject.find(env.getFileObject());
         SourceCookie cookie =
-            (SourceCookie)dobj.getCookie(SourceCookie.class);
+            (SourceCookie)dataObject.getCookie(SourceCookie.class);
 
         // The file is not a java file
         if(cookie == null) {
             return null;
         }
 
-        String text = null;
-        try {
-            int len = doc.getLength();
-            text = doc.getText(0, len);
-        } catch (BadLocationException e) {
-            ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
-            return null;
-        }
+        String text = (String) env.getCharSequence();
         Reader reader = new StringReader(text);
         // XXX got an unexplained NPE in here somewhere...
         ClassElement[] topClazzes = cookie.getSource().getClasses();
@@ -450,7 +445,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         return jPanel1;
     }
 
-    public void clear(Document document, DataObject dataobject, 
+    public void clear(SuggestionContext env,
                       Object request) {
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
@@ -462,7 +457,5 @@ public class ViolationProvider extends DocumentSuggestionProvider {
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
 
-    private DataObject dataobject = null;
-    private Document document = null;
     private Object request = null;
 }

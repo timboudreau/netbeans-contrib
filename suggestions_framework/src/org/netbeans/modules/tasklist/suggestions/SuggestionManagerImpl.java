@@ -486,8 +486,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
             if ((document != null) &&
                 (provider instanceof DocumentSuggestionProvider)) {
-                ((DocumentSuggestionProvider)provider).docShown(document, dataobject);
-                ((DocumentSuggestionProvider)provider).rescan(document, dataobject, currRequest);
+                ((DocumentSuggestionProvider)provider).docShown(new SuggestionContext(dataobject));
+                ((DocumentSuggestionProvider)provider).rescan(new SuggestionContext(dataobject), currRequest);
             }
         } else {
             if (!allTypes) {
@@ -505,8 +505,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
             
             // Remove suggestions of this type
             if (provider instanceof DocumentSuggestionProvider) {
-                ((DocumentSuggestionProvider)provider).clear(document, dataobject, currRequest);
-                ((DocumentSuggestionProvider)provider).docHidden(document, dataobject);
+                ((DocumentSuggestionProvider)provider).clear(new SuggestionContext(dataobject), currRequest);
+                ((DocumentSuggestionProvider)provider).docHidden(new SuggestionContext(dataobject));
             }
             provider.notifyStop();
             provider.notifyFinish();
@@ -1122,28 +1122,20 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 if (edit == null) {
                     continue;
                 }
-	
-                Document doc;
-                try {
-                    doc = edit.openDocument(); // DOES block
-                } catch (IOException e) {
-                    continue;
-                }
-                if (doc == null) {
-                    continue;
-                }
+
+                SuggestionContext env = new SuggestionContext(f);
 
                 StatusDisplayer.getDefault ().setStatusText(
                    NbBundle.getMessage(ScanSuggestionsAction.class,
                                        "ScanningFile", // NOI18N
                                        f.getPrimaryFile().getNameExt()));
 
-                scan(doc, list, f);
+                scan(list, env);
             }
         }
     }
     
-    void scan(Document doc, SuggestionList list, DataObject f) {
+    void scan(SuggestionList list, SuggestionContext env) {
         List providers = getProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
@@ -1151,7 +1143,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if (((unfiltered == null) ||
             (unfiltered == provider)) &&
             (provider instanceof DocumentSuggestionProvider)) {
-                List l = ((DocumentSuggestionProvider)provider).scan(doc, f);
+                List l = ((DocumentSuggestionProvider)provider).scan(env);
                 if (l != null) {
                     // XXX ensure that scan returns a homogeneous list of tasks
                     register(provider.getTypes()[0], l, null, list, null,
@@ -1675,7 +1667,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     if (stats) {
                         start = System.currentTimeMillis();
                     }
-                    provider.rescan(document, dataobject, origRequest);
+                    provider.rescan(new SuggestionContext(dataobject), origRequest);
                     if (stats) {
                         end = System.currentTimeMillis();
                         System.out.println("Scan time for provider " + provider.getClass().getName() + " = " + (end-start) + " ms");
@@ -1713,7 +1705,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
             if (((unfiltered == null) || (provider == unfiltered))
                    && scanOnShow(provider)) {
-                provider.docShown(document, dataobject);
+                provider.docShown(new SuggestionContext(dataobject));
             }
         }
         haveShown = currRequest;
@@ -1754,8 +1746,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
-                provider.clear(document, dataobject, currRequest);
-                provider.docHidden(document, dataobject);
+                provider.clear(new SuggestionContext(dataobject), currRequest);
+                provider.docHidden(new SuggestionContext(dataobject));
             }
         }
     }

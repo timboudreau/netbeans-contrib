@@ -28,6 +28,7 @@ import org.openide.explorer.view.*;
 import org.openide.util.Utilities;
 
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.Line;
 
 import org.netbeans.modules.html.*;
@@ -48,16 +49,16 @@ public class TidySuggester extends DocumentSuggestionProvider
     implements ErrorReporter  {
 
     final private static String TYPE = "nb-html-errors"; // NOI18N
+    private SuggestionContext env;
 
     public String[] getTypes() {
         return new String[] { TYPE };
     }
     
-    public void rescan(Document doc, DataObject dobj, Object request) {
-        dataobject = dobj;
-        document = doc;
+    public void rescan(SuggestionContext env, Object request) {
+        this.env = env;
         this.request = request;
-        List newTasks = scan(doc, dobj);
+        List newTasks = scan(env);
         SuggestionManager manager = SuggestionManager.getDefault();
 
         if ((newTasks == null) && (showingTasks == null)) {
@@ -70,7 +71,7 @@ public class TidySuggester extends DocumentSuggestionProvider
     /** Package private rescan: called when you've rewritten
         the HTML for example */
     void rescan() {
-        rescan(document, dataobject, request);
+        rescan(env, request);
     }
 
     static boolean isHTML(DataObject dobj) {
@@ -97,8 +98,16 @@ public class TidySuggester extends DocumentSuggestionProvider
             (dobj.getClass().getName().indexOf("XMLDataObject") != -1); // NOI18N
     }
                          
-    public List scan(Document doc, final DataObject dobj) {
-         // XXX instanceof not good - I've heard data object
+    public List scan(SuggestionContext env) {
+
+        DataObject dobj = null;
+        try {
+            dobj = DataObject.find(env.getFileObject());
+        } catch (DataObjectNotFoundException e) {
+            return null;
+        }
+
+        // XXX instanceof not good - I've heard data object
          // instancing like this is going away. Look for
          // some kind of HTML related cookie instead?
          boolean isHTML = isHTML(dobj);
@@ -119,15 +128,9 @@ public class TidySuggester extends DocumentSuggestionProvider
         parseObject = dobj;
         if (manager.isEnabled(TYPE)) {
             InputStream input = null;
-            try {
-                String text = doc.getText(0, doc.getLength());
-                input = new StringBufferInputStream(text);
-            } catch (BadLocationException e) {
-                ErrorManager.getDefault().
-                    notify(ErrorManager.WARNING, e);
-                return null;
-            }
-            
+            String text = (String) env.getCharSequence(); //XXX downcast, InputStream from FileObject
+            input = new StringBufferInputStream(text);
+
             if (tidy == null) {
                 tidy = new Tidy();
             }
@@ -147,7 +150,7 @@ public class TidySuggester extends DocumentSuggestionProvider
         return parseTasks;
     }
 
-    public void clear(Document document, DataObject dataobject, 
+    public void clear(SuggestionContext env,
                       Object request) {
         // Remove existing items
         if (showingTasks != null) {
@@ -187,8 +190,6 @@ public class TidySuggester extends DocumentSuggestionProvider
         parseTasks.add(s);
     }
 
-    private DataObject dataobject = null;
-    private Document document = null;
     private Object request = null;
     private Tidy tidy = null;
 }

@@ -32,6 +32,7 @@ import org.openide.nodes.*;
 import org.openide.filesystems.FileUtil;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -66,11 +67,16 @@ public class ViolationProvider extends DocumentSuggestionProvider
     }
 
     // javadoc in super()
-    public void rescan(Document doc, DataObject dobj, Object request) {
-        dataobject = dobj;
-        document = doc;
+    public void rescan(SuggestionContext env, Object request) {
+        try {
+            dataobject = DataObject.find(env.getFileObject());
+        } catch (DataObjectNotFoundException e) {
+            e.printStackTrace();
+        }
+        document = env.getDocument();
+        this.env = env;
         this.request = request;
-        List newTasks = scan(doc, dobj);
+        List newTasks = scan(env);
         SuggestionManager manager = SuggestionManager.getDefault();
 
         if ((newTasks == null) && (showingTasks == null)) {
@@ -81,14 +87,14 @@ public class ViolationProvider extends DocumentSuggestionProvider
     }
 
     void rescan() {
-        rescan(document, dataobject, request);
+        rescan(env, request);
     }
 
     /** List "owned" by the scan() method and updated by the audit listener
      * methods. */
     private List tasks = null;
     
-    public List scan(Document doc, DataObject dobj) {
+    public List scan(SuggestionContext env) {
         tasks = null;
 
         SuggestionManager manager = SuggestionManager.getDefault();
@@ -121,7 +127,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
         // not the buffer contents! However, checkstyle doesn't seem to
         // have an API where I can pass in a string reader - it wants to
         // read the files directly! XXX
-        File file = FileUtil.toFile(dobj.getPrimaryFile());
+        File file = FileUtil.toFile(env.getFileObject());
         if (file != null) {
             try {
                 // TODO: this should only be done once, not for each scan!!!
@@ -153,7 +159,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
         return tasks;
     }
     
-    public void clear(Document document, DataObject dataobject, 
+    public void clear(SuggestionContext env,
                       Object request) {
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
@@ -257,6 +263,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
 
+    private SuggestionContext env;
     private DataObject dataobject = null;
     private Document document = null;
     private Object request = null;
