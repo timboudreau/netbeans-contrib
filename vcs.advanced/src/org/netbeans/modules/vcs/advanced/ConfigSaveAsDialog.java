@@ -51,21 +51,13 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
         fillFileList();
         this.setSize(340, 265);
         initAccessibility();
-        ActionListener list = new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkToEnableSave();
-            }
-        };
-        FocusAdapter focusList = new java.awt.event.FocusAdapter() {         
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                checkToEnableSave();
-            }
-        };
-
-        this.configLabelTextField.addActionListener(list);
-        this.fileNameTextField.addActionListener(list);
-        this.configLabelTextField.addFocusListener(focusList);
-        this.fileNameTextField.addFocusListener(focusList);
+        EnableSaveListener saveListener = new EnableSaveListener();
+        this.configLabelTextField.addActionListener(saveListener);
+        this.fileNameTextField.addActionListener(saveListener);
+        this.configLabelTextField.addFocusListener(saveListener);
+        this.fileNameTextField.addFocusListener(saveListener);
+        this.configLabelTextField.addKeyListener(saveListener);
+        this.fileNameTextField.addKeyListener(saveListener);
         checkToEnableSave();
     }
     
@@ -305,4 +297,27 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
     private javax.swing.JLabel configLabelLabel;
     // End of variables declaration//GEN-END:variables
 
+    private class EnableSaveListener extends FocusAdapter implements ActionListener, KeyListener {
+        
+        public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
+            checkToEnableSave();
+        }
+        
+        public void focusLost(java.awt.event.FocusEvent evt) {
+            checkToEnableSave();
+        }
+        
+        public void keyPressed(java.awt.event.KeyEvent keyEvent) {
+            checkToEnableSave();
+        }
+        
+        public void keyReleased(java.awt.event.KeyEvent keyEvent) {
+            checkToEnableSave();
+        }
+        
+        public void keyTyped(java.awt.event.KeyEvent keyEvent) {
+            checkToEnableSave();
+        }
+        
+    }
 }
