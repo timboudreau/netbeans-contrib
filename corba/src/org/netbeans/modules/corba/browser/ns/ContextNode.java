@@ -16,6 +16,7 @@ package org.netbeans.modules.corba.browser.ns;
 import org.omg.CORBA.*;
 import org.omg.CosNaming.*;
 
+import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.Vector;
@@ -41,7 +42,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     public static final boolean DEBUG = false;
     //public static final boolean DEBUG = true;
 
-
+    
+    private static ContextNode singletonInstance;
     private ORB orb;
     private NamingContext context;
     private Binding binding;
@@ -56,12 +58,83 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
 
 
     private CORBASupportSettings css;
+    
+    static {
+        singletonInstance = null;
+    }
+    
+    class CosNamingCookieImpl implements CosNamingCookie {
+        
+        private org.netbeans.modules.corba.browser.ns.wrapper.AbstractWrapper wrapper;
+	
+	public void performInteractive () {
+            final StartPanel panel = new StartPanel ();
+            panel.setPort ((short)900);
+            panel.setName (NbBundle.getBundle(ContextNode.class).getString("VAL_Local"));
+            DialogDescriptor dd = new DialogDescriptor (panel, NbBundle.getBundle(ContextNode.class).getString("TXT_LocalNS"),true,DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, DialogDescriptor.BOTTOM_ALIGN, null, null);
+            Dialog dlg = TopManager.getDefault().createDialog(dd);
+            dlg.setVisible(true);
+            if (dd.getValue() == DialogDescriptor.OK_OPTION) {
+                dlg.setVisible (false);
+                dlg.dispose();
+                start (panel.getName(), panel.getPort());
+            }
+            else {
+                dlg.setVisible (false);
+                dlg.dispose();
+            }
+        }
+	
+	public void start (String name, short port) {
+            try {
+                if (this.wrapper == null) {
+                    try {
+                        // Is it IBM JDK
+                        Class.forName ("com.ibm.CosNaming.TransientNameServer");
+                        this.wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.IBMWrapper();
+                        this.wrapper.start (port);
+                    }catch (ClassNotFoundException cnfe) {
+                        try {
+                            // Is it Sun 1.2 JDK, Apple JDK, Blackdown JDK
+                            Class.forName ("com.sun.CosNaming.TransientNameServer");
+                            this.wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.SunWrapper();
+                            this.wrapper.start(port);
+                        }catch (ClassNotFoundException cnfe2) {
+                            try {
+                                // Is it Sun 1.3 JDK
+                                Class.forName ("com.sun.corba.se.internal.CosNaming.TransientNameServer");
+                                this.wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.Sun13Wrapper();
+                                this.wrapper.start(port);
+                            }catch (ClassNotFoundException cnfe3) {
+                                TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ContextNode.class).getString("TXT_ClassNotFound"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                            }
+                        }
+                    }
+                }
+                
+                String ior = this.wrapper.getIOR();
+                if (ior == null) {
+                    TopManager.getDefault().notify(new NotifyDescriptor.Message (java.text.MessageFormat.format (NbBundle.getBundle(ContextNode.class).getString("TXT_BadPort"),new java.lang.Object[]{new Short (port)}),NotifyDescriptor.Message.ERROR_MESSAGE));
+                }
+                bind_new_context (name,"","",ior);
+            }catch (Exception se) {
+                TopManager.getDefault().notify (new NotifyDescriptor.Message (se.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
+            }
+	}
+	
+	public void stop () {
+            if (wrapper != null)
+                wrapper.stop();
+        }
+	
+    }
 
     public ContextNode () {
         super (new ContextChildren ());
         //super (Children.LEAF);
         setName (NbBundle.getBundle(ContextNode.class).getString("CTL_CORBANamingService")); 
         _root = true;
+        singletonInstance = this;
         init ();
     }
 
@@ -121,8 +194,10 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
         else {
             setIconBase (ICON_BASE_ROOT);
             systemActions = new SystemAction[] {
-                            SystemAction.get (org.netbeans.modules.corba.browser.ns.BindNewContext.class)
+                            SystemAction.get (org.netbeans.modules.corba.browser.ns.BindNewContext.class),
+							SystemAction.get (org.netbeans.modules.corba.browser.ns.StartLocal.class)
                         };
+	    this.getCookieSet().add ( new CosNamingCookieImpl ());
         }
         setDisplayName (getName ());
 
@@ -236,13 +311,17 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             //}
         }
 
-        if (!ior.equals ("")) {
+        else if (!ior.equals ("")) { 
             if (orb == null)
                 lazyInit();
             org.omg.CORBA.Object o = orb.string_to_object (ior);
             nc = NamingContextHelper.narrow (o);
             if (nc == null)
                 TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ContextNode.class).getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
+        }
+        else {
+            TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ContextNode.class).getString ("CTL_InvalidParams"), NotifyDescriptor.Message.ERROR_MESSAGE));
+            return;
         }
 
         //if (context == null) {
@@ -403,6 +482,10 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             //}
         }
         ((ContextChildren)getChildren ()).addNotify ();
+    }
+    
+    public static ContextNode getDefault () {
+        return singletonInstance;
     }
 
 

@@ -55,30 +55,36 @@ public class CopyClientCode extends NodeAction {
     protected void performAction (final Node[] activatedNodes) {
         if (DEBUG)
             System.out.println ("CopyClientCode.java");
-        Vector names = new Vector ();
-        Node tmp_node = activatedNodes[0];
-        ObjectNode on = (ObjectNode)tmp_node.getCookie (ObjectNode.class);
-        names.add (on.getName ());
-        names.add (on.getKind ());
-        tmp_node = on.getParentNode ();
-        while (tmp_node.getParentNode () != null) {
-            ContextNode cn = (ContextNode)tmp_node.getCookie (ContextNode.class);
-            tmp_node = tmp_node.getParentNode ();
-            names.add (cn.getName ());
-            names.add (cn.getKind ());
-        }
-        String paste = new String ("      String[] client_name_hierarchy = new String [] {");
-        for (int i=names.size () - 6; i>=0; i=i-2) {
-            paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i)) + "\"" + ", ";
-            paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i+1)) + "\"" + ", ";
-        }
-        if (paste.substring (paste.length () - 2, paste.length ()).equals (", "))
-            paste = paste.substring (0, paste.length () - 2);
-        paste = paste + "};\n";
-        if (DEBUG)
-            System.out.println ("names: " + paste);
-        StringSelection ss = new StringSelection (paste);
-        TopManager.getDefault().getClipboard().setContents(ss, null);
+        TopManager.getDefault().setStatusText(NbBundle.getBundle(CopyClientCode.class).getString("TXT_GeneratingCode"));
+        RequestProcessor.postRequest ( new Runnable () {
+            public void run () {
+                Vector names = new Vector ();
+                Node tmp_node = activatedNodes[0];
+                ObjectNode on = (ObjectNode)tmp_node.getCookie (ObjectNode.class);
+                names.add (on.getName ());
+                names.add (on.getKind ());
+                tmp_node = on.getParentNode ();
+                while (tmp_node.getParentNode () != null) {
+                    ContextNode cn = (ContextNode)tmp_node.getCookie (ContextNode.class);
+                    tmp_node = tmp_node.getParentNode ();
+                    names.add (cn.getName ());
+                    names.add (cn.getKind ());
+                }
+                String paste = new String ("      String[] client_name_hierarchy = new String [] {");
+                for (int i=names.size () - 6; i>=0; i=i-2) {
+                    paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i)) + "\"" + ", ";
+                    paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i+1)) + "\"" + ", ";
+                }
+                if (paste.substring (paste.length () - 2, paste.length ()).equals (", "))
+                    paste = paste.substring (0, paste.length () - 2);
+                paste = paste + "};\n";
+                if (DEBUG)
+                    System.out.println ("names: " + paste);
+                StringSelection ss = new StringSelection (paste);
+                TopManager.getDefault().getClipboard().setContents(ss, null);
+                TopManager.getDefault().setStatusText (NbBundle.getBundle(CopyClientCode.class).getString("TXT_CodeGenerated"));
+            }
+        });
 
     }
 

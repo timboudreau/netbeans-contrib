@@ -55,29 +55,35 @@ public class CopyServerCode extends NodeAction {
     protected void performAction (final Node[] activatedNodes) {
         if (DEBUG)
             System.out.println ("CopyServerCode.java");
-        Vector names = new Vector ();
-        Node tmp_node = activatedNodes[0];
-        while (tmp_node.getParentNode () != null) {
-            ContextNode cn = (ContextNode)tmp_node.getCookie (ContextNode.class);
-            tmp_node = tmp_node.getParentNode ();
-            names.add (cn.getName ());
-            names.add (cn.getKind ());
-        }
-        String paste = new String ("      String[] hierarchy_of_contexts = new String [] {");
-        for (int i=names.size () - 6; i>=0; i=i-2) {
-            paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i)) + "\"" + ", ";
-            paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i+1)) + "\"" + ", ";
-        }
-        if (paste.substring (paste.length () - 2, paste.length ()).equals (", "))
-            paste = paste.substring (0, paste.length () - 2);
-        paste = paste + "};\n";
-        // server name
-        paste = paste + "      String[] name_of_server = new String [] {\"<name of server>\", ";
-        paste = paste + "\"<kind of server>\"};\n";
-        if (DEBUG)
-            System.out.println ("names: " + paste);
-        StringSelection ss = new StringSelection (paste);
-        TopManager.getDefault().getClipboard().setContents(ss, null);
+        org.openide.TopManager.getDefault().setStatusText(NbBundle.getBundle(CopyServerCode.class).getString ("TXT_GeneratingCode"));
+        org.openide.util.RequestProcessor.postRequest ( new Runnable () {
+            public void run () {
+                Vector names = new Vector ();
+                Node tmp_node = activatedNodes[0];
+                while (tmp_node.getParentNode () != null) {
+                    ContextNode cn = (ContextNode)tmp_node.getCookie (ContextNode.class);
+                    tmp_node = tmp_node.getParentNode ();
+                    names.add (cn.getName ());
+                    names.add (cn.getKind ());
+                }
+                String paste = new String ("      String[] hierarchy_of_contexts = new String [] {");
+                for (int i=names.size () - 6; i>=0; i=i-2) {
+                    paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i)) + "\"" + ", ";
+                    paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i+1)) + "\"" + ", ";
+                }
+                if (paste.substring (paste.length () - 2, paste.length ()).equals (", "))
+                paste = paste.substring (0, paste.length () - 2);
+                paste = paste + "};\n";
+                // server name
+                paste = paste + "      String[] name_of_server = new String [] {\"<name of server>\", ";
+                paste = paste + "\"<kind of server>\"};\n";
+                if (DEBUG)
+                    System.out.println ("names: " + paste);
+                StringSelection ss = new StringSelection (paste);
+                TopManager.getDefault().getClipboard().setContents(ss, null);
+                TopManager.getDefault().setStatusText(NbBundle.getBundle(CopyServerCode.class).getString("TXT_CodeGenerated"));
+            }
+        });
 
     }
 

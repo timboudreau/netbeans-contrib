@@ -24,27 +24,40 @@ import org.openide.*;
 
 
 import org.netbeans.modules.corba.*;
+import org.netbeans.modules.corba.browser.ir.util.AsyncTarget;
 
 /*
  * @author Karel Gardas
  */
 
-public class ContextChildren extends Children.Keys {
+public class ContextChildren extends Children.Keys implements AsyncTarget {
 
     private NamingContext context;
     private ContextNode _context_node;
+    private int state;
+    private Node waitNode;
+    
+    public static final short NOT_INITIALIZED = 0;
+    public static final short TRANSIENT = 1;
+    public static final short INITIALIZED = 2;
 
     public static final boolean DEBUG = false;
     //public static final boolean DEBUG = true;
 
     public ContextChildren () {
         super ();
+        this.state = NOT_INITIALIZED;
     }
 
     public void addNotify () {
         if (DEBUG)
             System.out.println ("addNotify ()");
-        createKeys ();
+        synchronized (this) {
+            this.state = TRANSIENT;
+        }
+        this.waitNode = new org.netbeans.modules.corba.browser.ir.nodes.WaitNode ();
+        this.add ( new Node[] { this.waitNode});
+        org.netbeans.modules.corba.browser.ir.IRRootNode.getDefault().performAsync (this);
     }
 
 
@@ -132,6 +145,24 @@ public class ContextChildren extends Children.Keys {
 
     public org.openide.nodes.Node[] createNodes (java.lang.Object key) {
         return new Node[] { (Node)key };
+    }
+    
+    
+    public void preinvoke () {
+    }
+    
+    public void invoke () {
+            createKeys ();
+    }
+    
+    public void postinvoke () {
+        if (this.waitNode != null) {
+            remove ( new Node[] {this.waitNode});
+            this.waitNode = null;
+        }
+        synchronized (this) {
+            this.state = INITIALIZED;
+        }
     }
 
 }
