@@ -12,14 +12,16 @@
  */
 package org.netbeans.modules.tasklist.usertasks;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Color;
+import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  * This is a small panel to allow the user to select a full date. When I
@@ -28,29 +30,54 @@ import javax.swing.ListSelectionModel;
  * remember the format each time.... Well, the panel "works for me now" so I
  * move on to the next phase in my project, but one should really:
  *
- * @todo Make sure todays day is selected when the dialog is opened
- * @todo There should <UL>always</UL> be one selected day
  * @todo The panel is too big...
- * @todo I should have a constructor that initializes the panel to show a
- *       given date...
  * @todo +++
  *
  * @author  Trond Norbye
  */
 public class DateSelectionPanel extends javax.swing.JPanel {
-    GregorianCalendar calendar;
-    SimpleDateFormat  format;
+    /**
+     * A calendar object I use for varius things (mostly for converting values
+     * to string representation...
+     */
+    private GregorianCalendar       calendar;
+    /**
+     * A SimpleDateFormat I use for conversion to/from textual representation
+     * of date fields
+     */
+    private SimpleDateFormat        format;
+    /**
+     * The tablemodel behind the day-selection table (most of the 
+     * &quot;logic&quot; resides inside this class....
+     */
+    private DateSelectionTableModel tablemodel;
+    /**
+     * The renderer I use to render the cells in the JTable (I wanted the
+     * day label to be centered, and todays date to be red....
+     */
+    private CalendarRenderer        renderer;
     
     /** Creates new form DateSelectionPanel */
     public DateSelectionPanel() {
+        this(new Date());
+    }
+    
+    /** Create a new DateSelectionPanel with the given date selected... */
+    public DateSelectionPanel(Date date) {
         initComponents();
-        
+
+        // The table model will never change, so I might as well store it
+        // here so I don't need to get it each time...
+        tablemodel = (DateSelectionTableModel)calendarTable.getModel();
+        calendarTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        renderer = new CalendarRenderer();
+        calendarTable.setDefaultRenderer(String.class, renderer);
+                
         calendar = new GregorianCalendar();
-        yearFld.setText("" + calendar.get(calendar.YEAR));
+        yearFld.setText(Integer.toString(calendar.get(calendar.YEAR)));
         
         format = new SimpleDateFormat("HH:mm:ss");
-        timeFld.setText("" + format.format(calendar.getTime()));
-        
+        timeFld.setText(format.format(date));        
         format.applyPattern("MMMM");
         
         int curr = calendar.get(calendar.MONTH);
@@ -64,8 +91,10 @@ public class DateSelectionPanel extends javax.swing.JPanel {
             calendar.roll(calendar.MONTH, 1);
         }
         monthNameCmb.setSelectedIndex(curr);
-        
-        calendarTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        calendar.setTime(date);
+        tablemodel.setMonth(calendar.get(calendar.MONTH));
+        tablemodel.setYear(calendar.get(calendar.MONTH));
+        tablemodel.setSelectedDay(calendar.get(calendar.DAY_OF_MONTH));
     }
     
     /**
@@ -78,15 +107,7 @@ public class DateSelectionPanel extends javax.swing.JPanel {
             calendar.setTime(format.parse(timeFld.getText()));
             calendar.set(calendar.MONTH, monthNameCmb.getSelectedIndex());
             calendar.set(calendar.YEAR, Integer.parseInt(yearFld.getText()));
-            
-            DateSelectionTableModel dm;
-            dm = (DateSelectionTableModel)calendarTable.getModel();
-            
-            int x = calendarTable.getSelectedColumn();
-            int y = calendarTable.getSelectedRow();
-            int day = Integer.parseInt((String)dm.getValueAt(y, x));
-            calendar.set(calendar.DAY_OF_MONTH, day);
-            
+            calendar.set(calendar.DAY_OF_MONTH, tablemodel.getSelectedDay());            
             ret = calendar.getTime();
         } catch (Exception e) {
             // When I'm done, this should never happen....
@@ -208,9 +229,7 @@ public class DateSelectionPanel extends javax.swing.JPanel {
      */
     private void yearFldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_yearFldFocusLost
         int year = Integer.parseInt(yearFld.getText());
-        DateSelectionTableModel dm;
-        dm = (DateSelectionTableModel)calendarTable.getModel();
-        dm.setYear(year);
+        tablemodel.setYear(year);
     }//GEN-LAST:event_yearFldFocusLost
     
     /**
@@ -220,10 +239,8 @@ public class DateSelectionPanel extends javax.swing.JPanel {
     private void prevYearBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevYearBtnActionPerformed
         if (evt.getID() == evt.ACTION_PERFORMED) {
             int year = Integer.parseInt(yearFld.getText()) - 1;
-            yearFld.setText("" + year);
-            DateSelectionTableModel dm;
-            dm = (DateSelectionTableModel)calendarTable.getModel();
-            dm.setYear(year);
+            yearFld.setText(Integer.toString(year));
+            tablemodel.setYear(year);            
         }
     }//GEN-LAST:event_prevYearBtnActionPerformed
 
@@ -233,11 +250,9 @@ public class DateSelectionPanel extends javax.swing.JPanel {
      */
     private void nextYearBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextYearBtnActionPerformed
         if (evt.getID() == evt.ACTION_PERFORMED) {
-            int year = Integer.parseInt(yearFld.getText()) + 1;
-            yearFld.setText("" + year);
-            DateSelectionTableModel dm;
-            dm = (DateSelectionTableModel)calendarTable.getModel();
-            dm.setYear(year);
+           int year = Integer.parseInt(yearFld.getText()) + 1;
+           yearFld.setText(Integer.toString(year));
+           tablemodel.setYear(year);            
         }
     }//GEN-LAST:event_nextYearBtnActionPerformed
     
@@ -247,10 +262,7 @@ public class DateSelectionPanel extends javax.swing.JPanel {
      */
     private void monthNameCmbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_monthNameCmbActionPerformed
         if (evt.getID() == evt.ACTION_PERFORMED) {
-            DateSelectionTableModel dm;
-            dm = (DateSelectionTableModel)calendarTable.getModel();
-            int idx = monthNameCmb.getSelectedIndex();
-            dm.setMonth(idx);
+            tablemodel.setMonth(monthNameCmb.getSelectedIndex());
         }
     }//GEN-LAST:event_monthNameCmbActionPerformed
     
@@ -273,7 +285,7 @@ public class DateSelectionPanel extends javax.swing.JPanel {
      */
     private class DateSelectionTableModel extends AbstractTableModel {
         private Object            columnNames[];
-        private GregorianCalendar calendar;
+        private GregorianCalendar calendar, today;
         private Object            days[][];
         
         /**
@@ -293,11 +305,54 @@ public class DateSelectionPanel extends javax.swing.JPanel {
                 calendar.roll(calendar.DAY_OF_WEEK, 1);
             }
             
+            today = new GregorianCalendar();
             // Reset the calendar since I might have changed the current month
             calendar.setTime(new Date());
             
             days = new Object[6][7];
-            updateDays();
+        }
+        
+        /**
+         * Set a day in the month as selected
+         * @param the day to select
+         */
+        void setSelectedDay(int day) {
+            for (int yy = 0; yy < days.length; ++yy) {
+                for (int xx = 0; xx < days[yy].length; ++xx) {
+                    if (days[yy][xx] != null) {
+                        Integer i = (Integer)days[yy][xx];
+                        if (i.intValue() == day){ 
+                            calendarTable.changeSelection(yy, xx, false, false);                        
+                            return;
+                        }   
+                    }
+                }
+            }
+        }
+
+        /**
+         * Get the currently selected day (or the first / last day of the
+         * month if a blank field (or none) was selected
+         * @return the selected day
+         */
+        public int getSelectedDay() {
+            int x = calendarTable.getSelectedColumn();
+            int y = calendarTable.getSelectedRow();
+                        
+            int retval;
+            
+            if (x == -1 || y == -1) {
+                retval = 1;
+            } else if (days[y][x] != null) {
+                retval = ((Integer)days[y][x]).intValue();                
+            } else {
+                if (y == 0) {
+                    retval = calendar.getActualMinimum(calendar.DAY_OF_MONTH);
+                } else {
+                    retval = calendar.getActualMaximum(calendar.DAY_OF_MONTH);                    
+                }
+            }
+            return retval;
         }
         
         /**
@@ -305,8 +360,17 @@ public class DateSelectionPanel extends javax.swing.JPanel {
          */
         public void updateDays() {
             calendar.set(calendar.DAY_OF_MONTH,
-            calendar.getActualMinimum(calendar.DAY_OF_MONTH));
+                         calendar.getActualMinimum(calendar.DAY_OF_MONTH));
+
+            int day = getSelectedDay();
             
+            if (calendar.get(calendar.MONTH) == today.get(today.MONTH) &&
+                calendar.get(calendar.YEAR) == today.get(today.YEAR)) {
+                renderer.setToday(new Integer(today.get(today.DAY_OF_MONTH)));
+            } else {
+                renderer.setToday(null);
+            }
+                                    
             int start = 0;
             
             switch (calendar.get(calendar.DAY_OF_WEEK)) {
@@ -337,7 +401,7 @@ public class DateSelectionPanel extends javax.swing.JPanel {
             int noDays = calendar.getActualMaximum(calendar.DAY_OF_MONTH);
             
             for (int i = calendar.getActualMinimum(calendar.DAY_OF_MONTH); i <= noDays; ++i) {
-                days[y][x] = Integer.toString(i);
+                days[y][x] = new Integer(i);                
                 ++x;
                 if (x == 7) {
                     x = 0;
@@ -345,6 +409,7 @@ public class DateSelectionPanel extends javax.swing.JPanel {
                 }
             }
             fireTableDataChanged();
+            setSelectedDay(day);
         }
         
         /**
@@ -424,6 +489,45 @@ public class DateSelectionPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * A small little renderer so I can get the text centered, and todays day
+     * in red...
+     */
+    private class CalendarRenderer extends DefaultTableCellRenderer {
+        private Integer today;
+        private Color   defaultColor;
+        
+        /** Create a new CalendarRenderer */
+        public CalendarRenderer() {
+            super();
+            defaultColor = getForeground();
+        }
+        
+        /**
+         * Set todays day number
+         * @param today or null to turn off
+         */
+        public void setToday(Integer today) {
+            this.today = today;
+        }
+        
+        /**
+         * Get the Cell renderer
+         */
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus,
+                                                       int row, int column) {
+            if (today != null && today.equals(value)) {
+                setForeground(Color.red);
+            } else {
+                setForeground(defaultColor);
+            }
+            setHorizontalAlignment( javax.swing.SwingConstants.CENTER);
+            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        }
+    }
+
+    
      /**
       * A "main method" if you would like to test the panel...
       * @param argv not used
@@ -433,10 +537,11 @@ public class DateSelectionPanel extends javax.swing.JPanel {
 //        frm.getContentPane().add(new DateSelectionPanel());
 //        frm.pack();
 //        frm.setVisible(true);
-//        frm.addWindowListener(new WindowAdapter() {
-//            public void windowClosing(WindowEvent e) {
+//        frm.addWindowListener(new java.awt.event.WindowAdapter() {
+//            public void windowClosing(java.awt.event.WindowEvent e) {
 //                System.exit(0);
 //            }
 //        });
 //    }
+//    
 }

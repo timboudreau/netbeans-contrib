@@ -409,7 +409,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     private void dueDateBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dueDateBrowseButtonActionPerformed
         if (evt.getID() == evt.ACTION_PERFORMED) {
-            DateSelectionPanel pnl = new DateSelectionPanel();
+            DateSelectionPanel pnl;
+            Date date = getDueDate();
+            if (date != null) {
+                pnl = new DateSelectionPanel(date);
+            } else {
+                pnl = new DateSelectionPanel();
+            }
             String title = NbBundle.getMessage(EditTaskPanel.class, "SelectDateLabel");
             DialogDescriptor d = new DialogDescriptor(pnl, title);
             d.setModal(true);
