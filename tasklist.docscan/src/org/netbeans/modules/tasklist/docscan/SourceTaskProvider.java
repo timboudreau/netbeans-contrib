@@ -82,7 +82,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     }
 
     public void notifyPrepare() {
-        Cache.load();
+        // Cache.load(); too slow call it here
     }
 
     /**

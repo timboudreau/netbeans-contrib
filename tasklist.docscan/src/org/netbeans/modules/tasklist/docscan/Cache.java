@@ -25,12 +25,11 @@ import java.io.*;
  * Cache of search results. It caches files that need not to be
  * scanned because have not contained any match.
  *
- * @todo invalidate on settings change, need to keep settings timestamp
  * @author Petr Kuzel
  */
 final class Cache {
 
-    static Map cache;
+    private static Map cache;
 
     public static void put(SuggestionContext ctx, List result) {
         FileObject fo = ctx.getFileObject();
@@ -79,10 +78,11 @@ final class Cache {
     }
 
     public static void load() {
+        ObjectInputStream ois = null;
         try {
             File file = getCacheFile(false);
             InputStream in = new BufferedInputStream(new FileInputStream(file));
-            ObjectInputStream ois = new ObjectInputStream(in);
+            ois = new ObjectInputStream(in);
             if (ois.readInt() == 1) {
                 cache = (Map) ois.readObject();
             }
@@ -90,6 +90,14 @@ final class Cache {
             // null cache
         } catch (ClassNotFoundException e) {
             // null cache
+        } finally {
+            if (ois != null) {
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
         }
         if (cache == null) {
             cache = new HashMap(1113);

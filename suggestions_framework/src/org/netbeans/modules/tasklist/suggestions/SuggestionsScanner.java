@@ -127,16 +127,18 @@ public final class SuggestionsScanner {
             // it should also improve perceived performance
             scanPreferred(folders, recursive);
 
-            int estimate = -1;
-            progressMonitor.estimate(estimate);
-            for (int i = 0; i < folders.length; i++) {
-                // it's faster to check at FS level however we can miss some links (.shadow)
-                FileObject fo = ((DataObject)folders[i]).getPrimaryFile();
-                estimate += countFolders(fo);
+            if (progressMonitor != null) {
+                int estimate = -1;
+                progressMonitor.estimate(estimate);
+                for (int i = 0; i < folders.length; i++) {
+                    // it's faster to check at FS level however we can miss some links (.shadow)
+                    FileObject fo = ((DataObject)folders[i]).getPrimaryFile();
+                    estimate += countFolders(fo);
+                }
+                progressMonitor.estimate(estimate);
+                progressMonitor.scanStarted();
             }
-            progressMonitor.estimate(estimate);
 
-            progressMonitor.scanStarted();
             for (int i = 0; i < folders.length; i++) {
                 if (Thread.interrupted()) return;
                 DataObject.Container folder = folders[i];
