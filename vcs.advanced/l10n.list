@@ -17,4 +17,5 @@ vcsgeneric/stdprofiles/vcs/list/Bundle.properties
 vcsgeneric/src/org/netbeans/modules/vcs/advanced/config/Bundle.properties
 vcsgeneric/src/org/netbeans/modules/vcs/advanced/variables/Bundle.properties
 vcsgeneric/src/org/netbeans/modules/vcs/advanced/wizard/mount/Bundle.properties
+vcsgeneric/src/org/netbeans/modules/vcs/advanced/config/templatesGEN_VCS_FS.html
 
