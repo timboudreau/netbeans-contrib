@@ -699,6 +699,27 @@ public class VcsUtilities {
         }
         return tmpDir;
     }
+
+    /**
+     * Create a unique name, that does not occure in the collections of names.
+     * @param name the base name
+     * @param names the collection of names
+     * @return the name if it's not contained in names, name followed by an underscore and a number otherwise
+     */
+    public static String createUniqueName(String name, Collection names) {
+        String unique = name;
+        boolean isUnique = false; // do not believe, that it's unique
+        int i = 1;
+        while (!isUnique) {
+            if (names.contains(unique)) {
+                unique = name + "_" + i;
+                i++;
+            } else {
+                break;
+            }
+        }
+        return unique;
+    }
     
     /**
      * Encodes Object into String encoded in HEX format
