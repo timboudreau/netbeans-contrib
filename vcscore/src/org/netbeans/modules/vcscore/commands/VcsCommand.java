@@ -216,6 +216,12 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String PROPERTY_IGNORE_FAIL = "ignoreFail";
 
     /**
+     * When true, automatically check the file modification and reload the editor
+     * content if necessary without asking the user.
+     */
+    public static final String PROPERTY_CHECK_FOR_MODIFICATIONS = "checkForModifications";
+    
+    /**
      * An integer property that means the number of revisions the command can be applied.
      * When zero, the command will be applied to the whole version-controlled files.
      * When positive, the command will be applied to the appropriate number of individual revisions.

@@ -148,7 +148,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         if (success) {
             String path = (String) vars.get("DIR") + "/" + (String) vars.get("FILE");
             path = path.replace(java.io.File.separatorChar, '/');
-            if (VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)) {
+            if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)) {
                 //System.out.println(cmd.getName()+" finished successfully.");
                 fileSystem.checkForModifications(path);
                 /*
@@ -473,7 +473,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         StringTokenizer tokens = new StringTokenizer(exec);
         String first = tokens.nextToken();
         E.deb("first = "+first); // NOI18N
-        boolean disableRefresh = VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_CHECK_FOR_MODIFICATIONS);
+        boolean disableRefresh = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS);
         if (disableRefresh) fileSystem.disableRefresh();
         if (first != null && (first.toLowerCase().endsWith(".class"))) // NOI18N
             runClass(exec, first.substring(0, first.length() - ".class".length()), tokens); // NOI18N
