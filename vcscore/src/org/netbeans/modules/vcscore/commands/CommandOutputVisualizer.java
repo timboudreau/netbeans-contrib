@@ -32,6 +32,8 @@ import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 public class CommandOutputVisualizer extends VcsCommandVisualizer {
 
     public static final String MODE_NAME = "Default VCS Command Output";
+    
+    private static final int MAX_NUM_LINES_TO_KEEP = 5000;
 
     private CommandOutputPanel outputPanel;
     private ArrayList closeListeners = new ArrayList();
@@ -135,9 +137,9 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     }
     
     private void keepReasonableNumOfLines(javax.swing.JTextArea area) {
-        if (area.getLineCount() > CommandsPool.DEFAULT_NUM_OF_LINES_OF_OUTPUT_TO_COLLECT) {
+        if (area.getLineCount() > MAX_NUM_LINES_TO_KEEP) {
             try {
-                area.replaceRange(null, area.getLineStartOffset(0), area.getLineStartOffset(1));
+                area.replaceRange(null, area.getLineStartOffset(0), area.getLineStartOffset(10));
             } catch (javax.swing.text.BadLocationException exc) {
             }
         }

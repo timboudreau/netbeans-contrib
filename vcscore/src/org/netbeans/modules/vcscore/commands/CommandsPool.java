@@ -68,17 +68,13 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     public static final int DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT = 20;
     
-    /**
-     * The default number of lines of commands' output to store and show to the user.
-     * When the output of a command will be longer than this number of lines,
-     * the lines will be deleted from the beginning.
-     * This is necessary for not running out of memory.
-     */
-    public static final int DEFAULT_NUM_OF_LINES_OF_OUTPUT_TO_COLLECT = 5000;
-    
     /** The maximum number of running commands in the system. This prevents overwhelming
      * the system with too many commands running concurrently */
     private static final int MAX_NUM_RUNNING_COMMANDS = 50;
+    
+    private static long lastCommandID = 0;
+    
+    private WeakHashMap commandsIDs;
     
     /** Contains instances of VcsCommandExecutor, which are to be run.  */
     private ArrayList commandsToRun;
@@ -98,8 +94,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     /** The number of finished commands to collect. */
     private int collectFinishedCmdsNum = DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
-    /** The number of lines of commands' output to store and show to the user. */
-    private int numOfLinesOfOutputToCollect = DEFAULT_NUM_OF_LINES_OF_OUTPUT_TO_COLLECT;
+    /** The number of lines of commands' output to store and show to the user. *
+    private int numOfLinesOfOutputToCollect = DEFAULT_NUM_OF_LINES_OF_OUTPUT_TO_COLLECT; */
     /** Whether to collect the whole output of commands. */
     private boolean collectOutput = true;
     /** Whether to collect error output of commands. */
@@ -129,6 +125,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         commandsWaitQueue = new ArrayList();
         outputContainers = new Hashtable();
         outputVisualizers = new Hashtable();
+        commandsIDs = new WeakHashMap();
         group = new ThreadGroup("VCS Commands Group");
         this.fileSystem = new WeakReference(fileSystem);
         runtimeNodePropertyChange = new PropertyChangeListener() {
@@ -234,6 +231,26 @@ public class CommandsPool extends Object /*implements CommandListener */{
         return collectErrOutput;
     }
      */
+    
+    private void setCommandID(VcsCommandExecutor vce) {
+        if (commandsIDs.get(vce) == null) {
+            synchronized (CommandsPool.class) {
+                Long id = new Long(++lastCommandID);
+                commandsIDs.put(vce, id);
+            }
+        }
+    }
+    
+    /**
+     * Get the command's ID. It's a unique command identification number.
+     * @param vce the command's executor
+     * @return the ID or -1 if the command does not have one.
+     */
+    public long getCommandID(VcsCommandExecutor vce) {
+        Long id = (Long) commandsIDs.get(vce);
+        if (id != null) return id.longValue();
+        else return -1;
+    }
 
     /**
      * Perform preprocessing of a new command. It will perform any needed input
@@ -252,6 +269,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @return the preprocessing status, one of CommandExecutorSupport.PROPEROCESS_* constants
      */
     public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars, boolean[] askForEachFile) {
+        setCommandID(vce);
         VcsFileSystem fileSystem = getVcsFileSystem();
         if (fileSystem == null) return PREPROCESS_CANCELLED;
         synchronized (commandsToRun) {
@@ -279,6 +297,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     private void commandStarted(final VcsCommandExecutor vce) {
+        setCommandID(vce);
         final VcsFileSystem fileSystem = getVcsFileSystem();
         if (fileSystem == null) return ;
         VcsCommand cmd = vce.getCommand();
@@ -300,7 +319,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 ((CommandListener) it.next()).commandStarted(vce);
             }
         }
-        CommandOutputCollector collector = new CommandOutputCollector(vce);
+        CommandOutputCollector collector = new CommandOutputCollector(vce, this);
         outputContainers.put(vce, collector);
         VcsCommandVisualizer visualizer = vce.getVisualizer();
         if (visualizer != null) {
@@ -403,7 +422,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         final VcsFileSystem fileSystem = getVcsFileSystem();
         if (fileSystem == null) return ;
         fileSystem.debugErr(g("MSG_Check_whole_output"));
-        CommandsPool.CommandOutputCollector collector = (CommandsPool.CommandOutputCollector) outputContainers.get(vce);
+        CommandOutputCollector collector = (CommandOutputCollector) outputContainers.get(vce);
         //boolean isErrorOutput = false;
         if (collector != null) {
             collector.addErrorOutputListener(new CommandOutputListener() {
@@ -425,6 +444,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @param vce the executor
      */
     public synchronized void startExecutor(final VcsCommandExecutor vce) {
+        setCommandID(vce);
         commandsToRun.remove(vce);
         commandsWaitQueue.add(vce);
         notifyAll(); // executorStarterLoop will start the command
@@ -947,183 +967,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         return status;
     }
     
-    /**
-     * This class stores the output of the command.
-     */
-    private class CommandOutputCollector implements CommandListener {
-        
-        private VcsCommandExecutor vce;
-        private ArrayList stdOutput = new ArrayList();
-        private ArrayList errOutput = new ArrayList();
-        private ArrayList stdDataOutput = new ArrayList();
-        private ArrayList errDataOutput = new ArrayList();
-        
-        private ArrayList stdOutputListeners = new ArrayList();
-        private ArrayList errOutputListeners = new ArrayList();
-        private ArrayList stdDataOutputListeners = new ArrayList();
-        private ArrayList errDataOutputListeners = new ArrayList();
-        
-        public CommandOutputCollector(VcsCommandExecutor vce/*, boolean errOnly*/) {
-            this.vce = vce;
-            //if (!errOnly) {
-                vce.addOutputListener(new CommandOutputListener() {
-                    public void outputLine(String line) {
-                        synchronized (stdOutput) {
-                            stdOutput.add(line);
-                            if (stdOutput.size() > numOfLinesOfOutputToCollect) {
-                                stdOutput.remove(0);
-                            }
-                            //if (stdOutputListeners != null) {
-                                for(Iterator it = stdOutputListeners.iterator(); it.hasNext(); ) {
-                                    ((CommandOutputListener) it.next()).outputLine(line);
-                                }
-                            //}
-                        }
-                    }
-                });
-                vce.addDataOutputListener(new CommandDataOutputListener() {
-                    public void outputData(String[] elements) {
-                        synchronized (stdDataOutput) {
-                            stdDataOutput.add(elements);
-                            //if (stdDataOutputListeners != null) {
-                                for(Iterator it = stdDataOutputListeners.iterator(); it.hasNext(); ) {
-                                    ((CommandDataOutputListener) it.next()).outputData(elements);
-                                }
-                            //}
-                        }
-                    }
-                });
-            //}
-            vce.addErrorOutputListener(new CommandOutputListener() {
-                public void outputLine(String line) {
-                    synchronized (errOutput) {
-                        errOutput.add(line);
-                        if (errOutput.size() > numOfLinesOfOutputToCollect) {
-                            errOutput.remove(0);
-                        }
-                        //if (errOutputListeners != null) {
-                            for(Iterator it = errOutputListeners.iterator(); it.hasNext(); ) {
-                                ((CommandOutputListener) it.next()).outputLine(line);
-                            }
-                        //}
-                    }
-                }
-            });
-            vce.addDataErrorOutputListener(new CommandDataOutputListener() {
-                public void outputData(String[] elements) {
-                    synchronized (errDataOutput) {
-                        errDataOutput.add(elements);
-                        //if (errDataOutputListeners != null) {
-                            for(Iterator it = errDataOutputListeners.iterator(); it.hasNext(); ) {
-                                ((CommandDataOutputListener) it.next()).outputData(elements);
-                            }
-                        //}
-                    }
-                }
-            });
-            addCommandListener(this);
-        }
-        
-        /**
-         * This method is called when the command is just started.
-         */
-        public void commandStarted(VcsCommandExecutor vce) {
-            //if (this.vce == vce)
-        }
-        
-        /**
-         * This method is called when the command is done.
-         */
-        public void commandDone(VcsCommandExecutor vce) {
-            if (!this.vce.equals(vce)) return ;
-            Runnable later = new Runnable() {
-                public void run() {
-                    try {
-                        // Wait for all the output from the commands.
-                        Thread.currentThread().sleep(1000);
-                    } catch (InterruptedException exc) {
-                    }
-                    synchronized (stdOutput) {
-                        stdOutputListeners = null;
-                    }
-                    synchronized (stdDataOutput) {
-                        stdDataOutputListeners = null;
-                    }
-                    synchronized (errOutput) {
-                        errOutputListeners = null;
-                    }
-                    synchronized (errDataOutput) {
-                        errDataOutputListeners = null;
-                    }
-                }
-            };
-            new Thread(later).start();
-        }
-        
-        /**
-         * Add the listener to the standard output of the command. The listeners are removed
-         * when the command finishes.
-         */
-        public void addOutputListener(CommandOutputListener l) {
-            synchronized (stdOutput) {
-                for (Iterator it = stdOutput.iterator(); it.hasNext(); ) {
-                    l.outputLine((String) it.next());
-                }
-                if (stdOutputListeners != null) {
-                    stdOutputListeners.add(l);
-                }
-            }
-        }
-        
-        /**
-         * Add the listener to the error output of the command. The listeners are removed
-         * when the command finishes.
-         */
-        public void addErrorOutputListener(CommandOutputListener l) {
-            synchronized (errOutput) {
-                for (Iterator it = errOutput.iterator(); it.hasNext(); ) {
-                    l.outputLine((String) it.next());
-                }
-                if (errOutputListeners != null) {
-                    errOutputListeners.add(l);
-                }
-            }
-        }
-        
-        /**
-         * Add the listener to the data output of the command. This output may contain
-         * a parsed information from its standard output or some other data provided
-         * by this command. The listeners are removed when the command finishes.
-         */
-        public void addDataOutputListener(CommandDataOutputListener l) {
-            synchronized (stdDataOutput) {
-                for (Iterator it = stdDataOutput.iterator(); it.hasNext(); ) {
-                    l.outputData((String[]) it.next());
-                }
-                if (stdDataOutputListeners != null) {
-                    stdDataOutputListeners.add(l);
-                }
-            }
-        }
-        
-        /**
-         * Add the listener to the data error output of the command. This output may contain
-         * a parsed information from its error output or some other data provided
-         * by this command. If there are some data given to this listener, the command
-         * is supposed to fail. The listeners are removed when the command finishes.
-         */
-        public synchronized void addDataErrorOutputListener(CommandDataOutputListener l) {
-            synchronized (errDataOutput) {
-                for (Iterator it = errDataOutput.iterator(); it.hasNext(); ) {
-                    l.outputData((String[]) it.next());
-                }
-                if (errDataOutputListeners != null) {
-                    errDataOutputListeners.add(l);
-                }
-            }
-        }        
-    }
-    
+
     private class FSDisplayPropertyChangeListener implements java.beans.PropertyChangeListener {
         public void propertyChange(java.beans.PropertyChangeEvent evt) {
             if (runtimeNode != null && VcsFileSystem.PROP_ROOT.equals(evt.getPropertyName())) {
