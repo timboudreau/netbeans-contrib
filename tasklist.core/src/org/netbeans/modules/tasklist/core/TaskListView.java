@@ -72,7 +72,7 @@ import org.openide.util.actions.CallbackSystemAction;
  *       from this class
  */
 public abstract class TaskListView extends TopComponent
-        implements TaskListener, PropertyChangeListener, ExplorerManager.Provider {
+        implements TaskListener, PropertyChangeListener, ExplorerManager.Provider, Lookup.Provider {
 
     /** Property "task summary" */
     public static final String PROP_TASK_SUMMARY = "taskDesc"; // NOI18N
@@ -168,6 +168,10 @@ public abstract class TaskListView extends TopComponent
 
     public ExplorerManager getExplorerManager() {
         return manager;
+    }
+
+    public Lookup getLookup() {
+        return ExplorerUtils.createLookup(getExplorerManager(), getActionMap());
     }
 
     /**

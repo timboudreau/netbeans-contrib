@@ -45,8 +45,10 @@ public class ShowSuggestionAction extends NodeAction {
         v.showTask(item, new SuggestionAnno(item));
     }
 
-    /** Enable the task iff you've selected exactly one node,
-     * and that node is a tasknode. */    
+    /**
+     * Enable the task iff you've selected exactly one node,
+     * and that node is a tasknode.
+     */
     protected boolean enable(Node[] nodes) {
         if ((nodes == null) || (nodes.length != 1)) {
             return false;
@@ -57,7 +59,8 @@ public class ShowSuggestionAction extends NodeAction {
         }
         return (item.getLine() != null);
     }
-    
+
+
     public String getName() {
         return NbBundle.getMessage(ShowSuggestionAction.class, "LBL_Goto"); // NOI18N
     }
@@ -71,4 +74,5 @@ public class ShowSuggestionAction extends NodeAction {
         // If you will provide context help then use:
         // return new HelpCtx (ShowTodoItemAction.class);
     }
+
 }
