@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.WeakHashMap;
 
 import org.openide.NotifyDescriptor;
@@ -43,6 +44,7 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.VcsAttributes;
+import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
@@ -929,7 +931,7 @@ public class CommandCustomizationSupport extends Object {
                     if (expertCondition) {
                         if (exec != null) dlg.setExec(exec);
                     }
-                    String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
+                    final String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
                     String globalInputStrStored = (String) globalInputStrs.get(fileSystem);
                     VariableInputDescriptor globalInputDescriptor = null;
                     if (globalInputStr != null) {
@@ -984,6 +986,22 @@ public class CommandCustomizationSupport extends Object {
                                 }
                                 if (dlgGlobalInputDescriptor != null) {
                                     dlgGlobalInputDescriptor.addValuesToHistory();
+                                    // Now I need to remember default values
+                                    dlgGlobalInputDescriptor.setDefaultValues();
+                                    String globalVIDString = dlgGlobalInputDescriptor.getStringInputItems();
+                                    //System.out.println("CCS: old GlobalVID was :\n"+globalInputStr);
+                                    //System.out.println("CCS: have new GlobalVID:\n"+globalVIDString);
+                                    if (!globalVIDString.equals(globalInputStr)) {
+                                        Vector fsVars = fileSystem.getVariables();
+                                        for (Iterator it = fsVars.iterator(); it.hasNext(); ) {
+                                            VcsConfigVariable var = (VcsConfigVariable) it.next();
+                                            if (GLOBAL_INPUT_DESCRIPTOR.equals(var.getName())) {
+                                                var.setValue(globalVIDString);
+                                                break;
+                                            }
+                                        }
+                                        fileSystem.setVariables(fsVars);
+                                    }
                                 }
                                 Hashtable valuesTable = dlg.getUserParamsValuesTable();
                                 for (Enumeration enum = userParamsVarNames.keys(); enum.hasMoreElements(); ) {
