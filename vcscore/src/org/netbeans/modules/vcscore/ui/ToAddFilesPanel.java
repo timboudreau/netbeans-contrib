@@ -93,8 +93,6 @@ public class ToAddFilesPanel extends javax.swing.JPanel {
         spToBeAddedFiles = new javax.swing.JScrollPane();
         tblToBeAddedFiles = new javax.swing.JTable();
 
-        FormListener formListener = new FormListener();
-
         setLayout(new java.awt.GridBagLayout());
 
         setPreferredSize(new java.awt.Dimension(250, 250));
@@ -107,11 +105,15 @@ public class ToAddFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 11);
         add(jTextArea1, gridBagConstraints);
-        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getBundle("src/org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_ToAddFilesPanel.jTextArea"));
-        jTextArea1.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("src/org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_ToAddFilesPanel.jTextArea"));
+        jTextArea1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ToAddFilesPanel.class, "ACS_ToAddFilesPanel.jTextArea"));
+        jTextArea1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ToAddFilesPanel.class, "ACSD_ToAddFilesPanel.jTextArea"));
 
         cbPerform.setText(org.openide.util.NbBundle.getBundle(ToAddFilesPanel.class).getString("ToAddFilesPanel.cbPerform.text"));
-        cbPerform.addActionListener(formListener);
+        cbPerform.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbPerformActionPerformed(evt);
+            }
+        });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -149,16 +151,6 @@ public class ToAddFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 30, 11, 11);
         add(spToBeAddedFiles, gridBagConstraints);
 
-    }
-
-    // Code for dispatching events from components to event handlers.
-
-    private class FormListener implements java.awt.event.ActionListener {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            if (evt.getSource() == cbPerform) {
-                ToAddFilesPanel.this.cbPerformActionPerformed(evt);
-            }
-        }
     }//GEN-END:initComponents
 
     private void cbPerformActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPerformActionPerformed
