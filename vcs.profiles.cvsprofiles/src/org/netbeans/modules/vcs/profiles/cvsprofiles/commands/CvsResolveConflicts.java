@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -22,7 +22,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilterWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -41,7 +43,7 @@ import org.openide.util.Lookup;
 import org.netbeans.api.diff.Difference;
 import org.netbeans.api.diff.StreamSource;
 import org.netbeans.spi.diff.MergeVisualizer;
-//import org.netbeans.modules.merge.builtin.visualizer.GraphicalMergeVisualizer;
+import org.netbeans.modules.diff.EncodedReaderFactory;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -59,7 +61,6 @@ import org.netbeans.modules.vcscore.cmdline.*;
 public class CvsResolveConflicts implements VcsAdditionalCommand {
     
     private static final String TMP_PREFIX = "merge"; // NOI18N
-    private static final String TMP_SUFFIX = "tmp"; // NOI18N
     
     private static final String CHANGE_LEFT = "<<<<<<< "; // NOI18N
     private static final String CHANGE_RIGHT = ">>>>>>> "; // NOI18N
@@ -111,9 +112,13 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
     
     private void handleMergeFor(final File file, FileObject fo, final MergeVisualizer merge) throws IOException {
         String mimeType = (fo == null) ? "text/plain" : fo.getMIMEType();
-        File f1 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
-        File f2 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
-        File f3 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
+        String ext = "."+fo.getExt();
+        File f1 = File.createTempFile(TMP_PREFIX, ext);
+        File f2 = File.createTempFile(TMP_PREFIX, ext);
+        File f3 = File.createTempFile(TMP_PREFIX, ext);
+        f1.deleteOnExit();
+        f2.deleteOnExit();
+        f3.deleteOnExit();
         
         final Difference[] diffs = copyParts(true, file, f1, true);
         if (diffs.length == 0) {
@@ -138,12 +143,21 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
             rightFileRevision = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleRevision", rightFileRevision);
         }
         String resultTitle = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Merge.titleResult");
-        final StreamSource s1 = StreamSource.createSource(file.getName(), leftFileRevision, mimeType, f1);
-        final StreamSource s2 = StreamSource.createSource(file.getName(), rightFileRevision, mimeType, f2);
+        
+        final StreamSource s1;
+        final StreamSource s2;
+        String encoding = EncodedReaderFactory.getDefault().getEncoding(fo);
+        if (encoding != null) {
+            s1 = StreamSource.createSource(file.getName(), leftFileRevision, mimeType, new InputStreamReader(new FileInputStream(f1), encoding));
+            s2 = StreamSource.createSource(file.getName(), rightFileRevision, mimeType, new InputStreamReader(new FileInputStream(f2), encoding));
+        } else {
+            s1 = StreamSource.createSource(file.getName(), leftFileRevision, mimeType, f1);
+            s2 = StreamSource.createSource(file.getName(), rightFileRevision, mimeType, f2);
+        }
         final StreamSource result = new MergeResultWriterInfo(f1, f2, f3, file, mimeType,
                                                               originalLeftFileRevision,
                                                               originalRightFileRevision,
-                                                              fo);
+                                                              fo, encoding);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
@@ -402,11 +416,12 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         private String rightFileRevision;
         private FileObject fo;
         private FileLock lock;
+        private String encoding;
         
         public MergeResultWriterInfo(File tempf1, File tempf2, File tempf3,
                                      File outputFile, String mimeType,
                                      String leftFileRevision, String rightFileRevision,
-                                     FileObject fo) {
+                                     FileObject fo, String encoding) {
             this.tempf1 = tempf1;
             this.tempf2 = tempf2;
             this.tempf3 = tempf3;
@@ -421,6 +436,10 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                     lock = fo.lock();
                 } catch (IOException ioex) {}
             }
+            if (encoding == null) {
+                encoding = EncodedReaderFactory.getDefault().getEncoding(tempf1);
+            }
+            this.encoding = encoding;
         }
         
         public String getName() {
@@ -446,15 +465,17 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
          * @return The writer or <code>null</code>, when no writer can be created.
          */
         public Writer createWriter(Difference[] conflicts) throws IOException {
+            Writer w;
+            if (fo != null) {
+                w = EncodedReaderFactory.getDefault().getWriter(fo, lock, encoding);
+            } else {
+                w = EncodedReaderFactory.getDefault().getWriter(outputFile, mimeType, encoding);
+            }
             if (conflicts == null || conflicts.length == 0) {
                 fileToRepairEntriesOf = outputFile;
-                if (fo != null) {
-                    return new OutputStreamWriter(fo.getOutputStream((lock != null) ? lock : (lock = fo.lock())));
-                } else {
-                    return new FileWriter(outputFile);
-                }
+                return w;
             } else {
-                return new MergeConflictFileWriter(outputFile, fo, conflicts,
+                return new MergeConflictFileWriter(w, fo, conflicts,
                                                    leftFileRevision, rightFileRevision);
             }
         }
@@ -485,7 +506,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         
     }
     
-    private static class MergeConflictFileWriter extends FileWriter {
+    private static class MergeConflictFileWriter extends FilterWriter {
         
         private Difference[] conflicts;
         private int lineNumber;
@@ -494,9 +515,10 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         private String rightName;
         private FileObject fo;
         
-        public MergeConflictFileWriter(File file, FileObject fo, Difference[] conflicts,
-                                       String leftName, String rightName) throws IOException {
-            super(file);
+        public MergeConflictFileWriter(Writer delegate, FileObject fo,
+                                       Difference[] conflicts, String leftName,
+                                       String rightName) throws IOException {
+            super(delegate);
             this.conflicts = conflicts;
             this.leftName = leftName;
             this.rightName = rightName;
