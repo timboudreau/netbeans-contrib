@@ -47,9 +47,9 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-	<pathelement location="${nbroot}/openidex/netbeans/modules/openidex.jar"/>
+	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot}/java/netbeans/modules/java.jar"/>
-	<pathelement location="${nbroot}/debuggercore/netbeans/modules/debuggerCore.jar"/>
+	<pathelement location="${nbroot}/debuggercore/netbeans/modules/autoload/debuggerCore.jar"/>
       </classpath>
     </javac>
   </target>

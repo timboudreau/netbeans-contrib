@@ -37,8 +37,8 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-	<pathelement location="${nbroot}/openidex/netbeans/modules/openidex.jar"/>
-	<pathelement location="${nbroot}/vcscore/netbeans/modules/vcscore.jar"/>
+	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
+	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
         <pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
       </classpath>
     </javac>
@@ -50,8 +50,8 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-	<pathelement location="${nbroot}/openidex/netbeans/modules/openidex.jar"/>
-	<pathelement location="${nbroot}/vcscore/netbeans/modules/vcscore.jar"/>
+	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
+	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
         <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
         <pathelement location="src"/>
       </classpath>
