@@ -209,6 +209,48 @@ public class Util {
         if (! condition)
             throw new AssertException ("Assertion Failed: "+message);  // No I18N
     }
+    
+    public static String idlType2TypeString (IDLType type, Contained parent, StringHolder dimension) {
+        String suffix;
+        
+        if (dimension != null)
+           suffix = typeCode2TypeString (type.type(),dimension);
+        else
+           suffix = typeCode2TypeString (type.type());
+        
+        switch (type.type().kind().value()) {
+            case TCKind._tk_struct:
+            case TCKind._tk_alias:
+            case TCKind._tk_enum:
+            case TCKind._tk_except:
+            case TCKind._tk_objref:
+            case TCKind._tk_union:
+            case TCKind._tk_value:
+                try {
+                    Contained contained = ContainedHelper.narrow (type);
+                    if (contained == null)
+                        return suffix;   // We can not procede, we return at least part of name, can be OK
+                    Contained myContainer = ContainedHelper.narrow (contained.defined_in());
+                    if (contained == null)
+                        return suffix;  // We can not procede, we return at least part of name, can be OK
+                    String preffix= myContainer.absolute_name();
+                    if (parent.absolute_name().equals(preffix))
+                        return suffix;
+                    return preffix+"::"+suffix;
+                }catch (org.omg.CORBA.SystemException se) {
+                    return suffix;
+                }
+            case TCKind._tk_Principal:
+            case TCKind._tk_TypeCode:
+                return "CORBA::"+suffix;
+            default:
+                return suffix;
+        }
+    }
+    
+    public static String idlType2TypeString (IDLType type, Contained parent) {
+        return idlType2TypeString (type, parent, null);
+    }
 }
 
 

@@ -23,6 +23,7 @@ import java.util.Vector;
 import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
+import org.openide.*;
 
 import org.netbeans.modules.corba.*;
 import org.netbeans.modules.corba.settings.*;
@@ -147,6 +148,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
         throws java.net.MalformedURLException,
         java.io.IOException {
 
+            
         org.omg.CORBA.Container rep = null;
 
         if (DEBUG)
@@ -216,13 +218,16 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
                 throw new RuntimeException();
         }
 
-        if (!ior.equals ("")) {
+        else if (!ior.equals ("")) { 
             if (orb == null)
                 lazyInit();
             org.omg.CORBA.Object o = orb.string_to_object (ior);
             rep = ContainerHelper.narrow (o);
             if (rep == null)
                 throw new RuntimeException();
+        }
+        else {
+            TopManager.getDefault().notify ( new NotifyDescriptor.Message(NbBundle.getBundle(IRRootNode.class).getString("TXT_EmptyFieldsError"),NotifyDescriptor.ERROR_MESSAGE));
         }
         if (DEBUG)
             System.out.println ("loaded?: " + loaded ());
