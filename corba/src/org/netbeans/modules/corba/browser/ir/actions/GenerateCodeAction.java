@@ -48,10 +48,13 @@ public class GenerateCodeAction extends NodeAction {
     }
 
     protected boolean enable (Node[] nodes) {
-        Node node;
-        if (nodes != null && nodes.length == 1){
-            if ((node = (Node) nodes[0].getCookie(Generatable.class))  == null) return false;
-            if (node.getParentNode() instanceof IRInterfaceDefNode) return false;
+        Node node;        
+        if (nodes != null){
+            for (int i = 0; i < nodes.length; i ++){
+                node = (Node) nodes[i];
+                if (node.getCookie(Generatable.class) == null) return false;
+                if (node.getParentNode() instanceof IRInterfaceDefNode) return false;
+            }
             return true;
         }
         return false;

@@ -26,10 +26,12 @@ public class RefreshAction extends NodeAction {
 
 
     protected boolean enable (Node[] nodes){
-        if (nodes!= null && nodes.length == 1){
-            return (nodes[0].getCookie (IRContainerNode.class) != null);
-        }
-        return false;
+        if (nodes != null)
+            for (int i = 0; i < nodes.length; i ++)
+                if (nodes[i].getCookie (IRContainerNode.class) == null)
+                    return false;
+        return true;
+        
     }
 
     protected void performAction (Node[] nodes){

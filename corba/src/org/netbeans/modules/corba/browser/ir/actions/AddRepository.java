@@ -38,10 +38,12 @@ public class AddRepository extends NodeAction {
         super ();
     }
 
-    protected boolean enable (org.openide.nodes.Node[] nodes) {
-        if (nodes == null || nodes.length != 1)
-            return false;
-        return (nodes[0].getCookie (IRRootNode.class) != null);
+    protected boolean enable (org.openide.nodes.Node[] nodes) {                        
+        if (nodes != null)
+            for (int i = 0; i < nodes.length; i ++)
+                if (nodes[i].getCookie (IRRootNode.class) == null)
+                    return false;
+        return true;
     }
 
     public String getName() {

@@ -30,9 +30,11 @@ public class FromInitialReferencesAction extends org.openide.util.actions.NodeAc
     
     
     public boolean enable (Node[] nodes) {
-        if (nodes == null || nodes.length != 1)
-            return false;
-        return nodes[0].getCookie (FromInitialReferencesCookie.class) != null;
+        if (nodes != null)
+            for (int i = 0; i < nodes.length; i ++)
+                if (nodes[i].getCookie (FromInitialReferencesCookie.class) == null)
+                    return false;
+        return true;        
     }
     
     public void performAction (Node[] nodes) {

@@ -40,9 +40,11 @@ public class RemoveRepository extends NodeAction {
     }
 
     protected boolean enable (org.openide.nodes.Node[] nodes) {
-        if (nodes == null || nodes.length != 1)
-            return false;
-        return (nodes[0].getCookie (Removable.class) != null);
+        if (nodes != null)
+            for (int i = 0; i < nodes.length; i ++)
+                if (nodes[i].getCookie (Removable.class) == null)
+                    return false;
+        return true;
     }
 
     public String getName() {
