@@ -1407,7 +1407,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         background = null;
 
         // prepare content for selector
-        final Node content = projectView();
+        final Node content = Choosers.projectView();
         NodeOperation op = NodeOperation.getDefault();
 
         try {
@@ -1425,147 +1425,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         } catch (UserCancelException e) {
             // no folders selected keep previous one
         } finally {
-            icons = null;
-        }
-    }
-
-    // handle select folder life-time
-    static Node icons = null;
-
-    /** Logical view over opened projects */
-    private Node projectView() {
-
-        Children.SortedArray kids = new Children.SortedArray();
-        kids.setComparator(new Comparator() {
-                public int compare(Object o1, Object o2) {
-                    return ((FolderNode) o1).getDisplayName().compareToIgnoreCase(((FolderNode) o2).getDisplayName());
-                }
-            });
-
-        Project[] projects = OpenProjects.getDefault().getOpenProjects();
-        for (int pi = 0; pi<projects.length; pi++) {
-            Project project = projects[pi];
-            Sources sources = ProjectUtils.getSources(project);
-            SourceGroup[] group =sources.getSourceGroups(Sources.TYPE_GENERIC);
-            Arrays.sort(group, new Comparator() {
-                public int compare(Object o1, Object o2) {
-                    return ((SourceGroup) o1).getDisplayName().compareToIgnoreCase(((SourceGroup) o2).getDisplayName());
-                }
-            });
-
-            for (int i=0; i<group.length; i++) {
-                FileObject folder = group[i].getRootFolder();
-                if (folder.isFolder() == false) continue;
-                kids.add(new Node[] {new FolderNode(folder, group[i])});
-                if (icons == null) {
-                    try {
-                        DataObject dobj = DataObject.find(folder);
-                        icons = dobj.getNodeDelegate();
-                    } catch (DataObjectNotFoundException e) {
-                        // ignore
-                    }
-                }
-            }
-        }
-        final Node content = new AbstractNode(kids) {
-            public void setName(String name) {
-                super.setName(name);
-                super.setIconBase("org/netbeans/modules/tasklist/docscan/repository");  // NOI18N
-            }
-        };
-
-        content.setName(Util.getString("projects"));
-        return content;
-    }
-
-    /** Visualizes folder structure. */
-    private static class FolderNode extends AbstractNode {
-
-        private final FileObject fileObject;
-        private SourceGroup group;
-
-        public FolderNode(FileObject fileObject, SourceGroup root) {
-            super(new FolderContent(fileObject, root), Lookups.singleton(fileObject));
-            this.fileObject = fileObject;
-            group = root;
-        }
-
-        public FolderNode(FileObject fileObject) {
-            super(new FolderContent(fileObject), Lookups.singleton(fileObject));
-            this.fileObject = fileObject;
-        }
-
-        public String getDisplayName() {
-            if (group != null) {
-                return group.getDisplayName();
-            } else {
-                return fileObject.getName();
-            }
-        }
-
-        public Image getIcon(int type) {
-
-            // XXX how to convert icon to image?
-//            if (group != null) {
-//                Icon icon  = group.getIcon(false);
-//                if (icon != null) {
-//                    return icon.
-//                }
-//            }
-
-            // XXX how to dynamically get icon (that is subject to L&F)
-            if (icons != null) {
-                return icons.getIcon(type);
-            } else {
-                return super.getIcon(type);
-            }
-        }
-
-        public Image getOpenedIcon(int type) {
-            // XXX how to dynamically get icon (that is subject to L&F)
-            if (icons != null) {
-                return icons.getOpenedIcon(type);
-            } else {
-                return super.getOpenedIcon(type);
-            }
-        }
-
-        private static class FolderContent extends Children.Keys {
-
-            private final FileObject fileObject;
-	    private final SourceGroup group;
-
-            public FolderContent(FileObject fileObject) {
-	      this(fileObject, null);
-	    }
-
-            public FolderContent(FileObject fileObject, SourceGroup group) {
-                this.fileObject = fileObject;
-		this.group = group;
-            }
-
-            protected void addNotify() {
-                FileObject[] fo = fileObject.getChildren();
-                Arrays.sort(fo, new Comparator() {
-                    public int compare(Object o1, Object o2) {
-                        return ((FileObject) o1).getNameExt().compareToIgnoreCase(((FileObject) o2).getNameExt());
-                    }
-                });
-                setKeys(Arrays.asList(fo));
-            }
-
-            protected void removeNotify() {
-                setKeys(Collections.EMPTY_SET);
-            }
-
-            protected Node[] createNodes(Object key) {
-                FileObject fo = (FileObject) key;
-                if (fo.isFolder() && (group == null || group.contains(fo))) {
-                    return new Node[] {new FolderNode(fo)};
-                } else {
-                    return new Node[0];
-                }
-            }
+            Choosers.icons = null;
         }
     }
 
