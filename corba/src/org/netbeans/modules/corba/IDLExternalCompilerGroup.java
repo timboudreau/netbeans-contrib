@@ -25,7 +25,7 @@ import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.*;
 
 import com.netbeans.enterprise.modules.corba.settings.*;
-import com.netbeans.modules.loaders.java.JavaDataObject;
+import com.netbeans.developer.modules.loaders.java.JavaDataObject;
 
  /** External Compiler Group 
   * 
@@ -76,16 +76,6 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
    *
    * @return true if successful, false otherwise
    */
-   public boolean start () { /*
-     if (super.start()) {
-       vsechny IDL -  vsechny java
-       CompilerJob job = new CompilerJob();
-       JavaDataObject.createCompiler(null, job, fo, CompilerCookie.Compile);
-     } else {
-       return false;
-     }
-     */
-   }
    
 
    /** 
