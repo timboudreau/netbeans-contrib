@@ -65,12 +65,11 @@ public abstract class MemberElementImpl extends ElementImpl
   */
   public Identifier getName () {
     if (name == null) {
-      if (data instanceof Class)
-        // Class doesn't implement Member interface...
-        name = Identifier.create(
-          Utilities.getShortClassName((Class)data));
-      else
-        name = Identifier.create(((Member)data).getName());
+      String s = (data instanceof Class) ?
+        Utilities.getClassName((Class)data) :
+        ((Member)data).getName();
+      
+      name = Identifier.create(s);
     }
     return name;
   }
@@ -92,6 +91,8 @@ public abstract class MemberElementImpl extends ElementImpl
 
 /*
 * Log
+*  5    src-jtulach1.4         5/12/99  Petr Hamernik   ide.src.Identifier 
+*       updated
 *  4    src-jtulach1.3         3/26/99  David Simonek   properties, actions 
 *       completed, more robust now
 *  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.

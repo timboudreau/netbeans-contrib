@@ -356,6 +356,8 @@ final class ClassElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  8    src-jtulach1.7         5/12/99  Petr Hamernik   ide.src.Identifier 
+*       updated
 *  7    src-jtulach1.6         3/31/99  David Simonek   setClassOrInterface now 
 *       throws SourceException
 *  6    src-jtulach1.5         3/26/99  David Simonek   properties, actions 
