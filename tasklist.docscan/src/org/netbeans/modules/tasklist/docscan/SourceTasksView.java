@@ -1366,7 +1366,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         private SourceGroup group;
 
         public FolderNode(FileObject fileObject, SourceGroup root) {
-            super(new FolderContent(fileObject), Lookups.singleton(fileObject));
+            super(new FolderContent(fileObject, root), Lookups.singleton(fileObject));
             this.fileObject = fileObject;
             group = root;
         }
@@ -1414,9 +1414,15 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         private static class FolderContent extends Children.Keys {
 
             private final FileObject fileObject;
+	    private final SourceGroup group;
 
             public FolderContent(FileObject fileObject) {
+	      this(fileObject, null);
+	    }
+
+            public FolderContent(FileObject fileObject, SourceGroup group) {
                 this.fileObject = fileObject;
+		this.group = group;
             }
 
             protected void addNotify() {
@@ -1435,7 +1441,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
             protected Node[] createNodes(Object key) {
                 FileObject fo = (FileObject) key;
-                if (fo.isFolder()) {
+                if (fo.isFolder() && (group == null || group.contains(fo))) {
                     return new Node[] {new FolderNode(fo)};
                 } else {
                     return new Node[0];
