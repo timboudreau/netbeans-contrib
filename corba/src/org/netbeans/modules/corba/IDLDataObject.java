@@ -703,7 +703,8 @@ public class IDLDataObject extends MultiDataObject {
             //IDLDataObject.this.handleFindDataObject (
             //IDLDataObject.this.startParsing ();
             IDLDataObject.this.update ();
-            IDLDataObject.this.idlNode.update ();
+	    if (IDLDataObject.this.idlNode != null)
+		IDLDataObject.this.idlNode.update ();
             CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                        (CORBASupportSettings.class, true);
             if (css.getSynchro () == CORBASupport.SYNCHRO_ON_SAVE)
