@@ -26,6 +26,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.propertysheet.PropertySheet;
@@ -42,7 +43,10 @@ import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.netbeans.modules.vcscore.registry.RecognizedFS;
 import org.netbeans.modules.vcscore.ui.fsmanager.VcsChildren.FSInfoBeanNode;
-import org.openide.NotifyDescriptor;
+import org.netbeans.modules.vcscore.versioning.VersioningRepository;
+import org.netbeans.modules.vcscore.versioning.VersioningRepositoryEvent;
+import org.netbeans.modules.vcscore.versioning.VersioningRepositoryListener;
+import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 
 /**
  * Vcs Manager
@@ -248,6 +252,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         
 
         public void actionPerformed(ActionEvent e){
+            addVersioningOpenerListener();
             ((VcsMountFromTemplateAction) SharedClassObject.findObject (VcsMountFromTemplateAction.class, true)).performAction ();
         }      
     
@@ -357,4 +362,31 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
     private org.openide.explorer.view.TreeTableView treeTableView1;
     // End of variables declaration//GEN-END:variables
     
+    private static boolean versioningOpenerListenerAdded = false;
+    
+    private static void addVersioningOpenerListener() {
+        if (!versioningOpenerListenerAdded) {
+            VersioningRepository.getRepository().addRepositoryListener(new VersioningOpenerListener());
+            versioningOpenerListenerAdded = true;
+        }
+    }
+    
+    private static final class VersioningOpenerListener extends Object implements VersioningRepositoryListener {
+        
+        public void versioningSystemAdded(VersioningRepositoryEvent re) {
+            if (re.getRepository().getVersioningFileSystems().size() == 1) {
+                // The first versioning filesystem was just added
+                javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        VersioningExplorer.getRevisionExplorer().open();
+                    }
+                });
+            }
+        }
+        
+        public void versioningSystemRemoved(VersioningRepositoryEvent re) {
+            // Should we close VersioningExplorer when the last VFS is removed?
+        }
+        
+    }
 }
