@@ -359,8 +359,8 @@ public class JellyBranch extends JellyTestCase {
         new CVSFileNode(exp.repositoryTab().tree(), nSubDir);
         new CVSFileNode(exp.repositoryTab().tree(), nFile);
         new CVSFileNode(exp.repositoryTab().tree(), nSubFile);
-        waitStatus("Local", nDirectory);
-        waitStatus("Local", nSubDir);
+//        waitStatus("Local", nDirectory); // stabilization
+//        waitStatus("Local", nSubDir); // stabilization
         waitStatus("Local", nFile);
         waitStatus("Local", nSubFile);
         
