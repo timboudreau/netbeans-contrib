@@ -84,6 +84,8 @@ public class AccessoryVariableNode extends AbstractNode {
             Map valuesByConditions = new HashMap();
             valuesByConditions.put(null, var.getValue());
             cs = new ConditionedString(var.getName(), valuesByConditions);
+            mainCondition = new IfUnlessCondition(null);
+            mainCondition.setConditionName(var.getName());
         }
         init(null, var);
     }
@@ -305,7 +307,7 @@ public class AccessoryVariableNode extends AbstractNode {
                 //cmd.fireChanged();
             }
         });
-        if (cs != null) {
+        if (mainCondition != null) {
             set.put(new PropertySupport.ReadWrite("if", String.class, g("CTL_DefIf"), g("HINT_DefIf")) {
                 public Object getValue() {
                     return mainCondition.getIf();
