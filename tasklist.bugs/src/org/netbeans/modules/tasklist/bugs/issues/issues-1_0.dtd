@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!--
+    Description: format for .issues files
+-->
+
+<!ELEMENT issues (components, statuses, resolutions, platforms, 
+    operating-systems, versions, priorities, 
+    issue-types, persons, issue*)>
+
+<!ELEMENT components (component*)>
+
+<!ELEMENT component (subcomponent*)>
+<!ATTLIST component name CDATA #REQUIRED>
+
+<!ELEMENT subcomponent EMPTY>
+<!ATTLIST subcomponent 
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT statuses (status*)>
+
+<!ELEMENT status EMPTY>
+<!ATTLIST status 
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT platforms (platform*)>
+
+<!ELEMENT platform EMPTY>
+<!ATTLIST platform
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT operating-systems (os*)>
+
+<!ELEMENT os EMPTY>
+<!ATTLIST os
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT versions (version*)>
+
+<!ELEMENT version EMPTY>
+<!ATTLIST version
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT priorities (priority*)>
+
+<!ELEMENT priority EMPTY>
+<!ATTLIST priority
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT issue-types (issue-type*)>
+
+<!ELEMENT issue-type EMPTY>
+<!ATTLIST issue-type
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT persons (person*)>
+
+<!ELEMENT person EMPTY>
+<!ATTLIST person
+    first-name CDATA #REQUIRED
+    surname CDATA #REQUIRED
+    email CDATA #REQUIRED
+>
+
+<!ELEMENT resolutions (resolution*)>
+
+<!ELEMENT resolution EMPTY>
+<!ATTLIST resolution
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT issue (depends-on*, comment*)>
+<!--
+    id - ID of this issue (1, 2, 3, 4, ...)
+    component - index of the component. see issues/component
+    subcomponent - index of the subcomponent. see issues/component/subcomponent
+    status - index of the status. see issues/status
+    platform - index of the platform. see issues/platform
+    os - index of the OS. see issues/os
+    version - index of the version. see issues/version
+    priority - index of the priority. see issues/priority
+    issue-typ - index of the issue-type. see issues/issue-type
+    target-version - index of the target version. see issues/version
+    assigned-to - index of the person this issue assigned to. see issues/person
+    resolution - index of the resolution. see issues/resolution
+ -->
+<!ATTLIST issue
+    id CDATA #REQUIRED
+    component CDATA #REQUIRED
+    subcomponent CDATA #REQUIRED
+    status CDATA #REQUIRED
+    platform CDATA #REQUIRED
+    os CDATA #REQUIRED
+    version CDATA #REQUIRED
+    priority CDATA #REQUIRED
+    issue-type CDATA #REQUIRED
+    target-version CDATA #REQUIRED
+    assigned-to CDATA #REQUIRED
+    url CDATA #IMPLIED
+    summary CDATA #REQUIRED
+    resolution CDATA #IMPLIED
+>
+
+<!-- ID of an issue this one depends on -->
+<!ELEMENT depends-on (#PCDATA)>
+
+<!-- a comment -->
+<!ELEMENT comment (#PCDATA)>

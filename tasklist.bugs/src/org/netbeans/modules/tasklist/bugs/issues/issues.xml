@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE issues PUBLIC '-//NetBeans org.netbeans.modules.tasklist.bugs//DTD Issues 1.0//EN' 'issues-1_0.dtd'>
+<issues>
+    <components>
+        <component name="UI"/>
+        <component name="code"/>
+    </components>
+    <statuses>
+        <status name="new"/>
+        <status name="started"/>
+        <status name="resolved"/>
+        <status name="verified"/>
+    </statuses>
+    <resolutions>
+        <resolution name="fixed"/>
+        <resolution name="invalid"/>
+        <resolution name="wontfix"/>
+        <resolution name="worksforme"/>
+    </resolutions>
+    <platforms>
+        <platform name="DEC"/>
+        <platform name="HP"/>
+        <platform name="Macintosh"/>
+        <platform name="Palm PDA"/>
+        <platform name="PC"/>
+        <platform name="SGI"/>
+        <platform name="Sun"/>
+        <platform name="Other"/>
+    </platforms>
+    <operating-systems>
+        <os name="Windows 3.1"/>
+        <os name="Windows 95"/>
+        <os name="Windows 98"/>
+        <os name="Windows ME"/>
+        <os name="Windows 2000"/>
+        <os name="Windows NT"/>
+        <os name="Windows XP"/>
+        <os name="Mac System 7"/>
+        <os name="Mac System 7.5"/>
+        <os name="Mac System 7.6.1"/>
+        <os name="Mac System 8.0"/>
+        <os name="Mac System 8.5"/>
+        <os name="Mac System 8.6"/>
+        <os name="Mac System 9.0"/>
+        <os name="Mac OS X"/>
+        <os name="Palm OS 3.x"/>
+        <os name="Palm OS 4.x"/>
+        <os name="Linux"/>
+        <os name="BSDI"/>
+        <os name="FreeBSD"/>
+        <os name="NetBSD"/>
+        <os name="OpenBSD"/>
+        <os name="AIX"/>
+        <os name="BeOS"/>
+        <os name="HP-UX"/>
+        <os name="IRIX"/>
+        <os name="Neutrino"/>
+        <os name="OpenVMS"/>
+        <os name="OS/2"/>
+        <os name="OSF/1"/>
+        <os name="Solaris"/>
+        <os name="SunOS"/>
+        <os name="other"/>
+    </operating-systems>
+    <versions>
+        <version name="1.0"/>
+    </versions>
+    <priorities>
+        <priority name="P1"/>
+        <priority name="P2"/>
+        <priority name="P3"/>
+        <priority name="P4"/>
+        <priority name="P5"/>
+    </priorities>
+    <issue-types>
+        <issue-type name="defect"/>
+        <issue-type name="enhancement"/>
+        <issue-type name="feature"/>
+        <issue-type name="task"/>
+    </issue-types>
+    <persons>
+        <person email="developer@domain.org" first-name="Developer" surname="Developer"/>
+    </persons>
+</issues>
