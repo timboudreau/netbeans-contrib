@@ -417,11 +417,14 @@ public abstract class TaskListView extends TopComponent
 	InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
 	filters = (FilterRepository) ic.instanceCreate();
 	
-	filters.addPropertyChangeListener(new PropertyChangeListener() {
-	    public void propertyChange(PropertyChangeEvent evt) {
-	      if (evt.getPropertyName().equals(FilterRepository.PROP_ACTIVE_FILTER)) setFiltered();
-	    }
-	  });     
+// 	filters.addPropertyChangeListener(new PropertyChangeListener() {
+// 	    public void propertyChange(PropertyChangeEvent evt) {
+// 	      if (evt.getPropertyName().equals(FilterRepository.PROP_ACTIVE_FILTER)) {
+// 		setFilter(filters.getActive());
+// 		//		setFiltered();
+// 	      }
+// 	    }
+// 	  });     
       
       } catch (ClassNotFoundException e) {
 	ErrorManager.getDefault().notify(e);
@@ -1236,6 +1239,7 @@ for (int i = 0; i < columns.length; i++) {
      * @return The toggle filter or <code>null</code> if not defined.
      */
     public final Filter getFilter() {
+      //      return getFilters().getActive();
       return activeFilter;
     }
 
@@ -1268,6 +1272,7 @@ for (int i = 0; i < columns.length; i++) {
         try {
             getExplorerManager().setSelectedNodes(new Node[0]);
         } catch (PropertyVetoException e) {
+            ErrorManager.getDefault().notify(e);
         }
 
         setRoot();
@@ -1284,6 +1289,7 @@ for (int i = 0; i < columns.length; i++) {
       } 
 
       this.activeFilter = filter;
+      setFiltered();
     }
 
     /**
