@@ -124,7 +124,6 @@ public class CvsAnnotateVisualizer extends OutputVisualizer {
         AnnotateLine annLine = processLine(line);
         if (annLine != null) {
             annLine.setLineNum(lineNum);            
-            lineNum++;
             debug("line number:"+lineNum);
         }
         debug("annotationLines.add");
