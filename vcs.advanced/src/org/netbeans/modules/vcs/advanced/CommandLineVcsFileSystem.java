@@ -313,7 +313,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     if( len==1 ){
       FileObject ff=(FileObject)oo[0];
       fullName=ff.getPackageNameExt('/','.');
-      fileName=cache.getFileNamePart(fullName);
+      fileName=MiscStuff.getFileNamePart(fullName);
 
       if( cachedAnnotatedFullName!=null && 
 	  cachedAnnotatedFullName.equals(fullName) ){
@@ -328,7 +328,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
     cachedAnnotatedFullName=fullName;
     cachedAnnotatedResult=result;
-    D.deb("annotateName() -> result='"+result+"'");
+    //D.deb("annotateName() -> result='"+result+"'");
     return result;
   }
   
@@ -342,7 +342,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     for(int i=0;i<len;i++){
       FileObject ff=(FileObject)oo[i]; 
       String fullName=ff.getPackageNameExt('/','.');
-      String fileName=cache.getFileNamePart(fullName);
+      String fileName=MiscStuff.getFileNamePart(fullName);
 
       VcsFile file=cache.getFile(fullName);
       if( file==null ){
@@ -757,6 +757,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  21   Gandalf   1.20        5/21/99  Michal Fadljevic 
  *  20   Gandalf   1.19        5/21/99  Michal Fadljevic 
  *  19   Gandalf   1.18        5/21/99  Michal Fadljevic 
  *  18   Gandalf   1.17        5/19/99  Michal Fadljevic 
