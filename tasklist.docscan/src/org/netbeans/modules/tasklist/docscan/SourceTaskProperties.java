@@ -35,8 +35,8 @@ public abstract class SourceTaskProperties extends SuggestionImplProperties {
 
   public static final SuggestionProperty PROP_TASK = 
     new SuggestionProperty(PROPID_TASK, String.class) {
-      public Object getValue(Suggestion suggestion) {
-	return SuggestionImplProperties.PROP_SUMMARY.getValue(suggestion);
+      public Object getValue(Object obj) {
+	return SuggestionImplProperties.PROP_SUMMARY.getValue(obj);
       }
     };
 
