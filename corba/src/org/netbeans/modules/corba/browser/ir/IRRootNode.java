@@ -26,6 +26,7 @@ import org.openide.util.*;
 
 import org.netbeans.modules.corba.*;
 import org.netbeans.modules.corba.settings.*;
+import org.netbeans.modules.corba.browser.ir.util.AsyncTarget;
 /*
  * @author Karel Gardas
  */
@@ -43,6 +44,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
     private ORB orb;
 
     private Vector repositories;
+    
+    private RequestProcessor rqProcessor;
 
     private CORBASupportSettings css;
 
@@ -53,16 +56,38 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
     static {
         instance = null;
     }
+    
+    
+    private static class Request implements Runnable {
+        
+        private AsyncTarget target;
+        
+        public Request (AsyncTarget target) {
+            this.target = target;
+        }
+
+        public void run() {
+            this.target.preinvoke();
+            this.target.invoke();
+            this.target.postinvoke();
+        }
+        
+    }
 
     public IRRootNode () {
         super (new IRRootNodeChildren ());
         instance = this;
+        this.rqProcessor = new RequestProcessor ("CORBA-Browsers");
         setName (NbBundle.getBundle(IRRootNode.class).getString("CTL_CORBAInterfaceRepository"));
         init ();
     }
 
     public static IRRootNode getDefault(){
         return instance;
+    }
+    
+    public void performAsync (AsyncTarget target) {
+        this.rqProcessor.post ( new Request (target),0);
     }
 
     public void init () {

@@ -66,6 +66,7 @@ public class Util {
     public static String typeCode2TypeString (TypeCode tc, StringHolder dimension) {
         try{
             switch (tc.kind ().value ()) {
+            case TCKind._tk_abstract_interface : return tc.name();
             case TCKind._tk_null : return "null";
             case TCKind._tk_void : return "void";
             case TCKind._tk_short : return "short";
@@ -106,7 +107,18 @@ public class Util {
             case TCKind._tk_wchar : return "wchar";
             case TCKind._tk_wstring :
                 return ( tc.length() == 0) ? "wstring" : "wstring <"+tc.length()+">";
-            case TCKind._tk_fixed : return "fixed";
+            case TCKind._tk_fixed : 
+                try {
+                    short digits = tc.fixed_digits();
+                    short scale = tc.fixed_scale();
+                    return "fixed <"+digits+","+scale+">";
+                }catch (Exception e)
+                {
+                    return "fixed";
+                }
+            case TCKind._tk_native : return tc.name();
+            case TCKind._tk_value_box: return tc.name();
+            case TCKind._tk_value: return tc.name();
             }
         }catch (org.omg.CORBA.TypeCodePackage.BadKind bk){
         }
