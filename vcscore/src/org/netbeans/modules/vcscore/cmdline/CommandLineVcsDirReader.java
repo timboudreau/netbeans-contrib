@@ -246,6 +246,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         //D.deb("list.getInput()='"+list.getInput()+"'"); // NOI18N
 
         String dataRegex = (String) list.getProperty(UserCommand.PROPERTY_DATA_REGEX);
+        if (dataRegex == null) dataRegex = ExecuteCommand.DEFAULT_REGEX;
         //D.deb("dataRegex="+list.getDataRegex()); // NOI18N
         //final File parent = new File(dir.getAbsolutePath());
         try{
@@ -272,6 +273,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         }
 
         String errorRegex = (String) list.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
+        if (errorRegex == null) errorRegex = ExecuteCommand.DEFAULT_REGEX;
         //D.deb("errorRegex="+list.getErrorRegex()); // NOI18N
         try{
             ec.addStderrRegexListener(new CommandDataOutputListener () {
