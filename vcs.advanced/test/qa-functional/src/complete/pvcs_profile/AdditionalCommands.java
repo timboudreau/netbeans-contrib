@@ -38,6 +38,7 @@ import org.netbeans.jellytools.properties.*;
 import org.netbeans.jellytools.util.StringFilter;
 import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.operators.JDialogOperator;
+import org.netbeans.jemmy.operators.JLabelOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
 import org.netbeans.jemmy.operators.JTreeOperator;
 import org.netbeans.junit.NbTestSuite;
@@ -242,7 +243,7 @@ public class AdditionalCommands extends PVCSStub {
             if (dia == null)
                 continue;
             NbDialogOperator nbd = new NbDialogOperator ("Question");
-            JTextFieldOperator tf = new JTextFieldOperator (nbd, 0);
+            JLabelOperator tf = new JLabelOperator (nbd, 0);
             String str = tf.getText ();
             info.println ("Found Question dialog with text: " + str);
             if (set.contains(str))
@@ -669,6 +670,9 @@ public class AdditionalCommands extends PVCSStub {
         
         NbDialogOperator dia = new NbDialogOperator (NbDialogOperator.waitJDialog ("Commands", true, true));
         JTreeOperator tree = new JTreeOperator (dia);
+        sleep (2000); // stabilization
+        new Node (tree, "").select ();
+        sleep (2000); // stabilization
         new Node (tree, "").performPopupActionNoBlock("Add|Command");
         
         NbDialogOperator dia2 = new NbDialogOperator ("New Command");
