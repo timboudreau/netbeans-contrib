@@ -42,12 +42,14 @@ Microsystems, Inc. All Rights Reserved.
 	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
 	 compress="false"/>
   </target>
-
+<!--
   <target name="javahelp">
     <copydir src="javahelp" dest="netbeans/docs"/>
   </target>
+-->
 
-  <target name="netbeans" depends="jars,javahelp"/>
+  <target name="netbeans" depends="jars"/>
+
 <!--
   <target name="nbm" depends="netbeans">
     <makenbm file="vcsgen.nbm"
