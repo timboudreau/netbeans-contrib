@@ -108,6 +108,19 @@ public final class ContentDiffTest extends NbTestCase {
         assertEquals ("One page", 1, diff.getClusters()[0].getPages ().size ());
         assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains ("index.html"));
     }
+    
+    public void testSimplePageWithExternalURL () throws Exception {
+        String[] pages = {
+            "index.html", "<h1>Hi</h1> This is a simple <a href=\"http://www.netbeans.org\">page</a>."
+        };
+        
+        ContentDiff diff = diff (pages, pages);
+        
+        assertNotNull (diff);
+        assertEquals ("One cluster", 1, diff.getClusters().length);
+        assertEquals ("One page", 1, diff.getClusters()[0].getPages ().size ());
+        assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains ("index.html"));
+    }
 
     public void testTwoPages () throws Exception {
         String[] oldPages = {
