@@ -37,6 +37,7 @@ import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.TextErrorListener;
+import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
@@ -70,6 +71,7 @@ public class SharableImport implements VcsAdditionalCommand {
     private CommandExecutionContext execContext;
     private VcsFileSystem fileSystem;
     private Hashtable vars;
+    private CommandOutputListener stdoutListener;
     private CommandOutputListener stderrListener;
     
     
@@ -305,6 +307,11 @@ public class SharableImport implements VcsAdditionalCommand {
         
         VcsDescribedCommand cmd = (VcsDescribedCommand) cmdSupp.createCommand();
         cmd.setAdditionalVariables(new HashMap(vars));
+        cmd.addTextOutputListener(new TextOutputListener() {
+            public void outputLine(String line) {
+                stdoutListener.outputLine(line);
+            }
+        });
         cmd.addTextErrorListener(new TextErrorListener() {
             public void outputLine(String line) {
                 stderrListener.outputLine(line);
@@ -357,6 +364,7 @@ public class SharableImport implements VcsAdditionalCommand {
                         final CommandDataOutputListener stderrDataListener, String errorRegex) {
         this.vars = vars;
         int arglen = args.length;
+        this.stdoutListener = stdoutListener;
         this.stderrListener = stderrListener;
         //System.out.println("DIFF: args = "+VcsUtilities.arrayToString(args));
         if (arglen < 1) {
