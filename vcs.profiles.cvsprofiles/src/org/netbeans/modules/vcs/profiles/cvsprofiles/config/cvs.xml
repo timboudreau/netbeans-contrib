@@ -304,6 +304,9 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="LOGGED_IN_TEXT">
       <value>$[? USER_IS_LOGGED_IN] [You are already logged in.] [You are not logged in.]</value>
     </variable>
+    <variable name="USER_IS_LOGGED_IN">
+      <value></value>
+    </variable>
   </variables>
   <commands>
     <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS)">

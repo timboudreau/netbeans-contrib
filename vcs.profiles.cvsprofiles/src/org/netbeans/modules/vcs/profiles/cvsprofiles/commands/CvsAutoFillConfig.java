@@ -129,6 +129,7 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
         if (serverName != null) vars.put("CVS_SERVER", serverName);
         if (serverPort != null) vars.put("ENVIRONMENT_VAR_CVS_CLIENT_PORT", serverPort);
         else vars.remove("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
+        vars.remove("BUILT-IN"); // Not to alter that variable
         return true;
     }
 }

@@ -51,8 +51,9 @@ public class CvsLoggedInCVSpass implements VcsAdditionalCommand {
         if (loggedIn) {
             vars.put("USER_IS_LOGGED_IN", "true");
         } else {
-            vars.remove("USER_IS_LOGGED_IN");
+            vars.put("USER_IS_LOGGED_IN", "");
         }
+        vars.remove("BUILT-IN"); // Not to alter that variable
         return loggedIn;
     }
 }
