@@ -22,10 +22,13 @@ import org.openide.explorer.view.*;
 import org.openide.explorer.propertysheet.PropertySheetView;
 import org.openide.nodes.*;
 import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
+
 import java.util.*;
+import javax.swing.JSplitPane;
+
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
-import org.openide.windows.TopComponent;
 
 public class AnnotPatternCustomEditor extends javax.swing.JPanel implements ExplorerManager.Provider {
 
@@ -58,12 +61,7 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
         } catch (java.beans.PropertyVetoException exc) {
             // The change was vetoed
         }
-        org.openide.awt.SplittedPanel split = new org.openide.awt.SplittedPanel();
-        split.setSplitType(org.openide.awt.SplittedPanel.HORIZONTAL);
-        split.add(new AccessibleBeanTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
-        split.add(propertySheetView, org.openide.awt.SplittedPanel.ADD_RIGHT);
-        //panel.add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new RevisionTreeView(), propertySheetView));
-        panel.add(split);
+        panel.add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new AccessibleBeanTreeView(), propertySheetView));
         ExplorerActions actions = new ExplorerActions();
         actions.attach(manager);
         this.add(panel, java.awt.BorderLayout.CENTER);
