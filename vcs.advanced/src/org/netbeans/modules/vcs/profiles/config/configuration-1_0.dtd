@@ -1,0 +1,44 @@
+<!--
+-//NetBeans//DTD VCS Configuration 1.0//EN
+http://www.netbeans.org/dtds/vcs-configuration-1_0.dtd
+XML representation of a VCS commands and variables configuration profile
+-->
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!ELEMENT configuration   (label|variables|commands)      >
+<!ELEMENT variables       (variable)*   >
+<!ELEMENT commands       (command)*   >
+<!ELEMENT variable       (value)   >
+<!ELEMENT command       (command|property)*   >
+<!ELEMENT property       (value)   >
+<!ELEMENT value       (#PCDATA)   >
+
+<!ATTLIST variable
+          name         CDATA #REQUIRED
+          basic        CDATA #IMPLIED
+          label        CDATA #IMPLIED
+          labelMnemonic CDATA #IMPLIED
+          localFile    CDATA #IMPLIED
+          localDir     CDATA #IMPLIED
+          executable   CDATA #IMPLIED
+          order        CDATA #IMPLIED
+          selector     CDATA #IMPLIED     >
+
+<!ATTLIST command
+          name         CDATA #REQUIRED
+          displayName  CDATA #IMPLIED     >
+
+<!ATTLIST property
+          name         CDATA #REQUIRED   >
+
