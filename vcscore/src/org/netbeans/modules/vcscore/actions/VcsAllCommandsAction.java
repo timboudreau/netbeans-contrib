@@ -14,13 +14,6 @@
 package org.netbeans.modules.vcscore.actions;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.BeanInfo;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.*;
 import javax.swing.Icon;
@@ -35,34 +28,22 @@ import org.netbeans.modules.vcscore.VcsFSCommandsAction;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 
 import org.openide.filesystems.Repository;
-import org.openide.util.WeakListener;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
-import org.openide.NotifyDescriptor;
 import org.openide.awt.JInlineMenu;
-import org.openide.actions.FileSystemAction;
 import org.openide.awt.Actions;
 import org.openide.awt.JMenuPlus;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
-import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.nodes.BeanNode;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
 import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.actions.Presenter;
-import org.openide.windows.TopComponent.Registry;
-import org.openide.windows.WindowManager;
 
 /**
  * Action, that contains all VCS actions.
