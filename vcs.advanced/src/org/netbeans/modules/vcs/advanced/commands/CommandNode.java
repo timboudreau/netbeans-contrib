@@ -276,7 +276,7 @@ public class CommandNode extends AbstractNode {
      */
     public NewType[] getNewTypes() {
         //if (list == null) return new NewType[0];
-        return new NewType[] { new NewCommand(), new NewSeparator() };
+        return new NewType[] { new NewCommand(), new NewSeparator(), new NewFolder() };
     }
     
     /**
@@ -401,7 +401,7 @@ public class CommandNode extends AbstractNode {
         }
         
         public void create() throws java.io.IOException {
-            System.out.println("create new command: cmd = "+cmd);
+            //System.out.println("create new command: cmd = "+cmd);
             //if (list == null) return;
             NotifyDescriptor.InputLine input = new NotifyDescriptor.InputLine(
                 org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandName"),
@@ -413,7 +413,8 @@ public class CommandNode extends AbstractNode {
             if (TopManager.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
                 return;
 
-            String name = input.getInputText();
+            String labelName = input.getInputText();
+            String name = labelName.toUpperCase();
             if (existsCommandName(name)) {
                 NotifyDescriptor.Message message = new NotifyDescriptor.Message(
                     org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameAlreadyExists")
@@ -423,7 +424,7 @@ public class CommandNode extends AbstractNode {
             }
             VcsCommand cmd = new UserCommand();
             cmd.setName(name);
-            cmd.setDisplayName(name);
+            cmd.setDisplayName(labelName);
             cmd.setProperty(VcsCommand.PROPERTY_EXEC, "");
             //String name = list.createUniqueName(label);
             //cmd.setName(name);
@@ -473,4 +474,45 @@ public class CommandNode extends AbstractNode {
              */
         }
     }
+    
+    private final class NewFolder extends NewType {
+        
+        public String getName() {
+            return org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewFolder_ActionName");
+        }
+        
+        public void create() throws java.io.IOException {
+            NotifyDescriptor.InputLine input = new NotifyDescriptor.InputLine(
+                org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewFolderName"),
+                org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewFolderTitle")
+                //bundle.getString("CTL_NewCategoryName"),
+                //bundle.getString("CTL_NewCategoryTitle")
+                );
+            //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
+            if (TopManager.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
+                return;
+
+            String labelName = input.getInputText();
+            String name = labelName.toUpperCase();
+            if (existsCommandName(name)) {
+                NotifyDescriptor.Message message = new NotifyDescriptor.Message(
+                    org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameAlreadyExists")
+                );
+                TopManager.getDefault().notify(message);
+                return ;
+            }
+            VcsCommand cmd = new UserCommand();
+            cmd.setName(name);
+            cmd.setDisplayName(labelName);
+            CommandNode newCommand = new CommandNode(new Children.Array(), cmd);
+            Children ch;
+            if (Children.LEAF.equals(CommandNode.this.getChildren())) {
+                ch = CommandNode.this.getParentNode().getChildren();
+            } else {
+                ch = CommandNode.this.getChildren();
+            }
+            ch.add(new Node[] { newCommand });
+        }
+    }
+    
 }
