@@ -20,9 +20,7 @@ import javax.swing.UIManager;
 import org.openide.util.NbBundle;
 
 /**
- * PropertyEditor for done field.
- *
- * @author Tim Lebedkov
+ * PropertyEditor for percents field.
  */
 public class PercentsPropertyEditor extends PropertyEditorSupport {
     private static final String COMPUTED =

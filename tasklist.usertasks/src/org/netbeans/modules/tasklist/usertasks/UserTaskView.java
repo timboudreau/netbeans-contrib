@@ -572,7 +572,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }    
 
     protected void setFiltered() {
-        super.setFiltered();
         TreeTableModel ttm = tt.getTreeTableModel();
         if (ttm instanceof UserTasksTreeTableModel) {
             ((UserTasksTreeTableModel) ttm).destroy();
