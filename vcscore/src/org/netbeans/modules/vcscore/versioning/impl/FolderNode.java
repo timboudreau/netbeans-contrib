@@ -13,13 +13,21 @@
 
 package org.netbeans.modules.vcscore.versioning.impl;
 
+import org.openide.ErrorManager;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileStatusEvent;
+import org.openide.filesystems.FileStatusListener;
 import org.openide.filesystems.FileSystem;
 import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.PropertySupport;
+import org.openide.nodes.Sheet;
+import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
 
 import javax.swing.*;
@@ -27,6 +35,9 @@ import java.awt.*;
 import java.beans.BeanInfo;
 import java.util.Set;
 import java.util.Collections;
+
+import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 
 /**
  * Visualizes folder as much closely to FolderNode as possible
@@ -37,9 +48,25 @@ import java.util.Collections;
  *
  * @author Petr Kuzel
  */
-final class FolderNode extends AbstractNode {
+class FolderNode extends AbstractNode {
 
-    private final FileObject folder;
+    public static final String PROP_STATUS = "status";
+    public static final String PROP_LOCKER = "locker";
+    public static final String PROP_REVISION = "revision";
+    public static final String PROP_STICKY = "sticky";
+    public static final String PROP_ALL_STATES = "all";
+
+    // cached properties
+
+    private String status = null;
+    private String locker = null;
+    private String revision = null;
+    private String sticky = null;
+
+    private FileStatusListener vcsFileStatusListener;
+
+    /** The file or folder */
+    private final FileObject file;
 
     // XXX probably undeclatred dependency, copied from loaders.FolderNode
     static final String FOLDER_ICON_BASE =
@@ -47,16 +74,33 @@ final class FolderNode extends AbstractNode {
 
 
     public FolderNode(FileObject folder) {
-        super(new FolderChildren(folder));
-        this.folder = folder;
+        this(new FolderChildren(folder), folder);
         setIconBase(FOLDER_ICON_BASE);
+    }
+    
+    FolderNode(Children ch, FileObject file) {
+        super(ch);
+        this.file = file;
+        init(file);
+    }
+    
+    private void init(FileObject file) {
+        try {
+            FileSystem fs = file.getFileSystem();
+            vcsFileStatusListener = new VCSFileStatusListener();
+            fs.addFileStatusListener((FileStatusListener) WeakListeners.create(FileStatusListener.class, vcsFileStatusListener, fs));
+        } catch (FileStateInvalidException exc) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.notify(ErrorManager.INFORMATIONAL, exc);
+            return;
+        }
     }
 
     public Cookie getCookie(Class type) {
         // mimics DataNode because some actions heavily depends on DataObject cookie existence
-        if (type.isAssignableFrom(DataObject.class) || type.isAssignableFrom(DataFolder.class)) {
+        if (type.isAssignableFrom(DataObject.class) || file.isFolder() && type.isAssignableFrom(DataFolder.class)) {
             try {
-                return DataObject.find(folder);
+                return DataObject.find(file);
             } catch (DataObjectNotFoundException e) {
                 // ignore, call super later on
             }
@@ -65,14 +109,14 @@ final class FolderNode extends AbstractNode {
     }
 
     public String getName() {
-        return folder.getNameExt();
+        return file.getNameExt();
     }
 
     public String getDisplayName() {
         String s;
         try {
-            Set target = Collections.singleton(folder);
-            s = folder.getFileSystem().getStatus().annotateName(folder.getNameExt(), target);
+            Set target = Collections.singleton(file);
+            s = file.getFileSystem().getStatus().annotateName(file.getNameExt(), target);
         } catch (FileStateInvalidException exc) {
             s = super.getDisplayName();
         }
@@ -82,12 +126,12 @@ final class FolderNode extends AbstractNode {
     public String getHtmlDisplayName() {
         String s;
         try {
-            Set target = Collections.singleton(folder);
-            FileSystem.Status fsStatus = folder.getFileSystem().getStatus();
+            Set target = Collections.singleton(file);
+            FileSystem.Status fsStatus = file.getFileSystem().getStatus();
             if (fsStatus instanceof FileSystem.HtmlStatus) {
-                s = ((FileSystem.HtmlStatus) fsStatus).annotateNameHtml(folder.getNameExt(), target);
+                s = ((FileSystem.HtmlStatus) fsStatus).annotateNameHtml(file.getNameExt(), target);
             } else {
-                s = fsStatus.annotateName(folder.getNameExt(), target);
+                s = fsStatus.annotateName(file.getNameExt(), target);
             }
         } catch (FileStateInvalidException exc) {
             s = super.getHtmlDisplayName();
@@ -107,8 +151,8 @@ final class FolderNode extends AbstractNode {
         // give chance to annotate icon
         // copied from DataNode to keep the contract
         try {
-            Set target = Collections.singleton(folder);
-            img = folder.getFileSystem().
+            Set target = Collections.singleton(file);
+            img = file.getFileSystem().
                   getStatus().annotateIcon(img, type, target);
         } catch (FileStateInvalidException e) {
             // no fs, do nothing
@@ -133,8 +177,8 @@ final class FolderNode extends AbstractNode {
         // give chance to annotate icon
         // copied from DataNode to keep the contract
         try {
-            Set target = Collections.singleton(folder);
-            img = folder.getFileSystem().
+            Set target = Collections.singleton(file);
+            img = file.getFileSystem().
             getStatus().annotateIcon(img, type, target);
         } catch (FileStateInvalidException e) {
             // no fs, do nothing
@@ -173,6 +217,171 @@ final class FolderNode extends AbstractNode {
     public boolean canRename() {
         return false;
     }
+    
+    /**
+     * Create the property sheet.
+     *
+     * @return the sheet
+     */
+    protected Sheet createSheet() {
+        Sheet sheet = Sheet.createDefault();
+        Sheet.Set ps = sheet.get(Sheet.PROPERTIES);
+        ps.put(new PropertySupport.ReadOnly(FolderNode.PROP_STATUS,
+                String.class,
+                NbBundle.getMessage(FolderNode.class, "PROP_Status"),
+                NbBundle.getMessage(FolderNode.class, "HINT_Status")) {
+            public Object getValue() {
+                String value = getStatus();
+                return (value == null) ? "" : value;
+            }
+        });
+        ps.put(new PropertySupport.ReadOnly(FolderNode.PROP_REVISION,
+                String.class,
+                NbBundle.getMessage(FolderNode.class, "PROP_Revision"),
+                NbBundle.getMessage(FolderNode.class, "HINT_Revision")) {
+            public Object getValue() {
+                String value = getRevision();
+                return (value == null) ? "" : value;
+            }
+        });
+        ps.put(new PropertySupport.ReadOnly(FolderNode.PROP_STICKY,
+                String.class,
+                NbBundle.getMessage(FolderNode.class, "PROP_Sticky"),
+                NbBundle.getMessage(FolderNode.class, "HINT_Sticky")) {
+            public Object getValue() {
+                String value = getSticky();
+                return (value == null) ? "" : value;
+            }
+        });
+        sheet.put(ps);
 
+        Sheet.Set expert = Sheet.createExpertSet();
+        expert.put(new PropertySupport.ReadOnly(FolderNode.PROP_LOCKER,
+                String.class,
+                NbBundle.getMessage(FolderNode.class, "PROP_Locker"),
+                NbBundle.getMessage(FolderNode.class, "HINT_Locker")) {
+            public Object getValue() {
+                String value = getLocker();
+                return (value == null) ? "" : value;
+            }
+        });
+        sheet.put(expert);
+
+        return sheet;
+    }
+
+    /** Get the file this node operates on. */
+    protected FileObject getFile() {
+        return file;
+    }
+
+    private FileStatusProvider getFileStatusProvider() {
+        VersioningFileSystem vfs;
+        try {
+            vfs = VersioningFileSystem.findFor(file.getFileSystem());
+            return vfs.getFileStatusProvider();
+        } catch (FileStateInvalidException exc) {
+            return null;
+        }
+    }
+
+    /**
+     * Getter for property status.
+     *
+     * @return Value of property status.
+     */
+    public String getStatus() {
+        if (status == null) {
+            FileStatusProvider statusProvider = getFileStatusProvider();
+            if (statusProvider == null) return null;
+            status = statusProvider.getFileStatus(file.getPath());
+        }
+        return status;
+    }
+
+    /**
+     * Getter for property locker.
+     *
+     * @return Value of property locker.
+     */
+    public String getLocker() {
+        if (locker == null) {
+            FileStatusProvider statusProvider = getFileStatusProvider();
+            if (statusProvider == null) return null;
+            locker = statusProvider.getFileLocker(file.getPath());
+        }
+        return locker;
+    }
+
+    /**
+     * Getter for property revision.
+     *
+     * @return Value of property revision.
+     */
+    public String getRevision() {
+        if (revision == null) {
+            FileStatusProvider statusProvider = getFileStatusProvider();
+            if (statusProvider == null) return null;
+            revision = statusProvider.getFileRevision(file.getPath());
+        }
+        return revision;
+    }
+
+    /**
+     * Getter for property sticky.
+     *
+     * @return Value of property sticky.
+     */
+    public String getSticky() {
+        if (sticky == null) {
+            FileStatusProvider statusProvider = getFileStatusProvider();
+            if (statusProvider == null) return null;
+            sticky = statusProvider.getFileSticky(file.getPath());
+        }
+        return sticky;
+    }
+
+
+    private class VCSFileStatusListener implements FileStatusListener {
+        public void annotationChanged(FileStatusEvent ev) {
+            if (ev.hasChanged(file)) {
+                FileStatusProvider statusProvider = getFileStatusProvider();
+                if (statusProvider == null) return;
+                String name = file.getPath();
+                String newState = statusProvider.getFileStatus(name);
+                String oldState;
+                if (status == null && newState != null || status != null && !status.equals(newState)) {
+                    oldState = status;
+                    status = newState;
+                    firePropertyChange(PROP_STATUS, oldState, newState);
+                }
+                newState = statusProvider.getFileLocker(name);
+                if (locker == null && newState != null || locker != null && !locker.equals(newState)) {
+                    oldState = locker;
+                    locker = newState;
+                    firePropertyChange(PROP_LOCKER, oldState, newState);
+                }
+                newState = statusProvider.getFileRevision(name);
+                if (revision == null && newState != null || revision != null && !revision.equals(newState)) {
+                    oldState = revision;
+                    revision = newState;
+                    firePropertyChange(PROP_REVISION, oldState, newState);
+                }
+                newState = statusProvider.getFileSticky(name);
+                if (sticky == null && newState != null || sticky != null && !sticky.equals(newState)) {
+                    oldState = sticky;
+                    sticky = newState;
+                    firePropertyChange(PROP_STICKY, oldState, newState);
+                }
+
+                // XXX why this forward
+                if (ev.isNameChange()) {
+                    fireDisplayNameChange(null, null);
+                } else if (ev.isIconChange()) {
+                    fireIconChange();
+                }
+            }
+        }
+    }
 
 }
