@@ -59,8 +59,14 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
         return status;
     }
     
+    public void clear() {
+        super.clear();
+        fireChanged();
+    }
+    
     public boolean remove(Object obj) {
         boolean status = super.remove(obj);
+        nodeDelegates.remove(obj);
         //System.out.println("RevisionList.remove("+((RevisionItem) obj).getRevision()+")");
         fireChanged();
         return status;
@@ -68,6 +74,7 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
     
     public boolean removeAll(Collection c) {
         boolean status = super.removeAll(c);
+        for (Iterator it = c.iterator(); it.hasNext(); nodeDelegates.remove(it.next()));
         //System.out.println("RevisionList.removeAll("+c+"): c.size() = "+c.size());
         fireChanged();
         return status;
