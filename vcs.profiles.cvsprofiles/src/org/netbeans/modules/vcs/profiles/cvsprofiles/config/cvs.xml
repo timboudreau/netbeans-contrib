@@ -3135,6 +3135,11 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
       </command>
+      <command name="LOGIN_CHECK">
+        <property name="exec">        
+          <value>${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}</value>
+        </property>
+      </command>
       <command name="SET_GLOBAL_LOGIN_STATE">
       <property name="exec">
         <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsLoggedInCVSpass.class</value>

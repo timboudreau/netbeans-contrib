@@ -103,6 +103,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
         boolean loggedIn = false;
         CVSPasswd pasFile = new CVSPasswd(null);
         Object loggedInText = context.getVariablesAsHashtable().get("LOGGED_IN_TEXT");
+        java.util.Map cmdVars = new java.util.HashMap(vars);
         vars.clear(); // Not to unnecessarily update too many variables.
         vars.put("LOGGED_IN_TEXT", loggedInText);
         //System.out.println("CvsLoginCheck: putting LOGGED_IN_TEXT = '"+loggedInText+"'");
@@ -140,7 +141,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
                     //System.out.println("Adding '"+connectStr+"' with password '"+password+"' into "+pasFile.getHome()+"/.cvspass");
                     pasFile.add(connectStr, port, password);
                     pasFile.savePassFile();
-                    loggedIn = CVSPasswd.checkLogin(context, message);
+                    loggedIn = CVSPasswd.checkLogin(context, message, cmdVars);
                 }
             } catch (java.net.UnknownHostException exc) {
                 if (loginPanel != null) {

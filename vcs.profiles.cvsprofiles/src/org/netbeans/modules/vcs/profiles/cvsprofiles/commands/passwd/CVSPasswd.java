@@ -308,9 +308,17 @@ public class CVSPasswd extends Object {
      */
    // public static boolean checkLogin(VcsFileSystem fs, StringBuffer message) throws UnknownHostException, IOException {
     public static boolean checkLogin(CommandExecutionContext context, StringBuffer message) throws UnknownHostException, IOException {
+        return checkLogin(context, message, null);
+    }
+    
+    public static boolean checkLogin(CommandExecutionContext context, StringBuffer message,
+                                     java.util.Map vars) throws UnknownHostException, IOException {
         CommandSupport support = context.getCommandSupport("LOGIN_CHECK");
          if (support == null) return true;
         Command cmd = support.createCommand();
+        if (vars != null && cmd instanceof VcsDescribedCommand) {
+            ((VcsDescribedCommand) cmd).setAdditionalVariables(vars);
+        }
         // I have no way to check the login => believe that it is O.K.
         //final ExecuteCommand es = new ExecuteCommand(fs, cmd, fs.getVariablesAsHashtable());
         TextOutputCommand txtCmd = (TextOutputCommand) cmd; 
