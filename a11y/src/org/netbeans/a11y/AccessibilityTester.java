@@ -534,10 +534,10 @@ public class AccessibilityTester{
     /** Clean mnemonics conflict hash table, if each mnemonic is set only for one component.
      */
     private void cleanMnemonicsConflict() {
-        Enumeration enum = mnemonicConflict.keys();
+        Enumeration enumer = mnemonicConflict.keys();
         
-        while(enum.hasMoreElements()) {
-            String key = (String)enum.nextElement();
+        while(enumer.hasMoreElements()) {
+            String key = (String)enumer.nextElement();
             HashSet hs = (HashSet)mnemonicConflict.get(key);
             if(hs.size()==1)
                 mnemonicConflict.remove(key);
