@@ -19,13 +19,16 @@ Contributor(s): Steve Benigan.
     <label>getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(SVN_Label)</label>
     
     <os>
-        <compatible>"Unix", "Windows"</compatible>
+        <compatible>"Unix", "Windows", "OS/2"</compatible>
     </os>
     
     <condition var="IS_WINDOWS">
         <var name="os.name" valueContainsIgnoreCase="WINDOWS"/>
     </condition>
-
+    <condition var="IS_OS2">
+        <var name="os.name" valueContainsIgnoreCase="OS/2"/>
+    </condition>
+    
     <variables>
         <variable basic="false" executable="false" label="getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(INPUT_ENCODING)" localDir="false" localFile="false" name="ENCODING_D" order="12">
             <value xml:space="preserve"></value>
@@ -137,11 +140,17 @@ PROMPT_FOR(ENCODING_D,"Encoding:", "${ENCODING_D}", ACCESSIBILITY(DESCRIPTION_De
         <variable basic="false" name="PREFIX_WIN">
             <value xml:space="preserve">cmd /X /C "${CD} ${QUOTE}${ROOTDIR}${QUOTE}.&amp;&amp;</value>
         </variable>
+        <variable basic="false" name="PREFIX_OS2">
+            <value xml:space="preserve">cmd /C "${CD} ${QUOTE}${ROOTDIR}${QUOTE}.&amp;&amp;</value>
+        </variable>
         <variable basic="false" name="PREFIX_WORKDIR_FOR_LIST_UNIX">
             <value xml:space="preserve">/bin/sh -c "${CD} ${QUOTE}${ROOTDIR}$[? MODULE][${PS}${MODULE}][]$[? PATH][${PS}${PATH}][]${QUOTE};</value>
         </variable>
         <variable basic="false" name="PREFIX_WORKDIR_FOR_LIST_WINDOWS">
             <value xml:space="preserve">cmd /X /C "${CD} ${QUOTE}${ROOTDIR}$[? MODULE][${PS}${MODULE}][]$[? PATH][${PS}${PATH}][]${QUOTE}&amp;&amp;</value>
+        </variable>
+        <variable basic="false" name="PREFIX_WORKDIR_FOR_LIST_OS2">
+            <value xml:space="preserve">cmd /C "${CD} ${QUOTE}${ROOTDIR}$[? MODULE][${PS}${MODULE}][]$[? PATH][${PS}${PATH}][]${QUOTE}&amp;&amp;</value>
         </variable>
         <variable basic="false" name="PWORD">
             <value xml:space="preserve">$[? PWORD_U][${PWORD_U}][$[? PWORD_G][${PWORD_D}][]]</value>
@@ -178,6 +187,7 @@ PROMPT_FOR(ENCODING_D,"Encoding:", "${ENCODING_D}", ACCESSIBILITY(DESCRIPTION_De
         </variable>
         <variable basic="false" name="QUOTE">
             <value xml:space="preserve">\"</value>
+            <value if="IS_OS2" xml:space="preserve">"</value>
         </variable>
         <variable basic="false" name="QURL_D">
             <value xml:space="preserve">${QUOTE}${URL_D}${QUOTE}</value>
@@ -209,6 +219,7 @@ PROMPT_FOR(ENCODING_D,"Encoding:", "${ENCODING_D}", ACCESSIBILITY(DESCRIPTION_De
         <variable basic="false" name="PREFIX">
             <value xml:space="preserve">${PREFIX_UNIX}</value>
             <value if="IS_WINDOWS" xml:space="preserve">${PREFIX_WIN}</value>
+            <value if="IS_OS2" xml:space="preserve">${PREFIX_OS2}</value>
         </variable>
         <variable basic="false" name="CD">
             <value xml:space="preserve">cd</value>
@@ -217,13 +228,18 @@ PROMPT_FOR(ENCODING_D,"Encoding:", "${ENCODING_D}", ACCESSIBILITY(DESCRIPTION_De
         <variable basic="false" if="IS_WINDOWS" name="MAX_CMD_LENGTH">
             <value xml:space="preserve">1000</value>
         </variable>
+        <variable basic="false" if="IS_OS2" name="MAX_CMD_LENGTH">
+            <value xml:space="preserve">1000</value>
+        </variable>
         <variable basic="false" name="LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE">
             <value xml:space="preserve">true</value>
             <value if="IS_WINDOWS" xml:space="preserve">false</value>
+            <value if="IS_OS2" xml:space="preserve">false</value>
         </variable>
         <variable basic="false" name="PREFIX_WORKDIR_FOR_LIST">
             <value xml:space="preserve">${PREFIX_WORKDIR_FOR_LIST_UNIX}</value>
             <value if="IS_WINDOWS" xml:space="preserve">${PREFIX_WORKDIR_FOR_LIST_WINDOWS}</value>
+            <value if="IS_OS2" xml:space="preserve">${PREFIX_WORKDIR_FOR_LIST_OS2}</value>
         </variable>
     </variables>
     <commands>
@@ -308,6 +324,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "",ACCESSIBILITY(DESCRIPTION_Text f
             <command name="COMMIT_TEMPLATE_GETTER">
                 <property name="exec">
                     <value xml:space="preserve" if="IS_WINDOWS"></value>
+                    <value xml:space="preserve" if="IS_OS2"></value>
                     <value xml:space="preserve">${PREFIX} echo a | ${SVN_CMD} ci --editor-cmd cat --non-interactive ${AUTH}${QMPATHS}${POSTFIX}</value>
                 </property>
                 <property name="data.regex">
