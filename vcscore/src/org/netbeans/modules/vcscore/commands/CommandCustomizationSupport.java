@@ -399,7 +399,6 @@ public class CommandCustomizationSupport extends Object {
         } else {
             exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         }
-        exec = insertGlobalOptions(exec, vars);
         return exec;
     }
     
@@ -421,13 +420,10 @@ public class CommandCustomizationSupport extends Object {
             try {
                 if (exec.getWorking() != null) {
                     w = cmdPerf.process(exec.getWorking().getPath());
-                    w = insertGlobalOptions(w, vars);
                 }
                 exe = cmdPerf.process(exec.getExecutable());
-                exe = insertGlobalOptions(exe, vars);
                 for (int i = 0; i < args.length; i++) {
                     String arg = cmdPerf.process(args[i].getArgument());
-                    arg = insertGlobalOptions(arg, vars);
                     as[i] = new StructuredExec.Argument(arg, args[i].isLine());
                 }
             } catch (UserCancelException cancelExc) {
@@ -522,7 +518,35 @@ public class CommandCustomizationSupport extends Object {
     }
      */
     
-    private static String insertGlobalOptions(String exec, Hashtable vars) {
+    /**
+     * Insert the global options into the structured execution string and
+     * return the new StructuredExec with the filled global options.
+     */
+    public static StructuredExec insertGlobalOptions(StructuredExec exec, Hashtable vars) {
+        if (exec == null) return null;
+        StructuredExec.Argument[] args = exec.getArguments();
+        String w = null;
+        String exe = exec.getExecutable();
+        StructuredExec.Argument[] as = new StructuredExec.Argument[args.length];
+        if (exec.getWorking() != null) {
+            w = exec.getWorking().getPath();
+            w = insertGlobalOptions(w, vars);
+        }
+        exe = insertGlobalOptions(exe, vars);
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i].getArgument();
+            arg = insertGlobalOptions(arg, vars);
+            as[i] = new StructuredExec.Argument(arg, args[i].isLine());
+        }
+        exec = new StructuredExec((w != null) ? new java.io.File(w) : null, exe, as);
+        return exec;
+    }
+    
+    /**
+     * Insert the global options into the execution string and
+     * return the new exec with the filled global options.
+     */
+    public static String insertGlobalOptions(String exec, Hashtable vars) {
         if (vars.get(GLOBAL_INPUT_DESCRIPTOR) != null) {
             String glInput = (String) vars.get(GLOBAL_INPUT_EXPRESSION);
             if (glInput != null) {
@@ -649,20 +673,23 @@ public class CommandCustomizationSupport extends Object {
                 continue;
             }
             String varName = exec.substring(varBegin, varEnd);
-            String defaultParam = "";
-            if (exec.charAt(index) == '(') {
-                index++;
-                int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
-                if (index2 > 0) defaultParam = exec.substring(index, index2);
-            }
-            if (acceptUserParams && userParamsLabels != null) {
-                if (num >= userParamsLabels.length) num = userParamsLabels.length - 1;
-                if (userParams[num] != null) defaultParam = userParams[num];
-                results.put(userParamsLabels[num], defaultParam);
-                varNames.put(varName, userParamsLabels[num]);
-                userParamsIndexes.put(varName, new Integer(num));
-            } else {
-                vars.put(varName, defaultParam);
+            if (vars.get(varName) == null) { // Do this only when the variable is not yet defined.
+                // Otherwise the user would be prompted again for the same variables by sub-commands.
+                String defaultParam = "";
+                if (exec.charAt(index) == '(') {
+                    index++;
+                    int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
+                    if (index2 > 0) defaultParam = exec.substring(index, index2);
+                }
+                if (acceptUserParams && userParamsLabels != null) {
+                    if (num >= userParamsLabels.length) num = userParamsLabels.length - 1;
+                    if (userParams[num] != null) defaultParam = userParams[num];
+                    results.put(userParamsLabels[num], defaultParam);
+                    varNames.put(varName, userParamsLabels[num]);
+                    userParamsIndexes.put(varName, new Integer(num));
+                } else {
+                    vars.put(varName, defaultParam);
+                }
             }
             pos = varEnd;
         }
@@ -684,23 +711,26 @@ public class CommandCustomizationSupport extends Object {
                 continue;
             }
             String varName = exec.substring(varBegin, varEnd);
-            String defaultParam = "";
-            if (exec.charAt(index) == '(') {
-                index++;
-                int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
-                if (index2 > 0) defaultParam = exec.substring(index, index2);
-            }
-            if (acceptUserParams && userLocalParamsLabels != null) {
-                String[] cmdUserParams = (String[]) cmd.getProperty(VcsCommand.PROPERTY_USER_PARAMS);
-                if (cmdUserParams == null) cmdUserParams = new String[userLocalParamsLabels.length];
-                cmd.setProperty(VcsCommand.PROPERTY_USER_PARAMS, cmdUserParams);
-                if (num >= userLocalParamsLabels.length) num = userLocalParamsLabels.length - 1;
-                if (cmdUserParams[num] != null) defaultParam = cmdUserParams[num];
-                results.put(userLocalParamsLabels[num], defaultParam);
-                varNames.put(varName, userLocalParamsLabels[num]);
-                userParamsIndexes.put(varName, new Integer(-num - 1));
-            } else {
-                vars.put(varName, defaultParam);
+            if (vars.get(varName) == null) { // Do this only when the variable is not yet defined.
+                // Otherwise the user would be prompted again for the same variables by sub-commands.
+                String defaultParam = "";
+                if (exec.charAt(index) == '(') {
+                    index++;
+                    int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
+                    if (index2 > 0) defaultParam = exec.substring(index, index2);
+                }
+                if (acceptUserParams && userLocalParamsLabels != null) {
+                    String[] cmdUserParams = (String[]) cmd.getProperty(VcsCommand.PROPERTY_USER_PARAMS);
+                    if (cmdUserParams == null) cmdUserParams = new String[userLocalParamsLabels.length];
+                    cmd.setProperty(VcsCommand.PROPERTY_USER_PARAMS, cmdUserParams);
+                    if (num >= userLocalParamsLabels.length) num = userLocalParamsLabels.length - 1;
+                    if (cmdUserParams[num] != null) defaultParam = cmdUserParams[num];
+                    results.put(userLocalParamsLabels[num], defaultParam);
+                    varNames.put(varName, userLocalParamsLabels[num]);
+                    userParamsIndexes.put(varName, new Integer(-num - 1));
+                } else {
+                    vars.put(varName, defaultParam);
+                }
             }
             pos = varEnd;
         }
@@ -880,7 +910,7 @@ public class CommandCustomizationSupport extends Object {
                     // since I have the original variables locked.
                     final Hashtable dlgVars = new Hashtable(vars);
                     final VariableInputDialog dlg = new VariableInputDialog(new String[] { file }, inputDescriptor, expertCondition, dlgVars);
-                    if (inputDescriptor.getHelpID() != null) {
+                    if (inputDescriptor != null && inputDescriptor.getHelpID() != null) {
                         dlg.putClientProperty("helpID", inputDescriptor.getHelpID());
                     }
                     dlg.setExecutionContext(executionContext, dlgVars);
@@ -892,7 +922,9 @@ public class CommandCustomizationSupport extends Object {
                     if (expertCondition) {
                         if (exec != null) dlg.setExec(exec);
                     }
-                    dlg.setComponentsToPreprocess(getComponentsToPreprocess(inputDescriptor));
+                    if (inputDescriptor != null) {
+                        dlg.setComponentsToPreprocess(getComponentsToPreprocess(inputDescriptor));
+                    }
                     final String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
                     String globalInputStrStored = (String) globalInputStrs.get(executionContext);
                     VariableInputDescriptor globalInputDescriptor = null;
