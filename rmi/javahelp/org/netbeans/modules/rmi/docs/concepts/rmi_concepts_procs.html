@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<title>Steps for Creating an RMI Program</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>Steps for Creating an RMI Program</h2>
+<p>
+The RMI module generates most of the source code you need for RMI
+client and server programs. The steps you follow to create RMI
+programs are outlined below:
+
+<ol>
+<li>
+Obtain or write a remote interface that defines the interfaces for
+your RMI programs. If you use an implementation file template to
+generate server-side code, you can write your remote interface and
+generate program files based on the interface. 
+</li>
+
+<li>
+Decide which Java source files you need generated: client-side, server-side,
+or both.</li>
+
+<li>
+Select an RMI template to generate the files.</li>
+
+<li>
+Add the code that completes the generated files:</li>
+
+<ul>
+<li>
+On the client side, add code that contacts an RMI Registry and looks up
+a reference for an RMI server. When the RMI server is running, you can
+use the RMI module's Registry Browser to generate this code for you.</li>
+
+<li>
+On the server side, add code that implements the methods declared in the
+remote interface.</li>
+</ul>
+
+<li>
+Compile the package. On the server side this includes the remote
+interface.</li> 
+
+<li>
+Run and test your programs.</li>
+</ol>
+
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td><a href="rmi_concepts_files.html">Required Files for RMI Programs</a>
+<br>
+<a href="rmi_concepts_basics.html">RMI Technology</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<title>RMI Execution Settings</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>RMI Execution Settings</h2>
+<p>
+You can see the execution mode that has been assigned to a class by
+looking at the property sheet for the class. (The property sheet's
+Execution tab has an Executor property.)  When you run a class, its
+Executor property is used to start the Java virtual machine in which
+the class runs.
+</p>
+<p>
+You can customize the RMI executor properties.  When you change the
+value of a property, your change affects all classes that use that
+executor.
+
+<p>
+To customize the RMI Execution settings:
+<ol>
+  <li>Choose Tools <img src="../images/arrow.gif" alt="and choose">&nbsp;Options 
+    from the main window.</li>
+  <li>Expand the node for Debugging and Executing.</li>
+  <li>Expand the node for Execution Types and select an RMI executor.</li>
+</ol>
+
+
+<p>
+The Properties tab contains the following properties:
+<ul>
+<li><b>External Process.</b>
+A <tt>java</tt> command with appropriate parameters for RMI execution.
+When you run a class, this command is used to start the Java virtual
+machine in which the class will run. Each of the RMI executor nodes
+has a slightly different set of parameters.
+</li>
+<li><b>Identifying Name.</b>
+The name that represents the execution mode defined by the
+settings. Each of the RMI executor nodes has a different identifying
+name. The name appears in the individual class Executor settings.
+</li>
+</ul>
+
+<p>
+The Expert tab contains the following properties:
+<ul>
+<li><b>Append Environment Variable.</b>
+If true, appends or replaces existing IDE environment variables, such
+as <tt>Classpath</tt> with
+the variables listed in the Environment Variable property.
+</li>
+<li><b>Boot Classpath.</b>
+The class path used to locate the java executable for running an RMI class.
+</li>
+<li><b>Classic Switch.</b>
+If True, use the classic Java virtual machine.
+</li>
+<li><b>Classpath.</b>
+The class path supplied to the process that runs the RMI class. The
+path includes the project directory you are working in and any other
+filesystems you mounted for the project.
+</li>
+<li><b>Environment Variables.</b>
+A list of environment variables in the form <i>name = value</i>.  If you
+specify null, the IDE's settings are used.
+</li>
+<li><b>Filesystems IP URL.</b>
+The HTTP address for the IDE's Filesystems node, using the local host's IP
+address.
+</li>
+<li><b>Filesystems Path.</b>
+The path for all Filesystems nodes, including filesystems that you
+have mounted. 
+</li>
+<li><b>Filesystems URL.</b>
+The HTTP address for the IDE's Filesystems node, using the local host's name.
+</li>
+<li><b>Host IP.</b>
+The IP address of the local host.
+</li>
+<li><b>Host Name.</b>
+The name of the local host.
+</li>
+<li><b>Internal HTTP Port.</b>
+The port used by the IDE's internal HTTP server.
+</li>
+<li><b>Library Path.</b>
+The path for libraries available to the IDE, including any that you
+have mounted. 
+</li>
+<li><b>Working Directory.</b>
+The working directory in which to start the process. The default is null.
+</li>
+</ul>
+
+
+<p>
+The Expert tab contains the following properties:
+<ul>
+<li><b>Name.</b> 
+Name of the selected RMI Execution node.
+</li>
+<li><b>Template.</b> 
+If true uses the execution property settings as a template.
+</li>
+</ul>
+
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td><a href="rmi_settings.html">RMI Module Settings</a>
+<br>
+<a href="registry_props.html">RMI Registry Settings</a>
+<br>
+<a href="activation_props.html">RMI Activation Settings</a>
+<br>
+<a href="rmi_settings_compilernode.html">RMI Compiler Settings</a>
+<br>
+<a href="rmi_settings_debuggernode.html">RMI Debugging Settings</a>
+</td>
+</tr>
+</table>
+
+<hr><small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<title>Adding or Customizing an Activation Group</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>Adding or Customizing an Activation Group</h2>
+<p>
+Once you have created an instance of the Activation browser, you can
+add one or more activation groups using the Add Activation Group
+dialog box. You can also customize an activation group by modifying
+the properties of group through the Customizer dialog box.</p>
+
+<p>
+<b>To open the Add Activation Group dialog box:</b>
+<ol>
+<li>Right-click on an instance of the Activation browser in the
+Explorer's Runtime pane.</li>
+<li>Select Add Activation Group from the contextual menu.
+</li>
+</ol>
+
+
+<p>
+<b>To customize an Activation group:</b>
+<ol>
+<li>Right-click on an Activation group in the Explorer's Runtime pane.</li>
+<li>Select Customize from the contextual menu.</li>
+<li>Modify the information in the Customizer dialog box and click OK.
+<p>
+For an explanation of the fields in the dialog box, see the
+steps for adding an activation group.</p></li>
+</ol>
+
+
+<p>
+<b>To add an activation group, supply the following information:</b>
+<ol>
+<li><b>Class Name.</b> The name of the activation group class. Click
+on the ellipsis button to use a file chooser to 
+select the class. A null group class name indicates
+the system's default Activation group implementation. 
+</li>
+<li><b>Location.</b> The path where the class is located. The
+path is automatically supplied when you select the class from the file
+chooser.
+</li>
+<li><b>Command Environment.</b> The environment settings for the
+activation group. You can specify:
+<ul>
+<li><b>Process.</b> The path to the JVM used by the activation group.
+</li>   
+<li><b>Item.</b> (Optional) Any arguments you want to add when initializing the JVM.
+</li>
+</ul>
+<li><b>Properties.</b> Properties that specify overrides to the JVM.
+</li>
+<li><b>Serialized Data.</b> The object's initialization data contained
+in marshalled form. Click the ellipsis (...) button to add or customize an
+object. Click Create New in the Customize Bean dialog box to select
+an object. Once an object is selected, you can modify it in the
+Customize Bean dialog box if desired before clicking OK to add it to the
+Serialized Data field.
+</li>
+
+
+</ol>
+
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td><a href="rmi_activatebrowser_starting.html">Starting the RMI Activation Browser</a>
+<br>
+<a href="addingbrowserinstance.html">Adding an Activation Browser</a>
+<br>
+<a href="rmi_activatebrowser_usingsystem.html">Activation System Node Commands</a>
+<br>
+<a href="rmi_activatebrowser_usinggroup.html">Activation Group Node Commands</a>
+<br>
+<a href="rmi_activatebrowser_usingobject.html">Activatable Object Node Commands</a>
+</td>
+</tr>
+</table>  
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

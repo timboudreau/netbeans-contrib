@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<title>Required Files for RMI Programs</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>Required Files for RMI Programs</h2>
+<p>
+The RMI module has several RMI templates available from the New
+Wizard. You can use the templates to generate Java source files
+(<code>.java</code> files) for the different parts of RMI
+programs. The kind of RMI program you are writing determines the files
+you need to generate.
+</p>
+<h3>Remote Interface Files</h3>
+<p>
+Remote interface files are Java interfaces that extend
+<code>java.rmi.Remote</code>. The remote interface defines the
+interface of an RMI server. It is compiled to create the stub and
+skeleton files that enable a client and a server to communicate. On the
+server side, you need a remote interface in the package with your
+implementation class. On the client side, you need to know the method
+signatures declared in the remote interface, because your client will
+be invoking these methods. You also need a remote interface, which is
+required for compiling.
+</p>
+<p>You can use an existing remote interface or you can write your own:
+</p>
+<ul>
+<li>
+If you are writing a client program that uses RMI technology to access
+an RMI server that someone else has already developed and deployed, you
+must begin with a copy of the remote interface that declares the server-side
+methods that your client program can invoke.</li>
+
+<li>
+If you are developing an RMI server or a complete RMI application, you
+begin by writing your own remote interface.</li>
+</ul>
+<p>
+The RMI templates include a template named Remote that generates
+a remote interface that you complete in the IDE's editing window. The template
+wizard provides support for writing a remote interface, it provides
+you with dialog boxes that enable you to add interface elements in correct syntax.
+</p>
+<h3>Client-side Files</h3>
+<p>
+The files you need for a client-side program are:
+</p>
+<ul>
+<li>
+<b>A client class.</b> You can generate a client class with the template named
+RMIClient. After generating a client class, complete its <tt>main()</tt>
+method by adding logic that looks up a reference to the RMI server from
+an RMI registry and uses the reference to invoke server methods.</li>
+
+<li>
+<b>The stub classes.</b> RMI technology makes it possible for the
+client program to obtain stub files at run time, after it performs the
+registry lookup.  Stub classes can be present on the client side or
+they can be dynamically downloaded.
+</li>
+</ul>
+<p>
+If you are writing a client program to access an existing RMI server,
+you need a copy of the remote interface, which contains method
+signatures for the server-side methods your program can invoke.
+</p>
+<h3>Server-side Files</h3>
+<p>
+The files you need for a server-side program are:
+</p>
+<ul>
+<li>
+<b>An implementation class.</b> This class contains implementations of
+the methods declared in the remote interface.  These implementation
+classes contain the business logic that can be executed by clients.
+<p>
+The RMI module generates implementation classes that include their
+own startup code. This means that they create instances of themselves,
+export themselves, and register themselves with an RMI registry. You can
+generate an implementation class with the RMI templates.
+</p>
+<p>
+After generating an implementation class, you need to write the business
+logic. If your business logic is complex, you can supplement the public
+methods declared in the remote interface with private methods that are
+invoked by the declared remote methods.
+</p>
+</li>
+<li>
+<b>The skeleton classes.</b> These classes are generated when you
+compile the remote interface. Skeleton classes are not required in
+Java 2 SDK v/.2 or compatible versions.</li> 
+</ul>
+<p>
+If you are using the RMI templates to generate your server-side files, you
+should generate and complete a remote interface (or obtain a copy of an
+existing interface) before generating the other server-side files. 
+</p>
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td><a href="rmi_concepts_basics.html">RMI Technology</a>
+<br>
+<a href="rmi_concepts_procs.html">Steps for Creating an RMI Program</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

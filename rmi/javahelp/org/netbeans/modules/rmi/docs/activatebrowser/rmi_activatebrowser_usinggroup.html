@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<title>Displaying the Activation Group Node</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+<h2>Activation Group Node Commands</h2>
+<p> You can perform actions on the node that represents Activation Groups. Right-click 
+  the node to open the contextual menu. The menu has the following items:</p>
+<ul>
+  <li><b>Add Activate Object.</b>&nbsp;Registers a new activatable object with 
+    the group.</li>
+  <li><b>Copy Setup Code.</b>&nbsp;Generates and places code in the clipboard 
+    that performs the setup of the activatable group.</li>
+  <li><b>Inactivate.</b>&nbsp;Deactivates the group.</li>
+  <li><b>Delete.</b>&nbsp;Removes the group from the tree and unregisters it from 
+    the activation system.</li>
+  <li><b>Customize.</b>&nbsp;Opens the customization dialog box that enables you 
+    to edit properties of selected group. These properties include: 
+    <ul>
+      <li>Classname. A string that specifies the group's package qualified class 
+        name. A null group class name indicates<br>
+        the system's default Activation group implementation. </li>
+      <li>Location. A string that specifies the path from where to load the group's 
+        class. </li>
+      <li>Process. The path to the JVM used by the activation group. </li>
+      <li>Items. A string that specifies the controlling options for executing 
+        the VM in another process, or null. </li>
+      <li>Properties. A <code>java.util.properties</code> properties map that 
+        overrides those set by default in the subprocess environment. This can 
+        be null. </li>
+      <li>Serialized Data. A <code>java.rmi.MarshalledObject</code> object that 
+        contains the group's initialization data contained in marshalled form. 
+        This object could contain properties, for example. </li>
+    </ul>
+  </li>
+  <li><b>Properties.</b>&nbsp;Displays the current values for the properties of 
+    the selected group</li>
+</ul>
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td><a href="rmi_activatebrowser_starting.html">Starting the RMI Activation System</a>
+<br>
+<a href="addingbrowserinstance.html">Adding an Activation Browser</a>
+<br>
+<a href="addingactgroup.html">Adding an Activation Group</a>
+<br>
+<a href="rmi_activatebrowser_usingsystem.html">Activation System Node Commands</a>
+<br>
+<a href="rmi_activatebrowser_usingobject.html">Activatable Objects
+Node Commands</a>
+</td>
+</tr>
+</table>  
+
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

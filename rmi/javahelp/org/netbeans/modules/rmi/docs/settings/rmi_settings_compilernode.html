@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<meta name="lastupdated" content="4apr2001">
+<title>RMI Compiler Settings</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>RMI Compiler Settings</h2>
+<p>
+The Compiler Types node has the following
+subnodes for compiling RMI stub files:
+<ul>
+<li>RMI Stub Compiler</li>
+<li>RMI Stub Compiler (IIOP)</li>
+</ul>
+
+<p>
+The RMI Stub Compiler node represents a mode for running the <tt>rmic</tt>
+compiler and generating RMI stubs and skeletons. When you generate an
+RMI implementation class with the RMI templates, the
+stub compiler is assigned by default. You can see the compiler that
+has been assigned for an implementation class by looking at the
+property sheet for the class. (The property sheet's Execution tab has
+a Compiler property.)
+</p>
+<p>
+To customize the stub compiler setting:
+<ol>
+  <li>Choose Tools <img src="../images/arrow.gif" alt="and choose">&nbsp;Options 
+    from the main window.</li>
+  <li>Expand the node for Building.</li>
+  <li>Expand the node for Compiler Types and select an RMI compiler type.</li>
+</ol>
+
+<p>
+The Properties tab contains the following properties:
+
+<ul>
+<li><b>Error Expression.</b> 
+The string used in error messages to identify
+the source of messages issued when compiling RMI classes.
+</li>
+<li><b>External Compiler.</b>
+The command line executable that is
+used to compile an RMI class for stub and skeletons.
+This property defaults to a local copy of the <tt>rmic</tt>
+compiler. The format can contain symbolic names that are replaced
+according to the RMI Stub Compiler configuration.
+</li>
+<li><b>Identifying Name.</b> 
+An instance of the RMI Stub Compiler that is defined with these
+property settings. The default value is RMI Stub Compiler. When this
+name appears in a class's property sheet, the IDE uses the compilation
+mode defined by this node.
+</li>
+<li><b>IIOP.</b>
+If true, turns on IIOP over RMI compilation. The default
+setting is False.
+</li>
+<li><b>Keep Generated.</b>
+If true, stub source files are not deleted. The default
+setting is False.</li>
+<li><b>Target.</b>
+The directory for generated classes. Can either reflect Java
+Compiler Settings or can be specified in the Expert properties.</li>
+<li><b>Version.</b>
+Specifies the version of the JDK used to generate stubs. The default
+version is JDK 1.2.</li>
+</ul>
+
+
+<p>
+The Expert tab contains the following properties: 
+
+<ul>
+<li><b>Target.</b>
+The output directory for the generated classes.</li>
+</ul>
+
+
+<p>
+The Info tab contains the following properties: 
+
+<ul>
+<li><b>Name.</b> 
+Name of the stub compiler.</li>
+<li>
+<b>Template.</b> 
+If true, uses this object as a template.</li>
+</ul>
+
+
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td><a href="rmi_settings.html">RMI Module Settings</a>
+<br>
+<a href="registry_props.html">RMI Registry Settings</a>
+<br>
+<a href="activation_props.html">RMI Activation Settings</a>
+<br>
+<a href="rmi_settings_executionnode.html">RMI Execution Settings</a>
+<br>
+<a href="rmi_settings_debuggernode.html">RMI Debugging Settings</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<title>Starting a Registry</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>Starting a Registry</h2>
+
+You can start a local RMI registry from the Runtime tab of
+the Explorer. When a local registry is started, it is automatically
+added to the RMI Registry Browser. Only one instance of a local
+registry can be run at a time since the registry runs inside the same
+JVM as the IDE.
+
+<p><b>To start a local registry:</b>
+<ol>
+<li>Click the Runtime tab of the Explorer.
+
+<li>Right-click the RMI Registry node and choose choose Local Registry.
+
+<li>In the Local Registry dialog box, click Start to start a local
+registry with the default port 1099. 
+<p>
+If you want to run a registry on a different port, select the port
+number and type the port number you want, then click Start.</li>
+
+<li>Click Close in the Local Registry dialog box.
+<p>
+A registry node is added as a subnode to the Registry node
+in the Runtime tabbed pane. The IDE's console window confirms the
+registry is running with the message: <code>Internal RMI registry
+running on port 1099</code> (or the port number you designated).</p></li>
+</ol>
+
+<table>
+<tr>
+<td valign="top"><img src="../images/tip.gif" alt="tip"></td>
+<td valign="top" align=left>
+You can stop a local registry by bringing up the Local Registry dialog
+box and clicking Stop. A message confirming the registry has stopped
+is shown in the IDE console window. Selecting the localhost node and
+choosing Delete from the contextual menu only removes the node from
+the Runtime tabbed pane display. Deleting a local registry does not
+turn it off.
+
+</td>
+</tr>
+</table><table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td>
+<a href="rmi_registrybrowser_viewing.html">Viewing a Running Registry</a>
+<br>
+<a href="rmi_registrybrowser_using.html">RMI Registry Browser Commands</a>
+</td>
+</tr>
+</table>
+
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+</body>
+</html>

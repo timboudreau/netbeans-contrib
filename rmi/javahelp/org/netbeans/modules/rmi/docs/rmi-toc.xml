@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+
+<!DOCTYPE toc
+
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 1.0//EN"
+
+         "http://java.sun.com/products/javahelp/toc_1_0.dtd">
+
+<toc version="1.0">
+
+  <tocitem text="Generating Java Files for RMI Programs" target="rmi_intro">
+    <tocitem text="RMI Concepts" target="rmi_concepts_intro">
+      <tocitem text="RMI Technology" target="rmi_concepts_basics" />
+      <tocitem text="Required Files for RMI Programs" target="rmi_concepts_files" />
+      <tocitem text="Steps for Creating an RMI Program" target="rmi_concepts_procs" />
+    </tocitem>
+    <tocitem text="Generating, Programming, and Compiling RMI Files" target="rmi_generating_intro">
+      <tocitem text="RMI Templates" target="rmi_templates" />
+      <tocitem text="Generating a Client-side File" target="rmi_generating_client" />
+      <tocitem text="Adding Code to a Client-side File" target="rmi_completing_client" />
+      <tocitem text="Compiling and Running a Client-side File" target="rmi_compiling_client" />
+      <tocitem text="Generating a Server-side File (Remote Interface)" target="rmi_generating_server" />
+      <tocitem text="Generating a Server-side File (Implementation)" target="rmi_generating_impl" />
+      <tocitem text="Adding Code to a Server-side File" target="rmi_completing_server" />
+      <tocitem text="Compiling a Server File" target="rmi_compiling_server" />
+    </tocitem>
+    <tocitem text="Browsing RMI Registries" target="rmi_registrybrowser_intro">
+      <tocitem text="Starting a New Local Registry" target="rmi_registrybrowser_starting" />
+      <tocitem text="Viewing a Running Registry" target="rmi_registrybrowser_viewing" />
+      <tocitem text="RMI Registry Browser Commands" target="rmi_registrybrowser_using" />
+    </tocitem>
+    <tocitem text="Specifying RMI Settings" target="rmi_settings_intro">
+      <tocitem text="RMI Module Settings" target="rmi_settings_mod" />
+      <tocitem text="RMI Registry Settings" target="rmi_settings_regis" />
+      <tocitem text="RMI Activation Settings" target="rmi_settings_activ" />
+      <tocitem text="RMI Compiler Settings" target="rmi_settings_compilernode" />	
+      <tocitem text="RMI Execution Settings" target="rmi_settings_executionnode" />
+      <tocitem text="RMI Debugging Settings" target="rmi_settings_debuggernode" />	
+    </tocitem>
+    <tocitem text="Using the RMI Activation Browser" target="rmi_activatebrowser">
+      <tocitem text="Starting the RMI Activation Browser" target="rmi_activate_starting" />
+      <tocitem text="Adding an Activation Browser" target="rmi_activ_instance" />
+      <tocitem text="Adding an Activation Group" target="rmi_activ_group" />
+      <tocitem text="Activation System Node Commands" target="rmi_activate_usingsystem" />
+      <tocitem text="Activation Group Node Commands" target="rmi_activate_usinggroup" />
+      <tocitem text="Activatable Objects Node Commands" target="rmi_activate_usingobject" />	
+    </tocitem>
+  </tocitem>
+
+</toc>

@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+
+<!DOCTYPE index 
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Index Version 1.0//EN"  
+         "http://java.sun.com/products/javahelp/index_1_0.dtd">  
+
+<index version="1.0">
+
+
+   <indexitem text=" " />
+   <indexitem><b>====================================</b></indexitem>
+   <indexitem><b>RMI</b></indexitem>
+   <indexitem><b>====================================</b></indexitem>
+
+   <indexitem text=" " />
+   <indexitem><b>-B-</b></indexitem>
+   <indexitem text="binding code (client-side)" target="rmi_registrybrowser_intro" />
+   <indexitem text="binding name (server-side)" target="rmi_completing_server" />
+   <indexitem text="business logic (server-side)" target="rmi_completing_server" />
+   
+   
+   <indexitem text=" " />
+   <indexitem><b>-C-</b></indexitem>   
+   <indexitem text="client" target="rmi_completing_client" >
+      <indexitem text="binding code" target="rmi_registrybrowser_intro" />
+      <indexitem text="completing generated files" target="rmi_completing_client" />
+      <indexitem text="files required" target="rmi_concepts_files" />
+      <indexitem text="generating files" target="rmi_generating_client" />
+      <indexitem text="lookup method" target="rmi_completing_client" />
+    </indexitem>
+    <indexitem text="compiling client-side code" target="rmi_compiling_client" />
+    <indexitem text="compiling server-side code" target="rmi_compiling_server" />
+    <indexitem text="completing RMI generated files" target="rmi_generating_intro" >
+      <indexitem text="client-side files" target="rmi_completing_client" />
+      <indexitem text="server-side files" target="rmi_completing_server" />
+   </indexitem>
+
+   <indexitem text=" " />
+   <indexitem><b>-D-</b></indexitem>     
+   <indexitem text="debugger configuration, RMI for" target="rmi_settings_debuggernode" />
+   
+   <indexitem text=" " />
+   <indexitem><b>-E-</b></indexitem>  
+         <indexitem text="executors for RMI" target="rmi_settings_executionnode" />
+         
+   <indexitem text=" " />
+   <indexitem><b>-F-</b></indexitem>
+      <indexitem text="files for RMI programs" target="rmi_concepts_files" />
+
+   <indexitem text=" " />
+   <indexitem><b>-G-</b></indexitem>   
+   
+   <indexitem text="generating RMI files" target="rmi_generating_intro" >
+      <indexitem text="client-side" target="rmi_generating_client" />
+      <indexitem text="server-side" target="rmi_generating_server" />
+   </indexitem>
+   
+   <indexitem text=" " />
+   <indexitem><b>-I-</b></indexitem>    
+   <indexitem text="implementation class" target="rmi_concepts_files" />      
+
+
+   <indexitem text=" " />
+   <indexitem><b>-L-</b></indexitem> 
+   <indexitem text="lookup method" target="rmi_completing_client" >
+      <indexitem text="copying" target="rmi_registrybrowser_using" />
+   </indexitem>   
+   
+   <indexitem text=" " />
+   <indexitem><b>-P-</b></indexitem> 
+      <indexitem text="projects, setting RMI options for" target="rmi_settings_intro" />   
+      <indexitem text="proxy for RMI server" target="rmi_completing_client" />   
+   <indexitem text=" " />
+
+   <indexitem><b>-R-</b></indexitem> 
+   <indexitem text="registries" target="rmi_registrybrowser_starting" >
+      <indexitem text="creating" target="rmi_registrybrowser_starting" />
+      <indexitem text="remote objects" target="rmi_registrybrowser_using" />
+      <indexitem text="specifying in server code" target="rmi_completing_server" />
+      <indexitem text="viewing" target="rmi_registrybrowser_viewing" />
+   </indexitem>
+
+   <indexitem text="remote interfaces" target="rmi_concepts_files" >
+      <indexitem text="browsing" target="rmi_registrybrowser_using" />
+      <indexitem text="files for" target="rmi_concepts_files" />
+   </indexitem>
+   <indexitem text="remote objects" target="rmi_registrybrowser_using" />   
+   <indexitem text="RMI" target="rmi_intro">
+      <indexitem text="compiler settings" target="rmi_settings_compilernode" />
+      <indexitem text="compiling client files" target="rmi_compiling_client" />
+      <indexitem text="compiling server files" target="rmi_compiling_server" />
+      <indexitem text="debugging settings" target="rmi_settings_debuggernode" />
+      <indexitem text="execution settings" target="rmi_settings_executionnode" />
+      <indexitem text="files required" target="rmi_concepts_files" />
+      <indexitem text="generating client files" target="rmi_generating_client" />
+      <indexitem text="generating server files" target="rmi_generating_server" />
+      <indexitem text="implementation class" target="rmi_concepts_files" />
+      <indexitem text="model" target="rmi_fig" />
+      <indexitem text="module settings" target="rmi_settings_mod" />
+      <indexitem text="programming client files" target="rmi_completing_client" />
+      <indexitem text="programming server files" target="rmi_completing_server" />
+      <indexitem text="proxy for RMI server" target="rmi_completing_client" />
+      <indexitem text="skeleton classes" target="rmi_concepts_files" />
+      <indexitem text="technology" target="rmi_concepts_basics" />
+   </indexitem>
+   <indexitem text="RMI Activation Browser" target="rmi_activate_starting" >
+      <indexitem text="adding a browser instance" target="rmi_activ_instance" />
+      <indexitem text="adding an activation group" target="rmi_activ_group" />
+      <indexitem text="activatable objects" target="rmi_activate_usingobject" />
+      <indexitem text="activation groups" target="rmi_activate_usinggroup" />
+      <indexitem text="activation system" target="rmi_activate_usingsystem" />
+   </indexitem>
+   <indexitem text="RMI Registry Browser" target="rmi_registrybrowser_using" >
+      <indexitem text="creating registries" target="rmi_registrybrowser_starting" />
+      <indexitem text="viewing registries" target="rmi_registrybrowser_viewing" />
+   </indexitem>   
+   
+   <indexitem text=" " />
+   <indexitem><b>-S-</b></indexitem> 
+   <indexitem text="skeleton classes" target="rmi_concepts_files" />   
+   
+
+</index>

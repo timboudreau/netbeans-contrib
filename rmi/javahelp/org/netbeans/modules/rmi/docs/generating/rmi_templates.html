@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<meta name="lastupdated" content="4apr2001">
+<title>RMI Templates</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>RMI Templates</h2>
+<p>
+The IDE provides you with the following RMI data object templates
+available from the New Wizard:
+
+<ul>
+<li><b>Activatable.</b> Creates an implementation of a remote object
+based on <tt>java.rmi.activation.Activatable.</tt> The <tt>main</tt>
+method contains code that registers the object into activation systems
+and registers it into an RMI registry. A new registry is created if
+one does not exist.</li>
+
+<li><b>ClearImplementation.</b> Creates an implementation of a remote
+object. Use this kind of implementation for adding
+callbacks. ClearImplmentation is usually exported by
+<tt>UnicastRemoteObject.exportObject()</tt>.</li>
+
+<li><b>Hello.</b> Creates a remote interface containing code using the
+Hello example.</li>
+
+<li><b>RMIClient.</b> Creates a simple RMI client file.</li>
+
+<li><b>RMI_IIOP.</b> Creates an implementation of a remote object
+based on <tt>javax.rmi.ProtableRemoteObject</tt>. IIOP is used for
+communication between objects. The implamentation can also be used for
+communicating with CORBA applications.</li>
+
+<li><b>Remote.</b> Creates an empty remote interface. You can complete
+the file by editing it in the Source Editor.</li>
+
+<li><b>UnicastRemoteObject.</b> Creates an implementation based on
+<tt>java.rmi.server.UnicastRemoteObject</tt>. The <tt>main</tt> method
+of the class creates an instance of the class and registers the
+instance in an RMI registry. A new registry is created if
+one does not exist.</li>
+</ul>
+
+<h3>RMI Socket Templates</h3>
+
+The IDE provides you with the following RMI socket templates available
+from the New Wizard:
+
+<ul>
+<li>
+<b>ClientSocket (group).</b> Creates a group of files that contains
+files that are necessary for client-side custom sockets. The files
+created are: <tt>ClientSocketFactory, InputStream, OutputStream</tt> and
+<tt>Socket</tt>.</li>
+
+<li>
+<b>ClientSocketFactory.</b> Creates a class that implements
+<tt>java.rmi.server.ClientSocketFactory</tt>, which serves as a
+factory for creating sockets on the client side.</li>
+
+<li>
+<b>CustomSocket (group).</b> Creates a group that contains both
+client-side files and server-files.</li>
+
+<li>
+<b>InputStream.</b> Creates a class that can be used for implementing
+a custom InputStream.</li>
+
+<li>
+<b>OutputStream.</b> Creates a class that can be used for implementing
+a custom OutputStream.</li>
+
+<li>
+<b>ServerSocket.</b> Creates a template that can be used for
+subclasssing <tt>java.net.ServerSocket</tt>.</li>
+
+<li>
+<b>ServerSocket (group).</b> Creates a group of files that makes it
+possible to create the entire implementation of a custom
+ServerSocket. For example, it can create a ServerSocket whose
+<tt>accept</tt> method returns a custom socket that uses custom
+InputStream and OutputStream. The files creates are: <tt>SocketInputStream,
+SocketOutputStream, SocketServerSocket,
+SocketServerSocketfactory,</tt> and <tt>SocketSocket</tt>.</li>
+
+<li>
+<b>ServerSocketFactory.</b> Creates a template that can be used for
+creating your own implementation of
+<tt>java.rmi.server.SocketFactory</tt>.</li>
+
+<li>
+<b>Socket.</b> Creates a template that can be used for creating a
+custom implementation of <tt>java.net.Socket</tt>.</li>
+</ul>
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td><a href="../completing/rmi_completing_server.html">Adding Code to a Server-side File</a>
+<br>
+<a href="../completing/rmi_compiling_server.html">Compiling a Server-side File</a>
+<br>
+<a href="../registrybrowser/rmi_registrybrowser.html">Browsing RMI Registries</a>
+</td>
+</tr>
+</table>
+<hr><font size=-2><a href="../credits.html">Legal 
+Notices</a></font> 
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<title>Adding Code to a Server-side File</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>Adding Code to a Server-side File</h2>
+<p>
+The RMI module generates implementation classes that are complete
+except for the business logic. In addition, the generated
+implementation classes contain code that registers an instance of the
+class with an RMI registry running at
+<code>//localhost:1099/</code>. If you want to register your server in
+another registry you need to modify this code.
+</p>
+<h4>Adding Business Logic to an Implementation Class</h4>
+<p>
+Look for the method bodies that were generated for the methods
+declared in the remote interface. Add whatever code is needed to
+provide the functionality specified in the method signature.
+</p>
+<p>If your business logic is complex, consider implementing some of it
+in private methods that are not declared in the remote interface, or
+even in additional classes.
+</p>
+<h4>Changing the Binding Name</h4>
+<p>
+The default behavior of a generated implementation class is to create
+an instance of itself and bind that instance to a registry under the
+class name. For example, if you begin with an interface named
+<code>Hello</code>, the RMI module generates an implementation class
+named <code>HelloImpl</code>, and the default binding behavior is
+determined by the following code: 
+<pre>
+ HelloImpl obj = new HelloImpl ();
+ registerToRegistry("HelloImpl", obj, true);
+</pre>
+<p>
+To change the binding name, change the value of the first
+parameter. For example:
+<pre>
+ HelloImpl obj = new HelloImpl ();
+ registerToRegistry("HelloServer", obj, true);
+</pre>
+</p>
+
+<h4>Changing the RMI Registry</h4>
+<p>
+The default behavior of a generated implementation class is to look
+for an RMI registry on the local machine at port 1099. If it does not
+find such a registry, it will create one and then bind the server
+instance.
+</p>
+<p>
+The following code relies on this default behavior: </p>
+<pre>
+ HelloImpl obj = new HelloImpl();
+ registerToRegistry("HelloImpl", obj, true);
+</pre>
+<p>
+Since the first parameter, <code>name</code>, does not specify host
+and port, these values default to <code>//localhost:1099/</code> in
+the <code>rebind</code> call.  If you want to register your server
+with some other registry, start the registry (command line) and change
+the <code>registerToRegistry</code> arguments.
+</p>
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td><a href="../generating/rmi_generating_server.html">Generating a Server-side File</a>
+<br>
+<a href="rmi_compiling_server.html">Compiling a Server File</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small> 
+</body>
+</html>

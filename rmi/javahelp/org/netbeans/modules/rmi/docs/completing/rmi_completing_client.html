@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<title>Adding Code to a Client-Side File</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>Adding Code to a Client-Side File</h2>
+<p>
+RMI generates a client-side file with a <tt>main()</tt> method that looks
+like the following example:
+<pre>
+public static void main (String[] args) {
+   System.setSecurityManager (new RMISecurityManager());
+}
+</pre>
+
+
+<p>To complete your client class, you must add a <tt>lookup()</tt> call
+that returns a reference to the correct RMI server. You can use the
+reference to invoke server-side methods.</p>
+
+<p>
+<b>To add a <tt>lookup()</tt> call:</b>
+<ol>
+<li>Make sure the RMI server program is running.
+<p>
+You need to know which RMI registry the server is registered with. In
+a large development effort, the server might be under control of a
+system administrator or another developer. If you are doing all the
+development work, you can start the server yourself.
+</p>
+</li>
+
+<li>Start the RMI Registry browser, specifying the registry in which
+the RMI server is registered.</li>
+
+<li>Build your RMI project and execute the remote object.
+<p>
+A service node with the same name as the remote object appears under
+the registry node.</p></li>
+
+<li>Expand the service node and locate the subnode that represents the
+RMI server's remote interface.
+
+<li>Right-click the remote interface node and choose Copy Client Code
+from the contextual menu.</li> 
+
+<li>Return to your client class code in the Source Editor window,
+place the cursor underneath the line with the <tt>setSecurityManager()</tt> 
+call, and paste the code from the clipboard.
+<p>
+The <tt>main()</tt> method should resemble the  
+<OBJECT classid="java:com.sun.java.help.impl.JHSecondaryViewer">
+  <param name="content" value="./main-example.html">
+  <param name="viewerActivator" value="javax.help.LinkLabel">
+  <param name="viewerStyle" value="javax.help.SecondaryWindow">
+  <param name="viewerSize" value="600,400">
+  <param name="text" value="example">
+  <param name="textFontFamily" value="SansSerif">
+  <param name="textFontSize" value="small">
+  <param name="textFontWeight" value="plain">
+  <param name="textFontStyle" value="plain">
+  <param name="textColor" value="blue">
+</OBJECT>code.
+</p></li>
+</ol>
+
+
+<h3>Adding Server Method Invocations</h3>
+<p>
+The object returned by the lookup is a proxy for the RMI server. You
+can invoke methods on it.  Use code similar to the example:
+<pre>
+obj.sayHello();
+</pre>
+
+<p>
+Your completed main method should look like this:
+<pre>
+public static void main (String[] args) {
+   System.setSecurityManager (new RMISecurityManager());
+   try {
+      Hello obj = (Hello) Naming.lookup ("//localhost:1099/Remote");
+      obj.sayHello();
+      }
+   catch (Exception ex)
+   {
+      ex.printStackTrace();
+}
+</pre>
+
+
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td><a href="../generating/rmi_generating_client.html">Generating a Client-side File</a>
+<br>
+<a href="rmi_compiling_client.html">Compiling and Running a Client-side File</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+
+<!DOCTYPE map
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+<map version="1.0">
+
+   <mapID target="rmi_intro" url="rmi_intro.html" />
+   <mapID target="rmi_wizard" url="rmi_intro.html" />
+   <mapID target="rmi_concepts_intro" url="concepts/rmi_concepts.html" />
+   <mapID target="rmi_concepts_basics" url="concepts/rmi_concepts_basics.html" />
+   <mapID target="rmi_concepts_files" url="concepts/rmi_concepts_files.html" />
+   <mapID target="rmi_concepts_procs" url="concepts/rmi_concepts_procs.html" />	
+   <mapID target="rmi_generating_intro" url="generating/rmi_generating.html" />	
+   <mapID target="rmi_templates" url="generating/rmi_templates.html" />
+   <mapID target="rmi_generating_client" url="generating/rmi_generating_client.html" />	
+   <mapID target="rmi_generating_impl" url="generating/generating_impl.html" />	
+   <mapID target="rmi_generating_server" url="generating/rmi_generating_server.html" />	
+   <mapID target="rmi_mainexample" url="completing/main-example.html" />
+   <mapID target="rmi_completing_client" url="completing/rmi_completing_client.html" />	
+   <mapID target="rmi_completing_server" url="completing/rmi_completing_server.html" />
+   <mapID target="rmi_compiling_client" url="completing/rmi_compiling_client.html" />	
+   <mapID target="rmi_compiling_server" url="completing/rmi_compiling_server.html" />
+   <mapID target="rmi_registrybrowser_intro" url="registrybrowser/rmi_registrybrowser.html" />	
+   <mapID target="rmi_registrybrowser_starting" url="registrybrowser/rmi_registrybrowser_starting.html" />
+   <mapID target="rmi_registrybrowser_viewing" url="registrybrowser/rmi_registrybrowser_viewing.html" />	
+   <mapID target="rmi_registrybrowser_using" url="registrybrowser/rmi_registrybrowser_using.html" />	
+
+   <mapID target="rmi_settings_intro" url="settings/custom_rmi.html" />
+   <mapID target="rmi_settings_mod" url="settings/rmi_settings.html" />
+   <mapID target="rmi_settings_activ" url="settings/activation_props.html" />
+   <mapID target="rmi_settings_regis" url="settings/registry_props.html" />
+   <mapID target="rmi_settings_executionnode" url="settings/rmi_settings_executionnode.html" />	
+   <mapID target="rmi_settings_debuggernode" url="settings/rmi_settings_debuggernode.html" />	
+   <mapID target="rmi_settings_compilernode" url="settings/rmi_settings_compilernode.html" />
+
+   <mapID target="rmi_activatebrowser" url="activatebrowser/rmi_activatebrowser.html" />
+   <mapID target="rmi_activate_starting" url="activatebrowser/rmi_activatebrowser_starting.html" />	
+   <mapID target="rmi_activ_instance" url="activatebrowser/addingbrowserinstance.html" />	
+   <mapID target="rmi_activ_group" url="activatebrowser/addingactgroup.html" />	
+   <mapID target="rmi_activate_usingsystem" url="activatebrowser/rmi_activatebrowser_usingsystem.html" />	
+   <mapID target="rmi_activate_usinggroup" url="activatebrowser/rmi_activatebrowser_usinggroup.html" />	
+   <mapID target="rmi_activate_usingobject" url="activatebrowser/rmi_activatebrowser_usingobject.html" />
+
+   <mapID target="org.netbeans.modules.rmi.RMIStubCompilerType" url="settings/rmi_settings_compilernode.html" />
+   <mapID target="rmi_fig" url="concepts/RMIfig.html" />	
+<!--for RMI debugger and executor type nodes in the Options window-->   
+   <mapID target="org.netbeans.modules.rmi.RMIDebugType" url="settings/rmi_settings_debuggernode.html" />
+   <mapID target="org.netbeans.modules.rmi.RMIExecutor" url="settings/rmi_settings_executionnode.html" />
+
+
+
+</map>

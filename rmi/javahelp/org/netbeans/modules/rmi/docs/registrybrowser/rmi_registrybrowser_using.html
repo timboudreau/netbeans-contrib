@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+*
+-->
+<html>
+<head>
+<title>RMI Registry Browser Commands</title>
+<link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
+</head>
+<body>
+
+<h2>RMI Registry Browser Commands</h2>
+<p>
+You use the RMI Registry Browser by right-clicking the RMI Registry
+node or its subnodes in the Explorer window
+and choosing a command from the contextual menu.
+The contextual menu for each type of node are described below.
+</p>
+
+<h3>RMI Registry Commands</h3>
+<p>
+This node represents the RMI Registry browser.
+</p>
+<ul>
+<li>
+<b>Refresh.</b> 
+Refreshes all nodes that descend from the RMI Registry node.
+</li>
+
+<li>
+<b>Reset Loader.</b>
+Resets the RMI loader.  Use this command to refresh
+the contents of the browser after you change a remote interface.
+</li>
+
+<li>
+<b>Local Registry</b>
+Starts a local registry at the default port of 1099. Type the name of
+the host and its port number if you are using a registry other than
+default host shown in the Local Registry dialog box.
+Once a registry is started, you can use this command to stop the
+registry.
+</li>
+
+<li>
+<b>Add Registry</b>
+Adds a remote registry  to the node
+hierarchy. You can add a running registry or create a new registry.
+</li>
+
+<li>
+<b>Properties.</b>
+Displays the properties of the selected Registry browser.
+</li>
+</ul>
+
+<h3>Commands for a Specific Registry</h3>
+<p>
+The nodes displayed when the RMI Registry node is expanded represent a
+specific instance of an RMI registry, for example, <tt>localhost:1099</tt>.
+
+<ul>
+<li>
+<b>Refresh.</b>
+Refreshes the nodes that descend from the selected node.
+</li>
+
+<li>
+<b>Delete.</b>
+Deletes the selected node from the Registry browser.
+</li>
+
+<li>
+<b>Properties.</b>
+Displays the properties of the selected registry.
+</li>
+</ul>
+
+<h3>Commands for Remote Objects</h3>
+<p>
+One of the nodes displayed when a specific registry node is expanded
+represents Java objects that have been exported to an RMI registry.  A
+registry can contain many remote objects. For example, if you generate
+an implementation class with the RMI module and run it, the instance
+created by the implementation class's <code>main</code> method appears
+as a remote object node.
+</p>
+
+<ul>
+<li>
+<b>Delete.</b>
+Deletes the selected object from its RMI registry. You can only delete
+objects from local registries that you control. For security reasons,
+you cannot delete objects from a remote RMI registry.
+</li>
+
+<li>
+<b>Properties.</b>
+Displays the properties of the selected remote object.
+</li>
+</ul>
+
+<h3>Remote Interface Menu</h3>
+<p>
+The nodes displayed when a remote object node is expanded
+represent the remote interfaces that are implemented by the remote
+object.
+
+<ul>
+<li>
+<b>Copy Client Code.</b>
+Copies lookup code for the selected remote interface to the Forte for
+Java clipboard. This code returns a reference to the selected remote
+interface.  You can paste this code into your client source code and
+use the reference to invoke methods declared by the remote
+interface. In general, this code looks like the following example:
+<pre>
+  try {
+      interface obj = (interface) Naming.lookup ("//host:port/name")
+  }
+    catch (Exception ex) {
+    ex.printStackTrace();
+  }
+</pre>
+
+<li>
+<b>Save Interface.</b> 
+Makes a local copy of the selected interface. A dialog box opens in
+which you specify the package to contain the copy. This can be
+useful when you need a copy of the interface for compilation.
+</li>
+
+<li>
+<b>Properties.</b>
+Displays the properties of the selected remote interface.
+</li>
+</ul>
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td valign="top">
+<a href="rmi_registrybrowser_starting.html">Starting a New Local Registry</a>
+<br>
+<a href="rmi_registrybrowser_viewing.html">Viewing a Running Registry</a>
+</td>
+</tr>
+</table>
+
+
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+</body>
+</html>
