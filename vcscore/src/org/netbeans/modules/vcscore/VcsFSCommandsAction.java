@@ -38,6 +38,7 @@ import org.openide.awt.JInlineMenu;
 import org.openide.awt.JMenuPlus;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataShadow;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
@@ -117,6 +118,10 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
             } else {
                 DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
                 if (dd == null) continue;
+                if (dd instanceof DataShadow) {
+                    // We want to have the same VCS actions on the link as on the original.
+                    dd = ((DataShadow) dd).getOriginal();
+                }
                 files.addAll(dd.files());
             }
         }
@@ -151,6 +156,10 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                 DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
                 //if (dd == null) System.out.println("  Node "+nodes[i]+" does not have DataObject !!");
                 if (dd == null) return false;
+                if (dd instanceof DataShadow) {
+                    // We want to have the same VCS actions on the link as on the original.
+                    dd = ((DataShadow) dd).getOriginal();
+                }
                 FileObject primary = dd.getPrimaryFile();
                 //System.out.println("  Commands Provider("+primary+") = "+VcsCommandsProvider.findProvider(primary));
                 if (VcsCommandsProvider.findProvider(primary) == null) return false;
