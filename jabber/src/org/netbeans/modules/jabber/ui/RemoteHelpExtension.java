@@ -94,7 +94,8 @@ public final class RemoteHelpExtension implements ExtensionDisplayer {
                 JLabel label = new JLabel();
                 label.setText("<html><b>" + 
                     man.getContactList().getLongDisplayName(msg.getFrom()) +
-                    "</b> invites you to control his UI. Do you want to connect?");
+                    "</b> invites you to control his UI. Do you want to connect?\n" + 
+		    "(socket=" + socket + ")");
                 add(label, BorderLayout.NORTH);
                 
                 JButton accept = new JButton("Accept");
