@@ -56,7 +56,7 @@ public class AddVcsGroupAction extends NodeAction implements Runnable {
      * Perform the actual addition.
      */
     public void run() {
-        if (newName != null) return ;
+        if (newName == null) return ;
         DataFolder rootFolder = GroupUtils.getMainVcsGroupFolder();
         if (rootFolder != null) {
             try {
