@@ -48,7 +48,7 @@ Microsystems, Inc. All Rights Reserved.
       <file name="vss.xml">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.profiles.vss.Bundle" />
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif" />          
-            <attr name="os.name" stringvalue="win" />
+            <attr name="os.name" stringvalue="Windows" />
       </file>
     </folder>
   </folder>
