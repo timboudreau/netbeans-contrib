@@ -199,6 +199,8 @@ public class ORBSettings implements java.io.Serializable {
     private transient boolean _M_supported = false;
 
     private transient String _M_local_bundle;
+    
+    private transient boolean _M_valid = false;
 
     //private static Hashtable _M_all_properties;
 
@@ -1106,18 +1108,22 @@ public class ORBSettings implements java.io.Serializable {
 	    = new ORBSettingsRecognizer (__handler, new ORBSettingsParsletImpl ());
 	__handler.setSettings (this);
 	__parser.setDocumentHandler (__recognizer);
+	ORBSettingsErrorHandler __error_handler = new ORBSettingsErrorHandler();
+	__parser.setErrorHandler (__error_handler);
 	InputStream __in = __fo.getInputStream ();
 	try {
 	    __parser.parse (XMLDataObject.createInputSource (__fo.getURL ()));
+	    _M_valid = true;
+	    this.backupJavaTemplateCodeTable ();
+	    if (DEBUG)
+		System.out.println ("loading ... OK");
 	} catch (SAXException __ex) {
+	    if (DEBUG)
 	    __ex.printStackTrace ();
-	    throw __ex;
+	    _M_valid = false;
 	} finally {
 	    __in.close ();
 	}
-	this.backupJavaTemplateCodeTable ();
-	if (DEBUG)
-	    System.out.println ("loading ... OK");
     }
 
 
@@ -1663,6 +1669,10 @@ public class ORBSettings implements java.io.Serializable {
 	__buf.append (System.identityHashCode (this.getClientBinding ()));
 	
 	return __buf.toString ();
+    }
+    
+    public boolean isValid () {
+	return _M_valid;
     }
 
 }
