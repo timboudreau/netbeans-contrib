@@ -82,16 +82,18 @@ public class TaskList { // XXX remove the publicness
     }
 
     /** Add a list of todo items to the tasklist, and remove a list of
-	todo items from the tasklist. This is done instead of a separate
-	add and remove method such that you can change the tasklist
-	atomically without having an intermediate screen refresh.
-	Note that if a task appears in both lists, it will be ADDED.
-	(Because the removal will occur first.)
+     *	todo items from the tasklist. This is done instead of a separate
+     *  add and remove method such that you can change the tasklist
+     *  atomically without having an intermediate screen refresh.
+     * 	Note that if a task appears in both lists, it will be ADDED.
+     *	(Because the removal will occur first.)
+     *
      * @param addList The list of tasks to be added. Can be null.
      * @param removeList The list of tasks to be removed. Can be null.
-     * @param todo Should I allow you to specify the parent?
+     * @param append If true, append to the list, otherwise prepend.
      * @param parent Normally null, but you can specify a parent task
      *               here if you want to add subitems
+     * @todo Should I allow you to specify the parent?
      */
     public void addRemove(List addList, List removeList, boolean append,
 			  Task parent) {
