@@ -270,6 +270,132 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         return preferredExec;
     }
     
+    /**
+     * Add the data and error regular expression listeners,
+     * if some global regex is defined, return the global data
+     * output in the first item and global error output in the second.
+     * @param ec the command to add the listeners to
+     * @param globalRegexs the array, that is filled with compiled data and error
+     *        regular expressions
+     * @return the array of length 2 with global data and error output
+     * (either of them can be null) or null, when none of them are defined
+     */
+    private StringBuffer[] addRegexListeners(final ExternalCommand ec, final RE[] globalRegexs) {
+        String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
+        if (dataRegex == null) dataRegex = DEFAULT_REGEX;
+        String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
+        if (errorRegex == null) errorRegex = DEFAULT_REGEX;
+        String dataRegexGlobal = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX_GLOBAL);
+        String errorRegexGlobal = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX_GLOBAL);
+        RE dataRegexGlobalRE = null;
+        RE errorRegexGlobalRE = null;
+        final StringBuffer dataOutput;
+        final StringBuffer errorOutput;
+        if (dataRegexGlobal != null) {
+            try {
+                dataRegexGlobalRE = new RE(dataRegexGlobal);
+            } catch (RESyntaxException exc) {
+                TopManager.getDefault().notifyException(
+                    TopManager.getDefault().getErrorManager().annotate(exc,
+                        NbBundle.getMessage(ExternalCommand.class, "BadRegexMessageInfo", dataRegexGlobal)));
+            }
+            if (dataRegexGlobalRE != null) {
+                globalRegexs[0] = dataRegexGlobalRE;
+                dataOutput = new StringBuffer();
+            } else {
+                dataOutput = null;
+            }
+        } else {
+            dataOutput = null;
+        }
+        if (errorRegexGlobal != null) {
+            try {
+                errorRegexGlobalRE = new RE(errorRegexGlobal);
+            } catch (RESyntaxException exc) {
+                TopManager.getDefault().notifyException(
+                    TopManager.getDefault().getErrorManager().annotate(exc,
+                        NbBundle.getMessage(ExternalCommand.class, "BadRegexMessageInfo", errorRegexGlobal)));
+            }
+            if (errorRegexGlobalRE != null) {
+                globalRegexs[1] = errorRegexGlobalRE;
+                errorOutput = new StringBuffer();
+            } else {
+                errorOutput = null;
+            }
+        } else {
+            errorOutput = null;
+        }
+        try {
+            if (dataRegexGlobalRE == null) {
+                ec.addStdoutRegexListener(new CommandDataOutputListener() {
+                                              public void outputData(String[] data) {
+                                                  printDataOutput(data);
+                                              }
+                                          }, dataRegex);
+            } else {
+                ec.addStdoutRegexListener(new CommandDataOutputListener() {
+                                              public void outputData(String[] data) {
+                                                  if (data != null) {
+                                                      for (int i = 0; i < data.length; i++) {
+                                                          dataOutput.append(data[i]);
+                                                      }
+                                                      dataOutput.append(" ");
+                                                  }
+                                              }
+                                          }, dataRegex);
+            }
+        } catch (BadRegexException e) {
+            TopManager.getDefault().notifyException(
+                TopManager.getDefault().getErrorManager().annotate(e,
+                    NbBundle.getMessage(ExternalCommand.class, "BadRegexMessageInfo", dataRegex)));
+        }
+        try {
+            if (errorRegexGlobalRE == null) {
+                ec.addStderrRegexListener(new CommandDataOutputListener() {
+                                              public void outputData(String[] data) {
+                                                  printDataErrorOutput(data);
+                                              }
+                                          }, errorRegex);
+            } else {
+                ec.addStderrRegexListener(new CommandDataOutputListener() {
+                                              public void outputData(String[] data) {
+                                                  if (data != null) {
+                                                      for (int i = 0; i < data.length; i++) {
+                                                          errorOutput.append(data[i]);
+                                                      }
+                                                      errorOutput.append(" ");
+                                                  }
+                                              }
+                                          }, errorRegex);
+            }
+        } catch (BadRegexException e) {
+            TopManager.getDefault().notifyException(
+                TopManager.getDefault().getErrorManager().annotate(e,
+                    NbBundle.getMessage(ExternalCommand.class, "BadRegexMessageInfo", errorRegex)));
+        }
+        if (dataOutput != null || errorOutput != null) {
+            return new StringBuffer[] { dataOutput, errorOutput };
+        } else {
+            return null;
+        }
+    }
+    
+    private void printGlobalDataOutput(String globalDataOutput, RE globalDataRegex) {
+        if (globalDataOutput.endsWith(" ")) {
+            globalDataOutput = globalDataOutput.substring(0, globalDataOutput.length() - 1);
+        }
+        String[] parsed = ExternalCommand.matchToStringArray(globalDataRegex, globalDataOutput);
+        printDataOutput(parsed);
+    }
+    
+    private void printGlobalErrorDataOutput(String globalDataOutput, RE globalDataRegex) {
+        if (globalDataOutput.endsWith(" ")) {
+            globalDataOutput = globalDataOutput.substring(0, globalDataOutput.length() - 1);
+        }
+        String[] parsed = ExternalCommand.matchToStringArray(globalDataRegex, globalDataOutput);
+        printDataErrorOutput(parsed);
+    }
+    
     //-------------------------------------------
     /**
      * Execute a command-line command.
@@ -285,26 +411,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         ec.setEnv(fileSystem.getEnvironmentVars());
         //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
 
-        String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
-        if (dataRegex == null) dataRegex = DEFAULT_REGEX;
-        String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
-        if (errorRegex == null) errorRegex = DEFAULT_REGEX;
-        try {
-            ec.addStdoutRegexListener(new CommandDataOutputListener() {
-                                          public void outputData(String[] data) {
-                                              printDataOutput(data);
-                                          }
-                                      }, dataRegex);
-            ec.addStderrRegexListener(new CommandDataOutputListener() {
-                                          public void outputData(String[] data) {
-                                              printDataErrorOutput(data);
-                                          }
-                                      }, errorRegex);
-        }
-        catch (BadRegexException e) {
-            TopManager.getDefault().notifyException(e);
-            //E.err(e,"bad regex"); // NOI18N
-        }
+        RE[] globalRegexs = new RE[2];
+        StringBuffer[] globalDataOutput = addRegexListeners(ec, globalRegexs);
 
         for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
             ec.addStdoutListener((CommandOutputListener) it.next());
@@ -315,6 +423,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
 
         E.deb("ec="+ec); // NOI18N
         exitStatus = ec.exec();
+        if (globalDataOutput != null) {
+            if (globalDataOutput[0] != null) {
+                printGlobalDataOutput(globalDataOutput[0].toString(), globalRegexs[0]);
+            }
+            if (globalDataOutput[1] != null) {
+                printGlobalErrorDataOutput(globalDataOutput[1].toString(), globalRegexs[1]);
+            }
+        }
         E.deb("Command exited with exit status = "+exitStatus); // NOI18N
         //D.deb("errorContainer = "+errorContainer); // NOI18N
         switch (exitStatus) {

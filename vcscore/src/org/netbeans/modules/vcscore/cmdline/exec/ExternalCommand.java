@@ -633,7 +633,7 @@ public class ExternalCommand {
 
 
     //-------------------------------------------
-    private String[] matchToStringArray(RE pattern, String line) {
+    public static String[] matchToStringArray(RE pattern, String line) {
         Vector v=new Vector(5);
         if (!pattern.match(line)) {
             return new String[0];

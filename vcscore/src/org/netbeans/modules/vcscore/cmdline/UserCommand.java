@@ -49,6 +49,8 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     //public static final String PROPERTY_DISPLAY = "display";
     public static final String PROPERTY_DATA_REGEX = "data.regex";
     public static final String PROPERTY_ERROR_REGEX = "error.regex";
+    public static final String PROPERTY_DATA_REGEX_GLOBAL = "data.regex.global";
+    public static final String PROPERTY_ERROR_REGEX_GLOBAL = "error.regex.global";
     //public static final String PROPERTY_DOES_NOT_FAIL = "doesNotFail";
     //public static final String PROPERTY_PRECOMMANDS = "preCommands";
     //public static final String PROPERTY_PRECOMMANDS_EXECUTE = "preCommandsExecute";
