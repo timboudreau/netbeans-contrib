@@ -452,6 +452,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
     
     private void updateConstructors() {
         constructorComboBox.removeAllItems();
+        constructorComboBox.setSelectedItem(null);
         if (ce != null) {
             ConstructorElement[] ctors = ce.getConstructors();
             if (ctors.length == 0) {
