@@ -148,9 +148,18 @@ public class Task extends Suggestion implements Cloneable {
         supp.removePropertyChangeListener(l);
     }
     
-    public List getSubtasks() {
+    public LinkedList getSubtasks() {
         return subtasks;
     }
+
+    /** This method is here only for the benefit of the XMLEncoder,
+     * such that task trees can be persisted. Do not use it directly;
+     * use addSubtask instead.
+     */
+    public void setSubtasks(LinkedList subtasks) {
+        this.subtasks = subtasks;
+    }
+    
 
     /** Add subtask to this task. The task will be prepended
      * to the task list.
@@ -359,11 +368,11 @@ public class Task extends Suggestion implements Cloneable {
         return ((subtasks != null) && (subtasks.size() != 0));
     }
     
-    public Task getParent() { // XXX make private again!
+    public Task getParent() {
         return parent;
     }
 
-    public void setParent(Task parent) { // XXX remove publicness
+    public void setParent(Task parent) {
         this.parent = parent;
         // Should we broadcast this change??? Probably not, it's always
         // manipulated as part of add/deletion operations which are tracked

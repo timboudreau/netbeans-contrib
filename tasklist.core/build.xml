@@ -26,10 +26,9 @@ Microsystems, Inc. All Rights Reserved.
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
   
-    <target name="compile">
+    <target name="compile" depends="init-14,compile-14">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
-            <!-- Get rid of this when tasklist/core is available -->
-
+            <exclude name="org/netbeans/**/*14.java"/>
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
                 <fileset dir="${nb_all}/openide/netbeans/lib">
@@ -41,6 +40,26 @@ Microsystems, Inc. All Rights Reserved.
             </classpath>
         </javac>
     </target>
+
+    <target name="init-14">
+      <available property="jdk14" classname="java.lang.CharSequence" />
+    </target>
+
+    <target name="compile-14" if="jdk14" >
+      <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+            <include name="org/netbeans/**/*14.java"/>
+            <classpath>
+                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+                <fileset dir="${nb_all}/openide/netbeans/lib">
+                    <include name="openide*.jar" />
+                </fileset>
+                <!-- tasklist api -->
+                <pathelement path="../api/src"/>
+                <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
+            </classpath>
+      </javac>
+    </target>
+
 
     <target name="jars" depends="compile">
         <mkdir dir="netbeans/modules"/>
