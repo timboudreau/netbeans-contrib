@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
 
+import org.openide.*;
 import org.openide.nodes.*;
 import org.openide.actions.*;
 import org.openide.util.NbBundle;
@@ -27,6 +28,7 @@ import org.openide.util.actions.ActionPerformer;
 import org.openide.util.datatransfer.NewType;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
+import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 
 /**
@@ -201,7 +203,12 @@ public class CommandNode extends AbstractNode {
                     ) {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);
-                            return cmd.getProperty(getName());
+                            String name = getName();
+                            Object value = cmd.getProperty(name);
+                            if (value == null) {
+                                value = VcsCommandIO.getDefaultPropertyValue(name);
+                            }
+                            return value;
                         }
 
                         public void setValue(Object value) {
@@ -235,10 +242,46 @@ public class CommandNode extends AbstractNode {
         return array;
     }
     
+    /** Get the new types that can be created in this node.
+     */
+    public NewType[] getNewTypes() {
+        //if (list == null) return new NewType[0];
+        return new NewType[] { new NewCommand() };
+    }
+    
     /**
      * Deletes the current command.
      */
     public void delete() {
+        try {
+            destroy();
+        } catch (java.io.IOException exc) {
+            // silently ignored
+        }
+    }
+    
+    /** Tells whether the given name is a name of an existing command.
+     */
+    private boolean existsCommandName(String name) {
+        CommandNode root = this;
+        Node parent;
+        while ((parent = root.getParentNode()) != null) {
+            root = (CommandNode) parent;
+        }
+        return existsCommandName(name, root);
+    }
+    
+    private static boolean existsCommandName(String name, CommandNode node) {
+        VcsCommand cmd = node.getCommand();
+        if (cmd == null) return false;
+        String cmdName = cmd.getName();
+        if (name.equals(cmdName)) return true;
+        Children ch = node.getChildren();
+        Node[] childrenNodes = ch.getNodes();
+        for (int i = 0; i < childrenNodes.length; i++) {
+            if (existsCommandName(name, (CommandNode) childrenNodes[i])) return true;
+        }
+        return false;
     }
 
     private String g(String s) {
@@ -299,4 +342,78 @@ public class CommandNode extends AbstractNode {
         }
     }
     
+    private final class NewCommand extends NewType {
+        
+        public void create() throws java.io.IOException {
+            System.out.println("create new command: cmd = "+cmd);
+            //if (list == null) return;
+            NotifyDescriptor.InputLine input = new NotifyDescriptor.InputLine(
+                org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandName"),
+                org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandTitle")
+                //bundle.getString("CTL_NewCategoryName"),
+                //bundle.getString("CTL_NewCategoryTitle")
+                );
+            //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
+            if (TopManager.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
+                return;
+
+            String name = input.getInputText();
+            if (existsCommandName(name)) {
+                NotifyDescriptor.Message message = new NotifyDescriptor.Message(
+                    org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameAlreadyExists")
+                );
+                TopManager.getDefault().notify(message);
+                return ;
+            }
+            VcsCommand cmd = new UserCommand();
+            cmd.setName(name);
+            cmd.setProperty(VcsCommand.PROPERTY_EXEC, "");
+            //String name = list.createUniqueName(label);
+            //cmd.setName(name);
+            //int[] order = CommandNode.this.cmd.getOrder();
+            //int index = ++order[order.length - 1];
+            //cmd.setOrder(order);
+            CommandNode newCommand = new CommandNode(Children.LEAF, cmd);
+            Children ch;
+            if (Children.LEAF.equals(CommandNode.this.getChildren())) {
+                ch = CommandNode.this.getParentNode().getChildren();
+            } else {
+                ch = CommandNode.this.getChildren();
+            }
+                /*
+                if (ch instanceof Index.ArrayChildren) {
+                    ((Index.ArrayChildren) ch).
+                 */
+            ch.add(new Node[] { newCommand });
+            /*
+            System.out.println("create: index = "+index);
+            Command[] commands;
+            if (CommandNode.this.cmd.getExec() == null) {
+                commands = getSubCommands();
+            } else {
+                CommandNode parent = (CommandNode) getParentNode();
+                if (parent == null) throw new java.io.IOException("No Parent");
+                commands = parent.getSubCommands();
+            }
+            int len = commands.length;
+            System.out.println("create: commands.length = "+len);
+            if (len > 0) {
+                int firstOrder[] = commands[0].getOrder();
+                index -= firstOrder[firstOrder.length - 1];
+                System.out.println("create: commands[0] =  "+commands[0]+", index = "+index);
+            }
+            int[] perm = new int[len];
+            int i = 0;
+            for( ; i < index; i++) {
+                perm[i] = i;
+            }
+            for( ; i < len; i++) {
+                perm[i] = i + 1;
+            }
+            list.reorder(commands, perm);
+            list.add(cmd);
+            list.fireChanged();
+             */
+        }
+    }
 }
