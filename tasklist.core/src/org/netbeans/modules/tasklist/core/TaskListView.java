@@ -446,13 +446,6 @@ public abstract class TaskListView extends ExplorerPanel
         }
     }
 
-    /** HACK HACK HACK
-	This is a temporary hack to help the Node.Handle figure
-	out which window it's associated with. Rewriting Node.Handle
-	to do something more robust is on my todo list :-)
-    */
-    public static TaskListView currentDeserializationTarget = null;
-
     /** Read in a serialized version of the tasklist
      * and reads in sorting preferences etc. such that
      * we use the same preferences now.
@@ -461,8 +454,6 @@ public abstract class TaskListView extends ExplorerPanel
      * @throws IOException
      * @throws ClassNotFoundException  */    
     public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
-	currentDeserializationTarget = this;
-        
         // Don't call super!
         // See writeExternal for justification
         //super.readExternal(objectInput);
@@ -1125,12 +1116,13 @@ public abstract class TaskListView extends ExplorerPanel
         } catch (PropertyVetoException e) {
         }
         if (showStatusBar && (filter != null)) {
+            setRoot();
             addFilterPanel();
             //expandAll(); // [PENDING] Make this optional?
         } else {
             removeFilterPanel();
+            setRoot();
         }
-        setRoot();
     }
 
     

@@ -59,6 +59,10 @@ Microsystems, Inc. All Rights Reserved.
              <file name="org-netbeans-modules-tasklist-suggestions-SuggestionsAction.instance" />
              <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-suggestions-SuggestionsAction.instance" boolvalue="true" />
         </folder>
+         <folder name="View">
+             <file name="org-netbeans-modules-tasklist-suggestions-SuggestionsAction.instance" />
+             <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-suggestions-SuggestionsAction.instance" boolvalue="true" />
+        </folder>
     </folder>
 
     <folder name="xml">

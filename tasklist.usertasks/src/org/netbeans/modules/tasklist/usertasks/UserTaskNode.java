@@ -18,6 +18,11 @@ import java.util.Date;
 import java.util.List;
 import org.netbeans.api.tasklist.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
+import org.netbeans.modules.tasklist.core.ExpandAllAction;
+import org.netbeans.modules.tasklist.core.ExportAction;
+import org.netbeans.modules.tasklist.core.FilterAction;
+import org.netbeans.modules.tasklist.core.GoToTaskAction;
+import org.netbeans.modules.tasklist.core.ImportAction;
 import org.netbeans.modules.tasklist.core.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.TaskNode;
@@ -114,19 +119,17 @@ class UserTaskNode extends TaskNode {
     }
     
     protected SystemAction[] createActions() {
-	
-	// TODO Perform lookup here to compute an aggregate
-	// menu from other modules as well. But how do we determine
-	// order? I think NetBeans 4.0's actions re-work will have
-	// some better support for integrating context menus so I won't
-	// try to be too clever here...
-
-	// XXX look up and locate actions
-
         if (item.getParent() == null) {
             // Create actions shown on an empty tasklist (e.g. only root
             // is there)
-            return new SystemAction[] {};
+            return new SystemAction[] {
+                SystemAction.get(NewTaskAction.class),
+                null,
+                SystemAction.get(PasteAction.class),
+                // "Global" actions (not node specific)
+                null,
+                SystemAction.get(ImportAction.class)
+            };
         } else {
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
@@ -139,8 +142,19 @@ class UserTaskNode extends TaskNode {
                 SystemAction.get(PasteAction.class),
                 null,
                 SystemAction.get(DeleteAction.class),
+
+                // "Global" actions (not node specific)
                 null,
-                SystemAction.get(PropertiesAction.class),
+                SystemAction.get(FilterAction.class),
+                SystemAction.get(PurgeTasksAction.class),
+                SystemAction.get(ExpandAllAction.class),
+                null,
+                SystemAction.get(ImportAction.class),
+                SystemAction.get(ExportAction.class),
+
+                // Property: node specific, but by convention last in menu
+                null,
+                SystemAction.get(PropertiesAction.class)
             };
         }
     }

@@ -158,7 +158,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         detailsLabel = new javax.swing.JLabel();
         detailsScrollPane = new javax.swing.JScrollPane();
         detailsTextArea = new javax.swing.JTextArea();
-        subtaskLabel = new javax.swing.JLabel();
+        subtaskCheckBox = new javax.swing.JCheckBox();
         subtaskCombo = new javax.swing.JComboBox();
         prioLabel = new javax.swing.JLabel();
         priorityComboBox = new javax.swing.JComboBox();
@@ -217,14 +217,11 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(detailsScrollPane, gridBagConstraints);
 
-    subtaskLabel.setLabelFor(subtaskCombo);
-    /*
-    subtaskLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "IsSubtaskOf")); // NOI18N);
-    */
+    subtaskCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "IsSubtaskOf")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(subtaskLabel, gridBagConstraints);
+    add(subtaskCheckBox, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
@@ -419,7 +416,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
                  EditTaskPanel.class, "Brief_Description")); // NOI18N
         Mnemonics.setLocalizedText(detailsLabel, NbBundle.getMessage(
                     EditTaskPanel.class, "DetailsLabel")); // NOI18N
-        Mnemonics.setLocalizedText(subtaskLabel, NbBundle.getMessage(
+        Mnemonics.setLocalizedText(subtaskCheckBox, NbBundle.getMessage(
                     EditTaskPanel.class, "IsSubtaskOf")); // NOI18N
         Mnemonics.setLocalizedText(prioLabel, NbBundle.getMessage(
                  EditTaskPanel.class, "PriorityLabel")); // NOI18N
@@ -462,6 +459,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         // so we have to label the associated component ourselves
         fileTextField.getAccessibleContext().setAccessibleName(fileCheckBox.getText());
         dueDateTextField.getAccessibleContext().setAccessibleName(dueCheckBox.getText());
+        subtaskCombo.getAccessibleContext().setAccessibleName(subtaskCheckBox.getText());
 
         lineTextField.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Line")); // NOI18N
@@ -549,7 +547,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JLabel detailsLabel;
     private javax.swing.JLabel lineLabel;
     private javax.swing.JLabel opt1Label;
-    private javax.swing.JLabel subtaskLabel;
+    private javax.swing.JCheckBox subtaskCheckBox;
     private javax.swing.JLabel descLabel;
     private javax.swing.ButtonGroup addButtonGroup;
     private javax.swing.JComboBox subtaskCombo;
@@ -588,7 +586,11 @@ class EditTaskPanel extends JPanel implements ActionListener {
     void setAssociatedFilePos(boolean set) {
         fileCheckBox.setSelected(set);
     }
-    
+
+    void setAssociatedParent(boolean p) {
+        subtaskCheckBox.setSelected(p);
+    }
+
     String getFilename() {
         return fileTextField.getText().trim();
     }
@@ -664,6 +666,9 @@ class EditTaskPanel extends JPanel implements ActionListener {
     }
 
     Task getParentItem() {
+        if (!subtaskCheckBox.isSelected()) {
+            return null;
+        }
         Object selected = subtaskCombo.getSelectedItem();
         if (selected instanceof UserTask) {
             return (UserTask)selected;

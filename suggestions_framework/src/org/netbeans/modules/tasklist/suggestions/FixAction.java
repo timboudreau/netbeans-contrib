@@ -334,11 +334,9 @@ public class FixAction extends NodeAction {
         return NbBundle.getMessage(FixAction.class, "LBL_FixConfirm"); // NOI18N
     }
 
-    /*
     protected String iconResource() {
         return "org/netbeans/modules/tasklist/suggestions/fix.gif"; // NOI18N
     }
-    */
     
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;

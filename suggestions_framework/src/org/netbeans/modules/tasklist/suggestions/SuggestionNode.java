@@ -22,6 +22,7 @@ import org.netbeans.api.tasklist.Suggestion;
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.PriorityPropertyEditor;
@@ -93,19 +94,14 @@ class SuggestionNode extends TaskNode {
     }
     
     protected SystemAction[] createActions() {
-	
-	// TODO Perform lookup here to compute an aggregate
-	// menu from other modules as well. But how do we determine
-	// order? I think NetBeans 4.0's actions re-work will have
-	// some better support for integrating context menus so I won't
-	// try to be too clever here...
-
-	// XXX look up and locate actions
-
         if (item.getParent() == null) {
             // Create actions shown on an empty tasklist (e.g. only root
             // is there)
-            return new SystemAction[] {};
+            return new SystemAction[] {
+                SystemAction.get(ShowCategoryAction.class),
+                SystemAction.get(FilterAction.class),
+                SystemAction.get(EditTypesAction.class)
+            };
         } else {
             ArrayList actions = new ArrayList(20);
             if (item.getAction() != null) {
@@ -124,8 +120,22 @@ class SuggestionNode extends TaskNode {
             }
             actions.add(null);
             actions.add(SystemAction.get(DisableAction.class));
+
+            // "Global" (not node specific) actions
+            actions.add(null);
+            actions.add(SystemAction.get(ShowCategoryAction.class));
+            actions.add(SystemAction.get(EditTypesAction.class));
+            actions.add(SystemAction.get(OptionsAction.class));
+            actions.add(null);
+            actions.add(SystemAction.get(FilterAction.class));
+            actions.add(SystemAction.get(ExpandAllAction.class));
+            actions.add(null);
+            actions.add(SystemAction.get(ExportAction.class));
+
+            // Property: node specific, but by convention last in menu
             actions.add(null);
             actions.add(SystemAction.get(PropertiesAction.class));
+
             return (SystemAction[])actions.toArray(
                  new SystemAction[actions.size()]);
         }

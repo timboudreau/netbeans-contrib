@@ -55,7 +55,7 @@ public class GoToTaskAction extends NodeAction {
     }
     
     protected String iconResource() {
-        return "org/netbeans/modules/tasklist/core/task.gif"; // NOI18N
+        return "org/netbeans/modules/tasklist/core/showSource.gif"; // NOI18N
     }
     
     public HelpCtx getHelpCtx() {

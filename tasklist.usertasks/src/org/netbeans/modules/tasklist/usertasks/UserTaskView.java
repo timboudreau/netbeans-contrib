@@ -33,7 +33,9 @@ import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.TaskListView.ColumnProperty;
+import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.openide.TopManager;
+import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
@@ -94,7 +96,9 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public SystemAction[] getToolBarActions() {
         return new SystemAction[] {
             SystemAction.get(NewTaskAction.class),
-            SystemAction.get(FilterAction.class),
+            SystemAction.get(DeleteAction.class),
+            SystemAction.get(GoToTaskAction.class),
+            SystemAction.get(FilterAction.class)
         };
     }
     
@@ -109,6 +113,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     /** Overrides superclass method. Gets actions for this top component. */
+    /*
     public SystemAction[] getSystemActions() {
         SystemAction[] todoActions = new SystemAction[] {
             null,
@@ -124,6 +129,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
         SystemAction[] sa = super.getSystemActions ();
         return SystemAction.linkActions (sa, todoActions);
     }
+    */
     
     public void componentActivated() {
         super.componentActivated();

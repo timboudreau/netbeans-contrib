@@ -37,6 +37,7 @@ import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.Sheet;
+import org.openide.nodes.Index;
 
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
@@ -284,72 +285,25 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
         return new NewTodoItemPanel(this);
     }
     */
-    
+
+    /*    
     public Node.Handle getHandle() {
         return new TodoItemHandle(item);
     }
+    */
     
-    /**
-     * Serializable node reference.
-     */
-    private static class TodoItemHandle implements Node.Handle {
-        static final long serialVersionUID =-3418262400286559650L;
-
-        private int id = 0;
-
-        public TodoItemHandle() {
-        }
-        
-        public TodoItemHandle(Task item) {
-            id = 5; // XXX Do something here. Figure out what a good way is.
-        }
-
-        /** Reconstitute the node for this handle.
-         *
-         * @return the node for this handle
-         * @exception IOException if the node cannot be created
-         */
-        public Node getNode () {
-            /* Old:
-	     */
-	    TaskListView tlv = TaskListView.currentDeserializationTarget;
-	    if (tlv != null) {
-		TaskList tl = tlv.getList();
-		TaskNode n = new TaskNode(tl.getRoot());
-		tlv.setRootNode(n);
-		return n;
-	    } else {
-		return null;
-	    }
-	    /*            */
-	    /*
-            // 0. Why did I do the above setRootNode business?
-
-            // 1. Find the task based on the id
-
-
-            // 2. Create a node for it
-            Node[] nodes = item.createNode();
-            if (nodes != null) {
-                return nodes[0];
-            }
-            return null;
-	    */
-        }
-    }
-
     // Permit node to be reordered (you may also want to put
     // MoveUpAction and MoveDownAction on the subnodes, if you can,
     // but ReorderAction on the parent is enough):
-    /*
+            /*
     private class ReorderMe extends Index.Support {
 
         public Node[] getNodes () {
-            return TodoNode.this.getChildren ().getNodes ();
+            return TaskNode.this.getChildren().getNodes();
         }
 
         public int getNodesCount () {
-            return getNodes ().length;
+            return getNodes().length;
         }
 
         // This assumes that there is exactly one child node per key.
@@ -357,16 +311,30 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
         // of the Index cookie.
         public void reorder (int[] perm) {
             // Remember: {2, 0, 1} cycles three items forwards.
-            List old = TodoNode.this.getTodoChildren ().myKeys;
-            if (list.size () != perm.length) throw new IllegalArgumentException ();
-            List nue = new ArrayList (perm.length);
+            List old = TaskNode.this.getTaskChildren().myKeys;
+            if (list.size () != perm.length) {
+                throw new IllegalArgumentException();
+            }
+            List nue = new ArrayList(perm.length);
             for (int i = 0; i < perm.length; i++)
-                nue.set (i, old.get (perm[i]));
-            TodoNode.this.getTodoChildren ().setKeys (nue);
-        }
+                nue.set (i, old.get(perm[i]));
+            TaskNode.this.getTaskChildren().setKeys(nue);
 
+
+
+	    // Remember: {2, 0, 1} cycles three items forwards.
+	    MyDataElement[] items = model.getChildElements();
+	    if (items.length != perm.length) throw new IllegalArgumentException();
+	    MyDataElement[] nue = new MyDataElement[perm.length];
+	    for (int i = 0; i < perm.length; i++) {
+		nue[i] = old[perm[i]];
+            }
+            // Should trigger an automatic child node update because the children
+            // should be listening:
+            model.setChildElements(nue);
+        }
     }
-     */
+            */
 
     /** Given a root node, locate the node below it which represents
      *  the given todoitem.

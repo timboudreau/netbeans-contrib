@@ -144,7 +144,9 @@ final public class SuggestionList extends TaskList {
             }
         }
         addRemove(null, removeTasks, false, null, null);
-        categoryTasks.remove(type);
+        if (categoryTasks != null) {
+            categoryTasks.remove(type);
+        }
    }
 
     
