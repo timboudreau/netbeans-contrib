@@ -22,6 +22,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Vector;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -53,6 +54,10 @@ import org.openide.DialogDisplayer;
  */
 class EditTaskPanel extends JPanel implements ActionListener {
     private static final Logger LOGGER = TLUtils.getLogger(EditTaskPanel.class);
+    
+    static {
+        LOGGER.setLevel(Level.OFF);
+    }
     
     private SimpleDateFormat format;
     private ComboBoxModel prioritiesModel = 
@@ -123,7 +128,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         if (categories.length > 0) {
             DefaultComboBoxModel model = new DefaultComboBoxModel(categories);
             categoryCombo.setModel(model);
-            LOGGER.fine("categories.size = " + categories.length);
+            LOGGER.fine("categories.size = " + categories.length); // NOI18N
         }
         categoryCombo.setSelectedItem(item.getCategory());
     }
@@ -137,7 +142,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         task.setSummary(descriptionTextField.getText().trim());
         task.setDetails(detailsTextArea.getText().trim());
         if (categoryCombo.getSelectedItem() == null)
-            task.setCategory("");
+            task.setCategory(""); // NOI18N
         else
             task.setCategory(categoryCombo.getSelectedItem().toString().trim());
         task.setPriority(Task.getPriority(priorityComboBox.getSelectedIndex() + 1));
@@ -148,6 +153,9 @@ class EditTaskPanel extends JPanel implements ActionListener {
             } catch (NumberFormatException e) {
                 // TODO validation
             }
+        } else {
+            task.setFilename(null);
+            task.setLine(null);
         }
         
         task.setDueDate(getDueDate());
@@ -202,7 +210,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
             dueDateTextField.setEnabled(true);
             dueDateTextField.setEditable(true);
         } else {
-            dueDateTextField.setText("");
+            dueDateTextField.setText(""); // NOI18N
             dueDateBrowseButton.setEnabled(false);
             dueDateTextField.setEnabled(false);
             dueCheckBox.setSelected(false);
@@ -210,8 +218,54 @@ class EditTaskPanel extends JPanel implements ActionListener {
         }
     }
     
+    /**
+     * Changes associated file position in the dialog
+     *
+     * @param file filename
+     * @param line line number
+     */
+    public void setFilePosition(String file, int line) {
+        fileTextField.setText(file);
+        lineTextField.setText(String.valueOf(line));
+    }
+    
     void setAssociatedFilePos(boolean set) {
         fileCheckBox.setSelected(set);
+    }
+    
+    public void actionPerformed(ActionEvent actionEvent) {
+        Object source = actionEvent.getSource();
+        if (source == addSourceButton) {
+            HelpCtx help = new HelpCtx("NewTask"); // NOI18N
+            
+            // This copied from openide/deprecated/.../TopManager.showHelp:
+            
+            // Awkward but should work.
+            // XXX could instead just make tasklist-usertasks.jar
+            // depend on javahelp-api.jar.
+            ClassLoader systemClassLoader = (ClassLoader)Lookup.getDefault().
+            lookup(ClassLoader.class);
+            
+            try {
+                Class c = systemClassLoader.
+                loadClass("org.netbeans.api.javahelp.Help"); // NOI18N
+                Object o = Lookup.getDefault().lookup(c);
+                if (o != null) {
+                    Method m = c.getMethod("showHelp",
+                    new Class[] {HelpCtx.class}); // NOI18N
+                    m.invoke(o, new Object[] {help});
+                    return;
+                }
+            } catch (ClassNotFoundException cnfe) {
+                // ignore - maybe javahelp module is not installed, not
+                // so strange
+            } catch (Exception e) {
+                // potentially more serious
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            }
+            // Did not work.
+            Toolkit.getDefaultToolkit().beep();
+        }
     }
     
     /** This method is called from within the constructor to
@@ -563,7 +617,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
             } else {
                 pnl = new DateSelectionPanel();
             }
-            String title = NbBundle.getMessage(EditTaskPanel.class, "SelectDateLabel");
+            String title = NbBundle.getMessage(EditTaskPanel.class, "SelectDateLabel"); // NOI18N
             DialogDescriptor d = new DialogDescriptor(pnl, title);
             d.setModal(true);
             d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
@@ -607,39 +661,4 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JLabel prioLabel;
     private javax.swing.JComboBox priorityComboBox;
     // End of variables declaration//GEN-END:variables
-    
-    public void actionPerformed(ActionEvent actionEvent) {
-        Object source = actionEvent.getSource();
-        if (source == addSourceButton) {
-           HelpCtx help = new HelpCtx("NewTask"); // NOI18N
-
-           // This copied from openide/deprecated/.../TopManager.showHelp:
-
-           // Awkward but should work.
-           // XXX could instead just make tasklist-usertasks.jar 
-           // depend on javahelp-api.jar.
-           ClassLoader systemClassLoader = (ClassLoader)Lookup.getDefault().
-               lookup(ClassLoader.class);
-
-           try {
-               Class c = systemClassLoader.
-                   loadClass("org.netbeans.api.javahelp.Help"); // NOI18N
-               Object o = Lookup.getDefault().lookup(c);
-               if (o != null) {
-                   Method m = c.getMethod("showHelp", 
-                                     new Class[] {HelpCtx.class}); // NOI18N
-                   m.invoke(o, new Object[] {help});
-                   return;
-               }
-           } catch (ClassNotFoundException cnfe) {
-               // ignore - maybe javahelp module is not installed, not
-               // so strange
-           } catch (Exception e) {
-               // potentially more serious
-               ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-           }
-           // Did not work.
-           Toolkit.getDefaultToolkit().beep();
-        }
-    }
 }

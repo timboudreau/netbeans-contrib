@@ -101,10 +101,8 @@ class UserTaskNode extends TaskNode {
         }
         if (uitem.isDone()) {
             setIconBase("org/netbeans/modules/tasklist/core/doneItem"); // NOI18N
-        } else if (uitem.hasAssociatedFilePos()) {
-            setIconBase("org/netbeans/modules/tasklist/core/editorTask"); // NOI18N
         } else {
-            super.updateIcon();
+            setIconBase("org/netbeans/modules/tasklist/core/task"); // NOI18N
         }
     }
     
@@ -212,6 +210,11 @@ class UserTaskNode extends TaskNode {
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "PercentHint")); // NOI18N
             ss.put(p);
             
+            /*p = new Reflection(item, Integer.TYPE, "getEffort", "setEffort"); // NOI18N
+            p.setName("effort");
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Effort")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "EffortHint")); // NOI18N
+            ss.put(p); TODO effort field */
 
             p = new Reflection(item, String.class, "getDetails", "setDetails"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_DETAILS);

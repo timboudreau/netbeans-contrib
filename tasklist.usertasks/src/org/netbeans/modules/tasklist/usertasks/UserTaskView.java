@@ -476,4 +476,12 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public String toString() { 
         return "UserTaskView(" + getName() + ", " + category + ", " + getModel() + ")"; // NOI18N
     }
+    
+    public org.netbeans.modules.tasklist.core.filter.Filter getFilter() {
+        if (filter == null) {
+            filter = new UserTaskFilter("Simple"); // NOI18N
+        }
+        return filter;
+    }
+    
 }
