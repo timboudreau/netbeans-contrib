@@ -571,7 +571,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     /**
      * Notification, that the filesystem is being added to the repository
      */
-    protected void notifyFSAdded() {
+    public void notifyFSAdded() {
         if (this.doInitialCheckout) {
             Table files = new Table();
             files.put("", findResource(""));
@@ -584,7 +584,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         this.isFSAdded = true;
     }    
     
-    public void notifyFSRemoved() {
+    protected void notifyFSRemoved() {
         File dir = new File (cachePath);
         if(dir.exists () && dir.isDirectory () && dir.canWrite ()) {
             if(!VcsUtilities.deleteRecursive(dir)) {

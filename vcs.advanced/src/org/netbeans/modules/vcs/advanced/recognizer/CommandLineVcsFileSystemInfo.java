@@ -41,6 +41,7 @@ import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.Profile;
 import org.netbeans.modules.vcs.advanced.ProfilesFactory;
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.openide.cookies.InstanceCookie;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
@@ -139,8 +140,17 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
         if (fs == null) {
             fs = createFileSystem();
             fileSystemRef = new WeakReference(fs);
+            if (FSRegistry.getDefault().isRegistered(this)) {
+                if (fs instanceof CommandLineVcsFileSystem) {
+                    ((CommandLineVcsFileSystem) fs).notifyFSAdded();
+                }
+            }
         }
         return fs;
+    }
+    
+    public FileSystem getExistingFileSystem() {
+        return (FileSystem) fileSystemRef.get();
     }
     
     /**

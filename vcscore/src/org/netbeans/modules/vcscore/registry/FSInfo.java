@@ -65,6 +65,12 @@ public interface FSInfo extends Serializable {
     public FileSystem getFileSystem();
     
     /**
+     * Get the existing filesystem instance. No instances are created, the existing
+     * filesystem instance is retunted, if any, otherwise <code>null</code>.
+     */
+    public FileSystem getExistingFileSystem();
+    
+    /**
      * Destroy this filesystem info. This method is called when it's known
      * that the FSInfo is no longer needed and will be discarded.
      * This method should cleanup the filesystem, if necessary.

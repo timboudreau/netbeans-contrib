@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -35,7 +35,7 @@ public class RuntimeMainChildren extends Children.Keys  {
     private static final String NUM_OF_FINISHED_CMDS_TO_COLLECT_CHANGED_METHOD = "numOfFinishedCmdsToCollectChanged"; // NOI18N
 
     private LinkedList providerList;
-    private RuntimeRepositoryListener rrl = new RuntimeRepositoryListener();
+    private RuntimeProviderListener rpl = new RuntimeProviderListener();
     
     public RuntimeMainChildren() {
         super();
@@ -43,19 +43,8 @@ public class RuntimeMainChildren extends Children.Keys  {
         /** add subnodes..
          */
         providerList = new LinkedList();
-        Repository repos = org.openide.filesystems.Repository.getDefault();
-        java.util.Enumeration enum = repos.getFileSystems(); 
-        while (enum.hasMoreElements()) {
-            FileSystem fs = (FileSystem) enum.nextElement();
-            RuntimeCommandsProvider provider = RuntimeCommandsProvider.findProvider(fs);
-            if (provider != null && !providerList.contains(provider)) {
-                providerList.add(provider);
-//                initFsInRuntime(fs);
-            }
-        }
-        repos.addRepositoryListener(WeakListener.repository(rrl, repos));
         RuntimeCommandsProvider[] providers = RuntimeCommandsProvider.getRegistered();
-        RuntimeCommandsProvider.addRegisteredListenerWeakly(rrl);
+        RuntimeCommandsProvider.addRegisteredListenerWeakly(rpl);
         if (providers != null) providerList.addAll(Arrays.asList(providers));
     }
     
@@ -97,43 +86,7 @@ public class RuntimeMainChildren extends Children.Keys  {
     }
     
     
-    public class RuntimeRepositoryListener extends  RepositoryAdapter implements PropertyChangeListener {
-        
-        public void fileSystemAdded(RepositoryEvent ev) {
-            FileSystem fs = ev.getFileSystem();
-            RuntimeCommandsProvider provider = RuntimeCommandsProvider.findProvider(fs);
-            if (provider != null && !providerList.contains(provider)) {
-                providerList.add(provider);
-                provider.notifyAdded();
-                RuntimeMainChildren.this.refreshKeys(providerList);
-            }
-        }
-        
-        public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {
-            super.fileSystemPoolReordered(ev);
-        }
-        
-        public void fileSystemRemoved(RepositoryEvent ev) {
-            FileSystem fs = ev.getFileSystem();
-            RuntimeCommandsProvider provider = RuntimeCommandsProvider.findProvider(fs);
-            if (provider != null && !containsProvider(ev.getRepository(), provider)) {
-                if (providerList.remove(provider)) {
-                    provider.notifyRemoved();
-                    RuntimeMainChildren.this.refreshKeys(providerList);
-                }
-            }
-        }
-        
-        /** Whether the Repository still contains the provider or not. */
-        private boolean containsProvider(Repository repository, RuntimeCommandsProvider provider) {
-            for (Enumeration enum = repository.fileSystems(); enum.hasMoreElements(); ) {
-                FileSystem fs = (FileSystem) enum.nextElement();
-                if (provider.equals(RuntimeCommandsProvider.findProvider(fs))) {
-                    return true;
-                }
-            }
-            return false;
-        }
+    public class RuntimeProviderListener extends Object implements PropertyChangeListener {
         
         public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
             RuntimeCommandsProvider oldProvider = (RuntimeCommandsProvider) propertyChangeEvent.getOldValue();

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -36,9 +36,6 @@ import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.Repository;
-import org.openide.filesystems.RepositoryListener;
-import org.openide.filesystems.RepositoryEvent;
-import org.openide.filesystems.RepositoryReorderedEvent;
 import org.openide.loaders.DataLoader;
 import org.openide.loaders.DataLoaderPool;
 import org.openide.loaders.DataObject;
@@ -51,6 +48,7 @@ import org.openide.util.Utilities;
 import org.openide.util.SharedClassObject;
 import org.openide.util.UserQuestionException;
 import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.windows.InputOutput;
 
 import org.netbeans.api.vcs.FileStatusInfo;
@@ -77,6 +75,9 @@ import org.netbeans.modules.vcscore.grouping.VcsGroupSettings;
 import org.netbeans.modules.vcscore.objectintegrity.IntegritySupportMaintainer;
 import org.netbeans.modules.vcscore.objectintegrity.VcsOISActivator;
 import org.netbeans.modules.vcscore.objectintegrity.VcsObjectIntegritySupport;
+import org.netbeans.modules.vcscore.registry.FSInfo;
+import org.netbeans.modules.vcscore.registry.FSRegistry;
+import org.netbeans.modules.vcscore.registry.FSRegistryListener;
 import org.netbeans.modules.vcscore.runtime.RuntimeFolderNode;
 import org.netbeans.modules.vcscore.runtime.VcsRuntimeCommandsProvider;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
@@ -378,7 +379,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private transient PropertyChangeListener settingsChangeListener = null;
 
-    private transient RepositoryListener addRemoveFSListener;
+    private transient FSRegistryListener addRemoveFSListener;
 
     private VariableValueAdjustment varValueAdjustment;
 
@@ -1620,10 +1621,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private void initListeners() {
         settingsChangeListener = new SettingsPropertyChangeListener();
         GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
-        settings.addPropertyChangeListener(WeakListener.propertyChange(settingsChangeListener, settings));
+        settings.addPropertyChangeListener(WeakListeners.propertyChange(settingsChangeListener, settings));
         addPropertyChangeListener(new FSPropertyChangeListener());
-        addRemoveFSListener = new VcsFileSystem.FSRepositoryListener();
-        Repository.getDefault().addRepositoryListener(WeakListener.repository(addRemoveFSListener, this));
+        addRemoveFSListener = new VcsFileSystem.RegistryListener();
+        FSRegistry.getDefault().addFSRegistryListener((FSRegistryListener) WeakListeners.create(FSRegistryListener.class, addRemoveFSListener, FSRegistry.getDefault()));
+        // It may happen, that the FSInfo of this FS is already registered
+        // (It could be registered when this FS did not exist yet)
+        FSInfo[] infos = FSRegistry.getDefault().getRegistered();
+        for (int i = 0; i < infos.length; i++) {
+            if (VcsFileSystem.this.equals(infos[i].getExistingFileSystem())) {
+                notifyFSAdded();
+                break;
+            }
+        }
     }
 
     protected AbstractFileSystem.List getVcsList() {
@@ -1699,7 +1709,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             org.netbeans.modules.vcscore.cache.FileSystemCache fsCache =
                 org.netbeans.modules.vcscore.cache.CacheHandler.getInstance().getCache(cache);
             if (fsCache != null) {
-                fsCache.addCacheHandlerListener((CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, (CacheHandlerListener) versioningSystem, fsCache));
+                fsCache.addCacheHandlerListener((CacheHandlerListener) WeakListeners.create(CacheHandlerListener.class, (CacheHandlerListener) versioningSystem, fsCache));
             }
         }
         VersioningRepository.getRepository().addVersioningFileSystem(versioningSystem);
@@ -4743,23 +4753,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * They can be called even when this filesystem is added into or removed from
      * a multifilesystem.
      */
-    private class FSRepositoryListener extends Object implements RepositoryListener {
+    private class RegistryListener extends Object implements FSRegistryListener {
 
-        public void fileSystemAdded(RepositoryEvent repositoryEvent) {
-            if (VcsFileSystem.this.equals(repositoryEvent.getFileSystem())) {
+        public void fsAdded(org.netbeans.modules.vcscore.registry.FSRegistryEvent ev) {
+            if (VcsFileSystem.this.equals(ev.getInfo().getExistingFileSystem())) {
                 notifyFSAdded();
             }
         }
-
-        public void fileSystemPoolReordered(RepositoryReorderedEvent repositoryReorderedEvent) {
-        }
-
-        public void fileSystemRemoved(RepositoryEvent repositoryEvent) {
-            if (VcsFileSystem.this.equals(repositoryEvent.getFileSystem())) {
+        
+        public void fsRemoved(org.netbeans.modules.vcscore.registry.FSRegistryEvent ev) {
+            if (VcsFileSystem.this.equals(ev.getInfo().getExistingFileSystem())) {
                 notifyFSRemoved();
             }
         }
-
+        
     }
 
     /**
