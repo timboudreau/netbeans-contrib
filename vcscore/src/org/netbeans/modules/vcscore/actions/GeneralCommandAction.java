@@ -158,6 +158,9 @@ public class GeneralCommandAction extends AbstractCommandAction {
                  toolBarName = toolBarName.substring(0, index - 1);
              }
         }
+        if (toolBarNamesSet == null) {
+            toolBarNamesSet = new HashSet();
+        }
         Iterator it = toolBarNamesSet.iterator();
         boolean atLeastOne = false;
         while (it.hasNext()) {
