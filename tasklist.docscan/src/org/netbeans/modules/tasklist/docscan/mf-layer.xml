@@ -43,7 +43,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Services">
 
-	<file name="org-netbeans-modules-tasklist-docscan-TaskEdSettings.settings" url="TaskEdSettings.settings">
+	<file name="org-netbeans-modules-tasklist-docscan-Settings.settings" url="Settings.settings">
 	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.docscan.Bundle"/>
 	    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/core/task.gif"/>
             <!-- Project specific? attr name="SystemFileSystem.layer"
@@ -54,8 +54,8 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="UI">
 	<folder name="Services">
 	    <folder name="Editing">
-		<file name="org-netbeans-modules-tasklist-docscan-TaskEdSettings.shadow">
-                    <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-docscan-TaskEdSettings.settings"/>
+		<file name="org-netbeans-modules-tasklist-docscan-Settings.shadow">
+                    <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-docscan-Settings.settings"/>
 		</file>
 	    </folder>
 	</folder>

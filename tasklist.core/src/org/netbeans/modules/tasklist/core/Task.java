@@ -12,8 +12,6 @@
  */
 package org.netbeans.modules.tasklist.core;
 
-import java.awt.Image;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;

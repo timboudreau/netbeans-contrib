@@ -55,7 +55,6 @@ import org.openide.ErrorManager;
 import org.openide.TopManager;
 import org.openide.actions.FindAction;
 import org.openide.explorer.ExplorerPanel;
-import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
