@@ -50,7 +50,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     private boolean current;
     private Hashtable additionalProperties;
     private ArrayList additionalPropertiesSets;
-    private transient PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+    private transient PropertyChangeSupport changeSupport;
 
     /** Creates new RevisionItem */
     public RevisionItem(String revision) {
@@ -67,6 +67,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         additionalProperties = new Hashtable();
         additionalPropertiesSets = new ArrayList();
         displayName = revision;
+        changeSupport = new PropertyChangeSupport(this);
     }
 
     /** Get the revision of that item.
@@ -275,5 +276,10 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     
     public String toString() {
         return "["+revision+", branches = "+((branches == null) ? null : (new ArrayList(branches)))+", tags = "+getTagNames()+"]";
+    }
+    
+    private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, java.io.IOException, java.io.NotActiveException {
+        in.defaultReadObject();
+        changeSupport = new PropertyChangeSupport(this);
     }
 }
