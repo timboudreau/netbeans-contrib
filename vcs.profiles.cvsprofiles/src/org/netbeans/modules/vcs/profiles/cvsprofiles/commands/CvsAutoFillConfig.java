@@ -15,6 +15,7 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
 import java.io.*;
 import java.util.Hashtable;
+import org.netbeans.lib.cvsclient.CVSRoot;
 
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
@@ -25,9 +26,10 @@ import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
  */
 public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
     
-    private static final String CVS_DIR = "CVS";
-    private static final String CVS_ROOT = "Root";
-    private static final String CVS_LOCAL = "local";
+    private static final String CVS_DIR = "CVS"; // NOI18N
+    private static final String CVS_ROOT = "Root"; // NOI18N
+    private static final String CVS_LOCAL = "local"; // NOI18N
+    private static final String CVS_EXT = "ext";  // NOI18N
 
     /** Creates new CvsAutoFillConfig */
     public CvsAutoFillConfig() {
@@ -75,43 +77,25 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
             try {
                 buff = new BufferedReader(new InputStreamReader(new FileInputStream(dirFile.getAbsolutePath())));
                 String line = buff.readLine();
-                if (line != null && line.startsWith(":")) {
-                    line = line.substring(1);
-                    //StringTokenizer token = new StringTokenizer(line, ":",false);
-                    int begin = 0;
-                    int end = line.indexOf(":");
-                    if (end > 0) {
-                        serverType = line.substring(begin, end);
-                        if (serverType.equals(CVS_LOCAL))  {
-                            repository =  line.substring(end + 1);
-                            userName = "";
-                            serverName = "";
-                        } else {   //some kind of server..
-                            begin = end + 1;
-                            end = line.indexOf(":", begin);
-                            if (begin < line.length()) {
-                                String userServer =  line.substring(begin, (end > 0) ? end : line.length());
-                                int atIndex = userServer.indexOf('@');
-                                if (atIndex >= 0) {
-                                    userName = userServer.substring(0, atIndex);
-                                    serverName = userServer.substring(atIndex + 1);
-                                } else {
-                                    userName = "";
-                                    serverName = userServer;
-                                }
-                            }
-                            if (end > 0) repository = line.substring(end + 1);
-                            StringBuffer port = new StringBuffer();
-                            char c;
-                            for (int i = 0; repository.length() > i && Character.isDigit(c = repository.charAt(i)); i++) {
-                                port.append(c);
-                            }
-                            if (port.length() > 0) {
-                                serverPort = port.toString();
-                                repository = repository.substring(port.length());
-                            }
+                CVSRoot cvsroot = null;
+                try {
+                    cvsroot = CVSRoot.parse(line);
+                    serverType = cvsroot.getMethod();
+                    if (serverType == null) {
+                        if (cvsroot.isLocal()) {
+                            serverType = CVS_LOCAL;
+                        } else {
+                            serverType = CVS_EXT;
                         }
                     }
+                    repository = cvsroot.getRepository();
+                    userName = cvsroot.getUserName();
+                    serverName = cvsroot.getHostName();
+                    int port = cvsroot.getPort();
+                    if (port > 0) {
+                        serverPort = Integer.toString(port);
+                    }
+                } catch (IllegalArgumentException iaex) { //doesn't matter - nothing will be filled in
                 }
             } catch (IOException exc) { //doesn't matter - nothing will be filled in
             }
