@@ -126,6 +126,9 @@ public final class IgnoreList {
         // compute new value and cache it
 
         VcsFileSystem fs = (VcsFileSystem) folder.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+        if (fs == null) {
+            throw new FileStateInvalidException("Can not find VCS filesystem for folder "+folder); // NOI18N
+        }
         VcsFileSystem.IgnoreListSupport ignSupport = fs.getIgnoreListSupport();
 
         List globalList = ignSupport.createInitialIgnoreList();
