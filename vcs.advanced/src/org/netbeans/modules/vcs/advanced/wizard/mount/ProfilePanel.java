@@ -41,7 +41,9 @@ public class ProfilePanel extends AbstractWizardPanel {
     }
 
     protected void readWizardSettings(MountWizardData data) {
-        this.add(data.getProfilePanel());
+        javax.swing.JPanel profilePanel = data.getProfilePanel ();
+        profilePanel.setBorder (new javax.swing.border.EmptyBorder (new java.awt.Insets (0, 0, 0, 0)));
+        this.add (profilePanel);
         initialized = true;
     }
 
