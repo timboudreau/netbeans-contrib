@@ -21,7 +21,10 @@ import org.openide.nodes.Node;
 //import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.runtime.RuntimeSupport;
+import org.netbeans.modules.vcscore.cache.FileSystemCache;
+import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 
@@ -77,7 +80,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private Node runtimeNode;
 
     /** Creates new CommandsPool */
-    public CommandsPool(VcsFileSystem fileSystem) {
+    public CommandsPool(final VcsFileSystem fileSystem) {
         commandsToRun = new ArrayList();
         commands = new Table();
         commandsFinished = new ArrayList();
@@ -86,6 +89,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
         group = new ThreadGroup("VCS Commands Goup");
         this.fileSystem = fileSystem;
         runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
+        fileSystem.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                RuntimeSupport.updateRuntime(runtimeNode, fileSystem.getDisplayName());
+            }
+        });
     }
     
     /*
@@ -200,6 +208,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
             //outputVisualizers.put(vce, outputVisualizer);
         }
         //System.out.println("command "+vce.getCommand()+" STARTED, LISTENERS DONE.");
+        FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
+        if (cache != null && cache instanceof FileReaderListener) {
+            vce.addFileReaderListener((FileReaderListener) cache);
+        }
     }
     
     private void commandDone(VcsCommandExecutor vce) {
