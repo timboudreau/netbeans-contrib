@@ -70,7 +70,8 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
     }
     
     public boolean isEnabled() {
-        return true;
+        VcsGroupSettings settings = (VcsGroupSettings)SharedClassObject.findObject(VcsGroupSettings.class, true);
+        return !settings.isDisableGroups();
     }
     
 

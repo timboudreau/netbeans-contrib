@@ -28,6 +28,7 @@ import java.io.*;
 import org.openide.awt.Actions;
 import org.openide.awt.JInlineMenu;
 import org.openide.util.actions.*;
+import org.openide.util.SharedClassObject;
 import org.openide.filesystems.FileObject;
 import org.openide.*;
 import org.openide.nodes.*;
@@ -142,6 +143,8 @@ public class AddToGroupAction extends NodeAction {
 
     protected boolean enable(org.openide.nodes.Node[] node) {
         if (node == null || node.length == 0) return false;
+        VcsGroupSettings settings = (VcsGroupSettings)SharedClassObject.findObject(VcsGroupSettings.class, true);
+        if (settings.isDisableGroups()) return false;
         adding = true;
         for (int m = 0; m < node.length; m++) {
             if (node[m] instanceof VcsGroupNode) return false;

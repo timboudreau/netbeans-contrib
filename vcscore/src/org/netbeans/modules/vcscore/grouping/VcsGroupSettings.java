@@ -40,6 +40,8 @@ public class VcsGroupSettings extends SystemOption {
 
     public static final String PROP_AUTO_ADDITION = "autoAddition";//NOI18N
     public static final String PROP_SHOW_LINKS = "showLinks";//NOI18N
+    public static final String PROP_DISABLE_GROUPS = "disableGroups";
+    
     public static final int ADDITION_MANUAL = 0;
     public static final int ADDITION_ASK = 2;
     public static final int ADDITION_TO_DEFAULT = 1;
@@ -54,6 +56,8 @@ public class VcsGroupSettings extends SystemOption {
     /** Holds value of property autoAddition. */
     private static int autoAddition = 0;
 
+    /** Holds value of property disableGroups. */
+    private boolean disableGroups = false;    
     
     public VcsGroupSettings() {
     }
@@ -105,6 +109,24 @@ public class VcsGroupSettings extends SystemOption {
             int old = this.autoAddition;
             this.autoAddition = autoAddition;
             firePropertyChange(PROP_AUTO_ADDITION, new Integer(old), new Integer(autoAddition));
+        }
+    }
+    
+    /** Getter for property disableGroups.
+     * @return Value of property disableGroups.
+     */
+    public boolean isDisableGroups() {
+        return this.disableGroups;
+    }
+    
+    /** Setter for property disableGroups.
+     * @param disableGroups New value of property disableGroups.
+     */
+    public void setDisableGroups(boolean disableGroups) {
+        if (this.disableGroups != disableGroups) {
+            boolean old = this.disableGroups;
+            this.disableGroups = disableGroups;
+            firePropertyChange(PROP_DISABLE_GROUPS, new Boolean(old), new Boolean(disableGroups));
         }
     }
     

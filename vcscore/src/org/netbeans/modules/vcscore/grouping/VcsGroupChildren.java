@@ -81,6 +81,7 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
             DataObject dos = (DataObject)childs.nextElement();
             if (dos instanceof DataShadow) {
                  DataShadow shadow = (DataShadow)dos;
+//                 shadow.getOriginal().addPropertyChangeListener(this);
                  list.add(shadow);
             }
             
@@ -109,6 +110,15 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
                 }
             }
         }
+/*        System.out.println("property=" + propertyChangeEvent.getPropertyName());
+        if (propertyChangeEvent.getPropertyName().equals(DataObject.PROP_VALID)) {
+            System.out.println("value property fired..");
+            Boolean bool = (Boolean)propertyChangeEvent.getNewValue();
+            if (bool.booleanValue() == false) {
+                refreshAll();
+            }
+        }
+ */
     }  
 
 

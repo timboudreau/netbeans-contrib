@@ -62,13 +62,16 @@ public class VcsGroupSettingsBeanInfo extends SimpleBeanInfo {
             autoAddition.setShortDescription (bundle.getString("HINT_autoAddition"));      // NOI18N       
             autoAddition.setPropertyEditorClass(AutoAdditionPropertyEditor.class);
             
-              // Display Type
             PropertyDescriptor showLinks = new PropertyDescriptor ("showLinks", VcsGroupSettings.class); // NOI18N
             showLinks.setDisplayName (bundle.getString("PROP_showLinks")); // NOI18N
             showLinks.setShortDescription (bundle.getString("HINT_showLinks"));      // NOI18N       
             
+            PropertyDescriptor disableGroups = new PropertyDescriptor ("disableGroups", VcsGroupSettings.class); // NOI18N
+            disableGroups.setDisplayName (bundle.getString("PROP_disableGroups")); // NOI18N
+            disableGroups.setShortDescription (bundle.getString("HINT_disableGroups"));      // NOI18N       
             
-            return new PropertyDescriptor[] {autoAddition, showLinks }; 
+            
+            return new PropertyDescriptor[] {autoAddition, showLinks, disableGroups }; 
             
         } catch (IntrospectionException ie) {
             if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
