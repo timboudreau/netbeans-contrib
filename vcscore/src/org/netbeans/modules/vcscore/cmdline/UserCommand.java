@@ -240,10 +240,15 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
          */
         String[] properties = uc.getPropertyNames();
         for (int i = 0; i < properties.length; i++) {
+            // The command's properties are generally immutable objects (Boolean, Integer, String)
+            // Thus it should be enough to reuse them. If this would cause some trouble,
+            // the original code, that copy the objects would have to be used.
+            this.setProperty(properties[i], uc.getProperty(properties[i]));
+            /*
             Object property = uc.getProperty(properties[i]);
             Object newProperty;
             if (property instanceof Boolean) {
-                newProperty = property;
+                newProperty = new Boolean(((Boolean) property).booleanValue());
             } else if (property instanceof Integer) {
                 newProperty = new Integer(((Integer) property).intValue());
                 /*
@@ -256,13 +261,14 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
             } else {
                 newProperty = property;
             }
-                 */
+                 *//*
             } else if (property instanceof String) {
                 newProperty = new String((String) property);
             } else {
                 newProperty = property;
             }
             this.setProperty(properties[i], newProperty);
+                    */
         }
     }
     
