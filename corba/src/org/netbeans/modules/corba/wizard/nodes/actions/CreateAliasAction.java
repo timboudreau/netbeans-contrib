@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.AliasCreator;
  *
  * @author  root
  */
-public class CreateAliasAction extends ExtNodeAction {
+public class CreateAliasAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {

@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.EnumEntryCreator;
  *
  * @author  root
  */
-public class CreateEnumEntryAction extends ExtNodeAction {
+public class CreateEnumEntryAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if ( enable ( nodes)) {

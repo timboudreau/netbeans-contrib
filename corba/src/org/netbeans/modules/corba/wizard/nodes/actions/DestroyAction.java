@@ -25,7 +25,7 @@ import org.openide.nodes.Node;
  * @author  tzezula
  * @version 1.0
  */
-public class DestroyAction extends ExtNodeAction {
+public class DestroyAction extends NodeAction {
 
 
     /** Performs the action on selected nodes

@@ -22,7 +22,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.ModuleCreator;
  *
  * @author  root
  */
-public class CreateModuleAction extends ExtNodeAction {
+public class CreateModuleAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)){ 

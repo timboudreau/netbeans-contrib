@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.StructCreator;
  *
  * @author  root
  */
-public class CreateStructAction extends ExtNodeAction {
+public class CreateStructAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {

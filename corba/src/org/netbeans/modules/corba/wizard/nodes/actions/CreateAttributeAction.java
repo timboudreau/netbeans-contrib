@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.*;
  *
  * @author  root
  */
-public class CreateAttributeAction extends ExtNodeAction {
+public class CreateAttributeAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {

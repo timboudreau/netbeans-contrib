@@ -17,13 +17,14 @@ import org.openide.util.HelpCtx;
 import org.openide.nodes.Node;
 import org.openide.NotifyDescriptor;
 import org.openide.TopManager;
+import org.openide.util.actions.NodeAction;
 
 /**
  *
  * @author  tzezula
  * @version 
  */
-public class RenameAction extends ExtNodeAction {
+public class RenameAction extends NodeAction {
 
     /** Creates new RenameAction */
     public RenameAction() {

@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.ExceptionCreator;
  *
  * @author  root
  */
-public class CreateExceptionAction extends ExtNodeAction {
+public class CreateExceptionAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {

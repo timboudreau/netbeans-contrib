@@ -24,7 +24,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.UnionDefaultCreator;
  * @author  tzezula
  * @version 
  */
-public class CreateUnionDefaultAction extends ExtNodeAction {
+public class CreateUnionDefaultAction extends NodeAction {
 
     /** Creates new CreateUnionDefaultAction */
     public CreateUnionDefaultAction() {

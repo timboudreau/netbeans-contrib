@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.ConstantCreator;
  *
  * @author  root
  */
-public class CreateConstantAction extends ExtNodeAction {
+public class CreateConstantAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {

@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.UnionMemberCreator;
  *
  * @author  root
  */
-public class CreateUnionMemberAction extends ExtNodeAction {
+public class CreateUnionMemberAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {

@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.OperationCreator;
  *
  * @author  root
  */
-public class CreateOperationAction extends ExtNodeAction {
+public class CreateOperationAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if ( enable (nodes)) {

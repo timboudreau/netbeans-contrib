@@ -23,7 +23,7 @@ import org.netbeans.modules.corba.wizard.nodes.utils.InterfaceCreator;
  *
  * @author  root
  */
-public class CreateInterfaceAction extends ExtNodeAction {
+public class CreateInterfaceAction extends NodeAction {
 
     protected void performAction (Node[] nodes) {
         if (enable (nodes)) {
