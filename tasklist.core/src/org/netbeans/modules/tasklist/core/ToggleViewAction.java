@@ -14,6 +14,7 @@ package org.netbeans.modules.tasklist.core;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.ref.WeakReference;
 import javax.swing.SwingUtilities;
 import org.netbeans.modules.tasklist.core.*;
 import org.openide.awt.Actions;
@@ -36,6 +37,7 @@ public abstract class ToggleViewAction extends BooleanStateAction implements
 PropertyChangeListener {
     private boolean block;
     private String mode = "output"; // NOI18N
+    private WeakReference activated;
     
     public void setBooleanState(final boolean value) {
         super.setBooleanState(value);
@@ -86,7 +88,18 @@ PropertyChangeListener {
             if (mode != null)
                 this.mode = mode.getName();
             view.close();
+            if (activated != null) {
+                TopComponent act = (TopComponent) activated.get();
+                if (act != null)
+                    act.requestFocus();
+            }
         } else if (visible) {
+            TopComponent act = WindowManager.getDefault().
+                getRegistry().getActivated();
+            if (act == null)
+                activated = null;
+            else
+                activated = new WeakReference(act);
             Mode mode  = workspace.findMode(this.mode);
             if (mode != null) {
                 mode.dockInto(view);
