@@ -468,7 +468,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         } else {
             createTempFile = (exec != null && exec.indexOf(Variables.TEMPORARY_FILE) >= 0);
         }
-        if (createTempFile) {
+        if (createTempFile && vars.get(Variables.TEMPORARY_FILE) == null) {
             try {
                 File tempFile = File.createTempFile("VCS", "tmp");
                 tempFile.deleteOnExit();
@@ -1018,7 +1018,20 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 }
             }
             String tempFilePath = (String) vars.get(Variables.TEMPORARY_FILE);
-            if (tempFilePath != null) new File(tempFilePath).delete();
+            if (tempFilePath != null) {
+                String postCommands;
+                if (getExitStatus() == VcsCommandExecutor.SUCCEEDED) {
+                    postCommands = (String) cmd.getProperty(VcsCommand.PROPERTY_COMMANDS_AFTER_SUCCESS);
+                } else {
+                    postCommands = (String) cmd.getProperty(VcsCommand.PROPERTY_COMMANDS_AFTER_FAIL);
+                }
+                if (postCommands != null) {
+                    postCommands = Variables.expand(vars, postCommands, false).trim();
+                }
+                if (postCommands == null || postCommands.length() == 0) {
+                    new File(tempFilePath).delete();
+                }
+            }
         }
     }
     
