@@ -41,6 +41,7 @@ import org.netbeans.jellytools.modules.jndi.nodes.ContextNode;
 import org.netbeans.jellytools.modules.jndi.nodes.JNDIRootNode;
 import org.netbeans.jellytools.modules.jndi.nodes.ObjectNode;
 import org.netbeans.jellytools.nodes.Node;
+import org.openide.awt.StatusDisplayer;
 import org.openide.util.Lookup;
 
 public class RegistryTest extends JellyTestCase {
@@ -189,19 +190,23 @@ public class RegistryTest extends JellyTestCase {
             throw new AssertionFailedError ("Under testNode there is \"Please Wait...\" node shown forever. Pass 1");*/
 
         /* Print lookup and binding code */
-        MainWindowOperator.StatusTextTracer stt = MainWindowOperator.getDefault().getStatusTextTracer();
-        stt.start ();
+//        MainWindowOperator.StatusTextTracer stt = MainWindowOperator.getDefault().getStatusTextTracer();
+//        stt.start ();
+        StatusDisplayer.getDefault().setStatusText("<Dummy>");
         JtestNode.copyLookupCode();
-        stt.waitText("Lookup code generated to clipboard.", true);
-        stt.stop ();
+        MainWindowOperator.getDefault().waitStatusText("Lookup code generated to clipboard.");
+//        stt.waitText("Lookup code generated to clipboard.", true);
+//        stt.stop ();
 //        performAction(testNode, LookupCopyAction.class);
         ref.println("Lookup copy code on node: " + "RegistryCtx");
         printClipboardToRef();
 
-        stt.start ();
+//        stt.start ();
+        StatusDisplayer.getDefault().setStatusText("<Dummy>");
         JtestNode.copyBindingCode();
-        stt.waitText("Binding code generated to clipboard.", true);
-        stt.stop ();
+        MainWindowOperator.getDefault().waitStatusText("Binding code generated to clipboard.");
+//        stt.waitText("Binding code generated to clipboard.", true);
+//        stt.stop ();
 //        performAction(testNode, BindingCopyAction.class);
         ref.println("Binding copy code on node: " + "RegistryCtx");
         printClipboardToRef();
@@ -212,10 +217,12 @@ public class RegistryTest extends JellyTestCase {
             throw new AssertionFailedError ("Could not find testbinding node");
 
         /* Print lookup and binding code */
-        stt.start ();
+        StatusDisplayer.getDefault().setStatusText("<Dummy>");
+//        stt.start ();
         JbindNode.copyLookupCode();
-        stt.waitText("Lookup code generated to clipboard.", true);
-        stt.stop ();
+        MainWindowOperator.getDefault().waitStatusText("Lookup code generated to clipboard.");
+//        stt.waitText("Lookup code generated to clipboard.", true);
+//        stt.stop ();
 //        performAction(bindNode, LookupCopyAction.class);
         ref.println("Lookup copy code on node: " + bindname);
         printClipboardToRef();
