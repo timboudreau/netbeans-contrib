@@ -13,66 +13,85 @@
 
 package org.netbeans.modules.vcs.profiles.pvcs.commands;
 
-import java.io.*;
 import java.util.Hashtable;
 
+import org.netbeans.modules.vcscore.VcsAction;
+import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
+import org.netbeans.modules.vcscore.util.Table;
 
 /**
  * Automatic fill of configuration for PVCS
  * @author  Martin Entlicher
  */
-public class PvcsAutoFillConfig extends Object implements VcsAdditionalCommand {
-
-    private static final String PVCS_CONFIG = "vcs.cfg";
-    private static final String PVCS_INCLUDE = "INCLUDE";
+public class PvcsAutoFillConfig extends Object implements VcsAdditionalCommand,
+                                                          CommandDataOutputListener {
+    
+    private static final String ERROR = " [Error]"; // NOI18N
+    
+    private VcsFileSystem fileSystem;
+    private boolean failed;
+    private String work;
     
     /** Creates new PvcsAutoFillConfig */
     public PvcsAutoFillConfig() {
     }
 
+    public void setFileSystem(VcsFileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+    
     public boolean exec(Hashtable vars, String[] args,
                         CommandOutputListener stdoutNRListener, CommandOutputListener stderrNRListener,
                         CommandDataOutputListener stdoutListener, String dataRegex,
                         CommandDataOutputListener stderrListener, String errorRegex) {
         
-        String dirName = (String) vars.get("ROOTDIR");
-        String relMount = (String) vars.get("MODULE");
-        if (relMount.length() > 0) {
-            dirName += File.separator + relMount;
+        if (args.length < 1) {
+            stderrNRListener.outputLine("A get work location command name expected as an argument.");
+            return false;
         }
-        dirName += File.separator + PVCS_CONFIG;
-        File dirFile = new File(dirName);
-        String archive = null;
-        if (dirFile.exists()) {
-            BufferedReader buff = null;
+        VcsCommand cmd = fileSystem.getCommand(args[0]);
+        if (cmd == null) {
+            stderrNRListener.outputLine("Unknown command '"+args[0]+"'.");
+            return false;
+        }
+        String projectDB = (String) vars.get("PROJECT_DB");
+        if (projectDB == null || projectDB.length() == 0) return true;
+        Table dummyFiles = new Table();
+        dummyFiles.put("foo.txt", null);
+        work = null;
+        failed = false;
+        VcsCommandExecutor[] execs = VcsAction.doCommand(dummyFiles, cmd, null, fileSystem,
+                                                         null, null, this, null);
+        try {
+            for (int i = 0; i < execs.length; i++) {
+                fileSystem.getCommandsPool().waitToFinish(execs[i]);
+            }
+        } catch (InterruptedException intrEx) {
+        }
+        if (failed || execs[0].getExitStatus() != VcsCommandExecutor.SUCCEEDED) work = null;
+        if (work != null) {
             try {
-                buff = new BufferedReader(new InputStreamReader(new FileInputStream(dirFile.getAbsolutePath())));
-                String line;
-                while ((line = buff.readLine()) != null) {
-                    if (line.startsWith(PVCS_INCLUDE)) {
-                        int begin = line.indexOf('"');
-                        if (begin < 0) continue;
-                        int endUnix = line.lastIndexOf('/');
-                        if (endUnix < 0) endUnix = line.length();
-                        int endWin = line.lastIndexOf('\\');
-                        if (endWin < 0) endWin = line.length();
-                        archive = line.substring(begin + 1, Math.min(endUnix, endWin)).trim();
-                        break;
-                    }
-                }
-            } catch (IOException exc) { //doesn't matter - nothing will be filled in
-            }
-            finally {
-                if (buff != null) {
-                    try {
-                        buff.close();
-                    } catch (IOException eIO) {}
-                }
-            }
+                fileSystem.setRootDirectory(new java.io.File(work));
+                vars.put("ROOTDIR", work);
+            } catch (java.beans.PropertyVetoException pvex) {
+            } catch (java.io.IOException ioex) {}
         }
-        if (archive != null) vars.put("PVCSROOT", archive);
         return true;
     }
+    
+    /**
+     * This method is called, with elements of the output data.
+     * @param elements the elements of output data.
+     */
+    public void outputData(String[] elements) {
+        if (elements[0] == null || elements[0].length() == 0) return ;
+        if (elements[0].indexOf(ERROR) >= 0) {
+            failed = true;
+            return ;
+        }
+        work = elements[0];
+    }
+    
 }
