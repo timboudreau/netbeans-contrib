@@ -29,17 +29,19 @@ import org.openide.filesystems.FileUtil;
 */
 public class CORBASupport {
 
-    /** bundle to obtain text information from */
-    public static ResourceBundle bundle = NbBundle.getBundle(CORBASupport.class);
+   public static final boolean DEBUG = false;
 
+   /** bundle to obtain text information from */
+   public static ResourceBundle bundle = NbBundle.getBundle(CORBASupport.class);
+   
    /*
-    public static final String ORBIX = CORBASupport.bundle.getString ("CTL_Orbix");
-
-    public static final String VISIBROKER = CORBASupport.bundle.getString ("CTL_Visibroker");
-
-    public static final String ORBACUS = CORBASupport.bundle.getString ("CTL_Orbacus");
-
-    public static final String JAVAORB = CORBASupport.bundle.getString ("CTL_JavaORB");
+     public static final String ORBIX = CORBASupport.bundle.getString ("CTL_Orbix");
+     
+     public static final String VISIBROKER = CORBASupport.bundle.getString ("CTL_Visibroker");
+     
+     public static final String ORBACUS = CORBASupport.bundle.getString ("CTL_Orbacus");
+     
+     public static final String JAVAORB = CORBASupport.bundle.getString ("CTL_JavaORB");
    */
 
     public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
@@ -151,13 +153,15 @@ public class CORBASupport {
      * no-arg constructor
      */
     CORBASupport() {
-//	System.out.println ("CORBASupport");
+       if (DEBUG)
+	  System.out.println ("CORBASupport");
     }
 
 }
 
 /*
  * <<Log>>
+ *  11   Gandalf   1.10        7/10/99  Karel Gardas    
  *  10   Gandalf   1.9         6/11/99  Jaroslav Tulach System.out commented
  *  9    Gandalf   1.8         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
