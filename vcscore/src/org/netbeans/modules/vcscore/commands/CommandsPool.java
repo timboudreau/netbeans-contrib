@@ -252,7 +252,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (name == null || name.length() == 0) name = cmd.getName();
         String exec = vce.getExec();
         fileSystem.debug(g("MSG_Command_preprocessing", name, exec));
-        RuntimeSupport.addWaiting(runtimeNode, vce, this);
+        RuntimeCommand rCom = new VcsRuntimeCommand(vce, this);
+        RuntimeSupport.addWaiting(runtimeNode, rCom);
         int preprocessStatus = CommandExecutorSupport.preprocessCommand(fileSystem, vce, vars, askForEachFile);
         if (PREPROCESS_CANCELLED == preprocessStatus) {
             synchronized (this) {
@@ -262,7 +263,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
             }
             fileSystem.debug(g("MSG_Command_cancelled", name));
             //RuntimeSupport.addCancelled(runtimeNode, vce, this);
-            RuntimeSupport.removeDone(vce);
+            RuntimeSupport.removeDone(rCom);
         }
         return preprocessStatus;
     }
@@ -276,7 +277,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (name == null || name.length() == 0) name = cmd.getName();
         TopManager.getDefault().setStatusText(g("MSG_Command_name_running", name));
         fileSystem.debug(g("MSG_Command_started", name, vce.getExec()));
-        RuntimeSupport.addRunning(runtimeNode, vce, this);
+        RuntimeCommand rCom = new VcsRuntimeCommand(vce, this);
+        RuntimeSupport.addRunning(runtimeNode, rCom);
         //System.out.println("command "+vce.getCommand()+" STARTED.");
         synchronized (commandListeners) {
             for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
@@ -314,13 +316,15 @@ public class CommandsPool extends Object /*implements CommandListener */{
             commandsFinished.add(vce);
             notifyAll();
         }
-        RuntimeSupport.addDone(runtimeNode, vce, this);
+        RuntimeCommand rCom = new VcsRuntimeCommand(vce, this);
+        RuntimeSupport.addDone(runtimeNode, rCom);
         synchronized (commandsFinished) {
             //commandsFinished.removeRange(0, commandsFinished.size() - collectFinishedCmdsNum);
             while (commandsFinished.size() > collectFinishedCmdsNum) {
                 VcsCommandExecutor removedExecutor = (VcsCommandExecutor) commandsFinished.remove(0);
                 outputContainers.remove(removedExecutor);
-                RuntimeSupport.removeDone(removedExecutor);
+                RuntimeCommand removedRCom = new VcsRuntimeCommand(removedExecutor, this);
+                RuntimeSupport.removeDone(removedRCom);
             }
         }
         if (!isCollectOutput()) {

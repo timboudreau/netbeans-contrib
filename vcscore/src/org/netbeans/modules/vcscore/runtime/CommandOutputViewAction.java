@@ -53,9 +53,8 @@ public class CommandOutputViewAction extends NodeAction {
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] instanceof RuntimeCommandNode) {
                 RuntimeCommandNode node = (RuntimeCommandNode) nodes[i];
-                VcsCommandExecutor executor = node.getExecutor();
-                CommandsPool cpool = node.getCommandsPool();
-                cpool.openCommandOutput(executor);
+                RuntimeCommand comm = node.getRuntimeCommand();
+                comm.openCommandOutputDisplay();
             }
         }
     }

@@ -30,7 +30,7 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  *
  * @author  Martin Entlicher
  */
-class RuntimeCommandNode extends AbstractNode {
+public class RuntimeCommandNode extends AbstractNode {
 
     static final int STATE_WAITING = 0;
     static final int STATE_RUNNING = 1;
@@ -45,19 +45,17 @@ class RuntimeCommandNode extends AbstractNode {
     private static Image badgeWaiting = null;
     private static Image badgeError = null;
 
-    private VcsCommandExecutor executor;
-    private CommandsPool cpool;
+    private RuntimeCommand command;
     private int state;
     
     
     /** Creates new RuntimeCommandNode */
-    RuntimeCommandNode(VcsCommandExecutor vce, CommandsPool cpool) {
+    RuntimeCommandNode(RuntimeCommand comm) {
         super(Children.LEAF);
-        this.executor = vce;
-        this.cpool = cpool;
-        setName(vce.getCommand().getName());
-        String displayName = vce.getCommand().getDisplayName();
-        if (displayName == null || displayName.length() == 0) displayName = vce.getCommand().getName();
+        command = comm;
+        setName(command.getName());
+        String displayName = command.getDisplayName();
+        if (displayName == null || displayName.length() == 0) displayName = command.getName();
         setDisplayName(displayName);
         setDefaultAction(CommandOutputViewAction.getInstance());
     }
@@ -68,12 +66,8 @@ class RuntimeCommandNode extends AbstractNode {
         firePropertyChange("status", null, null);
     }
     
-    VcsCommandExecutor getExecutor() {
-        return executor;
-    }
-    
-    CommandsPool getCommandsPool() {
-        return cpool;
+    public RuntimeCommand getRuntimeCommand() {
+        return command;
     }
     
     public Image getIcon(int type) {
@@ -96,7 +90,7 @@ class RuntimeCommandNode extends AbstractNode {
                 break;
             case STATE_CANCELLED:
             case STATE_DONE:
-                if (executor.getExitStatus() != VcsCommandExecutor.SUCCEEDED) {
+                if (command.getExitStatus() != RuntimeCommand.SUCCEEDED) {
                     if (badgeError == null) {
                         badgeError = new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/vcscore/runtime/badgeError.gif")).getImage();
                     }
@@ -114,46 +108,15 @@ class RuntimeCommandNode extends AbstractNode {
     }
     
     public SystemAction[] getActions() {
-        return new SystemAction[] { CommandOutputViewAction.getInstance() , SystemAction.get(PropertiesAction.class) };
+        return command.getActions();
+
     }
 
     public Sheet createSheet() {
-        Sheet sheet = Sheet.createDefault();
-        Sheet.Set set = sheet.get(Sheet.PROPERTIES);
-        createProperties(set);
-        return sheet;
+        return command.createSheet();
     }
     
-    private void createProperties(final Sheet.Set set) {
-        set.put(new PropertySupport.ReadOnly("name", String.class, g("CTL_Name"), "") {
-                        public Object getValue() {
-                            //System.out.println("getName: cmd = "+cmd);
-                            return executor.getCommand().getName();
-                        }
-                });
-        set.put(new PropertySupport.ReadOnly("exec", String.class, g("CTL_Exec"), "") {
-                        public Object getValue() {
-                            return executor.getExec();
-                        }
-                });
-        set.put(new PropertySupport.ReadOnly("files", String.class, g("CTL_Files"), "") {
-                        public Object getValue() {
-                            String[] files = (String[]) executor.getFiles().toArray(new String[0]);
-                            for (int i = 0; i < files.length; i++) {
-                                if (files[i].length() == 0) files[i] = ".";
-                            }
-                            return VcsUtilities.array2stringNl(files);
-                        }
-                });
-        set.put(new PropertySupport.ReadOnly("status", String.class, g("CTL_Status"), "") {
-                        public Object getValue() {
-                            if (cpool.isWaiting(executor)) return g("CTL_Status_Waiting");
-                            if (cpool.isRunning(executor)) return g("CTL_Status_Running");
-                            return CommandsPool.getExitStatusString(executor.getExitStatus());
-                        }
-                });
-                
-    }
+
 
     private String g(String name) {
         return org.openide.util.NbBundle.getBundle(RuntimeCommandNode.class).getString(name);
