@@ -30,6 +30,7 @@ Microsystems, Inc. All Rights Reserved.
        <pathelement location="release/lib/ext/portfolio.jar"/>
        <pathelement location="release/lib/ext/StarfireExt.jar"/>
        <pathelement location="release/lib/ext/j3dedit.jar"/>
+       <pathelement location="../core/netbeans/lib/core.jar"/>
       </classpath>
     </javac>
   </target>
