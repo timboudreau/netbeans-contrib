@@ -121,12 +121,14 @@ public class EditQueryPanel extends JPanel {
                 defaultButtonActionPerformed(evt);
             }
         });
+        mDefaultButton.setEnabled(false);
+        mDefaultButton.setToolTipText("Not yet implemented");
         mButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         mButtonPanel.add(mDefaultButton);
         
         add(mTopPanel, BorderLayout.NORTH);
         add(mQueryPanel, BorderLayout.CENTER);
-//        add(mButtonPanel, BorderLayout.SOUTH);
+        add(mButtonPanel, BorderLayout.SOUTH);
     }
     
     /** 
