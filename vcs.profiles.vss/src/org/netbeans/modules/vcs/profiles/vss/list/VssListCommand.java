@@ -299,7 +299,8 @@ public class VssListCommand extends AbstractListCommand {
                                 } else {
                                     statuses[1] = STATUS_LOCALLY_MODIFIED;
                                 }
-                                statuses[2] = addLocker(statuses[2], elements[0].substring(index, index2).trim());
+                                String lockerName = elements[0].substring(index, index2).trim();
+                                statuses[2] = addLocker(statuses[2], parseLocker(lockerName));
                                 filesByName.put(statuses[0], statuses);
                                 stdoutListener.outputData(statuses);
                                 processedFiles.add(file);
@@ -344,6 +345,13 @@ public class VssListCommand extends AbstractListCommand {
                 differentFiles.removeAll(distinguishableFiles);
             }
         }
+    }
+    
+    static final String parseLocker(String lockerName) {
+        if (lockerName.endsWith(" Exc")) {
+            lockerName = lockerName.substring(0, lockerName.length() - " Exc".length());
+        }
+        return lockerName;
     }
     
     private void fillFilesByName(Set files, String status) throws InterruptedException {
@@ -435,7 +443,7 @@ public class VssListCommand extends AbstractListCommand {
         int index2 = elements[0].indexOf("  ", index);
         if (index2 < 0) index2 = elements[0].length();
         if (index < index2) {
-            statuses[2] = addLocker(statuses[2], elements[0].substring(index, index2).trim());
+            statuses[2] = addLocker(statuses[2], parseLocker(elements[0].substring(index, index2).trim()));
         } else {
             if (statuses[2] == null) statuses[2] = "";
         }

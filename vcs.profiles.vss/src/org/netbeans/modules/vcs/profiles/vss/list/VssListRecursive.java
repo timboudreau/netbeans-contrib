@@ -521,7 +521,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
                 file = getDistinguishable(pattern, filesByName);
                 if (file != null) {
                     String[] statuses = (String[]) filesByName.get(file);
-                    statuses[2] = VssListCommand.addLocker(statuses[2], elements[0].substring(index, index2).trim());
+                    statuses[2] = VssListCommand.addLocker(statuses[2], VssListCommand.parseLocker(elements[0].substring(index, index2).trim()));
                 } else {
                     undistiguishable.add(lastFilesCont.getPath()+"/"+pattern);
                 }

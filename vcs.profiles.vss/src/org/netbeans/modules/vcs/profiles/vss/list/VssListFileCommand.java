@@ -310,7 +310,7 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
         int index2 = elements[0].indexOf("  ", index);
         if (index2 < 0) index2 = elements[0].length();
         if (index < index2) {
-            statuses[2] = VssListCommand.addLocker(statuses[2], elements[0].substring(index, index2).trim());
+            statuses[2] = VssListCommand.addLocker(statuses[2], VssListCommand.parseLocker(elements[0].substring(index, index2).trim()));
         } else {
             if (statuses[2] == null) statuses[2] = "";
         }
