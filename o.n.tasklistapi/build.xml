@@ -66,7 +66,8 @@ Microsystems, Inc. All Rights Reserved.
                  topdir="."
                  module="netbeans/modules/autoload/tasklist-api.jar"
                  homepage="http://tasklist.${homepage.base}/"
-                 distribution="http://${dist.base}/tasklist-api.nbm">
+                 distribution="http://${dist.base}/tasklist-api.nbm"
+                 needsrestart="false">
             <license file="${license.file}"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>

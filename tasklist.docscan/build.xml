@@ -71,7 +71,8 @@ Microsystems, Inc. All Rights Reserved.
                  topdir="."
                  module="netbeans/modules/tasklist-docscan.jar"
                  homepage="http://tasklist.${homepage.base}/"
-                 distribution="http://${dist.base}/tasklist-docscan.nbm">
+                 distribution="http://${dist.base}/tasklist-docscan.nbm"
+                 needsrestart="false">
             <license file="${license.file}"/>
             <notification file="module-updates.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>

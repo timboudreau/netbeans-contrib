@@ -84,7 +84,8 @@ Microsystems, Inc. All Rights Reserved.
                  topdir="."
                  module="netbeans/modules/eager/tasklist-pmd.jar"
                  homepage="http://tasklist.${homepage.base}/"
-                 distribution="http://${dist.base}/tasklist-pmd.nbm">
+                 distribution="http://${dist.base}/tasklist-pmd.nbm"
+                 needsrestart="false">
             <license file="${license.file}"/>
             <notification file="module-updates.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>

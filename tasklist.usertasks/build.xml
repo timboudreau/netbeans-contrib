@@ -66,7 +66,8 @@ Microsystems, Inc. All Rights Reserved.
                  topdir="."
                  module="netbeans/modules/tasklist-usertasks.jar"
                  homepage="http://tasklist.${homepage.base}/"
-                 distribution="http://${dist.base}/tasklist-usertasks.nbm">
+                 distribution="http://${dist.base}/tasklist-usertasks.nbm"
+                 needsrestart="false">
             <license file="${license.file}"/>
             <notification file="module-updates.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>

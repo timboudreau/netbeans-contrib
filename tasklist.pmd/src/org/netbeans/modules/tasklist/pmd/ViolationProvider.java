@@ -159,15 +159,12 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         }
         try {
             pmd.processFile(reader, set, ctx);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             // For some reason, some of the PMD classes
-            // throw RuntimeExceptions,
-            // for example AbstractScope.addDeclaration
+            // throw RuntimeExceptions or PMDExceptions.
             // I suspect PMD wasn't written with the intent of it being run
             // on incomplete or invalid classes. So we just swallow the
             // exceptions here
-
-            //ErrorManager.getDefault().notify(e);
         }
         Iterator iterator = ctx.getReport().iterator();
 
