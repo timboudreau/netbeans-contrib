@@ -149,7 +149,6 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
                 treeKeyReleased(evt);
             }
         });
-
         tree.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 treeMouseClicked(evt);
@@ -199,19 +198,19 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
         TreePath paths[]=tree.getSelectionPaths();
         for (int i=0; paths!=null&&i<paths.length; i++) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode)paths[i].getLastPathComponent();
-            Enumeration enum=node.postorderEnumeration();
-            while (enum.hasMoreElements()) {
-                nodes.remove(((DefaultMutableTreeNode)enum.nextElement()).getUserObject());
+            Enumeration enumeration =node.postorderEnumeration();
+            while (enumeration.hasMoreElements()) {
+                nodes.remove(((DefaultMutableTreeNode)enumeration.nextElement()).getUserObject());
             }
             ((DefaultTreeModel)tree.getModel()).removeNodeFromParent(node);
         }
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private org.openide.explorer.propertysheet.PropertySheet propertySheet;
+    private javax.swing.JScrollPane scrollPane;
     private javax.swing.JSplitPane splitPane;
     private javax.swing.JTree tree;
-    private javax.swing.JScrollPane scrollPane;
-    private org.openide.explorer.propertysheet.PropertySheet propertySheet;
     // End of variables declaration//GEN-END:variables
     
     /** shows Component Editor modal dialog
