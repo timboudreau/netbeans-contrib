@@ -34,7 +34,23 @@ public class Main extends NbTestCase {
     
     public static junit.framework.Test suite() {
         org.netbeans.junit.NbTestSuite test = new org.netbeans.junit.NbTestSuite();
-        test.addTest(new Main("testSynchro"));
+        test.addTest(new Main("testSynchro_a1"));
+        test.addTest(new Main("testSynchro_a2"));
+        test.addTest(new Main("testSynchro_a3"));
+        test.addTest(new Main("testSynchro_a4"));
+        test.addTest(new Main("testSynchro_a5"));
+        test.addTest(new Main("testSynchro_a6"));
+        test.addTest(new Main("testSynchro_a7"));
+        test.addTest(new Main("testSynchro_a8"));
+        test.addTest(new Main("testSynchro_a9"));
+        test.addTest(new Main("testSynchro_b1"));
+        test.addTest(new Main("testSynchro_b2"));
+        test.addTest(new Main("testSynchro_b3"));
+        test.addTest(new Main("testSynchro_b4"));
+        test.addTest(new Main("testSynchro_b5"));
+        test.addTest(new Main("testSynchro_b6"));
+        test.addTest(new Main("testSynchro_b7"));
+        test.addTest(new Main("testSynchro_b8"));
         return test;
     }
     
@@ -254,32 +270,16 @@ public class Main extends NbTestCase {
         }
     }
     
-    public void testSynchro () {
+    public void testSynchro (String[] input) {
+        String[] commands = new String[input.length + 2];
+        commands[0] = "SETORB";
+        commands[1] = "OB4X";
+        System.arraycopy(input, 0, commands, 2, input.length);
         css = (CORBASupportSettings) SystemOption.findObject (CORBASupportSettings.class, true);
         assertNotNull ("DELEG: NetBeans internal error: Cannot find CORBA support settings", css);
         out = getRef ();
         info = getLog ();
         
-        String[] commands = {
-            "SETORB",   "OB4X",
-            "TEST",     "a1", "Empty", "INO|TVX", "1", "A/C", "B", "#",
-            "TEST",     "a2", "calc4", "ISX|TVU", "1", "Calc", "#",
-            "TEST",     "a3", "Empty", "ISX", "2", "A", "B", "C", "D", "#",
-            "TEST",     "a4", "Empty", "IVX", "2", "A", "B", "C", "D", "#",
-            "TEST",     "a5", "Empty", "IVX|ISX", "0", "A", "C", "F", "#",
-            "TEST",     "a6", "Empty", "ISX|IVX", "0", "A", "C", "F", "#",
-            "TEST",     "a7", "Simple", "ISX", "2", "D", "E", "F", "FValueFactory", "X", "#",
-            "TEST",     "a8", "Empty", "ISX", "3", "A", "B", "BValueFactory", "C", "D", "E", "#",
-            "TEST",     "a9", "Empty", "ISX", "0", "IO", "#",
-            "TEST",     "b1", "Empty", "ISX|IVX", "0", "A", "C", "H", "I", "#",
-            "TEST",     "b2", "Empty", "ISX|IVX", "0", "H", "I", "#",
-            "TEST",     "b3", "Empty", "IVX|IVX", "0", "H", "I", "#",
-            "TEST",     "b4", "Empty", "ISX|ISX", "0", "H", "I", "#",
-            "TEST",     "b5", "Empty", "IVX|ISX", "0", "A", "B", "C", "D", "E", "#",
-            "TEST",     "b6", "Empty", "IVX|ISX", "0", "C", "D", "E", "#",
-            "TEST",     "b7", "Empty", "ISX|ISX", "0", "C", "D", "E", "#",
-            "TEST",     "b8", "Empty", "ISX|ISX", "2", "A", "B", "#",
-        };
         ArrayList cmds = new ArrayList ();
         int a = 0;
         while (a < commands.length) {
@@ -422,4 +422,72 @@ public class Main extends NbTestCase {
         return ar;
     }
 
+    public void testSynchro_a1 () {
+        testSynchro(new String[] {"TEST", "a1", "Empty", "INO|TVX", "1", "A/C", "B", "#"});
+    }
+    
+    public void testSynchro_a2 () {
+        testSynchro(new String[] {"TEST", "a2", "calc4", "ISX|TVU", "1", "Calc", "#"});
+    }
+    
+    public void testSynchro_a3 () {
+        testSynchro(new String[] {"TEST", "a3", "Empty", "ISX", "2", "A", "B", "C", "D", "#"});
+    }
+    
+    public void testSynchro_a4 () {
+        testSynchro(new String[] {"TEST", "a4", "Empty", "IVX", "2", "A", "B", "C", "D", "#"});
+    }
+    
+    public void testSynchro_a5 () {
+        testSynchro(new String[] {"TEST", "a5", "Empty", "IVX|ISX", "0", "A", "C", "F", "#"});
+    }
+    
+    public void testSynchro_a6 () {
+        testSynchro(new String[] {"TEST", "a6", "Empty", "ISX|IVX", "0", "A", "C", "F", "#"});
+    }
+    
+    public void testSynchro_a7 () {
+        testSynchro(new String[] {"TEST", "a7", "Simple", "ISX", "2", "D", "E", "F", "FValueFactory", "X", "#"});
+    }
+    
+    public void testSynchro_a8 () {
+        testSynchro(new String[] {"TEST", "a8", "Empty", "ISX", "3", "A", "B", "BValueFactory", "C", "D", "E", "#"});
+    }
+    
+    public void testSynchro_a9 () {
+        testSynchro(new String[] {"TEST", "a9", "Empty", "ISX", "0", "IO", "#"});
+    }
+    
+    public void testSynchro_b1 () {
+        testSynchro(new String[] {"TEST", "b1", "Empty", "ISX|IVX", "0", "A", "C", "H", "I", "#"});
+    }
+    
+    public void testSynchro_b2 () {
+        testSynchro(new String[] {"TEST", "b2", "Empty", "ISX|IVX", "0", "H", "I", "#"});
+    }
+    
+    public void testSynchro_b3 () {
+        testSynchro(new String[] {"TEST", "b3", "Empty", "IVX|IVX", "0", "H", "I", "#"});
+    }
+    
+    public void testSynchro_b4 () {
+        testSynchro(new String[] {"TEST", "b4", "Empty", "ISX|ISX", "0", "H", "I", "#"});
+    }
+    
+    public void testSynchro_b5 () {
+        testSynchro(new String[] {"TEST", "b5", "Empty", "IVX|ISX", "0", "A", "B", "C", "D", "E", "#"});
+    }
+    
+    public void testSynchro_b6 () {
+        testSynchro(new String[] {"TEST", "b6", "Empty", "IVX|ISX", "0", "C", "D", "E", "#"});
+    }
+    
+    public void testSynchro_b7 () {
+        testSynchro(new String[] {"TEST", "b7", "Empty", "ISX|ISX", "0", "C", "D", "E", "#"});
+    }
+    
+    public void testSynchro_b8 () {
+        testSynchro(new String[] {"TEST", "b8", "Empty", "ISX|ISX", "2", "A", "B", "#"});
+    }
+    
 }
