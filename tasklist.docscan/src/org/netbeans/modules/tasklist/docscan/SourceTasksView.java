@@ -60,6 +60,7 @@ import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.ui.OpenProjects;
 
 
 /**
@@ -1321,20 +1322,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     return ((FolderNode) o1).getDisplayName().compareToIgnoreCase(((FolderNode) o2).getDisplayName());
                 }
             });
-        Set projects = new HashSet();
 
-        // XXX there is planned bettre api to get all opened projects
-        GlobalPathRegistry registry = GlobalPathRegistry.getDefault();
-        Set sourceRoots = registry.getPaths(ClassPath.SOURCE);
-        Iterator it = sourceRoots.iterator();
-        while (it.hasNext()) {
-            ClassPath next = (ClassPath) it.next();
-            FileObject[] roots = next.getRoots();
-            if (roots == null || roots.length == 0) continue;
-            Project project = FileOwnerQuery.getOwner(roots[0]);
-            if (projects.contains(project)) continue;
-            projects.add(project);
-
+        Project[] projects = OpenProjects.getDefault().getOpenProjects();
+        for (int pi = 0; pi<projects.length; pi++) {
+            Project project = projects[pi];
             Sources sources = ProjectUtils.getSources(project);
             SourceGroup[] group =sources.getSourceGroups(Sources.TYPE_GENERIC);
             Arrays.sort(group, new Comparator() {
