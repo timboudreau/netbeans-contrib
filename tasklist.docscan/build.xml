@@ -33,7 +33,6 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${core/settings.dir}/${nb.modules.dir}/org-netbeans-modules-settings.jar"/>
 
         <!-- Projects dependency -->
-        <pathelement location="${java/api.dir}/${nb.modules.dir}/org-netbeans-api-java.jar"/>
         <pathelement location="${projects/projectapi.dir}/${nb.modules.dir}/org-netbeans-modules-projectapi.jar"/>
         <pathelement location="${projects/projectuiapi.dir}/${nb.modules.dir}/org-netbeans-modules-projectuiapi.jar"/>
       </path>
