@@ -74,6 +74,32 @@ Microsystems, Inc. All Rights Reserved.
     </makenbm>
   </target>
 
+  <target name="bundle">
+      <property name="dailyBuild" value="true"/>
+      <tstamp/>
+<!--      <antcall target="nbm"/>-->
+      <tar tarfile="release_2.0_beta_${DSTAMP}.tar"
+           basedir="."
+           excludes="**/CVS"
+           includes="J3dFly_2.0/bin/*, J3dFly_2.0/lib/*, 
+		     J3dFly_2.0/preferences/*, J3dFly_2.0/universe-configs/*, 
+		     J3dEditor_2.0/bin/*, J3dEditor_2.0/lib/*, 
+		     J3dEditor_2.0/preferences/*, loaders/*, 
+                     extra_loaders/*, java3d.nbm,
+                     README"
+      />
+      <zip zipfile="release_2.0_beta_${DSTAMP}.zip"
+           basedir="."
+           excludes="**/CVS"
+           includes="J3dFly_2.0/bin/*, J3dFly_2.0/lib/*, 
+		     J3dFly_2.0/preferences/*, J3dFly_2.0/universe-configs/*, 
+		     J3dEditor_2.0/bin/*, J3dEditor_2.0/lib/*, 
+		     J3dEditor_2.0/preferences/*, loaders/*, 
+                     extra_loaders/*, java3d.nbm,
+                     README"
+      />
+  </target>
+
   <target name="clean">
   <ant dir="J3dEditor_2.0/src" target="clean"/>
   <delete>
