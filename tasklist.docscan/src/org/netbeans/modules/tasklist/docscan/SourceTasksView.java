@@ -856,6 +856,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (button.getBorder() instanceof CompoundBorder) { // from BasicLookAndFeel
             Dimension pref = button.getPreferredSize();
             pref.height += TOOLBAR_HEIGHT_ADJUSTMENT;
+
+            // XXX #41827 workaround w2k, that adds eclipsis (...) insted of actual text
+            if ("Windows".equals(UIManager.getLookAndFeel().getID())) {  // NOI18N
+                pref.width += 9;
+            }
             button.setPreferredSize(pref);
         }
 
