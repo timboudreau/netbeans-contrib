@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.runtime;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
@@ -63,14 +65,20 @@ public abstract class RuntimeCommand implements Node.Cookie {
     
     public static final int STATE_KILLED_BUT_RUNNING = RuntimeCommandNode.STATE_KILLED_BUT_RUNNING;
     
+    public static final String PROP_STATE = "state";
+    public static final String PROP_DISPLAY_NAME = "displayName";
+    
     private Reference nodeDelegate = new WeakReference(null);
+    
+    private PropertyChangeSupport changeSupport;
     
     /** Creates new RuntimeCommand */
     public RuntimeCommand() {
+        changeSupport = new PropertyChangeSupport(this);
     }
     
     /**
-     * Subclasses should return a nema of the command. 
+     * Subclasses should return a name of the command. 
      */
     public abstract String getName();
     
@@ -146,4 +154,23 @@ public abstract class RuntimeCommand implements Node.Cookie {
         return (Node) nodeDelegate.get();
     }
     
+    public final void addPropertyChangeListener(PropertyChangeListener propertyListener) {
+        changeSupport.addPropertyChangeListener(propertyListener);
+    }
+    
+    public final void addPropertyChangeListener(String propertyName, PropertyChangeListener propertyListener) {
+        changeSupport.addPropertyChangeListener(propertyName, propertyListener);
+    }
+    
+    public final void removePropertyChangeListener(PropertyChangeListener propertyListener) {
+        changeSupport.removePropertyChangeListener(propertyListener);
+    }
+    
+    public final void removePropertyChangeListener(String propertyName, PropertyChangeListener propertyListener) {
+        changeSupport.removePropertyChangeListener(propertyName, propertyListener);
+    }
+    
+    protected final void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+    }
 }

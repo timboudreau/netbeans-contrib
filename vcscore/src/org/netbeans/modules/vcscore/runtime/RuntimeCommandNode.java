@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.runtime;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.awt.Image;
 
 import org.openide.actions.PropertiesAction;
@@ -20,6 +22,7 @@ import org.openide.nodes.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.Utilities;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListener;
 
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.CommandsPool;
@@ -32,7 +35,7 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  *
  * @author  Martin Entlicher
  */
-public class RuntimeCommandNode extends AbstractNode {
+public class RuntimeCommandNode extends AbstractNode implements PropertyChangeListener {
 
     static final int STATE_WAITING = 10;
     static final int STATE_RUNNING = 11;
@@ -56,6 +59,7 @@ public class RuntimeCommandNode extends AbstractNode {
         if (displayName == null || displayName.length() == 0) displayName = command.getName();
         setDisplayName(displayName);
         setShortDescription(NbBundle.getMessage(RuntimeCommandNode.class, "RuntimeCommandNode.Description", displayName));
+        comm.addPropertyChangeListener(WeakListener.propertyChange(this, comm));
         setState(comm.getState());
         setDefaultAction(CommandOutputViewAction.getInstance());
         getCookieSet().add(comm);
@@ -96,13 +100,22 @@ public class RuntimeCommandNode extends AbstractNode {
     
     public SystemAction[] getActions() {
         return command.getActions();
-
     }
 
     public Sheet createSheet() {
         return command.createSheet();
     }
     
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        String propertyName = propertyChangeEvent.getPropertyName();
+        if (RuntimeCommand.PROP_STATE.equals(propertyName)) {
+            setState(command.getState());
+        } else if (RuntimeCommand.PROP_DISPLAY_NAME.equals(propertyName)) {
+            String displayName = command.getDisplayName();
+            if (displayName == null || displayName.length() == 0) displayName = command.getName();
+            setDisplayName(displayName);
+        }
+    }
 
 
     private String g(String name) {

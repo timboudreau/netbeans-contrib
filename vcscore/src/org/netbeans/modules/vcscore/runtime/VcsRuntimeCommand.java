@@ -164,10 +164,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
 
     public void setState(int state) {
         this.state = state;
-        RuntimeCommandNode node = (RuntimeCommandNode) getExistingNodeDelegate();
-        if (node != null) {
-            node.setState(state);
-        }
+        firePropertyChange(PROP_STATE, null, null);
     }
     
     public void notifyRemoved() {
