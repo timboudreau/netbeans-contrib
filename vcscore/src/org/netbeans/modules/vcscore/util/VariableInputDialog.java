@@ -732,7 +732,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
             PropertyChangeEvent evt = (PropertyChangeEvent) it.next();
             VariableInputComponent inComponent = (VariableInputComponent) evt.getNewValue();
             propertyChangeEvents.remove(evt);
-            propertyChangeEvents.add(new PropertyChangeEvent(this, evt.getPropertyName(), evt.getOldValue(), inComponent.getValue()));
+            PropertyChangeEvent newEvt = new PropertyChangeEvent(this, evt.getPropertyName(), evt.getOldValue(), inComponent.getValue());
+            newEvt.setPropagationId(evt.getPropagationId());
+            propertyChangeEvents.add(newEvt);
         }
         if (propertyChangeEvents.size() > 0) {
             firePropertyChange(PROP_VARIABLES_CHANGED, null, propertyChangeEvents);
