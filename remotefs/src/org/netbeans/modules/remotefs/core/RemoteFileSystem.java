@@ -264,7 +264,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   protected RemoteFile getRemoteFile(String name) throws IOException {
     RemoteFile ftpfile = rootFile.find(name);
     // hack: if attributes file is not found, create new
-    if (ftpfile==null && (name.endsWith(DefaultAttributes.ATTR_NAME_EXT || name.endsWith(".nbattrs")) {
+    if (ftpfile==null && (name.endsWith(DefaultAttributes.ATTR_NAME_EXT) || name.endsWith(".nbattrs"))) {
           createData (name);
           ftpfile = rootFile.find(name);
     }
