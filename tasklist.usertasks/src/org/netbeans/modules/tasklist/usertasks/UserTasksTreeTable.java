@@ -5,6 +5,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
@@ -55,6 +57,21 @@ public class UserTasksTreeTable extends NodesTreeTable {
         //getTree().setEditable(true);
         setAutoCreateColumnsFromModel(false);
         setDefaultEditor(SuggestionPriority.class, new PriorityTableCellEditor());
+        
+        if (UTUtils.LOGGER.isLoggable(Level.FINER)) {
+            getSelectionModel().addListSelectionListener(
+                new ListSelectionListener() {
+                    public void valueChanged(ListSelectionEvent e) {
+                        UTUtils.LOGGER.fine(e.getFirstIndex() + " " + 
+                            e.getLastIndex() + " " + 
+                            e.getValueIsAdjusting() + " " + 
+                            UserTasksTreeTable.this.getSelectedRow());
+                        if (UTUtils.LOGGER.isLoggable(Level.FINER))
+                            Thread.dumpStack();
+                    }
+                }
+            );
+        }
     }
 
     public Node createNode(Object obj) {
@@ -67,7 +84,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
                 getUserTaskList();
             UserTaskTreeTableNode node = (UserTaskTreeTableNode) obj;
             UserTask ut = node.getUserTask();
-            return new UserTaskNode(node, ut, utl);
+            return new UserTaskNode(node, ut, utl, this);
         }
     }
 

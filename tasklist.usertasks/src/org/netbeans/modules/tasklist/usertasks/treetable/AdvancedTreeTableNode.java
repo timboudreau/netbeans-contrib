@@ -15,13 +15,15 @@ package org.netbeans.modules.tasklist.usertasks.treetable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This "advanced" class provides filtering and sorting of nodes
  */
 public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
-    protected AdvancedTreeTableNode[] unfilteredChildren;
     protected FilterIntf filter;
     protected Comparator comparator;
     protected DefaultTreeTableModel model;
@@ -108,46 +110,66 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     }
     
     /**
-     * Loads unfiltered children of this node
+     * Iterator over the objects of children nodes. The filter should not
+     * be yet applied.
+     *
+     * @return the iterator
      */
-    protected abstract void loadUnfilteredChildren();
-
+    public abstract Iterator getChildrenObjectsIterator();
+    
+    /**
+     * Creates a children node
+     *
+     * @param child child's object
+     */
+    public abstract AdvancedTreeTableNode createChildNode(Object child);
+    
+    /**
+     * Filtering
+     *
+     * @param child a child object
+     */
+    public boolean accept(Object child) {
+        if (getFilter() != null)
+            return getFilter().accept(child);
+        else
+            return true;
+    }
+    
     protected void loadChildren() {
-        if (unfilteredChildren == null) {
-            loadUnfilteredChildren();
+        List ch = new ArrayList();
+        Iterator it = getChildrenObjectsIterator();
+        while (it.hasNext()) {
+            ch.add(it.next());
         }
-        
-        assert unfilteredChildren != null;
         
         // filtering
-        FilterIntf filter = getFilter();
-        if (filter != null) {
-            ArrayList fc = new ArrayList();
-            for (int j = 0; j < unfilteredChildren.length; j++) {
-                if (filter.accept(((AdvancedTreeTableNode) 
-                    unfilteredChildren[j]).getObject())) {
-                    fc.add(unfilteredChildren[j]);
-                }
+        if (getFilter() != null) {
+            it = ch.iterator();
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (!accept(obj))
+                    it.remove();
             }
-            children = (TreeTableNode[]) fc.toArray(
-                new TreeTableNode[fc.size()]);
-        } else {
-            children = unfilteredChildren;
         }
         
+        children = new AdvancedTreeTableNode[ch.size()];
+        for (int i = 0; i < ch.size(); i++) {
+            children[i] = createChildNode(ch.get(i));
+        }
+
         // sorting
         if (getComparator() != null)
             Arrays.sort(children, getComparator());
     }
 
     public void refreshChildren() {
-        if (unfilteredChildren != null) {
-            for (int i = 0; i < unfilteredChildren.length; i++) {
-                ((AdvancedTreeTableNode) unfilteredChildren[i]).destroy();
+        if (children != null) {
+            for (int i = 0; i < children.length; i++) {
+                ((AdvancedTreeTableNode) children[i]).destroy();
             }
+            this.children = null;
         }
-        this.children = null;
-        this.unfilteredChildren = null;
         model.fireTreeStructureChanged(model, this.getPathToRoot());
     }
 
@@ -156,9 +178,9 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      */
     public void destroy() {
         this.parent = null;
-        if (unfilteredChildren != null) {
-            for (int i = 0; i < unfilteredChildren.length; i++) {
-                ((AdvancedTreeTableNode) unfilteredChildren[i]).destroy();
+        if (children != null) {
+            for (int i = 0; i < children.length; i++) {
+                ((AdvancedTreeTableNode) children[i]).destroy();
             }
         }
     }

@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Action;
+import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
@@ -41,6 +42,7 @@ import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
@@ -66,20 +68,25 @@ final class UserTaskNode extends AbstractNode {
     private UserTask item;
     private UserTaskList utl;
     private UserTaskTreeTableNode node;
+    private UserTasksTreeTable tt;
     
     /**
      * Constructor
      *
+     * @param node node in the tree associated with this one
      * @param item an user task that will be represented by this node.
      * @param utl user task list that this task belongs to. Should be != null
      * for root tasks
+     * @param tt TreeTable
      */
-    UserTaskNode(UserTaskTreeTableNode node, UserTask item, UserTaskList utl) {
+    UserTaskNode(UserTaskTreeTableNode node, UserTask item, UserTaskList utl,
+    UserTasksTreeTable tt) {
         super(Children.LEAF);
         assert item != null;
         this.utl = utl;
         this.item = item;
         this.node = node;
+        this.tt = tt;
         
         item.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
@@ -402,11 +409,18 @@ final class UserTaskNode extends AbstractNode {
     }
 
     public void destroy() throws IOException {
+        AdvancedTreeTableNode n = 
+            (AdvancedTreeTableNode) this.node.findNextNodeAfterDelete();
+        UTUtils.LOGGER.fine("selected node after delete:" + n);
         if (item.getParent() != null)
             item.getParent().removeSubtask(item);
         else
             utl.removeTask(item);
         super.destroy();
+        if (n != null) {
+            int row = tt.getRowForPath(new TreePath(n.getPathToRoot()));
+            tt.getSelectionModel().setSelectionInterval(row, row);
+        }
     }
     
     /**

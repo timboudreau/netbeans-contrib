@@ -142,11 +142,11 @@ public class TreeTableModelAdapter extends AbstractTableModel {
      * processed. SwingUtilities.invokeLater is used to handle this.
      */
     protected void delayedFireTableDataChanged() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+        /*SwingUtilities.invokeLater(new Runnable() {
+            public void run() {*/
                 fireTableDataChanged();
-            }
-        });
+            /*}
+        });*/
     }
 
     /**
@@ -154,11 +154,11 @@ public class TreeTableModelAdapter extends AbstractTableModel {
      * processed. SwingUtilities.invokeLater is used to handle this.
      */
     protected void delayedRowsUpdated(final int firstRow, final int lastRow) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+        /*SwingUtilities.invokeLater(new Runnable() {
+            public void run() {*/
                 fireTableRowsUpdated(firstRow, lastRow);
-            }
-        });
+            /*}
+        });*/
     }
 }
 
