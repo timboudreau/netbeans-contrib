@@ -114,6 +114,10 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
         return roots;
     }
     
+    public void setServerInstanceID(String severInstanceID) {
+        // TODO implement when needed
+    }
+    
     public String getServerInstanceID() {
         return evaluator.getProperty(EjbJarProjectProperties.J2EE_SERVER_INSTANCE);
     }
