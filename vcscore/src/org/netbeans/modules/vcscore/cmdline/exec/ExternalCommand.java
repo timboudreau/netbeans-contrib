@@ -17,8 +17,10 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-import org.openide.util.NbBundle;
 import org.apache.regexp.*;
+
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -61,12 +63,6 @@ public class ExternalCommand {
     
     // The environment variables
     private String[] envp = null;
-
-    /*
-    private volatile Vector commandOutput = null;
-    private static final String STDOUT = "Following output comes from the Standard Output of the command:"; // NOI18N
-    private static final String STDERR = "Following output comes from the Error Output of the command:"; // NOI18N
-    */
 
     /** Creates new ExternalCommand */
     public ExternalCommand() {
@@ -235,6 +231,9 @@ public class ExternalCommand {
         params.copyInto(ret);
         return ret;
     }
+    
+    private static ArrayList outputGrabbers = new ArrayList();
+    private static RequestProcessor outputRequestProcessor;
 
     /**
      * Executes the external command.
@@ -242,13 +241,15 @@ public class ExternalCommand {
     public int exec(){
         //D.deb("exec()"); // NOI18N
         Process proc=null;
-        Thread stdoutThread=null;
-        Thread stderrThread=null;
-        StdoutGrabber stdoutGrabber=null;
-        StderrGrabber stderrGrabber=null;
+        OutputGrabber output = null;
         WatchDog watchDog = null;
-        //commandOutput = new Vector();
 
+        synchronized (outputGrabbers) {
+            if (outputRequestProcessor == null) {
+                outputRequestProcessor = new RequestProcessor("External Command Output Grabber Processor"); // NOI18N
+                outputRequestProcessor.post(new OutputGrabbersProcessor());
+            }
+        }
         try{
             //D.deb("Thread.currentThread()="+Thread.currentThread()); // NOI18N
 
@@ -300,26 +301,15 @@ public class ExternalCommand {
                 }
             }
 
-            stdoutGrabber = new StdoutGrabber(proc.getInputStream());
-            stdoutThread = new Thread(stdoutGrabber,"VCS-StdoutGrabber"); // NOI18N
-
-            stderrGrabber = new StderrGrabber(proc.getErrorStream());
-            stderrThread = new Thread(stderrGrabber,"VCS-StderrGrabber"); // NOI18N
-
-            stdoutThread.start();
-            stderrThread.start();
+            output = new OutputGrabber(proc.getInputStream(), proc.getErrorStream());
+            synchronized (outputGrabbers) {
+                outputGrabbers.add(output);
+                //System.out.println("ExternalCommand.exec(): output grabber added.");
+                outputGrabbers.notifyAll();
+            }
 
             int exit = proc.waitFor();
             //D.deb("process exit="+exit); // NOI18N
-
-            //D.deb("stdoutThread.join()"); // NOI18N
-            stdoutThread.join();
-
-            //D.deb("stderrThread.join()"); // NOI18N
-            stderrThread.join();
-
-            //D.deb("watchDog.cancel()"); // NOI18N
-            //watchDog.cancel();
 
             setExitStatus(exit == 0 ? VcsCommandExecutor.SUCCEEDED
                                     : VcsCommandExecutor.FAILED);
@@ -329,11 +319,6 @@ public class ExternalCommand {
             String[] commandArr=parseParameters(command);
             D.deb("commandArr="+VcsUtilities.arrayToString(commandArr)); // NOI18N
             //e.printStackTrace();
-            //D.deb("Stopping StdoutGrabber."); // NOI18N
-            stopThread(stdoutThread,stdoutGrabber);
-            //D.deb("Stopping StderrGrabber."); // NOI18N
-            stopThread(stderrThread,stderrGrabber);
-            //D.deb("Destroy process."); // NOI18N
             proc.destroy();
             setExitStatus(VcsCommandExecutor.INTERRUPTED);
         } finally {
@@ -341,6 +326,11 @@ public class ExternalCommand {
             //processCommandOutput();
             D.deb("watchDog.cancel()"); // NOI18N
             if (watchDog != null) watchDog.cancel();
+            output.doStop();
+            try {
+                while (!output.isStopped()) Thread.currentThread().sleep(200);
+            } catch (InterruptedException iexc) {}
+                
         }
 
         D.deb("exec() -> "+getExitStatus()); // NOI18N
@@ -363,188 +353,149 @@ public class ExternalCommand {
     */
 
     //-------------------------------------------
-    private boolean stopThread(Thread t, SafeRunnable r){
-
-        // 1. be kind - just request stop
-        r.doStop();
-        long softTimeout=1000;
-        try{
-            t.join(softTimeout);
-        }catch (InterruptedException e){
-            D.deb(t.getName()+".join("+softTimeout+") after doStop() failed"); // NOI18N
-            // TODO
-        }
-        if( t.isAlive()==false ){
-            D.deb(t.getName()+" stopped after soft kill - great"); // NOI18N
-            return true;
-        }
-
-        // 2. be more hard - hey thread - do stop
-        t.interrupt();
-        long hardTimeout=1000;
-        try{
-            t.join(hardTimeout);
-        }catch (InterruptedException e){
-            D.deb(t.getName()+".join("+hardTimeout+") failed"); // NOI18N
-            // TODO
-        }
-        if( t.isAlive()==false ){
-            D.deb(t.getName()+" stopped after hard kill - good"); // NOI18N
-            return true;
-        }
-
-        /* Commented out, since Thread.stop is deprecated.
-        // 3. last resort
-        t.stop();
-        long stopTimeout=1000;
-        try{
-            t.join(stopTimeout);
-        }catch (InterruptedException e){
-        }
-        if(t.isAlive()==false ){
-            D.deb(t.getName()+" stopped after stop() - at last"); // NOI18N
-            return true;
-        }
-         */
-
-        E.err("This shouldn't happen "+t.getName()+" is alive="+t.isAlive()); // NOI18N
-        return false;
-    }
-
-    //-------------------------------------------
     public String toString(){
         return command;
     }
 
-
-    //-------------------------------------------
-    private class StdoutGrabber implements SafeRunnable {
-        private Debug D=new Debug("StdoutGrabber",true); // NOI18N
-        private boolean shouldStop=false;
-        private InputStreamReader is=null;
-
-        //-------------------------------------------
-        public StdoutGrabber(InputStream is){
-            this.is = new InputStreamReader(is);
+    private class OutputGrabber extends Object implements SafeRunnable {
+        
+        private static final int LINE_LENGTH = 80;
+        private static final int BUFF_LENGTH = 512;
+        
+        private InputStreamReader stdout;
+        private InputStreamReader stderr;
+        private boolean shouldStop = false;
+        private boolean stopped = false;
+        private StringBuffer outBuffer = new StringBuffer(LINE_LENGTH);
+        private StringBuffer errBuffer = new StringBuffer(LINE_LENGTH);
+        private char[] buff = new char[BUFF_LENGTH];
+        
+        public OutputGrabber(InputStream stdout, InputStream stderr) {
+            this.stdout = new InputStreamReader(stdout);
+            this.stderr = new InputStreamReader(stderr);
         }
-
-        //-------------------------------------------
-        public void doStop(){
-            shouldStop=true;
+        
+        /** Stop the grabber */
+        public void doStop() {
+            shouldStop = true;
         }
-
-        //-------------------------------------------
-        private void close(){
-            if(is!=null){
-                try{
-                    is.close();
-                }catch (IOException e){
-                    //E.err(e,"close() failed"); // NOI18N
-                }
+        
+        /** Whether the grabber is stopped. If yes, should be flushed and garbage-collected. */
+        public boolean isStopped() {
+            try {
+                if (shouldStop && !stdout.ready() && !stderr.ready()) stopped = true;
+            } catch (IOException ioexc) {
+                stopped = true;
             }
+            return stopped;
         }
-
-        //-------------------------------------------
-        public void run(){
-            //D.deb("stdout: run()"); // NOI18N
-            StringBuffer sb=new StringBuffer(80);
-            int b=-1;
-            try{
-                while( (b=is.read()) > -1 ){
-                    char c = (char) b;
-                    if( c== '\n' ){
-                        String line=new String(sb);
-                        //D.deb("stdout: <<"+line); // NOI18N
-                        stdoutNextLine(line);
-                        sb=new StringBuffer(80);
-                    } else {
-                        if( b!=13 ){
-                            sb.append(c);
+        
+        /** Whether there is some output to grab */
+        public boolean hasOutput() {
+            boolean has;
+            try {
+                has = stdout.ready() || stderr.ready();
+            } catch (IOException ioexc) {
+                has = false;
+            }
+            return has;
+        }
+        
+        /** Run the grabbing. It grabbs some of the output, needs to be invoked periodically
+             intil it's not stopped. */
+        public void run() {
+            int n = 0;
+            try {
+                if (stdout.ready() && (n = stdout.read(buff, 0, BUFF_LENGTH)) > -1) {
+                    for (int i = 0; i < n; i++) {
+                        if (buff[i] == '\n') {
+                            stdoutNextLine(outBuffer.toString());
+                            outBuffer.delete(0, outBuffer.length());
+                        } else {
+                            if (buff[i] != 13) {
+                                outBuffer.append(buff[i]);
+                            }
                         }
                     }
-                    if(shouldStop){
-                        D.deb("we should stop..."); // NOI18N
-                        return;
-                    }
                 }
-            }
-            catch(InterruptedIOException e){
-                D.deb("stdout: InterruptedIOException"); // NOI18N
-            }
-            catch(IOException e){
-                E.err(e,"stdout: read() failed"); // NOI18N
-            }
-            finally{
-                close();
-            }
-            //D.deb("stdout: run() finished"); // NOI18N
-        }
-
-    } //StdoutGrabber
-
-
-    //-------------------------------------------
-    private class StderrGrabber implements SafeRunnable {
-        private Debug D=new Debug("StderrGrabber",true); // NOI18N
-        private boolean shouldStop=false;
-        private InputStreamReader is=null;
-
-        //-------------------------------------------
-        public StderrGrabber(InputStream is){
-            this.is = new InputStreamReader(is);
-        }
-
-        //-------------------------------------------
-        public void doStop(){
-            shouldStop=true;
-        }
-
-        //-------------------------------------------
-        private void close(){
-            if(is!=null){
-                try{
-                    is.close();
-                }catch (IOException e){
-                    //E.err(e,"close() failed"); // NOI18N
-                }
-            }
-        }
-
-        //-------------------------------------------
-        public void run(){
-            //D.deb("stderr: run()"); // NOI18N
-            StringBuffer sb=new StringBuffer(80);
-            int b=-1;
-            try{
-                while( (b=is.read()) > -1 ){
-                    char c=(char)b;
-                    if( c== '\n' ){
-                        String line=new String(sb);
-                        //D.deb("stderr: <<"+line); // NOI18N
-                        stderrNextLine(line);
-                        sb=new StringBuffer(80);
-                    } else {
-                        if( b!=13 ){
-                            sb.append(c);
+                if (n < 0) stopped = true;
+                if (stderr.ready() && (n = stderr.read(buff, 0, BUFF_LENGTH)) > -1) {
+                    for (int i = 0; i < n; i++) {
+                        if (buff[i] == '\n') {
+                            stderrNextLine(errBuffer.toString());
+                            errBuffer.delete(0, errBuffer.length());
+                        } else {
+                            if (buff[i] != 13) {
+                                errBuffer.append(buff[i]);
+                            }
                         }
                     }
-                    if(shouldStop){
-                        D.deb("we should stop..."); // NOI18N
-                        return;
+                }
+                if (n < 0) stopped = true;
+            } catch (IOException ioexc) {
+            }
+        }
+        
+        /** Flush some remaining output. */
+        public void flush() {
+            if (outBuffer.length() > 0) stdoutNextLine(outBuffer.toString());
+            if (errBuffer.length() > 0) stderrNextLine(errBuffer.toString());
+            try {
+                stdout.close();
+            } catch (IOException ioexc) {}
+            try {
+                stderr.close();
+            } catch (IOException ioexc1) {}
+        }
+        
+    }
+    
+    private class OutputGrabbersProcessor extends Object implements Runnable {
+        
+        public void run() {
+            //System.out.println("OutputGrabbersProcessor started.");
+            do {
+                synchronized (outputGrabbers) {
+                    //System.out.println("outputGrabbers.size = "+outputGrabbers.size());
+                    while (outputGrabbers.size() == 0) {
+                        try {
+                            //System.out.println(" waiting...");
+                            outputGrabbers.wait();
+                            //System.out.println(" notified.");
+                        } catch (InterruptedException iexc) {
+                            break;
+                        }
                     }
                 }
-            }
-            catch(InterruptedIOException e){
-                D.deb("stderr: InterruptedIOException"); // NOI18N
-            }catch(IOException e){
-                E.err(e,"stderr: read() failed"); // NOI18N
-            }
-            finally{
-                close();
-            }
-            //D.deb("stderr: run() finished"); // NOI18N
+                boolean processed = false;
+                int n = outputGrabbers.size();
+                //System.out.println("  numGrabbers = "+n);
+                for (int i = 0; i < n; i++) {
+                    OutputGrabber output = (OutputGrabber) outputGrabbers.get(i);
+                    //System.out.println("  output("+i+"): isStopped() = "+output.isStopped()+", hasOutput() = "+output.hasOutput());
+                    if (!output.isStopped()) {
+                        if (output.hasOutput()) {
+                            output.run();
+                            processed = true;
+                        }
+                    } else {
+                        output.flush();
+                        outputGrabbers.remove(i);
+                        i--;
+                        n--;
+                    }
+                }
+                if (!processed) {
+                    try {
+                        Thread.currentThread().sleep(200);
+                    } catch (InterruptedException iexc) {
+                        break;
+                    }
+                }
+            } while(true);
         }
-    } //StderrGrabber
+        
+    }
 
 
     /**
