@@ -249,10 +249,10 @@ public abstract class GenericStub extends JellyTestCase {
         
         public void waitHistoryShort (String command) {
             if (historyshort != null)
-                waitCommand (command + " ", historyshort);
+                waitCommand (command, historyshort);
             else
                 for (int a = 0; a < count (); a ++)
-                    waitCommand(command + " ", filename (a)); // workaround - unreported bug
+                    waitCommand(command, filename (a)); // workaround - unreported bug
         }
         
         public void waitHistoryFailed (String command) {
