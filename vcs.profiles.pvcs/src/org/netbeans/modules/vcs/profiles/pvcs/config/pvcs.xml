@@ -15,7 +15,8 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <configuration>
-  <label>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_Label)</label>
+  <resourceBundle>org/netbeans/modules/vcs/profiles/pvcs/config/Bundle</resourceBundle>
+  <label>ResourceMsg(PVCS_Label)</label>
   
   <os>
     <compatible>"Unix", "Windows"</compatible>
@@ -49,7 +50,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>org.netbeans.modules.vcs.profiles.pvcs</value>
     </variable>
     <variable name="USER_LOCAL_PARAM_LABELS" basic="false">
-      <value>"getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CMD_Options)"</value>
+      <value>"ResourceMsg(PVCS_CMD_Options)"</value>
     </variable>
     <variable name="RUN" basic="false">
       <value>/bin/sh -c "cd \"${WORKDIR}\";</value>
@@ -62,11 +63,11 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="PCLI_CMD">
       <value>org.netbeans.modules.vcs.profiles.pvcs.commands.PCLICommand.class</value>
     </variable>
-    <variable name="PROJECT_DB" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectDatabase)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectDatabase_Menmonic)" localFile="false" localDir="true" executable="false" order="0">
+    <variable name="PROJECT_DB" basic="true" label="ResourceMsg(PVCS_ProjectDatabase)" labelMnemonic="ResourceMsg(PVCS_ProjectDatabase_Menmonic)" localFile="false" localDir="true" executable="false" order="0">
       <value>/usr/pvcs/vm/sampledb</value>
       <value if="IS_WINDOWS">c:\Program Files\pvcs\vm\sampledb</value>
     </variable>
-    <variable name="PROJECT" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectName)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectName_Mnemonic)" localFile="false" localDir="false" executable="false" order="1">
+    <variable name="PROJECT" basic="true" label="ResourceMsg(PVCS_ProjectName)" labelMnemonic="ResourceMsg(PVCS_ProjectName_Mnemonic)" localFile="false" localDir="false" executable="false" order="1">
       <value>/</value>
     </variable>
     <variable name="USER_NAME" basic="true">
@@ -103,10 +104,10 @@ Microsystems, Inc. All Rights Reserved.
       <value if="IS_WINDOWS">$[? MODULE] [$[? DIR] [${MODULE_\/}/${DIR_\/}] [${MODULE_\/}]] [${DIR_\/}]</value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED" basic="false">
-      <value>"getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Current)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Missing)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_LM)"</value>
+      <value>"ResourceMsg(PVCS_FileStatus_Current)", "ResourceMsg(PVCS_FileStatus_Missing)", "ResourceMsg(PVCS_FileStatus_LM)"</value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT" basic="false">
-      <value>"getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Short_Current)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Short_Missing)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Short_LM)"</value>
+      <value>"ResourceMsg(PVCS_FileStatus_Short_Current)", "ResourceMsg(PVCS_FileStatus_Short_Missing)", "ResourceMsg(PVCS_FileStatus_Short_LM)"</value>
     </variable>
     <variable name="NOT_MODIFIABLE_FILE_STATUSES" basic="false">
       <value>"Local", ""</value>
@@ -168,10 +169,10 @@ Microsystems, Inc. All Rights Reserved.
       <value>DESCRIPTION_FILE</value>
     </variable>
     <variable name="MSG_PROMPT_FOR_AUTO_LOCK" basic = "false">
-      <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MSG_PROMPT_FOR_AUTO_LOCK)</value>
+      <value>ResourceMsg(PVCS_MSG_PROMPT_FOR_AUTO_LOCK)</value>
     </variable>
     <variable name="MSG_PROMPT_FOR_AUTO_EDIT" basic = "false">
-      <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MSG_PROMPT_FOR_AUTO_EDIT)</value>
+      <value>ResourceMsg(PVCS_MSG_PROMPT_FOR_AUTO_EDIT)</value>
     </variable>
     <variable name="LOCKER_USER_NAME" basic = "false">
       <value>${USER_NAME}</value>
@@ -183,18 +184,18 @@ Microsystems, Inc. All Rights Reserved.
       <value>0</value>
     </variable>
     <variable name="CONFIG_INPUT_DESCRIPTOR" basic="false">
-      <value>PROMPT_FOR(PROJECT_DB, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_ProjectDatabase)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_ProjectDatabase);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_ProjectDatabase_mnc)), SELECTOR_CMD_PROJECT_DATABASE_SELECTOR)
-             PROMPT_FOR(USER_NAME, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_UserName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_UserName_mnc)))
-             PROMPT_FOR(PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_ProjectName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_ProjectName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_ProjectName_mnc)), SELECTOR_CMD_PROJECT_SELECTOR)
-             PROMPT_FOR(ROOTDIR, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_WorkfileLocation)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_WorkfileLocation);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_WorkfileLocation_mnc)), SELECTOR_DIR)
+      <value>PROMPT_FOR(PROJECT_DB, "ResourceMsg(PVCS_CUST_ProjectDatabase)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CUST_ProjectDatabase);;MNEMONIC_ResourceMsg(ACS_PVCS_CUST_ProjectDatabase_mnc)), SELECTOR_CMD_PROJECT_DATABASE_SELECTOR)
+             PROMPT_FOR(USER_NAME, "ResourceMsg(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CUST_UserName);;MNEMONIC_ResourceMsg(ACS_PVCS_CUST_UserName_mnc)))
+             PROMPT_FOR(PROJECT, "ResourceMsg(PVCS_CUST_ProjectName)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CUST_ProjectName);;MNEMONIC_ResourceMsg(ACS_PVCS_CUST_ProjectName_mnc)), SELECTOR_CMD_PROJECT_SELECTOR)
+             PROMPT_FOR(ROOTDIR, "ResourceMsg(PVCS_CUST_WorkfileLocation)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CUST_WorkfileLocation);;MNEMONIC_ResourceMsg(ACS_PVCS_CUST_WorkfileLocation_mnc)), SELECTOR_DIR)
       </value>
     </variable>
     <variable name="WIZARD_INPUT_DESCRIPTOR" basic="false">
-      <value>PROMPT_FOR(PROJECT_DB, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_ProjectDatabase)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_ProjectDatabase);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_ProjectDatabase_mnc)), VALIDATOR_FOLDER, SELECTOR_CMD_PROJECT_DATABASE_SELECTOR)
-             PROMPT_FOR(USER_NAME, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_UserName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_UserName_mnc)))
-             PROMPT_FOR(PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_ProjectName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_ProjectName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_ProjectName_mnc)), SELECTOR_CMD_PROJECT_SELECTOR)
-             PROMPT_FOR(ROOTDIR, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_WorkfileLocation)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_WorkfileLocation);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_WorkfileLocation_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
-             ASK_FOR(DO_PVCS_CHECKOUT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(WIZARD_PVCS_CHECKOUT), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT);;;;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(WIZARD_PVCS_CHECKOUT_Mnemonic)))
+      <value>PROMPT_FOR(PROJECT_DB, "ResourceMsg(PVCS_CUST_ProjectDatabase)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CUST_ProjectDatabase);;MNEMONIC_ResourceMsg(ACS_PVCS_CUST_ProjectDatabase_mnc)), VALIDATOR_FOLDER, SELECTOR_CMD_PROJECT_DATABASE_SELECTOR)
+             PROMPT_FOR(USER_NAME, "ResourceMsg(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CUST_UserName);;MNEMONIC_ResourceMsg(ACS_PVCS_CUST_UserName_mnc)))
+             PROMPT_FOR(PROJECT, "ResourceMsg(PVCS_CUST_ProjectName)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CUST_ProjectName);;MNEMONIC_ResourceMsg(ACS_PVCS_CUST_ProjectName_mnc)), SELECTOR_CMD_PROJECT_SELECTOR)
+             PROMPT_FOR(ROOTDIR, "ResourceMsg(PVCS_CUST_WorkfileLocation)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CUST_WorkfileLocation);;MNEMONIC_ResourceMsg(ACS_PVCS_CUST_WorkfileLocation_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
+             ASK_FOR(DO_PVCS_CHECKOUT, ResourceMsg(WIZARD_PVCS_CHECKOUT), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKOUT);;;;MNEMONIC_ResourceMsg(WIZARD_PVCS_CHECKOUT_Mnemonic)))
       </value>
     </variable>
     <variable name="IS_FINISH_ENABLED" basic="false">
@@ -237,22 +238,22 @@ Microsystems, Inc. All Rights Reserved.
       <value></value>
     </variable>  
     <variable name="WIZARD_INPUT_DESCRIPTOR1" basic="false">
-      <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
-                 PROMPT_FOR(INITIAL_CO_PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Project)", "/",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Project);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Project_Mnemonic)))                 
-                 ASK_FOR(INITIAL_CO_SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
-                 ASK_FOR(INITIAL_CO_WRITABLE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
-                 PROMPT_FOR_EXPERT(INITIAL_CO_REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
-                 PROMPT_FOR_EXPERT(INITIAL_CO_VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
-                 ASK_FOR_EXPERT(INITIAL_CO_DO_CHECKOUT_BY_DATE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
+      <value>LABEL(ResourceMsg(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKOUT)))
+                 PROMPT_FOR(INITIAL_CO_PROJECT, "ResourceMsg(GCOMMAND_Project)", "/",
+                            ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_GCOMMAND_Project);;MNEMONIC_ResourceMsg(GCOMMAND_GET_Project_Mnemonic)))                 
+                 ASK_FOR(INITIAL_CO_SHOULD_LOCK, ResourceMsg(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
+                 ASK_FOR(INITIAL_CO_WRITABLE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
+                 PROMPT_FOR_EXPERT(INITIAL_CO_REVISION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(INITIAL_CO_VERSION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
+                 ASK_FOR_EXPERT(INITIAL_CO_DO_CHECKOUT_BY_DATE, ResourceMsg(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
                  SELECT_RADIO_EXPERT(INITIAL_CO_CHECKOUT_BY_DATE, "", "-u",
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThanWork), "-u", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThanWork);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThanWork_mnc))],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThan), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThan);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThan_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_CHECKOUT_NewerThanWork), "-u", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_NewerThanWork);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_NewerThanWork_mnc))],
+                  [ResourceMsg(COMMAND_PVCS_CHECKOUT_NewerThan), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_NewerThan);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_NewerThan_mnc)),
                     PROMPT_FOR_EXPERT(INITIAL_CO_DATE_AFTER, "")],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_InBefore), "D", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_InBefore);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_InBefore_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_CHECKOUT_InBefore), "D", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_InBefore);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_InBefore_mnc)),
                     PROMPT_FOR_EXPERT(INITIAL_CO_DATE_BEFORE, "")])
-                 ASK_FOR_EXPERT(INITIAL_CO_SET_CURR_TIME, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
-                 ASK_FOR(INITIAL_CO_RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
+                 ASK_FOR_EXPERT(INITIAL_CO_SET_CURR_TIME, ResourceMsg(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
+                 ASK_FOR(INITIAL_CO_RECURSIVE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
           </value>
     </variable>
     <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
@@ -260,13 +261,13 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
   </variables>
   <commands>
-    <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS)">
+    <command name="ROOT" displayName="ResourceMsg(PVCS)">
       <property name="labelMnemonic">
-        <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_Mnemonic)</value>
+        <value>ResourceMsg(PVCS_Mnemonic)</value>
       </property>
-      <command name="LIST" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(LIST)">
+      <command name="LIST" displayName="ResourceMsg(LIST)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(LIST_Mnemonic)</value>
+          <value>ResourceMsg(LIST_Mnemonic)</value>
         </property>
 	<property name="data.fileName.index">
 	  <value>0</value>
@@ -305,9 +306,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>-1</value> <!-- EXEC_SERIAL_INERT -->
         </property>
       </command>
-      <command name="LIST_SUB" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(LIST_SUB)">
+      <command name="LIST_SUB" displayName="ResourceMsg(LIST_SUB)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(LIST_SUB_Mnemonic)</value>
+          <value>ResourceMsg(LIST_SUB_Mnemonic)</value>
         </property>
 	<property name="onFile">
 	  <value>false</value>
@@ -320,7 +321,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="CREATE_PROJECT_DATABASE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT_DATABASE)">
+      <command name="CREATE_PROJECT_DATABASE" displayName="ResourceMsg(PVCS_CREATE_PROJECT_DATABASE)">
         <run>
           <executable value="${PCLI_CMD}"/>
           <arg value="CreateProjectDB ${PRID} -w${QUOTE}${ROOTDIR}${QUOTE}"/>
@@ -332,7 +333,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>false</value>
         </property>
       </command>
-      <command name="CREATE_PROJECT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT)">
+      <command name="CREATE_PROJECT" displayName="ResourceMsg(PVCS_CREATE_PROJECT)">
         <run>
           <executable value="${PCLI_CMD}"/>
           <arg value="CreateProject ${PRIDPP} ${QFILE}"/>
@@ -351,9 +352,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="CHECKIN" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN)">
+      <command name="CHECKIN" displayName="ResourceMsg(PVCS_CHECKIN)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_CHECKIN_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -363,16 +364,16 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${QUOTE}${LOCK_DESCRIPTION}${QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${QUOTE}${ASSIGN_VERSION}${QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-m${QUOTE}${message}${QUOTE}] -ym ${QFILES}"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKIN)))
-                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
-                 ASK_FOR(FORCE_PUT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Force), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Force);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Force_mnc)), "-f", "")
-                 ASK_FOR(CHECK_IN_OUT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Out), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Out);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Out_mnc)), "-u", "", ENABLE(CHECK_IN_OUT_LOCK))
-                 ASK_FOR(CHECK_IN_OUT_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_OutLock), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_OutLock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_OutLock_mnc)), "-l", "", ENABLE(LOCK_DESCRIPTION))
-                 PROMPT_FOR(LOCK_DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_OutLockDescription), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_OutLockDescription);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_OutLockDescription_mnc)))
-                 PROMPT_FOR_EXPERT(ASSIGN_REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_AssignRevision), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_AssignRevision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_AssignRevision_mnc)))
-                 PROMPT_FOR_EXPERT(ASSIGN_VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
-                 ASK_FOR_EXPERT(FLOATING_LABEL, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
-                 ASK_FOR_EXPERT(START_BRANCH, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_StartBranch), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_StartBranch);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_StartBranch_mnc)), "-fb", "")
+          <value>LABEL(ResourceMsg(PVCS_CHECKIN),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKIN)))
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
+                 ASK_FOR(FORCE_PUT, ResourceMsg(COMMAND_PVCS_CHECKIN_Force), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Force);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Force_mnc)), "-f", "")
+                 ASK_FOR(CHECK_IN_OUT, ResourceMsg(COMMAND_PVCS_CHECKIN_Out), "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Out);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Out_mnc)), "-u", "", ENABLE(CHECK_IN_OUT_LOCK))
+                 ASK_FOR(CHECK_IN_OUT_LOCK, ResourceMsg(COMMAND_PVCS_CHECKIN_OutLock), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_OutLock);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_OutLock_mnc)), "-l", "", ENABLE(LOCK_DESCRIPTION))
+                 PROMPT_FOR(LOCK_DESCRIPTION, ResourceMsg(COMMAND_PVCS_CHECKIN_OutLockDescription), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_OutLockDescription);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_OutLockDescription_mnc)))
+                 PROMPT_FOR_EXPERT(ASSIGN_REVISION, ResourceMsg(COMMAND_PVCS_CHECKIN_AssignRevision), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_AssignRevision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_AssignRevision_mnc)))
+                 PROMPT_FOR_EXPERT(ASSIGN_VERSION, ResourceMsg(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
+                 ASK_FOR_EXPERT(FLOATING_LABEL, ResourceMsg(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
+                 ASK_FOR_EXPERT(START_BRANCH, ResourceMsg(COMMAND_PVCS_CHECKIN_StartBranch), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_StartBranch);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_StartBranch_mnc)), "-fb", "")
           </value>
 	</property>
 	<property name="onDir">
@@ -406,7 +407,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.CommitCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_COMMIT)</value>
+          <value>ResourceMsg(PVCS_GENERAL_ACTION_COMMIT)</value>
         </property>
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.CheckInCommand</value>
@@ -417,9 +418,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>$[? message] [org.netbeans.modules.vcs.profiles.commands.Echo.class "${message}"] []</value>
 	</property>
       </command>
-      <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT)">
+      <command name="CHECKOUT" displayName="ResourceMsg(PVCS_CHECKOUT)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_CHECKOUT_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -429,20 +430,20 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${QFILES}] [.]"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
-                 ASK_FOR(SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
-                 ASK_FOR(WRITABLE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
-                 PROMPT_FOR_EXPERT(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
-                 PROMPT_FOR_EXPERT(VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
-                 ASK_FOR_EXPERT(DO_CHECKOUT_BY_DATE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
+          <value>LABEL(ResourceMsg(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKOUT)))
+                 ASK_FOR(SHOULD_LOCK, ResourceMsg(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
+                 ASK_FOR(WRITABLE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
+                 PROMPT_FOR_EXPERT(REVISION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(VERSION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
+                 ASK_FOR_EXPERT(DO_CHECKOUT_BY_DATE, ResourceMsg(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
                  SELECT_RADIO_EXPERT(CHECKOUT_BY_DATE, "", "-u",
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThanWork), "-u", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThanWork);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThanWork_mnc))],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThan), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThan);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThan_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_CHECKOUT_NewerThanWork), "-u", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_NewerThanWork);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_NewerThanWork_mnc))],
+                  [ResourceMsg(COMMAND_PVCS_CHECKOUT_NewerThan), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_NewerThan);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_NewerThan_mnc)),
                     PROMPT_FOR_EXPERT(DATE_AFTER, "")],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_InBefore), "D", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_InBefore);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_InBefore_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_CHECKOUT_InBefore), "D", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_InBefore);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_InBefore_mnc)),
                     PROMPT_FOR_EXPERT(DATE_BEFORE, "")])
-                 ASK_FOR_EXPERT(SET_CURR_TIME, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
+                 ASK_FOR_EXPERT(SET_CURR_TIME, ResourceMsg(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
+                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onDir">
@@ -479,7 +480,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_UPDATE)</value>
+          <value>ResourceMsg(PVCS_GENERAL_ACTION_UPDATE)</value>
         </property>
       </command>
       <command name="INITIAL_CHECKOUT">
@@ -519,9 +520,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="ADD" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD)">
+      <command name="ADD" displayName="ResourceMsg(PVCS_ADD)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_ADD_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -531,12 +532,12 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="AddFiles ${PRIDPP} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${QABSPATHS}"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
-                 PROMPT_FOR(WF_DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
-                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
-                 ASK_FOR(KEEP_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
-                 PROMPT_FOR_EXPERT(ASSIGN_VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
-                 ASK_FOR_EXPERT(FLOATING_LABEL, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
+          <value>LABEL(ResourceMsg(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_ADD)))
+                 PROMPT_FOR(WF_DESCRIPTION, ResourceMsg(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
+                 ASK_FOR(KEEP_LOCK, ResourceMsg(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
+                 PROMPT_FOR_EXPERT(ASSIGN_VERSION, ResourceMsg(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
+                 ASK_FOR_EXPERT(FLOATING_LABEL, ResourceMsg(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
           </value>
 	</property>
 	<property name="onFile">
@@ -570,15 +571,15 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_ADD)</value>
+          <value>ResourceMsg(PVCS_GENERAL_ACTION_ADD)</value>
         </property>
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.AddCommand</value>
         </property>
       </command>
-      <command name="ADD_FILES_IN_DIR" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD_ALL)">
+      <command name="ADD_FILES_IN_DIR" displayName="ResourceMsg(PVCS_ADD_ALL)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_ADD_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -589,13 +590,13 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="$[? RECURSIVE] [ADD_IN_FOLDER_CMD] []"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
-                 PROMPT_FOR(WF_DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
-                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
-                 ASK_FOR(KEEP_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
-                 PROMPT_FOR_EXPERT(ASSIGN_VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
-                 ASK_FOR_EXPERT(FLOATING_LABEL, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
-                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_Recursive), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_Recursive_mnc)), "-z", "")
+          <value>LABEL(ResourceMsg(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_ADD)))
+                 PROMPT_FOR(WF_DESCRIPTION, ResourceMsg(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
+                 ASK_FOR(KEEP_LOCK, ResourceMsg(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
+                 PROMPT_FOR_EXPERT(ASSIGN_VERSION, ResourceMsg(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
+                 ASK_FOR_EXPERT(FLOATING_LABEL, ResourceMsg(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
+                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_ADD_Recursive), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onFile">
@@ -635,7 +636,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_ADD)</value>
+          <value>ResourceMsg(PVCS_GENERAL_ACTION_ADD)</value>
         </property>
       </command>
       <command name="ADD_IN_FOLDER_CMD">
@@ -713,21 +714,21 @@ Microsystems, Inc. All Rights Reserved.
           <value>-1</value> <!-- EXEC_SERIAL_INERT -->
         </property>
       </command>
-      <command name="REMOVE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE)">
+      <command name="REMOVE" displayName="ResourceMsg(PVCS_REMOVE)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_REMOVE_Mnemonic)</value>
         </property>
         <run>
           <executable value="${PCLI_CMD}"/>
           <arg value="vdel ${PRIDPP} $[? REMOVE_WHAT] [-r$[? REVISION - REVISION_OPERATION_IDENT] [${REVISION}] []] [$[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] []] ${QFILES}"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_REMOVE)))
-                 SELECT_RADIO(REMOVE_WHAT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REMOVE_What), "-r",
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Tip), "-r", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Tip);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Tip_mnc))],
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Revision), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Revision_mnc)),
+          <value>LABEL(ResourceMsg(PVCS_REMOVE),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_REMOVE)))
+                 SELECT_RADIO(REMOVE_WHAT, ResourceMsg(COMMAND_PVCS_REMOVE_What), "-r",
+                    [ResourceMsg(COMMAND_PVCS_REVISION_Tip), "-r", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_REVISION_Tip);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_REVISION_Tip_mnc))],
+                    [ResourceMsg(COMMAND_PVCS_REVISION_Revision), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_REVISION_Revision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_REVISION_Revision_mnc)),
                      PROMPT_FOR(REVISION, "", "")]
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Version), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Version);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Version_mnc)),
+                    [ResourceMsg(COMMAND_PVCS_REVISION_Version), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_REVISION_Version);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_REVISION_Version_mnc)),
                      PROMPT_FOR(VERSION, "", "")])
           </value>
 	</property>
@@ -765,7 +766,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.RemoveCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_REMOVE)</value>
+          <value>ResourceMsg(PVCS_GENERAL_ACTION_REMOVE)</value>
         </property>
       </command>
       <separator />
@@ -775,8 +776,8 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="Get ${PRIDPP} ${SHOULD_LOCK} -w ${QUOTE}${FILE}${QUOTE}"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
-                 ASK_FOR(SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
+          <value>LABEL(ResourceMsg(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKOUT)))
+                 ASK_FOR(SHOULD_LOCK, ResourceMsg(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
 	  </value>
 	</property>
 	<property name="data.regex">
@@ -819,18 +820,18 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
       </command>
-      <command name="LOCK_" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK)">
+      <command name="LOCK_" displayName="ResourceMsg(PVCS_LOCK)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_LOCK_Mnemonic)</value>
         </property>
         <run>
           <executable value="${PCLI_CMD}"/>
           <arg value="Lock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] ${RECURSIVE} ${QFILES}"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_LOCK)))
-                 PROMPT_FOR(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_RevPromGVersion), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_RevPromGVersion);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_RevPromGVersion_mnc)))
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_LOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_LOCK_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_LOCK_Recursive_mnc)), "-z", "")
+          <value>LABEL(ResourceMsg(PVCS_LOCK),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_LOCK)))
+                 PROMPT_FOR(REVISION, ResourceMsg(COMMAND_PVCS_REVISION_RevPromGVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_REVISION_RevPromGVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_REVISION_RevPromGVersion_mnc)))
+                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_LOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_LOCK_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_LOCK_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onRoot">
@@ -864,9 +865,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>1</value>
         </property>
       </command>
-      <command name="UNLOCK_" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_UNLOCK)">
+      <command name="UNLOCK_" displayName="ResourceMsg(PVCS_UNLOCK)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_UNLOCK_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_UNLOCK_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -876,10 +877,10 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="Unlock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] $[? USER] [-u${QUOTE}${USER}${QUOTE}] [] ${RECURSIVE} ${QFILES}"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_UNLOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_UNLOCK)))
-                 PROMPT_FOR(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_RevPromGVersion), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_RevPromGVersion);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_RevPromGVersion_mnc)))
-                 PROMPT_FOR_EXPERT(USER, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_UNLOCK_User), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_UNLOCK_User);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_UNLOCK_User_mnc)))
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_UNLOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_UNLOCK_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_UNLOCK_Recursive_mnc)), "-z", "")
+          <value>LABEL(ResourceMsg(PVCS_UNLOCK),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_UNLOCK)))
+                 PROMPT_FOR(REVISION, ResourceMsg(COMMAND_PVCS_REVISION_RevPromGVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_REVISION_RevPromGVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_REVISION_RevPromGVersion_mnc)))
+                 PROMPT_FOR_EXPERT(USER, ResourceMsg(COMMAND_PVCS_UNLOCK_User), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_UNLOCK_User);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_UNLOCK_User_mnc)))
+                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_UNLOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_UNLOCK_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_UNLOCK_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onRoot">
@@ -911,9 +912,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="STATUS" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_STATUS)">
+      <command name="STATUS" displayName="ResourceMsg(PVCS_STATUS)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_STATUS_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_STATUS_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -923,23 +924,23 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="vlog ${PRIDPP} ${REPORT_TYPE} $[? REVISION] [-r${REVISION}] [] $[? AUTHORS] [-a${AUTHORS}] [] $[? LOCKERS] [-l${LOCKERS}] [] $[? OWNERS] [-o${OWNERS}] [] $[? DATE_FROM] [-ds${QUOTE}${DATE_FROM}${QUOTE}] [] $[? DATE_TO] [-de${QUOTE}${DATE_TO}${QUOTE}] [] ${RECURSIVE} ${QFILES}"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_STATUS),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_STATUS)))
-                 SELECT_COMBO_EXPERT(REPORT_TYPE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_ReportType), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_ReportType);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_ReportType_mnc)),
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_Full), ""],
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_FileInf), "-b"],
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_RevisionInf), "-br"],
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_LockedRev), "-bl"],
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_RevWithVL), "-bv"],
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_RevInGroup), "-bg"],
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_NewestRev), "-bn"],
-                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_Tips), "-bc"])
-                 PROMPT_FOR_EXPERT(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Revision), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Revision_mnc)))
-                 PROMPT_FOR_EXPERT(AUTHORS, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Authors), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Authors);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Authors_mnc)))
-                 PROMPT_FOR_EXPERT(LOCKERS, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Lockers), "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Lockers);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Lockers_mnc))")
-                 PROMPT_FOR_EXPERT(OWNERS, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Owners), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Owners);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Owners_mnc)))
-                 PROMPT_FOR_EXPERT(DATE_FROM, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_DateFrom), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_DateFrom);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_DateFrom_mnc)))
-                 PROMPT_FOR_EXPERT(DATE_TO, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_DateTo), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_DateTo);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_DateTo_mnc)))
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Recursive), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Recursive_mnc)), "-z", "")
+          <value>LABEL(ResourceMsg(PVCS_STATUS),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_STATUS)))
+                 SELECT_COMBO_EXPERT(REPORT_TYPE, ResourceMsg(COMMAND_PVCS_STATUS_ReportType), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_ReportType);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_ReportType_mnc)),
+                    [ResourceMsg(COMMAND_PVCS_STATUS_RT_Full), ""],
+                    [ResourceMsg(COMMAND_PVCS_STATUS_RT_FileInf), "-b"],
+                    [ResourceMsg(COMMAND_PVCS_STATUS_RT_RevisionInf), "-br"],
+                    [ResourceMsg(COMMAND_PVCS_STATUS_RT_LockedRev), "-bl"],
+                    [ResourceMsg(COMMAND_PVCS_STATUS_RT_RevWithVL), "-bv"],
+                    [ResourceMsg(COMMAND_PVCS_STATUS_RT_RevInGroup), "-bg"],
+                    [ResourceMsg(COMMAND_PVCS_STATUS_RT_NewestRev), "-bn"],
+                    [ResourceMsg(COMMAND_PVCS_STATUS_RT_Tips), "-bc"])
+                 PROMPT_FOR_EXPERT(REVISION, ResourceMsg(COMMAND_PVCS_STATUS_Revision), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_Revision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(AUTHORS, ResourceMsg(COMMAND_PVCS_STATUS_Authors), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_Authors);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_Authors_mnc)))
+                 PROMPT_FOR_EXPERT(LOCKERS, ResourceMsg(COMMAND_PVCS_STATUS_Lockers), "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_Lockers);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_Lockers_mnc))")
+                 PROMPT_FOR_EXPERT(OWNERS, ResourceMsg(COMMAND_PVCS_STATUS_Owners), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_Owners);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_Owners_mnc)))
+                 PROMPT_FOR_EXPERT(DATE_FROM, ResourceMsg(COMMAND_PVCS_STATUS_DateFrom), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_DateFrom);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_DateFrom_mnc)))
+                 PROMPT_FOR_EXPERT(DATE_TO, ResourceMsg(COMMAND_PVCS_STATUS_DateTo), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_DateTo);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_DateTo_mnc)))
+                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_STATUS_Recursive), "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onRoot">
@@ -964,13 +965,13 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.HistoryCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_HISTORY)</value>
+          <value>ResourceMsg(PVCS_GENERAL_ACTION_HISTORY)</value>
         </property>
       </command>
       <separator />
-      <command name="DIFF" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF)">
+      <command name="DIFF" displayName="ResourceMsg(PVCS_DIFF)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_DIFF_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -991,20 +992,20 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="$[? GEN_DELTA] [{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})] []"/>
         </run>
   	<property name="inputDescriptor">
- 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Label)))
+ 	  <value>LABEL(ResourceMsg(COMMAND_PVCS_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Label)))
                  SELECT_RADIO_EXPERT(REV_VER1, "", "R",
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Rev1), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Rev1);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_Rev1_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_DIFF_Rev1), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Rev1);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_Rev1_mnc)),
                     PROMPT_FOR_EXPERT(REVISION1, "", "")],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Ver1), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Ver1);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_Ver1_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_DIFF_Ver1), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Ver1);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_Ver1_mnc)),
                     PROMPT_FOR_EXPERT(VERSION1, "", "")])
                  SELECT_RADIO_EXPERT(REV_VER2, "", "R",
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Rev2), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Rev2);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_Rev2_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_DIFF_Rev2), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Rev2);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_Rev2_mnc)),
                     PROMPT_FOR_EXPERT(REVISION2, "", "")],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Ver2), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Ver2);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_Ver2_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_DIFF_Ver2), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Ver2);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_Ver2_mnc)),
                     PROMPT_FOR_EXPERT(VERSION2, "", "")])
-                 ASK_FOR_EXPERT(IGNORE_WHITE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_IgnoreWhite), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_IgnoreWhite);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_IgnoreWhite_mnc)), "-b", "")
-                 ASK_FOR_EXPERT(GEN_DELTA, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_GenDelta), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_GenDelta);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_GenDelta_mnc)), ENABLE(DELTA_FILE))
-                 PROMPT_FOR_EXPERT(DELTA_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_DeltaFile), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_DeltaFile);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_DeltaFile_mnc)), SELECTOR_FILE)
+                 ASK_FOR_EXPERT(IGNORE_WHITE, ResourceMsg(COMMAND_PVCS_DIFF_IgnoreWhite), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_IgnoreWhite);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_IgnoreWhite_mnc)), "-b", "")
+                 ASK_FOR_EXPERT(GEN_DELTA, ResourceMsg(COMMAND_PVCS_DIFF_GenDelta), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_GenDelta);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_GenDelta_mnc)), ENABLE(DELTA_FILE))
+                 PROMPT_FOR_EXPERT(DELTA_FILE, ResourceMsg(COMMAND_PVCS_DIFF_DeltaFile), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_DeltaFile);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_DeltaFile_mnc)), SELECTOR_FILE)
           </value>
 	</property>
 	<property name="onDir">
@@ -1020,12 +1021,12 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.DiffCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_DIFF)</value>
+          <value>ResourceMsg(PVCS_GENERAL_ACTION_DIFF)</value>
         </property>
       </command>
-      <command name="APPLY_DELTA" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_APPLY_DELTA)">
+      <command name="APPLY_DELTA" displayName="ResourceMsg(PVCS_APPLY_DELTA)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_APPLY_DELTA_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_APPLY_DELTA_Mnemonic)</value>
         </property>
         <run dir="${WORKDIR}">
           <executable value="cmd.exe" if="IS_WINNT"/>
@@ -1036,8 +1037,8 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="regen &quot;${WORKDIR}${PS}${FILE}&quot; &quot;${DELTA_FILE}&quot; &gt; &quot;${TEMPORARY_FILE}&quot;"/>
         </run>
   	<property name="inputDescriptor">
- 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_APPLY_DELTA_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_APPLY_DELTA_Label)))
-                 PROMPT_FOR(DELTA_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_APPLY_DELTA_DeltaFile), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_APPLY_DELTA_DeltaFile);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_APPLY_DELTA_DeltaFile_mnc)), SELECTOR_FILE)
+ 	  <value>LABEL(ResourceMsg(COMMAND_PVCS_APPLY_DELTA_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_APPLY_DELTA_Label)))
+                 PROMPT_FOR(DELTA_FILE, ResourceMsg(COMMAND_PVCS_APPLY_DELTA_DeltaFile), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_APPLY_DELTA_DeltaFile);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_APPLY_DELTA_DeltaFile_mnc)), SELECTOR_FILE)
           </value>
 	</property>
 	<property name="onDir">
@@ -1077,9 +1078,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value if="IS_WINNT">${RUN} (attrib -r ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} >nul || echo.>nul) &amp;&amp; (del ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) &amp;&amp; (move ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) ${NUR}</value>
 	</property>
       </command>
-      <command name="MERGE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MERGE)">
+      <command name="MERGE" displayName="ResourceMsg(PVCS_MERGE)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MERGE_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_MERGE_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -1103,23 +1104,23 @@ Microsystems, Inc. All Rights Reserved.
           <value>{INSERT_OUTPUT_OF_BACKUP_FILE(0)}</value>
         </property>
   	<property name="inputDescriptor">
- 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_Label)))
-                 SELECT_RADIO(PARENT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Parent), "R",
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_RevisionNumberPR), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_Parent_RevisionNumber);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_Parent_RevisionNumber_mnc)),
+ 	  <value>LABEL(ResourceMsg(COMMAND_PVCS_MERGE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Label)))
+                 SELECT_RADIO(PARENT, ResourceMsg(COMMAND_PVCS_MERGE_Parent), "R",
+                  [ResourceMsg(COMMAND_PVCS_MERGE_RevisionNumberPR), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Parent_RevisionNumber);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_Parent_RevisionNumber_mnc)),
                     PROMPT_FOR(PARENT_REVISION, "", "")],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_VersionLabelPR), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_Parent_VersionLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_Parent_VersionLabel_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_MERGE_VersionLabelPR), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Parent_VersionLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_Parent_VersionLabel_mnc)),
                     PROMPT_FOR(PARENT_VERSION, "", "")])
-                 SELECT_RADIO(BRANCH1, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Branch1), "R",
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_RevisionNumberB1), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_B1_RevisionNumber);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_B1_RevisionNumber_mnc)),
+                 SELECT_RADIO(BRANCH1, ResourceMsg(COMMAND_PVCS_MERGE_Branch1), "R",
+                  [ResourceMsg(COMMAND_PVCS_MERGE_RevisionNumberB1), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B1_RevisionNumber);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_B1_RevisionNumber_mnc)),
                     PROMPT_FOR(BRANCH1_REVISION, "", "")],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_VersionLabelB1), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_B1_VersionLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_B1_VersionLabel_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_MERGE_VersionLabelB1), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B1_VersionLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_B1_VersionLabel_mnc)),
                     PROMPT_FOR(BRANCH1_VERSION, "", "")])
-                 SELECT_RADIO(BRANCH2, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Branch2), "R",
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_RevisionNumberB2), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_B2_RevisionNumber);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_B2_RevisionNumber_mnc)),
+                 SELECT_RADIO(BRANCH2, ResourceMsg(COMMAND_PVCS_MERGE_Branch2), "R",
+                  [ResourceMsg(COMMAND_PVCS_MERGE_RevisionNumberB2), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B2_RevisionNumber);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_B2_RevisionNumber_mnc)),
                     PROMPT_FOR(BRANCH2_REVISION, "", "")],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_VersionLabelB2), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_B2_VersionLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_B2_VersionLabel_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_MERGE_VersionLabelB2), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B2_VersionLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_B2_VersionLabel_mnc)),
                     PROMPT_FOR(BRANCH2_VERSION, "", "")])
-                 PROMPT_FOR_EXPERT(OUT_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_OutFile), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_OutFile);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_OutFile_mnc)), SELECTOR_FILE)
+                 PROMPT_FOR_EXPERT(OUT_FILE, ResourceMsg(COMMAND_PVCS_MERGE_OutFile), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_OutFile);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_OutFile_mnc)), SELECTOR_FILE)
           </value>
 	</property>
 	<property name="onDir">
@@ -1139,9 +1140,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="SET_PASSWORD" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(SET_PASSWORD, ${USER_NAME})">
+      <command name="SET_PASSWORD" displayName="ResourceMsg(SET_PASSWORD, ${USER_NAME})">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(SET_PASSWORD_Mnemonic)</value>
+          <value>ResourceMsg(SET_PASSWORD_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>vcs.commands.SetPasswordCommand.class</value>
@@ -1260,9 +1261,9 @@ Microsystems, Inc. All Rights Reserved.
 
     </command>
     
-    <command name="RESOLVE_CONFLICTS" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_RESOLVE_CONFLICTS)">
+    <command name="RESOLVE_CONFLICTS" displayName="ResourceMsg(PVCS_RESOLVE_CONFLICTS)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_RESOLVE_CONFLICTS_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_RESOLVE_CONFLICTS_Mnemonic)</value>
         </property>
         <property name="exec">
             <value>org.netbeans.modules.vcs.profiles.pvcs.commands.PvcsResolveConflicts.class</value>
@@ -1327,9 +1328,9 @@ Microsystems, Inc. All Rights Reserved.
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
       </property>
     </command>
-    <command name="REVISION_DIFF" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF)">
+    <command name="REVISION_DIFF" displayName="ResourceMsg(PVCS_DIFF)">
       <property name="labelMnemonic">
-        <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF_Mnemonic)</value>
+        <value>ResourceMsg(PVCS_DIFF_Mnemonic)</value>
       </property>
       <property name="exec">
         <value>vcs.commands.Diff.class ${REVISION1} 3 CHECKOUT_CMD DIFF_CA_REVISIONS_CMD</value>
@@ -1341,9 +1342,9 @@ Microsystems, Inc. All Rights Reserved.
         <value>-1</value> <!-- EXEC_SERIAL_INERT -->
       </property>
     </command>
-    <command name="REVISION_DIFF2" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF)">
+    <command name="REVISION_DIFF2" displayName="ResourceMsg(PVCS_DIFF)">
       <property name="labelMnemonic">
-        <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF_Mnemonic)</value>
+        <value>ResourceMsg(PVCS_DIFF_Mnemonic)</value>
       </property>
       <property name="exec">
         <value>vcs.commands.Diff.class ${REVISION1} ${REVISION2} 3 CHECKOUT_CMD DIFF_CA_REVISIONS_CMD</value>
@@ -1449,31 +1450,31 @@ Microsystems, Inc. All Rights Reserved.
   </commands>
 
   <globalCommands>
-    <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS)">
+    <command name="ROOT" displayName="ResourceMsg(PVCS)">
       <property name="labelMnemonic">
-        <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_Mnemonic)</value>
+        <value>ResourceMsg(PVCS_Mnemonic)</value>
       </property>
-      <command name="CREATE_PROJECT_DATABASE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GLOBAL_PVCS_CREATE_PROJECT_DATABASE)">
+      <command name="CREATE_PROJECT_DATABASE" displayName="ResourceMsg(GLOBAL_PVCS_CREATE_PROJECT_DATABASE)">
         <run>
           <executable value="${PCLI_CMD}"/>
           <arg value="CreateProjectDB -pr${QUOTE}${DB_PATH}${QUOTE} $[? DB_NAME] [-n${QUOTE}${DB_NAME}${QUOTE}] [] -w${QUOTE}${DB_WORK}${QUOTE}"/>
         </run>
 	<property name="inputDescriptor">
-	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT_DATABASE), ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_CREATE_PROJECT_DATABASE_Label)))
-                 PROMPT_FOR(DB_PATH, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Database)", "",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Database);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Database_Mnemonic)),
+	  <value>LABEL(ResourceMsg(PVCS_CREATE_PROJECT_DATABASE), ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CREATE_PROJECT_DATABASE_Label)))
+                 PROMPT_FOR(DB_PATH, "ResourceMsg(GCOMMAND_Database)", "",
+                            ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_GCOMMAND_Database);;MNEMONIC_ResourceMsg(GCOMMAND_Database_Mnemonic)),
                             VALIDATOR_FOLDER, SELECTOR_DIR)
-                 PROMPT_FOR(DB_WORK, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Work)", "",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Work);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Work_Mnemonic)),
+                 PROMPT_FOR(DB_WORK, "ResourceMsg(GCOMMAND_Work)", "",
+                            ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_GCOMMAND_Work);;MNEMONIC_ResourceMsg(GCOMMAND_Work_Mnemonic)),
                             VALIDATOR_FOLDER, SELECTOR_DIR)
-                 PROMPT_FOR(DB_NAME, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_CREATE_PROJECT_DATABASE_Name)", "",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_CREATE_PROJECT_DATABASE_Name);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_CREATE_PROJECT_DATABASE_Name_Mnemonic)))
+                 PROMPT_FOR(DB_NAME, "ResourceMsg(GCOMMAND_CREATE_PROJECT_DATABASE_Name)", "",
+                            ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_GCOMMAND_CREATE_PROJECT_DATABASE_Name);;MNEMONIC_ResourceMsg(GCOMMAND_CREATE_PROJECT_DATABASE_Name_Mnemonic)))
           </value>
         </property>
       </command>
-      <command name="GET" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GLOBAL_PVCS_GET)">
+      <command name="GET" displayName="ResourceMsg(GLOBAL_PVCS_GET)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT_Mnemonic)</value>
+          <value>ResourceMsg(PVCS_CHECKOUT_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -1483,29 +1484,29 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="Get -pr${QUOTE}${PROJECT_DB}${QUOTE} $[? USER_NAME] [-id${QUOTE}${USER_NAME}:${PASSWORD}${QUOTE}] [] -pp${QUOTE}${PROJECT}${QUOTE} $[? WORK_PATH] [-a${QUOTE}${WORK_PATH}${QUOTE} -o] [] ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} /"/>
         </run>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
-                 PROMPT_FOR(PROJECT_DB, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Database)", "",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Database);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Database_Mnemonic)),
+          <value>LABEL(ResourceMsg(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKOUT)))
+                 PROMPT_FOR(PROJECT_DB, "ResourceMsg(GCOMMAND_Database)", "",
+                            ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_GCOMMAND_Database);;MNEMONIC_ResourceMsg(GCOMMAND_GET_Database_Mnemonic)),
                             VALIDATOR_FOLDER, SELECTOR_DIR)
-                 PROMPT_FOR(USER_NAME, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_UserName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_UserName_mnc)))
-                 PROMPT_FOR(PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Project)", "/",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Project);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Project_Mnemonic)), VALIDATOR_NON_EMPTY)
-                 PROMPT_FOR(WORK_PATH, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Work)", "",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Work);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Work_Mnemonic)),
+                 PROMPT_FOR(USER_NAME, "ResourceMsg(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CUST_UserName);;MNEMONIC_ResourceMsg(ACS_PVCS_CUST_UserName_mnc)))
+                 PROMPT_FOR(PROJECT, "ResourceMsg(GCOMMAND_Project)", "/",
+                            ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_GCOMMAND_Project);;MNEMONIC_ResourceMsg(GCOMMAND_GET_Project_Mnemonic)), VALIDATOR_NON_EMPTY)
+                 PROMPT_FOR(WORK_PATH, "ResourceMsg(GCOMMAND_Work)", "",
+                            ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_GCOMMAND_Work);;MNEMONIC_ResourceMsg(GCOMMAND_GET_Work_Mnemonic)),
                             VALIDATOR_FOLDER, SELECTOR_DIR)
-                 ASK_FOR(SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
-                 ASK_FOR(WRITABLE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
-                 PROMPT_FOR_EXPERT(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
-                 PROMPT_FOR_EXPERT(VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
-                 ASK_FOR_EXPERT(DO_CHECKOUT_BY_DATE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
+                 ASK_FOR(SHOULD_LOCK, ResourceMsg(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
+                 ASK_FOR(WRITABLE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
+                 PROMPT_FOR_EXPERT(REVISION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(VERSION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
+                 ASK_FOR_EXPERT(DO_CHECKOUT_BY_DATE, ResourceMsg(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
                  SELECT_RADIO_EXPERT(CHECKOUT_BY_DATE, "", "-u",
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThanWork), "-u", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThanWork);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThanWork_mnc))],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThan), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThan);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThan_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_CHECKOUT_NewerThanWork), "-u", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_NewerThanWork);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_NewerThanWork_mnc))],
+                  [ResourceMsg(COMMAND_PVCS_CHECKOUT_NewerThan), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_NewerThan);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_NewerThan_mnc)),
                     PROMPT_FOR_EXPERT(DATE_AFTER, "")],
-                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_InBefore), "D", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_InBefore);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_InBefore_mnc)),
+                  [ResourceMsg(COMMAND_PVCS_CHECKOUT_InBefore), "D", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_InBefore);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_InBefore_mnc)),
                     PROMPT_FOR_EXPERT(DATE_BEFORE, "")])
-                 ASK_FOR_EXPERT(SET_CURR_TIME, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
-                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
+                 ASK_FOR_EXPERT(SET_CURR_TIME, ResourceMsg(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
+                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="displayInteractive">

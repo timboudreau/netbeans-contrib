@@ -126,7 +126,7 @@ public class UserCommandIO extends Object {
         }
     }
     
-    public static Object getPropertyValue(String name, String valueStr) {
+    public static Object getPropertyValue(String[] resourceBundles, String name, String valueStr) {
         Class type = CommandNode.getPropertyClass(name);
         if (Boolean.TYPE.equals(type)) {
             return Boolean.valueOf(valueStr);
@@ -140,7 +140,11 @@ public class UserCommandIO extends Object {
             }
             return intObject;
         } else if (String.class.equals(type)) {
-            return VcsUtilities.getBundleString(valueStr);
+            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(name)) {
+                return valueStr;
+            } else {
+                return VcsUtilities.getBundleString(resourceBundles, valueStr);
+            }
         } else if (String[].class.equals(type)) {
             return convertString2StringArray(valueStr);
         } else return valueStr;
@@ -353,7 +357,7 @@ public class UserCommandIO extends Object {
                 }
                 Condition vc = VariableIO.createCondition(cmd.getName() + "/" + propertyName, valueIfAttr, valueUnlessAttr);
                 propertyValue = translateCommandProperty(propertyName, propertyValue);
-                valuesByConditions.put(vc, getPropertyValue(propertyName, propertyValue));
+                valuesByConditions.put(vc, getPropertyValue(null, propertyName, propertyValue));
                 propertyValue = "";
             }
         }

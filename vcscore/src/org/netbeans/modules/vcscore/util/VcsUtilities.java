@@ -35,6 +35,7 @@ import org.openide.util.io.NbObjectOutputStream;
 
 import org.netbeans.modules.vcscore.VcsAttributes;
 import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
 
 /** Miscelaneous stuff.
  * 
@@ -44,6 +45,7 @@ import org.openide.util.Lookup;
 public class VcsUtilities {
     
     private static final String GET_BUNDLE = "getBundle(";
+    private static final String RESOURCE_MSG = "ResourceMsg";
 
     private static final String SYSTEM_ENV_PREFIX = "Env-";
 
@@ -519,7 +521,15 @@ public class VcsUtilities {
      * @return the resolved string.
      */
     public static String getBundleString(String str) {
-        for (int index = str.indexOf(GET_BUNDLE); index >= 0; index = str.indexOf(GET_BUNDLE, index)) {
+        //long start = System.currentTimeMillis();
+        int index = str.indexOf(GET_BUNDLE);
+        if (index < 0) {
+            return str;
+        }
+        int lastIndex = 0;
+        StringBuffer buff = new StringBuffer();
+        for ( ; index >= 0; index = str.indexOf(GET_BUNDLE, index)) {
+            buff.append(str.substring(lastIndex, index));
             index += GET_BUNDLE.length();
             int end = VcsUtilities.getPairIndex(str, index, '(', ')');
             if (end < 0) {
@@ -541,11 +551,44 @@ public class VcsUtilities {
             }
             String key = str.substring(startArg, endArg);
             String replaced = getBundleString(bundle, key);
-            str = str.substring(0, index - GET_BUNDLE.length()) + replaced + str.substring(endArg + 1);
-            index = index - GET_BUNDLE.length() + replaced.length();
+            //str = str.substring(0, index - GET_BUNDLE.length()) + replaced + str.substring(endArg + 1);
+            //index = index - GET_BUNDLE.length() + replaced.length();
+            buff.append(replaced);
+            lastIndex = index = endArg + 1;
         }
-        return str;
+        if (lastIndex < str.length()) buff.append(str.substring(lastIndex));
+        //long end = System.currentTimeMillis();
+        //gbsTime += (end - start);
+        //gbsNumCalls++;
+        //System.out.println("getBundleString("+str+") took "+(end - start)+" ms.");
+        return buff.toString();
     }
+    
+    /*
+    private static long gbsTime = 0;
+    private static int gbsNumCalls = 0;
+    private static long gbsArrTime = 0;
+    private static int gbsArrNumCalls = 0;
+    
+    private static org.openide.util.RequestProcessor.Task task = org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
+        public void run() {
+            System.out.println("getBundleString() number of invocations = "+gbsNumCalls);
+            System.out.println("getBundleString() total time spent = "+gbsTime+" ms.");
+            System.out.println("getBundleString([]) number of invocations = "+gbsArrNumCalls);
+            System.out.println("getBundleString([]) total time spent = "+gbsArrTime+" ms.");
+            try {Thread.currentThread().sleep(30000);} catch (InterruptedException iex) {}
+            System.out.println("getBundleString() number of invocations = "+gbsNumCalls);
+            System.out.println("getBundleString() total time spent = "+gbsTime+" ms.");
+            System.out.println("getBundleString([]) number of invocations = "+gbsArrNumCalls);
+            System.out.println("getBundleString([]) total time spent = "+gbsArrTime+" ms.");
+            try {Thread.currentThread().sleep(30000);} catch (InterruptedException iex) {}
+            System.out.println("getBundleString() number of invocations = "+gbsNumCalls);
+            System.out.println("getBundleString() total time spent = "+gbsTime+" ms.");
+            System.out.println("getBundleString([]) number of invocations = "+gbsArrNumCalls);
+            System.out.println("getBundleString([]) total time spent = "+gbsArrTime+" ms.");
+        }
+    });
+     */
     
     private static String getBundleString(String bundle, String key) {
         Class clazz = null;
@@ -561,7 +604,7 @@ public class VcsUtilities {
         }
         String[] keyWithArgs = VcsUtilities.getQuotedStrings(key);
         String[] args = null;
-        if (keyWithArgs.length > 0) {
+        if (keyWithArgs.length > 1) {
             key = keyWithArgs[0];
             args = new String[keyWithArgs.length - 1];
             System.arraycopy(keyWithArgs, 1, args, 0, keyWithArgs.length - 1);
@@ -588,6 +631,89 @@ public class VcsUtilities {
         return bundleStr;
     }
     
+    /** Get a string where some of it's parts can be loaded from one or more resource bundles.
+     * 
+     * This method resolves all occurrences of
+     * "ResourceMsg<number>(<key>[, <format param>, ...])"
+     * to the value of the key obtained from the resource bundle formatted with the optional parameters,
+     * where "number" is the index of the resource bundle in the provided array.
+     * 
+     * @param resourceBundles The array of class names or paths to the resource bundles
+     * @param str the string
+     * @return the resolved string.
+     */
+    public static String getBundleString(String[] resourceBundles, String str) {
+        if (resourceBundles == null) {
+            return getBundleString(str);
+        }
+        int index = str.indexOf(RESOURCE_MSG);
+        if (index < 0) {
+            return getBundleString(str);
+        }
+        //long start = System.currentTimeMillis();
+        int lastIndex = 0;
+        StringBuffer buff = new StringBuffer();
+        for ( ; index >= 0; index = str.indexOf(RESOURCE_MSG, index)) {
+            buff.append(str.substring(lastIndex, index));
+            index += RESOURCE_MSG.length();
+            if (str.length() <= (index + 2)) {
+                continue; // Too short string!
+            }
+            int rbIdx = 0;
+            char c = str.charAt(index);
+            if (Character.isDigit(c)) {
+                rbIdx = Character.digit(c, 10);
+                index++;
+            }
+            int startArg = str.indexOf('(', index);
+            if (startArg < 0) {
+                //System.out.println("BAD key: "+str+" -- start key paranthesis missing");
+                continue;
+            }
+            startArg++;
+            int endArg = VcsUtilities.getPairIndex(str, startArg, '(', ')');
+            if (endArg < 0) {
+                //System.out.println("BAD key: "+str+" -- end key paranthesis missing");
+                continue;
+            }
+            String key = str.substring(startArg, endArg);
+            ResourceBundle rb = bundleGetter.getBundle(resourceBundles[rbIdx]);
+            String[] args = null;
+            if (key.indexOf(',') > 0) {
+                String[] keyWithArgs = VcsUtilities.getQuotedStrings(key);
+                if (keyWithArgs.length > 1) {
+                    key = keyWithArgs[0];
+                    args = new String[keyWithArgs.length - 1];
+                    System.arraycopy(keyWithArgs, 1, args, 0, keyWithArgs.length - 1);
+                }
+            }
+            String msg = key;
+            try {
+                msg = rb.getString(key);
+            } catch (final MissingResourceException mrex) {
+                org.openide.ErrorManager.getDefault().notify(new Exception() {
+                    public String getLocalizedMessage() {
+                        return "MissingResourceException: " + mrex.getMessage();
+                    }
+                });
+                org.openide.ErrorManager.getDefault().log(org.openide.ErrorManager.INFORMATIONAL,
+                    "MissingResource: key = '"+key+"', resource bundle = '"+resourceBundles[rbIdx]+"'");
+            }
+            if (args != null) {
+                msg = java.text.MessageFormat.format(msg, args);
+            }
+            buff.append(msg);
+            lastIndex = index = endArg + 1;
+        }
+        if (lastIndex < str.length()) buff.append(str.substring(lastIndex));
+        //long end = System.currentTimeMillis();
+        //gbsArrTime += (end - start);
+        //gbsArrNumCalls++;
+        //System.out.println("getBundleString([], str) took "+(end - start)+" ms.");
+        return buff.toString();
+        
+    }
+    
     /** @return default class loader which is used, when we don't have
      * any other class loader. (in function getBundle(String), getLocalizedFile(String),
      * and so on...
@@ -597,6 +723,53 @@ public class VcsUtilities {
         return c != null ? c : ClassLoader.getSystemClassLoader ();
     }
      */
+    
+    private static final BundleGetter bundleGetter = new BundleGetter();
+    
+    private static final class BundleGetter extends Object implements Runnable {
+        
+        private static final int CLEAN_DELAY = 30000;
+        
+        private Map bundles = new HashMap();
+        private RequestProcessor.Task cleanTask;
+        
+        public BundleGetter() {
+        }
+        
+        public synchronized ResourceBundle getBundle(String bundleName) {
+            ResourceBundle rb = (ResourceBundle) bundles.get(bundleName);
+            if (rb == null) {
+                Class clazz = null;
+                if (bundleName.endsWith(".class")) {
+                    try {
+                    String className = bundleName.substring(0, bundleName.length() - ".class".length());
+                    clazz = Class.forName(className, false, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class));
+                    } catch (ClassNotFoundException exc) {
+                        clazz = null;
+                        org.openide.ErrorManager.getDefault().notify(exc);
+                    }
+                }
+                if (clazz != null) {
+                    rb = org.openide.util.NbBundle.getBundle(clazz);
+                } else {
+                    rb = org.openide.util.NbBundle.getBundle(bundleName, java.util.Locale.getDefault(), getSFSClassLoader());
+                }
+                bundles.put(bundleName, rb);
+            }
+            if (cleanTask == null) {
+                cleanTask = RequestProcessor.getDefault().post(this, CLEAN_DELAY);
+            } else {
+                cleanTask.schedule(CLEAN_DELAY);
+            }
+            return rb;
+        }
+        
+        public synchronized void run() {
+            bundles.clear();
+            cleanTask = null;
+        }
+        
+    }
 
 
     //-------------------------------------------

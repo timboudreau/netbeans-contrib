@@ -55,6 +55,7 @@ import org.xml.sax.SAXException;
 public class ProfileContentHandler extends Object implements ContentHandler, EntityResolver {
     
     public static final String CONFIG_ROOT_ELEM = "configuration";               // NOI18N
+    public static final String RESOURCE_BUNDLE_TAG = "resourceBundle";           // NOI18N
     public static final String LABEL_TAG = "label";                              // NOI18N
     public static final String OS_TAG = "os";                                    // NOI18N
     public static final String OS_COMPATIBLE_TAG = "compatible";                 // NOI18N
@@ -125,7 +126,7 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
     
     private boolean getOS, getConditions, getVariables, getCommands, getGlobalCommands;
     private boolean haveOS, haveConditions, haveSomeConditions, haveVariables, haveCommands, haveGlobalCommands;
-    private boolean readingLabel, readingOSCompat, readingOSUncompat, readingCondition, /*readingVariables,*/ readingCommands, readingGlobalCommands;
+    private boolean readingRB, readingLabel, readingOSCompat, readingOSUncompat, readingCondition, readingCommands, readingGlobalCommands;
     private boolean skipping;
     
     private Condition lastCondition;        // The last condition object being parsed
@@ -148,6 +149,7 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
     private String lastStructuredExecWork;          // The working of the structured executor that was recently read. Can be null.
     private Map lastStructuredExecExecsByConditions;// The working of the structured executor that was recently read
     
+    private String[] resourceBundles;               // The resource bundles defined in the profile.
     private String label;
     private String compatibleOSs;
     private String uncompatibleOSs;
@@ -212,7 +214,17 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
         } else {
             if (haveSomeConditions && !readingCondition) haveConditions = true;
         }
-        if (LABEL_TAG.equals(elementName)) {
+        if (RESOURCE_BUNDLE_TAG.equals(elementName)) {
+            readingRB = true;
+            if (resourceBundles == null) {
+                resourceBundles = new String[] { "" };
+            } else {
+                String[] newResourceBundles = new String[resourceBundles.length + 1];
+                System.arraycopy(resourceBundles, 0, newResourceBundles, 0, resourceBundles.length);
+                newResourceBundles[resourceBundles.length] = "";
+                resourceBundles = newResourceBundles;
+            }
+        } else if (LABEL_TAG.equals(elementName)) {
             label = "";
             readingLabel = true;
         } else if (OS_TAG.equals(elementName)) {
@@ -327,10 +339,12 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
         //if (!skipping) System.out.println("      endElement("+elementName+")");
         if (readingLabel && LABEL_TAG.equals(elementName)) {
             readingLabel = false;
-            label = VcsUtilities.getBundleString(label);
+            label = VcsUtilities.getBundleString(resourceBundles, label);
             if (rootCmd != null) {
                 rootCmd.setDisplayName(label);
             }
+        } else if (readingRB && RESOURCE_BUNDLE_TAG.equals(elementName)) {
+            readingRB = false;
         } else if (readingOSCompat && OS_COMPATIBLE_TAG.equals(elementName)) {
             readingOSCompat = false;
         } else if (readingOSUncompat && OS_UNCOMPATIBLE_TAG.equals(elementName)) {
@@ -367,12 +381,12 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
         } else if (VARIABLE_PROPERTY_VALUE_TAG.equals(elementName)) {
             if (skipping) return ;
             if (lastReadingVariable != null) {
-                lastValue = VcsUtilities.getBundleString(lastValue);
+                lastValue = VcsUtilities.getBundleString(resourceBundles, lastValue);
                 lastValue = VariableIO.translateVariableValue(lastReadingVariable.getName(), lastValue);
                 lastValuesByConditions.put(lastValueCondition, lastValue);
             } else if (lastReadingProperty != null) {
                 lastValue = UserCommandIO.translateCommandProperty(lastReadingProperty, lastValue);
-                lastValuesByConditions.put(lastValueCondition, UserCommandIO.getPropertyValue(lastReadingProperty, lastValue));
+                lastValuesByConditions.put(lastValueCondition, UserCommandIO.getPropertyValue(resourceBundles, lastReadingProperty, lastValue));
             }
             lastValueCondition = null;
             lastValue = null;
@@ -430,6 +444,8 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
         if (skipping) return ;
         if (readingLabel) {
             label += new String(ch, start, length);
+        } else if (readingRB) {
+            resourceBundles[resourceBundles.length - 1] += new String(ch, start, length);
         } else if (readingOSCompat) {
             compatibleOSs += new String(ch, start, length);
         } else if (readingOSUncompat) {
@@ -488,7 +504,13 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
             return org.openide.xml.EntityCatalog.getDefault().resolveEntity(pubid, sysid);
         }
      }
-        
+    
+    /**
+     * Get the list of resource bundles, that are used to get the localized messages.
+     */
+    public String[] getResourceBundles() {
+        return resourceBundles;
+    }
     
     /**
      * Get the Profile label.
@@ -627,21 +649,21 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
     private VcsConfigVariable getBasicVariable(String name, String value, Attributes atts) {
         String label = atts.getValue(VARIABLE_LABEL_ATTR);
         if (label != null) {
-            label = VcsUtilities.getBundleString(label);
+            label = VcsUtilities.getBundleString(resourceBundles, label);
         } else {
             label = "";
         }
         String labelMnemonic = atts.getValue(VARIABLE_LABEL_MNEMONIC_ATTR);
         if (labelMnemonic != null) {
-            labelMnemonic = VcsUtilities.getBundleString(labelMnemonic);
+            labelMnemonic = VcsUtilities.getBundleString(resourceBundles, labelMnemonic);
         }
         String a11yName = atts.getValue(VARIABLE_A11Y_NAME_ATTR);
         if (a11yName != null) {
-            a11yName = VcsUtilities.getBundleString(a11yName);
+            a11yName = VcsUtilities.getBundleString(resourceBundles, a11yName);
         }
         String a11yDescription = atts.getValue(VARIABLE_A11Y_DESCRIPTION_ATTR);
         if (a11yDescription != null) {
-            a11yDescription = VcsUtilities.getBundleString(a11yDescription);
+            a11yDescription = VcsUtilities.getBundleString(resourceBundles, a11yDescription);
         }
         boolean localFile = BOOLEAN_VARIABLE_TRUE.equalsIgnoreCase(atts.getValue(VARIABLE_LOCAL_FILE_ATTR));
         boolean localDir = BOOLEAN_VARIABLE_TRUE.equalsIgnoreCase(atts.getValue(VARIABLE_LOCAL_DIR_ATTR));
@@ -719,7 +741,7 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
         cmd.setName(name);
         String displayName = atts.getValue(COMMAND_DISPLAY_NAME_ATTR);
         if (displayName != null) {
-            displayName = VcsUtilities.getBundleString(displayName);
+            displayName = VcsUtilities.getBundleString(resourceBundles, displayName);
         }
         cmd.setDisplayName(displayName);
         lastCommandCondition = createCondition(name, atts);
@@ -779,6 +801,9 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
                 new ConditionedCommandsBuilder.ConditionedProperty(lastReadingProperty,
                                                                    lastPropertyCondition,
                                                                    lastValuesByConditions));
+        }
+        if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(lastReadingProperty)) {
+            readingCommand.setProperty(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "_INPUT_DESCRIPTOR_RESOURCE_BUNDLES", resourceBundles); // NOI18N
         }
         lastReadingProperty = null;
         lastPropertyCondition = null;

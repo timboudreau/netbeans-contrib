@@ -137,10 +137,11 @@ public class VariableInputDescriptor extends Object {
     /**
      * Parse the string representation of components into the descriptor object.
      * @params inputItems the string representation of input components
+     * @params resourceBundles an optional array of resource bundles with localized messages
      * @return the descriptor object
      * @throws VariableInputFormatException when the parsed string contains some errors
      */
-    public static VariableInputDescriptor parseItems(String inputItems) throws VariableInputFormatException {
+    public static VariableInputDescriptor parseItems(String inputItems, String[] resourceBundles) throws VariableInputFormatException {
         VariableInputDescriptor descriptor = new VariableInputDescriptor();
         int index = 0;
         int begin;
@@ -162,18 +163,18 @@ public class VariableInputDescriptor extends Object {
             String[] inputArgs = VcsUtilities.getQuotedStringsWithPairedCharacters(inputArg, INPUT_STR_ARG_OPEN, INPUT_STR_ARG_CLOSE);
             //System.out.println("parseItems: "+inputStr+": "+inputArg);
             if (inputId == INPUT_LABEL && inputArgs.length > 0) {
-                descriptor.label = VcsUtilities.getBundleString(inputArgs[0]);
+                descriptor.label = VcsUtilities.getBundleString(resourceBundles, inputArgs[0]);
             } else if (inputId == INPUT_HELP_ID && inputArgs.length > 0) {
                 descriptor.helpID = inputArgs[0];
             } else if(inputId == INPUT_AUTOFILL && inputArgs.length >0){
                 descriptor.autoFillVars = inputArgs[0];
             } else if (inputId == INPUT_ACCESSIBILITY && inputArgs.length > 0) {
                 VariableInputComponent testComponent = new VariableInputComponent(0, "", "");
-                setA11y(VcsUtilities.getBundleString(inputArg), testComponent);
+                setA11y(VcsUtilities.getBundleString(resourceBundles, inputArg), testComponent);
                 descriptor.a11yName = testComponent.getA11yName();
                 descriptor.a11yDescription = testComponent.getA11yDescription();
             } else {
-                VariableInputComponent component = parseComponent(inputId, inputArgs, inputArg);
+                VariableInputComponent component = parseComponent(inputId, inputArgs, inputArg, resourceBundles);
                 component.setExpert(expert);
                 component.setVarConditions(varConditions);
                 descriptor.components.add(component);
@@ -391,7 +392,8 @@ public class VariableInputDescriptor extends Object {
      * @param inputArg the same input arguments as one string (the array representation may ignore some characters)
      * @throws VariableInputFormatException when the parsed string contains some errors
      */
-    private static VariableInputComponent parseComponent(int id, String[] inputArgs, String inputArg) throws VariableInputFormatException {
+    private static VariableInputComponent parseComponent(int id, String[] inputArgs,
+                                                         String inputArg, String[] resourceBundles) throws VariableInputFormatException {
         //System.out.println("parseComponent("+id+", "+VcsUtilities.arrayToString(inputArgs)+", "+inputArg+")");
         int len = inputArgs.length;
         VariableInputComponent component;
@@ -434,7 +436,7 @@ public class VariableInputDescriptor extends Object {
         
         if (len > 3 && inputArgs[3].startsWith(INPUT_STR_ACCESSIBILITY)) {
             component = new VariableInputComponent(id, inputArgs[0],
-                                                   VcsUtilities.getBundleString(inputArgs[1]));
+                                                   VcsUtilities.getBundleString(resourceBundles, inputArgs[1]));
             int begin = inputArgs[3].indexOf(INPUT_STR_ARG_OPEN, 0);
             if (begin > 0) {
                 int end = inputArgs[3].lastIndexOf(INPUT_STR_ARG_CLOSE);
@@ -444,12 +446,12 @@ public class VariableInputDescriptor extends Object {
             argNum = 4;
         } else {
             component = new VariableInputComponent(id, inputArgs[0],
-                                                   VcsUtilities.getBundleString(inputArgs[1]));
+                                                   VcsUtilities.getBundleString(resourceBundles, inputArgs[1]));
             argNum = 3;
         }
         
         if (len >= 3) {
-            component.setValue(VcsUtilities.getBundleString(inputArgs[2])); // default variable value
+            component.setValue(VcsUtilities.getBundleString(resourceBundles, inputArgs[2])); // default variable value
         }
         if (len > argNum && inputArgs[argNum].indexOf(VariableInputValidator.VALIDATOR) == 0) {
             String validator = inputArgs[argNum];
@@ -461,7 +463,7 @@ public class VariableInputDescriptor extends Object {
             String[] varConditions = new String[2];
             selector = getVarConditions(selector, varConditions);
             if (selector.indexOf(SELECTOR) == 0) {
-                component.setSelector(selector);
+                component.setSelector(VcsUtilities.getBundleString(resourceBundles, selector));
                 component.setSelectorVarConditions(varConditions);
                 argNum++;
             }
@@ -494,7 +496,7 @@ public class VariableInputDescriptor extends Object {
             }
             for (int i = 0; i < inputSelectArgs.length; i++) {
                 String[] subArgs = VcsUtilities.getQuotedStringsWithPairedCharacters(inputSelectArgs[i], INPUT_STR_ARG_OPEN, INPUT_STR_ARG_CLOSE);
-                VariableInputComponent subComponent = parseComponent(subId, subArgs, inputSelectArgs[i]);
+                VariableInputComponent subComponent = parseComponent(subId, subArgs, inputSelectArgs[i], resourceBundles);
                 component.addSubComponent(subComponent);
             }
         }
@@ -530,7 +532,7 @@ public class VariableInputDescriptor extends Object {
         // Radio buttons may have sub components.
         if (INPUT_RADIO_BTN == id) {
             if (len > argNum) {
-                VariableInputDescriptor subDescriptor = VariableInputDescriptor.parseItems(inputArgs[argNum]);
+                VariableInputDescriptor subDescriptor = VariableInputDescriptor.parseItems(inputArgs[argNum], resourceBundles);
                 VariableInputComponent[] subComponents = subDescriptor.components();
                 for (int i = 0; i < subComponents.length; i++) {
                     component.addSubComponent(subComponents[i]);

@@ -1536,7 +1536,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             VariableInputDescriptor configInputDescriptor = null;
             if (configInputDescriptorStr != null && configInputDescriptorStr.length() > 0) {
                 try {
-                    configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr);
+                    configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr, null);
+                    // The message from resource bundles should be already resolved
                     if (!useWizardDescriptors) makeUneditableRootDir(configInputDescriptor);
                 } catch (VariableInputFormatException vifex) {
                     ErrorManager.getDefault().notify(vifex);//TopManager.getDefault().getErrorManager().annotate(vifex, "

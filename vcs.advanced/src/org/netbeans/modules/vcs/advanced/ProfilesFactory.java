@@ -100,6 +100,7 @@ public final class ProfilesFactory extends Object {
     private Map profileLabelsByName;
     private Map compatibleOSsByName;
     private Map uncompatibleOSsByName;
+    private Map resourceBundlesByName;
     private Map profilesByName;
     
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
@@ -131,6 +132,7 @@ public final class ProfilesFactory extends Object {
         profileLabelsByName = new HashMap();
         compatibleOSsByName = new HashMap();
         uncompatibleOSsByName = new HashMap();
+        resourceBundlesByName = new HashMap();
         for (int i = 0; i < profileNames.size(); i++) {
             String name = (String) profileNames.get(i);
             //StringBuffer compatibleOSs = new StringBuffer();
@@ -145,6 +147,11 @@ public final class ProfilesFactory extends Object {
             profileLabelsByName.put(name, label);
             compatibleOSsByName.put(name, (labelAndOSs[1] != null) ? parseOSs(labelAndOSs[1]) : Collections.EMPTY_SET);
             uncompatibleOSsByName.put(name, (labelAndOSs[2] != null) ? parseOSs(labelAndOSs[2]) : Collections.EMPTY_SET);
+            if (labelAndOSs.length > 3) {
+                String[] resourceBundles = new String[labelAndOSs.length - 3];
+                System.arraycopy(labelAndOSs, 3, resourceBundles, 0, resourceBundles.length);
+                resourceBundlesByName.put(name, resourceBundles);
+            }
             //System.out.println("name = "+profileNames.get(i)+", label = "+getProfileLabel((String) profileNames.get(i)));
         }
         profilesByName = new HashMap();
@@ -172,14 +179,12 @@ public final class ProfilesFactory extends Object {
     
     public synchronized String[] getProfilesDisplayNames() {
         if (!areLabelsResolved) {
-            List resolvedLabels = new ArrayList();
-            for (Iterator it = profileLabels.iterator(); it.hasNext(); ) {
-                resolvedLabels.add(VcsUtilities.getBundleString((String) it.next()));
-            }
-            profileLabels = resolvedLabels;
-            for (Iterator it = profileLabelsByName.keySet().iterator(); it.hasNext(); ) {
-                Object key = it.next();
-                profileLabelsByName.put(key, VcsUtilities.getBundleString((String) profileLabelsByName.get(key)));
+            for (int i = 0; i < profileNames.size(); i++) {
+                String name = (String) profileNames.get(i);
+                String label = (String) profileLabels.get(i);
+                label = VcsUtilities.getBundleString((String[]) resourceBundlesByName.get(name), label);
+                profileLabels.set(i, label);
+                profileLabelsByName.put(name, label);
             }
             areLabelsResolved = true;
         }
@@ -191,7 +196,7 @@ public final class ProfilesFactory extends Object {
     public synchronized String getProfileDisplayName(String profileName) {
         if (!areLabelsResolved) {
             String label = (String) profileLabelsByName.get(profileName);
-            label = VcsUtilities.getBundleString(label);
+            label = VcsUtilities.getBundleString((String[]) resourceBundlesByName.get(profileName), label);
             profileLabelsByName.put(profileName, label);
         }
         return (String) profileLabelsByName.get(profileName);

@@ -40,6 +40,7 @@ public class VariableIO extends Object {
 
     public static final String CONFIG_FILE_EXT = "xml";                          // NOI18N
     public static final String CONFIG_ROOT_ELEM = "configuration";               // NOI18N
+    public static final String RESOURCE_BUNDLE_TAG = "resourceBundle";           // NOI18N
     public static final String LABEL_TAG = "label";                              // NOI18N
     public static final String OS_TAG = "os";                                    // NOI18N
     public static final String OS_COMPATIBLE_TAG = "compatible";                 // NOI18N
@@ -267,6 +268,7 @@ public class VariableIO extends Object {
      *                                        with VcsUtilities.getBundleString(),
      *                                      - compatible operating systems
      *                                      - uncompatible operating systems
+     * The rest of the items are the resource bundles
      */
     public static synchronized String[] getConfigurationLabelAndOS(FileObject configRoot, final String name) {
         FileObject config = configRoot.getFileObject(name);
@@ -310,10 +312,20 @@ public class VariableIO extends Object {
         if (labelContentHandler.getLabel() == null) {
             return null;
         }
-        String[] labelAndOS = new String[3];
+        String[] resourceBundles = labelContentHandler.getResourceBundles();
+        String[] labelAndOS;
+        if (resourceBundles != null) {
+            labelAndOS = new String[3 + resourceBundles.length];
+        } else {
+            labelAndOS = new String[3];
+        }
         labelAndOS[0] = labelContentHandler.getLabel();
         labelAndOS[1] = labelContentHandler.getCompatibleOSs();
         labelAndOS[2] = labelContentHandler.getUncompatibleOSs();
+        labelContentHandler.reset();
+        if (resourceBundles != null) {
+            System.arraycopy(resourceBundles, 0, labelAndOS, 3, resourceBundles.length);
+        }
         return labelAndOS;
     }
 
@@ -753,12 +765,25 @@ public class VariableIO extends Object {
     
     private static class LabelContentHandler extends Object implements ContentHandler, EntityResolver {
         
+        private String[] resourceBundles; // The resource bundles defined in the profile.
         private String label;
         private String compatibleOSs;
         private String uncompatibleOSs;
+        boolean readRB = false;
         boolean readLabel = false;
         boolean readCompatibleOSs = false;
         boolean readUncompatibleOSs = false;
+        
+        public void reset() {
+            resourceBundles = null;
+            label = null;
+            compatibleOSs = null;
+            uncompatibleOSs = null;
+            readRB = false;
+            readLabel = false;
+            readCompatibleOSs = false;
+            readUncompatibleOSs = false;
+        }
         
         public void startDocument() throws org.xml.sax.SAXException {
             label = null;
@@ -775,7 +800,17 @@ public class VariableIO extends Object {
         public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws org.xml.sax.SAXException {
             String elementName = ("".equals(localName)) ? qName : localName;
             //System.out.println("      startElement("+elementName+")");
-            if (LABEL_TAG.equals(elementName)) {
+            if (RESOURCE_BUNDLE_TAG.equals(elementName)) {
+                readRB = true;
+                if (resourceBundles == null) {
+                    resourceBundles = new String[] { "" };
+                } else {
+                    String[] newResourceBundles = new String[resourceBundles.length + 1];
+                    System.arraycopy(resourceBundles, 0, newResourceBundles, 0, resourceBundles.length);
+                    newResourceBundles[resourceBundles.length] = "";
+                    resourceBundles = newResourceBundles;
+                }
+            } else if (LABEL_TAG.equals(elementName)) {
                 label = "";
                 readLabel = true;
             } else if (OS_COMPATIBLE_TAG.equals(elementName)) {
@@ -795,6 +830,8 @@ public class VariableIO extends Object {
             if (readLabel && LABEL_TAG.equals(elementName)) {
                 readLabel = false;
                 //throw new org.xml.sax.SAXException("End of label.");
+            } else if (readRB && RESOURCE_BUNDLE_TAG.equals(elementName)) {
+                readRB = false;
             } else if (readCompatibleOSs && OS_COMPATIBLE_TAG.equals(elementName)) {
                 readCompatibleOSs = false;
             } else if (readUncompatibleOSs && OS_UNCOMPATIBLE_TAG.equals(elementName)) {
@@ -820,6 +857,8 @@ public class VariableIO extends Object {
             //System.out.println("   characters("+new String(values, start, length)+"), readLabel = "+readLabel);
             if (readLabel) {
                 label += new String(values, start, length);
+            } else if (readRB) {
+                resourceBundles[resourceBundles.length - 1] += new String(values, start, length);
             } else if (readCompatibleOSs) {
                 compatibleOSs += new String(values, start, length);
             } else if (readUncompatibleOSs) {
@@ -828,6 +867,10 @@ public class VariableIO extends Object {
         }
         
         public void setDocumentLocator(org.xml.sax.Locator locator) {
+        }
+        
+        public String[] getResourceBundles() {
+            return resourceBundles;
         }
         
         public String getLabel() {

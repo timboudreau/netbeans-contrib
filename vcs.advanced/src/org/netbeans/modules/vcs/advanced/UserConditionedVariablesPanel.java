@@ -121,7 +121,7 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
             String value = var.getValue();
             if (value != null && value.length() > 0) {
                 try {
-                    VariableInputDescriptor.parseItems(value);
+                    VariableInputDescriptor.parseItems(value, null);
                 } catch (VariableInputFormatException vifex) {
                     return false;
                 }

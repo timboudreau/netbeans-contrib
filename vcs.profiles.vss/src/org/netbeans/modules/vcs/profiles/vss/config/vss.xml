@@ -15,7 +15,8 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <configuration>
-  <label>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Label)</label>
+  <resourceBundle>org/netbeans/modules/vcs/profiles/vss/config/Bundle</resourceBundle>
+  <label>ResourceMsg(VSS_Label)</label>
   
   <os>
     <compatible>"Windows"</compatible>
@@ -132,10 +133,10 @@ Microsystems, Inc. All Rights Reserved.
       <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp;</value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED" basic="false">
-      <value>"getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_FileStatus_Current)", "getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_FileStatus_Missing)", "getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_FileStatus_LM)"</value>
+      <value>"ResourceMsg(VSS_FileStatus_Current)", "ResourceMsg(VSS_FileStatus_Missing)", "ResourceMsg(VSS_FileStatus_LM)"</value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT" basic="false">
-      <value>"getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_FileStatus_Short_Current)", "getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_FileStatus_Short_Missing)", "getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_FileStatus_Short_LM)"</value>
+      <value>"ResourceMsg(VSS_FileStatus_Short_Current)", "ResourceMsg(VSS_FileStatus_Short_Missing)", "ResourceMsg(VSS_FileStatus_Short_LM)"</value>
     </variable>
     <variable name="RUNPATH" basic="false">
       <value>cmd /X /C "(mkdir \"${ROOTDIR}${PS}${MODULE}${PS}${PATH}${PS}.\" 2>nul || echo.) &amp;&amp; cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp; \"${VSSCMD}\" workfold ${OPTIONS} \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp;</value>
@@ -145,16 +146,16 @@ Microsystems, Inc. All Rights Reserved.
       <value>cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp; \"${VSSCMD}\" workfold ${OPTIONS} \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp;</value>
       <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} workfold ${OPTIONS} ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp;</value>
     </variable>
-    <variable name="USER_NAME" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UserName)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UserName_Mnemonic)" localFile="false" localDir="false" executable="false" order="1">
+    <variable name="USER_NAME" basic="true" label="ResourceMsg(VSS_UserName)" labelMnemonic="ResourceMsg(VSS_UserName_Mnemonic)" localFile="false" localDir="false" executable="false" order="1">
       <value></value>
     </variable>
-    <variable name="VSSCMD_EXE" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Command)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Command_Mnemonic)" localFile="true" localDir="false" executable="false" order="2">
+    <variable name="VSSCMD_EXE" basic="true" label="ResourceMsg(VSS_Command)" labelMnemonic="ResourceMsg(VSS_Command_Mnemonic)" localFile="true" localDir="false" executable="false" order="2">
       <value>C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE</value>
     </variable>
-    <variable name="PROJECT" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Project)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Project_Mnemonic)" localFile="false" localDir="false" executable="false" order="3">
+    <variable name="PROJECT" basic="true" label="ResourceMsg(VSS_Project)" labelMnemonic="ResourceMsg(VSS_Project_Mnemonic)" localFile="false" localDir="false" executable="false" order="3">
       <value>$/</value>
     </variable>
-    <variable name="SHELL" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(Unix_Shell)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(Unix_Shell_Mnemonic)" localFile="true" localDir="false" executable="true" order="4" if="IS_WIN9X">
+    <variable name="SHELL" basic="true" label="ResourceMsg(Unix_Shell)" labelMnemonic="ResourceMsg(Unix_Shell_Mnemonic)" localFile="true" localDir="false" executable="true" order="4" if="IS_WIN9X">
       <value>sh.exe</value>
     </variable>
     <variable name="CD" basic="false">
@@ -164,17 +165,17 @@ Microsystems, Inc. All Rights Reserved.
       <value if="IS_WINNT">${VSSCMD_EXE}</value>
       <value if="IS_WIN9X">${VSSCMD_EXE_\/}</value>
     </variable>
-    <variable name="ENVIRONMENT_VAR_SSDIR" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_SSDIR)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_SSDIR_Mnemonic)" localDir="true" order="5">
+    <variable name="ENVIRONMENT_VAR_SSDIR" basic="true" label="ResourceMsg(VSS_SSDIR)" labelMnemonic="ResourceMsg(VSS_SSDIR_Mnemonic)" localDir="true" order="5">
       <value>C:\Program Files\Microsoft Visual Studio\VSS</value>
     </variable>
     <variable name="MSG_PROMPT_FOR_AUTO_EDIT" basic = "false">
-      <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_MSG_PROMPT_FOR_AUTO_EDIT)</value>
+      <value>ResourceMsg(VSS_MSG_PROMPT_FOR_AUTO_EDIT)</value>
     </variable>
     <variable name="SHARE_PASSWORD_WHEN_CONFIG_IS_SAME" basic="false">
       <value>USER_NAME, VSSCMD, ENVIRONMENT_VAR_SSDIR</value>
     </variable>
     <variable name="PASSWORD_DESCRIPTION_STRING" basic="false">
-      <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(MSG_PROMPT_FOR_PASSWORD_DESCRIPTION, $[? USER_NAME] [${USER_NAME}@] []${ENVIRONMENT_VAR_SSDIR})</value>
+      <value>ResourceMsg(MSG_PROMPT_FOR_PASSWORD_DESCRIPTION, $[? USER_NAME] [${USER_NAME}@] []${ENVIRONMENT_VAR_SSDIR})</value>
     </variable>
     <variable name="MAX_CMD_LENGTH" basic="false">
       <value>1000</value>
@@ -186,20 +187,20 @@ Microsystems, Inc. All Rights Reserved.
       <value>ROOTDIR, AUTO_FILL_CONFIG</value>
     </variable>
     <variable name="CONFIG_INPUT_DESCRIPTOR" basic="false">
-      <value>PROMPT_FOR(ROOTDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_WORK_mnc)), SELECTOR_DIR)
-             PROMPT_FOR(USER_NAME, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UserName_Mnemonic)))                 
-             PROMPT_FOR(VSSCMD_EXE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_Command), "C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_EXE_mnc)), SELECTOR_FILE)
-             PROMPT_FOR(PROJECT, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_PROJECT_mnc)))
-             PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), SELECTOR_DIR)    
+      <value>PROMPT_FOR(ROOTDIR, ResourceMsg(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_WORK_mnc)), SELECTOR_DIR)
+             PROMPT_FOR(USER_NAME, ResourceMsg(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(VSS_UserName_Mnemonic)))                 
+             PROMPT_FOR(VSSCMD_EXE, ResourceMsg(VSS_GGET_Command), "C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_EXE_mnc)), SELECTOR_FILE)
+             PROMPT_FOR(PROJECT, ResourceMsg(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_PROJECT_mnc)))
+             PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, ResourceMsg(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), SELECTOR_DIR)    
       </value>
     </variable>
     <variable name="WIZARD_INPUT_DESCRIPTOR" basic="false">
-      <value>PROMPT_FOR(ROOTDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_WORK_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
-             PROMPT_FOR(USER_NAME, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UserName_Mnemonic)))
-             PROMPT_FOR(VSSCMD_EXE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_Command), "C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_EXE_mnc)), SELECTOR_FILE)
-             PROMPT_FOR(PROJECT, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_PROJECT_mnc)), VALIDATOR_NON_EMPTY)
-             PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
-             ASK_FOR(DO_VSS_CHECKOUT, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_GET);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(WIZARD_VSS_CHECKOUT_Mnemonic)))
+      <value>PROMPT_FOR(ROOTDIR, ResourceMsg(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_WORK_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
+             PROMPT_FOR(USER_NAME, ResourceMsg(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(VSS_UserName_Mnemonic)))
+             PROMPT_FOR(VSSCMD_EXE, ResourceMsg(VSS_GGET_Command), "C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_EXE_mnc)), SELECTOR_FILE)
+             PROMPT_FOR(PROJECT, ResourceMsg(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_PROJECT_mnc)), VALIDATOR_NON_EMPTY)
+             PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, ResourceMsg(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
+             ASK_FOR(DO_VSS_CHECKOUT, ResourceMsg(VSS_GET), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_GET);;MNEMONIC_ResourceMsg(WIZARD_VSS_CHECKOUT_Mnemonic)))
       </value>
     </variable>
     <variable name="IS_FINISH_ENABLED" basic="false">
@@ -209,10 +210,10 @@ Microsystems, Inc. All Rights Reserved.
       <value></value>
     </variable>  
     <variable name="WIZARD_INPUT_DESCRIPTOR1" basic="false">
-      <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_GET)))             
-             ASK_FOR(RW_MODE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
-             ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GETR_Rec), "true", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
-             PROMPT_FOR(GET_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Options_mnc)))
+      <value>LABEL(ResourceMsg(VSS_GET),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_GET)))             
+             ASK_FOR(RW_MODE, ResourceMsg(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
+             ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_GETR_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
+             PROMPT_FOR(GET_OPTIONS, ResourceMsg(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Options_mnc)))
       </value>
     </variable>
     <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
@@ -220,13 +221,13 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
   </variables>
   <commands>
-    <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS)">
+    <command name="ROOT" displayName="ResourceMsg(VSS)">
       <property name="labelMnemonic">
-        <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Mnemonic)</value>
+        <value>ResourceMsg(VSS_Mnemonic)</value>
       </property>
-      <command name="LIST" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(LIST)">
+      <command name="LIST" displayName="ResourceMsg(LIST)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(LIST_Mnemonic)</value>
+          <value>ResourceMsg(LIST_Mnemonic)</value>
         </property>
 	<property name="data.fileName.index">
 	  <value>0</value>
@@ -271,9 +272,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>-1</value>
         </property>
       </command>
-      <command name="LIST_FILE" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(LIST)">
+      <command name="LIST_FILE" displayName="ResourceMsg(LIST)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(LIST_Mnemonic)</value>
+          <value>ResourceMsg(LIST_Mnemonic)</value>
         </property>
 	<property name="data.fileName.index">
 	  <value>0</value>
@@ -322,9 +323,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>-1</value>
         </property>
       </command>
-      <command name="LIST_SUB" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(LIST_SUB)">
+      <command name="LIST_SUB" displayName="ResourceMsg(LIST_SUB)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(LIST_SUB_Mnemonic)</value>
+          <value>ResourceMsg(LIST_SUB_Mnemonic)</value>
         </property>
 	<property name="exec">
           <value>org.netbeans.modules.vcs.profiles.vss.list.VssListRecursive.class LIST_DIR_READER_REC LIST_STATUS_FOLDER_READER_REC LIST_STATUS_READER</value>
@@ -352,9 +353,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="CHECKIN" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKIN)">
+      <command name="CHECKIN" displayName="ResourceMsg(VSS_CHECKIN)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKIN_Mnemonic)</value>
+          <value>ResourceMsg(VSS_CHECKIN_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkin ${CHECKIN_OPTIONS} $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${OPTIONS} ${QFILE} ${NUR}</value>
@@ -363,9 +364,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKIN),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_CHECKIN)))
-                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKIN_Reason_mnc)))
-                 PROMPT_FOR_EXPERT(CHECKIN_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKIN_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKIN_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_CHECKIN),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKIN)))
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Reason_mnc)))
+                 PROMPT_FOR_EXPERT(CHECKIN_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKIN_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Options_mnc)))
           </value>
 	</property>
 	<property name="onDir">
@@ -393,7 +394,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.CommitCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_COMMIT)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_COMMIT)</value>
         </property>
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.CheckInCommand</value>
@@ -408,9 +409,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>-1</value>
         </property>
       </command>
-      <command name="CHECKINR" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKIN)">
+      <command name="CHECKINR" displayName="ResourceMsg(VSS_CHECKIN)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKIN_Mnemonic)</value>
+          <value>ResourceMsg(VSS_CHECKIN_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} checkin ${RECURSIVE} ${CHECKIN_OPTIONS} $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${OPTIONS} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
@@ -419,10 +420,10 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKIN),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_CHECKIN)))
-                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKIN_Reason),"",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKIN_Reason_mnc)))
-                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKIN_Rec), "true", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKIN_Rec_mnc)), "-R", "-R-")
-                 PROMPT_FOR_EXPERT(CHECKIN_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKIN_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKIN_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_CHECKIN),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKIN)))
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_CHECKIN_Reason),"",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Reason_mnc)))
+                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKIN_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Rec_mnc)), "-R", "-R-")
+                 PROMPT_FOR_EXPERT(CHECKIN_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKIN_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Options_mnc)))
           </value>
 	</property>
 	<property name="onFile">
@@ -456,7 +457,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.CommitCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_COMMIT)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_COMMIT)</value>
         </property>
       </command>
       <command name="CHECKOUT_CONFIRM">
@@ -492,16 +493,16 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
-      <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT)">
+      <command name="CHECKOUT" displayName="ResourceMsg(VSS_CHECKOUT)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
+          <value>ResourceMsg(VSS_CHECKOUT_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
         </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_CHECKOUT)))
-                 PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKOUT_Options), "-GWA", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKOUT)))
+                 PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKOUT_Options), "-GWA", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
           </value>
 	</property>
         <property name="exec">
@@ -526,7 +527,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_UPDATE)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_UPDATE)</value>
         </property>
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.CheckOutCommand</value>
@@ -557,9 +558,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
-      <command name="CHECKOUTR" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT)">
+      <command name="CHECKOUTR" displayName="ResourceMsg(VSS_CHECKOUT)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
+          <value>ResourceMsg(VSS_CHECKOUT_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -te -m(Y/N)N CHECKOUTR_CONFIRM CHECKOUT_FILES_CONFIRMED ${RECURSIVE}</value>
@@ -568,9 +569,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
         </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_CHECKOUT)))
-                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKOUT_Rec), "true", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKOUT_Rec_mnc)), "-R", "-R-")
-                 PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKOUT_Options), "-GWA", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKOUT)))
+                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKOUT_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Rec_mnc)), "-R", "-R-")
+                 PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKOUT_Options), "-GWA", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
           </value>
 	</property>
 	<property name="onFile">
@@ -598,7 +599,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_UPDATE)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_UPDATE)</value>
         </property>
       </command>
       <command name="UNCHECKOUT_CONFIRM">
@@ -626,16 +627,16 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
-      <command name="UNCHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UNCHECKOUT)">
+      <command name="UNCHECKOUT" displayName="ResourceMsg(VSS_UNCHECKOUT)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UNCHECKOUT_Mnemonic)</value>
+          <value>ResourceMsg(VSS_UNCHECKOUT_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
         </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_COMMAND_VSS_UNCHECKOUT_Label)))
-                 PROMPT_FOR_EXPERT(CMD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUT_Options), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_UNCHECKOUT_Options_mnc)))
+          <value>LABEL(ResourceMsg(COMMAND_VSS_UNCHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_UNCHECKOUT_Label)))
+                 PROMPT_FOR_EXPERT(CMD_OPTIONS, ResourceMsg(COMMAND_VSS_UNCHECKOUT_Options), "",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_UNCHECKOUT_Options_mnc)))
           </value>
 	</property>
         <property name="exec">
@@ -682,9 +683,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
-      <command name="UNCHECKOUTR" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UNCHECKOUT)">
+      <command name="UNCHECKOUTR" displayName="ResourceMsg(VSS_UNCHECKOUT)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UNCHECKOUT_Mnemonic)</value>
+          <value>ResourceMsg(VSS_UNCHECKOUT_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N UNCHECKOUTR_CONFIRM UNCHECKOUT_FILES_CONFIRMED ${RECURSIVELY}</value>
@@ -693,9 +694,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
         </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUTR_Label), ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_COMMAND_VSS_UNCHECKOUTR_Label)))
-                 ASK_FOR(RECURSIVELY, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUTR_Recursively), "true",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_UNCHECKOUTR_Recursively_mnc)) ,"-R", "-R-")
-                 PROMPT_FOR_EXPERT(CMD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUT_Options), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_UNCHECKOUT_Options_mnc)))
+          <value>LABEL(ResourceMsg(COMMAND_VSS_UNCHECKOUTR_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_UNCHECKOUTR_Label)))
+                 ASK_FOR(RECURSIVELY, ResourceMsg(COMMAND_VSS_UNCHECKOUTR_Recursively), "true",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_UNCHECKOUTR_Recursively_mnc)) ,"-R", "-R-")
+                 PROMPT_FOR_EXPERT(CMD_OPTIONS, ResourceMsg(COMMAND_VSS_UNCHECKOUT_Options), "",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_UNCHECKOUT_Options_mnc)))
           </value>
 	</property>
 	<property name="onFile">
@@ -762,9 +763,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
-      <command name="GET" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET)">
+      <command name="GET" displayName="ResourceMsg(VSS_GET)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET_Mnemonic)</value>
+          <value>ResourceMsg(VSS_GET_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t GET_CONFIRM GET_CONFIRMED</value>
@@ -773,9 +774,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_GET)))
-                 ASK_FOR(RW_MODE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
-                 PROMPT_FOR_EXPERT(GET_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_GET),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_GET)))
+                 ASK_FOR(RW_MODE, ResourceMsg(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
+                 PROMPT_FOR_EXPERT(GET_OPTIONS, ResourceMsg(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Options_mnc)))
           </value>
 	</property>
 	<property name="onDir">
@@ -825,9 +826,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
-      <command name="GETR" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET)">
+      <command name="GETR" displayName="ResourceMsg(VSS_GET)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET_Mnemonic)</value>
+          <value>ResourceMsg(VSS_GET_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N GETR_CONFIRM GET_FILES_CONFIRMED ${RECURSIVE}</value>
@@ -836,10 +837,10 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_GET)))
-                 ASK_FOR(RW_MODE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
-                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GETR_Rec), "true", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
-                 PROMPT_FOR_EXPERT(GET_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_GET),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_GET)))
+                 ASK_FOR(RW_MODE, ResourceMsg(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
+                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_GETR_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
+                 PROMPT_FOR_EXPERT(GET_OPTIONS, ResourceMsg(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Options_mnc)))
           </value>
 	</property>
 	<property name="onFile">
@@ -871,9 +872,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="ADD" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD)">
+      <command name="ADD" displayName="ResourceMsg(VSS_ADD)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD_Mnemonic)</value>
+          <value>ResourceMsg(VSS_ADD_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} add $[? PROCESSING_BINARY_FILES] [-B] [] $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${QFILES} ${NUR}</value>
@@ -882,9 +883,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_ADD)))
-                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_ADD_Reason_mnc)))
-                 PROMPT_FOR_EXPERT(ADD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_ADD_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_ADD_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_ADD)))
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Reason_mnc)))
+                 PROMPT_FOR_EXPERT(ADD_OPTIONS, ResourceMsg(COMMAND_VSS_ADD_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Options_mnc)))
           </value>
 	</property>
 	<property name="onDir">
@@ -909,10 +910,10 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
         <property name="notificationSuccessMsg">
-          <value>$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_ADDs_Success, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_ADD_Success, ${FILE})]</value>
+          <value>$[? MULTIPLE_FILES] [ResourceMsg(NOTIFICATION_VSS_ADDs_Success, ${NUM_FILES})] [ResourceMsg(NOTIFICATION_VSS_ADD_Success, ${FILE})]</value>
         </property>
         <property name="notificationFailMsg">
-          <value>$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_ADDs_Fail, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_ADD_Fail, ${FILE})]</value>
+          <value>$[? MULTIPLE_FILES] [ResourceMsg(NOTIFICATION_VSS_ADDs_Fail, ${NUM_FILES})] [ResourceMsg(NOTIFICATION_VSS_ADD_Fail, ${FILE})]</value>
         </property>
         <property name="distinguishBinaryFiles">
           <value>true</value>
@@ -921,15 +922,15 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_ADD)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_ADD)</value>
         </property>
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.AddCommand</value>
         </property>
       </command>
-      <command name="ADD_ALL" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD_ALL)">
+      <command name="ADD_ALL" displayName="ResourceMsg(VSS_ADD_ALL)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD_ALL_Mnemonic)</value>
+          <value>ResourceMsg(VSS_ADD_ALL_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>${RUNCDF_NMK} ${QUOTE}${VSSCMD}${QUOTE} add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${RECURSIVE} * {INSERT_OUTPUT_OF_DIR_FOLDERS(0)} ${NUR}</value>
@@ -938,10 +939,10 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_ADD)))
-                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_ADD_Reason_mnc)))
-                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_ADD_ALL_Rec), "true", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_ADD_ALL_Rec_mnc)), "-R", "-R-")
-                 PROMPT_FOR_EXPERT(ADD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_ADD_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_ADD_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_ADD)))
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Reason_mnc)))
+                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_ADD_ALL_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_Rec_mnc)), "-R", "-R-")
+                 PROMPT_FOR_EXPERT(ADD_OPTIONS, ResourceMsg(COMMAND_VSS_ADD_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Options_mnc)))
           </value>
 	</property>
 	<property name="onDir">
@@ -972,16 +973,16 @@ Microsystems, Inc. All Rights Reserved.
           <value>$[? CACHED_ISLOCAL] [CREATE_CMD] []</value>
         </property>
         <property name="notificationSuccessMsg">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_ADD_ALL_Success)</value>
+          <value>ResourceMsg(NOTIFICATION_VSS_ADD_ALL_Success)</value>
         </property>
         <property name="notificationFailMsg">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_ADD_ALL_Fail)</value>
+          <value>ResourceMsg(NOTIFICATION_VSS_ADD_ALL_Fail)</value>
         </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_ADD)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_ADD)</value>
         </property>
       </command>
       <command name="DIR_FOLDERS">
@@ -1027,9 +1028,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
         </property>
       </command>
-      <command name="CREATE" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CREATE)">
+      <command name="CREATE" displayName="ResourceMsg(VSS_CREATE)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CREATE_Mnemonic)</value>
+          <value>ResourceMsg(VSS_CREATE_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} create $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
@@ -1038,9 +1039,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CREATE),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_CREATE)))
-                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CREATE_Reason),"",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CREATE_Reason_mnc)))
-                 PROMPT_FOR_EXPERT(CREATE_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CREATE_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CREATE_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_CREATE),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CREATE)))
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_CREATE_Reason),"",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CREATE_Reason_mnc)))
+                 PROMPT_FOR_EXPERT(CREATE_OPTIONS, ResourceMsg(COMMAND_VSS_CREATE_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CREATE_Options_mnc)))
           </value>
 	</property>
 	<property name="onFile">
@@ -1065,16 +1066,16 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
         </property>
         <property name="notificationSuccessMsg">
-          <value>$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_CREATEs_Success, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_CREATE_Success, ${FILE})]</value>
+          <value>$[? MULTIPLE_FILES] [ResourceMsg(NOTIFICATION_VSS_CREATEs_Success, ${NUM_FILES})] [ResourceMsg(NOTIFICATION_VSS_CREATE_Success, ${FILE})]</value>
         </property>
         <property name="notificationFailMsg">
-          <value>$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_CREATEs_Fail, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_CREATE_Fail, ${FILE})]</value>
+          <value>$[? MULTIPLE_FILES] [ResourceMsg(NOTIFICATION_VSS_CREATEs_Fail, ${NUM_FILES})] [ResourceMsg(NOTIFICATION_VSS_CREATE_Fail, ${FILE})]</value>
         </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_ADD)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_ADD)</value>
         </property>
       </command>
       <command name="REMOVE_CONFIRM">
@@ -1101,16 +1102,16 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
-      <command name="REMOVE" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_REMOVE)">
+      <command name="REMOVE" displayName="ResourceMsg(VSS_REMOVE)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_REMOVE_Mnemonic)</value>
+          <value>ResourceMsg(VSS_REMOVE_Mnemonic)</value>
         </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
         </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_COMMAND_VSS_REMOVE_Label)))
-                 PROMPT_FOR_EXPERT(CMD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_REMOVE_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_REMOVE_Options_mnc)))
+          <value>LABEL(ResourceMsg(COMMAND_VSS_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_REMOVE_Label)))
+                 PROMPT_FOR_EXPERT(CMD_OPTIONS, ResourceMsg(COMMAND_VSS_REMOVE_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_REMOVE_Options_mnc)))
           </value>
 	</property>
 	<property name="exec">
@@ -1132,10 +1133,10 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="notificationSuccessMsg">
-          <value>$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_REMOVEs_Success, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_REMOVE_Success, ${FILE})]</value>
+          <value>$[? MULTIPLE_FILES] [ResourceMsg(NOTIFICATION_VSS_REMOVEs_Success, ${NUM_FILES})] [ResourceMsg(NOTIFICATION_VSS_REMOVE_Success, ${FILE})]</value>
         </property>
         <property name="notificationFailMsg">
-          <value>$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_REMOVEs_Fail, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_REMOVE_Fail, ${FILE})]</value>
+          <value>$[? MULTIPLE_FILES] [ResourceMsg(NOTIFICATION_VSS_REMOVEs_Fail, ${NUM_FILES})] [ResourceMsg(NOTIFICATION_VSS_REMOVE_Fail, ${FILE})]</value>
         </property>
         <property name="concurrentExec">
           <value>-1</value>
@@ -1144,15 +1145,15 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.RemoveCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_REMOVE)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_REMOVE)</value>
         </property>
         <property name="refreshOnFail">
           <value>2</value>
         </property>
       </command>
-      <command name="RECOVER" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_RECOVER)">
+      <command name="RECOVER" displayName="ResourceMsg(VSS_RECOVER)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_RECOVER_Mnemonic)</value>
+          <value>ResourceMsg(VSS_RECOVER_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} recover ${RECOVER_OPTIONS} ${OPTIONS} ${QFILES} ${NUR}</value>
@@ -1161,8 +1162,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_RECOVER),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_RECOVER)))
-                 PROMPT_FOR_EXPERT(RECOVER_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_RECOVER_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_RECOVER_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_RECOVER),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_RECOVER)))
+                 PROMPT_FOR_EXPERT(RECOVER_OPTIONS, ResourceMsg(COMMAND_VSS_RECOVER_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_RECOVER_Options_mnc)))
           </value>
 	</property>
 	<property name="data.regex">
@@ -1187,10 +1188,10 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="notificationSuccessMsg">
-          <value>$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_RECOVERs_Success, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_RECOVER_Success, ${FILE})]</value>
+          <value>$[? MULTIPLE_FILES] [ResourceMsg(NOTIFICATION_VSS_RECOVERs_Success, ${NUM_FILES})] [ResourceMsg(NOTIFICATION_VSS_RECOVER_Success, ${FILE})]</value>
         </property>
         <property name="notificationFailMsg">
-          <value>$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_RECOVERs_Fail, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_RECOVER_Fail, ${FILE})]</value>
+          <value>$[? MULTIPLE_FILES] [ResourceMsg(NOTIFICATION_VSS_RECOVERs_Fail, ${NUM_FILES})] [ResourceMsg(NOTIFICATION_VSS_RECOVER_Fail, ${FILE})]</value>
         </property>
         <property name="refreshOnFail">
           <value>2</value>
@@ -1200,9 +1201,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="HISTORY" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_HISTORY)">
+      <command name="HISTORY" displayName="ResourceMsg(VSS_HISTORY)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_HISTORY_Mnemonic)</value>
+          <value>ResourceMsg(VSS_HISTORY_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} history ${HISTORY_OPTIONS} ${OPTIONS} ${QPATHS} ${NUR}</value>
@@ -1212,8 +1213,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_HISTORY),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_HISTORY)))
-                 PROMPT_FOR_EXPERT(HISTORY_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_HISTORY_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_HISTORY_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_HISTORY),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_HISTORY)))
+                 PROMPT_FOR_EXPERT(HISTORY_OPTIONS, ResourceMsg(COMMAND_VSS_HISTORY_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_HISTORY_Options_mnc)))
           </value>
 	</property>
 	<property name="display">
@@ -1238,12 +1239,12 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.HistoryCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_HISTORY)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_HISTORY)</value>
         </property>
       </command>
-      <command name="PROPERTIES" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_PROPERTIES)">
+      <command name="PROPERTIES" displayName="ResourceMsg(VSS_PROPERTIES)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_PROPERTIES_Mnemonic)</value>
+          <value>ResourceMsg(VSS_PROPERTIES_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} properties ${PROPERTIES_OPTIONS} ${OPTIONS} ${QPATHS} ${NUR}</value>
@@ -1253,8 +1254,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_PROPERTIES),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_PROPERTIES)))
-                 PROMPT_FOR_EXPERT(PROPERTIES_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_PROPERTIES_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_PROPERTIES_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_PROPERTIES),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_PROPERTIES)))
+                 PROMPT_FOR_EXPERT(PROPERTIES_OPTIONS, ResourceMsg(COMMAND_VSS_PROPERTIES_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_PROPERTIES_Options_mnc)))
           </value>
 	</property>
 	<property name="display">
@@ -1277,9 +1278,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="DIFF" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_DIFF)">
+      <command name="DIFF" displayName="ResourceMsg(VSS_DIFF)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_DIFF_Mnemonic)</value>
+          <value>ResourceMsg(VSS_DIFF_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>vcs.commands.Diff.class 2 CHECKOUT_CMD DIFF_USR_CMD</value>
@@ -1288,8 +1289,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_DIFF_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_COMMAND_VSS_DIFF_Label)))
-                 PROMPT_FOR_EXPERT(CMD_DIFF_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_DIFF_Options), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_DIFF_Options_mnc)) ,VALIDATOR_REGEXP_UNMATCH(^.*-B.*$|^.*-D.*$|^.*-O.*$))
+          <value>LABEL(ResourceMsg(COMMAND_VSS_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_DIFF_Label)))
+                 PROMPT_FOR_EXPERT(CMD_DIFF_OPTIONS, ResourceMsg(COMMAND_VSS_DIFF_Options), "",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_DIFF_Options_mnc)) ,VALIDATOR_REGEXP_UNMATCH(^.*-B.*$|^.*-D.*$|^.*-O.*$))
           </value>
 	</property>
 	<property name="onDir">
@@ -1308,7 +1309,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcscore.actions.DiffCommandAction</value>
         </property>
         <property name="generalCommandActionDisplayName">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_DIFF)</value>
+          <value>ResourceMsg(VSS_GENERAL_ACTION_DIFF)</value>
         </property>
         <property name="concurrentExec">
           <value>-1</value>
@@ -1431,9 +1432,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
       </command>
-      <command name="SET_PASSWORD" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(SET_PASSWORD, ${WORKPROJ})">
+      <command name="SET_PASSWORD" displayName="ResourceMsg(SET_PASSWORD, ${WORKPROJ})">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(SET_PASSWORD_Mnemonic)</value>
+          <value>ResourceMsg(SET_PASSWORD_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>vcs.commands.SetPasswordCommand.class</value>
@@ -1478,9 +1479,9 @@ Microsystems, Inc. All Rights Reserved.
         <value>16</value> <!-- EXEC_SERIAL_ALL -->
       </property>
     </command>
-    <command name="REVISION_DIFF" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_DIFF)">
+    <command name="REVISION_DIFF" displayName="ResourceMsg(VSS_DIFF)">
       <property name="labelMnemonic">
-        <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_DIFF_Mnemonic)</value>
+        <value>ResourceMsg(VSS_DIFF_Mnemonic)</value>
       </property>
       <property name="exec">
         <value>vcs.commands.Diff.class ${REVISION1} 2 CHECKOUT_CMD DIFF_REVISIONS_CMD</value>
@@ -1492,9 +1493,9 @@ Microsystems, Inc. All Rights Reserved.
         <value>-1</value>
       </property>
     </command>
-    <command name="REVISION_DIFF2" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_DIFF)">
+    <command name="REVISION_DIFF2" displayName="ResourceMsg(VSS_DIFF)">
       <property name="labelMnemonic">
-        <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_DIFF_Mnemonic)</value>
+        <value>ResourceMsg(VSS_DIFF_Mnemonic)</value>
       </property>
       <property name="exec">
         <value>vcs.commands.Diff.class ${REVISION1} ${REVISION2} 2 CHECKOUT_CMD DIFF_REVISIONS_CMD</value>
@@ -1527,9 +1528,9 @@ Microsystems, Inc. All Rights Reserved.
   </commands>
   
   <globalCommands>
-    <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS)">
+    <command name="ROOT" displayName="ResourceMsg(VSS)">
       <property name="labelMnemonic">
-        <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Mnemonic)</value>
+        <value>ResourceMsg(VSS_Mnemonic)</value>
       </property>
       <command name="GET_CONFIRM">
         <property name="exec">
@@ -1556,9 +1557,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
-      <command name="GET_LATEST" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_LATEST)">
+      <command name="GET_LATEST" displayName="ResourceMsg(VSS_GGET_LATEST)">
         <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_Mnemonic)</value>
+          <value>ResourceMsg(VSS_GGET_Mnemonic)</value>
         </property>
 	<property name="exec">
 	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N GET_CONFIRM GET_FILES_CONFIRMED ${RECURSIVE}</value>
@@ -1567,15 +1568,15 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_GET)))
-                 PROMPT_FOR(ROOTDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_WORK_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
-                 PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
-                 PROMPT_FOR(PROJECT, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_PROJECT_mnc)), VALIDATOR_NON_EMPTY)
-                 PROMPT_FOR(VSSCMD_EXE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_Command), "C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_EXE_mnc)), VALIDATOR_NON_EMPTY, SELECTOR_FILE)
-                 PROMPT_FOR(USER_NAME, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UserName_Mnemonic)))
-                 ASK_FOR(RW_MODE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
-                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GETR_Rec), "true", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
-                 PROMPT_FOR_EXPERT(GET_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Options_mnc)))
+          <value>LABEL(ResourceMsg(VSS_GET),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_GET)))
+                 PROMPT_FOR(ROOTDIR, ResourceMsg(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_WORK_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
+                 PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, ResourceMsg(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
+                 PROMPT_FOR(PROJECT, ResourceMsg(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_PROJECT_mnc)), VALIDATOR_NON_EMPTY)
+                 PROMPT_FOR(VSSCMD_EXE, ResourceMsg(VSS_GGET_Command), "C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_EXE_mnc)), VALIDATOR_NON_EMPTY, SELECTOR_FILE)
+                 PROMPT_FOR(USER_NAME, ResourceMsg(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(VSS_UserName_Mnemonic)))
+                 ASK_FOR(RW_MODE, ResourceMsg(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
+                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_GETR_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
+                 PROMPT_FOR_EXPERT(GET_OPTIONS, ResourceMsg(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Options_mnc)))
           </value>
 	</property>
 	<property name="onFile">

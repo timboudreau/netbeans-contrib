@@ -12,11 +12,12 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
 <!ELEMENT configuration    (label, os?, (condition)*, variables, commands, globalCommands?)   >
+<!ELEMENT resourceBundle   (#PCDATA)   >
 <!ELEMENT label            (#PCDATA)   >
 <!ELEMENT os               (compatible?, uncompatible?)   >
 <!ELEMENT compatible       (#PCDATA)   >

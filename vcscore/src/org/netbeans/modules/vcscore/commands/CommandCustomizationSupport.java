@@ -91,6 +91,8 @@ public class CommandCustomizationSupport extends Object {
     
     public static final String INPUT_DESCRIPTOR_PARSED = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "_INPUT_DESCRIPTOR_PARSED";
         
+    public static final String INPUT_DESCRIPTOR_RESOURCE_BUNDLES = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "_INPUT_DESCRIPTOR_RESOURCE_BUNDLES";
+        
     private static final String VAR_INPUT_MULTIPLE_FILES_TITLE_APPEND = " ...";
     private static final String VAR_INPUT_FILE_SEPARATOR = " - ";
 
@@ -860,6 +862,7 @@ public class CommandCustomizationSupport extends Object {
                                                         boolean[] forEachFile,
                                                         StringBuffer retTitle) throws UserCancelException {
         VariableInputDescriptor inputDescriptor = (VariableInputDescriptor) cmd.getProperty(INPUT_DESCRIPTOR_PARSED);
+        String[] resourceBundles = (String[]) cmd.getProperty(INPUT_DESCRIPTOR_RESOURCE_BUNDLES);
         if (inputDescriptor == null) {
             String inputDescriptorStr = (String) cmd.getProperty(VcsCommand.PROPERTY_INPUT_DESCRIPTOR);
             if (inputDescriptorStr != null) {
@@ -871,7 +874,7 @@ public class CommandCustomizationSupport extends Object {
                 //PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
                 //inputDescriptorStr = cmdPerf.process(inputDescriptorStr);
                 try {
-                    inputDescriptor = VariableInputDescriptor.parseItems(inputDescriptorStr);
+                    inputDescriptor = VariableInputDescriptor.parseItems(inputDescriptorStr, resourceBundles);
                 } catch (VariableInputFormatException exc) {
                     ErrorManager.getDefault().notify(exc);
                     throw new UserCancelException();
@@ -931,7 +934,7 @@ public class CommandCustomizationSupport extends Object {
                     if (globalInputStr != null) {
                         if (!globalInputStr.equals(globalInputStrStored)) {
                             try {
-                                globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr);
+                                globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr, resourceBundles);
                             } catch (VariableInputFormatException exc) {
                                 ErrorManager.getDefault().notify(exc);
                                 return null;
@@ -1039,7 +1042,7 @@ public class CommandCustomizationSupport extends Object {
                             VariableInputDescriptor globalInputDescriptor;
                             if (!globalInputStr.equals(globalInputStrStored)) {
                                 try {
-                                    globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr);
+                                    globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr, resourceBundles);
                                 } catch (VariableInputFormatException exc) {
                                     ErrorManager.getDefault().notify(exc);
                                     return null;
