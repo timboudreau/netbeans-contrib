@@ -93,7 +93,9 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                 lock = destination.lock();
                 out = new PrintWriter ( new OutputStreamWriter ( destination.getOutputStream (lock)));
 
+                //Create IDL file
                 if ((mode & CorbaWizardData.IDL) == CorbaWizardData.IDL) {
+                    // From wizard
                     TopManager.getDefault().setStatusText(CorbaWizardAction.getLocalizedString("MSG_CreatingIDL"));
                     if (idlSource instanceof org.netbeans.modules.corba.wizard.nodes.IdlFileNode) {
                         try {
@@ -107,8 +109,10 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                     }
                 }
                 else {
+                    // Import
                     TopManager.getDefault().setStatusText(CorbaWizardAction.getLocalizedString("MSG_ImportingIDL"));
                     if (idlSource instanceof File) {
+                        // From File
                         try {
                             in = new BufferedReader ( new FileReader ( (File) idlSource));
                             while ((line = in.readLine()) != null) {
@@ -124,6 +128,7 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                         }
                     }
                     else if (idlSource instanceof Node[]) {
+                        // From IR
                         Node[] nodes = (Node[]) idlSource;
                         try {
                             for (int i=0; i< nodes.length; i++) {
@@ -138,15 +143,21 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                         }
                     }
                 }
+                
+                // Open IDL file in editor
                 DataObject idlDataObject = DataObject.find (destination);
                 EditorCookie editorCookie = (EditorCookie) idlDataObject.getCookie (EditorCookie.class);
                 editorCookie.open();
+                
+                // Create Impl files
                 if ((mode & CorbaWizardData.IMPL) == CorbaWizardData.IMPL) {
                     TopManager.getDefault().setStatusText (CorbaWizardAction.getLocalizedString("MSG_CreatingImpl"));
                     IDLDataObject dataObject = (IDLDataObject) DataObject.find (destination);
                     IDLNodeCookie idlCookie = (IDLNodeCookie) dataObject.getCookie (IDLNodeCookie.class);
                     idlCookie.GenerateImpl (dataObject);
                 }
+                
+                // Create Client
                 if ((mode & CorbaWizardData.CLIENT) == CorbaWizardData.CLIENT) {
                     TopManager.getDefault().setStatusText (CorbaWizardAction.getLocalizedString("MSG_CreatingClient"));
                     DataFolder templates = TopManager.getDefault().getPlaces().folders().templates();
@@ -156,7 +167,8 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                     if (openCookie != null)
                         openCookie.open();
                 }
-
+                
+                // Create Server 
                 if ((mode & CorbaWizardData.SERVER) == CorbaWizardData.SERVER) {
                     TopManager.getDefault().setStatusText (CorbaWizardAction.getLocalizedString("MSG_CreatingServer"));
                     DataFolder templates = TopManager.getDefault().getPlaces().folders().templates();

@@ -32,8 +32,8 @@ import org.netbeans.modules.corba.browser.ir.util.Removable;
 
 public class RemoveRepository extends NodeAction {
 
-    //public static final boolean DEBUG = false;
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
 
     public RemoveRepository () {
         super ();
