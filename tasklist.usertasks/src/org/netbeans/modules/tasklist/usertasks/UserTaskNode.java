@@ -7,13 +7,17 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.beans.PropertyEditorManager;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import javax.swing.Action;
@@ -24,7 +28,9 @@ import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.ImportAction;
+import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.core.TaskTransfer;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.openide.ErrorManager;
@@ -39,8 +45,12 @@ import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.PropertySupport.Reflection;
 import org.openide.nodes.Sheet.Set;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.ExTransferable;
+import org.openide.util.datatransfer.MultiTransferObject;
+import org.openide.util.datatransfer.PasteType;
 
 
 class UserTaskNode extends TaskNode {
@@ -153,8 +163,6 @@ class UserTaskNode extends TaskNode {
         }
     }
 
-    /** Creates properties.
-     */
     protected Sheet createSheet() {
         Sheet s = Sheet.createDefault();
         Set ss = s.get(Sheet.PROPERTIES);
@@ -198,9 +206,8 @@ class UserTaskNode extends TaskNode {
                     UserTask task = (UserTask) instance;
                     PercentsPropertyEditor.Value v = 
                         (PercentsPropertyEditor.Value) value;
-                    if (v.computed)
-                        task.setPercentComplete(-1);
-                    else
+                    task.setProgressComputed(v.computed);
+                    if (!v.computed)
                         task.setPercentComplete(v.progress);
                 }
             };
@@ -296,6 +303,121 @@ class UserTaskNode extends TaskNode {
     
     public boolean canRename() {
         return (item.getParent() != null);
+    }
+    
+    protected void createPasteTypes(java.awt.datatransfer.Transferable t, List s) {
+        super.createPasteTypes(t, s);
+        PasteType p = createTodoPasteType(t, (UserTask) item);
+        if (p != null) {
+            s.add(p);
+        }
+    }
+
+    /** 
+     * Create a paste type from a transferable.
+     *
+     * @param t the transferable to check
+     * @param parent parent for the pasted task
+     * @return an appropriate paste type, or null if not appropriate
+     */
+    public static PasteType createTodoPasteType(
+    Transferable t, UserTask parent) {
+        if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
+            try {
+                // Multiselection
+                final MultiTransferObject mto = (MultiTransferObject)
+                    t.getTransferData(ExTransferable.multiFlavor);
+                if (mto.areDataFlavorsSupported(
+                    new DataFlavor[] {TaskTransfer.TODO_FLAVOR})) {
+                    return new UserTaskNode.TodoPaste(t, parent);
+                }
+            } catch (UnsupportedFlavorException e) {
+                ErrorManager.getDefault().notify(e);
+            } catch (IOException e) {
+                ErrorManager.getDefault().notify(e);
+            }
+        } 
+        
+        if (t.isDataFlavorSupported(TaskTransfer.TODO_FLAVOR)) {
+            return new TodoPaste(t, parent);
+        } 
+        return null;
+    }
+
+    /**
+     * Paste type for a pasted task
+     */
+    private static final class TodoPaste extends PasteType {
+        private final Transferable t;
+        private final UserTask parent;
+        
+        /**
+         * Creates a paste type for a UserTask
+         *
+         * @param t a transferable object
+         * @param parent parent task for the pasted task
+         */
+        public TodoPaste(Transferable t, UserTask parent) {
+            this.t = t;
+            this.parent = parent;
+        }
+        
+        public String getName() {
+            return NbBundle.getMessage(TaskTransfer.class, 
+                "LBL_todo_paste_as_subtask"); // NOI18N
+        }
+        
+        public HelpCtx getHelpCtx() {
+            return new HelpCtx("org.netbeans.modules.todo"); // NOI18N
+        }
+        
+        public Transferable paste() throws IOException {
+            try {
+                if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
+                    // Multiselection
+                    final MultiTransferObject mto = (MultiTransferObject)
+                        t.getTransferData(ExTransferable.multiFlavor);
+                    if (mto.areDataFlavorsSupported(
+                        new DataFlavor[] {TaskTransfer.TODO_FLAVOR})) {
+                        for (int i = 0; i < mto.getCount(); i++) {
+                            Task item = (Task)
+                            mto.getTransferData(i, TaskTransfer.TODO_FLAVOR);
+                            addTask(item);
+                        }
+                        return null;
+                    }
+                } 
+                
+                if (t.isDataFlavorSupported(TaskTransfer.TODO_FLAVOR)) {
+                    Task item = (Task)t.getTransferData(TaskTransfer.TODO_FLAVOR);
+                    addTask(item);
+                } 
+            } catch (UnsupportedFlavorException ufe) {
+                // Should not happen.
+                IOException ioe = new IOException(ufe.toString());
+                ErrorManager.getDefault().annotate(ioe, ufe);
+                throw ioe;
+            }
+            return null;
+        }
+        
+        /**
+         * Adds a task
+         *
+         * @param item a task
+         */
+        private void addTask(Task item) {
+            UserTask ut;
+            if (item instanceof UserTask) {
+                ut = (UserTask) item;
+            } else {
+                ut = new UserTask(item.getSummary());
+                ut.setDetails(item.getDetails());
+                ut.setLine(item.getLine());
+                ut.setPriority(item.getPriority());
+            }
+            parent.addSubtask(ut);
+        }
     }
 }
 

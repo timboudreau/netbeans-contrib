@@ -21,6 +21,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JComponent;
 import javax.swing.JTable;
 import org.openide.text.Annotation;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
@@ -36,6 +39,7 @@ import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.ObservableList;
+import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
@@ -54,6 +58,11 @@ import org.openide.windows.WindowManager;
  * @author Tor Norbye
  */
 public class UserTaskView extends TaskListView implements TaskListener {
+    private static final Logger LOGGER = TLUtils.getLogger(UserTaskView.class);
+    
+    static {
+        LOGGER.setLevel(Level.OFF);
+    }
     
     /** Construct a new UserTaskView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
@@ -197,16 +206,16 @@ public class UserTaskView extends TaskListView implements TaskListener {
         }
     }
 
-    static final String PROP_TASK_DONE = "taskDone"; // NOI18N
-    static final String PROP_TASK_DUE = "taskDue"; // NOI18N
-    static final String PROP_TASK_PRIO = "taskPrio"; // NOI18N
-    static final String PROP_TASK_CAT = "taskCat"; // NOI18N
-    static final String PROP_TASK_FILE = "taskFile"; // NOI18N
-    static final String PROP_TASK_LINE = "taskLine"; // NOI18N
-    static final String PROP_TASK_DETAILS = "taskDetails"; // NOI18N
-    static final String PROP_TASK_CREATED = "taskCreated"; // NOI18N
-    static final String PROP_TASK_EDITED = "taskEdited"; // NOI18N
-    static final String PROP_TASK_PERCENT = "taskPercent"; // NOI18N
+    static final String PROP_TASK_DONE = "done"; // NOI18N
+    static final String PROP_TASK_DUE = "dueDate"; // NOI18N
+    static final String PROP_TASK_PRIO = "priority"; // NOI18N
+    static final String PROP_TASK_CAT = "category"; // NOI18N
+    static final String PROP_TASK_FILE = "filename"; // NOI18N
+    static final String PROP_TASK_LINE = "line"; // NOI18N
+    static final String PROP_TASK_DETAILS = "details"; // NOI18N
+    static final String PROP_TASK_CREATED = "created"; // NOI18N
+    static final String PROP_TASK_EDITED = "edited"; // NOI18N
+    static final String PROP_TASK_PERCENT = "percentComplete"; // NOI18N
     
     protected ColumnProperty[] createColumns() {
         return new ColumnProperty[] {
