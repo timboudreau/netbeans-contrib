@@ -25,7 +25,6 @@ Microsystems, Inc. All Rights Reserved.
 
   <folder name="MDRepositories">
     <file name="Default[org-netbeans-mdr-NBMDRepositoryImpl].mdr">
-      <attr name="factory" stringvalue="org.netbeans.mdr.dispatchers.localimpl.LocalDispFactory"/>
       <attr name="storage" stringvalue="org.netbeans.mdr.persistence.btreeimpl.btreestorage.BtreeFactory"/>
       <attr name="org.netbeans.mdr.persistence.btreeimpl.filename" stringvalue="{folder.MDRepositories/Storages}/mdr"/>
     </file>
