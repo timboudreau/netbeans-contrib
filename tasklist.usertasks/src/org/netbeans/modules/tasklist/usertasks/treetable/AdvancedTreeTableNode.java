@@ -21,26 +21,46 @@ import java.util.Comparator;
  * This "advanced" class provides filtering and sorting of nodes
  */
 public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
-    protected TreeTableNode[] unfilteredChildren;
+    protected AdvancedTreeTableNode[] unfilteredChildren;
     protected FilterIntf filter;
     protected Comparator comparator;
+    protected DefaultTreeTableModel model;
+    protected Object object;
     
     /** 
      * Creates a new instance of AdvancedTreeTableNode 
      *
+     * @param model tree table model this node belongs to
      * @param parent parent of this node or null if this node is a root
+     * @param object object associated with this node
      */
-    public AdvancedTreeTableNode(TreeTableNode parent) {
+    public AdvancedTreeTableNode(DefaultTreeTableModel model, 
+        TreeTableNode parent, Object object) {
         super(parent);
+        this.model = model;
+        this.object = object;
     }
 
+    /**
+     * Returns object associated with this node
+     *
+     * @return object
+     */
+    public Object getObject() {
+        return object;
+    }
+    
     /**
      * Sets new comparator or null
      *
      * @param comparator new comparator
      */
     public void setComparator(Comparator comparator) {
+        if (this.comparator == comparator)
+            return;
+        
         this.comparator = comparator;
+        
         refreshChildren();
     }
     
@@ -73,7 +93,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     }
     
     /**
-     * todo
+     * Loads unfiltered children of this node
      */
     protected abstract void loadUnfilteredChildren();
 
@@ -92,7 +112,8 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
         if (filter != null) {
             ArrayList fc = new ArrayList();
             for (int j = 0; j < unfilteredChildren.length; j++) {
-                if (filter.accept(unfilteredChildren[j])) {
+                if (filter.accept(((AdvancedTreeTableNode) 
+                    unfilteredChildren[j]).getObject())) {
                     fc.add(unfilteredChildren[j]);
                 }
             }
@@ -115,6 +136,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
         }
         this.children = null;
         this.unfilteredChildren = null;
+        model.fireTreeStructureChanged(model, this.getPathToRoot());
     }
 
     /**
