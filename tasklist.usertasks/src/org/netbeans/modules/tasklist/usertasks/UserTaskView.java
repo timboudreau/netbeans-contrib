@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.Component;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -21,11 +22,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import org.openide.text.Annotation;
@@ -33,8 +38,14 @@ import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
+import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
+import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
+import org.openide.awt.MouseUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
 import org.openide.util.HelpCtx;
@@ -108,8 +119,74 @@ public class UserTaskView extends TaskListView implements TaskListener {
             SystemAction.get(StartTaskAction.class)
         };
     }
-    
 
+    private UserTaskTreeTableNode createTreeTableNode(UserTask ut) {
+        UserTaskTreeTableNode n = new UserTaskTreeTableNode(ut);
+        List tasks = ut.getSubtasks();
+        Iterator it = tasks.iterator();
+        while (it.hasNext()) {
+            n.add(createTreeTableNode((UserTask) it.next()));
+        }
+        return n;
+    }
+    
+    /**
+     * Creates the root node of the TT model
+     * 
+     * @param utl a task list
+     */
+    private DefaultMutableTreeTableNode createTreeTableRootNode(UserTaskList utl) {
+        List tasks = utl.getTasks();
+        DefaultMutableTreeTableNode n = new DefaultMutableTreeTableNode(utl);
+        Iterator it = tasks.iterator();
+        while (it.hasNext()) {
+            n.add(createTreeTableNode((UserTask) it.next()));
+        }
+        return n;
+    }
+    
+    /**
+     * Creates a TT model
+     *
+     * @return created TT model
+     */
+    private TreeTableModel createTreeTableModel() {
+        DefaultMutableTreeTableNode n = createTreeTableRootNode(
+            (UserTaskList) getModel());
+        return new DefaultTreeTableModel(
+            n, new String[] {"Summary", "Priority", "Done", "Percent Complete",
+            "Effort", "Rem. Effort", "Spent Time", "Details", "File", "Line",
+            "Category", "Created", "Edited", "Due"
+        }); // TODO 
+    }
+    
+    protected Component createCenterComponent() {
+        TreeTable tt = new TreeTable(createTreeTableModel());
+        tt.setShowHorizontalLines(true);
+        tt.setShowVerticalLines(true);
+        tt.setAutoResizeMode(TreeTable.AUTO_RESIZE_OFF);
+        tt.getTree().setCellRenderer(new SummaryTreeCellRenderer());
+        //treeTable = tt;
+
+        final JScrollPane sp = new JScrollPane(tt,
+            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        
+        sp.addMouseListener(new MouseUtils.PopupMouseAdapter() {
+            public void showPopup(MouseEvent e) {
+                Action[] actions = new Action[] {
+                    SystemAction.get(FilterAction.class),
+                    SystemAction.get(ExportAction.class)
+                };
+                JPopupMenu pm = Utilities.actionsToPopup(actions, sp);
+                pm.show(sp, e.getX(), e.getY());
+            }
+        });
+        
+        ChooseColumnsPanel.installChooseColumnsButton(sp);
+        return sp;
+    }
+    
     /** Overrides superclass method. Gets actions for this top component. */
     /*
     public SystemAction[] getSystemActions() {
@@ -527,13 +604,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
             utl.hideAnnotations(utl.getTasks().iterator());
     }
 
-    protected Component createCenterComponent() {
-        Component c = super.createCenterComponent();
-        treeTable.setTableAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        treeTable.setRootVisible(true);
-        return c;
-    }
-    
     public String toString() { 
         return "UserTaskView(" + getName() + ", " + category + ", " + getModel() + ")"; // NOI18N
     }

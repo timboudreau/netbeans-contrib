@@ -1,0 +1,3 @@
+WARNING: threse are unresolved low risk licensing issues.
+The code comes from Swing Connection tutorials using BSD+.
+
