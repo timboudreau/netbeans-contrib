@@ -702,12 +702,15 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       return ;
     }
     String module = getModuleValue();
-    if (module != null && module.length() > 0) selected += File.separator + module;
+    String moduleDir = selected;
+    if (module != null && module.length() > 0) moduleDir += File.separator + module;
     D.deb("rootDirChanged(): module = "+module+", selected = "+selected); // NOI18N
-    File dir=new File(selected);
-    if( !dir.isDirectory() ){
-      E.err("not directory "+dir);
-      final String badDir = dir.toString();
+    File dir=new File(moduleDir);
+    /*
+    File root = new File(selected);
+    if( !root.isDirectory() ){
+      E.err("not directory "+root);
+      final String badDir = root.toString();
       javax.swing.SwingUtilities.invokeLater(new Runnable () {
         public void run () {
           if (isRootNotSetDlg) {
@@ -719,6 +722,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       });
       return ;
     }
+    */
     try{
       fileSystem.setRootDirectory(dir);
       //rootDirTextField.setText(selected);
@@ -826,6 +830,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  11   Gandalf   1.10        2/10/00  Martin Entlicher Does not check the 
+*       existence of working directory.
 *  10   Gandalf   1.9         2/9/00   Martin Entlicher Fix of width of Advanced 
 *       Dialog.
 *  9    Gandalf   1.8         1/27/00  Martin Entlicher NOI18N
