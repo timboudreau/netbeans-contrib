@@ -21,17 +21,52 @@ import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
 /**
+ * This class contains static methods for getting and setting command properties.
  *
  * @author  Martin Entlicher
  */
 public class VcsCommandIO extends Object {
 
+    public static HashMap defaultPropertyValues = null;
+    
     /** Creates new VcsCommandIO */
     public VcsCommandIO() {
     }
     
+    private static void initDefaultPropertyValues() {
+        defaultPropertyValues = new HashMap();
+        defaultPropertyValues.put(VcsCommand.PROPERTY_ON_FILE, new Boolean(true));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_ON_DIR, new Boolean(true));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_ON_ROOT, new Boolean(true));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_CHANGING_REVISION, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, new Integer(VcsCommand.EXEC_CONCURRENT_ALL));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_HIDDEN, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_NUM_REVISIONS, new Integer(0));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, new Boolean(false));
+    }
+    
+    /**
+     * Get the default value of a command property. When the property is not defined,
+     * this value determines the default behavior.
+     * @param propertyName the property name to get the default value for
+     * @return the default value of the property
+     */
+    public static Object getDefaultPropertyValue(String propertyName) {
+        if (defaultPropertyValues == null) {
+            initDefaultPropertyValues();
+        }
+        return defaultPropertyValues.get(propertyName);
+    }
+    
     /**
      * Get the boolean value of the command property.
+     * @param command the command to get the property of
+     * @param propertyName the name of the property
      * @return the boolean value of the command property or <code>false</code> when the property does not exist.
      */
     public static boolean getBooleanProperty(VcsCommand command, String propertyName) {
@@ -45,10 +80,30 @@ public class VcsCommandIO extends Object {
     
     /**
      * Get the boolean value of the command property.
+     * @param command the command to get the property of
+     * @param propertyName the name of the property
      * @return the boolean value of the command property or <code>true</code> when the property does not exist.
      */
     public static boolean getBooleanPropertyAssumeTrue(VcsCommand command, String propertyName) {
         Object value = command.getProperty(propertyName);
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue();
+        } else {
+            return true;
+        }
+    }
+    
+    /**
+     * Get the boolean value of the command property, or its default value when
+     * the property is not defined.
+     * @param command the command to get the property of
+     * @param propertyName the name of the property
+     * @return the boolean value of the command property or default value when the property
+     * does not exist or <code>false</code>, when the default value is not defined for this property.
+     */
+    public static boolean getBooleanPropertyAssumeDefault(VcsCommand command, String propertyName) {
+        Object value = command.getProperty(propertyName);
+        if (value == null) value = getDefaultPropertyValue(propertyName);
         if (value instanceof Boolean) {
             return ((Boolean) value).booleanValue();
         } else {
@@ -82,200 +137,5 @@ public class VcsCommandIO extends Object {
         }
     }
     
-    /**
-     * Read commands from properies. All properties of the form <code>cmd.Command_Name.Command_Property</code>
-     * are stored into commands. All properties of the form <code>cmdl.Command_Name.Command_Property</code>
-     * are stored as "empty commands" with only label and orderArr properies. These are the labels for command subsets.
-     * @param props the properties to read
-     * @param clazz the class type of the command.
-     * @return the Vector of commands
-     *
-    public static Vector readCommands(Properties props, Class clazz) throws InstantiationException, IllegalAccessException {
-        Vector result=new Vector(20);
-
-        for(Iterator iter = props.keySet().iterator(); iter.hasNext();){
-            String key = (String) iter.next();
-            String cmdStr = null;
-            if (key.startsWith("cmd.") == true && // NOI18N
-                key.endsWith(".label") == true) { // NOI18N
-                    cmdStr = "cmd.";
-            }
-            if (key.startsWith("cmdl.") == true && // NOI18N
-                key.endsWith(".label") == true) { // NOI18N
-                    cmdStr = "cmdl.";
-            }
-            if (cmdStr != null) {
-                int startIndex = cmdStr.length(); // NOI18N
-                int endIndex = key.length() - ".label".length(); // NOI18N
-
-                String name = key.substring(startIndex, endIndex);
-                String label = (String) props.get(key);
-
-                Object command = clazz.newInstance();
-                if (!(command instanceof VcsCommand)) throw new InstantiationException("Bad class type. Not instance of VcsCommand.");
-                VcsCommand vc = (VcsCommand) command;
-                vc.setName(name);
-                vc.setLabel(label);
-                String orderStr = (String) props.get(cmdStr + name + ".order"); // NOI18N
-                if (orderStr == null) orderStr = "-1";
-                //D.deb("Parsing orderArr ("+uc.getName()+") = "+orderArr);
-                int[] orderArr = VcsCommandOrder.parseOrder(orderStr);
-                if (orderArr == null) {
-                    orderArr = new int[1];
-                    orderArr[0] = -1;
-                }
-                //D.deb("Setting orderArr = "+UserCommand.getorderArrString(orderArrArr));
-                vc.setOrder(orderArr);
-                if ("cmd.".equals(cmdStr)) {
-                    //BeanInfo info = vc.createCommandInfo();
-                    fillCommandProperties(name, vc, props);
-                }
-                result.addElement(vc);
-            }
-        }
-        Object firstCommand = result.firstElement();
-        if (firstCommand == null) return result;
-        result = VcsCommandOrder.sortCommands(result);
-        //D.deb("going to set the orderArr ..."); // NOI18N
-        VcsCommandOrder.setOrder(result);
-        Method finishMethod = null;
-        try {
-            finishMethod = clazz.getDeclaredMethod("readFinished", new Class[] { java.util.Vector.class });
-        } catch (NoSuchMethodException exc) {
-            TopManager.getDefault().notify(new NotifyDescriptor.Exception(exc));
-        } catch (SecurityException sexc) {
-            TopManager.getDefault().notify(new NotifyDescriptor.Exception(sexc));
-        }
-        try {
-            if (finishMethod != null) finishMethod.invoke(firstCommand, new Object[] { result });
-        } catch (IllegalArgumentException exc) {
-            TopManager.getDefault().notify(new NotifyDescriptor.Exception(exc));
-        } catch (InvocationTargetException itexc) {
-            TopManager.getDefault().notify(new NotifyDescriptor.Exception(itexc));
-        }
-        return result;
-    }
-    
-    /*
-    private static void fillCommandInfo(String name, BeanInfo info, Properties props) {
-        PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
-        for(int j = 0; j < descriptors.length; j++) {
-            Enumeration attrs = descriptors[j].attributeNames();
-            while(attrs.hasMoreElements()) {
-                String attrName = (String) attrs.nextElement();
-                String attrValue = (String) props.get("cmd." + name + "." + attrName);
-                Class propClazz = descriptors[j].getPropertyType();
-                Object value = attrValue;
-                if (propClazz.equals(Boolean.TYPE)) {
-                    if (attrValue.equalsIgnoreCase("TRUE")) {
-                        value = new Boolean(true);
-                    } else if (attrValue.equalsIgnoreCase("FALSE")) {
-                        value = new Boolean(false);
-                    } else {
-                        value = null;
-                    }
-                } else if (propClazz.equals(Integer.TYPE)) {
-                    try {
-                        int intValue = Integer.parseInt(attrValue);
-                        value = new Integer(intValue);
-                    } catch (NumberFormatException exc) {
-                        TopManager.getDefault().notify(new NotifyDescriptor.Exception(exc));
-                        value = null;
-                    }
-                } else if (propClazz.equals(Vector.class)) {
-                    Vector vector = new Vector();
-                    StringTokenizer tokenizer = new StringTokenizer(attrValue, ",");
-                    while(tokenizer.hasMoreTokens()) {
-                        String token = tokenizer.nextToken();
-                        if (token.length() > 0 && token.charAt(0) == ']') {
-                            token = token.substring(1);
-                        }
-                        if (token.endsWith("]")) {
-                            token = token.substring(0, token.length() - 1);
-                        }
-                        vector.add(token);
-                    }
-                    value = vector;
-                }
-                descriptors[j].setValue(attrName, value);
-            }
-        }
-    }
-     */
-    /*
-    private static void fillCommandProperties(String name, VcsCommand vc, Properties props) {
-        String[] propertyNames = vc.getPropertyNames();
-        //PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
-        for(int j = 0; j < propertyNames.length; j++) {
-            String attrName = propertyNames[j];
-            String attrValue = (String) props.get("cmd." + name + "." + attrName);
-            //Class propClazz = descriptors[j].getPropertyType();
-            Object value;
-            Object oldValue = vc.getProperty(attrName);
-            if (oldValue instanceof Boolean) {
-                if (attrValue.equalsIgnoreCase("TRUE")) {
-                    value = new Boolean(true);
-                } else if (attrValue.equalsIgnoreCase("FALSE")) {
-                    value = new Boolean(false);
-                } else {
-                    value = null;
-                }
-            } else if (oldValue instanceof Integer) {
-                try {
-                    int intValue = Integer.parseInt(attrValue);
-                    value = new Integer(intValue);
-                } catch (NumberFormatException exc) {
-                    TopManager.getDefault().notify(new NotifyDescriptor.Exception(exc));
-                    value = null;
-                }
-            } else {
-                value = attrValue;
-            }
-            /*
-            } else if (propClazz.equals(Vector.class)) {
-                Vector vector = new Vector();
-                StringTokenizer tokenizer = new StringTokenizer(attrValue, ",");
-                while(tokenizer.hasMoreTokens()) {
-                    String token = tokenizer.nextToken();
-                    if (token.length() > 0 && token.charAt(0) == ']') {
-                        token = token.substring(1);
-                    }
-                    if (token.endsWith("]")) {
-                        token = token.substring(0, token.length() - 1);
-                    }
-                    vector.add(token);
-                }
-                value = vector;
-            }
-             *
-            vc.setProperty(attrName, value);
-        }
-    }
-     */
-
-    /**
-     * Write the commands properties.
-     *
-    public static void writeConfiguration (Properties props, Vector cmds) {
-        for(int i = 0; i < cmds.size(); i++) {
-            VcsCommand vc = (VcsCommand) cmds.get (i);
-            String name = vc.getName();
-            //BeanInfo info = vc.getCommandInfo();
-            String[] properties = vc.getPropertyNames();
-            if (properties == null || properties.length == 0) { // Label command
-                props.setProperty ("cmdl." + name + ".label", vc.getLabel ()); // NOI18N
-                props.setProperty ("cmdl." + name + ".order", vc.getOrderString ()); // NOI18N
-            } else {
-                props.setProperty ("cmd." + name + ".label", vc.getLabel ()); // NOI18N
-                props.setProperty ("cmd." + name + ".order", vc.getOrderString ()); // NOI18N
-                //PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
-                for(int j = 0; j < properties.length; j++) {
-                    String attrName = properties[j];
-                    props.setProperty("cmd." + name + "." + attrName, vc.getProperty(attrName).toString());
-                }
-            }
-        }
-    }
-     */
 
 }
