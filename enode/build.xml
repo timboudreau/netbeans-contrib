@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Nokia. Portions Copyright 2003 Nokia.
+All Rights Reserved.
+-->
+
+<project name="enode" default="netbeans" basedir=".">
+
+    <property name="nb_all" value="../.."/>
+
+    <property name="nbm_alias" value="nb_ide"/>
+    <property name="homepage.base" value="netbeans.org"/>
+    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+    <property name="license.file" location="${nb_all}/nbbuild/standard-nbm-license.txt"/>
+
+    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+    <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+    <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+
+    <target name="compile">
+        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+            <classpath refid="cp"/>
+        </javac>
+    </target>
+
+    <target name="jars" depends="compile">
+        <mkdir dir="netbeans/modules/autoload"/>
+        <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+        <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+        <locjar jarfile="netbeans/modules/autoload/enode.jar"
+                basedir="src"
+                manifest="manifest-subst.mf"
+                excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
+	        compress="false">
+        </locjar>
+    </target>
+
+    <target name="netbeans" depends="jars">
+        <genlist targetname="nbm" outputfiledir="netbeans"/>
+    </target>
+
+    <target name="nbm" depends="netbeans">
+        <makenbm file="enode.nbm"
+                 topdir="."
+                 module="netbeans/modules/autoload/enode.jar"
+                 homepage="http://openidex.${homepage.base}/"
+                 distribution="http://${dist.base}/enode.nbm">
+            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+        </makenbm>
+    </target>
+
+    <target name="test-build" depends="jars">
+        <mkdir dir="reload/ext"/>
+        <copy file="netbeans/modules/autoload/enode.jar" tofile="reload/enode.jar"/>
+    </target>
+    <target name="test" depends="test-build">
+        <nbinstaller module="reload/enode.jar" action="reinstall"/>
+    </target>
+
+    <target name="clean" description="Clean build products.">
+        <delete>
+            <fileset dir="src">
+                <include name="**/*.class"/>
+            </fileset>
+        </delete>
+	<!-- workaround for issue 20745 -->
+        <delete dir="netbeans/lib"/>
+        <delete>
+	    <fileset dir=".">
+		<include name="*.nbm"/>
+	    </fileset>
+	</delete>
+        <delete dir="Info"/>
+        <delete file="manifest-subst.mf"/>
+        <delete dir="javadoc"/>
+    </target>
+
+    <target name="real-clean" depends="clean">
+        <delete dir="reload"/>
+    </target>
+
+    <path id="cp">
+        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+        <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
+        <pathelement location="${nb_all}/core/naming/netbeans/modules/autoload/naming.jar"/>
+    </path>
+    
+    <target name="javadoc" description="Build Javadoc.">
+        <!-- Ant 1.4 bug workaround: <property refid="..."/> does not work inside <ant> -->
+        <property name="_cp" refid="cp"/>
+        <ant dir="${nb_all}/nbbuild/javadoctools" antfile="template.xml" target="javadoc">
+            <property name="javadoc.base" location="."/>
+            <property name="javadoc.name" value="EnodeAPI"/>
+            <property name="javadoc.title" value="Extensible Node API"/>
+            <property name="javadoc.packages" value="org.netbeans.api.enode,org.netbeans.spi.enode"/>
+            <property name="javadoc.classpath" value="${_cp}"/>
+        </ant>
+    </target>
+  
+</project>
