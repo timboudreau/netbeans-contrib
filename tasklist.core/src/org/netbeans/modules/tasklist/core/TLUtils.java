@@ -138,7 +138,7 @@ public final class TLUtils {
      */
     public static void appendSurroundingLine(StringBuffer sb, Line line, 
                                              int offset) {
-        DataObject dobj = line.getDataObject();
+        DataObject dobj = org.openide.text.DataEditorSupport.findDataObject (line);
         try {
             LineCookie lc = (LineCookie)dobj.getCookie(LineCookie.class);
             if (lc == null) {
@@ -286,7 +286,7 @@ public final class TLUtils {
     }
 
     public static Document getDocument(Line line) {
-        DataObject dao = line.getDataObject();
+        DataObject dao = org.openide.text.DataEditorSupport.findDataObject (line);
         if (!dao.isValid()) {
             //ErrorManager.getDefault().log(ErrorManager.USER, "dataobject was not null");
             return null;
