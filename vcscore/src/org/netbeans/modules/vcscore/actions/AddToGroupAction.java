@@ -45,6 +45,8 @@ public class AddToGroupAction extends NodeAction {
     private DataObject newDataObject = null;
     private boolean adding;
 
+    private static final long serialVersionUID = -8318483915357096138L;
+    
     protected void performAction (Node[] nodes) {
         // do work based on the current node selection, e.g.:
         if (nodes == null || nodes.length == 0) return;

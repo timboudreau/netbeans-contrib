@@ -47,6 +47,8 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
 
     private static final JMenuItem[] NONE = new JMenuItem[] {};
 
+    private static final long serialVersionUID = -787778250446630604L;
+    
     /** Creates new RevisionAction 
      * Gets revision actions from filesystem and acts on a file object.
      * Both the filesystem and file object are obtained from the revision node.

@@ -22,6 +22,7 @@ import org.openide.util.HelpCtx;
  */
 public class DiffCommandAction extends GeneralCommandAction {
 
+    private static final long serialVersionUID = 2426678150445617555L;    
     
     /** Creates new DiffCommandAction */
     public DiffCommandAction() {

@@ -41,6 +41,8 @@ import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
  */
 public class VersioningExplorerAction extends NodeAction {
 
+    private static final long serialVersionUID = -4949229720968764504L;
+    
     /** Creates new VersioningExplorerAction */
     public VersioningExplorerAction() {
     }
