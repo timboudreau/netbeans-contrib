@@ -16,6 +16,7 @@ corba/src/org/netbeans/modules/corba/resources/AdapterActivator.html
 corba/src/org/netbeans/modules/corba/resources/CallBackClientMain.html
 corba/src/org/netbeans/modules/corba/resources/ClientMain.html
 corba/src/org/netbeans/modules/corba/resources/CORBA.html
+corba/src/org/netbeans/modules/corba/resources/POA.html
 corba/src/org/netbeans/modules/corba/resources/ServantActivator.html
 corba/src/org/netbeans/modules/corba/resources/ServantLocator.html
 corba/src/org/netbeans/modules/corba/resources/ServerMain.html

@@ -49,6 +49,7 @@ Microsystems, Inc. All Rights Reserved.
       <folder name="POA">
         <attr name="AdapterActivator.java/ServantActivator.java" boolvalue="true"/>
 	<attr name="ServantActivator.java/ServantLocator.java" boolvalue="true"/>
+        <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/POA.html"/>
 	<file name="AdapterActivator.java" url="templates/AdapterActivator.jtemplate">
 	  <attr name="template" boolvalue="true"/>
 	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/AdapterActivator.html"/>
