@@ -21,7 +21,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbroot}/nbbuild/nbantext.jar"/>
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/>
+  <!-- <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/> -->
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext}/nbantext.jar"/>
 
@@ -68,6 +68,7 @@ Microsystems, Inc. All Rights Reserved.
        <include name="vcs/commands/*.class"/>
        <include name="vcs/commands/*.java"/>
        <include name="vcs/commands/*.form"/>
+       <include name="vcs/commands/*.properties"/>
     </makelayer>
     <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config.xml">
        <include name="vcs/config/*.*"/>
