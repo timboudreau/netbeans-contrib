@@ -14,6 +14,7 @@
 package com.netbeans.enterprise.modules.corba.idl.editor.coloring;
 
 import com.netbeans.editor.Syntax;
+import com.netbeans.editor.TokenID;
 
 /**
 * Syntax analyzes for IDL source files.
@@ -25,26 +26,58 @@ import com.netbeans.editor.Syntax;
 
 public class IDLSyntax extends Syntax {
 
-  // Token names
-  public static final String TN_DIRECTIVE = "directive";
-
   // Token IDs
-  public static final int TEXT = 0; // plain text
-  public static final int ERROR = 1; // errorneous text
-  public static final int KEYWORD = 2; // keyword
-  public static final int IDENTIFIER = 3; // identifier
-  public static final int METHOD = 4; // method call i.e. name()
-  public static final int OPERATOR = 5; // operators like '+', '*=' etc.
-  public static final int LINE_COMMENT = 6; // comment till end of line
-  public static final int BLOCK_COMMENT = 7; // block comment
-  public static final int CHAR = 8; // char constant e.g. 'c'
-  public static final int STRING = 9; // string constant e.g. "string"
-  public static final int INT = 10; // integer constant e.g. 1234
-  public static final int HEX = 11; // hex constant e.g. 0x5a
-  public static final int OCTAL = 12; // octal constant e.g. 0123
-  public static final int LONG = 13; // long constant e.g. 12L
-  public static final int FLOAT = 14; // float constant e.g. 1.5e+43
-  public static final int DIRECTIVE = 15;  // CPP derective e.g. #include <...>
+  public static final int TEXT_ID = 1; // plain text
+  public static final int ERROR_ID = 2; // errorneous text
+  public static final int KEYWORD_ID = 3; // keyword
+  public static final int IDENTIFIER_ID = 4; // identifier
+  public static final int METHOD_ID = 5; // method call i.e. name()
+  public static final int OPERATOR_ID = 6; // operators like '+', '*=' etc.
+  public static final int LINE_COMMENT_ID = 7; // comment till end of line
+  public static final int BLOCK_COMMENT_ID = 8; // block comment
+  public static final int CHAR_ID = 9; // char constant e.g. 'c'
+  public static final int STRING_ID = 10; // string constant e.g. "string"
+  public static final int INT_ID = 11; // integer constant e.g. 1234
+  public static final int HEX_ID = 12; // hex constant e.g. 0x5a
+  public static final int OCTAL_ID = 13; // octal constant e.g. 0123
+  public static final int LONG_ID = 14; // long constant e.g. 12L
+  public static final int FLOAT_ID = 15; // float constant e.g. 1.5e+43
+  public static final int DIRECTIVE_ID = 16;  // CPP derective e.g. #include <...>
+
+  // TokenIDs
+  /** Plain text */
+  public static final IDLTokenID TEXT = new IDLTokenID("idl-text", TEXT_ID);
+  /** Errorneous text */
+  public static final IDLTokenID ERROR = new IDLTokenID("idl-error", ERROR_ID);
+  /** IDL keyword */
+  public static final IDLTokenID KEYWORD = new IDLTokenID("idl-keyword", KEYWORD_ID);
+  /** IDL identifier */
+  public static final IDLTokenID IDENTIFIER = new IDLTokenID("idl-identifier", IDENTIFIER_ID);
+  /** IDL method call i.e. name() */
+  public static final IDLTokenID METHOD = new IDLTokenID("idl-method", METHOD_ID);
+  /** IDL operators like '+', '*=' etc. */
+  public static final IDLTokenID OPERATOR = new IDLTokenID("idl-operator", OPERATOR_ID);
+  /** IDL comment till end of line */
+  public static final IDLTokenID LINE_COMMENT = new IDLTokenID("idl-line_comment", LINE_COMMENT_ID);
+  /** IDL block comment */
+  public static final IDLTokenID BLOCK_COMMENT = new IDLTokenID("idl-block_comment", BLOCK_COMMENT_ID);
+  /** IDL char constant e.g. 'c' */
+  public static final IDLTokenID CHAR = new IDLTokenID("idl-char", CHAR_ID);
+  /** IDL string constant e.g. "string" */
+  public static final IDLTokenID STRING = new IDLTokenID("idl-string", STRING_ID);
+  /** IDL integer constant e.g. 1234 */
+  public static final IDLTokenID INT = new IDLTokenID("idl-int", INT_ID);
+  /** IDL hex constant e.g. 0x5a */
+  public static final IDLTokenID HEX = new IDLTokenID("idl-hex", HEX_ID);
+  /** IDL octal constant e.g. 0123 */
+  public static final IDLTokenID OCTAL = new IDLTokenID("idl-octal", OCTAL_ID);
+  /** IDL long constant e.g. 12L */
+  public static final IDLTokenID LONG = new IDLTokenID("idl-long", LONG_ID);
+  /** IDL float constant e.g. 1.5e+43 */
+  public static final IDLTokenID FLOAT = new IDLTokenID("idl-float", FLOAT_ID);
+  /** IDL CPP derective e.g. #include <...> */
+  public static final IDLTokenID DIRECTIVE = new IDLTokenID("idl-directive", DIRECTIVE_ID); 
+
 
   // Internal states
   private static final int ISI_ERROR = 1; // after carriage return
@@ -102,13 +135,10 @@ public class IDLSyntax extends Syntax {
   }
 
   protected boolean matchKeywords () {
-    if (IDLKeywords.match (buffer, tokenOffset, offset - tokenOffset) > 0)
-      return true;
-    else
-      return false;
+    return (IDLKeyword.get(buffer, tokenOffset, offset - tokenOffset) != null);
   }
 
-  protected int parseToken() {
+  protected TokenID parseToken() {
     char actChar;
 
     while(offset < stopOffset) {
@@ -814,344 +844,6 @@ public class IDLSyntax extends Syntax {
 
   }
 
-
-  /** match IDL keywords */
-  /*
-    private boolean matchKeywords() {
-    if (offset - tokenOffset > 9)
-    return false;
-    if (offset - tokenOffset <= 0)
-    return false;
-    switch (buffer[tokenOffset + 0]) {
-    case 'F':
-    return offset - tokenOffset == 5
-    && buffer[tokenOffset + 1] == 'A'
-    && buffer[tokenOffset + 2] == 'L'
-    && buffer[tokenOffset + 3] == 'S'
-    && buffer[tokenOffset + 4] == 'E';
-    case 'O':
-    return offset - tokenOffset == 6
-    && buffer[tokenOffset + 1] == 'b'
-    && buffer[tokenOffset + 2] == 'j'
-    && buffer[tokenOffset + 3] == 'e'
-    && buffer[tokenOffset + 4] == 'c'
-    && buffer[tokenOffset + 5] == 't';
-    case 'T':
-    return offset - tokenOffset == 4
-    && buffer[tokenOffset + 1] == 'R'
-    && buffer[tokenOffset + 2] == 'U'
-    && buffer[tokenOffset + 3] == 'E';
-    case 'a':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'n':
-    return offset - tokenOffset == 3
-    && buffer[tokenOffset + 2] == 'y';
-    case 't':
-    return offset - tokenOffset == 9
-    && buffer[tokenOffset + 2] == 't'
-    && buffer[tokenOffset + 3] == 'r'
-    && buffer[tokenOffset + 4] == 'i'
-    && buffer[tokenOffset + 5] == 'b'
-    && buffer[tokenOffset + 6] == 'u'
-    && buffer[tokenOffset + 7] == 't'
-    && buffer[tokenOffset + 8] == 'e';
-    default:
-    return false;
-    }
-    case 'b':
-    return offset - tokenOffset == 7
-    && buffer[tokenOffset + 1] == 'o'
-    && buffer[tokenOffset + 2] == 'o'
-    && buffer[tokenOffset + 3] == 'l'
-    && buffer[tokenOffset + 4] == 'e'
-    && buffer[tokenOffset + 5] == 'a'
-    && buffer[tokenOffset + 6] == 'n';
-    case 'c':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'a':
-    return offset - tokenOffset == 4
-    && buffer[tokenOffset + 2] == 's'
-    && buffer[tokenOffset + 3] == 'e';
-    case 'h':
-    return offset - tokenOffset == 4
-    && buffer[tokenOffset + 2] == 'a'
-    && buffer[tokenOffset + 3] == 'r';
-    case 'o':
-    if (offset - tokenOffset <= 2)
-    return false;
-    switch (buffer[tokenOffset + 2]) {
-    case 'n':
-    if (offset - tokenOffset <= 3)
-    return false;
-    switch (buffer[tokenOffset + 3]) {
-    case 's':
-    return offset - tokenOffset == 5
-    && buffer[tokenOffset + 4] == 't';
-    case 't':
-    return offset - tokenOffset == 7
-    && buffer[tokenOffset + 4] == 'e'
-    && buffer[tokenOffset + 5] == 'x'
-    && buffer[tokenOffset + 6] == 't';
-    default:
-    return false;
-    }
-    default:
-    return false;
-    }
-    default:
-    return false;
-    }
-    case 'd':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'e':
-    return offset - tokenOffset == 7
-    && buffer[tokenOffset + 2] == 'f'
-    && buffer[tokenOffset + 3] == 'a'
-    && buffer[tokenOffset + 4] == 'u'
-    && buffer[tokenOffset + 5] == 'l'
-    && buffer[tokenOffset + 6] == 't';
-    case 'o':
-    return offset - tokenOffset == 6
-    && buffer[tokenOffset + 2] == 'u'
-    && buffer[tokenOffset + 3] == 'b'
-    && buffer[tokenOffset + 4] == 'l'
-    && buffer[tokenOffset + 5] == 'e';
-    default:
-    return false;
-    }
-    case 'e':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'n':
-    return offset - tokenOffset == 4
-    && buffer[tokenOffset + 2] == 'u'
-    && buffer[tokenOffset + 3] == 'm';
-    case 'x':
-    return offset - tokenOffset == 9
-    && buffer[tokenOffset + 2] == 'c'
-    && buffer[tokenOffset + 3] == 'e'
-    && buffer[tokenOffset + 4] == 'p'
-    && buffer[tokenOffset + 5] == 't'
-    && buffer[tokenOffset + 6] == 'i'
-    && buffer[tokenOffset + 7] == 'o'
-    && buffer[tokenOffset + 8] == 'n';
-    default:
-    return false;
-    }
-    case 'f':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'i':
-    return offset - tokenOffset == 5
-    && buffer[tokenOffset + 2] == 'x'
-    && buffer[tokenOffset + 3] == 'e'
-    && buffer[tokenOffset + 4] == 'd';
-    case 'l':
-    return offset - tokenOffset == 5
-    && buffer[tokenOffset + 2] == 'o'
-    && buffer[tokenOffset + 3] == 'a'
-    && buffer[tokenOffset + 4] == 't';
-    default:
-    return false;
-    }
-    case 'i':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'n':
-    if (offset - tokenOffset == 2)
-    return true;
-    switch (buffer[tokenOffset + 2]) {
-    case 'o':
-    return offset - tokenOffset == 5
-    && buffer[tokenOffset + 3] == 'u'
-    && buffer[tokenOffset + 4] == 't';
-    case 't':
-    return offset - tokenOffset == 9
-    && buffer[tokenOffset + 3] == 'e'
-    && buffer[tokenOffset + 4] == 'r'
-    && buffer[tokenOffset + 5] == 'f'
-    && buffer[tokenOffset + 6] == 'a'
-    && buffer[tokenOffset + 7] == 'c'
-    && buffer[tokenOffset + 8] == 'e';
-    default:
-    return false;
-    }
-    default:
-    return false;
-    }
-    case 'l':
-    return offset - tokenOffset == 4
-    && buffer[tokenOffset + 1] == 'o'
-    && buffer[tokenOffset + 2] == 'n'
-    && buffer[tokenOffset + 3] == 'g';
-    case 'm':
-    return offset - tokenOffset == 6
-    && buffer[tokenOffset + 1] == 'o'
-    && buffer[tokenOffset + 2] == 'd'
-    && buffer[tokenOffset + 3] == 'u'
-    && buffer[tokenOffset + 4] == 'l'
-    && buffer[tokenOffset + 5] == 'e';
-    case 'o':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'c':
-    return offset - tokenOffset == 5
-    && buffer[tokenOffset + 2] == 't'
-    && buffer[tokenOffset + 3] == 'e'
-    && buffer[tokenOffset + 4] == 't';
-    case 'n':
-    return offset - tokenOffset == 6
-    && buffer[tokenOffset + 2] == 'e'
-    && buffer[tokenOffset + 3] == 'w'
-    && buffer[tokenOffset + 4] == 'a'
-    && buffer[tokenOffset + 5] == 'y';
-    case 'u':
-    return offset - tokenOffset == 3
-    && buffer[tokenOffset + 2] == 't';
-    default:
-    return false;
-    }
-    case 'r':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'a':
-    return offset - tokenOffset == 6
-    && buffer[tokenOffset + 2] == 'i'
-    && buffer[tokenOffset + 3] == 's'
-    && buffer[tokenOffset + 4] == 'e'
-    && buffer[tokenOffset + 5] == 's';
-    case 'e':
-    return offset - tokenOffset == 8
-    && buffer[tokenOffset + 2] == 'a'
-    && buffer[tokenOffset + 3] == 'd'
-    && buffer[tokenOffset + 4] == 'o'
-    && buffer[tokenOffset + 5] == 'n'
-    && buffer[tokenOffset + 6] == 'l'
-    && buffer[tokenOffset + 7] == 'y';
-    default:
-    return false;
-    }
-    case 's':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'e':
-    return offset - tokenOffset == 8
-    && buffer[tokenOffset + 2] == 'q'
-    && buffer[tokenOffset + 3] == 'u'
-    && buffer[tokenOffset + 4] == 'e'
-    && buffer[tokenOffset + 5] == 'n'
-    && buffer[tokenOffset + 6] == 'c'
-    && buffer[tokenOffset + 7] == 'e';
-    case 'h':
-    return offset - tokenOffset == 5
-    && buffer[tokenOffset + 2] == 'o'
-    && buffer[tokenOffset + 3] == 'r'
-    && buffer[tokenOffset + 4] == 't';
-    case 't':
-    if (offset - tokenOffset <= 2)
-    return false;
-    switch (buffer[tokenOffset + 2]) {
-    case 'r':
-    if (offset - tokenOffset <= 3)
-    return false;
-    switch (buffer[tokenOffset + 3]) {
-    case 'i':
-    return offset - tokenOffset == 6
-    && buffer[tokenOffset + 4] == 'n'
-    && buffer[tokenOffset + 5] == 'g';
-    case 'u':
-    return offset - tokenOffset == 6
-    && buffer[tokenOffset + 4] == 'c'
-    && buffer[tokenOffset + 5] == 't';
-    default:
-    return false;
-    }
-    default:
-    return false;
-    }
-    case 'w':
-    return offset - tokenOffset == 6
-    && buffer[tokenOffset + 2] == 'i'
-    && buffer[tokenOffset + 3] == 't'
-    && buffer[tokenOffset + 4] == 'c'
-    && buffer[tokenOffset + 5] == 'h';
-    default:
-    return false;
-    }
-    case 't':
-    return offset - tokenOffset == 7
-    && buffer[tokenOffset + 1] == 'y'
-    && buffer[tokenOffset + 2] == 'p'
-    && buffer[tokenOffset + 3] == 'e'
-    && buffer[tokenOffset + 4] == 'd'
-    && buffer[tokenOffset + 5] == 'e'
-    && buffer[tokenOffset + 6] == 'f';
-    case 'u':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'n':
-    if (offset - tokenOffset <= 2)
-    return false;
-    switch (buffer[tokenOffset + 2]) {
-    case 'i':
-    return offset - tokenOffset == 5
-    && buffer[tokenOffset + 3] == 'o'
-    && buffer[tokenOffset + 4] == 'n';
-    case 's':
-    return offset - tokenOffset == 8
-    && buffer[tokenOffset + 3] == 'i'
-    && buffer[tokenOffset + 4] == 'g'
-    && buffer[tokenOffset + 5] == 'n'
-    && buffer[tokenOffset + 6] == 'e'
-    && buffer[tokenOffset + 7] == 'd';
-    default:
-    return false;
-    }
-    default:
-    return false;
-    }
-    case 'v':
-    return offset - tokenOffset == 4
-    && buffer[tokenOffset + 1] == 'o'
-    && buffer[tokenOffset + 2] == 'i'
-    && buffer[tokenOffset + 3] == 'd';
-    case 'w':
-    if (offset - tokenOffset <= 1)
-    return false;
-    switch (buffer[tokenOffset + 1]) {
-    case 'c':
-    return offset - tokenOffset == 5
-    && buffer[tokenOffset + 2] == 'h'
-    && buffer[tokenOffset + 3] == 'a'
-    && buffer[tokenOffset + 4] == 'r';
-    case 's':
-    return offset - tokenOffset == 7
-    && buffer[tokenOffset + 2] == 't'
-    && buffer[tokenOffset + 3] == 'r'
-    && buffer[tokenOffset + 4] == 'i'
-    && buffer[tokenOffset + 5] == 'n'
-    && buffer[tokenOffset + 6] == 'g';
-    default:
-    return false;
-    }
-    default:
-    return false;
-    }
-    }
-  */
   private boolean matchDirective () {
     if (offset - tokenOffset > 8)
       return false;
@@ -1220,11 +912,13 @@ public class IDLSyntax extends Syntax {
     }
   }
 
-  public void relocate(char buffer[], int offset, int len, boolean lastBuffer) {
+  public void relocate(char buffer[], int offset, int len,
+  boolean lastBuffer, int stopPosition) {
     if (hlpInd >= 0) { // relocate hlpInd before calling super.relocScan()
       hlpInd += (offset - this.offset);
     }
-    super.relocate(buffer, offset, len, lastBuffer);
+
+    super.relocate(buffer, offset, len, lastBuffer, stopPosition);
   }
 
   /** Create scan state appropriate for particular scanner */
@@ -1329,45 +1023,6 @@ public class IDLSyntax extends Syntax {
     }
   }
 
-  public String getTokenName(int tokenID) {
-    switch (tokenID) {
-    case TEXT:
-      return TN_TEXT;
-    case ERROR:
-      return TN_ERROR;
-    case KEYWORD:
-      return TN_KEYWORD;
-    case IDENTIFIER:
-      return TN_IDENTIFIER;
-    case METHOD:
-      return TN_FUNCTION;
-    case OPERATOR:
-      return TN_OPERATOR;
-    case LINE_COMMENT:
-      return TN_LINE_COMMENT;
-    case BLOCK_COMMENT:
-      return TN_BLOCK_COMMENT;
-    case CHAR:
-      return TN_CHAR;
-    case STRING:
-      return TN_STRING;
-    case INT:
-      return TN_INT;
-    case HEX:
-      return TN_HEX;
-    case OCTAL:
-      return TN_OCTAL;
-    case LONG:
-      return TN_LONG;
-    case FLOAT:
-      return TN_FLOAT;
-    case DIRECTIVE:
-      return TN_DIRECTIVE;
-    default:
-      return super.getTokenName(tokenID);
-    }
-  }
-
   public String toString() {
     String s = super.toString();
     s += ", hlpInd=" + hlpInd;
@@ -1385,6 +1040,7 @@ public class IDLSyntax extends Syntax {
 
 /*
  * <<Log>>
+ *  4    Jaga      1.2.1.0     3/15/00  Miloslav Metelka Structural change
  *  3    Gandalf   1.2         2/8/00   Karel Gardas    
  *  2    Gandalf   1.1         12/28/99 Miloslav Metelka Structural change and 
  *       some renamings
