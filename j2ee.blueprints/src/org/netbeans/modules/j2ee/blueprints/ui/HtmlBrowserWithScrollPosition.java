@@ -72,19 +72,13 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
             if (protocol != null && (protocol.equals("http") || protocol.equals("https"))) {
                 displayer.showURL(u);
             } else {
-                try {
-                    u.openStream();
-                } catch (IOException ioe) {
-                    statusBar.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("doc_not_found"));
-                    return;
-                }
                 Cursor currentC = html.getCursor();
                 Cursor busyC = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
                 html.setCursor(busyC);
                 try {
                     html.setPage(u);
                 } catch (IOException e) {
-                    //ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    statusBar.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("doc_not_found"));
                 } finally {
                     html.setCursor(currentC);
                 }
