@@ -35,8 +35,9 @@ import org.netbeans.modules.vcscore.VcsConfigVariable;
  */
 public class BasicVariableNode extends AbstractNode {
     
-    private static final String DISABLED_PRE = "<html><font color=\"#999999\">"; // NOI18N
-    private static final String DISABLED_POST = "</font></html>"; // NOI18N
+    // The nodes can not contain HTML any more!!!
+    //private static final String DISABLED_PRE = "<html><font color=\"#999999\">"; // NOI18N
+    //private static final String DISABLED_POST = "</font></html>"; // NOI18N
     
     private VcsConfigVariable var = null;
     //private Children.SortedArray list = null;
@@ -116,10 +117,12 @@ public class BasicVariableNode extends AbstractNode {
         }
     }
     
+    /* The Nodes can not contain HTML any more!!!
     public String getDisplayName() {
         if (enabled) return super.getDisplayName();
         else return DISABLED_PRE + super.getDisplayName() + DISABLED_POST;
     }
+     */
     
     public void setEnabled(boolean enabled) {
         if (this.enabled == enabled) return ;
