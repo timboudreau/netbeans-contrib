@@ -321,11 +321,14 @@ public class VcsUtilities {
      * Get a quoted string, while taking paired characters into account.
      */
     private static String getQuotedStringWithPairedCharacters(String str, int[] index, char p1, char p2) {
+        while(index[0] < str.length() && Character.isWhitespace(str.charAt(index[0]))) index[0]++;
         int begin = index[0];
         String element = VcsUtilities.getQuotedString(str, index);
         if (element == null) {
             return null;
         }
+        boolean quote = str.charAt(begin) == '"';
+        if (quote) begin++;
         int charIndex = str.indexOf(p1, begin);
         while (charIndex >= 0 && charIndex < index[0]) {
             int pairedIndx = VcsUtilities.getPairIndex(str, charIndex + 1, p1, p2);
@@ -340,7 +343,10 @@ public class VcsUtilities {
                     element += str.charAt(index[0]);
                     index[0]++;
                 }
-                element = element + VcsUtilities.getQuotedString(str, index);
+                int lastIndex = index[0];
+                element = VcsUtilities.getQuotedString(str, index);
+                element = str.substring(begin, lastIndex) + element;
+                if (quote && element.endsWith("\"")) element = element.substring(0, element.length() - 1);
             }
             if (pairedIndx > 0) {
                 charIndex = str.indexOf(p1, pairedIndx);
