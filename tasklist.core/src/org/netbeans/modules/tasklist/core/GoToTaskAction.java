@@ -17,6 +17,8 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 
+import java.awt.*;
+
 
 /** Go to the source code / associated file for a particular
  * task
@@ -33,7 +35,8 @@ public class GoToTaskAction extends NodeAction {
         if (tlv != null) {
             tlv.showTask(item, null);
         } else {
-            System.out.println("No current view!");
+            //XXX System.out.println("No current view!");
+            Toolkit.getDefaultToolkit().beep();
         }
     }
     
