@@ -32,9 +32,11 @@ public class VariableInputDialog extends javax.swing.JDialog {
     public static final String PROMPT_DIR = "_DIR";
     public static final String PROMPT_FILE = "_FILE";
     public static final String PROMPT_DATE_CVS = "_DATE_CVS";
+    public static final String PROMPT_DEFAULT_VALUE_SEPARATOR = "\"";
     
     private static final int TEXTFIELD_COLUMNS = 20;
-    private static final int TEXTAREA_ROWS = 5;
+    private static final int TEXTAREA_COLUMNS = 40;
+    private static final int TEXTAREA_ROWS = 6;
     private boolean validInput = false;
     private javax.swing.JLabel[] varPromptLabels = new javax.swing.JLabel[0];
     private javax.swing.JLabel[] filePromptLabels = new javax.swing.JLabel[0];
@@ -226,6 +228,8 @@ public class VariableInputDialog extends javax.swing.JDialog {
     private void closeDialog(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_closeDialog
         setVisible (false);
         fileSystem = null; // Free the reference to the file system
+        docIdentif = null;
+        docListener = null;
         dispose ();
     }//GEN-LAST:event_closeDialog
 
@@ -250,6 +254,18 @@ public class VariableInputDialog extends javax.swing.JDialog {
         this.vars = vars;
     }
     
+    /**
+     * Set the display name of the command, that needs the input.
+     * The title of this dialog contains that name.
+     * @param displayName the display name of the command
+     */
+    public void setCommandDisplayName(String displayName) {
+        setTitle(java.text.MessageFormat.format(
+            org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.titleWithName"),
+            new Object[] { displayName }
+            ));
+    }
+
     /**
      * Set the file name.
      */
@@ -315,6 +331,14 @@ public class VariableInputDialog extends javax.swing.JDialog {
             variablePanel.add(field, gridBagConstraints2);
             labels.addElement(label);
             fields.addElement(field);
+            if (varType.startsWith(PROMPT_DEFAULT_VALUE_SEPARATOR)) {
+                int index = varType.indexOf(PROMPT_DEFAULT_VALUE_SEPARATOR, 1);
+                if (index > 0) {
+                    String defaultValue = varType.substring(PROMPT_DEFAULT_VALUE_SEPARATOR.length(), index);
+                    field.setText(defaultValue);
+                    varType = varType.substring(index + PROMPT_DEFAULT_VALUE_SEPARATOR.length());
+                }
+            }
             VcsUtilities.removeEnterFromKeymap(field);
             if (PROMPT_DIR.equals(varType)) {
                 addBrowseDir(variablePanel, field, i + labelOffset);
@@ -370,7 +394,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
                 Thread selection = new Thread("VCS Variable Selector Command") {
                     public void run() {
                         String selected = getSelectorText(commandName, field.getText());
-                        System.out.println("selected = "+selected);
+                        //System.out.println("selected = "+selected);
                         if (selected != null) {
                             field.setText(selected);
                         }
@@ -441,7 +465,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
         for(Enumeration enum = filePrompts.keys(); enum.hasMoreElements(); i++) {
             String message = (String) enum.nextElement();
             javax.swing.JLabel label = new javax.swing.JLabel(message+":");
-            javax.swing.JTextArea area = new javax.swing.JTextArea(TEXTAREA_ROWS, TEXTFIELD_COLUMNS);
+            javax.swing.JTextArea area = new javax.swing.JTextArea(TEXTAREA_ROWS, TEXTAREA_COLUMNS);
             javax.swing.JScrollPane scrollArea = new javax.swing.JScrollPane(area);
             //javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
             java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
