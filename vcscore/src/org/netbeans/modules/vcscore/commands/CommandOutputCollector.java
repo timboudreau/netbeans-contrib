@@ -196,6 +196,7 @@ class CommandOutputCollector extends Object implements CommandListener {
         sendCommandOutputFromFile(outputId, listener);
         if (cmdOutput != null && cmdOutput[outputId] != null) {
             synchronized (cmdOutput[outputId]) {
+                if (cmdOutput == null || cmdOutput[outputId] == null) return ;
                 if (listener instanceof CommandOutputListener) {
                     CommandOutputListener l = (CommandOutputListener) listener;
                     for (Iterator it = cmdOutput[outputId].iterator(); it.hasNext(); ) {
