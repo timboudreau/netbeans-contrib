@@ -47,6 +47,7 @@ import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
 import org.netbeans.modules.vcscore.util.VariableInputComponent;
@@ -179,8 +180,9 @@ public class CommandCustomizationSupport extends Object {
     }
     
     /** Remove the files for which the command is disabled */
-    private static Table removeDisabled(FileStatusProvider statusProvider, Table files,
-                                        VcsCommand cmd, CommandExecutionContext execContext) {
+    private static Table removeDisabled(VcsFileSystem fileSystem,
+                                        Table files, VcsCommand cmd) {
+        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         if (statusProvider == null) return files;
         String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
         if (disabledStatus != null) {
@@ -197,18 +199,41 @@ public class CommandCustomizationSupport extends Object {
             files = remaining;
         }
         boolean disabledWhenNotLocked = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_DISABLED_WHEN_NOT_LOCKED);
-        if (disabledWhenNotLocked) {
+        String disabledWhenNotLockedConditionedStr = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_WHEN_NOT_LOCKED+"Conditioned");
+        if (disabledWhenNotLocked || disabledWhenNotLockedConditionedStr != null) {
             Table remaining = new Table();
-            Hashtable vars = execContext.getVariablesAsHashtable();
+            Hashtable vars = fileSystem.getVariablesAsHashtable();
             String currentLocker = (String) vars.get(VcsFileSystem.VAR_LOCKER_USER_NAME);
             if (currentLocker != null) {
                 currentLocker = Variables.expand(vars, currentLocker, false);
             }
-            for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-                String name = (String) enum.nextElement();
-                String locker = statusProvider.getFileLocker(name);
-                if (VcsFileSystem.lockerMatch(locker, currentLocker)) {
-                    remaining.put(name, files.get(name));
+            if (disabledWhenNotLockedConditionedStr != null) {
+                for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
+                    String name = (String) enum.nextElement();
+                    Table varFiles = new Table();
+                    varFiles.put(name, files.get(name));
+                    Hashtable vvars = new Hashtable(vars);
+                    UserCommandSupport.setVariables(varFiles, vvars, fileSystem.getVarValueAdjustment(),
+                                                    fileSystem.getCacheProvider(),
+                                                    fileSystem.getRelativeMountPoint(), true);
+                    String disabledWhenNotLockedConditionedExp = Variables.expand(vvars, disabledWhenNotLockedConditionedStr, false);
+                    disabledWhenNotLocked = "true".equalsIgnoreCase(disabledWhenNotLockedConditionedExp);
+                    if (disabledWhenNotLocked) {
+                        String locker = statusProvider.getFileLocker(name);
+                        if (VcsFileSystem.lockerMatch(locker, currentLocker)) {
+                            remaining.put(name, files.get(name));
+                        }
+                    } else {
+                        remaining.put(name, files.get(name));
+                    }
+                }
+            } else {
+                for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
+                    String name = (String) enum.nextElement();
+                    String locker = statusProvider.getFileLocker(name);
+                    if (VcsFileSystem.lockerMatch(locker, currentLocker)) {
+                        remaining.put(name, files.get(name));
+                    }
                 }
             }
             files = remaining;
@@ -265,7 +290,7 @@ public class CommandCustomizationSupport extends Object {
         Table filesTable = new Table();
         addImportantFiles(fileObjects, filesTable, processAll, fileSystem, false);
         if (fileSystem != null) {
-            filesTable = removeDisabled(fileSystem.getStatusProvider(), filesTable, cmd, executionContext);
+            filesTable = removeDisabled(fileSystem, filesTable, cmd);
         }
         if (filesTable.size() == 0) return (fileSystem != null) ? null : new FileObject[0];
         FileObject[] applFiles = new FileObject[filesTable.size()];

@@ -530,7 +530,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         Table subFiles;
         if (files != null) {
             subFiles = setupRestrictedFileMap(files, vars, vcsCmd);
-            setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
+            setVariables(subFiles, vars, valueAdjustment, cacheProvider,
                          (fileSystem != null) ? fileSystem.getRelativeMountPoint() : "",
                          true);
         } else {
@@ -619,7 +619,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //System.out.println("createNextCustomizedCommand("+cmd+", "+files+")");
         Table subFiles = setupRestrictedFileMap(files, cmdCanRunOnMultipleFiles,
                                                 cmdCanRunOnMultipleFilesInFolder);
-        setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
+        setVariables(subFiles, vars, valueAdjustment, cacheProvider,
                      (fileSystem != null) ? fileSystem.getRelativeMountPoint() : "",
                      true);
         cmd.setAdditionalVariables(vars);
@@ -811,7 +811,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     Object singleFile = files.keys().nextElement();
                     Table subFiles = new Table();
                     subFiles.put(singleFile, files.get(singleFile));
-                    setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
+                    setVariables(subFiles, vars, valueAdjustment, cacheProvider,
                                  (fileSystem != null) ? fileSystem.getRelativeMountPoint() : "",
                                  true);
                     command.setAdditionalVariables(vars);
@@ -1145,11 +1145,11 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      *        change the file paths to be relative to this greatest common parent
      *        of all provided files.
      */
-    private static void setVariables(Table files, Hashtable vars, String quoting,
-                                     VariableValueAdjustment valueAdjustment,
-                                     FileCacheProvider cacheProvider,
-                                     String relativeMountPoint,
-                                     boolean useGreatestParentPaths) {
+    public static void setVariables(Table files, Hashtable vars,
+                                    VariableValueAdjustment valueAdjustment,
+                                    FileCacheProvider cacheProvider,
+                                    String relativeMountPoint,
+                                    boolean useGreatestParentPaths) {
         // At first, find the greatest parent
         String greatestParent;
         if (useGreatestParentPaths) {
@@ -1190,6 +1190,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             module = module.replace('/', separatorChar);
             module = valueAdjustment.adjustVarValue(module);
         }
+        String quoting = QUOTING;
         vars.put("MODULE", module);
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
@@ -1210,15 +1211,19 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 CacheDir cDir = cacheProvider.getDir(origFullName);
                 if (cDir != null) {
                     vars.put("CACHED_ATTR", cDir.getAttr());
+                    vars.put("CACHED_SIZE", Integer.toString(cDir.getSize()));
                 } else {
                     vars.remove("CACHED_ATTR");
+                    vars.remove("CACHED_SIZE");
                 }
             } else {
                 CacheFile cFile = cacheProvider.getFile(origFullName);
                 if (cFile != null) {
                     vars.put("CACHED_ATTR", cFile.getAttr());
+                    vars.put("CACHED_SIZE", Integer.toString(cFile.getSize()));
                 } else {
                     vars.remove("CACHED_ATTR");
+                    vars.remove("CACHED_SIZE");
                 }
             }
         }
