@@ -366,7 +366,7 @@ err.log("Couldn't find current nodes...");
         workspace.addPropertyChangeListener(this);
         */
 
-        doRescanInAWT(false);
+        prepareRescanInAWT(false);
     }
 
     /** Cache tracking suggestions in recently visited files */
@@ -377,28 +377,22 @@ err.log("Couldn't find current nodes...");
     private List docSuggestions = null;
 
     /**
-     * Queries passive providers for suggestions. Monitors
+     * Prepares current environment. Monitors
      * actual document modification state using DocumentListener
-     * and CaretListener. Actual topcomponent is guarded
+     * and CaretListener. Actual TopComponent is guarded
      * by attached ComponentListener.
-     * <p>
-     * Those who do not want currect file monitoring
-     * should call {@link #performRescanInRP} directly.
-     *
-     * @param delayed <ul><li>true run {@link #performRescanInRP} later in TimerThread
-     *                    <li>false run {@link #performRescanInRP} synchronously
      */
-    private void findCurrentFile(boolean delayed) {
+    private boolean prepareCurrent() {
         // Unregister previous listeners
-        if (current != null) {
-            current.removeComponentListener(getWindowSystemMonitor());
-            current = null;
+        if (currentTC != null) {
+            currentTC.removeComponentListener(getWindowSystemMonitor());
+            currentTC = null;
         }
-        if (document != null) {
-            document.removeDocumentListener(getEditorMonitor());
-            handleDocHidden(document, dataobject);
+        if (currentDocument != null) {
+            currentDocument.removeDocumentListener(getEditorMonitor());
+            handleDocHidden(currentDocument, currentDO);
         }
-        removeCaretListeners();
+        removeCurrentCaretListeners();
 
         // Find which component is showing in it
         // Add my own component listener to it
@@ -417,12 +411,16 @@ err.log("Couldn't find current nodes...");
             // for opened files list it's done ahandeTopComponentCloased
 
             LOGGER.fine("Cannot find active source editor!");   // during startup
-            return;
+            return false;
         }
 
 
         DataObject dao = extractDataObject(tc);
-        if (dao == null) return;
+        if (dao == null) {
+            // here we have tc found by findActiveEditor() that uses classification logic to detect real editors 
+            LOGGER.warning("Suspicious editor without dataobject: " + tc);   // NOI18N
+            return false;
+        }
 
         /*
         if (dao == lastDao) {
@@ -442,7 +440,7 @@ err.log("Couldn't find current nodes...");
         final EditorCookie edit = (EditorCookie) dao.getCookie(EditorCookie.class);
         if (edit == null) {
             //err.log("No editor cookie - not doing anything");
-            return;
+            return false;
         }
 
         final Document doc = edit.getDocument(); // Does not block
@@ -462,32 +460,34 @@ err.log("Couldn't find current nodes...");
         */
         if (doc == null) {
             LOGGER.fine("No document is loaded in editor!");  // can happen during startup
-            return;
+            return false;
         }
 
-        document = doc;
-        doc.addDocumentListener(getEditorMonitor());
+        currentDocument = doc;
+        currentDocument.addDocumentListener(getEditorMonitor());
 
         // Listen for changes on this component so we know when
         // it's replaced by something else XXX looks like PROP_ACTIVATED duplication
-        current = tc;
-        current.addComponentListener(getWindowSystemMonitor());
+        currentTC = tc;
+        currentTC.addComponentListener(getWindowSystemMonitor());
 
-        dataobject = dao;
-        notSaved = dao.isModified();
+        currentDO = dao;
+        currentModified = dao.isModified();
 
-        addCaretListeners();
+        addCurrentCaretListeners();
 
-        // XXX Use scheduleRescan instead? (but then I have to call docShown instead of rescan;
-        //haveShown = currRequest;
-        //scheduleRescan(null, false, showScanDelay);
+        return true;
 
+    }
+
+    /** If served by cache returns true. */
+    private boolean serveByCache() {
         if (cache != null) {
             // TODO check scanOnShow too! (when we have scanOnOpen
             // as default instead of scanOnShow as is the case now.
             // The semantics of the flag need to change before we
             // check it here; it's always true. Make it user selectable.)
-            docSuggestions = cache.lookup(document);
+            docSuggestions = cache.lookup(currentDocument);
             if (docSuggestions != null) {
                 manager.register(null, docSuggestions, null, getCurrentSuggestionsList(), true);
                 // TODO Consider putting the above on a runtimer - but
@@ -502,17 +502,10 @@ err.log("Couldn't find current nodes...");
 
                 // Remember that we're done "scanning"
                 finishedRequest = currRequest;
-                return;
+                return true;
             }
         }
-
-        if (ManagerSettings.getDefault().isScanOnShow()) {
-            if (delayed) {
-                performRescanInRP(current, dao, ManagerSettings.getDefault().getShowScanDelay());
-            } else {
-                performRescanInRP(current, dao, 0);
-            }
-        }
+        return false;
     }
 
     private static  DataObject extractDataObject(TopComponent topComponent) {
@@ -520,8 +513,6 @@ err.log("Couldn't find current nodes...");
         if (dobj != null && dobj.isValid()) {
             return dobj;
         } else {
-//            System.err.println("[TODO] cannot get DO for " + topComponent);
-//            Thread.dumpStack();
             return null;
         }
     }
@@ -595,25 +586,7 @@ err.log("Couldn't find current nodes...");
                 // reassure that Tc was not meanwhile closed. Both current file job
                 // and all opened files job monitors just files opened in editor pane
 
-                final boolean[] isOpened = new boolean[1];
-                try {
-                    SwingUtilities.invokeAndWait(new Runnable() {
-                        public void run() {
-                            isOpened[0] = tc.isOpened();   // must be called from AWT
-                        }
-                    });
-                } catch (InterruptedException e) {
-                    ErrorManager err = ErrorManager.getDefault();
-                    err.annotate(e, "[TODO] ignoring rescan of " + tc.getDisplayName());  // NOI18N
-                    err.notify(e);
-                } catch (InvocationTargetException e) {
-                    ErrorManager err = ErrorManager.getDefault();
-                    err.annotate(e, "[TODO] ignoring rescan of " + tc.getDisplayName());  // NOI18N
-                    err.notify(e);
-                }
-
-                if (isOpened[0] == false) {
-                    // System.err.println("[TODO] ignoring rescan request for " + tc.getDisplayName());
+                if (isTopComponentOpened(tc) == false) {
                     return;
                 }
 
@@ -622,6 +595,13 @@ err.log("Couldn't find current nodes...");
                 setScanning(true);
 
                 List scannedSuggestions = manager.dispatchScan(dataobject, compound);
+
+                // once again reassure that Tc was not meanwhile closed. Both current file job
+                // and all opened files job monitors just files opened in editor pane
+
+                if (isTopComponentOpened(tc) == false) {
+                    return;
+                }
 
                 // update "allOpened" suggestion list
 
@@ -656,6 +636,31 @@ err.log("Couldn't find current nodes...");
                 }
             }
         }, delay);
+    }
+
+    /**
+     * Tests if given topcomponent is opend, Thread safe alternatiove
+     * to TopComponent.isOpened().
+     */
+    private static boolean isTopComponentOpened(final TopComponent tc) {
+        if (tc == null) return false;
+        final boolean[] isOpened = new boolean[1];
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() {
+                    isOpened[0] = tc.isOpened();   // must be called from AWT
+                }
+            });
+        } catch (InterruptedException e) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.annotate(e, "[TODO] cannot get " + tc.getDisplayName() + " state, interrupted.");  // NOI18N
+            err.notify(e);
+        } catch (InvocationTargetException e) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.annotate(e, "[TODO] cannot get " + tc.getDisplayName() + " state.");  // NOI18N
+            err.notify(e);
+        }
+        return isOpened[0];
     }
 
     private RequestProcessor rp = new RequestProcessor("Suggestions Broker");  // NOI18N
@@ -716,26 +721,26 @@ err.log("Couldn't find current nodes...");
     }
 
     /** The top-component we're currently tracking (active one) */
-    private TopComponent current = null;
+    private TopComponent currentTC = null;
 
     /** The document we're currently tracking (active one) */
-    private Document document = null;
+    private Document currentDocument = null;
 
     /** The data-object we're currently tracking (active one) */
-    private DataObject dataobject = null;
+    private DataObject currentDO = null;
 
     /** The panes we're currently tracking (active one) */    //XXX first element should be enough
     private JEditorPane[] editorsWithCaretListener = null;
 
     /** The modification status sampled on tracing start and save operation */
-    private boolean notSaved = false;
+    private boolean currentModified = false;
 
     /** Add caret listener to dataobject's editor panes. */
-    private void addCaretListeners() {
+    private void addCurrentCaretListeners() {
 
         assert editorsWithCaretListener == null : "addCaretListeners() must not be called twice without removeCaretListeners() => memory leak";  // NOI18N
 
-        EditorCookie edit = (EditorCookie) dataobject.getCookie(EditorCookie.class);
+        EditorCookie edit = (EditorCookie) currentDO.getCookie(EditorCookie.class);
         if (edit != null) {
             JEditorPane panes[] = edit.getOpenedPanes();
             if ((panes != null) && (panes.length > 0)) {
@@ -748,8 +753,8 @@ err.log("Couldn't find current nodes...");
         }
     }
 
-    /** Unregister prebiously added caret listeners. */
-    private void removeCaretListeners() {
+    /** Unregister previously added caret listeners. */
+    private void removeCurrentCaretListeners() {
         if (editorsWithCaretListener != null) {
             for (int i = 0; i < editorsWithCaretListener.length; i++) {
                 editorsWithCaretListener[i].removeCaretListener(getEditorMonitor());
@@ -792,8 +797,8 @@ err.log("Couldn't find current nodes...");
         }
 
         // trap, randomly triggered by multiview
-        assert dataobject.equals(extractDataObject(current)) : "DO=" + dataobject + "  TC=" + current;
-        scheduledRescan = performRescanInRP(current, dataobject, scanDelay);
+        assert currentDO.equals(extractDataObject(currentTC)) : "DO=" + currentDO + "  TC=" + currentTC;
+        scheduledRescan = performRescanInRP(currentTC, currentDO, scanDelay);
     }
 
     /** An event ocurred during quiet fix period. */
@@ -829,29 +834,41 @@ err.log("Couldn't find current nodes...");
         // event loop; if a second notification comes in during the
         // same event processing iterationh it's simply discarded.
 
-        doRescanInAWT(true);
+        prepareRescanInAWT(true);
 
     }
 
     /**
      * It sends asynchronously to AWT thread (selected editor TC must be grabbed in AWT).
+     * Onc eprepared it send request to a background thread.
      * @param delay if true schedule later acording to user settings otherwise do immediatelly
      */
-    private void doRescanInAWT(final boolean delay) {
-        if (SwingUtilities.isEventDispatchThread()) {
-            findCurrentFile(delay);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    // docStop() might have happened
-                    // in the mean time - make sure we don't do a
-                    // findCurrentFile(true) when we're not supposed to
-                    // be processing views
-                    if (clientCount > 0) {
-                        findCurrentFile(delay);
+    private void prepareRescanInAWT(final boolean delay) {
+        Runnable performer = new Runnable() {
+            public void run() {
+                if (clientCount > 0) {
+                    prepareCurrent();
+                    if (serveByCache() == false) {
+                        if (ManagerSettings.getDefault().isScanOnShow()) {
+                            if (delay) {
+                                performRescanInRP(currentTC, currentDO, ManagerSettings.getDefault().getShowScanDelay());
+                            } else {
+                                performRescanInRP(currentTC, currentDO, 0);
+                            }
+                        }
                     }
                 }
-            });
+            }
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            performer.run();
+        } else {
+            // docStop() might have happen
+            // in the mean time - make sure we don't do a
+            // delay=true when we're not supposed to
+            // be processing views
+            SwingUtilities.invokeLater(performer);
         }
     }
 
@@ -872,19 +889,19 @@ err.log("Couldn't find current nodes...");
         env.removeDORegistryListener(getDataSystemMonitor());
 
         // Unregister previous listeners
-        if (current != null) {
-            current.removeComponentListener(getWindowSystemMonitor());
-            current = null;
+        if (currentTC != null) {
+            currentTC.removeComponentListener(getWindowSystemMonitor());
+            currentTC = null;
         }
-        if (document != null) {
-            document.removeDocumentListener(getEditorMonitor());
+        if (currentDocument != null) {
+            currentDocument.removeDocumentListener(getEditorMonitor());
             // NOTE: we do NOT null it out since we still need to
             // see if the document is unchanged
         }
-        removeCaretListeners();
+        removeCurrentCaretListeners();
 
-        handleDocHidden(document, dataobject);
-        document = null;
+        handleDocHidden(currentDocument, currentDO);
+        currentDocument = null;
     }
 
 
@@ -961,6 +978,7 @@ err.log("Couldn't find current nodes...");
         return windowSystemMonitor;
     }
 
+    // The code is unnecesary comples there is pending issue #48937
     private class WindowSystemMonitor implements PropertyChangeListener, ComponentListener {
 
         /** Previous Set&lt;TopComponent> */
@@ -1034,8 +1052,8 @@ err.log("Couldn't find current nodes...");
 //                }
             } else if (TopComponent.Registry.PROP_ACTIVATED.equals(prop)) {
                 LOGGER.fine("EVENT top-component activated");
-                if (clientCount >0 && current == null) {
-                    findCurrentFile(false);
+                if (clientCount >0 && currentTC == null) {
+                    prepareRescanInAWT(false);
                 }
             }
         }
@@ -1095,10 +1113,10 @@ err.log("Couldn't find current nodes...");
             LOGGER.fine("EVENT " + e.getSource() + " changed.");
 
             Set mods = DataObject.getRegistry().getModifiedSet();
-            boolean wasModified = notSaved;
-            notSaved = mods.contains(dataobject);
-            if (notSaved != wasModified) {
-                if (!notSaved) {
+            boolean wasModified = currentModified;
+            currentModified = mods.contains(currentDO);
+            if (currentModified != wasModified) {
+                if (!currentModified) {
                     if (ManagerSettings.getDefault().isScanOnSave()) {
                         scheduleRescan(false, ManagerSettings.getDefault().getSaveScanDelay());
                     }
@@ -1156,9 +1174,9 @@ err.log("Couldn't find current nodes...");
 
             // Check to see if I have any existing errors on this line - and if so,
             // highlight them.
-            if (document instanceof StyledDocument) {
+            if (currentDocument instanceof StyledDocument) {
                 int offset = caretEvent.getDot();
-                int lineno = NbDocument.findLineNumber((StyledDocument) document, offset);
+                int lineno = NbDocument.findLineNumber((StyledDocument) currentDocument, offset);
                 if (lineno == prevLineNo) {
                     // Just caret motion on the same line as the previous one -- ignore
                     return;
@@ -1172,7 +1190,7 @@ err.log("Couldn't find current nodes...");
                 // of subtracting there, we drop the add and subtract altogether
 
                 // Go to the given line
-                Line line = TLUtils.getLineByNumber(dataobject, lineno + 1);
+                Line line = TLUtils.getLineByNumber(currentDO, lineno + 1);
                 /*
                 try {
                     LineCookie lc = (LineCookie)dataobject.getCookie(LineCookie.class);
