@@ -15,8 +15,8 @@ package org.netbeans.modules.j2ee.blueprints.ui;
 
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Example;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
 import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
@@ -151,8 +151,8 @@ public class ExampleTab
             return false;
         }
         a.putValue(PRESELECT_CATEGORY, BUNDLE_PROPERTY_PREFIX + "/" // NOI18N
-            + bluePrintsPanel.getSelectedCategory().getId(0));
-        a.putValue(PRESELECT_TEMPLATE, bluePrintsPanel.getExamplePath());
+            + bluePrintsPanel.getSelectedCategory().getId());
+        a.putValue(PRESELECT_TEMPLATE, bluePrintsPanel.getExampleId());
         ActionEvent ae = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, 
             command);
         try {

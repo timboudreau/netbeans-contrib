@@ -47,10 +47,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLEditorKit;
 import org.netbeans.modules.j2ee.blueprints.catalog.SolutionsCatalog;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Demo;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Example;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Netbeans;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Bpcatalog;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Writeup;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
@@ -303,27 +303,20 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         return (Category)entry;
     }
     
-    public Example getSelectedArticle() {
+    public Solution getSelectedArticle() {
         Object entry = entryCbx.getSelectedItem();
-        return (entry instanceof Example) ? (Example)entry : null;
+        return (entry instanceof Solution) ? (Solution)entry : null;
     }
     
-    /**
-     * @return the path of the example, without the .zip ending
-     */
-    public String getExamplePath() {
+    public String getExampleId() {
         String result = null;
-        Example example = getSelectedArticle();
-        if(example != null) {
-            // Get the name of the zip from the <project-name> element
-            Netbeans[] netbeans = example.getNetbeans();
-            if(netbeans.length > 0) {
-                result = netbeans[0].getProjectPath();
-            }
+        Solution solution = getSelectedArticle();
+        if(solution != null) {
+            result = solution.getExampleId(0);
         }
         return result;
     }
-
+    
     private void initTabs() {
         TABS.put(TAB_CATEGORY, categoryPnl);
         TABS.put(TAB_SOLUTION, solutionPnl);
@@ -372,9 +365,9 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     }
     
     private BrowseHistoryToken createBrowseHistoryToken() {
-        String category = getSelectedCategory().getId(0);
-        Example example = getSelectedArticle();
-        String article = (example == null) ? null : example.getId(0);
+        String category = getSelectedCategory().getId();
+        Solution solution = getSelectedArticle();
+        String article = (solution == null) ? null : solution.getId();
         String tab = getSelectedTabName();
         int scrollPosition = getScrollPosition();
         return new BrowseHistoryToken(category, article, tab, scrollPosition);
@@ -433,7 +426,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
                 Object entry = entryCbx.getItemAt(i);
                 if(entry instanceof Category) {
                     Category c = (Category)entry;
-                    if(c.getId(0).equals(category)) {
+                    if(c.getId().equals(category)) {
                         foundCategory = true;
                         if(article == null) {
                             // Select just this category
@@ -450,8 +443,8 @@ public class BluePrintsPanel extends javax.swing.JPanel {
                 }
                 else {
                     if(foundCategory) {
-                        Example e = (Example)entryCbx.getItemAt(i);
-                        if(e.getId(0).equals(article)) {
+                        Solution s = (Solution)entryCbx.getItemAt(i);
+                        if(s.getId().equals(article)) {
                             // Select this article
                             entryCbx.setSelectedIndex(i);
                             break;
@@ -470,11 +463,11 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     
     private void updateTabs() {
         Category category = getSelectedCategory();
-        Example example = getSelectedArticle();
+        Solution solution = getSelectedArticle();
 
-        // Ensure the category panel is visible when no example is selected
-        // and the other panels are visible when an example is selected.
-        if(example == null) {
+        // Ensure the category panel is visible when no solution is selected
+        // and the other panels are visible when an solution is selected.
+        if(solution == null) {
             tabbedPnl.removeAll();
             tabbedPnl.addTab(bundle.getString(TAB_CATEGORY), 
                 (Component)TABS.get(TAB_CATEGORY)); 
@@ -509,9 +502,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     
     private void updateDesignTab() {
         Category category = getSelectedCategory();
-        Example example = getSelectedArticle();
-        if(example != null) {
-            if(example.getDesigndoc().length == 0) {
+        Solution solution = getSelectedArticle();
+        if(solution != null) {
+            Writeup writeup = solution.getWriteup();
+            if(writeup.getDesigndocPath() == null) {
                 tabbedPnl.remove(designPnl);
             }
         }
@@ -520,10 +514,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     
     public void updateExampleTab() {
         Category category = getSelectedCategory();
-        Example example = getSelectedArticle();
-        String examplePath = getExamplePath();
-        if(example != null) {
-            if(examplePath == null) {
+        Solution solution = getSelectedArticle();
+        if(solution != null) {
+            String[] exampleIds = solution.getExampleId();
+            if(exampleIds.length == 0) {
                 tabbedPnl.remove(examplePnl);
             }
         }
@@ -532,26 +526,33 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     
     /**
      * Backing model for the entry drop-down.
-     * Gets its data from demo.xml.
+     * Gets its data from bpcatalog.xml.
      */
     private class EntryComboBoxModel
         extends DefaultComboBoxModel
     {
-        private Demo demo;
+        private Bpcatalog bpcatalog;
         private ArrayList entries = new ArrayList();
         
         public EntryComboBoxModel() {
-            this.demo = solutionsCatalog.getDemoXml();
-            Category[] categories = demo.getCategory();
+            this.bpcatalog = solutionsCatalog.getBpcatalogXml();
+            Category[] categories = bpcatalog.getCategory();
             for(int categoryNum = 0; categoryNum < categories.length; 
                 categoryNum++) 
             {
-                entries.add(categories[categoryNum]);
-                Example[] examples = categories[categoryNum].getExample();
-                for(int exampleNum = 0; exampleNum < examples.length; 
-                    exampleNum++) 
+                Category category = categories[categoryNum];
+                // Add category
+                entries.add(category);
+                
+                // Add all solutions under this category
+                Solution[] solutions = bpcatalog.getSolution();
+                for(int solutionNum = 0; solutionNum < solutions.length; 
+                    solutionNum++) 
                 {
-                    entries.add(examples[exampleNum]);
+                    Solution solution = solutions[solutionNum];
+                    if(solution.getCategoryId().equals(category.getId())) {
+                        entries.add(solution);
+                    }
                 }
             }
         }
@@ -593,12 +594,12 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             if(value instanceof Category) {
                 Category category = (Category)value;
                 label.setIcon(categoryIcon);
-                label.setText(category.getName(0));
+                label.setText(category.getCategoryName().trim());
             }
-            else if(value instanceof Example) {
-                Example example = (Example)value;
+            else if(value instanceof Solution) {
+                Solution solution = (Solution)value;
                 label.setIcon(articleIcon);
-                label.setText(example.getName(0));
+                label.setText(solution.getFullName().trim());
                 // Tab the articles so they look like they're in the category
                 label.setBorder(new EmptyBorder(0, 19, 0, 0));
             }

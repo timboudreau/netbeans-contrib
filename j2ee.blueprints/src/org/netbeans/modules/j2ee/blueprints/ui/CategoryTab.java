@@ -14,8 +14,8 @@
 package org.netbeans.modules.j2ee.blueprints.ui;
 
 import javax.swing.text.html.HTMLEditorKit;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Example;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
 
 /**
  * Tab Panel containing information about a category of solutions in 
@@ -68,12 +68,12 @@ public class CategoryTab
     
     public void updateTab() {
         Category category = bluePrintsPanel.getSelectedCategory();
-        Example example = bluePrintsPanel.getSelectedArticle();
-        if(example == null) {
+        Solution solution = bluePrintsPanel.getSelectedArticle();
+        if(solution == null) {
             categoryText.setText(
-                "<h1><font face=\"Dialog\">" + category.getName(0) // NOI18N
+                "<h1><font face=\"Dialog\">" + category.getCategoryName()  // NOI18N
                 + "</font></h1>" + "<font face=\"Dialog\">"        // NOI18N
-                + category.getDescription(0) + "</font>"           // NOI18N
+                + category.getDescription() + "</font>"            // NOI18N
             );
         }
     }

@@ -14,8 +14,9 @@
 package org.netbeans.modules.j2ee.blueprints.ui;
 
 import java.net.URL;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Example;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Writeup;
 
 /**
  * Tab Panel containing a browser with the contents of the article.
@@ -62,10 +63,11 @@ public class SolutionTab
     
     public void updateTab() {
         Category category = bluePrintsPanel.getSelectedCategory();
-        Example example = bluePrintsPanel.getSelectedArticle();
-        if(example != null) {
+        Solution solution = bluePrintsPanel.getSelectedArticle();
+        if(solution != null) {
+            Writeup writeup = solution.getWriteup();
             String articleURLString = BluePrintsPanel.CATALOG_RESOURCES_URL 
-                + "/web/" + example.getDoc(0); // NOI18N
+                + "/web/" + writeup.getArticlePath(); // NOI18N
             URL articleURL = getClass().getResource(articleURLString);
             ((HtmlBrowserWithScrollPosition)solutionBrowser).setURL(
                 articleURL);

@@ -16,7 +16,7 @@ package org.netbeans.modules.j2ee.blueprints.catalog;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.parsers.ParserConfigurationException;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Demo;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Bpcatalog;
 import org.xml.sax.SAXException;
 
 /**
@@ -27,11 +27,11 @@ import org.xml.sax.SAXException;
 public class SolutionsCatalog {
     
     private static SolutionsCatalog theInstance = null;
-    private static final String DEMO_XML_PATH =
-        "/org/netbeans/modules/j2ee/blueprints/demo.xml"; // NOI18N
+    private static final String BPCATALOG_XML_PATH =
+        "/org/netbeans/modules/j2ee/blueprints/bpcatalog.xml"; // NOI18N
     
-    /** Parsed representation of demo.xml */
-    private Demo demoXml = null;
+    /** Parsed representation of bpcatalog.xml */
+    private Bpcatalog bpcatalogXml = null;
     
     /** Private Singleton constructor */
     private SolutionsCatalog() {}
@@ -49,20 +49,20 @@ public class SolutionsCatalog {
         }
     }
     
-    public Demo getDemoXml() {
-        if(demoXml == null) {
-            // Lazily parse demo.xml
-            parseDemoXml();
+    public Bpcatalog getBpcatalogXml() {
+        if(bpcatalogXml == null) {
+            // Lazily parse bpcatalog.xml
+            parseBpcatalogXml();
         }
-        return demoXml;
+        return bpcatalogXml;
     }
     
-    private synchronized void parseDemoXml() {
-        if(this.demoXml == null) {
-            this.demoXml = new Demo();
+    private synchronized void parseBpcatalogXml() {
+        if(this.bpcatalogXml == null) {
+            this.bpcatalogXml = new Bpcatalog();
             try {
-                InputStream in = getClass().getResourceAsStream(DEMO_XML_PATH);
-                this.demoXml = Demo.readNoEntityResolver(in);
+                InputStream in = getClass().getResourceAsStream(BPCATALOG_XML_PATH);
+                this.bpcatalogXml = Bpcatalog.read(in);
                 in.close();
             }
             catch(ParserConfigurationException e) {

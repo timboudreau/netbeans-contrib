@@ -14,8 +14,9 @@
 package org.netbeans.modules.j2ee.blueprints.ui;
 
 import java.net.URL;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Example;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Writeup;
 
 /**
  * Tab Panel containing a browser with the design view for this article.
@@ -63,11 +64,12 @@ public class DesignTab
     
     public void updateTab() {
         Category category = bluePrintsPanel.getSelectedCategory();
-        Example example = bluePrintsPanel.getSelectedArticle();
-        if(example != null) {
-            if(example.getDesigndoc().length != 0) {
+        Solution solution = bluePrintsPanel.getSelectedArticle();
+        if(solution != null) {
+            Writeup writeup = solution.getWriteup();
+            if(writeup.getDesigndocPath() != null) {
                 String designURLString = BluePrintsPanel.CATALOG_RESOURCES_URL
-                    + "/web/" + example.getDesigndoc(0); // NOI18N
+                    + "/web/" + writeup.getDesigndocPath(); // NOI18N
                 URL designURL = getClass().getResource(designURLString);
                 ((HtmlBrowserWithScrollPosition)designBrowser).setURL(
                     designURL);
