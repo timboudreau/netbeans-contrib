@@ -15,46 +15,46 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="corba" default="netbeans" basedir=".">
 
-  <property name="nbroot" location="../../nb_all"/>
-  <property name="f4jroot" location=".."/>
-  <property name="nbext" location="${nbroot}/nbbuild"/>
-  <property name="license.file" location="${f4jroot}/core/release/LICENSE.txt"/>
+  <property name="binroot" location="../../nbextra"/>
+  <property name="nbext" location="../nbbuild"/>
+  <property name="license.file" location="${nbext}/bcl-license.txt"/>
 
-  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbroot}/nbbuild/nbantext.jar"/>
+  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
 
   <target name="compile">
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <exclude name="org/netbeans/modules/corba/idl/editor/"/>
+      <exclude name="org/netbeans/modules/corba/idl/compiler/"/>
       <classpath>
-	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
-        <fileset dir="${nbroot}/openide/netbeans/lib">
+	<pathelement location="../openide/openide-13javac-workaround.jar"/>
+        <fileset dir="../openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-	<pathelement location="${nbroot}/java/netbeans/modules/java.jar"/>
+	<pathelement location="../java/netbeans/modules/java.jar"/>
 	<pathelement location="compiletime/idlj.jar"/>
 	<pathelement location="compiletime/corbanscs.jar"/>
 	<pathelement location="compiletime/sun-tools.jar"/>
 	<pathelement location="compiletime/ibm-tools.jar"/>
-	<pathelement location="release/lib/ext/openorb-1.0.2.jar"/>
+	<pathelement location="${binroot}/corba/release/lib/ext/openorb-1.0.2.jar"/>
 	<pathelement location="release/lib/ext/idlcompilers.jar"/>
         <!-- XXX illegal dependency on core: -->
-	<pathelement location="${nbroot}/core/netbeans/lib/core.jar"/>
+	<pathelement location="../core/netbeans/lib/core.jar"/>
         <!-- XXX illegal dependency on projects: -->
-	<pathelement location="${nbroot}/projects/netbeans/modules/projects.jar"/>
+	<pathelement location="../projects/netbeans/modules/projects.jar"/>
 	<pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
       </classpath>
     </javac>
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <include name="org/netbeans/modules/corba/idl/editor/"/>
       <classpath>
-	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
-        <fileset dir="${nbroot}/openide/netbeans/lib">
+	<pathelement location="../openide/openide-13javac-workaround.jar"/>
+        <fileset dir="../openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-	<pathelement location="${nbroot}/editor/netbeans/modules/editor.jar"/>
-	<pathelement location="${nbroot}/editor/netbeans/modules/ext/nb-editor.jar"/>
+	<pathelement location="../editor/netbeans/modules/editor.jar"/>
+	<pathelement location="../editor/netbeans/modules/ext/nb-editor.jar"/>
       </classpath>
     </javac>
   </target>
@@ -67,26 +67,21 @@ Microsystems, Inc. All Rights Reserved.
     <locjar jarfile="netbeans/modules/corba.jar"
          manifest="manifest-subst.mf"
          basedir="src"
-	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+	 excludesfile="${nbext}/standard-jar-excludes.txt"
 	 compress="false">
       <exclude name="org/netbeans/modules/corba/idl/editor/"/>
       <locale name="ja"/>
-      <branding name="f4j"/>
-      <branding name="f4j_ce"/>
-      <branding name="f4j_ie"/>
     </locjar>
     <copy file="manifest-syntax.mf" tofile="manifest-syntax-subst.mf" filtering="on"/>
     <locjar jarfile="netbeans/modules/idl-syntax.jar"
          manifest="manifest-syntax-subst.mf"
          basedir="src"
-	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+	 excludesfile="${nbext}/standard-jar-excludes.txt"
 	 compress="false">
       <include name="org/netbeans/modules/corba/idl/editor/"/>
       <locale name="ja"/>
-      <branding name="f4j"/>
-      <branding name="f4j_ce"/>
-      <branding name="f4j_ie"/>
     </locjar>
+<!--
     <jar jarfile="netbeans/lib/ext/idlcompilers.jar" compress="false">
       <fileset dir="src">
 	<include name="org/netbeans/modules/corba/idl/compiler/j2ee/Compiler.class"/>
@@ -97,11 +92,14 @@ Microsystems, Inc. All Rights Reserved.
 	<include name="org/netbeans/modules/corba/idl/compiler/openorb1x/Compiler.class"/>
       </fileset>
     </jar>
+-->    
   </target>
-
   <target name="release">
     <copy todir="netbeans">
       <fileset dir="release"/>
+    </copy>
+    <copy todir="netbeans">
+      <fileset dir="${binroot}/corba/release"/>
     </copy>
   </target>
 
@@ -118,7 +116,7 @@ Microsystems, Inc. All Rights Reserved.
       <exclude name="credits.html"/>
     </jhindexer>
     <mkdir dir="javahelp/org/netbeans/modules/corba/docs/ja/JavaHelpSearch"/>
-    <jhindexer basedir="javahelp/org/netbeans/modules/corba/docs/ja/"
+    <jhindexer basedir="javahelp/org/netbeans/modules/corba/docs/"
                db="javahelp/org/netbeans/modules/corba/docs/ja/JavaHelpSearch"
                locale="ja"
                jhall="${binroot}/nbbuild/lib/jhall.jar">
@@ -128,7 +126,7 @@ Microsystems, Inc. All Rights Reserved.
     </jhindexer>
     <mkdir dir="netbeans/modules/docs"/>
     <locjar jarfile="netbeans/modules/docs/corba.jar" compress="true">
-	<fileset dir="javahelp" excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"/>
+	<fileset dir="javahelp" excludesfile="${nbext}/standard-jar-excludes.txt"/>
 	<locale name="ja"/>
     </locjar>
   </target>
@@ -138,7 +136,7 @@ Microsystems, Inc. All Rights Reserved.
     <makenbm file="corba.nbm"
              topdir="."
 	     manifest="manifest-subst.mf"
-	     homepage="http://${homepage.base}/corba.html"
+	     homepage="http://corba.${homepage.base}/corba.html"
 	     distribution="http://${dist.base}/corba.nbm" >
       <license file="${license.file}" />
       <description>
@@ -161,6 +159,7 @@ Microsystems, Inc. All Rights Reserved.
     <delete file="corba.nbm"/>
     <delete dir="netbeans"/>    
     <delete dir="Info"/>
+    <delete dir="javahelp/org/netbeans/modules/corba/docs/ja/JavaHelpSearch"/>
     <delete dir="javahelp/org/netbeans/modules/corba/docs/JavaHelpSearch"/>
   </target>
 
