@@ -186,49 +186,15 @@ Microsystems, Inc. All Rights Reserved.
                     </xsl:choose>
                 </xsl:variable>
                 <xsl:variable name="script" select="projdeps:script"/>
-                <xsl:variable name="scriptdir" select="substring-before($script, '/')"/>
-                <xsl:variable name="scriptdirslash">
-                    <xsl:choose>
-                        <xsl:when test="$scriptdir = ''"/>
-                        <xsl:otherwise>
-                            <xsl:text>/</xsl:text>
-                            <xsl:value-of select="$scriptdir"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </xsl:variable>
-                <xsl:variable name="scriptfileorblank" select="substring-after($script, '/')"/>
-                <xsl:variable name="scriptfile">
-                    <xsl:choose>
-                        <xsl:when test="$scriptfileorblank != ''">
-                            <xsl:value-of select="$scriptfileorblank"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:value-of select="$script"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </xsl:variable>
-                <ant target="{$subtarget}" inheritall="false">
-                    <!-- XXX #43624: cannot use inline attr on JDK 1.5 -->
-                    <xsl:attribute name="dir">${project.<xsl:value-of select="$subproj"/>}<xsl:value-of select="$scriptdirslash"/></xsl:attribute>
-                    <xsl:if test="$scriptfile != 'build.xml'">
-                        <xsl:attribute name="antfile">
-                            <xsl:value-of select="$scriptfile"/>
-                        </xsl:attribute>
-                    </xsl:if>
-                </ant>
+                <ant target="{$subtarget}" inheritall="false" antfile="${{project.{$subproj}}}/{$script}"/>
                 <xsl:if test="$copyfiles='true'">
                     <!--XXX test for is.mac here & also copy to jnlp dir -->
                     <mkdir dir="dist/Macintosh/{$projname}.app/Contents/Resources"/>
-                    <copy todir="dist/Macintosh/{$projname}.app/Contents/Resources">
-                        <xsl:attribute name="file">${reference.<xsl:value-of select="$subproj"/>.jar}</xsl:attribute>
-                    </copy>
+                    <copy todir="dist/Macintosh/{$projname}.app/Contents/Resources" file="${{reference.{$subproj}.jar}}"/>
 
                     <!--XXX don't always do this, and get it to match the URL in the jnlp file -->
                     <mkdir dir="dist/WebStart/dist"/>
-                    <copy todir="dist/WebStart/dist">
-                        <xsl:attribute name="file">${reference.<xsl:value-of select="$subproj"/>.jar}</xsl:attribute>
-                    </copy>
-                    
+                    <copy todir="dist/WebStart/dist" file="${{reference.{$subproj}.jar}}"/>
                 </xsl:if>
             </xsl:for-each>
         </target>
