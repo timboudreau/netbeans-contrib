@@ -16,24 +16,13 @@ Microsystems, Inc. All Rights Reserved.
 <filesystem>
 
     <folder name="Editors"> 
-        <folder name="AnnotationTypes"> 
-            <file name="TaskAnnotation.xml" url="TaskAnnotation.xml"/>
-            <folder name="TaskActions">
+        <folder name="AnnotationTypes">
+            <!-- TaskAnnotationActions folder is defined in core, here is placed
+                 NetBeans editor implementation specifics action -->
+            <folder name="TaskAnnotationActions">
                 <file name="org-netbeans-modules-tasklist-editor-NewTaskEditorAction.instance"/>
             </folder>
-            <file name="TaskAnnotationNoHighlight.xml" url="TaskAnnotationNoHighlight.xml"/>
         </folder>
-    </folder>
-
-    <folder name="Services">
-
-	<folder name="TaskList">
-	    <!-- I should register the GoToSource action somewhere here... -->
-
-	    <file name="TaskEditorListener.settings" 
-		  url="TaskEditorListener.settings"/>
-
-	</folder>
     </folder>
 
 </filesystem>

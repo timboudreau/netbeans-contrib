@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC '-//NetBeans//DTD Filesystem 1.1//EN' 'http://www.netbeans.org/dtds/filesystem-1_1.dtd'>
+
+<filesystem>
+
+    <folder name="Suggestions">
+        <folder name="Types">
+            <file name="org-netbeans-modules-tasklist-copyright-copyright_suggestion.xml" url="copyright_suggestion.xml"/>
+        </folder>
+    </folder>
+
+    <folder name="Services">
+        <folder name="SuggestionProviders">
+            <file name="org-netbeans-modules-tasklist-copyright-CopyrightChecker.instance">
+                <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.SuggestionProvider"/>
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.copyright.CopyrightChecker"/>
+            </file>
+        </folder>
+
+        <file name="org-netbeans-modules-tasklist-copyright-CopyrightSettings.settings" url="CopyrightSettings.xml">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.copyright.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/copyright/settings.gif"/>
+            <!-- Project specific? attr name="SystemFileSystem.layer"
+            stringvalue="project"/ Leave the decision on user, by default global. -->
+        </file>
+    </folder>
+
+    <folder name="UI">
+        <folder name="Services">
+            <folder name="Editing">
+                <file name="org-netbeans-modules-tasklist-copyright-CopyrightSettings.shadow">
+                    <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-copyright-CopyrightSettings.settings"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+</filesystem>
+

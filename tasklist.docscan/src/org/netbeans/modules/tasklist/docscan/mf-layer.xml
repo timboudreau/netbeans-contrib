@@ -17,7 +17,6 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Suggestions">
       <folder name="Types">
-        <file name="org-netbeans-modules-tasklist-docscan-copyright_suggestion.xml" url="../copyright/copyright_suggestion.xml"/>
         <file name="org-netbeans-modules-tasklist-docscan-scanned_task.xml" url="scanned_task.xml"/>
       </folder>
     </folder>
@@ -28,10 +27,6 @@ Microsystems, Inc. All Rights Reserved.
              <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.SuggestionProvider"/>
              <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.docscan.SourceTaskProvider"/>
           </file>
-          <file name="org-netbeans-modules-tasklist-copyright-CopyrightChecker.instance">
-             <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.SuggestionProvider"/>
-             <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.copyright.CopyrightChecker"/>
-          </file>
        </folder>
 
         <file name="org-netbeans-modules-tasklist-docscan-Settings.settings" url="Settings.settings">
@@ -40,14 +35,6 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- Project specific? attr name="SystemFileSystem.layer"
                    stringvalue="project"/ -->
         </file>
-
-        <file name="org-netbeans-modules-tasklist-copyright-CopyrightSettings.settings" url="../copyright/CopyrightSettings.xml">
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.copyright.Bundle"/>
-            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/copyright/settings.gif"/>
-                <!-- Project specific? attr name="SystemFileSystem.layer"
-                   stringvalue="project"/ -->
-        </file>
-
     </folder>
  
     <folder name="UI">
@@ -55,9 +42,6 @@ Microsystems, Inc. All Rights Reserved.
 	    <folder name="Editing">
             <file name="org-netbeans-modules-tasklist-docscan-Settings.shadow">
                         <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-docscan-Settings.settings"/>
-            </file>
-            <file name="org-netbeans-modules-tasklist-copyright-CopyrightSettings.shadow">
-                        <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-copyright-CopyrightSettings.settings"/>
             </file>
 	    </folder>
 	</folder>
