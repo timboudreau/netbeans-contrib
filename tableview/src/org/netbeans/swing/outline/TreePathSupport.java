@@ -75,7 +75,7 @@ public final class TreePathSupport {
             layout.setExpandedState(path, true);
             fireTreeExpansion(e, true);
         } catch (ExpandVetoException eve) {
-            //do nothing
+            fireTreeExpansionVetoed (e, eve);
         }
     }
     
@@ -95,7 +95,7 @@ public final class TreePathSupport {
             layout.setExpandedState(path, false);
             fireTreeExpansion(e, false);
         } catch (ExpandVetoException eve) {
-            //do nothing
+            fireTreeExpansionVetoed (e, eve);
         }
     }
     
@@ -130,6 +130,22 @@ public final class TreePathSupport {
             }
         }
     }
+    
+    private void fireTreeExpansionVetoed (TreeExpansionEvent e, ExpandVetoException ex) {
+        int size = eListeners.size();
+        
+        TreeWillExpandListener[] listeners = new TreeWillExpandListener[size];
+        synchronized (this) {
+            listeners = (TreeWillExpandListener[]) weListeners.toArray(listeners);
+        }
+        for (int i=0; i < listeners.length; i++) {
+            if (listeners[i] instanceof ExtTreeWillExpandListener) {
+                ((ExtTreeWillExpandListener) listeners[i]).treeExpansionVetoed(e,
+                    ex);
+            }
+        }
+    }
+    
     
     public boolean hasBeenExpanded(TreePath path) {
 	return (path != null && expandedPaths.get(path) != null);
@@ -237,6 +253,9 @@ public final class TreePathSupport {
         return result;
     }    
     
+    /** Add a TreeExpansionListener.  If the TreeWillExpandListener implements
+     * ExtTreeExpansionListener, it will be notified if another 
+     * TreeWillExpandListener vetoes the expansion event */
     public synchronized void addTreeExpansionListener (TreeExpansionListener l) {
         eListeners.add(l);
     }
