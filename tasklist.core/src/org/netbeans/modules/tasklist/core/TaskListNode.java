@@ -17,6 +17,7 @@ package org.netbeans.modules.tasklist.core;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.util.RequestProcessor;
 
 import java.util.Collections;
 
@@ -48,10 +49,13 @@ public final class TaskListNode extends AbstractNode {
         Node createNode(Object task);
     }
 
-    static class TaskListChildren extends Children.Keys implements TaskListener {
+    static class TaskListChildren extends Children.Keys implements TaskListener, Runnable {
 
         private ObservableList list;
         private NodeFactory nodeFactory;
+        private static int BATCH_INTERVAL_MS = 59;
+        private volatile RequestProcessor.Task batchSetKeys;
+        private volatile boolean active = false;
 
         private TaskListChildren(ObservableList list) {
             assert list != null;
@@ -62,9 +66,11 @@ public final class TaskListNode extends AbstractNode {
             super.addNotify();
             setKeys(list.getTasks());
             list.addTaskListener(this);
+            active = true;
         }
 
         protected void removeNotify() {
+            active = false;
             list.removeTaskListener(this);
             setKeys(Collections.EMPTY_SET);
             super.removeNotify();
@@ -85,6 +91,14 @@ public final class TaskListNode extends AbstractNode {
             this.nodeFactory = nodeFactory;
         }
 
+        // do not update keys too often it's rather heavyweight operation
+        // batch all request that come in BATCH_INTERVAL_MS into one real update
+        private void batchSetKeys() {
+            if (batchSetKeys == null) {
+                batchSetKeys = RequestProcessor.getDefault().post(this, BATCH_INTERVAL_MS);
+            }
+        }
+
         // TaskListener implementation ~~~~~~~~~~~~~~~
 
         public void selectedTask(Task t) {
@@ -94,15 +108,23 @@ public final class TaskListNode extends AbstractNode {
         }
 
         public void addedTask(Task t) {
-            setKeys(list.getTasks());
+            batchSetKeys();
         }
 
         public void removedTask(Task pt, Task t) {
-            setKeys(list.getTasks());
+            batchSetKeys();
         }
 
         public void structureChanged(Task t) {
-            setKeys(list.getTasks());
+            batchSetKeys();
+        }
+
+        // called from random request processor thread
+        public void run() {
+            batchSetKeys = null;
+            if (active) {
+                setKeys(list.getTasks());
+            }
         }
 
 
