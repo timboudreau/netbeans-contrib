@@ -328,7 +328,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
     cachedAnnotatedFullName=fullName;
     cachedAnnotatedResult=result;
-    //D.deb("result="+result);
+    D.deb("annotateName() -> result='"+result+"'");
     return result;
   }
   
@@ -554,10 +554,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     if (!f.createNewFile ()) {
       throw new IOException(MessageFormat.format (getString("EXC_DataAlreadyExist"), errorParams));
     }
-/* JST: Maybe handled by createNewFile, but probably
-    if (!tmp.exists())
-      throw new IOException(MessageFormat.format (LocalFileSystem.getString("EXC_CannotCreateD"), errorParams));
-*/
+    cache.addFile(name);
   }
 
   //-------------------------------------------
@@ -583,11 +580,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @exception IOException if the file could not be deleted
   */
   public void delete (String name) throws IOException {
-    D.deb("delete("+name+")");
+    D.deb("delete('"+name+"')");
     File file = getFile (name);
     if (!file.delete()) {
       throw new IOException (getString("EXC_CannotDelete", name, getDisplayName (), file.toString ()));
     }
+    cache.removeFile(name);
   }
   
   //-------------------------------------------
@@ -759,6 +757,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  20   Gandalf   1.19        5/21/99  Michal Fadljevic 
  *  19   Gandalf   1.18        5/21/99  Michal Fadljevic 
  *  18   Gandalf   1.17        5/19/99  Michal Fadljevic 
  *  17   Gandalf   1.16        5/18/99  Michal Fadljevic 
