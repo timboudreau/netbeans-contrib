@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
+<filesystem>
+    <folder name="J2EE">
+        <folder name="InstalledServers">
+            <file name="Tomcat_instance">
+                <attr name="url" stringvalue="tomcat:home=jakarta-tomcat-5.0.2:base=jakarta-tomcat-5.0.2_base:http://localhost:8080/manager/"/>
+                <attr name="username" stringvalue="ide"/>
+                <attr name="password" stringvalue="ide_manager"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

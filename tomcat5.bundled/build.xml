@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?> <!-- -*- sgml-indent-step: 2 -*- -->
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="tomcatint-tomcat5-bundled" basedir="." default="netbeans">
+
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../../nbbuild/nbantext.jar"/>
+  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../../../nbbuild/nbantext.jar"/>
+  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../../../nbbuild/nbantext.jar"/>
+  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="../../../nbbuild/nbantext.jar"/>
+
+  <property name="nb_root" location="../../.."/>
+  <property name="nbext" location="${nb_root}/nbbuild"/>
+  <property name="homepage.base" value="netbeans.org"/>
+  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+  <property name="license.file" value="${nb_root}/nbbuild/standard-nbm-license.txt"/>
+  <property name="nbm_alias" value="nb_ide"/>
+
+  <target name="init">
+    <!-- PENDING -->
+    <!--<ant dir="../../external" target="unscramble"/>-->
+  </target>
+
+  <target name="compile">
+    <!-- PENDING: code needs to be isolated from plugin
+    <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+      <include name="org/netbeans/modules/tomcat5/bundled/**" />
+      <classpath>
+        <pathelement location="${nb_root}/openide/openide-13javac-workaround.jar"/>
+        <pathelement location="${nb_root}/tomcatint/netbeans/modules/tomcat40.jar"/>
+        <fileset dir="${nb_root}/openide/netbeans/lib">
+          <include name="openide*.jar" />
+        </fileset>
+      </classpath>
+    </javac>
+    -->
+  </target>
+
+  <target name="jars" depends="compile">
+    <mkdir dir="netbeans/modules"/>
+    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+    <locjar jarfile="netbeans/modules/eager/tomcat5-bundled.jar"
+            manifest="manifest-subst.mf"
+            basedir="src"
+            excludesfile="${nb_root}/nbbuild/standard-jar-excludes.txt"
+            compress="false">
+      <include name="org/netbeans/modules/tomcat5/bundled/**"/>
+      <locale name="ja"/>
+    </locjar>
+  </target>
+
+  <target name="release" depends="init,jars">
+    <mkdir dir="netbeans"/>
+    <unzip src="../../external/jakarta-tomcat-5.0.2.zip" dest="netbeans" />
+
+    <!-- XXX:compile extension
+    <copy file="${tc40_moduleroot}/netbeans/modules/ext/tomcat40-ide.jar" tofile="netbeans/jakarta-tomcat-5.0.2/lib/tomcat40-ide.jar"/>
+    -->
+
+    <!-- XXX:copy IDE-README.txt
+    <copy file="torelease/IDE-README.txt" tofile="netbeans/jakarta-tomcat-5.0.2/IDE-README.txt" includeEmptyDirs="false"/> -->
+    <!-- copy dummy to empty directories -->
+    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.2/logs/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.2/temp/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.2/work/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.2/common/classes/dummy" includeEmptyDirs="false"/>
+  </target>
+
+  <target name="netbeans" depends="jars,release" description="Builds the module">
+    <genlist targetname="nbm" outputfiledir="netbeans"/>
+  </target>
+
+  <target name="nbm" depends="netbeans" description="Prepare the module for distribution via Auto Update.">
+    <makenbm file="bundledtomcat.nbm"
+             topdir="."
+           module="netbeans/modules/eager/tomcat5-bundled.jar"
+           homepage="http://tomcatint.${homepage.base}/"
+           distribution="http://${dist.base}/bundledtomcat.nbm">
+      <license name="bundledtomcat-license.txt">
+        <text>For the integration module:</text>
+        <file location="${license.file}"/>
+        <text>For Tomcat:</text>
+        <file location="${nb_root}/nbbuild/external/apache-license.txt"/>
+      </license>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+    </makenbm>
+  </target>
+
+  <target name="clean" description="Clean all build products.">
+        <delete file="manifest-subst.mf"/>
+        <delete dir="netbeans"/>
+        <delete file="bundledtomcat.nbm"/>
+        <delete dir="Info"/>
+        <delete dir="test"/>
+<!--
+        <delete>
+            <fileset dir="src">
+                <include name="**/*.class"/>
+            </fileset>
+        </delete>        
+-->
+  </target>
+
+
+</project>
