@@ -107,7 +107,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
     }
 
     /** Create a node for this item */
-    protected Node[] createNode() {
+    public Node[] createNode() {
         if (hasSubtasks()) {
             return new Node[] { new SuggestionNode(this, getSubtasks())};
         } else {

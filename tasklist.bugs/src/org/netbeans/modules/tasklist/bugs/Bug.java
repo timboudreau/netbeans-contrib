@@ -209,7 +209,7 @@ public final class Bug extends Task {
     }
 
     /** Create a node for this item */
-    protected Node[] createNode() {
+    public Node[] createNode() {
         // PENDING Do I allow subnodes for bugs? IssueZilla depends on
         // seems like something you could consider a "subtask", although
         // not quite
