@@ -24,6 +24,7 @@ import java.text.*;
 
 import org.openide.*;
 import org.openide.util.*;
+import org.openide.filesystems.*;
 
 import com.netbeans.developer.modules.vcs.util.*;
 import com.netbeans.developer.modules.vcs.*;
@@ -131,7 +132,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
       gridBagConstraints2 = new java.awt.GridBagConstraints ();
       gridBagConstraints2.gridx = 2;
       gridBagConstraints2.gridy = 2;
-      gridBagConstraints2.gridwidth = 0;
       gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
       gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
       propsPanel.add (browseButton, gridBagConstraints2);
@@ -219,7 +219,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
       gridBagConstraints3 = new java.awt.GridBagConstraints ();
       gridBagConstraints3.gridx = 2;
       gridBagConstraints3.gridy = 0;
-      gridBagConstraints3.gridwidth = 0;
       gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
       gridBagConstraints3.insets = new java.awt.Insets (4, 4, 4, 4);
       vcsPanel.add (removeConfigButton, gridBagConstraints3);
@@ -299,6 +298,21 @@ private void removeConfigButtonActionPerformed (java.awt.event.ActionEvent evt) 
     String label = (String) configCombo.getSelectedItem ();
     NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation ("Are you sure you want to delete configuration: " + label, NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
     if(NotifyDescriptor.Confirmation.CANCEL_OPTION.equals (TopManager.getDefault ().notify (nd))) return;
+    FileObject file = fileSystem.getConfigRootFO();
+    if (file != null) file = file.getFileObject((String) configNamesByLabel.get (label));
+    if (file != null) {
+      try {
+        file.delete(file.lock());
+      } catch (IOException e) {
+        return;
+      }
+      promptForConfigComboChange = false;
+      if(configCombo.getSelectedIndex() == 0) if (configCombo.getModel().getSize() > 1) configCombo.setSelectedIndex(1);
+      else configCombo.setSelectedIndex(0);
+      promptForConfigComboChange = false;
+      updateConfigurations ();
+    }
+    /*
     File f = new File (fileSystem.getConfigRoot()+File.separator + configNamesByLabel.get (label) + ".properties"); // NOI18N
     if(f.isFile () && f.canWrite ()) {
       f.delete ();
@@ -309,10 +323,34 @@ private void removeConfigButtonActionPerformed (java.awt.event.ActionEvent evt) 
       promptForConfigComboChange = false;
       updateConfigurations ();
     }
+    */
   }//GEN-LAST:event_removeConfigButtonActionPerformed
 
 private void saveAsButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsButtonActionPerformed
 // Add your handling code here:
+  FileObject dir = fileSystem.getConfigRootFO();
+  ChooseFileObjectDialog chooseFile = new ChooseFileObjectDialog(new JFrame(), true, dir);
+  MiscStuff.centerWindow (chooseFile);
+  chooseFile.show();
+  String selected=chooseFile.getSelectedFile ();
+  if (selected == null) return;
+  FileObject file = dir.getFileObject(selected, "properties");
+  if (file == null) {
+    try {
+      file = dir.createData(selected, "properties");
+    } catch(IOException e) {
+      E.err("Can not create file '"+selected+"'");
+      return;
+    }
+  }
+  Vector variables=fileSystem.getVariables ();
+  Object advanced=fileSystem.getAdvancedConfig ();
+  String label = selected;
+  VcsConfigVariable.writeConfiguration (file, label, variables, advanced, fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ()); 
+  promptForConfigComboChange = false;
+  fileSystem.setConfig (label);
+  updateConfigurations ();
+  /*
     ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(fileSystem.getConfigRoot()), true);
     MiscStuff.centerWindow (chooseFile);
     chooseFile.show();
@@ -334,6 +372,7 @@ private void saveAsButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN
     promptForConfigComboChange = false;
     fileSystem.setConfig (label);
     updateConfigurations ();
+  */
   }//GEN-LAST:event_saveAsButtonActionPerformed
 
 private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-FIRST:event_configComboItemStateChanged
@@ -602,7 +641,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
   //-------------------------------------------
   private void updateConfigurations(){
     D.deb("configRoot = "+fileSystem.getConfigRoot()); // NOI18N
-    Vector configNames=VcsConfigVariable.readConfigurations(fileSystem.getConfigRoot());
+    Vector configNames=VcsConfigVariable.readConfigurations(fileSystem.getConfigRootFO());
     D.deb("configNames="+configNames); // NOI18N
 
     if( configCombo.getItemCount()>0 ){ // necessary on Linux 
@@ -621,7 +660,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       String name=(String)configNames.elementAt(i);
 
       Properties props= VcsConfigVariable.readPredefinedProperties
-	( fileSystem.getConfigRoot()+File.separator+name+".properties"); // NOI18N
+	( fileSystem.getConfigRootFO(), name); // NOI18N
+	//( fileSystem.getConfigRoot()+File.separator+name+".properties"); // NOI18N
 
       String label=props.getProperty("label", g("CTL_No_label_configured"));
       configLabels.addElement(label);
@@ -832,6 +872,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  13   Jaga      1.11.1.0    2/24/00  Martin Entlicher Read configuration files 
+*       from filesystem.
 *  12   Gandalf   1.11        2/11/00  Martin Entlicher Different argument to 
 *       setRootDirectory
 *  11   Gandalf   1.10        2/10/00  Martin Entlicher Does not check the 
