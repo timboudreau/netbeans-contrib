@@ -11,49 +11,53 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+>   *     Use is subject to license terms.
+>   *
+>   *     Copyright 2001 Sun Microsystems, Inc. Tous droits réservés.
+>   *     L'utilisation est régie par les termes de cette licence.
+>   *
+>   *
+> -->
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="lastupdated" content="21nov2000">
-   <title>Completing Server-side Files</title>
-<!--       
- *        Copyright (C) 2000  Sun Microsystems, Inc
- *                    All rights reserved.
- *          Notice of copyright on this source code 
- *          product does not indicate publication. 
- * 
- * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
- * the U.S. Government is subject to restrictions as set forth 
- * in subparagraph (c)(1)(ii) of the Rights in Technical Data
- * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
- * and FAR 52.227-19 (c) (June 1988).
- *
- *    Sun Microsystems, Inc., 901 San Antonio Road,
- *    Palo Alto, California 94303 U.S.A.
- *
--->
+<title>Completing Server-side Files</title>
+<link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
-<h2> Completing Server-side Files</h2>After you generate the server-side CORBA 
+<body bgcolor="#ffffff">
+<h2> Completing Server-side Files</h2>
+After you generate the server-side CORBA 
 program files, there is some coding to do to complete the Implementation Class 
-and the Server Class.<h3> <a name="completing_impl"></a>Completing the Implementation 
-Class</h3>If you generated your implementation class with the CORBA wizard, 
+and the Server Class.
+<h3><a name="completing_impl"></a>Completing the Implementation 
+Class</h3>
+If you generated your implementation class with the CORBA wizard, 
 you must add method bodies to the implementation class's business methods (the 
-methods declared in the IDL).<p>Implementation classes can also have private 
+methods declared in the IDL).</p>
+<p>Implementation classes can also have private 
 methods (not declared in the IDL) that are called by the business methods. If 
 you generated your server program with the CORBA templates, you must code your 
-implementation class by hand.</p><h3> <a name="completing_server"></a>Completing 
-the Server Class</h3>The code you must add to your server class depends on the 
-binding method it uses:<ul><li>For all binding methods, you must add code that 
-instantiates the implementation class and connects it to the ORB.<p></p></li><li> 
+implementation class by hand.
+<h3><a name="completing_server"></a>Completing 
+the Server Class</h3>
+The code you must add to your server class depends on the 
+binding method it uses:
+<ul><li>For all binding methods, you must add code that 
+instantiates the implementation class and connects it to the ORB.</li>
+<li> 
 If your server class writes the IOR to standard output, you must add code that 
-converts the IOR to string form and writes it to standard output.<p></p></li><li> 
+converts the IOR to string form and writes it to standard output.</li>
+<li> 
 If your server class writes the IOR to a file, you must add code that converts 
-the IOR to string form and writes it to a file that you specify.<p></p></li><li> 
+the IOR to string form and writes it to a file that you specify.</li>
+<li> 
 If your server class registers the IOR with a naming service, you must add code 
-that specifies the name to which the IOR will be bound in the naming service operation.<br></li></ul><h4><b>Adding 
-Code that Instantiates the Implementation Class and Connects it to the ORB</b> 
-</h4><ol><li>Look for the following comment near the top of your generated server 
+that specifies the name to which the IOR will be bound in the naming service operation.</li></ul>
+<h4><b>Adding Code That Instantiates the Implementation Class and Connects It to the ORB</b> 
+</h4>
+<ol><li>Look for the following comment near the top of your generated server 
 class:<blockquote><p><code>// add code to instantiate your object implementation 
 here</code></p></blockquote></li><li> Below that comment, add a line of code like the 
 following example, which instantiates an implementation class to create a servant 
@@ -76,38 +80,58 @@ instance and the name of the file to which you want to write the IOR, as in the
 following example:<blockquote><p><code>String ior = orb.object_to_string (helloServant);</code> 
 <br><code>try {</code> <br><code>&nbsp;&nbsp;&nbsp;&nbsp; FileWriter file = <br>&nbsp;&nbsp;&nbsp;&nbsp; 
 &nbsp;&nbsp;&nbsp;&nbsp; new java.io.FileWriter("helloServant.ior");</code> <br><code>&nbsp;&nbsp;&nbsp;&nbsp; 
-...</code></p></blockquote></li></ol><h4> Adding Code that Specifies the Binding Name</h4><ol> 
-<li> Start the naming service with which you will register your server.<p></p></li><li> 
-In the IDE, switch to the Explorer Window's Runtime tab.<p></p></li><li> Start the 
-CORBA Module's Naming Service Browser, specifying the naming service you started 
-in the previous step.<p></p></li><li> You can register your server in an existing 
-naming context or create a new context for it.<p>To create a new naming context: 
-</p><p></p><ol><li> Right-click the node for the JDK Naming Service, and from 
-the context menu choose Create New Context.<p></p><p>This opens a small dialog 
-box.</p><p></p></li><li> In the dialog's Name and Kind fields enter names that 
-desribe the context you are creating, and click OK.<p></p><p>Another new sub-node will 
-appear underneath the one for the JDK naming service. You have just created a 
-naming context in which you will register your servant instance.</p><p></p><p>The names you 
-use in this step are arbitrary--they are chosen to be descriptive.</p><p></p></li></ol></li><li> 
+...</code></p></blockquote></li></ol>
+<h4> Adding Code that Specifies the Binding Name</h4>
+<ol> 
+<li> Start the naming service with which you plan to register your server.</li>
+<li> In the IDE, switch to the Explorer window's Runtime tab.</li>
+<li> Start the CORBA Module's Naming Service Browser, specifying the naming service you started 
+in the previous step.</li>
+<li> You can register your server in an existing naming context or create a new context for it.
+<p>To create a new naming context: 
+<ol><li> Right-click the node for the JDK Naming Service, and from 
+the contextual menu, choose Create New Context.
+This opens a small dialog 
+box.</li>
+<li> In the Name and Kind fields, enter names that 
+desribe the context you are creating, and click OK.
+<p>Another new sub-node 
+appears underneath the one for the JDK naming service. You have just created a 
+naming context in which you will register your servant instance.</p>
+<p>The names you 
+use in this step are arbitrary--they are chosen to be descriptive.</p></li>
+</ol></li><li> 
 Right-click the node that represents the naming context in which you are registering 
-the server, then from the contextual menu choose Copy Server Binding Code.<p></p></li><li> 
-Switch back to the editing window and look for the following comment in your generated 
-server class:<p></p><p><code>// paste code retrieved using the Copy Server Code 
-action (on a context node in the Naming Service Browser)</code></p><p></p></li><li>Position the cursor under this line and press Ctrl-V.<p></p><p>The code 
+the server, then from the contextual menu, choose Copy Server Binding Code.</li>
+<li> 
+Switch back to the editing window, and look for the following comment in your generated 
+server class:<p><code>// paste code retrieved using the Copy Server Code 
+action (on a context node in the Naming Service Browser)</code></li>
+<li>Position the cursor under this line, and press Ctrl-V.
+<p>The code 
 you pasted registers an object with the naming service and naming context you 
-selected with the Naming Service browser.<p></p></li><li>Complete the pasted code 
-by supplying the name that will be used for your servant instance, as follows:<p></p><ol> 
+selected with the Naming Service browser.</li>
+<li>Complete the pasted code 
+by supplying the name that will be used for your servant instance, as follows:
+<ol> 
 <li>Look for the <code>&lt;name of server&gt;</code> variable. Replace it with 
-" " for the servant name<p></p></li><li>Look for the <code>&lt;kind of server&gt;</code> 
-variable. Replace it with <code>demo</code>.<p></p><p>(These names are arbitrary 
-and are chosen to be descriptive of the application.)<p></p></li></ol></li><li>Locate 
+" " for the servant name.</li>
+<li>Look for the <code>&lt;kind of server&gt;</code> 
+variable. Replace it with <code>demo</code>.
+<p>(These names are arbitrary 
+and are chosen to be descriptive of the application.)</li></ol></li>
+<li>Locate 
 the following comment:<blockquote><p><code>nc.bind(aName, /* place 
-here name of servant variable */);</code></p></blockquote><p></p></li><li> 
+here name of servant variable */);</code></p></blockquote></li>
+<li> 
 Replace the commented parameter with <code>hImpl</code> so the line looks like 
-this:<blockquote><p><code>nc.bind (aName, hImpl);</code></p></blockquote><p></p></li></ol><h4> 
-Compiling Your Server</h4><p>The last step in completing the server is to compile 
+this:<blockquote><p><code>nc.bind (aName, hImpl);</code></p></blockquote></li></ol>
+<h4> 
+Compiling Your Server</h4>
+The last step in completing the server is to compile 
 all the classes related to the server, including the IDL file, together. To do 
-so, right-click the node for the package and select Compile from the contextual 
-menu.</p><hr><font size=-2><a href="../credits.html">Legal Notices</a></font> 
+so, right-click the node for the package, and select Compile from the contextual 
+menu.
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font> 
 </body>
 </html>
