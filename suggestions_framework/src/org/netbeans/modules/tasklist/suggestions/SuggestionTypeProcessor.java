@@ -195,8 +195,9 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
                             actions.add(a);
                         }
                     }
-                } catch (Exception e) {
-                    ErrorManager.getDefault().notify(e);
+                } catch (ClassNotFoundException e) {
+                    ErrorManager.getDefault().annotate(e, "TL: cannot load " + cln + " action, ignoring..."); // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
                 }
             } else {
                 throw new SAXException("malformed SuggestionType xml file"); // NOI18N
