@@ -1012,13 +1012,13 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     
     
     private void setDefaultORB () {
-        String jdkVersion = System.getProperty ("java.specification.version");
+        String jdkVersion = System.getProperty ("java.specification.version");  
         if (JDK_12.equals (jdkVersion))
             this.setORBTag ("jdk12");
         else if (JDK_13.equals(jdkVersion))
             this.setORBTag ("jdk13");
         else
-            this.setORBTag ("jdk1.4");
+            this.setORBTag ("JDK1.4");
     }
 
 }
