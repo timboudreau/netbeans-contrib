@@ -94,7 +94,8 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
      */
     public CommandLineVcsFileSystemInfo(CommandLineVcsFileSystem fileSystem){
         this.root = fileSystem.getWorkingDirectory();
-        this.profileName = fileSystem.getProfile().getName();        
+        this.profileName = fileSystem.getProfile().getName();
+        fileSystem.addPropertyChangeListener(WeakListeners.propertyChange(this,fileSystem));
         fileSystemRef = new WeakReference(fileSystem);
         initSettingsFolder();
         storeFSSettings(fileSystem);
