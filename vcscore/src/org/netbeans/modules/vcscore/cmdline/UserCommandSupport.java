@@ -337,6 +337,9 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 visualizer = userTask.getVisualizerGUI(true, false);
             }
         }
+        if (!command.isGUIMode()) {
+            visualizer = null; // No visualization in non-GUI mode.
+        }
         if (visualizer != null && !visualizer.openAfterCommandFinish()) {
             final VcsCommandVisualizer fvisualizer = visualizer;
             javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -475,7 +478,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                   org.netbeans.modules.vcscore.commands.VcsCommand.NAME_SUFFIX_OFFLINE) == null) {
 
             // TODO move to VcsUtilities, DLG_RefreshCommandDisabled is used from two packages
-            if (NotifyDescriptor.Confirmation.YES_OPTION.equals (
+            if (doCreateCustomizer && NotifyDescriptor.Confirmation.YES_OPTION.equals (
                 DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Confirmation (
                     NbBundle.getMessage(UserCommandSupport.class,
                                         "DLG_RefreshCommandDisabled"), NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
@@ -549,7 +552,14 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //System.out.println("\nVARS for cmd = "+cmd+" ARE:"+vars+"\n");
         String commandExec = (String) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC);
         StructuredExec structuredExec = (StructuredExec) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
-        boolean success = CommandCustomizationSupport.preCustomize(executionContext, vcsCmd, vars);
+        boolean success;
+        if (doCreateCustomizer) {
+            // Just a confirmation dialog is displayed if there is any
+            // Skip this in non-GUI mode
+            success = CommandCustomizationSupport.preCustomize(executionContext, vcsCmd, vars);
+        } else {
+            success = true;
+        }
         if (success) {
             if (structuredExec != null) {
                 structuredExec = CommandCustomizationSupport.insertGlobalOptions(structuredExec, vars);

@@ -576,7 +576,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             }
         }
         String disabledNotification = (String) executor.getVariables().get("COMMAND_NOTIFICATION_DISABLED");
-        if (notification != null && (disabledNotification == null || disabledNotification.length() == 0)) {
+        if (this.cmd.isGUIMode() && notification != null && (disabledNotification == null || disabledNotification.length() == 0)) {
             CommandCustomizationSupport.commandNotification(executor, notification, executionContext);
         }
         CommandExecutorSupport.postprocessCommand(executionContext, executor);
