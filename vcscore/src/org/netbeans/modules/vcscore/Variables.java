@@ -56,7 +56,21 @@ public class Variables {
      */
     public static final String QFILES = "QFILES";
     
+    public static final String DIR = "DIR";
+    public static final String PATH = "PATH";
+    public static final String QPATH = "QPATH";
+    public static final String PATHS = "PATHS";
+    public static final String QPATHS = "QPATHS";
+    public static final String MPATHS = "MPATHS";
+    public static final String QMPATHS = "QMPATHS";
+
+    public static final String MIMETYPE = "MIMETYPE";
+    
+    public static final String NUM_FILES = "NUM_FILES";
     public static final String NUM_IMPORTANT_FILES = "NUM_IMPORTANT_FILES";
+    public static final String FILE_IS_FOLDER = "FILE_IS_FOLDER";
+    public static final String FILES_IS_FOLDER = "FILES_IS_FOLDER";
+    public static final String MULTIPLE_FILES = "MULTIPLE_FILES";
 
     /**
      * Variables with special functionality.
@@ -72,8 +86,30 @@ public class Variables {
 
     private static final String SUBSTRACT = "-"; // NOI18N
     private static final String REPLACE = "_"; // NOI18N
+    
+    private static Collection contextVariablesNames = null;
 
     private Variables() {
+    }
+    
+    public static Collection getContextVariablesNames() {
+        if (contextVariablesNames == null) {
+            synchronized (Variables.class) {
+                contextVariablesNames = createContextVariablesNames();
+            }
+        }
+        return contextVariablesNames;
+    }
+    
+    private static Collection createContextVariablesNames() {
+        HashSet varNames = new HashSet();
+        varNames.addAll(Arrays.asList(new String[] {
+            FILE, QFILE, FILES, QFILES, DIR,
+            PATH, QPATH, PATHS, QPATHS, MPATHS, QMPATHS,
+            MIMETYPE, NUM_FILES, NUM_IMPORTANT_FILES,
+            FILE_IS_FOLDER, FILES_IS_FOLDER, MULTIPLE_FILES
+        }));
+        return Collections.unmodifiableSet(varNames);
     }
     
     /** Expand all occurences of <code>${VARIABLE_NAME}</code> repeatetively.
