@@ -191,7 +191,6 @@ public class VcsSearchType extends SearchType {
         boolean statusesAdded = false;
         //statuses = new Vector();
         for(int i = 0; i < nodes.length; i++) {
-            if (nodes[i].getCookie(DataObject.class) == null) continue;
             DataFolder dataFolder = (DataFolder)nodes[i].getCookie(DataFolder.class);
             if(dataFolder != null) {
                 FileObject fo = dataFolder.getPrimaryFile();
@@ -212,6 +211,8 @@ public class VcsSearchType extends SearchType {
                     addStatuses(possibleStatuses);
                 }
             } else {
+                // DataSystem does not have a DataObject cookie => skip all nodes with DataObject cookies
+                if (nodes[i].getCookie(DataObject.class) != null) continue;
                 InstanceCookie.Of ic = (InstanceCookie.Of)nodes[i].getCookie(InstanceCookie.Of.class);
                 if(ic != null && ic.instanceOf(Repository.class)) {
                     FileSystem[] fileSystems = TopManager.getDefault().getRepository().toArray();
