@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import javax.swing.BoxLayout;
@@ -50,6 +51,24 @@ public class Properties {
     /** Creates a new instance of CommentPreservingProperties */
     public Properties() {
         
+    }
+    
+    public Properties (Properties copy) {
+        items = new ArrayList (copy.items);
+        size = copy.size;
+        sorted = copy.sorted;
+    }
+    
+    public Properties (Properties copy, Collection keysToRetain) {
+        for (Iterator i=keysToRetain.iterator(); i.hasNext();) {
+            String key = (String) i.next();
+            int idx = copy.indexOf (key);
+            if (idx == -1) {
+                throw new IllegalStateException ("Key " + key + " missing");
+            }
+            items.add (copy.items.get(idx));
+            size++;
+        }
     }
     
     public void load (File f) throws IOException {

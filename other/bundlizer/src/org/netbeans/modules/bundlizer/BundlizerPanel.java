@@ -198,7 +198,6 @@ public class BundlizerPanel extends javax.swing.JPanel {
                 sb.append (", ");
             }
         }
-        sb.append ('?');
         
         JTextArea message = new JTextArea(sb.toString());
         message.setBorder(BorderFactory.createEmptyBorder());
@@ -210,33 +209,44 @@ public class BundlizerPanel extends javax.swing.JPanel {
         JScrollPane jsp = new JScrollPane (message);
         jsp.setViewportBorder (BorderFactory.createEmptyBorder());
         jsp.setBorder (BorderFactory.createEmptyBorder());
+        String backupFileName = null;
         
         if (JOptionPane.showConfirmDialog(this, new JScrollPane(message), 
             "Delete keys and save?", JOptionPane.OK_OPTION | JOptionPane.CANCEL_OPTION) ==
             JOptionPane.OK_OPTION) {
-            for (Iterator i = toRemove.iterator(); i.hasNext();) {
-                props.remove(i.next());
+                
+            try {
+                Properties backup = new Properties (props, toRemove);
+                backupFileName = file.getPath() + ".deleted";
+                File backupFile = new File (backupFileName);
+                int ext = 0;
+                while (backupFile.exists()) {
+                    backupFile = new File (backupFileName + "_" + ext);
+                    ext++;
+                }
+                backupFile.createNewFile();
+                FileOutputStream bos = new FileOutputStream (backupFile);
+                backup.store (bos, "#Bundlizer backup file of deleted " +
+                    "properties - " + new Date());
+
+                for (Iterator i = toRemove.iterator(); i.hasNext();) {
+                    props.remove(i.next());
+                }
+                FileOutputStream fos = new FileOutputStream (file);
+                StringBuffer lic = new StringBuffer (LICENSE);
+                String year = Integer.toString(1900 + new Date().getYear());
+                int idx = lic.indexOf("@DATE@");
+                lic.replace(idx, idx+6, year);
+
+                props.store(fos, lic.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            setFile(file);
+            if (backupFileName != null) {
+                setStatus ("Deleted props saved in " + backupFileName);
             }
         }
-        try {
-            //XXX for testing
-/*            file = new File (file.getPath() + "_a");
-            if (!file.exists()) {
-                file.createNewFile();
-            }
- */
-            
-            FileOutputStream fos = new FileOutputStream (file);
-            StringBuffer lic = new StringBuffer (LICENSE);
-            String year = Integer.toString(1900 + new Date().getYear());
-            int idx = lic.indexOf("@DATE@");
-            lic.replace(idx, idx+6, year);
-            
-            props.store(fos, lic.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        setFile(file);
         
     }//GEN-LAST:event_saveButtonActionPerformed
 
