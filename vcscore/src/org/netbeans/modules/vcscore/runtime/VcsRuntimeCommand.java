@@ -34,9 +34,9 @@ public class VcsRuntimeCommand extends RuntimeCommand {
     private CommandsPool pool;
     private int state;
     
-    public VcsRuntimeCommand(VcsCommandExecutor executor, CommandsPool pool) {
+    public VcsRuntimeCommand(VcsCommandExecutor executor) {
         this.executor = executor;
-        this.pool = pool;
+        this.pool = CommandsPool.getInstance();
         state = RuntimeCommand.STATE_WAITING;
     }
 
@@ -155,12 +155,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
      */
     public void killCommand() {
         pool.kill(executor);
-        state = STATE_KILLED_BUT_RUNNING;
-        // to refresh the state we have to set it to the node.
-        RuntimeCommandNode node = RuntimeSupport.getInstance().findRuntimeNode(this);
-        if (node != null) {
-            node.setState(state);
-        }
+        setState(STATE_KILLED_BUT_RUNNING);
     }
     
     public int getState() {
@@ -169,6 +164,10 @@ public class VcsRuntimeCommand extends RuntimeCommand {
 
     public void setState(int state) {
         this.state = state;
+        RuntimeCommandNode node = (RuntimeCommandNode) getExistingNodeDelegate();
+        if (node != null) {
+            node.setState(state);
+        }
     }
     
     public void notifyRemoved() {

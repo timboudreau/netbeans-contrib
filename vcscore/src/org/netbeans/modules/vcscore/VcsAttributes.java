@@ -29,6 +29,7 @@ import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
 import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.runtime.RuntimeCommandsProvider;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
 
@@ -60,6 +61,8 @@ public class VcsAttributes extends DefaultAttributes {
      * the vcs filesystem.
      */
     public static final String VCS_NATIVE_PACKAGE_NAME_EXT = "VcsFileSystemNativeFOPath";
+    
+    public static final String RUNTIME_PROVIDER = "org.netbeans.modules.vcscore.runtime.RuntimeCommandsProvider"; // NOI18N
     
     /**
      * Attribute name for a VCS action.
@@ -146,6 +149,7 @@ public class VcsAttributes extends DefaultAttributes {
     public static String VCS_STATUS_UNKNOWN = "VCS_STATUS_UNKNOWN"; //NOI18N
     
     private VcsActionSupporter supporter;
+    private RuntimeCommandsProvider runtimeProvider;
         
     private VcsFileSystem fileSystem;
     
@@ -169,6 +173,10 @@ public class VcsAttributes extends DefaultAttributes {
         this.supporter = supporter;
     }
     
+    public void setRuntimeCommandsProvider(RuntimeCommandsProvider provider) {
+        this.runtimeProvider = provider;
+    }
+    
     /**
      * Get the file attribute with the specified name.
      * @param name the file name
@@ -181,6 +189,9 @@ public class VcsAttributes extends DefaultAttributes {
     public Object readAttribute(String name, String attrName) {
         if (FILE_ATTRIBUTE.equals(attrName)) {
             return fileSystem.getFile(name);
+        }
+        if (RUNTIME_PROVIDER.equals(attrName)) {
+            return runtimeProvider;
         }
         if (VCS_STATUS.equals(attrName)) {
             if (!fileSystem.getFile(name).exists()) return VCS_STATUS_MISSING;

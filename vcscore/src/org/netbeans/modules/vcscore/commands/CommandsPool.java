@@ -97,6 +97,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private Hashtable outputVisualizers;
     /** Contains finished instances of VcsCommandWrapper. */
     private ArrayList commandsFinished;
+    /** Contains filesystems, whose commands will be released only upon a special request. */
+    private ArrayList fsWithCmdsRemovedOnRequest;
     private int numRunningListCommands;
     
     //private ThreadGroup group;
@@ -122,6 +124,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         commandsWrappers = new Hashtable();
         outputContainers = new Hashtable();
         outputVisualizers = new Hashtable();
+        fsWithCmdsRemovedOnRequest = new ArrayList();
         numRunningListCommands = 0;
         threadsPool = new CommandsThreadsPool();
         //group = new ThreadGroup("VCS Commands Group");
@@ -211,11 +214,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
         RuntimeCommand rCom = null;
         if (fileSystem != null) {
             fileSystem.debug(g("MSG_Command_preprocessing", name, exec));
-            if (fileSystem.isCreateRuntimeCommands()) {
-                rCom = new VcsRuntimeCommand(vce, this);
-                cw.setRuntimeCommand(rCom);
-                rCom.setState(RuntimeCommand.STATE_WAITING);
-                RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
+        }
+        synchronized (commandListeners) {
+            for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
+                ((CommandListener) it.next()).commandPreprocessing(vce);
             }
         }
         int preprocessStatus = CommandExecutorSupport.preprocessCommand(fileSystem, vce, vars, askForEachFile);
@@ -228,10 +230,6 @@ public class CommandsPool extends Object /*implements CommandListener */{
             }
             if (fileSystem != null) {
                 fileSystem.debug(g("MSG_Command_canceled", name));
-                if (fileSystem.isCreateRuntimeCommands()) {
-                    //RuntimeSupport.addCancelled(runtimeNode, vce, this);
-                    RuntimeSupport.getInstance().removeDone(fileSystem.getSystemName(), rCom);
-                }
             }
         }
         return preprocessStatus;
@@ -247,15 +245,6 @@ public class CommandsPool extends Object /*implements CommandListener */{
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
         final String finalName = name;
-        if (fileSystem != null && fileSystem.isCreateRuntimeCommands()) {
-            RuntimeCommand rCom = cw.getRuntimeCommand();
-            if (rCom == null) {
-                rCom = new VcsRuntimeCommand(vce, CommandsPool.this);
-                cw.setRuntimeCommand(rCom);
-            }
-            rCom.setState(RuntimeCommand.STATE_RUNNING);
-            RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
-        }
         RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 TopManager.getDefault().setStatusText(g("MSG_Command_name_running", finalName));
@@ -308,29 +297,19 @@ public class CommandsPool extends Object /*implements CommandListener */{
             notifyAll();
         }
         //System.out.println("  commandsFinished.size() = "+commandsFinished.size());
-        if (fileSystem != null && fileSystem.isCreateRuntimeCommands()) {
-            RuntimeCommand rCom = cw.getRuntimeCommand();
-            if (rCom == null) {
-                rCom = new VcsRuntimeCommand(vce, this);
-                cw.setRuntimeCommand(rCom);
-            }
-            rCom.setState(RuntimeCommand.STATE_DONE);
-            RuntimeSupport rSupport = RuntimeSupport.getInstance();
-            rSupport.updateCommand(fileSystem.getSystemName(), rCom);
-        } else {
-            synchronized (this) {
-                commandsFinished.remove(cw);
-                commandsWrappers.remove(vce);
-                outputContainers.remove(vce);
-            }
-            
-        }
         if (!isCollectOutput()) {
             outputContainers.remove(vce);
         }
         synchronized (commandListeners) {
             for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
                 ((CommandListener) it.next()).commandDone(vce);
+            }
+        }
+        if (!fsWithCmdsRemovedOnRequest.contains(fileSystem)) {
+            synchronized (this) {
+                commandsFinished.remove(cw);
+                commandsWrappers.remove(vce);
+                outputContainers.remove(vce);
             }
         }
         if (fileSystem != null) {
@@ -389,6 +368,25 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
     }
     
+    /**
+     * Do remove finished commands only when explicitly requested by {@link #removeFinishedCommand} method.
+     * This is used e.g. in situations, when we need to open output of a command
+     * after the command has finished.
+     * @param removeUponRequest If true, removed finished commands only upon the request,
+     *                          if false, remove immediately.
+     * @param fs The filesystem, whose commands should (or should not) be removed only
+     *           upon the request.
+     */
+    public void removeFinishedCommandsUponRequest(boolean removeUponRequest, VcsFileSystem fs) {
+        if (removeUponRequest) fsWithCmdsRemovedOnRequest.add(fs);
+        else fsWithCmdsRemovedOnRequest.remove(fs);
+    }
+    
+    /**
+     * Remove the finished executor from the internal database. After the command
+     * is removed it's no longer possible to open it's output.
+     * This method is used with {@link #removeFinishedCommandsUponRequest}.
+     */
     public void removeFinishedCommand(VcsCommandExecutor removedExecutor) {
         VcsCommandWrapper removedWrapper = (VcsCommandWrapper) commandsWrappers.get(removedExecutor);
         CommandOutputCollector collector = null;
@@ -1001,6 +999,16 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 }
             }
         });
+    }
+    
+    /**
+     * A helper method for those who have registered a command listener
+     * to be able to recognize commands, that belongs to different filesystems.
+     */
+    public VcsFileSystem getFileSystemForExecutor(VcsCommandExecutor vce) {
+        VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
+        if (cw == null) return null;
+        else return cw.getFileSystem();
     }
     
     /** The start time of the command or zero, when the command was not started yet

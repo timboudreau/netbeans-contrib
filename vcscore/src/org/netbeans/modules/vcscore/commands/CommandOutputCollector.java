@@ -142,6 +142,12 @@ class CommandOutputCollector extends Object implements CommandListener {
     }
     
     /**
+     * Called when the command is just to be preprocessed.
+     */
+    public void commandPreprocessing(VcsCommandExecutor vce) {
+    }
+    
+    /**
      * This method is called when the command is just to be started.
      *
      * WARNING: this method might be never called. The CommandOutputCollector

@@ -13,6 +13,14 @@
 
 package org.netbeans.modules.vcscore.runtime;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+
+import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.openide.nodes.Node;
+import org.openide.nodes.Sheet;
+import org.openide.util.actions.SystemAction;
+
 /**
  * An abstract class that encapsulates the module dependant features that are needed
  * when creating a runtime tab node for a command.
@@ -22,11 +30,6 @@ package org.netbeans.modules.vcscore.runtime;
  * See VcsRuntimeCommand for default implementation.
  * @author  Milos Kleint
  */
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.openide.nodes.Sheet;
-import org.openide.util.actions.SystemAction;
-
-
 public abstract class RuntimeCommand {
 
     /**
@@ -59,6 +62,8 @@ public abstract class RuntimeCommand {
     public static final int STATE_CANCELLED = RuntimeCommandNode.STATE_CANCELLED;
     
     public static final int STATE_KILLED_BUT_RUNNING = RuntimeCommandNode.STATE_KILLED_BUT_RUNNING;
+    
+    private Reference nodeDelegate = new WeakReference(null);
     
     /** Creates new RuntimeCommand */
     public RuntimeCommand() {
@@ -119,5 +124,26 @@ public abstract class RuntimeCommand {
      *  to do some cleanup when this command was restroyed. */
     public void notifyRemoved() {
     }
+    
+    public final synchronized Node getNodeDelegate() {
+        Node node = (Node) nodeDelegate.get();
+        if (node == null) {
+            node = createNodeDelegate();
+            nodeDelegate = new WeakReference(node);
+        }
+        return node;
+    }
+    
+    protected Node createNodeDelegate() {
+        return new RuntimeCommandNode(this);
+    }
 
+    /**
+     * Get the node delegate if exists.
+     * @return The node delegate or <code>null</code> if the node delegate is not created.
+     */
+    protected final Node getExistingNodeDelegate() {
+        return (Node) nodeDelegate.get();
+    }
+    
 }

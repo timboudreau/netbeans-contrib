@@ -25,9 +25,10 @@ import org.openide.actions.PropertiesAction;
  */
 public class RuntimeFolderNode extends AbstractNode {
     
-    public static final String PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT = "numOfFinishedCmdsToCollect";
+    public static final String PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT = "numberOfFinishedCmdsToCollect"; // NOI18N
+    public static final int DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT = 20;
 
-    private int numOfFinishedCmdsToCollect = RuntimeSupport.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
+    private int numOfFinishedCmdsToCollect = DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
     
     /** Creates new RuntimeFolderNode */
     public RuntimeFolderNode(Children children) {
@@ -35,6 +36,7 @@ public class RuntimeFolderNode extends AbstractNode {
     }
     
     public void setNumOfFinishedCmdsToCollect(int numOfFinishedCmdsToCollect) {
+        //System.out.println("RuntimeFolderNode\""+getDisplayName()+"\".setNumOfFinishedCmdsToCollect("+numOfFinishedCmdsToCollect+")");
         if (this.numOfFinishedCmdsToCollect != numOfFinishedCmdsToCollect) {
             Object oldValue = new Integer(this.numOfFinishedCmdsToCollect);
             this.numOfFinishedCmdsToCollect = numOfFinishedCmdsToCollect;
@@ -43,6 +45,7 @@ public class RuntimeFolderNode extends AbstractNode {
     }
     
     public int getNumOfFinishedCmdsToCollect() {
+        //System.out.println("RuntimeFolderNode\""+getDisplayName()+"\".getNumOfFinishedCmdsToCollect("+numOfFinishedCmdsToCollect+")");
         return numOfFinishedCmdsToCollect;
     }
 

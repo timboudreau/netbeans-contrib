@@ -66,7 +66,8 @@ import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.grouping.AddToGroupDialog;
 import org.netbeans.modules.vcscore.grouping.GroupUtils;
 import org.netbeans.modules.vcscore.grouping.VcsGroupSettings;
-import org.netbeans.modules.vcscore.runtime.RuntimeSupport;
+import org.netbeans.modules.vcscore.runtime.RuntimeFolderNode;
+import org.netbeans.modules.vcscore.runtime.VcsRuntimeCommandsProvider;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
@@ -318,7 +319,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //private boolean doCommandRefresh = true;
     
     private volatile transient CommandsPool commandsPool = null;
-    private Integer numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
+    private Integer numberOfFinishedCmdsToCollect = new Integer(RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
     private int versioningFileSystemMessageLength = 20;
     private boolean versioningFileSystemShowMessage = true;
     private String versioningFileSystemShowGarbageFiles = "";
@@ -579,10 +580,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
-    public void numOfFinishedCmdsToCollectChanged() {
-        firePropertyChange(org.netbeans.modules.vcscore.runtime.RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT, null, null);
-    }
-
     protected void refreshExistingFolders() {
         refreshExistingFolders(null);
     }
@@ -701,15 +698,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public int getNumberOfFinishedCmdsToCollect() {
-        return RuntimeSupport.getInstance().getCollectFinishedCmdsNum(getSystemName());
+        //System.out.println("VcsFileSystem.getNumberOfFinishedCmdsToCollect() = "+numberOfFinishedCmdsToCollect.intValue());
+        return numberOfFinishedCmdsToCollect.intValue();
     }
     
     public void setNumberOfFinishedCmdsToCollect(int numberOfFinishedCmdsToCollect) {
         this.numberOfFinishedCmdsToCollect = new Integer(numberOfFinishedCmdsToCollect);
-        RuntimeSupport.getInstance().setCollectFinishedCmdsNum(numberOfFinishedCmdsToCollect, getSystemName());
-        // Do NOT fire a property change here !!!
-        // The property change is propagated from RuntimeSupport.getInstance().setCollectFinishedCmdsNum()
-        //                                   to   this.numOfFinishedCmdsToCollectChanged()
+        //System.out.println("VcsFileSystem.setNumberOfFinishedCmdsToCollect("+numberOfFinishedCmdsToCollect+")");
+        firePropertyChange(org.netbeans.modules.vcscore.runtime.RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT, null, null);
     }
     
     public int getVFSMessageLength() {
@@ -1504,11 +1500,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //if (revisionListsByName == null) revisionListsByName = new Hashtable();
         commandsPool = CommandsPool.getInstance();//new CommandsPool(this, false);
         if (numberOfFinishedCmdsToCollect == null) {
-            numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
+            numberOfFinishedCmdsToCollect = new Integer(RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
         }
-        RuntimeSupport.getInstance().setCollectFinishedCmdsNum(numberOfFinishedCmdsToCollect.intValue(), getSystemName());
         if (varValueAdjustment == null) varValueAdjustment = new VariableValueAdjustment();
         initListeners();
+        if (attr instanceof VcsAttributes && isCreateRuntimeCommands()) {
+            ((VcsAttributes) attr).setRuntimeCommandsProvider(new VcsRuntimeCommandsProvider(this));
+        }
     }
 
     private void initListeners() {
@@ -1607,6 +1605,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected void setCreateRuntimeCommands(boolean createRuntimeCommands) {
         if (!new Boolean(createRuntimeCommands).equals(this.createRuntimeCommands)) {
             this.createRuntimeCommands = new Boolean(createRuntimeCommands);
+            if (attr instanceof VcsAttributes) {
+                ((VcsAttributes) attr).setRuntimeCommandsProvider(
+                    (createRuntimeCommands) ? new VcsRuntimeCommandsProvider(this) : null);
+            }
             firePropertyChange(PROP_CREATE_RUNTIME_COMMANDS, null, this.createRuntimeCommands);
         }
     }
@@ -1747,7 +1749,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private void writeObject(ObjectOutputStream out) throws IOException {
         //D.deb("writeObject() - saving bean"); // NOI18N
         // cache is transient
-        numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.getInstance().getCollectFinishedCmdsNum(getSystemName()));
         
         out.writeBoolean (true/*cache.isLocalFilesAdd ()*/); // for compatibility
         String myPassword = password;
@@ -2448,7 +2449,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             String VCSName = commandsRoot.getDisplayName();
             //System.out.println("VCSName = '"+VCSName+"'");
             if (VCSName != null && VCSName.length() > 0) {
-                //System.out.println(VCSName + " " + rootFile.toString());
+                //System.out.println("VcsFileSystem.getDisplayName() = "+VCSName + " " + rootFile.toString());
                 return VCSName + " " + rootFile.toString();
             }
         }
@@ -2524,6 +2525,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         setAdjustedSystemName(name);
 
         rootFile = root;
+        firePropertyChange(PROP_DISPLAY_NAME, null, null);
         last_rootFile = new File(getFSRoot());
         ready=true ;
         
@@ -4002,9 +4004,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     foSet.add(enum.nextElement());
                 }
                 fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, foSet, false, true));
-            } else if (VcsFileSystem.PROP_SYSTEM_NAME.equals(event.getPropertyName())) {
-                RuntimeSupport.getInstance().updateRuntime(VcsFileSystem.this, oldFsSystemName);
-                oldFsSystemName = VcsFileSystem.this.getSystemName();
             }
         }
     }

@@ -2331,6 +2331,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             final CommandsPool pool = fileSystem.getCommandsPool();
             final StringBuffer selection = new StringBuffer();
             pool.addCommandListener(new CommandListener() {
+                
+                public void commandPreprocessing(VcsCommandExecutor vce) {
+                }
+                
                 public void commandStarted(VcsCommandExecutor vce) {
                 }
                 

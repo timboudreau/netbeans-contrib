@@ -125,6 +125,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
             myMode.dockInto(this);
         }
         super.open(workspace);
+        requestFocus();
     }
 
     protected void componentActivated() {

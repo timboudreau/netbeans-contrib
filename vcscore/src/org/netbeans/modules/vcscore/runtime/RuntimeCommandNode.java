@@ -57,7 +57,7 @@ public class RuntimeCommandNode extends AbstractNode {
         setDefaultAction(CommandOutputViewAction.getInstance());
     }
     
-    void setState(int state) {
+    public void setState(int state) {
         this.state = state;
         fireIconChange();
         firePropertyChange("status", null, null);
