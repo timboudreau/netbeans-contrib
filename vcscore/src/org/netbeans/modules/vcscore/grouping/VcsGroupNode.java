@@ -57,6 +57,7 @@ public class VcsGroupNode extends AbstractNode {
                ErrorManager.getDefault().notify(ErrorManager.WARNING, exc);
             }
         }
+        getCookieSet().add(new VcsGroupNode.GroupCookieImpl());
     }
     
     private String getBundleValue(String keyValue) {
@@ -312,6 +313,23 @@ public class VcsGroupNode extends AbstractNode {
         return retValue;
     }
     
+    
+    private class GroupCookieImpl implements GroupCookie {
+        
+        /** Get the display name of the group.
+         */
+        public String getDisplayName() {
+            return VcsGroupNode.this.getDisplayName();
+        }
+        
+        /** Get the description of the group. This description is used by the commit
+         * command.
+         */
+        public String getDescription() {
+            return VcsGroupNode.this.getShortDescription();
+        }
+        
+    }
     
     private static class ShadowOnlyDataFilter implements DataFilter {
         
