@@ -13,24 +13,29 @@
 <body>
 
 <h2><img src="BundleLookupAction.gif"> Resource Bundle Lookup</h2>
-<h3>What is a difference between I18N Wizard and Resource Bundle Lookup ?</h3>
-
-<ul>
-<li>I18N Wizard provides I18N assistance using one known resource bundle.</li>
-<li>Resource Bundle Lookup performs full-text search through all resource bundles in unknown source hierarchy.</li>
-</ul>
-I18N of Jemmy Components and automated tests pointing to the same resources as original has big advantage.
-Jemmy Components and automated tests does not need to be translated more and they ever match the original.
-
-
-<h3>How can I use Resource Bundle Lookup ?</h3>
-<ol>
-<li>Mount all possible sources into repository.</li>
-<li>Open Resource Bundle Lookup dialog from Tools/Resource Bundle Lookup menu.</li>
-<li>Insert selection criteria and click Select button.</li>
-<li>Choose proper row in result table and copy lookup code to clipboard using pop up menu.</li>
-<li>Paste lookup code into source code instead of hard coded string.</li>
-</ol>
+All resource bundles inspected by this lookup tools must be mounted into filesystems repository !
+<p>
+<code><b>Searched text</b></code> text field is used to enter complete string, sub-string or regular expression to be searched for.
+<p>
+<code><b>Case Sensitive</b></code> checkbox tells to search engine to carry/ignore case of searched text.
+<p>
+<code><b>Substring</b></code> checkbox informs search engine that typed text is just a part of searched text.
+<p>
+<code><b>Regular Expression</b></code> check box is enabled only in JDK with regular expression support (version 1.4 and higher).<br>
+It allows to search according to given regular expression.<br>
+Case Sensitivity and Substring matching is also applied when Regular Expression enabled.
+<p>
+<code><b>Use Resource Bundle Filter</b></code> checkbox enables filtering of resource bundle names.<br>
+Filter Text can be also Case Sensitive, Substring and Regular Expression.<br>
+Only the resource bundles matching the filter text are used for search when enabled.
+<p>
+<code><b>Search/Stop</b></code> button starts/stops search engine.
+<p>
+<code><b>Search Results</b></code> table contains three columns: 
+<code>Resource Bundle</code>, <code>Key</code> and <code>Text</code>.<br>
+Results can be sorted by any column by clicking its header label.<br>
+Any result row can be copied into system clipboard be selecting the best source format from its popup menu.        
+ 
 
 <hr>
 <small><a href="credits.html">Legal Notices</a></small>

@@ -12,51 +12,51 @@
 <link rel="stylesheet" href="../../usersguide/ide.css" type="text/css"></HEAD>
 <body>
 
-<h2><img src="GeneratorAction.gif"> Jemmy Components Generator</h2>
-<h3>What is Jemmy Component ?</h3>
-
-<ul>
-<li>Jemmy Components are connection links between automated tests and tested GUI components (Frames, Dialogs, etc...).</li>
-<li>Each Jemmy Component is reflecting real GUI and offers API for automated tests.</li>
-<li>Jemmy Component transforms API calls into GUI manipulation actions using power of <a href="http://jemmy.netbeans.org">Jemmy</a> library.</li>
-<li>Jemmy Component API contains three levels:
-<ol>
-<li>sub-components definition (public methods returning Jemmy Operators for sub-components)</li>
-<li>low-level operations (methods performing simple operations with subcomponents, like: pushing, setting text, etc...)</li>
-<li>high-level operations (methods performing complex actions with component, like: all sub-component verification, filling form, etc...)</li>
-</ol></li>
-</ul>
-
-
-<h3>How Jemmy Components Generator works ?</h3>
-
-<ul>
-<li>It performs analysis of visible GUI component (Frame, Dialog, etc...) and creates skeleton of Jemmy Component.</li>
-<li>Jemmy Components Generator does not need sources of component for analysis.</li>
-<li>Created skeleton is compilable (and executable) code with API reflecting analyzed component GUI.</li>
-</ul>
-
-
-<h3>How can I use Jemmy Components Generator ?</h3>
-
-<ol>
-<li>Open Components Generator dialog from Tools/Components Generator menu.</li>
-<li>Select destination filesystem and package for generated Jemmy Components.</li>
-<li>Start Components Generator</li>
-<li>Open and focus tested component (Window, Dialog, Frame, Internal Frame) or start tested application using IDE Internal Executor.</li>
-<li>Press CTRL-F12 and wait for Components Editor dialog (if requested).</li>
-<li>Optional - delete unwanted subcomponents or modify their names and click OK button.</li>
-<li>Java source code of Jemmy Component and optionally also PNG image with screen shot should be in destination package.</li>  
-</ol>
-
-
-<h3>Is it possible to affect process of generation ?</h3>
-
-Yes, changing the names of components used in generated code is optional during process of generation.<br>  
-Any sub-component can be removed or re-named during generation process.
-
-
+<h2><img src="GeneratorAction.gif"> Jemmy Component Generator</h2>
+First select destination filesystem and package for generated component sources.
+<p>
+<code><b>Create Screenshot</b></code> checkbox gives you an ability to create screen shots of generated components. 
+Images are stored in the same directory with the same name as generated component and with extension <code>.png</code>.
+<p>
+<code><b>Show Component Editor</b></code> checkbox enables/disables <a href="#editor">Component Editor</a> appearing during process of generation.
+It allows on-line editing of grabbed structure before generated sources are finalized.
+<p>
+<code><b>Merge Conflicts</b></code> checkbox shows Merge Window in case of conflict with already present component source.
+Than you can control process of merging source differences.<br>
+Filenames of newly generated sources are numbered to avoid conflicts when Merge Conflicts checkbox is disabled.  
+<p>  
+<code><b>Start/Stop Component Generator</b></code> button starts/stops thread waiting for some component to be focused and CTRL-F12 key to be pressed.<br>
+This button is enabled only when some package with write access is selected.<br>
+Component Generator is automatically stopped when its dialog is closed. 
+<p>
+When generator is started and you see information message above Stop button you can invoke and select the component to be grabbed.<br>
+Selected components are highlighted by red border.
+Process of generation can be started only by pressing CTRL-F12 key.
+Component Editor dialog or Merger is displayed then in dependency of previous selection.
+<p>
+Do not access selected component till "<code>Please wait, processing...</code>" message is displayed !     
+<p>
 <a name="editor"></a>
+<h3>Component Editor</h3>
+Component Editor displays tree of known visible sub-components under selected component on the left 
+and properties of selected sub-component in property sheet on the right.
+<p>
+Any sub-component node can be deleted from tree by pushing Delete key or by selecting Delete from its popup menu.  
+<p>
+<b>Sub-component properties:</b>
+<p>
+<code><b>interanlLabels</b></code> property is list of text labels found inside sub-component.<br> 
+These labels are used to generate <code>public static final String</code> fields for some operators (JList, JComboBox...).
+<p>
+<code><b>shortName</b></code> property is used mostly for low level method naming in generated source.
+<p>
+<code><b>uniqueName</b></code> property is used for unique sub-component identification, 
+for inner fields and sub-component getters naming in generated source.<br>
+Root nodes uniqueName represents its class and file name without extension. 
+<p>  
+Note: uniqueName property is changed in dependency of shortName property to simplify modifications.
+     
+
 
 <hr>
 <small><a href="credits.html">Legal Notices</a></small>

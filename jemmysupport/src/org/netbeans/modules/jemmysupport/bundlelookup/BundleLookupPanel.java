@@ -49,7 +49,7 @@ public class BundleLookupPanel extends TopComponent  {
     static BundleLookupPanel panel=null;
     
     static final String[] header={
-        NbBundle.getMessage(BundleLookupPanel.class, "LBL_ResourceBundle"), // NOI18N
+        NbBundle.getMessage(BundleLookupPanel.class, "LBL_Bundle"), // NOI18N
         NbBundle.getMessage(BundleLookupPanel.class, "LBL_Key"), // NOI18N
         NbBundle.getMessage(BundleLookupPanel.class, "LBL_Text")}; // NOI18N
     
@@ -321,9 +321,9 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 11);
         gridBagConstraints.weightx = 100.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 11);
         add(SearchButton, gridBagConstraints);
 
         StopButton.setMnemonic(NbBundle.getMessage(BundleLookupPanel.class, "MNM_Stop").charAt(0));
@@ -339,9 +339,9 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 11);
         gridBagConstraints.weightx = 100.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 11);
         add(StopButton, gridBagConstraints);
 
         ScrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
@@ -367,9 +367,9 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 11);
         gridBagConstraints.weightx = 100.0;
         gridBagConstraints.weighty = 100.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 11);
         add(ScrollPane, gridBagConstraints);
         ScrollPane.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "LBL_ResultTable"));
 
@@ -377,8 +377,8 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.insets = new java.awt.Insets(11, 12, 12, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 12, 11);
         add(StatusLabel, gridBagConstraints);
 
         filterPanel.setLayout(new java.awt.GridBagLayout());
@@ -469,8 +469,8 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 12);
         add(ResultsLabel, gridBagConstraints);
 
     }//GEN-END:initComponents
