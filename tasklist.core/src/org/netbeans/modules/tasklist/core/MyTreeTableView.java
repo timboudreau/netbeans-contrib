@@ -21,11 +21,9 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import org.openide.explorer.view.TreeTableView;
 
-    // Workaround - is this no longer necessary?
-    // No, I can fish the JTable out of the TreeTableView - it's
-    // a JScrollPane, so its getViewport().getView() will be the
-// JTable!
-// todo comments
+/**
+ * Contains fixes that need access to final protected methods.
+ */
 final class MyTreeTableView extends TreeTableView implements TreeTableIntf {
 
     private static final long serialVersionUID = 1;
@@ -42,7 +40,7 @@ final class MyTreeTableView extends TreeTableView implements TreeTableIntf {
         // No white clipping lines on selected table rows: reduce separator
         // to 0. That means text may touch but HIE prefers this.
         table.setIntercellSpacing(new Dimension(0, table.getRowMargin()));
-        double height = new JLabel("Z").getPreferredSize().getHeight();
+        double height = new JLabel("Z").getPreferredSize().getHeight();  // NOI18N
         int intheight = (int) height;
         table.setRowHeight(intheight);
 
