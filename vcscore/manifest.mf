@@ -4,4 +4,5 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/vcscore/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.10
 OpenIDE-Module-Layer: org/netbeans/modules/vcscore/resources/mf-layer.xml
 OpenIDE-Module-Requires: org.openide.windows.IOProvider
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.masterfs/1 > 1.1
 
