@@ -20,35 +20,44 @@ Microsystems, Inc. All Rights Reserved.
   <property name="nbext" value="${nbroot}/nbbuild"/>
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
 
   <target name="compile">
     <javac srcdir="src" destdir="src">
+      <exclude name="org/netbeans/modules/corba/idl/editor/"/>
       <classpath>
-<!--        <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
 	<pathelement location="${nbroot}/openidex/netbeans/lib/ext/openidex.jar"/>
 	<pathelement location="${nbroot}/java/netbeans/modules/java.jar"/>
-	<pathelement location="${nbroot}/editor/netbeans/modules/editor.jar"/>
-	<pathelement location="${nbroot}/editor/netbeans/modules/ext/nb-editor.jar"/>
 	<pathelement location="compiletime/idlj.jar"/>
 	<pathelement location="compiletime/corbanscs.jar"/>
 	<pathelement location="compiletime/sun-tools.jar"/>
 	<pathelement location="compiletime/ibm-tools.jar"/>
 	<pathelement location="release/lib/ext/corbaext.jar"/>
 	<pathelement location="release/lib/ext/idlcompilers.jar"/>
+        <!-- XXX illegal dependency on core: -->
 	<pathelement location="${nbroot}/core/netbeans/lib/core.jar"/>
+        <!-- XXX illegal dependency on projects: -->
 	<pathelement location="${nbroot}/projects/netbeans/modules/projects.jar"/>
+      </classpath>
+    </javac>
+    <javac srcdir="src" destdir="src">
+      <include name="org/netbeans/modules/corba/idl/editor/"/>
+      <classpath>
+        <fileset dir="${nbroot}/openide/netbeans/lib">
+          <include name="openide*.jar" />
+        </fileset>
+	<pathelement location="${nbroot}/editor/netbeans/modules/editor.jar"/>
+	<pathelement location="${nbroot}/editor/netbeans/modules/ext/nb-editor.jar"/>
       </classpath>
     </javac>
   </target>
 
   <target name="jars" depends="compile">
     <mkdir dir="netbeans/modules"/>
-    <mkdir dir='netbeans/lib/ext'/>
+    <mkdir dir="netbeans/lib/ext"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     <locjar jarfile="netbeans/modules/corba.jar"
@@ -56,6 +65,19 @@ Microsystems, Inc. All Rights Reserved.
          basedir="src"
 	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
 	 compress="false">
+      <exclude name="org/netbeans/modules/corba/idl/editor/"/>
+      <locale name="ja"/>
+      <branding name="f4j"/>
+      <branding name="f4j_ce"/>
+      <branding name="f4j_ie"/>
+    </locjar>
+    <copy file="manifest-syntax.mf" tofile="manifest-syntax-subst.mf" filtering="on"/>
+    <locjar jarfile="netbeans/modules/idl-syntax.jar"
+         manifest="manifest-syntax-subst.mf"
+         basedir="src"
+	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+	 compress="false">
+      <include name="org/netbeans/modules/corba/idl/editor/"/>
       <locale name="ja"/>
       <branding name="f4j"/>
       <branding name="f4j_ce"/>
@@ -104,6 +126,7 @@ Microsystems, Inc. All Rights Reserved.
       </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
+    <delete file="manifest-syntax-subst.mf"/>
     <delete file="corba.nbm"/>
     <delete dir="netbeans"/>    
     <delete dir="Info"/>

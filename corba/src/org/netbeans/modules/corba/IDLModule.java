@@ -22,8 +22,6 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.io.*;
 
-import javax.swing.JEditorPane;
-
 import org.openide.compiler.Compiler;
 import org.openide.compiler.CompilerJob;
 import org.openide.modules.ModuleInstall;
@@ -35,11 +33,8 @@ import org.openide.loaders.DataFolder;
 import org.openidex.util.Utilities2;
 
 import org.netbeans.modules.java.settings.JavaSettings;
-import org.netbeans.modules.editor.options.AllOptions;
-import org.netbeans.editor.Settings;
 
 import org.netbeans.modules.corba.settings.*;
-import org.netbeans.modules.corba.idl.editor.settings.IDLOptions;
 
 
 /**
@@ -80,7 +75,6 @@ public class IDLModule extends ModuleInstall {
         css.init ();
 	css.setBeans (css.getBeans ());
 
-        installColoring ();
         if (DEBUG)
             System.out.println ("CORBA Support Module restored..."); // NOI18N
     }
@@ -91,44 +85,6 @@ public class IDLModule extends ModuleInstall {
     public void uninstalled () {
         removeAction();
     }
-
-    private void installColoring () {
-        if (DEBUG)
-            System.out.println ("installColoring()"); // NOI18N
-        try {
-            Class settings = Class.forName
-                             ("org.netbeans.editor.Settings", // NOI18N
-                              false, this.getClass().getClassLoader()); // only test for editor module
-
-            Class restore = Class.forName
-                            ("org.netbeans.modules.corba.idl.editor.settings.RestoreColoring", // NOI18N
-                             false, this.getClass().getClassLoader());
-            Method restoreMethod = restore.getMethod ("restore", null); // NOI18N
-            restoreMethod.invoke (restore.newInstance(), null);
-
-        } catch (ClassNotFoundException e) {
-            if (DEBUG)
-                e.printStackTrace ();
-        } catch (NoSuchMethodException e) {
-            if (DEBUG)
-                e.printStackTrace ();
-        } catch (InvocationTargetException e) {
-            if (DEBUG)
-                e.printStackTrace ();
-        } catch (IllegalAccessException e) {
-            if (DEBUG)
-                e.printStackTrace ();
-        } catch (InstantiationException e) {
-            if (DEBUG)
-                e.printStackTrace ();
-        }
-        /*
-          } catch (Exception ex) {
-          ex.printStackTrace ();
-          }
-        */
-    }
-
 
     private String getClasspath(String[] classpathItems) {
         return null;

@@ -1,0 +1,8 @@
+OpenIDE-Module: org.netbeans.modules.corba.idl.editor/1
+OpenIDE-Module-Name: IDL Syntax Coloring
+OpenIDE-Module-Display-Category: Editing
+OpenIDE-Module-Install: org/netbeans/modules/corba/idl/editor/settings/RestoreColoring.class
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.editor/1 > 1.6
+

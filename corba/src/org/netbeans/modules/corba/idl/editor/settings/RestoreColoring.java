@@ -19,6 +19,7 @@ import org.openide.TopManager;
 import org.openide.options.SystemOption;
 import org.openide.text.PrintSettings;
 import org.openide.filesystems.FileUtil;
+import org.openide.modules.ModuleInstall;
 
 import org.netbeans.modules.editor.options.AllOptions;
 import org.netbeans.editor.Settings;
@@ -26,10 +27,12 @@ import org.netbeans.editor.Settings;
 /**
  * @author Karel Gardas
  */
-public class RestoreColoring {
+public class RestoreColoring extends ModuleInstall {
+    private static final long serialVersionUID = 6847217344357938537L;
+
     private static final String IDL_MIME_TYPE = "text/x-idl";
 
-    public void restore () {
+    public void restored () {
         //System.out.println ("restore ()");
         Settings.addInitializer (new IDLEditorSettingsInitializer());
 
