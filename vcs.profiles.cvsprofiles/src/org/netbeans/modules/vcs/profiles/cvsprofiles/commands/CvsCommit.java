@@ -66,7 +66,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         this.fileSystem = fileSystem;
     }
     
-    private static ArrayList getFilePaths(String paths, char ps) {
+    private static ArrayList getFilePaths(String commonParent, String paths, char ps) {
         ArrayList files = new ArrayList();
         if (paths != null && paths.length() > 0) {
             int len = paths.length();
@@ -75,6 +75,9 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 int index = paths.indexOf(""+ps + ps, begin);
                 if (index < 0) index = len;
                 String file = paths.substring(begin, index);
+                if (commonParent != null && commonParent.length() > 0) {
+                    file = commonParent + "/" + file;
+                }
                 files.add(file.replace(ps, '/'));
                 begin = index + 2;
             } while (begin < len);
@@ -535,7 +538,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             vars.put("WINCAT", wincat);
         }
         final StringBuffer buff = new StringBuffer();
-        ArrayList filePaths = getFilePaths((String) vars.get("PATHS"), ps);
+        ArrayList filePaths = getFilePaths((String) vars.get("COMMON_PARENT"), (String) vars.get("PATHS"), ps);
         CommandsPool cpool = fileSystem.getCommandsPool();
         Hashtable varsOriginal = new Hashtable(vars);
         boolean committed = false;
