@@ -46,9 +46,14 @@ public class DeclaratorElement extends TypeElement {
   */
 
   public IDLType getType () {
-    if (!super.getType ().ofDimension ().equals (getDimension ())) {
-      //System.out.println ("setting right dimension for IDLType");
-      super.getType ().setDimension (getDimension ());
+    if (super.getType ().ofDimension () != null) {
+      if (!super.getType ().ofDimension ().equals (getDimension ())) {
+	//System.out.println ("setting right dimension for IDLType");
+	super.getType ().setDimension (getDimension ());
+      }
+    }
+    else {
+      super.getType ().setDimension (new Vector ());
     }
     return super.getType ();
   }
