@@ -233,6 +233,7 @@ public class EJBProjectNature implements ProjectNature {
         private static final String[] RECOMENDED_TYPES = new String[] {
             "java-classes",         // NOI18N
             "ejb-types",            // NOI18N
+            "j2ee-types",           // NOI18N
             "java-beans",           // NOI18N
             "oasis-XML-catalogs",   // NOI18N
             "XML",                  // NOI18N
