@@ -534,7 +534,7 @@ public class ComponentGenerator {
         // install JemmyQueue because later installation may cause problems
         // (it has to be installed before any modal dialog is open)
         QueueTool.installQueue();
-        maxComponentCodeLength = Integer.parseInt(props.getProperty("max.code.l11ength")); // NOI18N
+        maxComponentCodeLength = Integer.parseInt(props.getProperty("max.code.1ength")); // NOI18N
         JemmyProperties.setCurrentTimeout("ComponentOperator.WaitComponentTimeout", 0); // NOI18N
         JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
         addOperatorRecords(props);
