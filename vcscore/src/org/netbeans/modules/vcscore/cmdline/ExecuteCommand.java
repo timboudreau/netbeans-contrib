@@ -1284,7 +1284,13 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                         // the file does not match our requirements
                         return ;
                     }
-                    fileName = fileName.substring(refreshFilesMustStartWith.length() + 1);
+                    if (refreshFilesMustStartWith.length() < fileName.length()) {
+                        fileName = fileName.substring(refreshFilesMustStartWith.length() + 1);
+                    } else {
+                        fileName = "";
+                        // We do not refresh the FS root. A support for that would have to be made.
+                        return ;
+                    }
                 }
                 if (refreshFilesBase != null) {
                     filePath = refreshFilesBase + "/" + fileName;
