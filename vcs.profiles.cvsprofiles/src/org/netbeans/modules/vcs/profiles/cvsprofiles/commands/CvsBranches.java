@@ -160,8 +160,8 @@ public class CvsBranches implements VcsAdditionalCommand, RevisionListener {
         } else args = new String[3];
         args[args.length - 3] = "0"; // The output specification
         for(int i = 0; i < 2; i++) args[i + args.length - 2] = diffArgs[i];
-        return diff.exec(vars, args, stdoutNRListener, stderrNRListener,
-                         stdoutListener, dataRegex, stderrListener, errorRegex);
+        return diff.exec(vars, args, NullListener.get(), NullListener.get(),
+                         NullListener.get(), dataRegex, NullListener.get(), errorRegex);
     }
 
     public void close() {
@@ -227,6 +227,27 @@ public class CvsBranches implements VcsAdditionalCommand, RevisionListener {
             this.computeBranchesPositions();
             this.branchFrame.refresh (this.logInfo);
         }
+    }
+    
+    private static class NullListener implements CommandOutputListener, CommandDataOutputListener {
+        
+        private static NullListener instance;
+        
+        private NullListener() {}
+        
+        public static synchronized NullListener get() {
+            if (instance == null) {
+                instance = new NullListener();
+            }
+            return instance;
+        }
+        
+        public void outputLine(String line) {
+        }
+        
+        public void outputData(String[] elements) {
+        }
+
     }
 }
 

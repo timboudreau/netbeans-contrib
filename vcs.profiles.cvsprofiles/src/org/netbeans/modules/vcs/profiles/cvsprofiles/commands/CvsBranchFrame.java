@@ -399,7 +399,10 @@ public class CvsBranchFrame extends javax.swing.JFrame {
 
     private class BranchMouseListener extends javax.swing.event.MouseInputAdapter {
         public void mouseReleased(java.awt.event.MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e)) {
+            // The right button comes with e.isMetaDown(), we use this to distinguish it
+            // from the left button. (according to http://java.sun.com/j2se/1.4.2/docs/api/java/awt/event/MouseEvent.html
+            // and http://www.faqs.org/docs/javap/c6/s4.html).
+            if (SwingUtilities.isLeftMouseButton(e) && !e.isMetaDown()) {
                 String revision = getRevisionAt(e.getX(), e.getY());
                 //System.out.println("Revision = "+revision); // NOI18N
                 if (revision != null) {
