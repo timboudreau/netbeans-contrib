@@ -491,6 +491,11 @@ public class TableView extends JScrollPane implements Externalizable {
     public void requestFocus () {
         table.requestFocus();
     }
+    
+    /* Requests focus for the list component. Overrides superclass method. */
+    public boolean requestFocusInWindow () {
+        return table.requestFocusInWindow();
+    }
 
     /** This method is called when user double-clicks on some object or
     * presses Enter key.

@@ -199,6 +199,11 @@ public class CreateGroupAction extends CookieAction {
         public void requestFocus () {
             text.requestFocus ();
         }
+        
+        /** Request focus delegates to texfield. */
+        public boolean requestFocusInWindow () {
+            return text.requestFocusInWindow ();
+        }
 
         /** Gets text from textfield. */
         public String getText () {

@@ -90,7 +90,7 @@ public class VersioningExplorerAction extends GeneralCommandAction {
             }
         }
         selectVersioningFiles(explorer, filesByFS);
-        explorer.requestFocus();
+        explorer.requestActive();
     }
  
     private HashMap getFilesByFS(Node[] nodes) {

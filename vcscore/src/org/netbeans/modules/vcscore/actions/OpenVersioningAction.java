@@ -54,7 +54,7 @@ public class OpenVersioningAction extends CallableSystemAction {
     public void performAction() {
         Panel explorer = VersioningExplorer.getRevisionExplorer();
         explorer.open();       
-        explorer.requestFocus();
+        explorer.requestActive();
     }
  
 }
