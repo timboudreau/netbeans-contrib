@@ -150,9 +150,7 @@ public class GeneralCommandAction extends NodeAction {
             FileObject[] filesArr = new FileObject[files.size()];
             filesArr = (FileObject[])files.toArray(filesArr);
             enabled = support.isEnabled(this, filesArr);
-            if (enabled) {
-                addDisplayName(support.getToolBarDisplayName(this));
-            }
+            addDisplayName(support.getToolBarDisplayName(this));
         }
         wasReset = false;
         resetDisplayNames();
