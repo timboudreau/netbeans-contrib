@@ -63,8 +63,8 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
     private static final String CHANGE_DELIMETER = "======="; // NOI18N
 
     private VcsFileSystem fileSystem = null;
-    private String leftFileRev = null;
-    private String rightFileRev = null;
+    private String leftFileRevision = null;
+    private String rightFileRevision = null;
 
     public void setFileSystem(VcsFileSystem fileSystem) {
         this.fileSystem = fileSystem;
@@ -119,22 +119,28 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         }
         copyParts(false, file, f2, false);
         //GraphicalMergeVisualizer merge = new GraphicalMergeVisualizer();
+        String originalLeftFileRevision = leftFileRevision;
+        String originalRightFileRevision = rightFileRevision;
+        if (leftFileRevision != null) leftFileRevision.trim();
+        if (rightFileRevision != null) rightFileRevision.trim();
         java.awt.Component c;
-        if (leftFileRev == null || leftFileRev.equals(file.getName())) {
-            leftFileRev = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleWorkingFile");
+        if (leftFileRevision == null || leftFileRevision.equals(file.getName())) {
+            leftFileRevision = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleWorkingFile");
         } else {
-            leftFileRev = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleRevision", leftFileRev);
+            leftFileRevision = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleRevision", leftFileRevision);
         }
-        if (rightFileRev == null || rightFileRev.equals(file.getName())) {
-            rightFileRev = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleWorkingFile");
+        if (rightFileRevision == null || rightFileRevision.equals(file.getName())) {
+            rightFileRevision = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleWorkingFile");
         } else {
-            rightFileRev = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleRevision", rightFileRev);
+            rightFileRevision = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleRevision", rightFileRevision);
         }
         String resultTitle = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Merge.titleResult");
-        c = merge.createView(diffs, StreamSource.createSource(file.getName(), leftFileRev, mimeType, f1),
-                             StreamSource.createSource(file.getName(), rightFileRev, mimeType, f2),
+        c = merge.createView(diffs, StreamSource.createSource(file.getName(), leftFileRevision, mimeType, f1),
+                             StreamSource.createSource(file.getName(), rightFileRevision, mimeType, f2),
                              /*file.getName(), resultTitle,*/
-                             new MergeResultWriterInfo(f1, f2, f3, file, mimeType)/*, new VetoableChangeListener() {
+                             new MergeResultWriterInfo(f1, f2, f3, file, mimeType,
+                                                       originalLeftFileRevision,
+                                                       originalRightFileRevision)/*, new VetoableChangeListener() {
                                  public void vetoableChange(PropertyChangeEvent evt) {
                                      if ("OK".equals(evt.getActionCommand())) {
                                          try {
@@ -168,19 +174,32 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
             boolean isChangeLeft = false;
             boolean isChangeRight = false;
             int f1l1 = 0, f1l2 = 0, f2l1 = 0, f2l2 = 0;
+            StringBuffer text1 = new StringBuffer();
+            StringBuffer text2 = new StringBuffer();
             int i = 1, j = 1;
             while ((line = r.readLine()) != null) {
                 if (line.startsWith(CHANGE_LEFT)) {
                     if (generateDiffs) {
-                        if (leftFileRev == null) {
-                            leftFileRev = line.substring(CHANGE_LEFT.length()).trim();
+                        if (leftFileRevision == null) {
+                            leftFileRevision = line.substring(CHANGE_LEFT.length());
                         }
                         if (isChangeLeft) {
                             f1l2 = i - 1;
-                            diffList.add((f1l1 > f1l2) ? new Difference(Difference.ADD, f1l1 - 1, 0, f2l1, f2l2) :
-                                         (f2l1 > f2l2) ? new Difference(Difference.DELETE, f1l1, f1l2, f2l1 - 1, 0)
-                                                       : new Difference(Difference.CHANGE, f1l1, f1l2, f2l1, f2l2));
+                            diffList.add((f1l1 > f1l2) ? new Difference(Difference.ADD,
+                                                                        f1l1 - 1, 0, f2l1, f2l2,
+                                                                        text1.toString(),
+                                                                        text2.toString()) :
+                                         (f2l1 > f2l2) ? new Difference(Difference.DELETE,
+                                                                        f1l1, f1l2, f2l1 - 1, 0,
+                                                                        text1.toString(),
+                                                                        text2.toString())
+                                                       : new Difference(Difference.CHANGE,
+                                                                        f1l1, f1l2, f2l1, f2l2,
+                                                                        text1.toString(),
+                                                                        text2.toString()));
                             f1l1 = f1l2 = f2l1 = f2l2 = 0;
+                            text1.delete(0, text1.length());
+                            text2.delete(0, text2.length());
                         } else {
                             f1l1 = i;
                         }
@@ -189,14 +208,23 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                     continue;
                 } else if (line.startsWith(CHANGE_RIGHT)) {
                     if (generateDiffs) {
-                        if (rightFileRev == null) {
-                            rightFileRev = line.substring(CHANGE_RIGHT.length()).trim();
+                        if (rightFileRevision == null) {
+                            rightFileRevision = line.substring(CHANGE_RIGHT.length());
                         }
                         if (isChangeRight) {
                             f2l2 = j - 1;
-                            diffList.add((f1l1 > f1l2) ? new Difference(Difference.ADD, f1l1 - 1, 0, f2l1, f2l2) :
-                                         (f2l1 > f2l2) ? new Difference(Difference.DELETE, f1l1, f1l2, f2l1 - 1, 0)
-                                                       : new Difference(Difference.CHANGE, f1l1, f1l2, f2l1, f2l2));
+                            diffList.add((f1l1 > f1l2) ? new Difference(Difference.ADD,
+                                                                        f1l1 - 1, 0, f2l1, f2l2,
+                                                                        text1.toString(),
+                                                                        text2.toString()) :
+                                         (f2l1 > f2l2) ? new Difference(Difference.DELETE,
+                                                                        f1l1, f1l2, f2l1 - 1, 0,
+                                                                        text1.toString(),
+                                                                        text2.toString())
+                                                       : new Difference(Difference.CHANGE,
+                                                                        f1l1, f1l2, f2l1, f2l2,
+                                                                        text1.toString(),
+                                                                        text2.toString()));
                                                        /*
                             diffList.add(new Difference((f1l1 > f1l2) ? Difference.ADD :
                                                         (f2l1 > f2l2) ? Difference.DELETE :
@@ -204,6 +232,8 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                                                         f1l1, f1l2, f2l1, f2l2));
                                                         */
                             f1l1 = f1l2 = f2l1 = f2l2 = 0;
+                            text1.delete(0, text1.length());
+                            text2.delete(0, text2.length());
                         } else {
                             f2l1 = j;
                         }
@@ -229,6 +259,8 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                     w.write(line);
                     w.newLine();
                 }
+                if (isChangeLeft) text1.append(line + "\n");
+                if (isChangeRight) text2.append(line + "\n");
                 if (generateDiffs) {
                     if (isChangeLeft) i++;
                     else if (isChangeRight) j++;
@@ -256,14 +288,19 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         
         private File tempf1, tempf2, tempf3, outputFile;
         private String mimeType;
+        private String leftFileRevision;
+        private String rightFileRevision;
         
         public MergeResultWriterInfo(File tempf1, File tempf2, File tempf3,
-                                     File outputFile, String mimeType) {
+                                     File outputFile, String mimeType,
+                                     String leftFileRevision, String rightFileRevision) {
             this.tempf1 = tempf1;
             this.tempf2 = tempf2;
             this.tempf3 = tempf3;
             this.outputFile = outputFile;
             this.mimeType = mimeType;
+            this.leftFileRevision = leftFileRevision;
+            this.rightFileRevision = rightFileRevision;
         }
         
         public String getName() {
@@ -289,10 +326,11 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
          * @return The writer or <code>null</code>, when no writer can be created.
          */
         public Writer createWriter(Difference[] conflicts) throws IOException {
-            if (conflicts == null) {
+            if (conflicts == null || conflicts.length == 0) {
                 return new FileWriter(outputFile);
             } else {
-                return new MergeConflictFileWriter(outputFile, conflicts);
+                return new MergeConflictFileWriter(outputFile, conflicts,
+                                                   leftFileRevision, rightFileRevision);
             }
         }
         
@@ -311,10 +349,51 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
     private static class MergeConflictFileWriter extends FileWriter {
         
         private Difference[] conflicts;
+        private int lineNumber;
+        private int currentConflict;
+        private String leftName;
+        private String rightName;
         
-        public MergeConflictFileWriter(File file, Difference[] conflicts) throws IOException {
+        public MergeConflictFileWriter(File file, Difference[] conflicts,
+                                       String leftName, String rightName) throws IOException {
             super(file);
             this.conflicts = conflicts;
+            this.leftName = leftName;
+            this.rightName = rightName;
+            this.lineNumber = 1;
+            this.currentConflict = 0;
+            if (lineNumber == conflicts[currentConflict].getFirstStart()) {
+                writeConflict(conflicts[currentConflict]);
+                currentConflict++;
+            }
+        }
+        
+        public void write(String str) throws IOException {
+            //System.out.println("MergeConflictFileWriter.write("+str+")");
+            super.write(str);
+            lineNumber += numChars('\n', str);
+            //System.out.println("  lineNumber = "+lineNumber+", current conflict start = "+conflicts[currentConflict].getFirstStart());
+            if (currentConflict < conflicts.length && lineNumber >= conflicts[currentConflict].getFirstStart()) {
+                writeConflict(conflicts[currentConflict]);
+                currentConflict++;
+            }
+        }
+        
+        private void writeConflict(Difference conflict) throws IOException {
+            //System.out.println("MergeConflictFileWriter.writeConflict('"+conflict.getFirstText()+"', '"+conflict.getSecondText()+"')");
+            super.write(CHANGE_LEFT + leftName + "\n");
+            super.write(conflict.getFirstText());
+            super.write(CHANGE_DELIMETER + "\n");
+            super.write(conflict.getSecondText());
+            super.write(CHANGE_RIGHT + rightName + "\n");
+        }
+        
+        private static int numChars(char c, String str) {
+            int n = 0;
+            for (int pos = str.indexOf(c); pos >= 0 && pos < str.length(); pos = str.indexOf(c, pos + 1)) {
+                n++;
+            }
+            return n;
         }
     }
 }
