@@ -35,6 +35,23 @@ public final class VersioningRepository extends Object implements java.io.Serial
 
     private transient EventListenerList listenerList = new EventListenerList();
 
+    /** property listener on systemName property of file system */
+    private java.beans.PropertyChangeListener propListener = new java.beans.PropertyChangeListener () {
+                /** @param ev event with changes */
+                public void propertyChange (java.beans.PropertyChangeEvent ev) {
+                    if (ev.getPropertyName ().equals ("systemName")) { //NOI18N
+                        // assign the property to new name
+                        String ov = (String)ev.getOldValue ();
+                        String nv = (String)ev.getNewValue ();
+                        VersioningFileSystem fs = (VersioningFileSystem)ev.getSource ();
+                        // when a file system is valid then it is attached to a name
+                        names.remove (ov);
+                        // register name of the file system
+                        names.put (nv, fs);
+                    }
+                }
+            };
+
     private static final long serialVersionUID = 8047724018983158285L;
     
     /** Creates new VersioningRepository */
@@ -67,6 +84,8 @@ public final class VersioningRepository extends Object implements java.io.Serial
                 verSystems.add(vfs);
                 verSystemsCopy = new ArrayList(verSystems);
                 names.put(systemName, vfs);
+                // mark as a listener on changes in the file system
+                vfs.addPropertyChangeListener (propListener);
                 fireIt = true;
             } else fireIt = false;
         }
@@ -84,6 +103,7 @@ public final class VersioningRepository extends Object implements java.io.Serial
                 verSystemsCopy = new ArrayList(verSystems);
                 names.remove(systemName);
                 fireIt = true;
+                vfs.removePropertyChangeListener (propListener);
             } else fireIt = false;
         }
         if (fireIt) {
@@ -128,5 +148,8 @@ public final class VersioningRepository extends Object implements java.io.Serial
             }
         }
     }
+    
+
+    
 
 }
