@@ -1,0 +1,1761 @@
+
+options {
+	MULTI=true;
+	NODE_DEFAULT_VOID=true;
+	NODE_PREFIX="";
+	//NODE_FACTORY=true;
+	STATIC=false;	
+}
+
+PARSER_BEGIN(IDLParser)
+
+//package com.netbeans.enterprise.modules.corba.idl.parser;
+package com.netbeans.enterprise.modules.corba.idl.src;
+
+import java.util.Vector;
+
+public class IDLParser {
+
+  public static void main(String args[]) {
+    IDLParser parser = null;
+    if (args.length == 0) {
+      System.out.println("IDL Parser Version 0.1:  Reading from standard input . . .");
+      parser = new IDLParser(System.in);
+    } else if (args.length == 1) {
+      System.out.println("IDL Parser Version 0.1:  Reading from file " + args[0] + " . . .");
+      try {
+        parser = new IDLParser(new java.io.FileInputStream(args[0]));	
+	SimpleNode sn = parser.Start ();
+	sn.dump ("|");	
+	System.out.println ("OK :-))");
+      } catch (java.io.FileNotFoundException e) {
+        System.out.println("IDL Parser Version 0.1:  File " + args[0] + " not found.");
+        return;
+      }	catch (ParseException e) {
+	 System.out.println ("IDL parse error !!!");
+	 e.printStackTrace ();
+      }
+	
+    } else {
+      System.out.println("IDL Parser Version 0.1:  Usage is one of:");
+      System.out.println("         java IDLParser < inputfile");
+      System.out.println("OR");
+      System.out.println("         java IDLParser inputfile");
+      return;
+    }
+  }
+
+}
+
+PARSER_END(IDLParser)
+
+
+/*
+ * Tokens to ignore in the BNF follow.
+ */
+
+SKIP :
+{
+  < " " >
+| < "\t" >
+| < "\n" >
+| < "\r" >
+| < "//" (~["\n"])* "\n" >
+| <"/*" (~["*"])* "*" (~["/"] (~["*"])* "*")* "/">
+| <"#" ([" ","\t"])* (["0"-"9"])+ (["a"-"z","A"-"Z","0"-"9","_"])*
+   (([" ","\t"])* "\"" (~["\""])+ "\""
+          ([" ","\t"])* (["0"-"9"])* ([" ","\t"])* (["0"-"9"])*)? "\n" >
+/* 
+ * matching for preprocessor directives
+ */
+| <"#" ([" ","\t"])* (["a"-"z","A"-"Z","0"-"9","_"])+ ([" ","\t"])*  
+       (["a"-"z","A"-"Z","0"-"9","_","/", "\\", " ", "<", ">", "\"", "."])* (["\n"])* >
+}
+
+/* comment for matching directives    */
+/* | < "#" ([" ","\t"])* (["0"-"9"])+ */
+/*    (([" ","\t"])* "\"" (~["\""])+ "\"" */
+/*           ([" ","\t"])* (["0"-"9"])* ([" ","\t"])* (["0"-"9"])*)? "\n" >  */
+
+
+/* starting */
+
+SimpleNode Start () #Element : {}
+{
+   specification ()
+   { return jjtThis; }
+}
+/* Production 1 */
+
+void specification() :
+{}
+{
+  ( definition() )+
+}
+
+/* Production 2 */
+
+void definition() :
+{}
+{
+  type_dcl() ";"
+|
+  const_dcl() ";"
+|
+  except_dcl() ";"
+|
+  interfacex() ";"
+|
+  module() ";"
+}
+
+/* Production 3 */
+
+void module() #ModuleElement :
+{}
+{
+  "module" identifier() "{" ( definition() )+ "}"
+}
+
+/* Production 4 */
+
+void interfacex() :
+{}
+{
+  LOOKAHEAD(3)
+  interface_dcl()
+|
+  forward_dcl()
+}
+
+/* Production 5 */
+/*
+void interface_dcl() #InterfaceElement :
+{
+ // Token t;
+}
+{ 
+ // t=<ID>
+ // {
+ //    jjtThis.setLine (t.beginLine);
+ // }
+  interface_header() "{" interface_body() "}"
+}
+*/
+void interface_dcl() #InterfaceElement :
+{}
+{ 
+/*
+  { 
+    Vector header = null;
+  }
+  header = interface_header() 
+  { 
+    jjtThis.setName (((Identifier)header.elementAt (0)).getName ());
+    jjtThis.setLine (((Identifier)header.elementAt (0)).getLine ());
+    if (header.size () > 1)
+      jjtThis.inherited_from = (Vector)header.elementAt (1);
+  }
+*/
+  interface_header()
+  "{" interface_body() "}"
+}
+
+/* Production 6 */
+
+void forward_dcl() :
+{}
+{
+  "interface" identifier()
+}
+
+/* Production 7 */
+/*
+void interface_header() :
+{}
+{
+  "interface" identifier() [ inheritance_spec() ]
+}
+*/
+Vector interface_header() :
+{}
+{
+  {    
+    Vector inter = new Vector ();
+    Identifier name;
+    Vector inher;
+  }
+  "interface" name = identifier() 
+  { inter.addElement (name);}
+  [ ( inher = inheritance_spec() ) 
+    { inter.addElement (inher);} ]
+  {
+    return inter;
+  }
+}
+
+/* Production 8 */
+
+void interface_body() :
+{}
+{
+  ( export() )*
+}
+
+/* Production 9 */
+
+void export() :
+{}
+{
+  type_dcl() ";"
+|
+  const_dcl() ";"
+|
+  except_dcl() ";"
+|
+  attr_dcl() ";"
+|
+  op_dcl() ";"
+}
+
+/* Production 10 */
+/*
+void inheritance_spec() :
+{}
+{
+  ":" scoped_name() ( "," scoped_name() )*
+}
+*/
+Vector inheritance_spec() :
+{}
+{
+  {
+    Vector inherited_from = new Vector ();
+    String name = "";
+  }
+  ":" name = scoped_name() { inherited_from.addElement (name);} 
+  ( "," name = scoped_name() { inherited_from.addElement (name);} )*
+  {
+    return inherited_from;
+  }
+}
+
+/* Production 11 */
+/*
+void scoped_name() :
+{}
+{
+  [ "::" ] identifier() ( "::" identifier() )*
+}
+*/
+
+String scoped_name() :
+{}
+{
+  {
+    String name = "";
+    Identifier id = null;
+  }
+  [ "::" {name = name + "::";} ] id = identifier() {name = name + id.getName ();} 
+  ( "::" {name = name + "::";} id = identifier() {name = name + id.getName ();} )*
+  { return name;}
+}
+
+/* Production 12 */
+/*
+void const_dcl() #ConstElement :
+{}
+{
+  "const" const_type() identifier() "=" const_exp()
+}
+*/
+
+void const_dcl() #ConstElement :
+{}
+{
+  { String type, exp, name; Identifier id;}
+  "const" type = const_type() id = identifier() "=" exp = const_exp()
+  { jjtThis.setType (type); jjtThis.setName (id.getName ()); jjtThis.setExpression (exp);}
+}
+
+/* Production 13 */
+/*
+void const_type() :
+{}
+{
+  integer_type()
+|
+  char_type()
+|
+  boolean_type()
+|
+  floating_pt_type()
+|
+  string_type()
+|
+  scoped_name()
+}
+*/
+String const_type() :
+{}
+{
+  { String type;}
+  type = integer_type()
+  { return type;}
+|
+  type = char_type()
+  { return type;}
+|
+  type = boolean_type()
+  { return type;}
+|
+  type = floating_pt_type()
+  { return type;}
+|
+  type = string_type()
+  { return type;}
+|
+  type = scoped_name()
+  { return type;}
+}
+
+/* Production 14 */
+/*
+void const_exp() :
+{}
+{
+  or_expr()
+}
+*/
+String const_exp() :
+{}
+{
+  { String name;}
+  name = or_expr()
+  { return name;}
+}
+
+/* Production 15 */
+/*
+void or_expr() :
+{}
+{
+  xor_expr() ( "|" xor_expr() )*
+}
+*/
+String or_expr() :
+{}
+{
+  { String name, tmp;}
+  name = xor_expr() ( "|" tmp= xor_expr() { name = name + tmp;} )*
+  { return name;}
+}
+
+/* Production 16 */
+/*
+void xor_expr() :
+{}
+{
+  and_expr() ( "^" and_expr() )*
+}
+*/
+String xor_expr() :
+{}
+{
+  { String name, tmp;}
+  name = and_expr() ( "^" tmp = and_expr() { name = name + "^" + tmp;} )*
+  { return name;}
+}
+/* Production 17 */
+/*
+void and_expr() :
+{}
+{
+  shift_expr() ( "&" shift_expr() )*
+}
+*/
+String and_expr() :
+{}
+{
+  { String name, tmp;}
+  name = shift_expr() ( "&" tmp = shift_expr() { name = name + "&" + tmp;} )*
+  { return name;}
+}
+/* Production 18 */
+/*
+void shift_expr() :
+{}
+{
+  add_expr() ( ( ">>" | "<<" ) add_expr() )*
+}
+*/
+String shift_expr() :
+{}
+{
+  { String name, tmp;}
+  name = add_expr() ( (">>" {name += ">>";}|"<<" {name += "<<";}) tmp = add_expr() {name += tmp;} )*
+  { return name;}
+}
+
+/* Production 19 */
+/*
+void add_expr() :
+{}
+{
+  mult_expr() ( ( "+" | "-" ) mult_expr() )*
+}
+*/
+String add_expr() :
+{}
+{ 
+  { String name, tmp;}
+  name = mult_expr() ( ( "+" {name += "+";}| "-" {name += "-";}) tmp = mult_expr() {name += tmp;} )*
+  { return name;}
+}
+
+/* Production 20 */
+/*
+void mult_expr() :
+{}
+{
+  unary_expr() ( ( "*" | "/" | "%" ) unary_expr() )*
+}
+*/
+String mult_expr() :
+{}
+{
+  { String name, tmp;}
+  name = unary_expr() ( ( "*" {name += "*";} | "/" {name += "/";} | "%" {name += "%";} ) tmp = unary_expr() {name += tmp;} )*
+  { return name;}
+}
+
+/* Production 21 */
+/*
+void unary_expr() :
+{}
+{
+  [ unary_operator() ] primary_expr()
+}
+*/
+String unary_expr() :
+{}
+{ 
+  { String name = "", tmp = "";}
+  [ tmp = unary_operator() ] name = primary_expr()
+  { return name + tmp;}
+}
+
+/* Production 22 */
+/*
+void unary_operator() :
+{}
+{
+  "-"
+|
+  "+"
+|
+  "~"
+}
+*/
+String unary_operator() :
+{}
+{
+  "-"
+  { return "-";}
+|
+  "+"
+  { return "+";}
+|
+  "~"
+  { return "~";}
+
+}
+
+/* Production 23 */
+/*
+void primary_expr() :
+{}
+{
+  scoped_name()
+|
+  literal()
+|
+  "(" const_exp() ")"
+}
+*/
+String primary_expr() :
+{}
+{
+  { String name;}
+  name = scoped_name()
+  { return name;}
+|
+  name = literal()
+  { return name;}
+|
+  "(" name = const_exp() ")"
+  { return "(" + name + ")";}
+}
+
+/* Production 24 */
+/*
+void literal() :
+{}
+{
+  integer_literal()
+|
+  string_literal()
+|
+  character_literal()
+|
+  floating_pt_literal()
+|
+  boolean_literal()
+}
+*/
+String literal() :
+{}
+{
+  { String name;}
+  name = integer_literal()
+  { return name;}
+|
+  name = string_literal()
+  { return name;}
+|
+  name = character_literal()
+  { return name;}
+|
+  name = floating_pt_literal()
+  { return name;}
+|
+  name = boolean_literal()
+  { return name;}
+}
+
+/* Production 25 */
+/*
+void boolean_literal() :
+{}
+{
+  "TRUE"
+|
+  "FALSE"
+}
+*/
+String boolean_literal() :
+{}
+{
+  "TRUE"
+  { return "TRUE";}
+|
+  "FALSE"
+  { return "FALSE";}
+}
+
+/* Production 26 */
+/*
+void positive_int_const() :
+{}
+{
+  const_exp()
+}
+*/
+String positive_int_const() :
+{}
+{
+  { String name;}
+  name = const_exp()
+  { return name;}
+}
+
+/* Production 27 */
+/*
+void type_dcl() #TypeElement :
+{}
+{
+  "typedef" type_declarator()
+|
+  struct_type()
+|
+  union_type()
+|
+  enum_type()
+}
+*/
+
+/* void type_dcl() : */
+void type_dcl() #TypeElement : 
+{}
+{
+  { String type;}
+  "typedef" 
+  type = type_declarator() 
+  { jjtThis.setType (type); /* System.out.println ("IDL.jjt " + jjtThis.getType ()); */ }
+|
+  type = struct_type()
+  { 
+    jjtThis.setName (type); 
+    jjtThis.setType ("struct");
+  }
+|
+  type = union_type()
+  { 
+    jjtThis.setName (type);
+    jjtThis.setType ("union");
+  }
+|
+  type = enum_type()
+  { 
+    jjtThis.setName (type);
+    jjtThis.setType ("enum");
+  }
+}
+
+/* Production 28 */
+/*
+void type_declarator() :
+{}
+{
+  type_spec() declarators()
+}
+*/
+
+String type_declarator() :
+{}
+{ 
+  { String type;}
+  type = type_spec() declarators()
+  { return type;}
+}
+
+/* Production 29 */
+/*
+void type_spec() :
+{}
+{
+  simple_type_spec()
+|
+  constr_type_spec()
+}
+*/
+String type_spec() :
+{}
+{
+  {String name;}
+  name = simple_type_spec()
+  {return name;}
+|
+  name = constr_type_spec()
+  {return name;}
+}
+
+/* Production 30 */
+/*
+void simple_type_spec() :
+{}
+{
+  base_type_spec()
+|
+  template_type_spec()
+|
+  scoped_name()
+}
+*/
+String simple_type_spec() :
+{}
+{
+  {String name;}
+  name = base_type_spec()
+  {return name;}
+|
+  name = template_type_spec()	
+  {return name;}
+|
+  name = scoped_name()
+  {return name;}
+}
+
+/* Production 31 */
+/*
+void base_type_spec() :
+{}
+{
+  floating_pt_type()
+|
+  integer_type()
+|
+  char_type()
+|
+  boolean_type()
+|
+  octet_type()
+|
+  any_type()
+}
+*/
+String base_type_spec() :
+{}
+{
+  {
+    String type; 
+  }
+  type = floating_pt_type() 
+  {
+    return type;
+  }
+|
+  type = integer_type()
+  { return type;}
+|
+  type = char_type()
+  { return type;}
+|
+  type = boolean_type()
+  { return type;}
+|
+  type = octet_type()
+  { return type;}
+|
+  type = any_type()
+  {
+    return type;
+  }
+}
+
+/* Production 32 */
+/*
+void template_type_spec() :
+{}
+{
+  sequence_type()
+|
+  string_type()
+}
+*/
+String template_type_spec() :
+{}
+{
+  { String type;}
+  type = sequence_type()
+  { return type;}
+|
+  type = string_type()
+  { return type;}
+}
+
+/* Production 33 */
+/*
+void constr_type_spec() :
+{}
+{
+  struct_type()
+|
+  union_type()
+|
+  enum_type()
+}
+*/
+String constr_type_spec() :
+{}
+{
+  { String type;}
+  type = struct_type()
+  { return type;}
+|
+  type = union_type()
+  { return type;}
+|
+  type = enum_type()
+  { return type;}
+}
+
+/* Production 34 */
+
+void declarators() :
+{}
+{
+  declarator() ( "," declarator() )*
+}
+
+/* Production 35 */
+/*
+void declarator() :
+{}
+{
+  LOOKAHEAD(2)
+  complex_declarator()
+|
+  simple_declarator()
+}
+*/
+
+void declarator() #DeclaratorElement:
+{}
+{
+  LOOKAHEAD(2)
+  { String dim;}
+  dim = complex_declarator() { jjtThis.setDimension (dim);}
+|
+  simple_declarator()
+}
+
+/* Production 36 */
+/*
+void simple_declarator() :
+{}
+{
+  identifier()
+}
+*/
+String simple_declarator() :
+{}
+{
+  { Identifier id;}
+  id = identifier()
+  { return id.getName ();}
+}
+
+/* Production 37 */
+/*
+void complex_declarator() :
+{}
+{
+  array_declarator()
+}
+*/
+String complex_declarator() :
+{}
+{
+  { String dim;}
+  dim = array_declarator()
+  { return dim;}
+}
+
+/* Production 38 */
+/*
+void floating_pt_type() :
+{}
+{
+  "float"
+|
+  "double"
+}
+*/
+String floating_pt_type() :
+{}
+{
+  "float"
+  {
+    return "float";
+  }
+|
+  "double"
+  {
+    return "double";
+  }
+}
+
+/* Production 39 */
+/*
+void integer_type() :
+{}
+{
+  signed_int()
+|
+  unsigned_int()
+}
+*/
+String integer_type() :
+{}
+{
+  {
+    String type;
+  }
+  type = signed_int()
+  {
+    return type;
+  }
+|
+  type = unsigned_int()
+  {
+    return type;
+  }
+}
+
+/* Production 40 */
+/*
+void signed_int() :
+{}
+{
+  signed_long_int()
+|
+  signed_short_int()
+}
+*/
+String signed_int() :
+{}
+{
+  {
+    String type;
+  }
+  type = signed_long_int()
+  {
+    return type;
+  }
+|
+  type = signed_short_int()
+  {
+    return type;
+  }
+}
+
+/* Production 41 */
+/*
+void signed_long_int() :
+{}
+{
+  "long"
+}
+*/
+String signed_long_int() :
+{}
+{
+  "long"
+  {
+    return "long";
+  }
+}
+
+/* Production 42 */
+/*
+void signed_short_int() :
+{}
+{
+  "short"
+}
+*/
+String signed_short_int() :
+{}
+{
+  "short"
+  {
+    return "short";
+  }
+}
+
+/* Production 43 */
+/*
+void unsigned_int() :
+{}
+{
+  LOOKAHEAD(2)
+  unsigned_long_int()
+|
+  unsigned_short_int()
+}
+*/
+String unsigned_int() :
+{}
+{
+  LOOKAHEAD(2)
+  {
+    String type;
+  }
+  type = unsigned_long_int()
+  {
+    return type;
+  }
+|
+  {
+    String type;
+  }
+  type = unsigned_short_int()
+  {
+    return type;
+  }
+}
+
+/* Production 44 */
+/*
+void unsigned_long_int() :
+{}
+{
+  "unsigned" "long"
+}
+*/
+String unsigned_long_int() :
+{}
+{
+  "unsigned" "long"
+  {
+    return "unsigned long";
+  }
+}
+
+/* Production 45 */
+/*
+void unsigned_short_int() :
+{}
+{
+  "unsigned" "short"
+}
+*/
+String unsigned_short_int() :
+{}
+{
+  "unsigned" "short"
+  {
+    return "unsigned short";
+  }
+}
+
+/* Production 46 */
+/*
+void char_type() :
+{}
+{
+  "char"
+}
+*/
+String char_type() :
+{}
+{
+  "char" 
+  {
+    return "char";
+  }
+}
+
+/* Production 47 */
+/*
+void boolean_type() :
+{}
+{
+  "boolean"
+}
+*/
+String boolean_type() :
+{}
+{
+  "boolean"
+  { 
+    return "boolean";
+  }
+}
+
+/* Production 48 */
+/*
+void octet_type() :
+{}
+{
+  "octet"
+}
+*/
+String octet_type() :
+{}
+{
+  "octet"
+  {
+    return "octet";
+  }
+}
+
+/* Production 49 */
+/*
+void any_type() :
+{}
+{
+  "any"
+}
+*/
+String any_type() :
+{}
+{
+  "any"
+  {
+    return "any";
+  }
+}
+
+/* Production 50 */
+/*
+void struct_type() :
+{}
+{
+  "struct" identifier() "{" member_list() "}"
+}
+*/
+String struct_type() #StructTypeElement :
+{}
+{
+  { String name; Identifier id; Vector vect = new Vector ();}
+  "struct" id = identifier() { name = id.getName (); jjtThis.setType ("struct");} 
+  "{" member_list() "}"
+  { return name;}
+/*
+  { 
+     vect.addElement ("struct");
+     vect.addElement (name);
+     return vect;
+  }
+*/
+}
+
+/* Production 51 */
+
+void member_list() :
+{}
+{
+  ( member() )+
+}
+
+/* Production 52 */
+
+void member() #MemberElement : 
+{}
+{
+  { String type, name = "";}
+  type = type_spec() { jjtThis.setType (type); jjtThis.setName (name);} 
+  declarators() ";"
+}
+/*
+void member() : 
+{}
+{
+  { String type, name = "";}
+  type = type_spec() 
+  declarators() ";"
+}
+*/
+/* Production 53 */
+/*
+void union_type() :
+{}
+{
+  "union" identifier() "switch" "(" switch_type_spec() ")" "{" switch_body() "}"
+}
+*/
+String union_type() #UnionTypeElement :
+{}
+{ 
+  { String name; Identifier id; Vector vect = new Vector (); String type;}
+  "union" id = identifier() { name = id.getName (); jjtThis.setType ("union");} 
+  "switch" "(" type = switch_type_spec() ")" 
+  { jjtThis.setSwitchType (type);}
+  "{" switch_body() "}"
+  { return name;}
+/*
+  { 
+    vect.addElement ("union");
+    vect.addElement (name);
+    return vect;
+  }
+*/
+}
+
+
+/* Production 54 */
+/*
+void switch_type_spec() :
+{}
+{
+  integer_type()
+|
+  char_type()
+|
+  boolean_type()
+|
+  enum_type()
+|
+  scoped_name()
+}
+*/
+String switch_type_spec() :
+{}
+{
+  { String type;}
+  type = integer_type()
+  { return type;}
+|
+  type = char_type()
+  { return type;}
+|
+  type = boolean_type()
+  { return type;}
+|
+  type = enum_type()
+  { return type;}
+|
+  type = scoped_name()
+  { return type;}
+}
+
+/* Production 55 */
+
+void switch_body() :
+{}
+{
+  ( casex() )+
+}
+
+/* Production 56 */
+
+void casex() #UnionMemberElement :
+{}
+{
+  { String cases = "", tmp, type;}
+  ( tmp = case_label() {cases += tmp + ", ";} )+ type = element_spec() 
+  {jjtThis.setType (type); jjtThis.setCases (cases.substring (0, cases.length () - 2));} 
+  ";"
+}
+
+/* Production 57 */
+/*
+void case_label() : 
+{}
+{
+  "case" const_exp() ":"
+|
+  "default" ":"
+}
+*/
+String case_label() : 
+{}
+{
+  {String label = "", exp;}
+  "case" exp = const_exp() { label += exp;} ":"
+  { return label;}
+|
+  "default" ":"
+  { return "default";}
+}
+
+/* Production 58 */
+
+String element_spec() :
+{}
+{
+  { String type, name = "";}
+  type = type_spec() 
+  /* type_spec () */
+  declarator ()
+  { return type;}
+}
+
+/* Production 59 */
+/*
+void enum_type() :
+{}
+{
+  "enum" identifier() "{" enumerator() ( "," enumerator() )* "}"
+}
+*/
+String enum_type() #EnumTypeElement :
+{}
+{
+  { String name; Identifier id; Vector vect = new Vector ();}
+  "enum" id = identifier() { name = id.getName (); jjtThis.setType ("enum");} 
+  "{" enumerator() ( "," enumerator() )* "}"
+  { return name;}
+/*
+  { 
+    vect.addElement ("enum");
+    vect.addElement (name);
+    return vect;
+  }
+*/
+}
+
+/* Production 60 */
+/*
+void enumerator() :
+{}
+{
+  identifier()
+}
+*/
+void enumerator() #ConstElement :
+{}
+{
+  { Identifier id;}
+  id = identifier() 
+  { 
+     jjtThis.setType (""); 
+     jjtThis.setExpression (""); 
+     jjtThis.setName (id.getName ());
+  }
+}
+
+/* Production 61 */
+/*
+void sequence_type() :
+{}
+{
+  "sequence" "<" simple_type_spec() [ "," positive_int_const() ] ">"
+}
+*/
+String sequence_type() :
+{}
+{
+  { String type, num = "", retval = "";}
+  "sequence" "<" type = simple_type_spec() {retval = "sequence <" + type;} 
+  [ "," num = positive_int_const() {retval = retval + ", " + num;} ] ">" {retval += ">";}
+  { return retval;}
+}
+
+/* Production 62 */
+/*
+void string_type() :
+{}
+{
+  "string" [ "<" positive_int_const() ">" ]
+}
+*/
+String string_type() :
+{}
+{
+  {
+    String name, tmp;
+  }
+  "string" { name = "string";} 
+  [ "<" {name = name + "<";} tmp = positive_int_const() { name += tmp;} ">" {name = name + ">";} ]
+  { return name;}
+}
+
+/* Production 63 */
+/*
+void array_declarator() :
+{}
+{
+  identifier() ( fixed_array_size() )+
+}
+*/
+String array_declarator() :
+{}
+{
+  { String tmp, dim = "";}
+  identifier() ( tmp = fixed_array_size() { dim += tmp;} )+
+  { return dim;}
+}
+
+/* Production 64 */
+/*
+void fixed_array_size() :
+{}
+{
+  "[" positive_int_const() "]"
+}
+*/
+String fixed_array_size() :
+{}
+{
+  { String dim;}
+  "[" dim = positive_int_const() "]"
+  { return ("[" + dim + "]");}
+}
+
+/* Production 65 */
+
+void attr_dcl() #AttributeElement :
+{}
+{
+  { String name, other, type;}
+  [ "readonly" {jjtThis.setReadOnly (true);} ] "attribute" 
+  type = param_type_spec() {jjtThis.setType (type);}
+  name = simple_declarator() {jjtThis.setName (name);} 
+  ( "," other = simple_declarator() {jjtThis.addOther (other);} )*
+}
+
+/* Production 66 */
+
+void except_dcl() #ExceptionElement :
+{}
+{
+  "exception" identifier() "{" ( member() )* "}"
+}
+
+/* Production 67 */
+/*
+void op_dcl() #OperationElement :
+{}
+{
+  [ op_attribute() ] op_type_spec() identifier() parameter_dcls() [ raises_expr() ] [ context_expr() ]
+}
+*/
+void op_dcl() #OperationElement :
+{}
+{
+  {
+    String attr;
+    Vector params, exceptions, contexts;
+    Identifier name;
+    /* Element returnType; */
+    String returnType;
+  }
+    [ attr = op_attribute() {jjtThis.setAttribute (attr);} ] 
+    ( returnType = op_type_spec() {jjtThis.setReturnType (returnType);} ) 
+    ( name = identifier() {jjtThis.setName (name.getName ());} ) 
+    ( parameter_dcls() ) 
+    [ exceptions = raises_expr() {jjtThis.setExceptions (exceptions);} ] 
+    [ contexts = context_expr() {jjtThis.setContexts (contexts);} ]
+}
+
+
+/* Production 68 */
+/*
+void op_attribute() :
+{}
+{
+  "oneway"
+}
+*/
+
+String op_attribute() :
+{}
+{
+  "oneway"
+  {
+    return "oneway"; 
+  }
+}
+
+/* Production 69 */
+/*
+void op_type_spec() :
+{}
+{
+  param_type_spec()
+|
+  "void"
+}
+*/
+/*
+Identifier op_type_spec() :
+{}
+{
+  {
+    String type; 
+    Identifier id;
+  }
+  type = param_type_spec()
+  {
+    id = new Identifier (-1); 
+    id.setName (type);
+    return id;
+  }
+|
+  "void"  
+  {
+     id = new Identifier (-1); 
+     id.setName ("void");
+     return id;
+  }
+}
+*/
+String op_type_spec() :
+{}
+{
+  {
+    String type; 
+  }
+  type = param_type_spec()
+  {
+    return type;
+  }
+|
+  "void"  
+  {
+     return "void";
+  }
+}
+
+/* Production 70 */
+
+void parameter_dcls() :
+{}
+{
+  "(" [ param_dcl() ( "," param_dcl() )* ] ")"
+}
+/*
+String parameter_dcls() :
+{}
+{
+  { 
+    String name = "", tmp; 
+    Vector params = new Vector ();
+  }
+  "(" [ name = param_dcl() {params.addElement (name);} 
+   ( "," name = param_dcl() { params.addElement (name);} )* ] ")"
+  { return params;}
+}
+*/
+/* Production 71 */
+/*
+void param_dcl() :
+{}
+{
+  param_attribute() param_type_spec() simple_declarator()
+}
+*/
+/*
+String param_dcl() :
+{}
+{
+  { String attr, type, name;}
+  attr = param_attribute() type = param_type_spec() name = simple_declarator()
+  { return attr + " " + type + " " + name;}
+}
+*/
+void param_dcl() #ParameterElement :
+{}
+{
+  { String type, name; int attr;}
+  attr = param_attribute() type = param_type_spec() name = simple_declarator()
+  { jjtThis.setAttribute (attr); jjtThis.setType (type); jjtThis.setName (name); }
+}
+
+/* Production 72 */
+/*
+void param_attribute() :
+{}
+{
+  "in"
+|
+  "out"
+|
+  "inout"
+}
+*/
+int param_attribute() :
+{}
+{
+  "in"
+  { return 0;}
+|
+  "out"
+  { return 2;}
+|
+  "inout"
+  { return 1;}
+}
+
+/* Production 73 */
+/*
+void raises_expr() :
+{}
+{
+  "raises" "(" scoped_name() ( "," scoped_name() )* ")"
+}
+*/
+Vector raises_expr() :
+{}
+{
+  { String name; Vector es = new Vector ();}
+  "raises" "(" name = scoped_name() { es.addElement (name);} 
+            ( "," name = scoped_name() { es.addElement (name);} )* ")"
+  { return es;}
+}
+
+/* Production 74 */
+/*
+void context_expr() :
+{}
+{
+  "context" "(" string_literal() ( "," string_literal() )* ")"
+}
+*/
+Vector context_expr() :
+{}
+{
+  { String name; Vector cs = new Vector ();}
+  "context" "(" name = string_literal() { cs.addElement (name);}
+             ( "," name = string_literal() { cs.addElement (name);} )* ")"
+  { return cs;}
+}
+
+/* Production 75 */
+/*
+void param_type_spec() :
+{}
+{
+  base_type_spec()
+|
+  string_type()
+|
+  scoped_name()
+}
+*/
+String param_type_spec() :
+{}
+{
+  {
+    String type;
+  }
+  type = base_type_spec()
+  { return type;}
+|
+  type = string_type()
+  { return type;}
+|
+  type = scoped_name()
+  { return type;}
+}
+
+/* Definitions of complex regular expressions follow */
+
+Identifier identifier() #Identifier :
+{
+   Token t;
+}
+{
+  t=<ID>
+/*
+  {
+     Element parent = ((Element)jjtThis.jjtGetParent ());
+     if (parent != null)
+        parent.setName (t.image);
+*/
+/*  -- run well but very bad idea to setLine on Identifier except on IDL Construct (Element) */
+  {
+     jjtThis.setName (t.image); 
+     jjtThis.setLine (t.beginLine);
+     return jjtThis;
+  }
+}
+/*
+void integer_literal() :
+{}
+{
+  <OCTALINT>
+|
+  <DECIMALINT>
+|
+  <HEXADECIMALINT>
+}
+*/
+String integer_literal() :
+{
+  Token t;
+}
+{
+  t = <OCTALINT>
+  { return t.image;}
+|
+  t = <DECIMALINT>
+  { return t.image;}
+|
+  t = <HEXADECIMALINT>
+  { return t.image;}
+}
+/*
+void string_literal() :
+{}
+{
+  <STRING>
+}
+*/
+String string_literal() :
+{
+  Token t;
+}
+{
+  t = <STRING>
+  { return t.image;}
+}
+/*
+void character_literal() :
+{}
+{
+  <CHARACTER>
+}
+*/
+String character_literal() :
+{
+  Token t; 
+}
+{
+  t = <CHARACTER>
+  { return t.image;}
+}
+/*
+void floating_pt_literal() :
+{}
+{
+  <FLOATONE>
+|
+  <FLOATTWO>
+}
+*/
+String floating_pt_literal() :
+{
+  Token t;
+}
+{
+  t = <FLOATONE>
+  { return t.image;}
+|
+  t = <FLOATTWO>
+  { return t.image;}
+}
+
+TOKEN :
+{
+  <  ID : ["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
+| <  OCTALINT : "0" (["0"-"7"])* (["u","U","l","L"])? >
+| <  DECIMALINT : ["1"-"9"] (["0"-"9"])* (["u","U","l","L"])? >
+| <  HEXADECIMALINT : ("0x"|"0X") (["0"-"9","a"-"f","A"-"F"])+ (["u","U","l","L"])? >
+| <  FLOATONE : ((["0"-"9"])+ "." (["0"-"9"])* | (["0"-"9"])* "." (["0"-"9"])+)
+   (["e","E"] (["-","+"])? (["0"-"9"])+)? (["f","F","l","L"])? >
+| <  FLOATTWO : (["0"-"9"])+ ["e","E"] (["-","+"])?
+   (["0"-"9"])+ (["f","F","l","L"])? >
+| <  CHARACTER : "'"
+   (   (~["'","\\","\n","\r"])
+   | ("\\" (
+             ["n","t","v","b","r","f","a","\\","?","'","\""]
+            |
+             "0" (["0"-"7"])*
+            |
+             ["1"-"9"] (["0"-"9"])*
+            |
+             ("0x" | "0X") (["0"-"9","a"-"f","A"-"F"])+
+           )
+     )
+   )
+   "'" >
+| <  STRING : "\""
+   ( ( ~["\"","\\","\n","\r"])
+   | ("\\" (
+             ["n","t","v","b","r","f","a","\\","?","'","\""]
+            |
+             "0" (["0"-"7"])*
+            |
+             ["1"-"9"] (["0"-"9"])*
+            |
+             ("0x" | "0X") (["0"-"9","a"-"f","A"-"F"])+
+           )
+     )
+   )*
+   "\"" >
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

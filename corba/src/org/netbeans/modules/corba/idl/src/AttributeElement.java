@@ -1,0 +1,64 @@
+/*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package com.netbeans.enterprise.modules.corba.idl.src;
+
+import java.util.Vector;
+
+public class AttributeElement extends Element {
+
+   private boolean readonly;
+   private String type;
+   private Vector other;
+
+   public AttributeElement(int id) {
+      super(id);
+      readonly = false;
+      other = new Vector ();
+   }
+
+   public AttributeElement(IDLParser p, int id) {
+      super(p, id);
+   }
+
+   public void setReadOnly (boolean v) {
+      readonly = v;
+   }
+
+   public boolean getReadOnly () {
+      return readonly;
+   }
+
+   public void setType (String t) {
+      type = t;
+   }
+
+   public String getType () {
+      return type;
+   }
+
+   public Vector getOther () {
+      return other;
+   }
+
+   public void setOther (Vector o) { 
+      other = o;
+   }
+
+   public void addOther (String o) {
+      other.addElement (o);
+   }
+   
+}
+
+

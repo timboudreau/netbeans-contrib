@@ -1,0 +1,47 @@
+/*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package com.netbeans.enterprise.modules.corba.idl.src;
+
+public class ParameterElement extends Element {
+
+   private int attr;
+   private String type;
+
+   public ParameterElement(int id) {
+      super(id);
+   }
+
+   public ParameterElement(IDLParser p, int id) {
+      super(p, id);
+   }
+
+   
+   public void setAttribute (int a) {
+      attr = a;
+   }
+
+   public int getAttribute () {
+      return attr;
+   }
+
+   public void setType (String t) {
+      type = t;
+   }
+
+   public String getType () {
+      return type;
+   }
+   
+}
+
