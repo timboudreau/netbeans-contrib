@@ -88,6 +88,8 @@ abstract public class DocumentSuggestionProvider extends SuggestionProvider {
      * @param request A reference for this request. You <strong>must</strong>
      *   provide this reference to the SuggestionManager.register() call
      *   when clearing out suggestions.
+     *
+     * @todo it's never actually called, why?
       */
     abstract public void clear(SuggestionContext env,
                                Object request);

@@ -388,7 +388,9 @@ public class Task extends Suggestion implements Cloneable, Cookie {
             subtasks = new LinkedList();
         }
 
-        assert !subtasks.contains(subtask);
+        // XXX does not work with SuggetionList.addCategory:152
+       // assert !subtasks.contains(subtask);
+       if (subtasks.contains(subtask)) return;
 
         if (append) {
             subtasks.addLast(subtask);

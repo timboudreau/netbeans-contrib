@@ -147,7 +147,7 @@ public class SuggestionList extends TaskList {
             root.addSubtask(task);
         }
 
-        // it's really funny contruct
+        // it's really funny contruct  (XXX probably want to add it to list end)
         Task parent = task.getParent();
         parent.addSubtask(task, append);
 

@@ -604,6 +604,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
 
     // Consult super for correct javadoc
     public void register(String type, List add, List remove, Object request) {
+        SPIMonitor.log("  Response on " + request + " " + type + " add: " + ((add != null) ? ""+add.size() : "null") + " remove:" + ((remove != null) ? ""+remove.size() : "null"));
         //System.out.println("register(" + type + ", " + add +
         //                   ", " + remove + ", " + request + ")");
         SuggestionList target = getListByRequest(request);
@@ -742,6 +743,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                     start = System.currentTimeMillis();
                 }
                 try {
+                    SPIMonitor.log("Enter rescan " + request + " " + provider.getClass());
                     provider.rescan(ctx, request);
                 } catch (RuntimeException e) {
                     ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
@@ -751,6 +753,8 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                 } catch (Error e) {
                     ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                } finally {
+                    SPIMonitor.log("Leave rescan " + request + " " + provider.getClass());
                 }
                 if (stats) {
                     end = System.currentTimeMillis();

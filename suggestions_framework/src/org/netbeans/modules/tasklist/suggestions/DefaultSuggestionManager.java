@@ -46,6 +46,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
                                        String summary,
                                        SuggestionPerformer action,
                                        Object data) {
+
         // "Sanitize" the summary: replace newlines with ':'
         // " " or ":" (let's pick one).
         // (Oh crap. What do we do about CRLF's? Replace with ": " ?
@@ -65,6 +66,8 @@ public class DefaultSuggestionManager extends SuggestionManager {
             }
             summary = sb.toString();
         }
+
+        SPIMonitor.log("  create type: " + type + " summary: " + summary);
 
         SuggestionType st = SuggestionTypes.getDefault().getType(type);
         if (st == null) {
