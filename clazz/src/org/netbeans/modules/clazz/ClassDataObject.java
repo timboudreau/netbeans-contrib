@@ -34,15 +34,11 @@ import com.netbeans.ide.cookies.*;
 import com.netbeans.ide.filesystems.*;
 import com.netbeans.ide.loaders.*;
 import com.netbeans.ide.classloader.NbClassLoader;
-import com.netbeans.ide.debugger.DebuggerInfo;
-import com.netbeans.ide.execution.ExecInfo;
 import com.netbeans.ide.explorer.propertysheet.PropertySheet;
 import com.netbeans.ide.nodes.Node;
 import com.netbeans.ide.nodes.CookieSet;
 import com.netbeans.ide.src.SourceElement;
 
-import com.netbeans.developer.modules.applet.AppletDebuggerInfo;
-import com.netbeans.developer.modules.applet.AppletExecInfo;
 
 
 /* TODO:
@@ -56,8 +52,7 @@ import com.netbeans.developer.modules.applet.AppletExecInfo;
 *
 * @author Jan Jancura, Ian Formanek, Petr Hamernik, Dafe Simonek
 */
-public class ClassDataObject extends MultiDataObject
-implements DebuggerCookie {
+public class ClassDataObject extends MultiDataObject {
   /** generated Serialized Version UID */
   static final long serialVersionUID = -7355104884002106137L;
 
@@ -259,30 +254,6 @@ implements DebuggerCookie {
     return true;
   }*/
 
-  // implementation of DebuggerCookie ...................................
-
-  /** @return The informations needed for debugging. */
-  public DebuggerInfo getDebuggerInfo () {
-    if (isApplet ()) return new AppletDebuggerInfo(getPrimaryFile());
-    // build debugger info
-    String[] args = execSupport.getArguments();
-    String className = getPrimaryFile().getPackageName('.');
-    return new DebuggerInfo (className, args);
-  }
-
-  /** @return true if debugging is allowed
-  * (exec cookie is present)
-  */
-  public boolean isDebugAllowed() {
-    return getCookie(ExecCookie.class) != null;
-  }
-
-  /**
-  * Do nothing - source file unavailable.
-  */
-  public void resolveMethodLine (DebuggerCookie.LineResolver rl) {
-  }
-
   // Properties implementation .....................................................................
 
   public boolean isInterface () {
@@ -462,6 +433,8 @@ implements DebuggerCookie {
 
 /*
  * Log
+ *  11   Gandalf   1.10        3/3/99   Jaroslav Tulach Uses ExecSupport to 
+ *       provide DebuggerCookie
  *  10   Gandalf   1.9         2/5/99   David Simonek   
  *  9    Gandalf   1.8         2/3/99   David Simonek   
  *  8    Gandalf   1.7         2/1/99   David Simonek   
