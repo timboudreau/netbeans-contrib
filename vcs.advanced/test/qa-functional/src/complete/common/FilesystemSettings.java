@@ -66,6 +66,7 @@ public class FilesystemSettings extends NbTestCase {
         suite.addTest(new FilesystemSettings("testIgnoredFiles"));
         suite.addTest(new FilesystemSettings("testBackupProperties"));
         suite.addTest(new FilesystemSettings("testRefreshTime"));
+        suite.addTest(new FilesystemSettings("testHideShadowFiles"));
         return suite;
     }
     
@@ -355,16 +356,14 @@ public class FilesystemSettings extends NbTestCase {
         sheet = new PropertySheetOperator();
         filterBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Filter Backup Files");
         filterBackupFiles.setValue("True");
+        sheet.close();
         APIController.sleep(10000);
+        api.getFilesystemsTab();
+        filesystemNode.select();
         if (filesystemNode.getChildren().length != 1) {
-            api.getFilesystemsTab();
-            filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
             throw new Exception("Error: Filter backup files does not work." + printChildren(filesystemNode));
         }
-        sheet.close();
-        api.getFilesystemsTab();
-        filesystemNode.select();
         new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
     }
@@ -387,10 +386,67 @@ public class FilesystemSettings extends NbTestCase {
         refreshTime.setValue("1000");
         sheet.close();
         createFile(workingDirectory + File.separator + "B_File.java", true);
-        APIController.sleep(16000);
+        APIController.sleep(18000);
         Node fileNode = new Node(explorer.getRootNode(), filesystem + "|B_File");
         fileNode.select();
         filesystemNode.select();
+        new UnmountFSAction().perform(filesystemNode);
+        System.out.println(". done !");
+    }
+
+    /** Checks whether "Hide Shadow Files" property works correctly.
+     * throws Exception Any unexpected exception thrown during test.
+     */
+    public void testHideShadowFiles() throws Exception {
+        System.out.print(".. Testing hide shadow files property ..");
+        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+        VCSWizardProfile profilePage = new VCSWizardProfile();
+        filesystem = "Empty " + workingDirectory;
+        profilePage.setWorkingDirectory(workingDirectory);
+        String profile = Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN;
+        profilePage.setProfile(profile);
+        profilePage.next();
+        VCSWizardAdvanced advancedPage = new VCSWizardAdvanced();
+        advancedPage.editCommands();
+        CommandEditor commandEditor = new CommandEditor();
+        commandEditor.selectCommand("Empty|Refresh");
+        NbDialogOperator dialog = new NbDialogOperator("Command Editor");
+        PropertySheetOperator sheet = new PropertySheetOperator(dialog);
+        TextFieldProperty exec = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Exec");
+        exec.setValue(Utilities.isUnix() ? "sh -c \"echo C_File.java\"" : "cmd /x /c \"echo C_File.java\"");
+        TextFieldProperty dataRegex = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Data Regex");
+        dataRegex.setValue("^(.*)");
+        TextFieldProperty fileIndex = new TextFieldProperty(sheet.getPropertySheetTabOperator("Refresh Info"), "File Index");
+        fileIndex.setValue("0");
+        commandEditor.ok();
+        advancedPage.finish();
+        APIController.sleep(2000);
+        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+        filesystemNode.tree().expandPath(filesystemNode.getTreePath());
+        filesystemNode.select();
+        MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Refresh");
+        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|C_File");
+        fileNode.select();
+        PropertiesAction propertiesAction = new PropertiesAction();
+        propertiesAction.perform(filesystemNode);
+        sheet = new PropertySheetOperator();
+        ComboBoxProperty hideShadowFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Hide Shadow Files");
+        hideShadowFiles.setValue("True");
+        sheet.close();
+        filesystemNode.select();
+        MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Refresh");
+        APIController.sleep(1000);
+        String[] children = filesystemNode.getChildren();
+        int count = children.length;
+        boolean found = false;
+        for(int i=0; i<count; i++) if (children[i].startsWith("C_File")) found = true;
+        api.getFilesystemsTab();
+        filesystemNode.select();
+        if (found) {
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Hide shadow files does not work." + printChildren(filesystemNode));
+        }
         new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
     }
