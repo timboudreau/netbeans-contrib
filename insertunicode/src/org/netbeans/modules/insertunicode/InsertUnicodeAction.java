@@ -21,16 +21,19 @@ import org.openide.awt.JMenuPlus;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.text.BadLocationException;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
@@ -104,6 +107,28 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
             }
         }
         return null;
+    }
+    
+    private static String[] unicodeNames; // String[65536]
+    
+    private static synchronized String[] getUnicodeNames() {
+        if (unicodeNames == null) {
+            unicodeNames = new String[65536];
+            try {
+                BufferedReader r = new BufferedReader(new InputStreamReader(InsertUnicodeAction.class.getResourceAsStream("uninames.txt"), "ISO8859_1"));
+                try {
+                    String l;
+                    while ((l = r.readLine()) != null) {
+                        unicodeNames[Integer.parseInt(l.substring(0, 4), 16)] = l.substring(5);
+                    }
+                } finally {
+                    r.close();
+                }
+            } catch (IOException ioe) {
+                throw new IllegalStateException(ioe.toString());
+            }
+        }
+        return unicodeNames;
     }
     
     private static abstract class LazyMenu extends JMenuPlus {
@@ -260,10 +285,14 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                 final char _c = (char)c;
                 if (!Character.isDefined(_c)) continue;
                 String text;
+                String name = getUnicodeNames()[c];
+                if (name == null) {
+                    name = NbBundle.getMessage(InsertUnicodeAction.class, "LBL_unknown_char");
+                }
                 if (Character.isWhitespace(_c)) {
-                    text = NbBundle.getMessage(InsertUnicodeAction.class, "LBL_ws_char", hex(c));
+                    text = NbBundle.getMessage(InsertUnicodeAction.class, "LBL_ws_char", hex(c), name);
                 } else {
-                    text = NbBundle.getMessage(InsertUnicodeAction.class, "LBL_char", Character.toString(_c), hex(c));
+                    text = NbBundle.getMessage(InsertUnicodeAction.class, "LBL_char", Character.toString(_c), hex(c), name);
                 }
                 JMenuItem m = new JMenuItem(text);
                 m.addActionListener(new ActionListener() {
@@ -324,7 +353,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
         
     }
     
-    private static final class ModeChoice extends JCheckBoxMenuItem implements ActionListener {
+    private static final class ModeChoice extends JRadioButtonMenuItem implements ActionListener {
         
         private final int mode;
         

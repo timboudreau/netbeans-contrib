@@ -42,7 +42,12 @@ Microsystems, Inc. All Rights Reserved.
         <makenbm file="insertunicode.nbm"
                  topdir="."
                  module="netbeans/modules/insertunicode.jar">
-            <license file="${license.file}"/>
+            <license name="insertunicode-license.txt">
+                <text>For the module itself:</text>
+                <file location="${license.file}"/>
+                <text>For the included Unicode naming data:</text>
+                <file location="UNIDATA-LICENSE.txt"/>
+            </license>
             <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
         </makenbm>
     </target>
