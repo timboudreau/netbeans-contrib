@@ -42,7 +42,7 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       protected HashMap columnSorted;
       protected HashMap columnComparators;
       
-      protected List list;
+      private List list;
       
       private static final long serialVersionUID = -794293494044050639L;
 
