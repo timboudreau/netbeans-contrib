@@ -111,7 +111,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         commandsWaitQueue = new ArrayList();
         outputContainers = new Hashtable();
         outputVisualizers = new Hashtable();
-        group = new ThreadGroup("VCS Commands Goup");
+        group = new ThreadGroup("VCS Commands Group");
         this.fileSystem = fileSystem;
         runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
         runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
@@ -496,7 +496,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 outputVisualizer.errOutputData(data);
             }
         });
-        if (!isRunning(vce)) outputVisualizer.setExitStatus(vce.getExitStatus());
+        if (!isRunning(vce) && !isWaiting(vce)) outputVisualizer.setExitStatus(vce.getExitStatus());
         return true;
     }
         
@@ -529,7 +529,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @param vce the executor
      */
     public synchronized boolean isWaiting(VcsCommandExecutor vce) {
-        return commandsToRun.contains(vce);
+        return commandsToRun.contains(vce) || commandsWaitQueue.contains(vce);
     }
     
     /**
@@ -638,8 +638,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
         boolean matchOfCommand = false;
         ArrayList commandsToTestAgainst = new ArrayList(commands.keySet());
         commandsToTestAgainst.addAll(commandsToRun);
-        commandsToTestAgainst.addAll(commandsWaitQueue);
-        commandsToTestAgainst.remove(vce);
+        //commandsToTestAgainst.addAll(commandsWaitQueue);
+        //commandsToTestAgainst.remove(vce);
         for(Iterator iter = commandsToTestAgainst.iterator(); iter.hasNext(); ) {
             VcsCommandExecutor ec = (VcsCommandExecutor) iter.next();
             Collection cmdFiles = ec.getFiles();
