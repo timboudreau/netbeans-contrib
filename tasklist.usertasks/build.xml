@@ -17,6 +17,7 @@ Microsystems, Inc. All Rights Reserved.
     <import file="../../nbbuild/default.xml"/>
 
     <property file="../version.properties"/>
+    <property file="build.ant.properties"/>
 
     <target name="init" depends="default.init">
       <patternset id="tasklist/usertasks.files">
@@ -131,12 +132,13 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="parser">
-        <jjtree target="src/org/netbeans/modules/tasklist/usertasks/ics/ics.jjt" 
-            outputdirectory="src/org/netbeans/modules/tasklist/usertasks/ics"
+        <echo message="${javacchome}"/>
+        <jjtree target="src/org/netbeans/modules/tasklist/usertasks/ics/parser/ics.jjt" 
+            outputdirectory="src/org/netbeans/modules/tasklist/usertasks/ics/parser"
             javacchome="${javacchome}"
             static="false"/>
-        <javacc target="src/org/netbeans/modules/tasklist/usertasks/ics/ics.jj" 
-            outputdirectory="src/org/netbeans/modules/tasklist/usertasks/ics"
+        <javacc target="src/org/netbeans/modules/tasklist/usertasks/ics/parser/ics.jj" 
+            outputdirectory="src/org/netbeans/modules/tasklist/usertasks/ics/parser"
             buildparser="true"
             static="false"
             javacchome="${javacchome}"/>
