@@ -320,6 +320,15 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "",ACCESSIBILITY(DESCRIPTION_Text f
                 <property name="supportsAdvancedMode">
                     <value xml:space="preserve">true</value>
                 </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
+                </property>
+                <property name="generalCommandActionDisplayName">
+                    <value>SVN Update</value>
+                </property>
+                <property name="associatedCommandInterfaceName">
+                    <value>org.netbeans.api.vcs.commands.UpdateCommand</value>
+                </property>
             </command>
             <command name="COMMIT_TEMPLATE_GETTER">
                 <property name="exec">
@@ -381,6 +390,15 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "",ACCESSIBILITY(DESCRIPTION_Text fie
                 <property name="supportsAdvancedMode">
                     <value xml:space="preserve">true</value>
                 </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.CommitCommandAction</value>
+                </property>
+                <property name="generalCommandActionDisplayName">
+                    <value>SVN Commit</value>
+                </property>
+                <property name="associatedCommandInterfaceName">
+                    <value>org.netbeans.api.vcs.commands.CheckInCommand</value>
+                </property>
             </command>
             <separator/>
             <command displayName="Add" name="ADD">
@@ -419,6 +437,15 @@ ASK_FOR_EXPERT(NOAUTOPROPS, "No AutoProps", "false",ACCESSIBILITY(DESCRIPTION_Ch
                 </property>
                 <property name="supportsAdvancedMode">
                     <value xml:space="preserve">true</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
+                </property>
+                <property name="generalCommandActionDisplayName">
+                    <value>SVN Add</value>
+                </property>
+                <property name="associatedCommandInterfaceName">
+                    <value>org.netbeans.api.vcs.commands.AddCommand</value>
                 </property>
             </command>
             <command displayName="Copy" name="COPY_LOCAL">
@@ -531,6 +558,15 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "",ACCESSIBILITY(DESCRIPTION_Text f
                 <property name="supportsAdvancedMode">
                     <value xml:space="preserve">true</value>
                 </property>
+                <property name="generalCommandActionClassName">
+                  <value>org.netbeans.modules.vcscore.actions.RemoveCommandAction</value>
+                </property>
+                <property name="generalCommandActionDisplayName">
+                  <value>SVN Delete</value>
+                </property>
+                <property name="associatedCommandInterfaceName">
+                  <value>org.netbeans.api.vcs.commands.RemoveCommand</value>
+                </property>
             </command>
             <command displayName="Mkdir" name="MKDIR_LOCAL">
                 <property name="display">
@@ -610,6 +646,15 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "",ACCESSIBILITY(DESCRIPTION_Text f
                 </property>
                 <property name="supportsAdvancedMode">
                     <value xml:space="preserve">true</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                  <value>org.netbeans.modules.vcscore.actions.DiffCommandAction</value>
+                </property>
+                <property name="generalCommandActionDisplayName">
+                  <value>SVN Diff</value>
+                </property>
+                <property name="associatedCommandInterfaceName">
+                  <value>org.netbeans.api.vcs.commands.DiffCommand</value>
                 </property>
             </command>
             <command displayName="Merge" name="MERGE_LOCAL">
@@ -789,6 +834,9 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "",ACCESSIBILITY(DESCRIPTION_Text f
                <property name="refreshParentFolder">
                     <value xml:space="preserve">true</value>
                 </property>
+                <property name="associatedCommandInterfaceName">
+                    <value>org.netbeans.api.vcs.commands.PropertiesCommand</value>
+                </property>
             </command>
             <command displayName="Info" name="INFO">
                 <property name="advancedName">
@@ -813,6 +861,15 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "",ACCESSIBILITY(DESCRIPTION_Text fie
                 </property>
                 <property name="supportsAdvancedMode">
                     <value xml:space="preserve">true</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.HistoryCommandAction</value>
+                </property>
+                <property name="generalCommandActionDisplayName">
+                    <value>SVN Info</value>
+                </property>
+                <property name="associatedCommandInterfaceName">
+                    <value>org.netbeans.api.vcs.commands.HistoryCommand</value>
                 </property>
             </command>
             <command displayName="Log" name="LOG_LOCAL">
