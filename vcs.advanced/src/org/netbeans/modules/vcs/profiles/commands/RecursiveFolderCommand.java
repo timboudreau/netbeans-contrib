@@ -318,7 +318,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                             !NBATTRS.equals(localSubFiles[i])) {
                             
                             String filePath = path + localSubFiles[i];
-                            if (canProcessFile(filePath)) {
+                            if (!files.containsKey(filePath) && canProcessFile(filePath)) {
                                 files.put(filePath, fileSystem.findResource(filePath));
                             }
                         }
