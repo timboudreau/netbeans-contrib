@@ -108,7 +108,7 @@ class NodeFactoryPool extends FolderInstance {
         synchronized (sync()) {
             ElementNodeFactory f = relinkFactories(l);
             this.factories = (FilterFactory[])l.toArray(new FilterFactory[l.size()]);
-            return f;
+            return head = f;
         }
     }
 
