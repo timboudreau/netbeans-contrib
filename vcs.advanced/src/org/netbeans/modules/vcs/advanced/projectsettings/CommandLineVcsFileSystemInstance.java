@@ -315,6 +315,13 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 wasEnabled = m.isEnabled();
                 moduleListener = new PropertyChangeListener() {
                     public void propertyChange(PropertyChangeEvent evt) {
+                        InstanceContent ic = CommandLineVcsFileSystemInstance.this.ic;
+                        if (ic == null) {
+                            synchronized (MODULE_LST_LOCK) {
+                                moduleListener = null; // I will be detached by GC.
+                            }
+                            return ;
+                        }
                         if (ModuleInfo.PROP_ENABLED.equals(evt.getPropertyName()) &&
                             Boolean.FALSE.equals(evt.getNewValue())) {
                             // a module has been disabled, use full checks
@@ -362,6 +369,14 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                     Lookup.getDefault().lookup(new Lookup.Template(ModuleInfo.class));
                 modulesResult.addLookupListener(new LookupListener() {
                     public void resultChanged(LookupEvent ev) {
+                        InstanceContent ic = CommandLineVcsFileSystemInstance.this.ic;
+                        if (ic == null) {
+                            synchronized (MODULES_LOCK) {
+                                ((Lookup.Result) ev.getSource()).removeLookupListener(this);
+                                modules = null;
+                            }
+                            return ;
+                        }
                         Collection l = ((Lookup.Result) ev.getSource()).allInstances();
                         boolean wasEnabled = isModuleEnabled();
                         synchronized (MODULES_LOCK) {
