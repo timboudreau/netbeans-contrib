@@ -151,6 +151,7 @@ public class UserCommandsPanel extends JPanel implements ExplorerManager.Provide
         beanTreeView.getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsTreeViewA11yDesc"));  // NOI18N
         beanTreeView.setDefaultActionAllowed(false);
         ExplorerPanel explPanel = new ExplorerPanel();
+        explPanel.getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsTreeCmdPanelDesc"));  // NOI18N
         explPanel.add(beanTreeView);
         manager = explPanel.getExplorerManager();
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, explPanel, propertySheetView);

@@ -85,6 +85,7 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
         beanTreeView.getAccessibleContext().setAccessibleDescription(g("ACS_UserVariablesTreeViewA11yDesc"));  // NOI18N
         beanTreeView.setDefaultActionAllowed(false);
         ExplorerPanel explPanel = new ExplorerPanel();
+        explPanel.getAccessibleContext().setAccessibleDescription(g("ACS_UserVariablesTreePanelDesc"));  // NOI18N
         explPanel.add(beanTreeView);
         manager = explPanel.getExplorerManager();
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, explPanel, propertySheetView);
