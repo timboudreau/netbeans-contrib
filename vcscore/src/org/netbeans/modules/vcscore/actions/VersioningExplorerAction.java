@@ -26,8 +26,6 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.explorer.ExplorerPanel;
 import org.openide.nodes.Node;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
@@ -128,32 +126,6 @@ public class VersioningExplorerAction extends GeneralCommandAction {
         return filesByFS;
     }
     
-    private Node[] getVersioningNodes(Map filesByFS) {
-        VersioningRepository repository = VersioningRepository.getRepository();
-        LinkedList nodes = new LinkedList();
-        for (Iterator it = filesByFS.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String fileName = (String) entry.getKey();
-            String fsName = (String) entry.getValue();
-            VersioningFileSystem vs = repository.getSystem(fsName);
-            //System.out.println("getVersioningNodes("+fileName+", "+fsName+")");
-            //System.out.println("  VersioningSystem = "+vs);
-            if (vs != null) {
-                FileObject fo = vs.findResource(fileName);
-                //System.out.println("  Resource ="+fileName);
-                if (fo != null) {
-                    //Node root;
-                    //root.getChildren().
-                    try {
-                        nodes.add(DataObject.find(fo).getNodeDelegate());
-                    } catch (DataObjectNotFoundException exc) {}
-                    //System.out.println("  Node Delegate = "+nodes.get(nodes.size() - 1));
-                }
-            }
-        }
-        return (Node[]) nodes.toArray(new Node[nodes.size()]);
-    }
-    
     private static void selectVersioningFiles(final ExplorerPanel explorer, final Map filesByFS) {
         VersioningRepository repository = VersioningRepository.getRepository();
         final org.openide.explorer.ExplorerManager manager = explorer.getExplorerManager();
@@ -167,7 +139,7 @@ public class VersioningExplorerAction extends GeneralCommandAction {
                 System.out.println("Versioning FS of name '"+fsName+"' = "+vs);
             }
             if (vs != null) {
-                FileObject fo = vs.findResource(fileName);
+                FileObject fo = vs.getRoot().getFileObject(fileName);
                 if (Boolean.getBoolean("netbeans.vcsdebug")) {
                     System.out.println("  resource of name '"+fileName+"' = "+fo);
                 }

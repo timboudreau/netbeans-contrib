@@ -55,8 +55,8 @@ public class NumDotRevisionItem extends RevisionItem {
         while(tokens1.hasMoreTokens() && tokens2.hasMoreTokens()) {
             String rev1 = tokens1.nextToken();
             String rev2 = tokens2.nextToken();
-            int irev1 = 0;
-            int irev2 = 0;
+            int irev1;
+            int irev2;
             try {
                 irev1 = Integer.parseInt(rev1);
                 irev2 = Integer.parseInt(rev2);

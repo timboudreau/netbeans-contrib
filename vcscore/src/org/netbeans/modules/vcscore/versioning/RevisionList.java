@@ -20,9 +20,9 @@ import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 
 /**
+ * RevisionList is a sorted set of RevisionItem objects.
  *
  * @author  Martin Entlicher
- * RevisionList is a sorted set of RevisionItem objects.
  */
 public abstract class RevisionList extends TreeSet implements Node.Cookie {
 
@@ -139,19 +139,4 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
         nodeDelegates = new WeakHashMap();
     }
     
-    /*
-    private class SubRevisionComparator extends Object implements Comparator {
-        
-        private int length;
-        
-        public SubRevisionComparator(int length) {
-            this.length = length;
-        }
-        
-        public boolean equals(Object obj) {
-            return 
-        }
-        
-    }
-    */
 }

@@ -1,0 +1,15 @@
+<h2>Versioning Explorer Implementation</h2>
+
+Implements node hiearchy for versioning explorer:
+
+<pre>
+  RepositoryNode
+    FileSystemNode  with FolderChildren
+      FolderNode  with FolderChildren
+        FileNode  with NumDotRevisionChildren
+</pre>
+
+All nodes provide <code>DataObject</code> cookies
+to maintain interopratility with existings actions
+that commonly (&amp;wrongly) operates over dataobjects.
+

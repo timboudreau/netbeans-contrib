@@ -19,8 +19,12 @@ import java.util.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 import java.lang.reflect.Method;
+import java.io.IOException;
 
 /**
+ * Table model that translates @{link List} to 2D table structure.
+ * Translation logic is based on reflection and defined
+ * by {@link #setColumnDefinition} methods.
  *
  * @author  mkleint
  */
@@ -38,12 +42,31 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       protected HashMap columnSorted;
       protected HashMap columnComparators;
       
-      protected LinkedList list;
+      private List list;
       
       private static final long serialVersionUID = -794293494044050639L;
-      
+
+      /** If estimete exceeds this value, file list implementation is prefered. */
+      private static final int SIZE_THRESHOLD = 237;
+
+      /** Creates memory based implemnation. */
       public TableInfoModel() {
-          list = new LinkedList();
+          this(SIZE_THRESHOLD);
+      }
+
+    /**
+     * Creates new tarnslating table model
+     * @param estimatedSize helps implementation to decide
+     * about backend data storage: memory vs. file. The higher
+     * value the higher chance that implementation chooses
+     * file based list.
+     */
+      public TableInfoModel(int estimatedSize) {
+          if (estimatedSize > SIZE_THRESHOLD) {
+              list = new LinkedList();
+          } else {
+              list = new LinkedList();
+          }
           columnLabels = new HashMap();
           columnSorted = new HashMap();
           columnValueSetters = new HashMap();
@@ -178,7 +201,7 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       }
 
       public void prependElement(Object object) {
-          list.addFirst(object);
+          list.add(0, object);
       }
       
     public void setActiveColumn(int index) {

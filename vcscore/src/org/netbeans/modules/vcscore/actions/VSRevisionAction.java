@@ -121,7 +121,7 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
                 RevisionList list = (RevisionList) entry.getKey();
                 Set itemSet = (Set) entry.getValue();
                 try {
-                    VersioningFileSystem vs = (VersioningFileSystem) list.getFileObject().getFileSystem();
+                    VersioningFileSystem vs = VersioningFileSystem.findFor(list.getFileObject().getFileSystem());
                     result.addAll (Arrays.asList (vs.getRevisionActions(list.getFileObject(), itemSet)));
                 } catch (FileStateInvalidException exc) {
                     continue;

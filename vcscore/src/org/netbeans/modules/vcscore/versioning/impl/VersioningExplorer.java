@@ -20,20 +20,20 @@ import java.util.WeakHashMap;
 
 import org.openide.explorer.*;
 import org.openide.explorer.view.*;
-import org.openide.explorer.propertysheet.*;
 import org.openide.nodes.*;
 import org.openide.windows.Workspace;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
-
-import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.openide.windows.WindowManager;
 
+import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
+
 /**
+ * Creates UI displaing content of VersioningRepository.
  *
  * @author  Martin Entlicher
  */
-public class VersioningExplorer {
+public final class VersioningExplorer {
 
     /**
      * Map of explorer panels for individual nodes.
@@ -55,7 +55,7 @@ public class VersioningExplorer {
     }
 
     public static VersioningExplorer.Panel getRevisionExplorer() {
-        return getRevisionExplorer(VersioningDataSystem.getVersioningDataSystem());
+        return getRevisionExplorer(RepositoryNode.getExplorerNode());
     }
     
     /**
@@ -73,23 +73,6 @@ public class VersioningExplorer {
         }
     }
 
-    private void initComponentsSplitted() {
-        PropertySheetView propertySheetView = new PropertySheetView();
-        try {
-            propertySheetView.setSortingMode(org.openide.explorer.propertysheet.PropertySheet.UNSORTED);
-        } catch (java.beans.PropertyVetoException exc) {
-            // The change was vetoed
-        }
-        org.openide.awt.SplittedPanel split = new org.openide.awt.SplittedPanel();
-        split.setSplitType(org.openide.awt.SplittedPanel.HORIZONTAL);
-        split.add(new BeanTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
-        split.add(propertySheetView, org.openide.awt.SplittedPanel.ADD_RIGHT);
-        //panel.add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new RevisionTreeView(), propertySheetView));
-        panel.add(split);
-        //panel.add(new BeanTreeView(), java.awt.BorderLayout.WEST);
-        //panel.add(new PropertySheetView(), java.awt.BorderLayout.EAST);
-    }
-    
     private void initComponents() {
         BeanTreeView VersioningBTV = new BeanTreeView();
         VersioningBTV.getAccessibleContext().setAccessibleName(

@@ -92,8 +92,6 @@ import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
-import org.netbeans.modules.vcscore.versioning.RevisionList;
-import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 
 /** Generic VCS filesystem.
  *
@@ -107,7 +105,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           CommandExecutionContext, CacheHandlerListener,
                                                                           FileObjectExistence, VcsOISActivator, Serializable,
                                                                           FileSystem.HtmlStatus {
-
     public static interface IgnoreListSupport {
 
         public ArrayList createInitialIgnoreList ();
@@ -608,7 +605,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    protected void refreshExistingFolders() {
+    /** Instruct FS to refrest folders, XXX asynchronous operation. */
+    public void refreshExistingFolders() {
         refreshExistingFolders(null);
     }
 
@@ -755,28 +753,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setVFSShowDeadFiles(boolean newVal) {
         versioningFileSystemShowDeadFiles = newVal;
     }
-
-    private void copyFromVersioningFs() {
-        if (versioningSystem != null && versioningSystem instanceof VcsVersioningSystem) {
-            VcsVersioningSystem versFs = (VcsVersioningSystem)versioningSystem;
-            setVFSMessageLength(versFs.getMessageLength());
-            setVFSShowLocalFiles(versFs.isShowLocalFiles());
-            setVFSShowMessage(versFs.isShowMessages());
-            setVFSShowUnimportantFiles(versFs.isShowUnimportantFiles());
-            setVFSShowDeadFiles(versFs.isShowDeadFiles());
-        }
-    }
-
-
-    /**
-     * this method is invoked by reflection from the Versioning filesystem to enable saving of it's changed properties..
-     * these should be mirrored in the filesystem so that they get saved..
-     */
-    public void saveVersioningFileSystemProperties(String propName, Object newValue) {
-        copyFromVersioningFs();
-        firePropertyChange(propName, null, newValue);
-    }
-
 
     public void addRevisionListener(RevisionListener listener) {
         synchronized (revisionListenersLock) {
@@ -1053,7 +1029,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 checkVirtualFiles(s);
             }
         });
-        if (versioningSystem != null) versioningSystem.statusChanged(path, recursively);
     }
 
     private transient StatusChangeUpdater statusUpdateRunnable;
@@ -1072,7 +1047,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         statusUpdateRunnable.addNameToUpdate(name);
         statusUpdateTask.schedule(200);
-        if (versioningSystem != null) versioningSystem.statusChanged(name);
     }
 
     /**
@@ -1319,7 +1293,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             result =  super.createReference(fo);
         }
         String fullName = fo.getPath();
-        if (versioningSystem != null && fo.isFolder()) addVersioningFolderListener(fo);
         return result;
     }
 
@@ -1533,14 +1506,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return info;
     }
 
-    private void assignVersioningProperties(VcsVersioningSystem vers) {
-        vers.setShowDeadFiles(versioningFileSystemShowDeadFiles);
-        vers.setShowLocalFiles(versioningFileSystemShowLocalFiles);
-        vers.setShowMessages(versioningFileSystemShowMessage);
-        vers.setShowUnimportantFiles(versioningFileSystemShowUnimportantFiles);
-        vers.setMessageLength(versioningFileSystemMessageLength);
-    }
-
     /**
      * Notifies this file system that it has been added to the repository.
      * Since we can not rely on the addNotify() method (see issue #30763),
@@ -1591,38 +1556,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected final void createVersioningFileSystem() {
-        this.versioningSystem = new VcsVersioningSystem(VcsFileSystem.this);//new DefaultVersioningSystem(new VcsFileSystemInfo());
-        assignVersioningProperties((VcsVersioningSystem)versioningSystem);
-        if (cache != null) {
-            org.netbeans.modules.vcscore.cache.FileSystemCache fsCache =
-                org.netbeans.modules.vcscore.cache.CacheHandler.getInstance().getCache(cache);
-            if (fsCache != null) {
-                fsCache.addCacheHandlerListener((CacheHandlerListener) WeakListeners.create(CacheHandlerListener.class, (CacheHandlerListener) versioningSystem, fsCache));
-            }
-        }
-        addVersioningFolderListener(getRoot());
+        versioningSystem = new VcsVersioningSystem(VcsFileSystem.this);
         VersioningRepository.getRepository().addVersioningFileSystem(versioningSystem);
     }
     
     protected final void removeVersioningFileSystem() {
         VersioningRepository.getRepository().removeVersioningFileSystem(versioningSystem);
         versioningSystem = null;
-        try {
-            VcsFileSystem.this.runAtomicAction(new FileSystem.AtomicAction() {
-                public void run() {
-                    if (versioningFolderListeners != null) {
-                        for (Iterator it = versioningFolderListeners.keySet().iterator(); it.hasNext(); ) {
-                            FileObject fo = (FileObject) it.next();
-                            FileChangeListener changeL = (FileChangeListener) versioningFolderListeners.get(fo);
-                            fo.removeFileChangeListener(changeL);
-                        }
-                        versioningFolderListeners = null;
-                    }
-                }
-            });
-        } catch (IOException exc) {
-            ErrorManager.getDefault().notify(exc);
-        }
     }
 
     protected void setCreateRuntimeCommands(boolean createRuntimeCommands) {
@@ -2639,13 +2579,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (processAll || isImportant(fullName)) {
                     result.add(fullName);
                 }
-            } else {
-                try {
-                    if (ff.getFileSystem() instanceof VersioningFileSystem) {
-                        String fullName = ff.getPath();
-                        result.add(fullName);
-                    }
-                } catch (FileStateInvalidException exc) {}
             }
             // check for scheduled files:
             Set[] scheduled = (Set[]) ff.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
@@ -3178,26 +3111,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         return (String[]) files.toArray(new String[0]);
-    }
-
-    private transient WeakHashMap versioningFolderListeners;
-    private static final Object versioningFolderListenersLock = new Object();
-
-    private void addVersioningFolderListener(FileObject fo) {
-        //System.out.println("addVersioningFolderListener("+fo+")");
-        synchronized (versioningFolderListenersLock) {
-            if (versioningFolderListeners == null) {
-                versioningFolderListeners = new WeakHashMap();
-            }
-            FileChangeListener listener = (FileChangeListener) versioningFolderListeners.get(fo);
-            //System.out.println(" listener for "+fo+" = "+listener);
-            if (listener == null) {
-                FileChangeListener chListener = new VersioningFolderChangeListener(fo.getPath());
-                listener = WeakListener.fileChange(chListener, fo);
-                fo.addFileChangeListener(listener);
-                versioningFolderListeners.put(fo, chListener);
-            }
-        }
     }
 
     private transient Vector scheduledFilesToBeProcessed;
@@ -4546,64 +4459,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return list.children(name);
         }
 
-    }
-
-    private class VersioningFolderChangeListener extends Object implements FileChangeListener {
-
-        /** the folder name */
-        private String name;
-
-        /** How many requests were sent to RP. */
-        private volatile int queuedRequests = 0;
-
-        public VersioningFolderChangeListener(String name) {
-            this.name = name;
-        }
-
-        /** Fired when a file attribute is changed. */
-        public void fileAttributeChanged(org.openide.filesystems.FileAttributeEvent fe) {
-        }
-
-        /** Fired when a file is changed. */
-        public void fileChanged(org.openide.filesystems.FileEvent fe) {
-            refreshVersioning();
-        }
-
-        /** Fired when a new file is created. */
-        public void fileDataCreated(org.openide.filesystems.FileEvent fe) {
-            refreshVersioning();
-        }
-
-        /** Fired when a file is deleted. */
-        public void fileDeleted(org.openide.filesystems.FileEvent fe) {
-            refreshVersioning();
-        }
-
-        /** Fired when a new folder is created. */
-        public void fileFolderCreated(org.openide.filesystems.FileEvent fe) {
-            refreshVersioning();
-        }
-
-        /** Fired when a file is renamed. */
-        public void fileRenamed(org.openide.filesystems.FileRenameEvent fe) {
-            refreshVersioning();
-        }
-
-        private void refreshVersioning() {
-            queuedRequests++;
-            getStatusChangeRequestProcessor().post(new Runnable() {
-                public void run() {
-                    //System.out.println("refreshVersioning("+name+")");
-                    queuedRequests--;
-                    if (queuedRequests != 0) return;  // next queued request will handle it
-                    if (versioningSystem != null) {
-                        FileObject fo = versioningSystem.findExistingResource(name);
-                        //System.out.println("  resource = "+fo);
-                        if (fo != null) fo.refresh();
-                    }
-                }
-            });
-        }
     }
 
     /**

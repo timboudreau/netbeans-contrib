@@ -57,9 +57,6 @@ import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
-import org.netbeans.modules.vcscore.versioning.RevisionEvent;
-import org.netbeans.modules.vcscore.versioning.RevisionListener;
-import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 
@@ -153,10 +150,6 @@ public class CommandCustomizationSupport extends Object {
         for(Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject ff = (FileObject) it.next();
             try {
-                if (ff.getFileSystem() instanceof VersioningFileSystem) {
-                    res.put(ff.getPath(), ff);
-                    continue;
-                }
                 if (!doNotTestFS && ff.getFileSystem() != fileSystem)
                     continue;
             } catch (FileStateInvalidException exc) {

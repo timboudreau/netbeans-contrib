@@ -23,13 +23,10 @@ import javax.swing.event.EventListenerList;
 
 import org.netbeans.spi.queries.VisibilityQueryImplementation;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.WeakListeners;
 import org.openide.util.WeakSet;
-
-import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 
 /**
  * VCS visibility query implementation based on VCS filesystems.
@@ -46,11 +43,6 @@ public class VcsVisibilityQueryImpl implements VisibilityQueryImplementation, Pr
     public VcsVisibilityQueryImpl() {}
     
     public boolean isVisible(FileObject fo) {
-        VersioningFileSystem versioningFS = (VersioningFileSystem) fo.getAttribute(VersioningFileSystem.VERSIONING_NATIVE_FS);
-        if (versioningFS != null) {
-            File file = FileUtil.toFile(fo);
-            return versioningFS.getFileFilter().accept(file.getParentFile(), file.getName());
-        }
         VcsFileSystem vcsFS = (VcsFileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
         if (vcsFS == null) return true;
         synchronized (listenedVFSs) {

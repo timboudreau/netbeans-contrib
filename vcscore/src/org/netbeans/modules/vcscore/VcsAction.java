@@ -884,10 +884,6 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
         for(Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject ff = (FileObject) it.next();
             try {
-                if (ff.getFileSystem() instanceof VersioningFileSystem) {
-                    res.put(ff.getPath(), ff);
-                    continue;
-                }
                 if (!doNotTestFS && ff.getFileSystem() != fileSystem)
                     continue;
             } catch (FileStateInvalidException exc) {

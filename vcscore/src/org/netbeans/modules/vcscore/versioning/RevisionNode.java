@@ -15,11 +15,9 @@ package org.netbeans.modules.vcscore.versioning;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.Action;
@@ -27,7 +25,6 @@ import javax.swing.Action;
 import org.openide.nodes.*;
 import org.openide.actions.*;
 import org.openide.cookies.ViewCookie;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.NbBundle;
@@ -35,9 +32,9 @@ import org.openide.util.WeakListener;
 
 import org.netbeans.modules.vcscore.actions.VSRevisionAction;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
-//import org.netbeans.modules.vcscore.VcsFileSystem;
 
 /**
+ * Node visualizing file revisions.
  *
  * @author  Martin Entlicher
  */
@@ -277,7 +274,7 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         } catch (org.openide.filesystems.FileStateInvalidException exc) {
             fs = null;
         }
-        return (VersioningFileSystem) fs;
+        return VersioningFileSystem.findFor(fs);
     }
     
     public FileObject getFileObject() {

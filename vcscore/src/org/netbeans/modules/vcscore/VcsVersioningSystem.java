@@ -13,32 +13,17 @@
 
 package org.netbeans.modules.vcscore;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.ObjectInputStream;
-import java.io.IOException;
-import java.io.NotActiveException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
-import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileStatusEvent;
-import org.openide.filesystems.FileStatusListener;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
 import org.openide.util.actions.SystemAction;
 
 import org.netbeans.api.vcs.commands.Command;
@@ -46,41 +31,31 @@ import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
-import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
-import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
-import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
-import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 import org.netbeans.modules.vcscore.commands.RegexOutputCommand;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
-import org.netbeans.modules.vcscore.commands.TextOutputCommand;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
-//import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.netbeans.modules.vcscore.versioning.RevisionChildren;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
-//import org.netbeans.modules.vcscore.versioning.VcsFileObject;
-import org.netbeans.modules.vcscore.versioning.VcsFileStatusEvent;
-//import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionChildren;
-import org.netbeans.modules.vcscore.versioning.impl.VersioningDataLoader;
-//import org.netbeans.modules.vcscore.versioning.impl.AbstractVersioningSystem;
-import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.openide.ErrorManager;
 
 //import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionChildren;
 
 /**
- * The VersioningSystem used by VcsFileSystem
+ * The VersioningSystem used by VcsFileSystem. VcsFileSystem contructs it
+ * then adds it into RevisionRepository.
+ *
  * @author  Martin Entlicher
+ * @author  Petr Kuzel (encapsulation improvements)
  */
-class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerListener {
+class VcsVersioningSystem extends VersioningFileSystem {
 
     private VcsFileSystem fileSystem;
     //private VersioningFileSystem.Status status;
@@ -99,70 +74,24 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     /** Holds value of property messageLength. */
     private int messageLength = 50;    
     
-    private transient FSPropertyChangeListener propListener;
-    
     public static final String PROP_SHOW_DEAD_FILES = "showDeadFiles"; //NOI18N
     public static final String PROP_SHOW_MESSAGES = "showMessages"; //NOI18N
     public static final String PROP_MESSAGE_LENGTH = "messageLength"; //NOI18N
     public static final String PROP_SHOW_UNIMPORTANT_FILES = "showUnimportantFiles"; //NOI18N
     public static final String PROP_SHOW_LOCAL_FILES = "showLocalFiles"; // NOI18N
-    public static final String PROP_IGNORED_GARBAGE_FILES = "ignoredGarbageFiles"; // NOI18N
-    
-    private static final long serialVersionUID = 6349205836150345436L;
 
     /** Creates new VcsVersioningSystem */
-    public VcsVersioningSystem(VcsFileSystem fileSystem) {
+    VcsVersioningSystem(VcsFileSystem fileSystem) {
         super(fileSystem);
         this.fileSystem = fileSystem;
-        try {
-            setSystemName(fileSystem.getSystemName());
-        } catch (java.beans.PropertyVetoException vExc) {}
-        //this.status = new VersioningFileStatus();
-        this.list = new VersioningList();//fileSystem.getVcsList();
-        this.info = fileSystem.getVcsInfo();
-        this.change = new VersioningFSChange();
-        this.attr = new VcsVersioningAttrs();
         this.versions = new VersioningVersions();
         revisionListsByName = new Hashtable();
         localFilenameFilter = new LocalFilenameFilter();
-        initListeners();
-        setCapability(null);//FileSystemCapability.DOC);
-    }
-    
-    public void addNotify() {
-        propagatePropertyChange(new String[] {PROP_IGNORED_GARBAGE_FILES, PROP_SHOW_MESSAGES, 
-          PROP_MESSAGE_LENGTH, PROP_SHOW_LOCAL_FILES, PROP_SHOW_UNIMPORTANT_FILES, PROP_SHOW_DEAD_FILES});
-    }
-    
-    private void initListeners() {
-        /*
-        fileStatus = new FileStatusListener() {
-            public void annotationChanged(FileStatusEvent ev) {
-                fireFileStatusChanged(ev);
-            }
-        };
-        fileSystem.addFileStatusListener(WeakListener.fileStatus(fileStatus, fileSystem));
-         */
-        propListener = new FSPropertyChangeListener();
-        fileSystem.addPropertyChangeListener(WeakListener.propertyChange(propListener, fileSystem));
-        addPropertyChangeListener(propListener);
-    }
 
-    /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
-     * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)
-     * This method does a similar stuff to VcsFileSystem.createReference()
-     * @param fo is FileObject. It`s reference you require to get.
-     * @return Reference to FileObject
-     */
-    protected java.lang.ref.Reference createReference(final FileObject fo) {
-        java.lang.ref.Reference ref;
-        FileCacheProvider cache = fileSystem.getCacheProvider();
-	if (cache != null) {
-            ref = cache.createReference(fo);
-	} else {
-            ref = super.createReference(fo);
-        }
-	return ref;
+        showMessages = ((Boolean)loadProperty(PROP_SHOW_MESSAGES, Boolean.valueOf(showMessages))).booleanValue();
+        messageLength = ((Integer)loadProperty(PROP_MESSAGE_LENGTH, new Integer(messageLength))).intValue();
+        showLocalFiles = ((Boolean)loadProperty(PROP_SHOW_LOCAL_FILES, Boolean.valueOf(showLocalFiles))).booleanValue();
+        showUnimportantFiles = ((Boolean)loadProperty(PROP_SHOW_UNIMPORTANT_FILES, Boolean.valueOf(showUnimportantFiles))).booleanValue();
     }
     
     /**
@@ -172,17 +101,6 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     protected FileSystem getFileSystem() {
         return fileSystem;
     }
-    
-    /*
-    public AbstractFileSystem.List getList() {
-        return fileSystem.getVcsList();
-    }
-    
-    public AbstractFileSystem.Info getInfo() {
-        return fileSystem.getVcsInfo();
-    }
-     */
-    
     
     public VersioningFileSystem.Versions getVersions() {
         return versions;
@@ -216,6 +134,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     public void setShowUnimportantFiles(boolean showUnimportantFiles) {
         if (this.showUnimportantFiles != showUnimportantFiles) {
             this.showUnimportantFiles = showUnimportantFiles;
+            storeProperty(PROP_SHOW_UNIMPORTANT_FILES, Boolean.valueOf(showUnimportantFiles));
             firePropertyChange(PROP_SHOW_UNIMPORTANT_FILES, !showUnimportantFiles ? Boolean.TRUE : Boolean.FALSE, showUnimportantFiles ? Boolean.TRUE : Boolean.FALSE);
             refreshExistingFolders();
         }
@@ -228,6 +147,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     public void setShowLocalFiles(boolean showLocalFiles) {
         if (this.showLocalFiles != showLocalFiles) {
             this.showLocalFiles = showLocalFiles;
+            storeProperty(PROP_SHOW_LOCAL_FILES, Boolean.valueOf(showLocalFiles));
             firePropertyChange(PROP_SHOW_LOCAL_FILES, !showLocalFiles ? Boolean.TRUE : Boolean.FALSE, showLocalFiles ? Boolean.TRUE : Boolean.FALSE);
             refreshExistingFolders();
         }
@@ -246,6 +166,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     public void setShowMessages(boolean showMessages) {
         if (this.showMessages != showMessages) {
             this.showMessages = showMessages;
+            storeProperty(PROP_SHOW_MESSAGES, Boolean.valueOf(showMessages));
             firePropertyChange(PROP_SHOW_MESSAGES, !showMessages ? Boolean.TRUE : Boolean.FALSE, showMessages ? Boolean.TRUE : Boolean.FALSE);
             redisplayRevisions();
         }
@@ -304,20 +225,11 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         if (messageLength < 0) {
             this.messageLength = 0;
         }
+        storeProperty(PROP_MESSAGE_LENGTH, new Integer(messageLength));
         firePropertyChange(PROP_MESSAGE_LENGTH, new Integer(oldLength), new Integer(messageLength));
         redisplayRevisions();
         
     }    
-    
-    /*
-    public RevisionChildren createRevisionChildren(RevisionList list) {
-        return new NumDotRevisionChildren(list);
-    }
-     */
-    
-    public boolean isReadOnly() {
-        return false;
-    }
     
     private static Object vsActionAccessLock = new Object();
 
@@ -331,105 +243,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         return new SystemAction[] { action };
     }
 
-    /*
-    public void fireRevisionChange(String name) {
-        fireRevisionChange(name, null);
-    }
-     */
-    
-    private void vcsStatusChanged (String path, boolean recursively) {
-        FileObject fo = findExistingResource(path);
-        if (fo == null) return ;
-        Enumeration enum = existingFileObjects(fo);
-        //D.deb("I have root = "+fo.getName()); // NOI18N
-        HashSet hs = new HashSet();
-        if (enum.hasMoreElements()) {
-            // First add the root FileObject
-            hs.add(enum.nextElement());
-        }
-        while(enum.hasMoreElements()) {
-            //fo = (FileObject) enum.nextElement();
-            //hs.add(fo);
-            FileObject chfo = (FileObject) enum.nextElement();
-            if (!recursively && !fo.equals(chfo.getParent())) break;
-            hs.add(chfo);
-            //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
-        }
-        Set s = Collections.synchronizedSet(hs);
-        fireVcsFileStatusChanged(new VcsFileStatusEvent(this, s));
-    }
-
-    private void vcsStatusChanged (String name) {
-        FileObject fo = findExistingResource(name);
-        if (fo == null) return;
-        fireVcsFileStatusChanged (new VcsFileStatusEvent(this, Collections.singleton(fo)));
-    }
-    
-    /**
-     * is called each time the status of a file changes in cache.
-     * The filesystem has to decide wheater it affects him (only in case when
-     * there's not the 1-to-1 relationship between cache and fs.
-     */
-    public void statusChanged(final CacheHandlerEvent event) {
-        final String root = fileSystem.getRootDirectory().getAbsolutePath();
-        final String absPath = event.getCacheFile().getAbsolutePath();
-        if (absPath.startsWith(root)) { // it belongs to this FS -> do something
-            //D.deb("-------- it is in this filesystem");
-            VcsFileSystem.getStatusChangeRequestProcessor().post(new Runnable() {
-                public void run() {
-                    String path;
-                    if (root.length() == absPath.length()) {
-                        path = "";
-                    } else {
-                        path = absPath.substring(root.length() + 1, absPath.length());
-                    }
-                    path = path.replace(java.io.File.separatorChar, '/');
-                    if (event.getCacheFile() instanceof org.netbeans.modules.vcscore.cache.CacheDir) {
-                        vcsStatusChanged(path, event.isRecursive());
-                    } else {
-                        vcsStatusChanged(path);
-                    }
-                }
-            });
-        }
-    }
-    
-    /**
-     * is Called when a file/dir is removed from cache.
-     */
-    public void cacheRemoved(CacheHandlerEvent event) {
-    }
-    
-    /**
-     * is called when a file/dir is added to the cache. The filesystem should
-     * generally perform findResource() on the dir the added files is in
-     * and do refresh of that directory.
-     * Note:
-     */
-    public void cacheAdded(CacheHandlerEvent event) {
-    }
-    
     public FilenameFilter getFileFilter() {
         return localFilenameFilter;
-    }
-    
-    /*
-    private class VersioningFileStatus extends Object implements VersioningFileSystem.Status {
-
-        public java.lang.String annotateName(java.lang.String displayName, java.util.Set files) {
-            return fileSystem.annotateName(displayName, files);
-        }
-        
-        public java.awt.Image annotateIcon(java.awt.Image icon, int iconType, java.util.Set files) {
-            return fileSystem.annotateIcon(icon, iconType, files);
-        }
-        
-    }
-     */
-
-    private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
-        in.defaultReadObject();
-        localFilenameFilter = new LocalFilenameFilter();
     }
     
     private class LocalFilenameFilter extends Object implements FilenameFilter {
@@ -461,68 +276,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         }
         
     }
-    
-    private class VersioningList extends Object implements AbstractFileSystem.List {
-        
-        private static final long serialVersionUID = 107435350712853937L;
-        
-        public String[] children(String name) {
-            String[] vcsFiles = null;
-            String[] files = null;
-            FileCacheProvider cache = fileSystem.getCacheProvider();
-            HashMap removedFilesScheduledForRemove = new HashMap();
-            if (cache != null) {// && cache.isDir(name)) {
-                cache.readDirFromDiskCache(name);
-                vcsFiles = cache.getFilesAndSubdirs(name);
-                if (!fileSystem.isShowDeadFiles()) {
-                    vcsFiles = fileSystem.filterDeadFilesOut(name, vcsFiles);
-                }
-            }
-            if (vcsFiles == null) files = fileSystem.getLocalFiles(name);
-            else files = fileSystem.addLocalFiles(name, vcsFiles, removedFilesScheduledForRemove);
-            if (cache != null) {
-                VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
-                if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) ||
-                    (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) && fileSystem.areOnlyHiddenFiles(files)) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
-            }
-            if (!isShowUnimportantFiles()) {
-                files = filterUnimportantFiles(name, files);
-            }
-            return files;
-        }
-        
-        private String[] filterUnimportantFiles(String folder, String[] files) {
-            for (int i = 0; i < files.length; i++) {
-                if (files[i] != null) {
-                    if (!fileSystem.isImportant(folder + '/' + files[i])) {
-                        files[i] = null;
-                    }
-                }
-            }
-            return files;
-        }
 
-    }
-
-
-    private class VcsVersioningAttrs extends VersioningAttrs {
-        
-        public VcsVersioningAttrs() {
-            super(VcsVersioningSystem.this.info);
-        }
-        
-        public Object readAttribute(String name, String attrName) {
-            if (VERSIONING_NATIVE_FS.equals(attrName)) {
-                return VcsVersioningSystem.this;
-            }
-            Object value = super.readAttribute(name, attrName);
-            if (value == null) {
-                value = fileSystem.getVcsAttributes().readAttribute(name, attrName);
-            }
-            return value;
-        }
-    }
-    
     private class VersioningVersions extends Object implements VersioningFileSystem.Versions {
         
         private static final long serialVersionUID = -8842749866809190554L;
@@ -626,7 +380,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
              */
             return list;//(RevisionList) revisionListsByName.get(name);
         }
-        
+
         private RevisionList getEncodedRevisionList(final String name, String encodedRL) {
             //System.out.println("addEncodedRevisionList("+name+", "+encodedRL.length()+")");
             if (encodedRL.length() == 0) return null;
@@ -707,84 +461,4 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             return new ByteArrayInputStream(fileBuffer.toString().getBytes());
         }
     }
-
-    
-    private class FSPropertyChangeListener implements PropertyChangeListener {
-        public void propertyChange(final PropertyChangeEvent event) {
-            String propName = event.getPropertyName();
-            Object oldValue = event.getOldValue();
-            Object newValue = event.getNewValue();
-            if (VcsFileSystem.PROP_ANNOTATION_PATTERN.equals(propName)) {
-                FileObject root = findResource("");
-                Set foSet = new HashSet();
-                Enumeration enum = existingFileObjects(root);
-                while (enum.hasMoreElements()) {
-                    foSet.add(enum.nextElement());
-                }
-                fireFileStatusChanged(new FileStatusEvent(VcsVersioningSystem.this, foSet, false, true));
-            }
-            if (PROP_SHOW_DEAD_FILES.equals(propName)) {
-                FileObject root = findResource("");
-                heyDoRefreshFolderRecursive(root);
-            }
-            if (VcsFileSystem.PROP_ROOT.equals(propName) && (!event.getSource().equals(VcsVersioningSystem.this))) {
-//                rootFile = fileSystem.getRootDirectory();
-                try {
-                    String oldSystName = getSystemName();
-                    setSystemName(fileSystem.getSystemName());
-                    VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_SYSTEM_NAME, oldSystName, getSystemName());
-                } catch (java.beans.PropertyVetoException vExc) {
-                    ErrorManager.getDefault().notify(org.openide.ErrorManager.WARNING, vExc);
-                }
-                FileObject fo = refreshRoot();
-                VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_ROOT, null, fo);
-                return;
-            }
-            if (VcsFileSystem.PROP_DISPLAY_NAME.equals(propName)) {
-                if (newValue == null) return ; // Filter out events from myself, since I listen on this also!
-                VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_DISPLAY_NAME, null, null);
-            }
-            if (VcsFileSystem.PROP_PROCESS_UNIMPORTANT_FILES.equals(propName)) {
-                setShowUnimportantFiles(fileSystem.isProcessUnimportantFiles());
-            }
-        }
-
-        private void heyDoRefreshFolderRecursive(FileObject fo) {
-            Enumeration enum = existingFileObjects(fo);
-            while(enum.hasMoreElements()) {
-                ((FileObject) enum.nextElement()).refresh();
-            }
-        }
-    }
-    
-    /*
-    private class FileStatusEventAdapter extends FileStatusEvent {
-        
-        private FileStatusEvent eventOrig;
-        
-        public FileStatusEventAdapter(FileStatusEvent event) {
-            eventOrig = event;
-        }
-        
-        public FileSystem getFileSystem() {
-            return VcsVersioningSystem.this;
-        }
-        
-        public boolean hasChanged(FileObject file) {
-            FileObject fileOrig = fileSystem.findFileObject(file.getPackageNameExt('/', '.'));
-            if (fileOrig == null) return false;
-            return eventOrig.hasChanged(fileOrig);
-        }
-        
-        public boolean isNameChange() {
-            return eventOrig.isNameChange();
-        }
-        
-        public boolean isIconChange() {
-            return eventOrig.isIconChange();
-        }
-        
-    }
-     */
-    
 }
