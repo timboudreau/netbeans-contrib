@@ -49,7 +49,7 @@ final class Cache {
         if (name == null) return null;
         Object hit = cache().get(name);
         if (hit != null) {
-            if (((long[])hit)[0] <= fo.lastModified().getTime()) {
+            if (((long[])hit)[0] >= fo.lastModified().getTime()) {
                 return Collections.EMPTY_LIST;
             } else {
                 cache().remove(name);
