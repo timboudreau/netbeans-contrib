@@ -1,0 +1,237 @@
+/*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package complete.pvcs_profile;
+
+import java.io.*;
+import junit.framework.*;
+import org.netbeans.junit.*;
+import org.netbeans.test.oo.gui.jelly.*;
+import org.netbeans.jemmy.JemmyProperties;
+import org.netbeans.jemmy.TestOut;
+import org.netbeans.jemmy.util.PNGEncoder;
+import org.netbeans.jemmy.operators.*;
+import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
+import org.netbeans.jellytools.modules.vcsgeneric.pvcs.*;
+import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
+import org.openide.util.Utilities;
+import org.netbeans.jellytools.*;
+import org.netbeans.jellytools.nodes.*;
+import org.netbeans.jellytools.actions.*;
+import org.netbeans.jellytools.properties.*;
+import javax.swing.text.*;
+import java.awt.Color;
+
+/** XTest / JUnit test class performing regular development testing on PVCS filesystem.
+ * @author Jiri Kovalsky
+ * @version 1.0
+ */
+public class RegularDevelopment extends NbTestCase {
+    
+    public static String VERSIONING_MENU = "Versioning";
+    public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";
+    public static String REFRESH = "PVCS|Refresh";
+    public static String GET = "PVCS|Get";
+    public static String DIFF = "PVCS|Diff";
+    public static String PUT = "PVCS|Put";
+    public static String HISTORY = "PVCS|History";
+    public static String workingDirectory;
+    public static String userName;
+    private static final Color MODIFIED_COLOR = new Color(160, 200, 255);
+    private static final Color NEW_COLOR = new Color(180, 255, 180);
+    private static final Color REMOVED_COLOR = new Color(255, 160, 180);
+    
+    /** Constructor required by JUnit.
+     * @param testName Method name to be used as testcase.
+     */
+    public RegularDevelopment(String testName) {
+        super(testName);
+    }
+    
+    /** Method used for explicit test suite definition.
+     * @return RegularDevelopment test suite.
+     */
+    public static junit.framework.Test suite() {
+        TestSuite suite = new NbTestSuite();
+        suite.addTest(new RegularDevelopment("testCheckoutFile"));
+        suite.addTest(new RegularDevelopment("testModifyFile"));
+        suite.addTest(new RegularDevelopment("testViewDifferences"));
+        suite.addTest(new RegularDevelopment("testCheckinFile"));
+        suite.addTest(new RegularDevelopment("testViewHistory"));
+        return suite;
+    }
+    
+    /** Use for internal test execution inside IDE.
+     * @param args Command line arguments.
+     */
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
+    
+    /** Method called before each testcase. Sets default timeouts, redirects system
+     * output and maps main components.
+     */
+    protected void setUp() {
+        JellyProperties.setDefaults();
+        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
+    }
+    
+    /** Method called after each testcase. Resets Jemmy WaitComponentTimeout.
+     */
+    protected void tearDown() {
+        JellyProperties.setDefaults();
+    }
+    
+    /** Method will create a file and capture the screen.
+     */
+    private void captureScreen(String reason) throws Exception {
+        File file;
+        try {
+            file = new File(getWorkDirPath() + "/dump.png");
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        } catch(IOException e) { throw new Exception("Error: Can't create dump file."); }
+        PNGEncoder.captureScreen(file.getAbsolutePath());
+        throw new Exception(reason);
+    }
+    
+    /** Tries to checkout a file from PVCS project database.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testCheckoutFile() throws Exception {
+        System.out.print(".. Testing checking out a file ..");
+        String workingPath = getWorkDirPath();
+        workingDirectory = workingPath.substring(0, workingPath.indexOf("RegularDevelopment")) + "RepositoryCreation" + File.separator + "testCreateDatabase";
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node A_FileNode = new Node( filesystemNode, "A_File [Current]");
+        new ActionNoBlock(VERSIONING_MENU + "|" + GET, GET).perform(A_FileNode);
+        GetCommandOperator getCommand = new GetCommandOperator("A_File.java");
+        getCommand.checkLockForTheCurrentUser(true);
+        getCommand.checkCheckOutWritableWorkfile(true);
+        getCommand.ok();
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        String children[] = filesystemNode.getChildren();
+        int count = children.length;
+        boolean found = false;
+        for(int i=0; i<count; i++) {
+            String child = children[i];
+            if (child.startsWith("A_File [Current; 1.1] (") && child.endsWith(")")) {
+                found = true;
+                userName = child.substring(23, child.length() - 1);
+            }
+        }
+        if (!found) captureScreen("Error: Unable to find locked A_File [Current; 1.1] (...) file.");
+        new DeleteAction().perform(A_FileNode);
+        new NbDialogOperator("Confirm Object Deletion").no();
+        System.out.println(". done !");
+    }
+
+    /** Tries to modify a file in PVCS filesystem.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testModifyFile() throws Exception {
+        System.out.print(".. Testing file modification ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node A_FileNode = new Node( filesystemNode, "A_File [Current; 1.1] (" + userName + ")");
+        new OpenAction().perform(A_FileNode);
+        EditorOperator editor = new EditorOperator("A_File [Current; 1.1] (" + userName + ")");
+        editor.insert("A_File.java ", 1, 21);
+        editor.deleteLine(3);
+        editor.insert("     int i;\n", 4, 1);
+        new SaveAction().perform();
+        A_FileNode = new Node( filesystemNode, "A_File [Locally Modified; 1.1] (" + userName + ")");
+        System.out.println(". done !");
+    }
+    
+    /** Tries to modify a file in PVCS filesystem.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testViewDifferences() throws Exception {
+        System.out.print(".. Testing view differences ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node A_FileNode = new Node( filesystemNode, "A_File [Locally Modified; 1.1] (" + userName + ")");
+        new Action(VERSIONING_MENU + "|" + DIFF, DIFF).perform(A_FileNode);
+        EditorOperator editor = new EditorOperator("Diff: A_File.java");
+        JEditorPaneOperator headRevision = new JEditorPaneOperator(editor, 0);
+        JEditorPaneOperator workingRevision = new JEditorPaneOperator(editor, 1);
+        String headRevisionContents = "/** This is testing file.\n */\n\n public class Testing_File {\n\n }\n";
+        String workingRevisionContents = "/** This is testing A_File.java file.\n */\n\n public class Testing_File {\n     int i;\n }\n";
+        if (!headRevisionContents.equals(headRevision.getText()) | !workingRevisionContents.equals(workingRevision.getText()))
+            captureScreen("Error: Incorrect diff contents.");
+        StyledDocument headRevisionDocument = (StyledDocument) headRevision.getDocument();
+        StyledDocument workingRevisionDocument = (StyledDocument) workingRevision.getDocument();
+        Color headRevisionLine = (Color) headRevisionDocument.getLogicalStyle(1).getAttribute(StyleConstants.ColorConstants.Background);
+        Color workingRevisionLine = (Color) workingRevisionDocument.getLogicalStyle(1).getAttribute(StyleConstants.ColorConstants.Background);
+        if (!headRevisionLine.equals(MODIFIED_COLOR) | !workingRevisionLine.equals(MODIFIED_COLOR))
+            captureScreen("Error: Incorrect color of modified line.");
+        int thirdLineHeadOffset = 30;
+        int thirdLineWorkingOffset = 42;
+        headRevisionLine = (Color) headRevisionDocument.getLogicalStyle(thirdLineHeadOffset).getAttribute(StyleConstants.ColorConstants.Background);
+        Style lineStyle = workingRevisionDocument.getLogicalStyle(thirdLineWorkingOffset);
+        if (!headRevisionLine.equals(REMOVED_COLOR) | (lineStyle != null))
+            captureScreen("Error: Incorrect color of removed line.");
+        int fifthLineHeadOffset = 60;
+        int fifthLineWorkingOffset = 72;
+        lineStyle = headRevisionDocument.getLogicalStyle(fifthLineHeadOffset);
+        workingRevisionLine = (Color) workingRevisionDocument.getLogicalStyle(fifthLineWorkingOffset).getAttribute(StyleConstants.ColorConstants.Background);
+        if ((lineStyle != null) | !workingRevisionLine.equals(NEW_COLOR))
+            captureScreen("Error: Incorrect color of new line.");
+        System.out.println(". done !");
+    }
+
+    /** Tries to check in a file into PVCS project database.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testCheckinFile() throws Exception {
+        System.out.print(".. Testing checking in a file ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node A_FileNode = new Node( filesystemNode, "A_File [Locally Modified; 1.1] (" + userName + ")");
+        new Action(VERSIONING_MENU + "|" + PUT, PUT).perform(A_FileNode);
+        PutCommandOperator putCommand = new PutCommandOperator("A_File.java");
+        putCommand.setChangeDescription("Three lines have changed.");
+        putCommand.ok();
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        A_FileNode = new Node(filesystemNode, "A_File [Current]");
+        File A_File = new File(workingDirectory + File.separator + "Work" + File.separator + "A_File.java");
+        if (A_File.canWrite()) captureScreen("Error: A_File.java remained read-write after check in.");
+        System.out.println(". done !");
+    }
+
+    /** Tries to inspect PVCS information about a file.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testViewHistory() throws Exception {
+        System.out.print(".. Testing history information of a file ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node A_FileNode = new Node( filesystemNode, "A_File [Current]");
+        new Action(VERSIONING_MENU + "|" + HISTORY, HISTORY).perform(A_FileNode);
+        VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("History");
+        MainWindowOperator.getDefault().waitStatusText("Command History finished.");
+        String currentContents = outputWindow.txtStandardOutput().getText();
+        String goldenContents = "Archive:          " + workingDirectory + File.separator + "Repo" + File.separator + "archives" + File.separator + "A_File.java-arc\nWorkfile:         A_File.java";
+        if (currentContents.indexOf(goldenContents) < 0) captureScreen("Error: Incorrect history contents.");
+        goldenContents = "Owner:            " + userName + "\nLast trunk rev:   1.1\nLocks:            \nGroups:           \nRev count:        2\nAttributes:\n   WRITEPROTECT\n   CHECKLOCK\n   NOEXCLUSIVELOCK\n   EXPANDKEYWORDS\n   TRANSLATE\n   NOCOMPRESSDELTA\n   NOCOMPRESSWORKIMAGE\n   GENERATEDELTA\n   COMMENTPREFIX = \" * \"\n   NEWLINE = \"\\r\\n\"\nVersion labels:\nDescription:\nAuto-generated class file.\n\n-----------------------------------\nRev 1.1\nChecked in";
+        if (currentContents.indexOf(goldenContents) < 0) captureScreen("Error: Incorrect history contents.");
+        goldenContents = "Author id: " + userName + "     lines deleted/added/moved: 2/2/0\nThree lines have changed.\n-----------------------------------\nRev 1.0\nChecked in:";
+        if (currentContents.indexOf(goldenContents) < 0) captureScreen("Error: Incorrect history contents.");
+        goldenContents = "Author id: " + userName + "     lines deleted/added/moved: 0/0/0\nInitial revision.\n===================================";
+        if (currentContents.indexOf(goldenContents) < 0) captureScreen("Error: Incorrect history contents.");
+        outputWindow.close();
+        System.out.println(". done !");
+    }
+}
