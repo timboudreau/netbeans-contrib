@@ -47,7 +47,9 @@ Microsystems, Inc. All Rights Reserved.
       </classpath>
     </javac>
     <javac srcdir="src/org/netbeans/modules/vcs/advanced/config"
-        destdir="src/org/netbeans/modules/vcs/advanced/config">
+        destdir="src/org/netbeans/modules/vcs/advanced/config"
+        deprecation="${build.compiler.deprecation}" 
+        debug="${build.compiler.debug}">
       <classpath>        
 	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
