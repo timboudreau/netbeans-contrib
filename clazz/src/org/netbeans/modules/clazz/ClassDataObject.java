@@ -445,7 +445,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
         removeFactory( explorerFactories, factory );
     }
 
-    static ElementNodeFactory getExplorerFactory() {
+    public static ElementNodeFactory getExplorerFactory() {
         return (ElementNodeFactory)explorerFactories.get( explorerFactories.size() - 1);
     }
 
@@ -457,7 +457,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
         removeFactory( browserFactories, factory );
     }
 
-    static ElementNodeFactory getBrowserFactory() {
+    public static ElementNodeFactory getBrowserFactory() {
         return (ElementNodeFactory)browserFactories.get( browserFactories.size() - 1 );
     }
 
