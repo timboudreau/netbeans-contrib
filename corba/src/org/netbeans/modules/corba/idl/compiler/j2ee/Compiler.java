@@ -88,26 +88,28 @@ public class Compiler extends com.sun.idl.Compile {
 	 */
 	for (int i=0; i<args.length; i++) {
 	    if (DEBUG)
-		System.out.println ("param: " + args[i]);
+		System.out.println ("param: " + args[i]); // NOI18N
 	}
 	String file_name = args[args.length - 1];
 	if (DEBUG)
-	    System.out.println ("idl name: " + file_name);
+	    System.out.println ("idl name: " + file_name); // NOI18N
 	String[] parser_args = new String[] { file_name };
 
 	Vector names = new Vector ();
 	try {
 	    comp.init (parser_args);
 	    java.util.Enumeration en = comp.parse ();
+	    if (en == null)
+		return;
 	    while (en.hasMoreElements ()) {
 		String name = ((SymtabEntry)en.nextElement ()).fullName ();
 		if (DEBUG)
-		    System.out.println ("element: " + name);
+		    System.out.println ("element: " + name); // NOI18N
 		if (name.indexOf ('/') == -1) {
 		    // top level element
 		    names.addElement (name);
 		    if (DEBUG)
-			System.out.println ("top level element: " + name);
+			System.out.println ("top level element: " + name); // NOI18N
 		}
 	    }
 	} catch (Exception e) {
@@ -117,22 +119,22 @@ public class Compiler extends com.sun.idl.Compile {
 	Vector new_args = new Vector ();
 	boolean ties = false;
 	for (int i=0; i<args.length-1; i++) {
-	    if (args[i].equals ("--directory")) {
-		new_args.addElement ("-td");
+	    if (args[i].equals ("--directory")) { // NOI18N
+		new_args.addElement ("-td"); // NOI18N
 		new_args.addElement (args[++i]);
 		continue;
 	    }
-	    if (args[i].equals ("--package")) {
+	    if (args[i].equals ("--package")) { // NOI18N
 		i++;
 		for (int j=0; j<names.size (); j++) {
-		    new_args.addElement ("-pkgPrefix");
+		    new_args.addElement ("-pkgPrefix"); // NOI18N
 		    new_args.addElement ((String)names.elementAt (j));
 		    new_args.addElement (args[i]);
 		}
 		continue;
 	    }
-	    if (args[i].equals ("--tie")) {
-		new_args.addElement ("-fallTIE");
+	    if (args[i].equals ("--tie")) { // NOI18N
+		new_args.addElement ("-fallTIE"); // NOI18N
 		ties = true;
 		continue;
 	    }
@@ -140,12 +142,12 @@ public class Compiler extends com.sun.idl.Compile {
 	    new_args.addElement (args[i]);
 	}
 	if (!ties)
-	    new_args.addElement ("-fall");
+	    new_args.addElement ("-fall"); // NOI18N
 	new_args.addElement (file_name);
 	String[] args2 = (String[])new_args.toArray (new String[] {});
 	if (DEBUG) {
 	    for (int i=0; i<args2.length; i++) {
-		System.out.println ("new param: " + args2[i]);
+		System.out.println ("new param: " + args2[i]); // NOI18N
 	    }
 	}
 
