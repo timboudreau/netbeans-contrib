@@ -107,9 +107,31 @@ public final class Vertex {
     
     /** When two vertexes are close to each other they repulse them selves.
      */
-    final void applyRepulsion (double fromX, double fromY, int minimalSize) {
-        double deltaX = x - fromX;
-        double deltaY = y - fromY;
+    final void applyRepulsion (Vertex from, int minimalSize) {
+        double deltaX, deltaY;
+        if (data == null || from.data == null) {
+            deltaX = x - from.x;
+            deltaY = y - from.y;
+        } else {
+            // Calculate distance between edges of rectangles to avoid overlap.
+            // Give a little grace space to avoid jumpiness.
+            double grace = 3.0d;
+            if (from.data.x > data.x + data.width) {
+                deltaX = Math.min(-grace, data.x + data.width - from.data.x);
+            } else if (data.x > from.data.x + from.data.width) {
+                deltaX = Math.max(grace, data.x - from.data.x - from.data.width);
+            } else {
+                // Overlap; just use the minimum.
+                deltaX = (x > from.x ? grace : -grace);
+            }
+            if (from.data.y > data.y + data.height) {
+                deltaY = Math.min(-grace, data.y + data.height - from.data.y);
+            } else if (data.y > from.data.y + from.data.height) {
+                deltaY = Math.max(grace, data.y - from.data.y - from.data.height);
+            } else {
+                deltaY = (y > from.y ? grace : -grace);
+            }
+        }
         double distance = Math.sqrt (deltaX * deltaX + deltaY * deltaY);
         if (distance < 1e-5) {
             distance = .01;
@@ -122,6 +144,18 @@ public final class Vertex {
         forceX += (double)deltaX / distance * force;
         forceY += (double)deltaY / distance * force;
         
+    }
+    
+    /**
+     * Vertices should avoid the left and top edges, so they do not go off screen.
+     * (Zooming is always relative to the origin, so vertices going too far left
+     * or up become invisible and cannot be retrieved.)
+     */
+    final void applyEdgeRepulsion(int minimalSize) {
+        double rootXForce = minimalSize / (Math.max(1.0d, (data != null ? data.x : x)));
+        forceX += rootXForce * rootXForce;
+        double rootYForce = minimalSize / (Math.max(1.0d, (data != null ? data.y : y)));
+        forceY += rootYForce * rootYForce;
     }
     
     //

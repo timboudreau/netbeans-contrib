@@ -28,7 +28,7 @@ public final class Graph extends Object {
     private int middleSize = 100;
     private int gridSize = 300;
     private java.awt.Dimension size;
-    double minX, maxX, minY, maxY;
+    double /*minX, minY,*/ maxX, maxY;
     
     /** Creates a new instance of Graph */
     private Graph () {
@@ -184,12 +184,14 @@ public final class Graph extends Object {
 
         for (Iterator it = vertexes.iterator (); it.hasNext (); ) {
             Vertex v = (Vertex)it.next ();
+            v.applyEdgeRepulsion(gridSize);
+            
             for (Iterator inner = vertexes.iterator (); inner.hasNext (); ) {
                 Vertex n = (Vertex)inner.next ();
                 if (v == n) continue;
                 
-                v.applyRepulsion (n.x, n.y, gridSize);
-                n.applyRepulsion (v.x, v.y, gridSize);
+                v.applyRepulsion(n, gridSize);
+                n.applyRepulsion(v, gridSize);
             }
         }
         
@@ -209,9 +211,11 @@ public final class Graph extends Object {
         for (Iterator it = vertexes.iterator (); it.hasNext (); ) {
             Vertex v = (Vertex)it.next ();
             v.applyAllForces (minTime);
-            
+
+            /*
             if (minX > v.x) minX = v.x;
             if (minY > v.y) minY = v.y;
+             */
             if (maxX < v.x) maxX = v.x;
             if (maxY < v.y) maxY = v.y;
         }
