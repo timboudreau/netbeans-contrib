@@ -37,6 +37,8 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- tasklist core -->
                 <pathelement path="../core/src"/>
 		<pathelement path="../../core/external/xml-apis-1.0b2.jar"/>
+                <!-- depend on core/output so we can override F12 action -->
+                <pathelement path="../../core/output/netbeans/modules/autoload/core-output.jar"/>
             </classpath>
         </javac>
     </target>

@@ -87,6 +87,7 @@ import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.windows.Workspace;
+import org.openide.awt.StatusDisplayer;
 
 /**
  * Actual suggestion manager provided to clients when the Suggestions
@@ -464,7 +465,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         if (enabled) {
             disabled.remove(id);
-            setConfirm(type, true, false);
+            // Have EditTypes... gui now : setConfirm(type, true, false);
         } else {
             disabled.add(id);
         }
@@ -2751,6 +2752,78 @@ final public class SuggestionManagerImpl extends SuggestionManager
      */
     public void setScanOnSave(boolean scanOnSave) {
         this.scanOnSave = scanOnSave;
+    }
+
+    /** When true, we've already warned about the need to wrap */
+    private boolean wrapWarned = false;
+
+    /** Show the next suggestion in the view */
+    void nextSuggestion(SuggestionsView view) {
+        SuggestionList list = (SuggestionList)view.getList();
+        SuggestionImpl curr = view.getCurrentSuggestion();
+        SuggestionImpl next = null;
+        if (curr == null) {
+            List sgs = list.getTasks();
+            if (sgs != null) {
+                next = (SuggestionImpl)sgs.get(0);
+            } else {
+                return;
+            }
+        } else {
+            next = list.findNext(curr, wrapWarned);
+	}
+        String msg = NbBundle.getBundle(SuggestionManagerImpl.class).
+            getString("MSG_AtLastError"); // NOI18N
+        if ((next == null) && !wrapWarned) {
+            StatusDisplayer.getDefault().setStatusText(msg);
+            wrapWarned = true;
+        } else {
+            wrapWarned = false;
+            if (msg.equals(StatusDisplayer.getDefault().getStatusText())) {
+                StatusDisplayer.getDefault().setStatusText("");
+            }
+        }
+        if (next != null) {
+            if (next.getLine() != null) {
+                view.show(next, new SuggestionAnno(next));
+            }
+            view.select(next);
+        }
+
+    }
+    
+    /** Show the previous suggestion in the view */
+    void prevSuggestion(SuggestionsView view) {
+        SuggestionList list = (SuggestionList)view.getList();
+        SuggestionImpl curr = view.getCurrentSuggestion();
+        SuggestionImpl prev = null;
+        if (curr == null) {
+            List sgs = list.getTasks();
+            if (sgs != null) {
+                prev = (SuggestionImpl)sgs.get(0);
+            } else {
+                return;
+            }
+        } else {
+            prev = list.findPrev(curr, wrapWarned);
+	}
+        String msg = NbBundle.getBundle(SuggestionManagerImpl.class).
+            getString("MSG_AtLastError"); // NOI18N
+        if ((prev == null) && !wrapWarned) {
+            StatusDisplayer.getDefault().setStatusText(msg);
+            wrapWarned = true;
+        } else {
+            if (msg.equals(StatusDisplayer.getDefault().getStatusText())) {
+                StatusDisplayer.getDefault().setStatusText("");
+            }
+            wrapWarned = false;
+        }
+        if (prev != null) {
+            if (prev.getLine() != null) {
+                view.show(prev, new SuggestionAnno(prev));
+            }
+            view.select(prev);
+        }
     }
     
 }
