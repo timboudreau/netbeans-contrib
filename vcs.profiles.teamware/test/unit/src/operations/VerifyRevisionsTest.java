@@ -49,7 +49,7 @@ public class VerifyRevisionsTest extends SCCSTest {
     }
     
     VerifyRevisionsTest(File file, SRevisionItem revision) {
-        super();
+        super(file.getName() + "." + revision);
         this.file = file;
         this.revision = revision;
     }
