@@ -209,6 +209,7 @@ public class PvcsVerifyAction extends java.lang.Object implements VcsAdditionalC
         } else {
             panel.setDescription(NbBundle.getBundle(PvcsVerifyAction.class).getString("VcsVerifyAction.ProblemsFound"));
             final JButton btnCorrect = new JButton(NbBundle.getBundle(PvcsVerifyAction.class).getString("VcsVerifyAction.correctButton"));
+            btnCorrect.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(PvcsVerifyAction.class).getString("ACSD_VcsVerifyAction.correctButton"));
             Object[] options = new Object[] {btnCorrect, DialogDescriptor.CANCEL_OPTION};
             dd.setOptions(options);
             dd.setClosingOptions(options);

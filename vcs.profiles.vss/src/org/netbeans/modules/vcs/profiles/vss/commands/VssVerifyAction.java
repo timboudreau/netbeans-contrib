@@ -180,6 +180,7 @@ public class VssVerifyAction extends java.lang.Object implements VcsAdditionalCo
         } else {
             panel.setDescription(NbBundle.getBundle(VssVerifyAction.class).getString("VcsVerifyAction.ProblemsFound"));
             final JButton btnCorrect = new JButton(NbBundle.getBundle(VssVerifyAction.class).getString("VcsVerifyAction.correctButton"));
+            btnCorrect.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(VssVerifyAction.class).getString("ACSD_VcsVerifyAction.correctButton"));
             Object[] options = new Object[] {btnCorrect, DialogDescriptor.CANCEL_OPTION};
             dd.setOptions(options);
             dd.setClosingOptions(options);
