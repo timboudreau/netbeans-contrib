@@ -20,8 +20,8 @@ import org.netbeans.jellytools.EditorOperator;
 import org.netbeans.jellytools.EditorWindowOperator;
 import org.netbeans.jellytools.ExplorerOperator;
 import org.netbeans.jellytools.JellyTestCase;
+import org.netbeans.jellytools.NewObjectNameStepOperator;
 import org.netbeans.jellytools.NewWizardOperator;
-import org.netbeans.jellytools.TargetLocationStepOperator;
 import org.netbeans.jellytools.actions.OpenAction;
 import org.netbeans.jellytools.modules.corba.idldialogs.AliasDialog;
 import org.netbeans.jellytools.modules.corba.idldialogs.AttributeDialog;
@@ -96,7 +96,7 @@ public class Main extends JellyTestCase {
     
     public void testIDLWizard () {
         NewWizardOperator.invoke(new Node (exp.repositoryTab().tree (), "|data|idlwizard"), "CORBA|Empty");
-        TargetLocationStepOperator tlso = new TargetLocationStepOperator();
+        NewObjectNameStepOperator tlso = new NewObjectNameStepOperator();
         tlso.setName("IDLWizard");
         tlso.next();
         IDLSourceStep iss = new IDLSourceStep ();
