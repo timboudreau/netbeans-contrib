@@ -667,7 +667,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
         }
     }
 
-    List dispatchScan(Document document, DataObject dataobject, ProviderAcceptor acceptor) {
+    List dispatchScan(DataObject dataobject, ProviderAcceptor acceptor) {
 
         if (dataobject.isValid() == false) return Collections.EMPTY_LIST;
 

@@ -78,9 +78,6 @@ public final class SuggestionsBroker {
 
     private SuggestionList allOpenedList;
 
-    /** Holds last fileobject that has been opened (and therefore should appear in "allOpened". */
-    private FileObject lastOpenedFileObject;
-
     private static final Logger LOGGER = TLUtils.getLogger(SuggestionsBroker.class);
 
     private List acceptors = new ArrayList(5);
@@ -255,10 +252,6 @@ public final class SuggestionsBroker {
      */
 
 
-    private Document document = null;
-    private DataObject dataobject = null;
-    private boolean notSaved = false;
-
     /** Current request reference. Used to correlate register()
      * calls with requests sent to rescan()/clear()
      */
@@ -387,6 +380,9 @@ err.log("Couldn't find current nodes...");
      * actual document modification state using DocumentListener
      * and CaretListener. Actual topcomponent is guarded
      * by attached ComponentListener.
+     * <p>
+     * Those who do not want currect file monitoring
+     * should call {@link #performRescanInRP} directly.
      *
      * @param delayed <ul><li>true run {@link #performRescanInRP} later in TimerThread
      *                    <li>false run {@link #performRescanInRP} synchronously
@@ -444,29 +440,6 @@ err.log("Couldn't find current nodes...");
             //err.log("No editor cookie - not doing anything");
             return;
         }
-
-        /* This is probably not necessary now with my new editor-tracking
-           scheme: I'm only calling this on visible components. This is
-           a leftover from my noderegistry listener days, and I'm keeping
-           it around in case I leave the NodeRegistry lister code in as
-           a fallback mechanism, since this is all a bit of a hack.
-        // See if it looks like this data object is visible
-        JEditorPane[] panes = edit.getOpenedPanes();
-        if (panes == null) {
-            err.log("No editor panes for this data object");
-            return;
-        }
-        int k = 0;
-        for (; k < panes.length; k++) {
-            if (panes[k].isShowing()) {
-            break;
-            }
-        }
-        if (k == panes.length) {
-            err.log("No editor panes for this data object are visible");
-            return;
-        }
-        */
 
         final Document doc = edit.getDocument(); // Does not block
 
@@ -531,9 +504,9 @@ err.log("Couldn't find current nodes...");
 
         if (ManagerSettings.getDefault().isScanOnShow()) {
             if (delayed) {
-                performRescanInRP(doc, dataobject, ManagerSettings.getDefault().getShowScanDelay());
+                performRescanInRP(dao, ManagerSettings.getDefault().getShowScanDelay());
             } else {
-                performRescanInRP(doc, dataobject, 0);
+                performRescanInRP(dao, 0);
             }
         }
     }
@@ -581,14 +554,12 @@ err.log("Couldn't find current nodes...");
      * Spawns <b>Suggestions Broker thread</b> that finishes actula work
      * asynchronously.
      *
-     * @param document The document being edited
      * @param dataobject The Data Object for the file being opened
      * @param delay postpone the action by delay miliseconds
      *
      * @return parametrized task that rescans given dataobject in delay miliseconds
      */
-    private RequestProcessor.Task performRescanInRP(final Document document,
-                        final DataObject dataobject, int delay) {
+    private RequestProcessor.Task performRescanInRP(final DataObject dataobject, int delay) {
 
         /* Scan requests are run in a separate "background" thread.
            However, what happens if the user switches to a different
@@ -627,7 +598,7 @@ err.log("Couldn't find current nodes...");
                 scheduledRescan = null;
 
                 // Stale request If so, just drop this one
-                if (origRequest != currRequest) return;
+                //if (origRequest != currRequest) return;
 
                 // code is fixing (modifing) document
                 if (wait) {
@@ -639,11 +610,11 @@ err.log("Couldn't find current nodes...");
 
                 setScanning(true);
 
-                List scannedSuggestions = manager.dispatchScan(document, dataobject, compound);
+                List scannedSuggestions = manager.dispatchScan(dataobject, compound);
 
                 // update "allOpened" suggestion list
 
-                if (allOpenedClientsCount > 0 && lastOpenedFileObject != null) {
+                if (allOpenedClientsCount > 0) {
                     // copy clones to private "allOpened" suggestions list
                     // (it must be cloned because tasklist membership is task property)
                     // TODO should task know about its suggestions list? I think it should not.
@@ -654,8 +625,9 @@ err.log("Couldn't find current nodes...");
                         clones.add(next.cloneTask());
                     }
 
-                    List previous = (List) openedFilesSuggestionsMap.remove(lastOpenedFileObject);
-                    openedFilesSuggestionsMap.put(lastOpenedFileObject, clones);
+                    FileObject fo = dataobject.getPrimaryFile();
+                    List previous = (List) openedFilesSuggestionsMap.remove(fo);
+                    openedFilesSuggestionsMap.put(fo, clones);
 
                     getAllOpenedSuggestionList().addRemove(clones, previous, false, null, null);
                 }
@@ -746,11 +718,23 @@ err.log("Couldn't find current nodes...");
         }
     }
 
-    /** The topcomponent we're currently tracking as the showing
-     editor component */
+    /** The top-component we're currently tracking (active one) */
     private TopComponent current = null;
 
+    /** The document we're currently tracking (active one) */
+    private Document document = null;
+
+    /** Holds last fileobject that has been opened (and therefore should appear in "allOpened". */
+    private FileObject lastOpenedFileObject;
+
+    /** The data-object we're currently tracking (active one) */
+    private DataObject dataobject = null;
+
+    /** The panes we're currently tracking (active one) */    //XXX first element should be enough
     private JEditorPane[] editorsWithCaretListener = null;
+
+    /** The modification status sampled on tracing start and save operation */
+    private boolean notSaved = false;
 
     /** Add caret listener to dataobject's editor panes. */
     private void addCaretListeners() {
@@ -813,7 +797,7 @@ err.log("Couldn't find current nodes...");
             LOGGER.fine("Scheduled rescan task delayed by " + scanDelay + " ms.");  // NOI18N
         }
 
-        scheduledRescan = performRescanInRP(document, dataobject, scanDelay);
+        scheduledRescan = performRescanInRP(dataobject, scanDelay);
     }
 
     /** An event ocurred during quiet fix period. */
@@ -849,48 +833,30 @@ err.log("Couldn't find current nodes...");
         // event loop; if a second notification comes in during the
         // same event processing iterationh it's simply discarded.
 
-
-        TopComponent tc = null;
-        if (allOpenedClientsCount > 0) {
-            tc = env.findActiveEditor();
-            if (tc == null) {
-                lastOpenedFileObject = null;
-            } else {
-                DataObject dobj = extractDataObject(tc);
-                lastOpenedFileObject = (dobj != null) ? dobj.getPrimaryFile() : null;
-            }
-        }
-
         doRescanInAWT(true);
 
     }
 
     /**
-     * It sends asynchronously to AWT thread.
+     * It sends asynchronously to AWT thread (selected editor TC must be grabbed in AWT).
      * @param delay if true schedule later acording to user settings otherwise do immediatelly
      */
     private void doRescanInAWT(final boolean delay) {
-        if (pendingScan) {
-            return;
-        }
-
-        pendingScan = true;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                // docStop() might have happened
-                // in the mean time - make sure we don't do a
-                // findCurrentFile(true) when we're not supposed to
-                // be processing views
-                try {
+        if (SwingUtilities.isEventDispatchThread()) {
+            findCurrentFile(delay);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    // docStop() might have happened
+                    // in the mean time - make sure we don't do a
+                    // findCurrentFile(true) when we're not supposed to
+                    // be processing views
                     if (clientCount > 0) {
                         findCurrentFile(delay);
                     }
-                } finally {
-                    // XXX findCurrent file spawns a thread
-                    pendingScan = false;
                 }
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -969,9 +935,15 @@ err.log("Couldn't find current nodes...");
     }
 
     private void handleTopComponentOpened(TopComponent tc) {
-        // XXX assume that tc is currently selected one
-        // A: it's called fron shown
-        componentsChanged();
+        if (tc.isShowing()) {
+            // currently selected one
+            componentsChanged();
+        } else {
+            // it is not selected anymore, it was opened in burst
+            DataObject dao = extractDataObject(tc);
+            if (dao == null) return;
+            performRescanInRP(dao, ManagerSettings.getDefault().getShowScanDelay());
+        }
     }
 
     private WindowSystemMonitor windowSystemMonitor;
