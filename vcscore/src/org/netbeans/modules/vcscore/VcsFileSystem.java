@@ -1058,6 +1058,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         settingsChangeListener = new SettingsPropertyChangeListener();
         GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
         settings.addPropertyChangeListener(WeakListener.propertyChange(settingsChangeListener, settings));
+        addPropertyChangeListener(new FSPropertyChangeListener());
     }
     
     /** Notifies this file system that it has been added to the repository. 
@@ -2942,6 +2943,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 } else if (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES.equals(propName)) {
                     setHideShadowFiles(settings.isHideShadowFiles());
                 }
+            }
+        }
+    }
+    
+    private class FSPropertyChangeListener implements PropertyChangeListener {
+        public void propertyChange(final PropertyChangeEvent event) {
+            String propName = event.getPropertyName();
+            Object oldValue = event.getOldValue();
+            Object newValue = event.getNewValue();
+            if (PROP_ANNOTATION_PATTERN.equals(propName)) {
+                FileObject root = findResource("");
+                Set foSet = new HashSet();
+                Enumeration enum = existingFileObjects(root);
+                while (enum.hasMoreElements()) {
+                    foSet.add(enum.nextElement());
+                }
+                fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, foSet, false, true));
             }
         }
     }
