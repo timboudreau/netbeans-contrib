@@ -244,6 +244,11 @@ public class VcsAction extends NodeAction implements ActionListener {
                 vce = null;
                 break;
             }
+            if (!cmdCanRunOnMultipleFiles) {
+                // When the executor can not run on more than one file, it has to be processed one by one.
+                preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
+            }
+            if (files.size() == 1) preprocessStatus = CommandsPool.PREPROCESS_DONE;
             if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
                 Table singleFileTable = new Table();
                 Object singleFile = files.keys().nextElement();
@@ -256,11 +261,6 @@ public class VcsAction extends NodeAction implements ActionListener {
             if (stdoutDataListener != null) vce.addDataOutputListener(stdoutDataListener);
             if (stderrDataListener != null) vce.addDataErrorOutputListener(stderrDataListener);
             pool.startExecutor(vce);
-            if (!cmdCanRunOnMultipleFiles) {
-                // When the executor can not run on more than one file, it has to be processed one by one.
-                preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
-            }
-            if (files.size() == 1) preprocessStatus = CommandsPool.PREPROCESS_DONE;
             if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
                 files.remove(files.keys().nextElement()); // remove the processed file
                 synchronized (vars) {
