@@ -268,6 +268,44 @@ public class VcsUtilities {
         }
         return false;
     }
+
+    /**
+     * Find out, whether all string from the field of quoted strings are contained in a set of strings.
+     * @param quotedStr the field of quoted strings, can be <code>null</code>
+     * @param set the set of strings
+     * @return true if yes or the quoted string is null, false if there is
+     *         a string, that is not contained in the set, or the set is null.
+     */
+    public static boolean areQuotedStringsContainedInSet(String quotedStr, Set set) {
+        if (quotedStr != null && set != null) {
+            String[] strs = getQuotedStrings(quotedStr);
+	    for (int i = 0; i < strs.length; i++) {
+                if (!set.contains(strs[i])) return false;
+            }
+        } else {
+	    if (quotedStr != null) return false;
+	    if (set != null) return true;
+	}
+	return true;
+    }
+
+    /**
+     * Find out, whether all members of a set of strings are contained in the field of quoted strings.
+     * @param quotedStr the field of quoted strings, can be <code>null</code>
+     * @param set the set of strings, can be <code>null</code>
+     * @return true if yes or the quoted string is null, false if there is
+     *         a string, that is not contained in the set, or the set is null.
+     */
+    public static boolean isSetContainedInQuotedStrings(String quotedStr, Set set) {
+	if (quotedStr != null && set != null) {
+	    HashSet qsSet = new HashSet(Arrays.asList(getQuotedStrings(quotedStr)));
+	    for (Iterator it = set.iterator(); it.hasNext(); ) {
+		if (!qsSet.contains(it.next())) return false;
+            }
+        } else if (quotedStr != null) return true;
+	else if (set != null) return false;
+	return true;
+    }
     
     public static String getBundleString(String str) {
         if (str.startsWith(GET_BUNDLE)) {
@@ -297,7 +335,7 @@ public class VcsUtilities {
                 if (clazz != null) {
                     bundleStr = org.openide.util.NbBundle.getBundle(clazz).getString(key);
                 } else {
-                    bundleStr = org.openide.util.NbBundle.getBundle(args).getString(key);
+                    bundleStr = org.openide.util.NbBundle.getBundle(args, java.util.Locale.getDefault(), org.openide.TopManager.getDefault().currentClassLoader()).getString(key);
                 }
             } catch (final MissingResourceException missExc) {
                 org.openide.TopManager.getDefault().notifyException(new Exception() {
