@@ -1817,11 +1817,25 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public void insertUpdate(DocumentEvent e) {
         haveEdited = currRequest;
         scheduleRescan(e, false, editScanDelay);
+
+        // If there's a visible marker annotation on the line, clear it now
+        clearMarker();
     }
 
     public void removeUpdate(DocumentEvent e) {
         haveEdited = currRequest;
         scheduleRescan(e, false, editScanDelay);
+
+        // If there's a visible marker annotation on the line, clear it now
+        clearMarker();
+    }
+
+    /** Get rid of any annotations marking the current task */
+    private void clearMarker() {
+        SuggestionsView tlv = SuggestionsView.getCurrentView();
+        if (tlv != null) {
+            tlv.hideTask();
+        }
     }
 
     /** Plan a rescan (meaning: start timer)
