@@ -86,6 +86,7 @@ public class CvsRevisionSelector extends Object implements VcsAdditionalCommand 
                 }
                 cmdName += " "+args[startArg].substring(0, quoteIndex); // NOI18N
             }
+            cmdName = VcsUtilities.getBundleString(cmdName);
             crc.setCommandName(cmdName);
             //D.deb("Setting command name = "+cmdName); // NOI18N
             startArg++;
