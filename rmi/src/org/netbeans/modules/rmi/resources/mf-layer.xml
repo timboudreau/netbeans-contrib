@@ -197,20 +197,15 @@ Microsystems, Inc. All Rights Reserved.
 	<!-- Services -->
     <folder name="Services">
     
-        <folder name="IDEConfiguration">
-            <folder name="DistributedAndEmbeddedTools">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <!-- Settings -->
-                <file name="RMISettings.settings" url="RMISettings.settings">
-                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.settings.Bundle"/>
-                    <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiSettings.gif"/>
-                </file>
-                <file name="RMIRegistryItems.settings" url="RMIRegistryItems.settings">
-                    <attr name="hidden" boolvalue="true" />
-                    <attr name="SystemFileSystem.layer" stringvalue="project"/>
-                </file>
-            </folder>
-        </folder>
+        <!-- Settings -->
+        <file name="org-netbeans-modules-rmi-settings-RMISettings.settings" url="RMISettings.settings">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.settings.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiSettings.gif"/>
+        </file>
+        <file name="org-netbeans-modules-rmi-settings-RMIRegistryItems.settings" url="RMIRegistryItems.settings">
+            <attr name="hidden" boolvalue="true" />
+            <attr name="SystemFileSystem.layer" stringvalue="project"/>
+        </file>
 
         <!-- Compiler -->
         <folder name="CompilerType">
@@ -285,6 +280,20 @@ Microsystems, Inc. All Rights Reserved.
             </file>
             <attr name="RMIUnicastExport.settings/RMIUnicastExportDbg.settings" boolvalue="true" />
 
+        </folder>
+    </folder>
+
+    <folder name="UI">
+        <folder name="Services">
+            <folder name="DistributedApplicationSupport">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
+
+                <file name="org-netbeans-modules-rmi-settings-RMISettings.shadow">
+<![CDATA[Services/org-netbeans-modules-rmi-settings-RMISettings.settings
+SystemFileSystem
+]]>
+                </file>
+            </folder>
         </folder>
     </folder>
 

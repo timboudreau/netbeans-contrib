@@ -44,13 +44,10 @@ Microsystems, Inc. All Rights Reserved.
    </folder>
    
   <folder name="Services"> 
-    <folder name="SourceCreationAndManagement"> 
-        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle" />
-        <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance">
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
-            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif" />
-        </file>
-    </folder>
+    <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
+        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif" />
+    </file>
     <folder name = "Hidden">
         <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings" url="GeneralVcsSettings.settings">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
@@ -71,6 +68,20 @@ Microsystems, Inc. All Rights Reserved.
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.search.Bundle" />
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/search/find.gif" />
         </file>
+    </folder>
+  </folder>
+
+  <folder name="UI"> 
+    <folder name="Services"> 
+      <folder name="SourceCreationAndManagement"> 
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle" />
+
+        <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.shadow">
+<![CDATA[Services/org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance
+SystemFileSystem
+]]>
+        </file>
+      </folder>
     </folder>
   </folder>
 

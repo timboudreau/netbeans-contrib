@@ -29,12 +29,21 @@ Microsystems, Inc. All Rights Reserved.
 	</folder>
 
         <folder name="Services">
-            <folder name="IDEConfiguration">
-                <folder name="DistributedAndEmbeddedTools">
-                    <file name="jndi-settings.settings" url="jndi-settings.settings">
-                        <attr name="SystemFileSystem.localizingBundle" stringValue="org.netbeans.modules.jndi.Bundle"/>
-                        <attr name="SystemFileSystem.icon" urlValue="nbres:/org/netbeans/modules/jndi/resources/jndi.gif"/>
-                        <attr name="SystemFileSystem.layer" stringValue="project"/>
+            <file name="org-netbeans-modules-jndi-settings-JndiSystemOption.settings" url="jndi-settings.settings">
+                <attr name="SystemFileSystem.localizingBundle" stringValue="org.netbeans.modules.jndi.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlValue="nbres:/org/netbeans/modules/jndi/resources/jndi.gif"/>
+                <attr name="SystemFileSystem.layer" stringValue="project"/>
+            </file>
+        </folder>
+
+        <folder name="UI">
+            <folder name="Services">
+                <folder name="DistributedApplicationSupport">
+                    <attr name="SystemFileSystem.localizingBundle" stringValue="org.netbeans.modules.jndi.Bundle"/>
+                    <file name="org-netbeans-modules-jndi-settings-JndiSystemOption.shadow">
+<![CDATA[Services/org-netbeans-modules-jndi-settings-JndiSystemOption.settings
+SystemFileSystem
+]]>
                     </file>
                 </folder>
             </folder>
