@@ -63,7 +63,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import org.openide.util.Lookup;
-import org.openide.TopManager;
 import org.openide.ErrorManager;
 import org.openide.util.WeakListener;
 import org.openide.util.RequestProcessor;
@@ -754,7 +753,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 if (typeNames == null) {
                     // Should I just let a NullPointerException occur instead?
                     // After all, non null is required for correct operation.
-                    TopManager.getDefault().getErrorManager().log("SuggestionProvider " + provider + " provides null value to getTypes()");
+                    ErrorManager.getDefault().log("SuggestionProvider " + provider + " provides null value to getTypes()");
                     continue;
                 }
                 for (int j = 0; j < typeNames.length; j++) {
@@ -942,12 +941,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     scanOnSave = handler.isScanOnSave();
                     return true;
                 } catch (SAXException e) {
-                    TopManager.getDefault().getErrorManager().notify(
+                    ErrorManager.getDefault().notify(
                                                ErrorManager.INFORMATIONAL, e);
                 }
                 fileReader.close();
             } catch (Exception e) {
-                TopManager.getDefault().getErrorManager().notify(
+                ErrorManager.getDefault().notify(
                                                ErrorManager.INFORMATIONAL, e);
             }
         }
@@ -1085,7 +1084,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             writer.close();
             return true;
         } catch (Exception e) {
-            TopManager.getDefault().getErrorManager().notify(
+            ErrorManager.getDefault().notify(
                                            ErrorManager.INFORMATIONAL, e);
         }
         return false;
@@ -1884,9 +1883,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	*/
 
 	/*
-	WindowManager manager = TopManager.getDefault().getWindowManager();
+	WindowManager manager = WindowManager.getDefault();
 	manager.addPropertyChangeListener(this);
-	Workspace workspace = TopManager.getDefault().getWindowManager().
+	Workspace workspace = WindowManager.getDefault().
 	    getCurrentWorkspace();
 	workspace.addPropertyChangeListener(this);
 	*/
@@ -2235,9 +2234,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	/*
 	org.openide.windows.TopComponent.getRegistry().
 	    removePropertyChangeListener(this);
-	WindowManager manager = TopManager.getDefault().getWindowManager();
+	WindowManager manager = WindowManager.getDefault();
 	manager.removePropertyChangeListener(this);
-	Workspace workspace = TopManager.getDefault().getWindowManager().
+	Workspace workspace = WindowManager.getDefault().
 	    getCurrentWorkspace();
 	workspace.removePropertyChangeListener(this);
 	*/

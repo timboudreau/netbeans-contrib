@@ -34,7 +34,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JMenu;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;

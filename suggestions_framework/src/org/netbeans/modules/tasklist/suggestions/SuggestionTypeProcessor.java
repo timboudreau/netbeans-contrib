@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.net.URL;
 import javax.xml.parsers.SAXParserFactory;
-import org.openide.TopManager;
+import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.loaders.XMLDataObject;
 import org.xml.sax.helpers.DefaultHandler;
@@ -38,6 +38,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+import org.openide.util.Lookup;
 
 
 /** Processor of the Suggestion Type XML file.
@@ -124,7 +125,7 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
                     reader.parse(new InputSource(xmlDataObject.getPrimaryFile().getInputStream()));
                     suggestionType = handler.getSuggestionType();
             } catch (Exception e) { 
-                TopManager.getDefault().getErrorManager().notify(e);
+                ErrorManager.getDefault().notify(e);
             }
 
         }
@@ -164,7 +165,7 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
                     icon = new URL(ur);
                 } catch (MalformedURLException ex) {
                     SAXException saxe = new SAXException(ex);
-                    TopManager.getDefault().getErrorManager().
+                    ErrorManager.getDefault().
                         copyAnnotation(saxe, ex);
                     throw saxe;
                 }
@@ -177,8 +178,11 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
                     return;
                 }
                 try {
-                    Class c = Class.forName(cln, true,
-                                     TopManager.getDefault().systemClassLoader());
+                    ClassLoader l = 
+                        (ClassLoader)Lookup.getDefault().lookup(
+                                                        ClassLoader.class);
+                    Class c = Class.forName(cln, true, l);
+
                     if (c != null) {
                         SystemAction a = SystemAction.get(c);
                         if (a != null) {
@@ -189,7 +193,7 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
                         }
                     }
                 } catch (Exception e) {
-                    TopManager.getDefault().getErrorManager().notify(e);
+                    ErrorManager.getDefault().notify(e);
                 }
             } else {
                 throw new SAXException("malformed SuggestionType xml file"); // NOI18N

@@ -2,7 +2,7 @@ OpenIDE-Module-Specification-Version: 0.8.30
 OpenIDE-Module: org.netbeans.modules.tasklist.pmd/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/pmd/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/pmd/mf-layer.xml
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.14
-OpenIDE-Module-Module-Dependencies: pmd,org.openide.src > 1.0, org.openide.deprecated > 1.0, org.netbeans.api.tasklist/1 > 0.8.25, org.netbeans.modules.tasklist.suggestions/1 > 0.8.17, org.netbeans.modules.tasklist.core/1 > 0.8.20
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.35
+OpenIDE-Module-Module-Dependencies: pmd,org.openide.src > 1.0, org.netbeans.api.tasklist/1 > 0.8.25, org.netbeans.modules.tasklist.suggestions/1 > 0.8.17, org.netbeans.modules.tasklist.core/1 > 0.8.20
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 

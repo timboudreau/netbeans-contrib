@@ -44,7 +44,6 @@ Microsystems, Inc. All Rights Reserved.
                   <include name="regexp*.jar" />
                   <include name="xml-apis*.jar"/>
                </fileset>
-                <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
             </classpath>
         </javac>
     </target>

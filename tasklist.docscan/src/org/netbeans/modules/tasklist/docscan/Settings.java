@@ -17,9 +17,9 @@ package org.netbeans.modules.tasklist.docscan;
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
 
-import org.openide.TopManager;
 import org.openide.options.SystemOption;
 import org.openide.util.NbBundle;
+import org.openide.awt.StatusDisplayer;
 
 
 /** Settings for the tasklist module.
@@ -166,7 +166,8 @@ public class Settings extends SystemOption {
 	} catch (RESyntaxException e) {
 	    // Internal error: the regexp should have been validated when
 	    // the user edited it
-	    TopManager.getDefault().setStatusText(e.getLocalizedMessage());
+            StatusDisplayer.getDefault ().setStatusText(
+                                            e.getLocalizedMessage());
 	    throw new IllegalArgumentException();	    
 	}	
         putProperty(PROP_SCAN_REGEXP, regexp, true);

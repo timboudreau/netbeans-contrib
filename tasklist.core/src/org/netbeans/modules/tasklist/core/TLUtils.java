@@ -18,7 +18,6 @@ import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.ErrorManager;
-import org.openide.TopManager;
 import org.openide.cookies.EditorCookie;
 import javax.swing.text.*;
 
@@ -46,7 +45,7 @@ public final class TLUtils {
                 }
             }
         } catch (Exception e) {
-            TopManager.getDefault().getErrorManager().
+            ErrorManager.getDefault().
                 notify(ErrorManager.INFORMATIONAL, e);
         }
         return null;
@@ -147,7 +146,7 @@ public final class TLUtils {
             Line before = ls.getCurrent(lineno+offset);
             appendHTMLString(sb, before.getText());
         } catch (Exception e) {
-            TopManager.getDefault().getErrorManager().
+            ErrorManager.getDefault().
                 notify(ErrorManager.INFORMATIONAL, e);
         }
     }
@@ -315,8 +314,7 @@ public final class TLUtils {
             }
             doc.remove(offset, endOffset-offset);
         } catch (BadLocationException ex) {
-            TopManager.getDefault().
-                getErrorManager().notify(ErrorManager.WARNING, ex);
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }
         return false;
     }
@@ -341,8 +339,7 @@ public final class TLUtils {
             }
             doc.insertString(offset, "// ", null); // NOI18N
         } catch (BadLocationException ex) {
-            TopManager.getDefault().
-                getErrorManager().notify(ErrorManager.WARNING, ex);
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }
         return false;
     }

@@ -35,6 +35,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
+import org.openide.windows.WindowManager;
 import org.openide.windows.Workspace;
 
 
@@ -352,7 +353,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
 	if (defview == null) {
 	    defview = new UserTaskView();
 	
-	    Workspace workspace = TopManager.getDefault().getWindowManager().
+	    Workspace workspace = WindowManager.getDefault().
 		getCurrentWorkspace();
 	    Mode mode  = workspace.findMode("output"); // NOI18N
 	    if (mode != null) {

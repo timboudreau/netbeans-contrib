@@ -56,7 +56,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
 import org.openide.ErrorManager;
-import org.openide.TopManager;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.FindAction;
 import org.openide.explorer.ExplorerPanel;
@@ -65,6 +64,7 @@ import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
+import org.openide.windows.WindowManager;
 
 
 /** View showing the todo list items
@@ -259,7 +259,7 @@ public abstract class TaskListView extends ExplorerPanel
             try {
                 getExplorerManager().setSelectedNodes(sel);
             } catch (PropertyVetoException e) {
-                TopManager.getDefault().getErrorManager().notify(
+                ErrorManager.getDefault().notify(
                                            ErrorManager.INFORMATIONAL, e);
             }
         }
@@ -552,7 +552,7 @@ public abstract class TaskListView extends ExplorerPanel
      * @throws IOException  */    
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
 	if (!persistent) {
-            TopManager.getDefault().getErrorManager().log(
+            ErrorManager.getDefault().log(
               ErrorManager.INFORMATIONAL, 
               "Warning: This tasklist window (" + getName() + ") should not have been persisted!");
 	    return;
@@ -765,7 +765,7 @@ public abstract class TaskListView extends ExplorerPanel
                 try {
                     getExplorerManager().setSelectedNodes(sel);
                 } catch (PropertyVetoException e) {
-                    TopManager.getDefault().getErrorManager().notify(ErrorManager.INFORMATIONAL, e);
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
                 }
         }}); // End hack
     }
@@ -863,7 +863,7 @@ public abstract class TaskListView extends ExplorerPanel
 
     public void showInMode() { // TODO Pick a better name!
 	// TODO make method package private! Can't yet - used in editor/
-        Workspace workspace = TopManager.getDefault().getWindowManager().
+        Workspace workspace = WindowManager.getDefault().
            getCurrentWorkspace();
         if (!isOpened(workspace)) {
             Mode mode  = workspace.findMode("output"); // NOI18N

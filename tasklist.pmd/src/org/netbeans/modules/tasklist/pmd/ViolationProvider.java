@@ -34,7 +34,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.List;
 import org.openide.cookies.SourceCookie;
-import org.openide.TopManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.explorer.view.*;
 import org.openide.nodes.*;
@@ -134,8 +133,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
             int len = doc.getLength();
             text = doc.getText(0, len);
         } catch (BadLocationException e) {
-            TopManager.getDefault().
-                getErrorManager().notify(ErrorManager.WARNING, e);
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
             return null;
         }
         Reader reader = new StringReader(text);
@@ -272,7 +270,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                 }
             }
         } catch (Exception e) {
-            TopManager.getDefault().getErrorManager().
+            ErrorManager.getDefault().
                 notify(ErrorManager.INFORMATIONAL, e);
         }
         return null;
@@ -381,8 +379,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
             String text = doc.getText(offset, endOffset-offset);
             return isDeleteSafe(text);
         } catch (BadLocationException ex) {
-            TopManager.getDefault().
-                getErrorManager().notify(ErrorManager.WARNING, ex);
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }
         return false;
     }

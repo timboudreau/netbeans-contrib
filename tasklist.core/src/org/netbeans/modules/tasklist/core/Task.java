@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.ListIterator;
 import org.netbeans.api.tasklist.Suggestion;
 import org.netbeans.api.tasklist.SuggestionProvider;
-import org.openide.TopManager;
+import org.openide.ErrorManager;
 import org.openide.nodes.Node;
 
 
@@ -204,7 +204,7 @@ public class Task extends Suggestion implements Cloneable {
         subtask.parent = this;
         if (subtasks == null) {
             // Internal error - shouldn't call this unless you already have a subtask "after")
-            TopManager.getDefault().getErrorManager().log("addSubtask(subtask,after) called where subtasks==null"); // NOI18N
+            ErrorManager.getDefault().log("addSubtask(subtask,after) called where subtasks==null"); // NOI18N
             return;
         }
         int pos = subtasks.indexOf(after);

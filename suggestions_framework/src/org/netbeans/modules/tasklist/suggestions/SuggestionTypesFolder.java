@@ -16,13 +16,13 @@ package org.netbeans.modules.tasklist.suggestions;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.openide.TopManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.FolderInstance;
+import org.openide.filesystems.Repository;
 
 /** Representation of the "Suggestions/Types" folder. All
  * instances created through the createInstance() method are
@@ -82,7 +82,7 @@ final public class SuggestionTypesFolder extends FolderInstance {
             return folder;
         }
         
-        FileObject f = TopManager.getDefault().getRepository().getDefaultFileSystem().findResource(FOLDER);
+        FileObject f = Repository.getDefault().getDefaultFileSystem().findResource(FOLDER);
         if (f == null) {
             return null;
         }

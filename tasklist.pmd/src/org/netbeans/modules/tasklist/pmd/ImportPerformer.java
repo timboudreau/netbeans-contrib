@@ -34,7 +34,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.List;
 import org.openide.cookies.SourceCookie;
-import org.openide.TopManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.explorer.view.*;
 import org.openide.nodes.*;

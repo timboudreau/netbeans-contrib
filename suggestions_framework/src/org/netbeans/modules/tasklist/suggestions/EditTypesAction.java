@@ -19,12 +19,12 @@ import java.awt.Dimension;
 import javax.swing.SwingUtilities;
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.actions.SystemAction;
+import org.openide.DialogDisplayer;
 
 
 /** Filter the tasklist such that only tasks matching a given
@@ -46,7 +46,8 @@ public class EditTypesAction extends CallableSystemAction
                 d.setModal(true);
                 d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
                 d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
-                Dialog dlg = TopManager.getDefault().createDialog(d);
+                //Dialog dlg = TopManager.getDefault().createDialog(d);
+                Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
                 dlg.pack();
                 dlg.show();
                 if (d.getValue() == NotifyDescriptor.OK_OPTION) {

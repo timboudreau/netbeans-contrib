@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import org.openide.ErrorManager;
-import org.openide.TopManager;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
@@ -106,7 +105,7 @@ public final class TaskTransfer implements ExClipboard.Convertor {
                 } // else: not all support todoitems - so don't do anything
             } catch (Exception e) {
                 // Should not happen: IOException, UnsupportedFlavorException
-                TopManager.getDefault().getErrorManager().notify(ErrorManager.INFORMATIONAL, e);
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
             }
         }
         return t;
@@ -146,7 +145,7 @@ public final class TaskTransfer implements ExClipboard.Convertor {
             } catch (UnsupportedFlavorException ufe) {
                 // Should not happen.
                 IOException ioe = new IOException(ufe.toString());
-                TopManager.getDefault().getErrorManager().annotate(ioe, ufe);
+                ErrorManager.getDefault().annotate(ioe, ufe);
                 throw ioe;
             }
             return null;

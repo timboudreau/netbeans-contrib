@@ -101,7 +101,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
 			explorerPanel.getExplorerManager().
 			    setSelectedNodes(sel);
 		    } catch (PropertyVetoException e) {
-			TopManager.getDefault().getErrorManager().
+			ErrorManager.getDefault().
 			    notify(ErrorManager.INFORMATIONAL, e);
 		    }
 		    /* Temporarily commented out -- I would often
