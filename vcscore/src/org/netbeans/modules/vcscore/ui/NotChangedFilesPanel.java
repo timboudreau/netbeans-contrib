@@ -181,11 +181,15 @@ public class NotChangedFilesPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 6175263517053478465L;    
 
     private void initAccessibility() {
-        cbPerform.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(NotChangedFilesPanel.class).getString("ACSD.NotChangedFilesPanel.cbPerform"));
-        jTextArea1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(NotChangedFilesPanel.class).getString("ACSN.NotChangedFilesPanel.jTextArea1"));
-        jTextArea1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(NotChangedFilesPanel.class).getString("ACSD.NotChangedFilesPanel.jTextArea1"));
+        cbPerform.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(NotChangedFilesPanel.class, "ACSD.NotChangedFilesPanel.cbPerform"));
+        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getMessage(NotChangedFilesPanel.class, "ACSN.NotChangedFilesPanel.jTextArea1"));
+        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getMessage(NotChangedFilesPanel.class, "ACSD.NotChangedFilesPanel.jTextArea1"));
         spNotChangedFiles.getAccessibleContext().setAccessibleName(cbPerform.getText());
         spNotChangedFiles.getAccessibleContext().setAccessibleDescription(jTextArea1.getText());
+        rbAll.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(NotChangedFilesPanel.class, "ACSD.NotChangedFilesPanel.rbAll"));
+        rbSelectedOnly.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(NotChangedFilesPanel.class, "ACSD.NotChangedFilesPanel.rbSelectedOnly"));
+        tblNotChangedFiles.getAccessibleContext().setAccessibleName(NbBundle.getMessage(NotChangedFilesPanel.class, "ACSN.NotChangedFilesPanel.tblNotChangedFiles"));
+        tblNotChangedFiles.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(NotChangedFilesPanel.class, "ACSD.NotChangedFilesPanel.tblNotChangedFiles"));
     }
     
     

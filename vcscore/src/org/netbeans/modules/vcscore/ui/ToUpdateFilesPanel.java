@@ -83,7 +83,8 @@ public class ToUpdateFilesPanel extends javax.swing.JPanel {
         JTableHeader head = tblToBeAddedFiles.getTableHeader();
         head.setUpdateTableInRealTime(true);
         ColumnSortListener listen = new ColumnSortListener(tblToBeAddedFiles);
-        head.addMouseListener(listen);        
+        head.addMouseListener(listen);
+        initAccessibility();
     }
 
     /** This method is called from within the constructor to
@@ -210,6 +211,19 @@ public class ToUpdateFilesPanel extends javax.swing.JPanel {
 
     private static final long serialVersionUID = 6797797120171553014L;    
 
+    private void initAccessibility() {
+        cbPerform.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToUpdateFilesPanel.class, "ACSD.ToUpdateFilesPanel.cbPerform"));
+        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getMessage(ToUpdateFilesPanel.class, "ACSN.ToUpdateFilesPanel.jTextArea1"));
+        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getMessage(ToUpdateFilesPanel.class, "ACSD.ToUpdateFilesPanel.jTextArea1"));
+        spToBeAddedFiles.getAccessibleContext().setAccessibleName(cbPerform.getText());
+        spToBeAddedFiles.getAccessibleContext().setAccessibleDescription(jTextArea1.getText());
+        rbFsRoots.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToUpdateFilesPanel.class, "ACSD.ToUpdateFilesPanel.rbFsRoots"));
+        rbAll.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToUpdateFilesPanel.class, "ACSD.ToUpdateFilesPanel.rbAll"));
+        rbSelectedOnly.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToUpdateFilesPanel.class, "ACSD.ToUpdateFilesPanel.rbSelectedOnly"));
+        tblToBeAddedFiles.getAccessibleContext().setAccessibleName(NbBundle.getMessage(ToUpdateFilesPanel.class, "ACSN.ToUpdateFilesPanel.tblToBeAddedFiles"));
+        tblToBeAddedFiles.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToUpdateFilesPanel.class, "ACSD.ToUpdateFilesPanel.tblToBeAddedFiles"));
+    }
+    
     /** 
      * returns the selected fileobjects. if the action should not be performed, returns null
      * if the rbFsRoos is selected by the user, then it returns filesystems root fileobjects..

@@ -74,6 +74,7 @@ public class ToAddFilesPanel extends javax.swing.JPanel {
         head.setUpdateTableInRealTime(true);
         ColumnSortListener listen = new ColumnSortListener(tblToBeAddedFiles);
         head.addMouseListener(listen);        
+        initAccessibility();
     }
 
     /** This method is called from within the constructor to
@@ -187,6 +188,18 @@ public class ToAddFilesPanel extends javax.swing.JPanel {
 
     private static final long serialVersionUID = -6548817009138402660L;    
 
+    private void initAccessibility() {
+        cbPerform.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToAddFilesPanel.class, "ACSD.ToAddFilesPanel.cbPerform"));
+        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getMessage(ToAddFilesPanel.class, "ACSN.ToAddFilesPanel.jTextArea1"));
+        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getMessage(ToAddFilesPanel.class, "ACSD.ToAddFilesPanel.jTextArea1"));
+        spToBeAddedFiles.getAccessibleContext().setAccessibleName(cbPerform.getText());
+        spToBeAddedFiles.getAccessibleContext().setAccessibleDescription(jTextArea1.getText());
+        rbAll.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToAddFilesPanel.class, "ACSD.ToAddFilesPanel.rbAll"));
+        rbSelectedOnly.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToAddFilesPanel.class, "ACSD.ToAddFilesPanel.rbSelectedOnly"));
+        tblToBeAddedFiles.getAccessibleContext().setAccessibleName(NbBundle.getMessage(ToAddFilesPanel.class, "ACSN.ToAddFilesPanel.tblToBeAddedFiles"));
+        tblToBeAddedFiles.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToAddFilesPanel.class, "ACSD.ToAddFilesPanel.tblToBeAddedFiles"));
+    }
+    
     /** 
      * returns the selected fileobjects. if the action should not be performed, returns null
      */
