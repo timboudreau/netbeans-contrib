@@ -173,7 +173,7 @@ public class CommandExecutorSupport extends Object {
         //    confirmation = null;
         }
         if (confirmed && confirmation.length() > 0) {
-            if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
+            if (!NotifyDescriptor.Confirmation.YES_OPTION.equals (
                     TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
                         confirmation, NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
                 return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
@@ -207,7 +207,7 @@ public class CommandExecutorSupport extends Object {
                     return CommandsPool.PREPROCESS_CANCELLED;
                 }
                 if (confirmation.length() > 0) {
-                    if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
+                    if (!NotifyDescriptor.Confirmation.YES_OPTION.equals (
                             TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
                                 confirmation, NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
                         return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
