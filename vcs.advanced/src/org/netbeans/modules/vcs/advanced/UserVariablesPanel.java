@@ -228,7 +228,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
   //-------------------------------------------
   private void addVariable(){
-    VcsConfigVariable var = new VcsConfigVariable ("", "", "", false, false, false); // NOI18N
+    VcsConfigVariable var = new VcsConfigVariable ("", "", "", false, false, false, ""); // NOI18N
     EditUserVariable ev=new EditUserVariable(new Frame(), var);
     ev.setLocationRelativeTo(list);
     ev.show();
@@ -284,6 +284,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
 /*
  * <<Log>>
+ *  4    Jaga      1.2.1.0     3/7/00   Martin Entlicher 
  *  3    Gandalf   1.2         1/27/00  Martin Entlicher NOI18N
  *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
  *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
