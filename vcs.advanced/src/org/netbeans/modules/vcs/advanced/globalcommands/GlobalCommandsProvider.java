@@ -16,8 +16,8 @@ package org.netbeans.modules.vcs.advanced.globalcommands;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.openide.util.WeakListener;
 
@@ -43,8 +43,8 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
     private static GlobalCommandsProvider instance;
     
     private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
-    private Map profilesByNames = new HashMap();
-    private Map commandSupportsByNames = new HashMap();
+    private Map profilesByNames = new TreeMap();
+    private Map commandSupportsByNames = new TreeMap();
     private String[] commandNames;
     private CommandsTree commands;
     private int numberOfFinishedCmdsToCollect = RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
