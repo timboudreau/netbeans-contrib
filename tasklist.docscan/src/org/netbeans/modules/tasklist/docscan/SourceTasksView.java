@@ -397,12 +397,47 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private JProgressBar getProgress() {
         if (progress == null) {
-            progress = new JProgressBar();
+            progress = new ScanProgressBar();
             progress.setVisible(job == null);
             progress.setMinimum(0);
             // adjustHeight(progress); it removes bevel effect
         }
         return progress;
+    }
+
+    private class ScanProgressBar extends JProgressBar {
+        public String getToolTipText() {
+            if (scannedFolder != null) {
+                return createLabel(scannedFolder);
+            } else {
+                return super.getToolTipText();
+            }
+        }
+    }
+
+    // Misiatus shows selected folder, limit info
+    // and filter status
+    private void updateMiniStatus() {
+        assert SwingUtilities.isEventDispatchThread();
+        String prefix = "";
+        getMiniStatus().setHorizontalAlignment(SwingConstants.LEFT);
+        StringBuffer msg = new StringBuffer(80);
+        if (isFiltered()) {
+            msg.append("Filtered View");
+        }
+        if (job == null) {
+            if (msg.length() > 0) prefix = ", ";
+            msg.append(prefix + "Folder: " + createLabel(selectedFolder));
+        }
+
+        if (reasonMsg != null) {
+            if (msg.length() > 0) prefix = ", ";
+            msg.append(prefix + "Showing first " + getList().getRoot().getSubtaskCountRecursively() + " tasks only");
+            getMiniStatus().setToolTipText(reasonMsg);
+        } else {
+            getMiniStatus().setToolTipText("");
+        }
+        getMiniStatus().setText(msg.toString());
     }
 
     private JButton getStop() {
@@ -503,8 +538,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private AbstractButton folderSelector;
     private AbstractButton getFolderSelector() {
         if (folderSelector == null) {
-            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/dropdown.gif");
-            JButton button = new JButton(new ImageIcon(image));
+            JButton button = new DropDown();
             button.setToolTipText("Selects folder to be scanned. (S)");
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -515,10 +549,24 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     }
                 }
             });
-            adjustHeight(button);
             folderSelector = button;
         }
         return folderSelector;
+    }
+
+    // XXX it's too hardcoded, but all attempts to compute
+    // it dynamically failed
+    class DropDown extends JButton {
+
+        DropDown() {
+            super(new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/dropdown.gif")));
+            setMargin(new Insets(10, 0, 9, 0));
+        }
+
+        public Dimension getPreferredSize() {
+            Dimension dim = getAllFiles().getPreferredSize();
+            return new Dimension(11, 28);
+        }
     }
 
     private void showFolderSelectorPopup() {
@@ -626,8 +674,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                         public void actionPerformed(ActionEvent e) {
                             if (filter == null && isFiltered() == false) {
                                 SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
+                                updateMiniStatus();
                             } else if (isFiltered() == false) {
                                 setFiltered(true);
+                                updateMiniStatus();
                             } else {
                                 Toolkit.getDefaultToolkit().beep();
                             }
@@ -642,6 +692,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                         public void actionPerformed(ActionEvent e) {
                             if (isFiltered()) {
                                 setFiltered(false);
+                                updateMiniStatus();
                             } else {
                                 Toolkit.getDefaultToolkit().beep();
                             }
@@ -656,6 +707,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     editFilter.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
+                            updateMiniStatus();
                         }
                     });
                     popup.add(editFilter);
@@ -672,6 +724,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         in.top = 0;
         in.bottom = 0;
         c.setMargin(in);
+    }
+
+    public void updateFilterCount() {
+        // do not write anything
     }
 
     protected Component createNorthComponent() {
@@ -708,7 +764,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         panel.setBorder(verysoftbevelborder);
 
         panel.add(toolbar, BorderLayout.WEST);
-        panel.add(getMiniStatus(), BorderLayout.CENTER);
+        JLabel ministatus = getMiniStatus();
+        ministatus.setBorder(BorderFactory.createEmptyBorder(0,6,0,0));
+        panel.add(ministatus, BorderLayout.CENTER);
         panel.add(rightpanel, BorderLayout.EAST);
         return panel;
     }
@@ -719,7 +777,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private int realFolders = 0;
     private int estimatedFolders = -1;
 
+    /** Currently scanned folder or null. */
+    private FileObject scannedFolder;
+
     public void estimate(final int estimate) {
+        scannedFolder = null;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 estimatedFolders = estimate;
@@ -727,7 +789,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     getProgress().setVisible(true);
                     getStop().setVisible(true);
                     getProgress().setIndeterminate(true);
-                    getMiniStatus().setText("Estimating media search complexity...");
+
+                    getMiniStatus().setVisible(false);
+                    getMiniStatus().setText("Estimating media search complexity:");
+                    getMiniStatus().setHorizontalAlignment(SwingConstants.RIGHT);
+                    getMiniStatus().setVisible(true);
+
                     Cache.load(); // hide this possibly long operation here
                 } else {
                     getProgress().setIndeterminate(false);
@@ -735,7 +802,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 }
             }
         });
-
     }
 
     public void scanStarted() {
@@ -746,19 +812,24 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 getProgress().setVisible(true);
                 getStop().setVisible(true);
                 getRefresh().setEnabled(false);
+
+                getMiniStatus().setVisible(false);
+                getMiniStatus().setText("Searching for tasks:");
+                getMiniStatus().setHorizontalAlignment(SwingConstants.RIGHT);
+                getMiniStatus().setVisible(true);
             }
         });
 
     }
 
     public void folderEntered(final FileObject folder) {
+        scannedFolder = folder;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 if (estimatedFolders >0) {
                     realFolders++;
                     getProgress().setValue(realFolders);
                 }
-                getMiniStatus().setText("Scanning " + folder.getPath());
             }
         });
 
@@ -774,17 +845,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     public void scanTerminated(final int reason) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                if (reason == -1) {
-                    reasonMsg = "(Low Memory Interrupt)";
-                } else if (reason == -2) {
-                    reasonMsg = "(Interrupted by User)";
-                } else if (reason == -3) {
-                    reasonMsg = "(Usability Limit Reached)";
-                }
-            }
-        });
+        if (reason == -1) {
+            reasonMsg = "Task search was interrupted by low memory condition.";
+        } else if (reason == -2) {
+            reasonMsg = "Task search was interrupted by user.";
+        } else if (reason == -3) {
+            reasonMsg = "You can change limit of tasks displayed in Options window under To Do Settings.";
+        }
     }
 
     public void scanFinished() {
@@ -794,6 +861,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 getProgress().setVisible(false);
                 getStop().setVisible(false);
                 getRefresh().setEnabled(job == null);
+                updateMiniStatus();
             }
         });
     }
@@ -801,11 +869,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     public void statistics(final int todos) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                if (job == null) {
-                    String text = NbBundle.getMessage(SourceTasksView.class,
-                                                           "TodoScanDone", new Integer(todos)); // NOI18N
-                    getMiniStatus().setText(text + (reasonMsg != null ? reasonMsg : ""));
-                }
+                updateMiniStatus();
             }
         });
     }
@@ -902,7 +966,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 selectedFolder = null;  // invalid folder
             }
         } else {
-            getMiniStatus().setText(createLabel(selectedFolder) + " tasks restored from cache.");
+            getMiniStatus().setText("Folder: " + createLabel(selectedFolder) + ", Restored from cache");
         }
     }
 
@@ -920,14 +984,16 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private String createLabel(FileObject fo) {
         String path = fo.getPath();
-        if ("".equals(path)) { // NOI18N
-            try {
-                path = fo.getFileSystem().getDisplayName();
-            } catch (FileStateInvalidException e) {
-                // keep empty path
-            }
+        try {
+            path = fo.getFileSystem().getDisplayName() + path;
+        } catch (FileStateInvalidException e) {
+            // keep empty path
         }
-        return path;
+        if (path.length() > 60) {
+            return "..." + path.substring(path.length() - 60);
+        } else {
+            return path;
+        }
     }
 
     // XXX detects listener leaks
@@ -954,7 +1020,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         } finally {
             // setModel() above triggers IAE in IconManager after gc()
             getRefresh().setEnabled(false);
-            getMiniStatus().setText("");
+            updateMiniStatus();
         }
     }
 
