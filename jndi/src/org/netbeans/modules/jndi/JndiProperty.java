@@ -86,6 +86,7 @@ public final class JndiProperty extends PropertySupport{
 
 /*
  * <<Log>>
+ *  7    Gandalf   1.6         1/14/00  Tomas Zezula    
  *  6    Gandalf   1.5         12/17/99 Tomas Zezula    
  *  5    Gandalf   1.4         12/15/99 Tomas Zezula    
  *  4    Gandalf   1.3         12/15/99 Tomas Zezula    
