@@ -75,6 +75,9 @@ public class VerifyGroupAction extends GeneralCommandAction {
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] instanceof VcsGroupNode) {
                 nodeList.add(nodes[i]);
+                if (nodes[i].getChildren().getNodesCount() == 0) {
+                    return false;
+                }
             }
             if (nodes[i] instanceof MainVcsGroupNode) {
                 MainVcsGroupNode main = (MainVcsGroupNode)nodes[i];
