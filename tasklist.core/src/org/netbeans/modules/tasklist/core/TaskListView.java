@@ -26,20 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-
-
-import org.openide.explorer.view.TreeTableView;
-import org.openide.nodes.FilterNode;
-import org.openide.nodes.Node;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node.Property;
-import org.openide.nodes.Node.PropertySet;
-import org.openide.nodes.PropertySupport;
-import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
-import org.openide.text.Annotation;
-
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 import java.awt.Dimension;
 import java.awt.Image;
@@ -55,6 +43,23 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
+
+
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.Repository;
+
+import org.openide.explorer.view.TreeTableView;
+import org.openide.nodes.FilterNode;
+import org.openide.nodes.Node;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node.Property;
+import org.openide.nodes.Node.PropertySet;
+import org.openide.nodes.PropertySupport;
+import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
+import org.openide.text.Annotation;
+import org.openide.awt.StatusDisplayer;
 import org.openide.ErrorManager;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.FindAction;
@@ -66,6 +71,9 @@ import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
 import org.openide.windows.WindowManager;
 
+import org.netbeans.core.output.NextOutJumpAction;
+import org.netbeans.core.output.PreviousOutJumpAction;
+
 
 /** View showing the todo list items
  * @author Tor Norbye, Tim Lebedkov, Trond Norbye
@@ -73,7 +81,7 @@ import org.openide.windows.WindowManager;
  *       from this class
  */
 public abstract class TaskListView extends ExplorerPanel
-    implements TaskListener, ActionListener {
+    implements TaskListener, ActionListener, ComponentListener {
     
     transient protected TaskNode rootNode = null;
     transient protected MyTreeTable treeTable;
@@ -119,7 +127,7 @@ public abstract class TaskListView extends ExplorerPanel
             tasklist.setView(this);
         }
 	
-        deletePerformer = new DeleteActionPerformer(this.getExplorerManager());
+        //deletePerformer = new DeleteActionPerformer(this.getExplorerManager());
         
 	setIcon(icon);
 
@@ -137,6 +145,7 @@ public abstract class TaskListView extends ExplorerPanel
 	    views.put(category, this);
 	}
 
+        addComponentListener(this);
     }
 
     public void changedTask(Task task) {
@@ -215,6 +224,8 @@ public abstract class TaskListView extends ExplorerPanel
 
 	// Populate the view
 	showList();
+
+        installJumpActions(true);
     }
 
 
@@ -544,7 +555,7 @@ public abstract class TaskListView extends ExplorerPanel
 	    views.put(category, this);
 	}
         
-        deletePerformer = new DeleteActionPerformer(this.getExplorerManager());
+        //deletePerformer = new DeleteActionPerformer(this.getExplorerManager());
     }
 
     /** Write out relevant settings in the window (visible
@@ -1101,8 +1112,13 @@ public abstract class TaskListView extends ExplorerPanel
         FilterAction filter = (FilterAction)FilterAction.get(FilterAction.class);
         find.setActionPerformer(filter);
         
+        /*
         DeleteAction delete = (DeleteAction) DeleteAction.get(DeleteAction.class);
         delete.setActionPerformer(deletePerformer);
+
+        */
+
+        installJumpActions(true);
     } 
     
     public void componentDectivated() {
@@ -1111,8 +1127,10 @@ public abstract class TaskListView extends ExplorerPanel
         FindAction find = (FindAction)FindAction.get(FindAction.class);
         find.setActionPerformer(null);
 
+        /*
         DeleteAction delete = (DeleteAction) DeleteAction.get(DeleteAction.class);
         delete.setActionPerformer(null);
+        */
     }
     
     private JPanel filterPanel = null;
@@ -1203,5 +1221,194 @@ public abstract class TaskListView extends ExplorerPanel
                                                  noSorting);
         Collections.sort(nodes, comparator);
         return nodes;
+    }
+
+    /** Assign the Next/Previous build actions to point to the
+     * task window */
+    void installJumpActions(boolean install) {
+
+        // TODO - only install if the list is non empty (and call
+        // this method from SMI when the list becomes non-empty)
+
+        // Make F12 jump to next task
+        NextOutJumpAction nextAction = (NextOutJumpAction)NextOutJumpAction.get(NextOutJumpAction.class);
+        PreviousOutJumpAction previousAction = (PreviousOutJumpAction)PreviousOutJumpAction.get(PreviousOutJumpAction.class);
+        if (install) {
+            nextAction.setActionPerformer(jumpPerformer);
+            previousAction.setActionPerformer(jumpPerformer);        
+        } else {
+            nextAction.setActionPerformer(null);
+            previousAction.setActionPerformer(null);        
+        }
+
+    }
+
+    private JumpActionPerformer jumpPerformer = new JumpActionPerformer();
+
+    final class JumpActionPerformer implements ActionPerformer {
+
+        /** Performer for actions */
+        public void performAction(final SystemAction action) {            
+            invokeLater(new Runnable() {
+		    public void run() {
+			if (action instanceof NextOutJumpAction) {
+			    // Traditionally bound to F12
+                            nextTask();
+			} else if (action instanceof PreviousOutJumpAction) {
+                            prevTask();
+			}
+                        // updateNextPrevActions();
+		    }
+		});
+        }
+    }
+
+    private static void invokeLater(Runnable runnable) {
+	if (SwingUtilities.isEventDispatchThread()) {
+	    runnable.run();
+	} else {
+            SwingUtilities.invokeLater(runnable);
+	}
+    }
+
+    /** When true, we've already warned about the need to wrap */
+    private boolean wrapWarned = false;
+
+    /** Show the next task in the view */
+    void nextTask() {
+        TaskList list = getList();
+        Task curr = getCurrentTask();
+        Task next = null;
+        if (curr == null) {
+            List sgs = list.getTasks();
+            if (sgs != null) {
+                next = (Task)sgs.get(0);
+            } else {
+                return;
+            }
+        } else {
+            next = list.findNext(curr, wrapWarned);
+	}
+        String msg = NbBundle.getBundle(TaskListView.class).
+            getString("MSG_AtLastError"); // NOI18N
+        if ((next == null) && !wrapWarned) {
+            StatusDisplayer.getDefault().setStatusText(msg);
+            wrapWarned = true;
+        } else {
+            wrapWarned = false;
+            if (msg.equals(StatusDisplayer.getDefault().getStatusText())) {
+                StatusDisplayer.getDefault().setStatusText("");
+            }
+        }
+        if (next != null) {
+            if (next.getLine() != null) {
+                Annotation anno = getAnnotation(next);
+                if (anno != null) {
+                    show(next, anno);
+                }
+            }
+            select(next);
+        }
+
+    }
+    
+    /** Show the previous task in the view */
+    void prevTask() {
+        TaskList list = getList();
+        Task curr = getCurrentTask();
+        Task prev = null;
+        if (curr == null) {
+            List sgs = list.getTasks();
+            if (sgs != null) {
+                prev = (Task)sgs.get(0);
+            } else {
+                return;
+            }
+        } else {
+            prev = list.findPrev(curr, wrapWarned);
+	}
+        String msg = NbBundle.getBundle(TaskListView.class).
+            getString("MSG_AtLastError"); // NOI18N
+        if ((prev == null) && !wrapWarned) {
+            StatusDisplayer.getDefault().setStatusText(msg);
+            wrapWarned = true;
+        } else {
+            if (msg.equals(StatusDisplayer.getDefault().getStatusText())) {
+                StatusDisplayer.getDefault().setStatusText("");
+            }
+            wrapWarned = false;
+        }
+        if (prev != null) {
+            if (prev.getLine() != null) {
+                Annotation anno = getAnnotation(prev);
+                if (anno != null) {
+                    show(prev, anno);
+                }
+            }
+            select(prev);
+        }
+    }
+
+    /** Return an editor annotation to use to show the given task */
+    protected Annotation getAnnotation(Task task) {
+        // Make sure the editor is here and providing the annotation type
+        FileObject f = Repository.getDefault().getDefaultFileSystem().
+            findResource("Editors/AnnotationTypes/TaskAnnotation.xml"); // NOI18N
+        if (f == null) {
+            return null;
+        }
+        return new TaskAnnotation(task);
+    }
+
+
+    /** @return The currently selected task in the view,
+      or if none, the first task (or null, if there are
+      no tasks */
+    private Task getCurrentTask() {
+        Node[] node = getExplorerManager().getSelectedNodes();
+        if ((node != null) && (node.length > 0)) {
+            Task s = (Task)TaskNode.getTask(node[0]);
+            if (s.getParent() != null) { // Make sure it's not the root node
+                return s;
+            }
+        }
+        return null;
+    }
+
+    private boolean showing = false;
+
+    public void componentHidden(ComponentEvent e) {
+        //super.componentHidden(e);
+        if (!showing) {
+            return;
+        }
+        showing = false;
+
+        // Remove jump actions
+        // Cannot do this, because componentHidden can be called
+        // after another TaskListView is shown (for example when you
+        // switch from one tasklist view to another) so this would
+        // cripple the newly showing tasklist view.
+        //    installJumpActions(false);
+    }
+
+    public void componentShown(ComponentEvent e) {
+        //super.componentShown(e);
+        if (showing) {
+            return;
+        }
+        showing = true;
+
+        installJumpActions(true);
+    }
+
+    /** Don't care - but must implement full ComponentListener interface */
+    public void componentResized(ComponentEvent e) {
+	// Don't care
+    }
+    
+    /** Don't care - but must implement full ComponentListener interface */
+    public void componentMoved(ComponentEvent e) {
+	// Don't care
     }
 }

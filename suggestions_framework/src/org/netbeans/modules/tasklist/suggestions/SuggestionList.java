@@ -62,6 +62,7 @@ final public class SuggestionList extends TaskList {
             category.setType(type.getName());
             category.setSType(type);
             category.setIcon(type.getIconImage());
+            category.setVisitable(false);
             // Don't duplicate the provider field! We don't want
             // SMI.stuffCache to keep category task nodes stashed...
             SuggestionManagerImpl manager =
@@ -190,96 +191,4 @@ final public class SuggestionList extends TaskList {
         }
     }
 
-    /** Locate the next suggestion from the given suggestion.
-     * Used for example to jump to the previous or next error when
-     * the user presses F12/S-F12.  This will skip over category
-     * nodes etc.
-     *
-     * @param curr The current suggestion from which you want to find
-     *   a neighbor
-     * @param wrap If true, wrap around the end/front of the list
-     *    and return the next/previous element. If false, return null
-     *    when you reach the end or the front of the list, depending
-     *    on your search direction.
-     * @return the next element following curr that is
-     *    not a category node */
-    public SuggestionImpl findNext(SuggestionImpl curr, 
-                            boolean wrap) {
-        currFound = false;
-        List tasks = getTasks();
-        SuggestionImpl s = findNext(tasks, curr, wrap);
-        if ((s == null) && wrap && currFound) {
-            // Start search one more time, this time not for
-            // curr but just the first eligible element
-            s = findNext(tasks, curr, wrap);
-        }
-        return s;
-    }
-
-    private boolean currFound;
-
-    private SuggestionImpl findNext(List tasks, SuggestionImpl curr, 
-                            boolean wrap) {
-        Iterator it = tasks.iterator();
-        while (it.hasNext()) {
-            SuggestionImpl s = (SuggestionImpl)it.next();
-            if (s == curr) {
-                currFound = true;
-            } else if (s.hasSubtasks()) {
-                SuggestionImpl f = findNext(s.getSubtasks(), curr, wrap);
-                if (f != null) {
-                    return f;
-                }
-            } else if (currFound) {
-                return s;
-            }
-        }
-        return null;
-    }
-
-
-    /** Locate the previous suggestion from the given suggestion.
-     * Used for example to jump to the previous or next error when
-     * the user presses F12/S-F12.  This will skip over category
-     * nodes etc.
-     *
-     * @param curr The current suggestion from which you want to find
-     *   a neighbor
-     * @param wrap If true, wrap around the end/front of the list
-     *    and return the next/previous element. If false, return null
-     *    when you reach the end or the front of the list, depending
-     *    on your search direction.
-     * @return the element preceding curr that is
-     *    not a category node */
-    public SuggestionImpl findPrev(SuggestionImpl curr, 
-                            boolean wrap) {
-        currFound = false;
-        List tasks = getTasks();
-        SuggestionImpl s = findPrev(tasks, curr, wrap);
-        if ((s == null) && wrap && currFound) {
-            // Start search one more time, this time not for
-            // curr but just the first eligible element
-            s = findPrev(tasks, curr, wrap);
-        }
-        return s;
-    }
-
-    private SuggestionImpl findPrev(List tasks, SuggestionImpl curr, 
-                            boolean wrap) {
-        ListIterator it = tasks.listIterator(tasks.size());
-        while (it.hasPrevious()) {
-            SuggestionImpl s = (SuggestionImpl)it.previous();
-            if (s == curr) {
-                currFound = true;
-            } else if (s.hasSubtasks()) {
-                SuggestionImpl f = findPrev(s.getSubtasks(), curr, wrap);
-                if (f != null) {
-                    return f;
-                }
-            } else if (currFound) {
-                return s;
-            }
-        }
-        return null;
-    }
 }

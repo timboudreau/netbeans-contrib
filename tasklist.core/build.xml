@@ -36,6 +36,8 @@ Microsystems, Inc. All Rights Reserved.
                 </fileset>
                 <!-- tasklist api -->
                 <pathelement path="../api/src"/>
+                <!-- depend on core/output so we can override F12 action -->
+                <pathelement path="../../core/output/netbeans/modules/autoload/core-output.jar"/>
                 <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
             </classpath>
         </javac>
@@ -55,6 +57,7 @@ Microsystems, Inc. All Rights Reserved.
                 </fileset>
                 <!-- tasklist api -->
                 <pathelement path="../api/src"/>
+                <pathelement path="../../core/output/netbeans/modules/autoload/core-output.jar"/>
                 <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
             </classpath>
       </javac>

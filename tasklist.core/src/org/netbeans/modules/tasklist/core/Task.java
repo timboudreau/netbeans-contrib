@@ -44,12 +44,16 @@ public class Task extends Suggestion implements Cloneable {
 
     protected boolean temporary;
     protected TaskList list;
+    protected boolean visitable;
+
 
     /** When true, don't notify anybody of updates to this object - and don't
         modify the edited timestamp. Used by the restore code. */
     protected boolean silentUpdate = false;
     
     protected Task parent;
+
+
     
     /** If this item has subtasks, they are stored in this list */
     protected LinkedList subtasks = null;
@@ -58,12 +62,14 @@ public class Task extends Suggestion implements Cloneable {
         super(null, null, null);
         parent = null;
 	list = null;
+        visitable = true;
     }
     
     public Task(String desc, Task parent) {
         super(null, desc, null);
         this.parent = parent;
 	list = null;
+        visitable = true;
     }
     
     /** Set the description/summary of the task.
@@ -100,6 +106,23 @@ public class Task extends Suggestion implements Cloneable {
     */
     public boolean isTemporary() {
 	return temporary;
+    }
+
+    /** @return true iff this task is "visitable"; returns true
+     * if this node has its own content, false if it's just a "category"
+     * node. Used for keyboard traversal: if you press Next (F12) you
+     * don't want it to skip over all nonvisitable nodes. */
+    public boolean isVisitable() {
+        return visitable;
+    }
+
+    /** Set whether or not this task is "visitable".
+     * @param visitable true if this node has its own content, false
+     * if it's just a "category" node. Used for keyboard traversal: if
+     * you press Next (F12) you don't want it to skip over all
+     * nonvisitable nodes. */
+    public void setVisitable(boolean visitable) {
+        this.visitable = visitable;
     }
 
     protected void updatedValues() {
@@ -604,6 +627,7 @@ public class Task extends Suggestion implements Cloneable {
     protected void copyFrom(Task from) {
         temporary = from.temporary;
         list = from.list;
+        visitable = from.visitable;
 
         // Copy fields from the parent implementation
         super.setSummary(from.getSummary());

@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.core;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import org.openide.ErrorManager;
@@ -472,6 +473,116 @@ public class TaskList { // XXX remove the publicness
     public List getTasks() {
         return getRoot().getSubtasks();
     }
+
+
+    /** Locate the next task from the given task.
+     * Used for example to jump to the previous or next error when
+     * the user presses F12/S-F12.  This will skip over category
+     * nodes etc.
+     *
+     * @param curr The current task from which you want to find
+     *   a neighbor
+     * @param wrap If true, wrap around the end/front of the list
+     *    and return the next/previous element. If false, return null
+     *    when you reach the end or the front of the list, depending
+     *    on your search direction.
+     * @return the next element following curr that is
+     *    not a category node */
+    public Task findNext(Task curr, boolean wrap) {
+        currFound = false;
+        List tasks = getTasks();
+        Task s = findNext(tasks, curr, wrap);
+        if ((s == null) && wrap && currFound) {
+            // Start search one more time, this time not for
+            // curr but just the first eligible element
+            s = findNext(tasks, curr, wrap);
+        }
+        return s;
+    }
+
+    private boolean currFound;
+
+    private Task findNext(List tasks, Task curr, boolean wrap) {
+        Iterator it = tasks.iterator();
+        while (it.hasNext()) {
+            Task s = (Task)it.next();
+            if (currFound && s.isVisitable()) {
+                return s;
+            } else if (s == curr) {
+                currFound = true;
+                if (s.hasSubtasks()) {
+                    Task f = findNext(s.getSubtasks(), curr, wrap);
+                    if (f != null) {
+                        return f;
+                    }
+                }
+            } else if (s.hasSubtasks()) {
+                Task f = findNext(s.getSubtasks(), curr, wrap);
+                if (f != null) {
+                    return f;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /** Locate the previous task from the given task.
+     * Used for example to jump to the previous or next error when
+     * the user presses F12/S-F12.  This will skip over category
+     * nodes etc.
+     *
+     * @param curr The current task from which you want to find
+     *   a neighbor.
+     * @param wrap If true, wrap around the end/front of the list
+     *    and return the next/previous element. If false, return null
+     *    when you reach the end or the front of the list, depending
+     *    on your search direction.
+     * @return the element preceding curr that is
+     *    not a category node */
+    public Task findPrev(Task curr, boolean wrap) {
+        currFound = false;
+        List tasks = getTasks();
+        Task s = findPrev(tasks, curr, wrap);
+        if ((s == null) && wrap && currFound) {
+            // Start search one more time, this time not for
+            // curr but just the first eligible element
+            s = findPrev(tasks, curr, wrap);
+        }
+        return s;
+    }
+
+    /**
+     * @todo This method is broken for lists deeper than two levels!
+     * Luckily they're pretty rare - suggestions window doesn't have them,
+     * the buglist window doesn't have them, the source scan window doesn't
+     * have them - the user tasks window is the only candidate, and even there
+     * I suspect people aren't doing multi-level categorization.
+     */
+    private Task findPrev(List tasks, Task curr, boolean wrap) {
+        ListIterator it = tasks.listIterator(tasks.size());
+        while (it.hasPrevious()) {
+            Task s = (Task)it.previous();
+            if (currFound && s.isVisitable()) {
+                return s;
+            } else if (s == curr) {
+                currFound = true;
+                if (s.hasSubtasks()) {
+                    Task f = findPrev(s.getSubtasks(), curr, wrap);
+                    if (f != null) {
+                        return f;
+                    }
+                }
+            } else if (s.hasSubtasks()) {
+                Task f = findPrev(s.getSubtasks(), curr, wrap);
+                if (f != null) {
+                    return f;
+                }
+            }
+        }
+        return null;
+    }
+
 
     /** View where this tasklist is shown, if any */
     private TaskListView view = null;

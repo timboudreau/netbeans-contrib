@@ -24,12 +24,14 @@ import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
+import org.netbeans.modules.tasklist.core.PriorityPropertyEditor;
 
 import org.openide.ErrorManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Node.Property;
+import org.openide.nodes.PropertySupport;
 import org.openide.nodes.PropertySupport.Reflection;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
@@ -149,7 +151,7 @@ class SuggestionNode extends TaskNode {
         s.put(sse);
         
         try {
-            Property p;
+            PropertySupport.Reflection p;
             p = new Reflection(item, String.class, "getSummary", null /* Don't allow users to edit this "setDescription" */); // NOI18N
             p.setName(TaskListView.PROP_TASK_SUMMARY);
             p.setDisplayName(NbBundle.getMessage(SuggestionsView.class, "SuggestionsRoot")); // NOI18N
@@ -167,6 +169,7 @@ class SuggestionNode extends TaskNode {
             p = new Reflection(item, Integer.TYPE,
                                                "getPriorityNumber", null); // NOI18N
             p.setName(SuggestionsView.PROP_SUGG_PRIO);
+            p.setPropertyEditorClass(PriorityPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Priority")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "PriorityHint")); // NOI18N
             ss.put(p);
