@@ -3087,8 +3087,7 @@ Microsystems, Inc. All Rights Reserved.
                         ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_User);;MNEMONIC_ResourceMsg(VAR_User_Mnemonic)))
              PROMPT_FOR(CVS_REPOSITORY, "ResourceMsg(VAR_Repository):", "",
                         ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_Repository);;MNEMONIC_ResourceMsg(VAR_Repository_Mnemonic)),
-                        VALIDATOR_NON_EMPTY, SELECTOR_DIR)
-                        
+                        VALIDATOR_NON_EMPTY, IF_VAR_NON_EMPTY"IS_LOCAL_METHOD"_SELECTOR_DIR)
                  SELECT_RADIO(BUILT-IN, "", "true", ["ResourceMsg(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_true);;MNEMONIC_ResourceMsg(VAR_BuiltIn_true_Mnemonic))"],
                                             ["ResourceMsg(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_false);;MNEMONIC_ResourceMsg(VAR_BuiltIn_false_Mnemonic))",
                  PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "${CVS_EXE}",
