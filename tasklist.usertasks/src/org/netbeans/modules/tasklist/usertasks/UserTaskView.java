@@ -178,6 +178,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     static final String PROP_TASK_DONE = "taskDone"; // NOI18N
+    static final String PROP_TASK_DUE = "taskDue"; // NOI18N
     static final String PROP_TASK_PRIO = "taskPrio"; // NOI18N
     static final String PROP_TASK_CAT = "taskCat"; // NOI18N
     static final String PROP_TASK_FILE = "taskFile"; // NOI18N
@@ -200,6 +201,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
             getLineColumn(false, 200),
             getCreatedColumn(false, 150),
             getEditedColumn(false, 150),
+            getDueColumn(false, 150),
             getDoneColumn(true, 100),
             getPercentColumn(false, 100)
             
@@ -330,6 +332,20 @@ public class UserTaskView extends TaskListView implements TaskListener {
             );
     }
             
+    public ColumnProperty getDueColumn(boolean visible, int width) {
+        return new ColumnProperty(
+	    9, // UID -- never change (part of serialization
+            PROP_TASK_DUE,
+            //String.class,
+            Date.class,
+            NbBundle.getMessage(UserTaskView.class, "Due"), // NOI18N
+            NbBundle.getMessage(UserTaskView.class, "DueHint"), // NOI18N
+            true,
+            visible,
+            width
+            );
+    }
+
     private static UserTaskView defview = null;
 
     static UserTaskView getDefault() {

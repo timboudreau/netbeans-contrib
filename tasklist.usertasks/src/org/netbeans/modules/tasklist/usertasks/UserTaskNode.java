@@ -209,6 +209,17 @@ class UserTaskNode extends TaskNode {
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "EditedHint")); // NOI18N
             ss.put(p);
 
+
+            p = new Reflection(item, Date.class, "getDueDate", null /* readonly*/); // NOI18N
+            //p = new Reflection(item, Date.class, "getDueDate", "setDueDate"); // NOI18N
+
+            
+            p.setName(UserTaskView.PROP_TASK_DUE);
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Due")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "DueHint")); // NOI18N
+            ss.put(p);
+
+
             
         } catch (NoSuchMethodException nsme) {
             ErrorManager.getDefault().notify(nsme);
