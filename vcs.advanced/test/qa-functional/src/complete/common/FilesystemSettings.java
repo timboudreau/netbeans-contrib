@@ -20,6 +20,7 @@ import org.netbeans.test.oo.gui.jello.JelloBundle;
 import org.netbeans.test.oo.gui.jello.JelloOKOnlyDialog;
 import org.netbeans.test.oo.gui.jelly.*;
 import org.netbeans.jemmy.JemmyProperties;
+import org.netbeans.jemmy.util.PNGEncoder;
 import org.netbeans.jemmy.operators.JTreeOperator;
 import org.netbeans.jemmy.operators.JDialogOperator;
 import org.netbeans.jemmy.TestOut;
@@ -145,6 +146,18 @@ public class FilesystemSettings extends NbTestCase {
         else new File(name).mkdirs();
     }
 
+    /** Method will create a file and capture the screen.
+     */
+    private void captureScreen() throws Exception {
+        File file;
+        try {
+            file = new File(getWorkDirPath() + "/dump.png");
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        } catch(IOException e) { throw new Exception("Error: Can't create dump file."); }
+        PNGEncoder.captureScreen(file.getAbsolutePath());
+    }
+
     /** Returns all of node's children as one String devided with commas.
      * @param node The node whose children should be returned in one String.
      * @return Collection of all children of given node.
@@ -252,12 +265,15 @@ public class FilesystemSettings extends NbTestCase {
             }
             sheet.close();
         }
-        api.getFilesystemsTab();
-        selectNode(new String[] {filesystem}, true);
         if (!found) {
+            captureScreen();
+            api.getFilesystemsTab();
+            selectNode(new String[] {filesystem}, true);
             MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
             throw new Exception("Error: Unable to find Lock command processed on A_File.class.");
         }
+        api.getFilesystemsTab();
+        selectNode(new String[] {filesystem}, true);
         MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
         System.out.println(". done !");
     }
@@ -284,6 +300,7 @@ public class FilesystemSettings extends NbTestCase {
         api.getFilesystemsTab();
         filesystemNode.select();
         if (filesystemNode.getChildren().length != 0) {
+            captureScreen();
             new UnmountFSAction().perform(filesystemNode);
             throw new Exception("Error: A_File node has not disappeared." + printChildren(filesystemNode));
         }
@@ -303,6 +320,7 @@ public class FilesystemSettings extends NbTestCase {
         Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
         filesystemNode.tree().expandPath(filesystemNode.getTreePath());
         if (filesystemNode.getChildren().length != 1) {
+            captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
@@ -315,6 +333,7 @@ public class FilesystemSettings extends NbTestCase {
         try {
             expertTab = sheet.getPropertySheetTabOperator("Expert");
         } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
@@ -329,6 +348,7 @@ public class FilesystemSettings extends NbTestCase {
         sheet.close();
         APIController.sleep(10000);
         if (filesystemNode.getChildren().length != 1) {
+            captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
@@ -342,6 +362,7 @@ public class FilesystemSettings extends NbTestCase {
         new SaveAction().perform();
         APIController.sleep(10000);
         if (filesystemNode.getChildren().length != 1) {
+            captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
@@ -352,6 +373,7 @@ public class FilesystemSettings extends NbTestCase {
         try {
             expertTab = sheet.getPropertySheetTabOperator("Expert");
         } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
@@ -364,6 +386,7 @@ public class FilesystemSettings extends NbTestCase {
         new SaveAction().perform();
         APIController.sleep(10000);
         if (filesystemNode.getChildren().length != 2) {
+            captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
@@ -374,6 +397,7 @@ public class FilesystemSettings extends NbTestCase {
         try {
             expertTab = sheet.getPropertySheetTabOperator("Expert");
         } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
@@ -386,6 +410,7 @@ public class FilesystemSettings extends NbTestCase {
         api.getFilesystemsTab();
         filesystemNode.select();
         if (filesystemNode.getChildren().length != 1) {
+            captureScreen();
             new UnmountFSAction().perform(filesystemNode);
             throw new Exception("Error: Filter backup files does not work." + printChildren(filesystemNode));
         }
@@ -411,6 +436,7 @@ public class FilesystemSettings extends NbTestCase {
         try {
             expertTab = sheet.getPropertySheetTabOperator("Expert");
         } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
@@ -428,8 +454,10 @@ public class FilesystemSettings extends NbTestCase {
         api.getFilesystemsTab();
         filesystemNode.select();
         if (!found) {
+            captureScreen();
+            String childrenNodes = printChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Refresh time does not work." + printChildren(filesystemNode));
+            throw new Exception("Error: Refresh time does not work." + childrenNodes);
         }
         new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
@@ -453,7 +481,8 @@ public class FilesystemSettings extends NbTestCase {
         commandEditor.selectCommand("Empty|Refresh");
         NbDialogOperator dialog = new NbDialogOperator("Command Editor");
         PropertySheetOperator sheet = new PropertySheetOperator(dialog);
-        TextFieldProperty exec = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Exec");
+        PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Properties");
+        TextFieldProperty exec = new TextFieldProperty(sheetTab, "Exec");
         exec.setValue(Utilities.isUnix() ? "sh -c \"echo C_File.java\"" : "cmd /x /c \"echo C_File.java\"");
         TextFieldProperty dataRegex = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Data Regex");
         dataRegex.setValue("^(.*)");
@@ -476,6 +505,7 @@ public class FilesystemSettings extends NbTestCase {
         try {
             expertTab = sheet.getPropertySheetTabOperator("Expert");
         } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             new UnmountFSAction().perform(filesystemNode);
@@ -494,6 +524,7 @@ public class FilesystemSettings extends NbTestCase {
         api.getFilesystemsTab();
         filesystemNode.select();
         if (found) {
+            captureScreen();
             new UnmountFSAction().perform(filesystemNode);
             throw new Exception("Error: Hide shadow files does not work." + printChildren(filesystemNode));
         }

@@ -21,6 +21,7 @@ import org.netbeans.test.oo.gui.jelly.*;
 import org.netbeans.jemmy.operators.*;
 import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.TestOut;
+import org.netbeans.jemmy.util.PNGEncoder;
 import org.netbeans.test.oo.gui.jelly.vcscore.*;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
@@ -91,6 +92,18 @@ public class Availability extends NbTestCase {
         JellyProperties.setDefaults();
     }
     
+    /** Method will create a file and capture the screen.
+     */
+    private void captureScreen() throws Exception {
+        File file;
+        try {
+            file = new File(getWorkDirPath() + "/dump.png");
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        } catch(IOException e) { throw new Exception("Error: Can't create dump file."); }
+        PNGEncoder.captureScreen(file.getAbsolutePath());
+    }
+    
     /** Checks that "Versioning" main menu contains item for mounting Generic VCS filesystem.
      * @throws Exception any unexpected exception thrown during test.
      */
@@ -136,8 +149,10 @@ public class Availability extends NbTestCase {
         searchDialog.checkReverseMatch(true);
         searchDialog.search();
         SearchResults resultWindow = new SearchResults();
-        if (!resultWindow.werefound(new String[] {"A_File"}, false, true))
+        if (!resultWindow.werefound(new String[] {"A_File"}, false, true)) {
+            captureScreen();
             throw new Exception("Error: Can't find A_File file using search service.");
+        }
         resultWindow.close();
         System.out.println(". done !");
     }
@@ -180,19 +195,28 @@ public class Availability extends NbTestCase {
         api.getRuntimeTab();
         assertTrue(command + " command failed.", history.isCommandSuccessed(filesystem, command));
         CommandsHistory commandsHistory = new CommandsHistory();
-        if (!commandsHistory.compareStatus("Finished", filesystem, command))
+        if (!commandsHistory.compareStatus("Finished", filesystem, command)) {
+            captureScreen();
             throw new Exception("Error: Wrong status of " + command + " command.");
-        if (!commandsHistory.compareCommandName("LOCK", filesystem, command))
+        }
+        if (!commandsHistory.compareCommandName("LOCK", filesystem, command)) {
+            captureScreen();
             throw new Exception("Error: Wrong command name of " + command + " command.");
+        }
         String executionString = Utilities.isUnix() ? "echo put your LOCK command here" : "cmd /X /C \"echo put your LOCK command here\"";
-        if (!commandsHistory.compareExecutionString(executionString, filesystem, command))
+        if (!commandsHistory.compareExecutionString(executionString, filesystem, command)) {
+            captureScreen();
             throw new Exception("Error: Wrong execution string of " + command + " command.");
-        if (!commandsHistory.compareProcessedFiles(".", filesystem, command))
+        }
+        if (!commandsHistory.compareProcessedFiles(".", filesystem, command)) {
+            captureScreen();
             throw new Exception("Error: Wrong processed files of " + command + " command.");
+        }
         commandsHistory.viewOutput(filesystem, command);
         TabbedOutputOfVCSCommandsFrame outputWindow = new TabbedOutputOfVCSCommandsFrame();
         String desiredOutput = "put your LOCK command here";
         if (!outputWindow.containsStandardOutput(desiredOutput)) {
+            captureScreen();
             String output = "Contains: |" + outputWindow.txtStandardOutput().getText() + "| instead of |" + desiredOutput + "|";
             throw new Exception("Error: Wrong standard output of " + command + " command.\n" + output);
         }
@@ -205,8 +229,10 @@ public class Availability extends NbTestCase {
         String fs = JelloBundle.getString("org.netbeans.modules.vcscore.runtime.Bundle", "CTL_VcsRuntime") + "|" + filesystem;
         assertNotNull("Can't select history of " + filesystem, api.getRuntimeTab().selectNode(fs));
         int numberOfCommands = commandsHistory.countCommands(filesystem);
-        if ( numberOfCommands != 1)
+        if ( numberOfCommands != 1) {
+            captureScreen();
             throw new Exception("Error: Wrong number of kept commands. Currently: " + numberOfCommands);
+        }
         System.out.println(". done !");
     }
 
