@@ -81,7 +81,7 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="**/*.class"/>
             </fileset>
             <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-               <patternset refID="tasklist/suggestions.files"/>
+               <patternset refID="tasklist/usertasks.files"/>
             </fileset>
             
         </delete>
