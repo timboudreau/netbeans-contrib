@@ -17,8 +17,10 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.awt.Dialog;
 
+import javax.swing.SwingUtilities;
+
 import org.openide.src.Type;
-import org.openide.TopManager;
+import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Utilities;
 import org.netbeans.modules.corba.poasupport.*;
@@ -39,8 +41,11 @@ public class POAChecker {
         }
         catch (IllegalArgumentException e) {
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Not_Valid_Identifier"), new Object[] {name});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Not_Valid_Identifier"), new Object[] {name});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
         }
@@ -50,8 +55,11 @@ public class POAChecker {
     public static boolean checkPOAName(String name, POAElement element, boolean notify) {
         if (name.equals("") || !element.canUseAsPOAName( name )) { // NOI18N
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
         }
@@ -61,15 +69,21 @@ public class POAChecker {
     public static boolean checkPOAVarName(String name, POAElement element, boolean notify) {
         if ( !Utilities.isJavaIdentifier( name ) ) {
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Not_Valid_Identifier"), new Object[] {name});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Not_Valid_Identifier"), new Object[] {name});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
         }
         if (!element.canUseAsNewVarName( name )) {
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
         }
@@ -79,16 +93,22 @@ public class POAChecker {
     public static boolean checkPOAMemberVarName(String name, POAMemberElement element, boolean generateInstanceCode, boolean notify) {
         if ( !Utilities.isJavaIdentifier( name ) ) {
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Not_Valid_Identifier"), new Object[] {name});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Not_Valid_Identifier"), new Object[] {name});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});
             }
             return false;
         }
         if (generateInstanceCode) {
             if ( !element.canUseAsNewVarName(name) ) {
                 if (notify) {
-                    String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
-                    TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                    final String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
+                    SwingUtilities.invokeLater (new Runnable () {
+                        public void run () {
+                            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                    }});                    
                 }
                 return false;
             }
@@ -96,16 +116,22 @@ public class POAChecker {
         else {
             if ( !element.canUseAsVarName(name) ) {
                 if (notify) {
-                    String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
-                    TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                    final String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
+                    SwingUtilities.invokeLater (new Runnable () {
+                        public void run () {
+                            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                    }});                    
                 }
                 return false;
             }
         }
         if (element instanceof ServantElement && name.equals(((ServantElement)element).getIDVarName())) {
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
 	}
@@ -115,8 +141,11 @@ public class POAChecker {
     public static boolean checkServantID(String id, ServantElement element, boolean notify) {
         if (!element.canUseAsServantID( id )) {
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {id});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {id});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
         }
@@ -126,22 +155,31 @@ public class POAChecker {
     public static boolean checkServantIDVarName(String name, ServantElement element, boolean notify) {
         if ( !Utilities.isJavaIdentifier( name ) ) {
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Not_Valid_Identifier"), new Object[] {name});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Not_Valid_Identifier"), new Object[] {name});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
         }
         if (name.equals("") || !element.canUseAsNewVarName( name )) { // NOI18N
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
         }
         if (name.equals(element.getVarName())) {
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
 	}
@@ -154,7 +192,7 @@ public class POAChecker {
         (element.getServantManager() != null)) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_Non_Empty_POA"), new Object[] {element.getPOAName()});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.YES_NO_OPTION);
-            return (NotifyDescriptor.YES_OPTION.equals (TopManager.getDefault().notify(desc))) ? true : false;
+            return (NotifyDescriptor.YES_OPTION.equals (DialogDisplayer.getDefault().notify(desc))) ? true : false;
         }
         return true;
     }
@@ -189,8 +227,11 @@ public class POAChecker {
         }
         if (!addRequiredPolicyValue(settings, newPolicyValues, oldPolicyValues, name, value)) {
             if (notify) {
-                String msg = MessageFormat.format(POASupport.getString("MSG_Invalid_POA_Policy_Dependencies"), new Object[] {name, value});
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                final String msg = MessageFormat.format(POASupport.getString("MSG_Invalid_POA_Policy_Dependencies"), new Object[] {name, value});
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run () {
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                }});                
             }
             return false;
         }
@@ -218,15 +259,18 @@ public class POAChecker {
                 else {
                     String msg = MessageFormat.format(POASupport.getString("MSG_Change_POA_Policy_Value_Due_To_Dependencies"), new Object[] {name, value});
                     ComboBoxSelector selector = new ComboBoxSelector(msg, confName, availableValues);
-                    if (NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault().notify(selector)))
+                    if (NotifyDescriptor.OK_OPTION.equals (DialogDisplayer.getDefault().notify(selector)))
                         newValue = (String)selector.getSelectedItem();
                     else
                         return false;
                 }
                 if (!addRequiredPolicyValue(settings, newPolicyValues, oldPolicyValues, confName, newValue)) {
                     if (notify) {
-                        String msg = MessageFormat.format(POASupport.getString("MSG_Invalid_POA_Policy_Dependencies"), new Object[] {name, value});
-                        TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                        final String msg = MessageFormat.format(POASupport.getString("MSG_Invalid_POA_Policy_Dependencies"), new Object[] {name, value});
+                        SwingUtilities.invokeLater (new Runnable () {
+                            public void run () {
+                                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                        }});                        
                     }
                     return false;
                 }
@@ -249,19 +293,19 @@ public class POAChecker {
         if ((element.getServantManager() != null) && (!isServantManagerEnabled(element, policies))) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_ServantManager"), new Object[] {name, value});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.OK_CANCEL_OPTION);
-            if (!NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault().notify(desc)))
+            if (!NotifyDescriptor.OK_OPTION.equals (DialogDisplayer.getDefault().notify(desc)))
                 return false;
         }
         if ((element.getDefaultServant() != null) && (!isDefaultServantEnabled(element, policies))) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_DefaultServant"), new Object[] {name, value});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.OK_CANCEL_OPTION);
-            if (!NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault().notify(desc)))
+            if (!NotifyDescriptor.OK_OPTION.equals (DialogDisplayer.getDefault().notify(desc)))
                 return false;
         }
         if ((element.getServants().size() > 0) && (checkDisabledServantActivation(element, policies).equals(POASettings.ALL_SERVANTS))) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_Servants"), new Object[] {name, value});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.OK_CANCEL_OPTION);
-            if (!NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault().notify(desc)))
+            if (!NotifyDescriptor.OK_OPTION.equals (DialogDisplayer.getDefault().notify(desc)))
                 return false;
         }
         return true;
