@@ -210,11 +210,11 @@ public class IDLSyntax extends Syntax {
                     break;
                 case '\n':
                     state = INIT;
-                    return IDLTokenContext.STRING;
+                    return IDLTokenContext.STRING_LITERAL;
                 case '"':
                     offset++;
                     state = INIT;
-                    return IDLTokenContext.STRING;
+                    return IDLTokenContext.STRING_LITERAL;
                 }
                 break;
 
@@ -237,11 +237,11 @@ public class IDLSyntax extends Syntax {
                     break;
                 case '\n':
                     state = INIT;
-                    return IDLTokenContext.CHAR;
+                    return IDLTokenContext.CHAR_LITERAL;
                 case '\'':
                     offset++;
                     state = INIT;
-                    return IDLTokenContext.CHAR;
+                    return IDLTokenContext.CHAR_LITERAL;
                 }
                 break;
 
@@ -497,6 +497,10 @@ public class IDLSyntax extends Syntax {
                     offset++;
                     state = INIT;
                     return IDLTokenContext.FLOAT_LITERAL;
+                case 'e':
+                case 'E':
+                    state = ISI_FLOAT_EXP;
+                    break;
                 case '8': // it's error to have '8' and '9' in octal number
                 case '9':
                     state = ISI_ERROR;
@@ -518,6 +522,17 @@ public class IDLSyntax extends Syntax {
                     offset++;
                     state = INIT;
                     return IDLTokenContext.LONG_LITERAL;
+                case 'f':
+                case 'F':
+                case 'd':
+                case 'D':
+                    offset++;
+                    state = INIT;
+                    return IDLTokenContext.FLOAT_LITERAL;
+                case 'e':
+                case 'E':
+                    state = ISI_FLOAT_EXP;
+                    break;
                 case '.':
                     state = ISI_FLOAT;
                     break;
@@ -640,36 +655,56 @@ public class IDLSyntax extends Syntax {
 
         if (lastBuffer) {
             switch(state) {
-            case ISI_IDENTIFIER:
-                TokenID kwd = matchKeyword(buffer, tokenOffset, offset - tokenOffset);
-                return (kwd != null) ? kwd : IDLTokenContext.IDENTIFIER;
-            case ISA_HASH:
-                return matchDirective() ? IDLTokenContext.DIRECTIVE : IDLTokenContext.TEXT;
-            case ISA_STAR_I_BLOCK_COMMENT:
-                return IDLTokenContext.BLOCK_COMMENT;
-            case ISA_ZERO:
-                return IDLTokenContext.INT_LITERAL;
-            case ISA_DOT:
-            case ISA_SLASH:
-            case ISA_EQ:
-            case ISA_GT:
-            case ISA_GTGT:
-            case ISA_GTGTGT:
-            case ISA_LT:
-            case ISA_LTLT:
-            case ISA_PLUS:
-            case ISA_MINUS:
-            case ISA_STAR:
-            case ISA_PIPE:
-            case ISA_PERCENT:
-            case ISA_AND:
-            case ISA_XOR:
-            case ISA_EXCLAMATION:
-                return IDLTokenContext.OPERATOR;
-            case ISI_STRING_A_BSLASH:
-                return IDLTokenContext.STRING;
-            case ISI_CHAR_A_BSLASH:
-                return IDLTokenContext.CHAR;
+                case ISI_IDENTIFIER:
+                    TokenID kwd = matchKeyword(buffer, tokenOffset, offset - tokenOffset);
+                    return (kwd != null) ? kwd : IDLTokenContext.IDENTIFIER;
+                case ISA_HASH:
+                    return matchDirective() ? IDLTokenContext.DIRECTIVE : IDLTokenContext.TEXT;
+                case ISA_DOT:
+                case ISA_SLASH:
+                case ISA_EQ:
+                case ISA_GT:
+                case ISA_GTGT:
+                case ISA_GTGTGT:
+                case ISA_LT:
+                case ISA_LTLT:
+                case ISA_PLUS:
+                case ISA_MINUS:
+                case ISA_STAR:
+                case ISA_PIPE:
+                case ISA_PERCENT:
+                case ISA_AND:
+                case ISA_XOR:
+                case ISA_EXCLAMATION:
+                    return IDLTokenContext.OPERATOR;
+                case ISI_ERROR:
+                case ISI_HERROR:
+                    return IDLTokenContext.ERROR;
+                case ISI_TEXT:
+                    return IDLTokenContext.TEXT;
+                case ISI_LINE_COMMENT:
+                    return IDLTokenContext.LINE_COMMENT;
+                case ISI_BLOCK_COMMENT:
+                case ISA_STAR_I_BLOCK_COMMENT:
+                    return IDLTokenContext.BLOCK_COMMENT;
+                case ISI_STRING:
+                case ISI_STRING_A_BSLASH:
+                    return IDLTokenContext.STRING;
+                case ISI_CHAR:
+                case ISI_CHAR_A_BSLASH:
+                    return IDLTokenContext.CHAR;
+                case ISA_ZERO:
+                case ISI_INT:
+                    return IDLTokenContext.INT_LITERAL;
+                case ISI_OCTAL:
+                    return IDLTokenContext.OCTAL_LITERAL;
+                case ISI_FLOAT:
+                case ISI_FLOAT_EXP:
+                    return IDLTokenContext.FLOAT_LITERAL;
+                case ISI_HEX:
+                    return IDLTokenContext.HEX_LITERAL;
+                case ISA_DIRECTIVE:
+                    return IDLTokenContext.DIRECTIVE;
             }
         }
 
@@ -1295,4 +1330,3 @@ public class IDLSyntax extends Syntax {
  *  1    Gandalf   1.0         11/9/99  Karel Gardas    
  * $
  */
-

@@ -37,8 +37,7 @@ public class IDLTokenContext extends TokenContext {
     // Token IDs
     public static final int TEXT_ID = KEYWORDS_ID + 1; // plain text
     public static final int ERROR_ID = TEXT_ID + 1; // errorneous text
-    public static final int KEYWORD_ID = ERROR_ID + 1; // keyword
-    public static final int IDENTIFIER_ID = KEYWORD_ID + 1; // identifier
+    public static final int IDENTIFIER_ID = ERROR_ID + 1; // identifier
     public static final int OPERATOR_ID = IDENTIFIER_ID + 1; // operators like '+', '*=' etc.
     public static final int LINE_COMMENT_ID = OPERATOR_ID + 1; // comment till end of line
     public static final int BLOCK_COMMENT_ID = LINE_COMMENT_ID + 1; // block comment
@@ -110,30 +109,28 @@ public class IDLTokenContext extends TokenContext {
     public static final BaseTokenID TEXT = new BaseTokenID("text", TEXT_ID);
     /** Errorneous text */
     public static final BaseTokenID ERROR = new BaseTokenID("error", ERROR_ID);
-    /** IDL keyword */
-    public static final BaseTokenID KEYWORD = new BaseTokenID("keyword", KEYWORD_ID);
     /** IDL identifier */
     public static final BaseTokenID IDENTIFIER = new BaseTokenID("identifier", IDENTIFIER_ID);
     /** IDL operators like '+', '*=' etc. */
     public static final BaseTokenID OPERATOR = new BaseTokenID("operator", OPERATOR_ID);
     /** IDL comment till end of line */
-    public static final BaseTokenID LINE_COMMENT = new BaseTokenID("line_comment", LINE_COMMENT_ID);
+    public static final BaseTokenID LINE_COMMENT = new BaseTokenID("line-comment", LINE_COMMENT_ID);
     /** IDL block comment */
-    public static final BaseTokenID BLOCK_COMMENT = new BaseTokenID("block_comment", BLOCK_COMMENT_ID);
+    public static final BaseTokenID BLOCK_COMMENT = new BaseTokenID("block-comment", BLOCK_COMMENT_ID);
     /** IDL char constant e.g. 'c' */
-    public static final BaseTokenID CHAR_LITERAL = new BaseTokenID("char", CHAR_LITERAL_ID);
+    public static final BaseTokenID CHAR_LITERAL = new BaseTokenID("char-literal", CHAR_LITERAL_ID);
     /** IDL string constant e.g. "string" */
-    public static final BaseTokenID STRING_LITERAL = new BaseTokenID("string", STRING_LITERAL_ID);
+    public static final BaseTokenID STRING_LITERAL = new BaseTokenID("string-literal", STRING_LITERAL_ID);
     /** IDL integer constant e.g. 1234 */
-    public static final BaseTokenID INT_LITERAL = new BaseTokenID("int", INT_LITERAL_ID);
+    public static final BaseTokenID INT_LITERAL = new BaseTokenID("int-literal", INT_LITERAL_ID);
     /** IDL hex constant e.g. 0x5a */
-    public static final BaseTokenID HEX_LITERAL = new BaseTokenID("hex", HEX_LITERAL_ID);
+    public static final BaseTokenID HEX_LITERAL = new BaseTokenID("hex-literal", HEX_LITERAL_ID);
     /** IDL octal constant e.g. 0123 */
-    public static final BaseTokenID OCTAL_LITERAL = new BaseTokenID("octal", OCTAL_LITERAL_ID);
+    public static final BaseTokenID OCTAL_LITERAL = new BaseTokenID("octal-literal", OCTAL_LITERAL_ID);
     /** IDL long constant e.g. 12L */
-    public static final BaseTokenID LONG_LITERAL = new BaseTokenID("long", LONG_LITERAL_ID);
+    public static final BaseTokenID LONG_LITERAL = new BaseTokenID("long-literal", LONG_LITERAL_ID);
     /** IDL float constant e.g. 1.5e+43 */
-    public static final BaseTokenID FLOAT_LITERAL = new BaseTokenID("float", FLOAT_LITERAL_ID);
+    public static final BaseTokenID FLOAT_LITERAL = new BaseTokenID("float-literal", FLOAT_LITERAL_ID);
     /** IDL CPP derective e.g. #include <...> */
     public static final BaseTokenID DIRECTIVE = new BaseTokenID("directive", DIRECTIVE_ID);
     /** End of line */
