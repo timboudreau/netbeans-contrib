@@ -79,9 +79,9 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     
     /** Creates new CommandOutputVisualizer */
     public CommandOutputVisualizer(VcsDescribedTask task) {
+        this();
         this.vce = task.getExecutor();
         this.task = (CommandTask) task;
-        outputPanel = new CommandOutputPanel();
         killListener = new CommandKillListener();
         outputPanel.addKillActionListener(killListener);
         outputPanel.setExec(vce.getExec());
