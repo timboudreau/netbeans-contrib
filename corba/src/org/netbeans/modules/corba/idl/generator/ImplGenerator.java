@@ -2851,6 +2851,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    }
 	    else {
 		// I have to compare returned type of both methods
+		boolean __ret_differ = false;
 		if (!__s.getReturn ().equals (__m.getReturn ())) {
 		    // int this case I have to remove guarded block from updated element
 		    // because gblock name is generated from method name, its return type
@@ -2863,6 +2864,8 @@ public class ImplGenerator implements PropertyChangeListener {
 		    if (DEBUG)
 			System.out.println ("different return types: " + __m.getReturn ()
 					    + " -> " + __s.getReturn ());
+                    if (Type.VOID == __m.getReturn() || Type.VOID == __s.getReturn())
+                        __ret_differ = true;
 		    __m.setReturn (__s.getReturn ());
 		}
 		// I have to check method params - the user can change some param name
@@ -2914,7 +2917,8 @@ public class ImplGenerator implements PropertyChangeListener {
 		    }
 		    if ((!__s_field_name.equals (__t_field_name))
 			|| (!__s_call_name.equals (__t_call_name))
-			|| __params_differ) {
+			|| __params_differ
+                        || __ret_differ) {
 			if (DEBUG)
 			    System.out.println ("different call");
 			__m.setBody (__s.getBody ());
