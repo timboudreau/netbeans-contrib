@@ -200,6 +200,8 @@ public class AddToGroupAction extends NodeAction {
         } else {
             movePerformed(actionEvent);
         }
+        VcsGroupMenuAction gropsOpenAction = (VcsGroupMenuAction) VcsGroupMenuAction.get(VcsGroupMenuAction.class);
+        gropsOpenAction.actionPerformed(null);
     }
     
 
