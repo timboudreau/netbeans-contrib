@@ -381,7 +381,7 @@ public class CommandParser {
         
         if ("\\documentclass".equals(cni.getCommand().getCommand())) {//TODO: this is quite obsolette way :-)
             CommandCollection coll = new CommandCollection();
-            String documentClass = cni.getArgument(1).getText().toString();
+            String documentClass = cni.getArgumentCount() == cni.getCommand().getArgumentCount() ? cni.getArgument(1).getText().toString() : "";
             
             ((NBDocumentNodeImpl) parent.getDocumentNode()).setDocumentClass(documentClass);
             
@@ -705,7 +705,7 @@ public class CommandParser {
                      CommandNodeImpl cnode = (CommandNodeImpl) bcnode;
                      
                      if (cnode.getCommand().isEndLike()) {
-                         String endText   = cnode.getArgument(0).getText().toString();
+                         String endText   = cnode.getArgumentCount() > 0 ? cnode.getArgument(0).getText().toString() : "";
                          
                          bni.setEndCommand(cnode); //!!!Test missing
                          
