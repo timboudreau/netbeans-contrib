@@ -46,6 +46,7 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
     private String path;
 
     private List rawData = new ArrayList();
+    private boolean classRunning = false;
 
     private DirReaderListener listener = null ;
 
@@ -119,9 +120,11 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
 
     protected void printDataOutput(String[] data) {
         super.printDataOutput(data);
-        //data = translateElements(data, (UserCommand) getCommand());
-        //rawData.add(data);
-        // Do not add the data here! They should be passed through filesByName table instead.
+        if (!classRunning) {
+            // Do not add the data here! They should be passed through filesByName table instead.
+            data = translateElements(data, (UserCommand) getCommand());
+            rawData.add(data);
+        }
     }
 
     /**
@@ -132,6 +135,7 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
     protected void runClass(String exec, String className, String[] args) {
         E.deb("runClass: "+className); // NOI18N
         E.deb("Creating new CvsListCommand"); // NOI18N
+        classRunning = true;
         boolean success = true;
         Class listClass = null;
         try {
