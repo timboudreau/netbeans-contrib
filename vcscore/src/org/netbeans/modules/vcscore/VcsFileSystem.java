@@ -412,13 +412,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient InputOutput cmdIO = null;
 
 
-    /** Non local file names, derived temporary information
-     * used by addLocalFiles and createReference methods.
-     */
-    private transient Set nonLocals = new HashSet ();
-
-//    private transient Hashtable revisionListsByName = null;
-
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
     }
@@ -1358,17 +1351,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Reference result = null;
         if (cache != null) {
             result = cache.createReference(fo);
-	    }
-	    else
+            String fullName = fo.getPath();
+            if (!getFile(fullName).exists()) {
+                // When the file does not exist on disk, it must be virtual.
+                ((CacheReference)result).setVirtual (true);
+            }
+	} else {
             result =  super.createReference(fo);
-
-        String fullName = fo.getPath();
-        if (this.nonLocals.remove (fullName)) {
-            try {
-                fo.setAttribute ("NetBeansAttrAssignedLoader", VirtualsDataLoader.class.getName());       //NoI18N
-                ((CacheReference)result).setVirtual (true);     //The reference is not valid in the writeAttr yet
-            } catch (IOException e) {}
         }
+        String fullName = fo.getPath();
         return result;
     }
 
@@ -1812,7 +1803,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("VcsFileSystem.readObject() ...");
         //try {
             //ObjectInputStream din = (ObjectInputStream) in;
-        this.nonLocals = new HashSet ();
         deserialized = true;
         possibleFileStatusesLock = new Object();
         boolean localFilesOn = in.readBoolean ();
@@ -2998,16 +2988,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         } else {
             java.util.List cached = new LinkedList(Arrays.asList(cachedFiles));
             java.util.List local = new LinkedList(Arrays.asList(files));
-            java.util.List remote = new LinkedList (Arrays.asList(cachedFiles));
-            remote.removeAll (local);
             local.removeAll(cached);
             checkScheduledLocals(name, local, removedFilesScheduledForRemove);
             cached.addAll(local);
             mergedFiles = (String[]) cached.toArray(new String[0]);
-
-            for (Iterator it = remote.iterator(); it.hasNext();) {
-                this.nonLocals.add (name+"/"+(String)it.next());    //NoI18N
-            }
         }
         if (cache != null) {
             if (missingFileStatus != null || missingFolderStatus != null) {
