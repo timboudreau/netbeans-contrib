@@ -52,6 +52,8 @@ public class VariableIO extends Object {
     public static final String VARIABLE_NAME_ATTR = "name";                      // NOI18N
     public static final String VARIABLE_LABEL_ATTR = "label";                    // NOI18N
     public static final String VARIABLE_LABEL_MNEMONIC_ATTR = "labelMnemonic";   // NOI18N
+    public static final String VARIABLE_A11Y_NAME_ATTR = "a11yName";             // NOI18N
+    public static final String VARIABLE_A11Y_DESCRIPTION_ATTR = "a11yDescription";// NOI18N
     public static final String VARIABLE_BASIC_ATTR = "basic";                    // NOI18N
     public static final String VARIABLE_LOCAL_FILE_ATTR = "localFile";           // NOI18N
     public static final String VARIABLE_LOCAL_DIR_ATTR = "localDir";             // NOI18N
@@ -384,6 +386,8 @@ public class VariableIO extends Object {
     private static VcsConfigVariable getBasicVariable(String name, String value, Node varNode, NamedNodeMap varAttrs) throws DOMException {
         String label = "";
         String labelMnemonic = null;
+        String a11yName = null;
+        String a11yDescription = null;
         boolean localFile = false;
         boolean localDir = false;
         boolean executable = false;
@@ -393,6 +397,10 @@ public class VariableIO extends Object {
         if (attrNode != null) label = VcsUtilities.getBundleString(attrNode.getNodeValue());
         attrNode = varAttrs.getNamedItem(VARIABLE_LABEL_MNEMONIC_ATTR);
         if (attrNode != null) labelMnemonic = VcsUtilities.getBundleString(attrNode.getNodeValue());
+        attrNode = varAttrs.getNamedItem(VARIABLE_A11Y_NAME_ATTR);
+        if (attrNode != null) a11yName = VcsUtilities.getBundleString(attrNode.getNodeValue());
+        attrNode = varAttrs.getNamedItem(VARIABLE_A11Y_DESCRIPTION_ATTR);
+        if (attrNode != null) a11yDescription = VcsUtilities.getBundleString(attrNode.getNodeValue());
         localFile = getBooleanAttrVariable(VARIABLE_LOCAL_FILE_ATTR, varAttrs);
         localDir = getBooleanAttrVariable(VARIABLE_LOCAL_DIR_ATTR, varAttrs);
         executable = getBooleanAttrVariable(VARIABLE_EXECUTABLE_ATTR, varAttrs);
@@ -418,6 +426,8 @@ public class VariableIO extends Object {
         if (labelMnemonic != null && labelMnemonic.length() > 0) {
             var.setLabelMnemonic(new Character(labelMnemonic.charAt(0)));
         }
+        if (a11yName != null) var.setA11yName(a11yName);
+        if (a11yDescription != null) var.setA11yDescription(a11yDescription);
         return var;
     }
 
@@ -487,6 +497,12 @@ public class VariableIO extends Object {
                 varElem.setAttribute(VARIABLE_LABEL_ATTR, var.getLabel());
                 if (var.getLabelMnemonic() != null) {
                     varElem.setAttribute(VARIABLE_LABEL_MNEMONIC_ATTR, var.getLabelMnemonic().toString());
+                }
+                if (var.getA11yName() != null) {
+                    varElem.setAttribute(VARIABLE_A11Y_NAME_ATTR, var.getA11yName());
+                }
+                if (var.getA11yDescription() != null) {
+                    varElem.setAttribute(VARIABLE_A11Y_NAME_ATTR, var.getA11yDescription());
                 }
                 varElem.setAttribute(VARIABLE_LOCAL_FILE_ATTR, (var.isLocalFile()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
                 varElem.setAttribute(VARIABLE_LOCAL_DIR_ATTR, (var.isLocalDir()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);

@@ -27,6 +27,8 @@ public class VariableInputComponent extends Object {
     private String variable;
     private String label;
     private Character labelMnemonic;
+    private String a11yName = null;
+    private String a11yDescription = null;
     private String value = null;
     private String valueSelected = null;
     private String valueUnselected = null;
@@ -106,8 +108,32 @@ public class VariableInputComponent extends Object {
         return label;
     }
     
+    public void setLabelMnemonic(String mnemonic) {
+        if (mnemonic != null && mnemonic.length() > 0) {
+            this.labelMnemonic = new Character(mnemonic.charAt(0));
+        } else {
+            this.labelMnemonic = null;
+        }
+    }
+    
     public Character getLabelMnemonic() {
         return labelMnemonic;
+    }
+    
+    public void setA11yName(String name) {
+        this.a11yName = name;
+    }
+    
+    public String getA11yName() {
+        return a11yName;
+    }
+    
+    public void setA11yDescription(String description) {
+        this.a11yDescription = description;
+    }
+    
+    public String getA11yDescription() {
+        return a11yDescription;
     }
     
     public void setValue(String value) {

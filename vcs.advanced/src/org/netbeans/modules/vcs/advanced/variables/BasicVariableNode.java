@@ -269,6 +269,44 @@ public class BasicVariableNode extends AbstractNode {
                             firePropertyChange(getName(), null, null);
                         }
                 });
+        set.put(new PropertySupport.ReadWrite("a11yName", String.class, g("CTL_A11yName"), g("HINT_A11yName")) {
+                        public Object getValue() {
+                            return var.getA11yName();
+                        }
+                        
+                        public void setValue(Object value) {
+                            var.setA11yName((String) value);
+                            //cmd.fireChanged();
+                        }
+
+                        public boolean supportsDefaultValue() {
+                            return true;
+                        }
+                    
+                        public void restoreDefaultValue() {
+                            var.setA11yName(null);
+                            firePropertyChange(getName(), null, null);
+                        }
+                });
+        set.put(new PropertySupport.ReadWrite("a11yDescription", String.class, g("CTL_A11yDescription"), g("HINT_A11yDescription")) {
+                        public Object getValue() {
+                            return var.getA11yDescription();
+                        }
+                        
+                        public void setValue(Object value) {
+                            var.setA11yDescription((String) value);
+                            //cmd.fireChanged();
+                        }
+
+                        public boolean supportsDefaultValue() {
+                            return true;
+                        }
+                    
+                        public void restoreDefaultValue() {
+                            var.setA11yDescription(null);
+                            firePropertyChange(getName(), null, null);
+                        }
+                });
         set.put(new PropertySupport.ReadOnly("order", String.class, g("CTL_Order"), g("HINT_Order")) {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);

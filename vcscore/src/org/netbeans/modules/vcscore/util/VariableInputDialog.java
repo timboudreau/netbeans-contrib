@@ -594,6 +594,17 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
      */
     
+    private static void setA11y(javax.swing.JComponent jComponent, VariableInputComponent component) {
+        if (Boolean.getBoolean("netbeans.accessibility")) {
+            String a11y = component.getA11yName();
+            if (a11y != null)
+                jComponent.getAccessibleContext().setAccessibleName(a11y);
+            a11y = component.getA11yDescription();
+            if (a11y != null)
+                jComponent.getAccessibleContext().setAccessibleDescription(a11y);
+        }
+    }
+    
     private void addVarPromptField(final VariableInputComponent component,
                                    int gridy, javax.swing.JPanel variablePanel, int leftInset) {
         String varLabel = component.getLabel();
@@ -613,6 +624,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 label.setDisplayedMnemonic(component.getLabelMnemonic().charValue());
             }
         }
+        setA11y(field, component);
         String value;
         if (component.needsPreCommandPerform()) {
             value = component.getValue();
@@ -837,6 +849,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         if (component.getLabelMnemonic() != null) {
             chbox.setMnemonic(component.getLabelMnemonic().charValue());
         }
+        setA11y(chbox, component);
         java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = gridy;
@@ -913,6 +926,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         if (component.getLabelMnemonic() != null) {
             label.setDisplayedMnemonic(component.getLabelMnemonic().charValue());
         }
+        setA11y(area, component);
         javax.swing.JScrollPane scrollArea = new javax.swing.JScrollPane(area);
         //javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
         java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
@@ -1063,6 +1077,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         if (component.getLabelMnemonic() != null) {
             button.setMnemonic(component.getLabelMnemonic().charValue());
         }
+        setA11y(button, component);
         group.add(button);
         java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
         gridBagConstraints1.gridx = 0;
@@ -1150,6 +1165,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 label.setDisplayedMnemonic(component.getLabelMnemonic().charValue());
             }
         }
+        setA11y(comboBox, component);
         java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
         gridBagConstraints2.gridx = 1;
         gridBagConstraints2.gridy = gridy;

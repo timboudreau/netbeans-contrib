@@ -44,7 +44,12 @@ public class VariableInputDescriptor extends Object {
     
     public static final String INPUT_STR_ENABLE = "ENABLE";
     public static final String INPUT_STR_DISABLE = "DISABLE";
+    
+    public static final String INPUT_STR_ACCESSIBILITY = "ACCESSIBILITY(";
+    public static final String INPUT_STR_A11Y_NAME = "NAME_";
+    public static final String INPUT_STR_A11Y_DESCRIPTION = "DESCRIPTION_";
     public static final String INPUT_STR_MNEMONIC = "MNEMONIC_";
+    public static final String INPUT_STR_A11Y_DELIMETER = ";;";
     
     public static final String SELECTOR = "SELECTOR_";
     public static final String SELECTOR_FILE = SELECTOR + "FILE";
@@ -256,10 +261,10 @@ public class VariableInputDescriptor extends Object {
         VariableInputComponent component;
         int argNum; // the number of currently processing argument
         
-        if (len > 3 && inputArgs[3].startsWith(INPUT_STR_MNEMONIC)) {
+        if (len > 3 && inputArgs[3].startsWith(INPUT_STR_ACCESSIBILITY)) {
             component = new VariableInputComponent(id, inputArgs[0],
-                                                   VcsUtilities.getBundleString(inputArgs[1]),
-                                                   inputArgs[3].substring(INPUT_STR_MNEMONIC.length()));
+                                                   VcsUtilities.getBundleString(inputArgs[1]));
+            setA11y(inputArgs[3], component);
             argNum = 4;
         } else {
             component = new VariableInputComponent(id, inputArgs[0],
@@ -369,7 +374,7 @@ public class VariableInputDescriptor extends Object {
         }
         return component;
     }
-        
+    
     private static int addEnable(String[] inputArgs, int enableIndex, VariableInputComponent component) {
         //System.out.println("addEnable("+VcsUtilities.arrayToString(inputArgs)+")");
         String var = inputArgs[enableIndex].substring(INPUT_STR_ENABLE.length() + 1).trim();
@@ -446,6 +451,23 @@ public class VariableInputDescriptor extends Object {
         return (String[]) selectArgsList.toArray(new String[0]);
     }
 
+    private static void setA11y(String a11yStr, VariableInputComponent component) {
+        a11yStr = a11yStr.substring(INPUT_STR_ACCESSIBILITY.length());
+        int end = a11yStr.lastIndexOf(")");
+        if (end > 0) a11yStr = a11yStr.substring(0, end);
+        StringTokenizer a11yTokens = new StringTokenizer(a11yStr, INPUT_STR_A11Y_DELIMETER);
+        while (a11yTokens.hasMoreTokens()) {
+            String a11y = a11yTokens.nextToken();
+            if (a11y.startsWith(INPUT_STR_A11Y_NAME)) {
+                component.setA11yName(a11y.substring(INPUT_STR_A11Y_NAME.length()));
+            } else if (a11y.startsWith(INPUT_STR_A11Y_DESCRIPTION)) {
+                component.setA11yDescription(a11y.substring(INPUT_STR_A11Y_DESCRIPTION.length()));
+            } else if (a11y.startsWith(INPUT_STR_MNEMONIC)) {
+                component.setLabelMnemonic(a11y.substring(INPUT_STR_MNEMONIC.length()));
+            }
+        }
+    }
+    
     private static String g(String s) {
         return org.openide.util.NbBundle.getBundle(VariableInputDescriptor.class).getString(s);
     }
