@@ -45,12 +45,16 @@ public class ProfileChildren extends Children.Keys {
     
     
     public void addNotify () {
+        boolean valid = false;
         try {
             lazyInit ();
             this.createKeys();
+            valid = true;
         }catch (org.omg.CORBA.BAD_PARAM bp) {
             this.setKeys (new java.lang.Object[0]);
-            handleBadIOR();
+        }
+        finally {
+            handleIOR (valid);
         }
     }
     
@@ -86,32 +90,44 @@ public class ProfileChildren extends Children.Keys {
     }
     
     public Integer getProfileCount () {
+        boolean valid = true;
         try {
             lazyInit ();
             return new Integer(this.iorData.getProfiles().size());
         }catch (org.omg.CORBA.BAD_PARAM bp) {
-            handleBadIOR();
+            valid = false;
             return null;
+        }
+        finally {
+            handleIOR (valid);
         }
     }
     
     public String getRepositoryId () {
+        boolean valid = true;
         try {
             lazyInit();
             return this.iorData.getRepositoryId();
         }catch (org.omg.CORBA.BAD_PARAM bp) {
-            handleBadIOR();
+            valid = false;
             return null;
+        }
+        finally {
+            handleIOR (valid);
         }
     }
     
     public Boolean isLittleEndian () {
+        boolean valid = true;
         try {
             lazyInit();
             return new Boolean (this.iorData.isLittleEndian());
         }catch (org.omg.CORBA.BAD_PARAM bp) {
-            handleBadIOR();
+            valid = false;
             return null;
+        }
+        finally {
+            handleIOR (valid);
         }
     }
     
@@ -120,22 +136,16 @@ public class ProfileChildren extends Children.Keys {
             try {
                 this.iorData = new IORData ( dataObject.getContent());
             } catch (IllegalStateException illegalState) {
-		illegalState.printStackTrace (System.out);
                 throw new org.omg.CORBA.BAD_PARAM ();
             }
             catch (IllegalArgumentException illegalArgument) {
-		illegalArgument.printStackTrace (System.out);
                 throw new org.omg.CORBA.BAD_PARAM ();
             }
         }
     }
     
-    private void handleBadIOR () {
-	java.awt.EventQueue.invokeLater ( new Runnable () {
-		public void run () {
-        		TopManager.getDefault ().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ProfileChildren.class).getString("TXT_InvalidIOR"), NotifyDescriptor.ERROR_MESSAGE));
-		}
-	});
+    private void handleIOR (boolean valid) {
+        ((IORNode)this.getNode ()).validate (valid);
     }
 
 }

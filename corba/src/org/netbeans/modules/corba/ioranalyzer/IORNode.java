@@ -19,8 +19,9 @@ import org.openide.util.NbBundle;
 
 public class IORNode extends DataNode implements Node.Cookie {
 
-    public static final String ICON_BASE = "org/netbeans/modules/corba/ioranalyzer/resources/ior";
-
+    static final String ICON_BASE = "org/netbeans/modules/corba/ioranalyzer/resources/ior";
+    static final String FAILED_ICON_BASE = "org/netbeans/modules/corba/ioranalyzer/resources/failedior";
+    
     public IORNode (IORDataObject dataObject) {
 	super (dataObject, new ProfileChildren(dataObject));
 	this.setIconBase (ICON_BASE);
@@ -58,6 +59,16 @@ public class IORNode extends DataNode implements Node.Cookie {
             }
         });
         return s;
+    }
+    
+    
+    void validate (boolean valid) {
+        if (valid) {
+            this.setIconBase (ICON_BASE);
+        }
+        else {
+            this.setIconBase (FAILED_ICON_BASE);
+        }
     }
     
 

@@ -58,7 +58,7 @@ public class IORInputStream {
     
     public String readString () {
 	int i = this.readUnsignedLong () - 1;
-        if ((this.pos+i) > this.count)
+        if ((this.pos+i) > this.count || i < 0)
             throw new IllegalStateException ();
 	String res = new String (this.buf,this.pos,i);
 	this.pos+=i;
