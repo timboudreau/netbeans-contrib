@@ -167,7 +167,7 @@ public final class HtmlDiff extends Object {
                     break;
                 }
                 if (ch == '<') {
-                    if (state == 0) {
+                    if (state == 0 && sectionPre == 0) {
                         // there was a while line
                         arr.add (newSpace ());
                     }
