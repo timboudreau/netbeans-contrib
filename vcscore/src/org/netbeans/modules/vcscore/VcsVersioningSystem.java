@@ -51,6 +51,7 @@ import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
+import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.versioning.RevisionChildren;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
@@ -572,8 +573,21 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             Hashtable additionalVars = new Hashtable();
             additionalVars.put("REVISION", revision);
             VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, additionalVars, fileSystem, fileListener, null, null, null);
+            boolean success = true;
             for (int i = 0; i < vces.length; i++) {
                 fileSystem.getCommandsPool().waitToFinish(vces[i]);
+                success = success && (vces[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+            }
+            if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) success = true;
+            if (!success) {
+                throw (java.io.FileNotFoundException) TopManager.getDefault().getErrorManager().annotate(
+                    new java.io.FileNotFoundException(),
+                    NbBundle.getMessage(VcsVersioningSystem.class, "MSG_RevisionOpenCommandFailed", name, revision));
+            }
+            if (fileBuffer.length() == 0) {
+                throw (java.io.FileNotFoundException) TopManager.getDefault().getErrorManager().annotate(
+                    new java.io.FileNotFoundException(),
+                    NbBundle.getMessage(VcsVersioningSystem.class, "MSG_FileRevisionIsEmpty", name, revision));
             }
             return new StringBufferInputStream(fileBuffer.toString());
         }
