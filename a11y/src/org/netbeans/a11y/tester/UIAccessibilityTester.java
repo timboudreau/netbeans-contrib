@@ -24,7 +24,7 @@ import javax.swing.SwingUtilities;
 public class UIAccessibilityTester extends javax.swing.JFrame {
     
     /** Version of UIAccessibilityTester. */
-    public String versionID = "2.1";
+    public String versionID = "2.2";
     
     
     private static UIAccessibilityTester instance;                                                                                                                                
@@ -49,7 +49,6 @@ public class UIAccessibilityTester extends javax.swing.JFrame {
         
         accPanel = new AccessibilityPanel();
         getContentPane().add(accPanel, java.awt.BorderLayout.CENTER);
-        pack();
         
         this.addKeyListener(new java.awt.event.KeyAdapter(){
             public void keyPressed(java.awt.event.KeyEvent e){
@@ -61,7 +60,8 @@ public class UIAccessibilityTester extends javax.swing.JFrame {
         
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                show();
+                pack();
+                setVisible(true);
             }
         });
         
@@ -203,7 +203,7 @@ public class UIAccessibilityTester extends javax.swing.JFrame {
         
         // use to show "Test component name" option
         //System.setProperty("a11ytest.name", "true");
-        new UIAccessibilityTester().show();
+        new UIAccessibilityTester().setVisible(true);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
