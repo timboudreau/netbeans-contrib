@@ -118,8 +118,8 @@ Microsystems, Inc. All Rights Reserved.
     </file>
     <file name="jdk1.3-orb.xml" url="impls/jdk1.3-orb.xml">
     </file>
-<!--    <file name="jdk1.4-orb.xml" url="impls/jdk1.4-orb.xml">
-    </file> -->
+    <file name="jdk1.4-orb.xml" url="impls/jdk1.4-orb.xml">
+    </file> 
     <file name="j2ee-orb.xml" url="impls/j2ee-orb.xml">
     </file>
     <file name="orbacus4.xml" url="impls/orbacus4.xml">
