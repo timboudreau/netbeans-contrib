@@ -201,7 +201,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      * @param recursivey whether to refresh recursively
      */
     public void statusChanged (final String path, final boolean recursively) {
-        RequestProcessor.postRequest(new Runnable() {
+        org.netbeans.modules.vcscore.VcsFileSystem.getStatusChangeRequestProcessor().post(new Runnable() {
             public void run() {
                 //D.deb("statusChanged("+path+")"); // NOI18N
                 FileObject fo = findResource(path);
@@ -235,7 +235,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      * @param name the full file name
      */
     public void statusChanged (final String name) {
-        RequestProcessor.postRequest(new Runnable() {
+        org.netbeans.modules.vcscore.VcsFileSystem.getStatusChangeRequestProcessor().post(new Runnable() {
             public void run() {
                 FileObject fo = findExistingResource(name);
                 //System.out.println("findResource("+name+") = "+fo);

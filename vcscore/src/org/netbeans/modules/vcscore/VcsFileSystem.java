@@ -873,6 +873,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return !unimportantFiles.contains(name);
         }
     }
+    
+    private static RequestProcessor statusRequestProcessor;
+    private static final Object STATUS_REQUEST_PROCESSOR_LOCK = new Object();
+    
+    /**
+     * Get a special request processor, that is used to refresh the file status.
+     * This is necessary to prevent some kind of deadlocks, that can occure
+     * if the default RequestProcessor is used.
+     */
+    public static RequestProcessor getStatusChangeRequestProcessor() {
+        synchronized (STATUS_REQUEST_PROCESSOR_LOCK) {
+            if (statusRequestProcessor == null) {
+                statusRequestProcessor = new RequestProcessor("VCS Status Update Request Processor"); // NOI18N
+            }
+        }
+        return statusRequestProcessor;
+    }
 
     /**
      * Perform refresh of status information on all children of a directory
@@ -880,7 +897,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param recursivey whether to refresh recursively
      */
     public void statusChanged (final String path, final boolean recursively) {
-        RequestProcessor.postRequest(new Runnable() {
+        getStatusChangeRequestProcessor().post(new Runnable() {
             public void run() {
                 //D.deb("statusChanged("+path+")"); // NOI18N
                 FileObject fo = findResource(path);
@@ -915,7 +932,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param name the full file name
      */
     public void statusChanged (final String name) {
-        RequestProcessor.postRequest(new Runnable() {
+        getStatusChangeRequestProcessor().post(new Runnable() {
             public void run() {
                 FileObject fo = findExistingResource(name);
                 //System.out.println("statusChanged: findResource("+name+") = "+fo);
