@@ -43,7 +43,10 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="../core/netbeans/lib/core.jar"/>
         <!-- XXX illegal dependency on projects: -->
 	<pathelement location="../projects/netbeans/modules/projects.jar"/>
+	<!-- Hopefully set up by nbbuild/build.xml: -->
+	<pathelement location="${jdkhome}/lib/tools.jar"/>
 	<pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
+	<pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
       </classpath>
     </javac>
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
