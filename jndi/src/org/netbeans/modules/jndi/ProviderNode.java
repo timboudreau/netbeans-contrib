@@ -352,7 +352,7 @@ public class ProviderNode extends AbstractNode implements Cookie{
      *  provider node
      */
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (ProviderNode.class.getName());
     }
     
     

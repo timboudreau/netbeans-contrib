@@ -170,6 +170,6 @@ public class JndiProvidersNode extends AbstractNode implements Cookie,Refreshabl
      *  the parent node for provider nodes
      */
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (JndiProvidersNode.class.getName());
     }
 }

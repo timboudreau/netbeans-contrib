@@ -132,7 +132,7 @@ public class JndiDisabledNode extends JndiAbstractNode implements Refreshable, N
      *  the IDE, e.g. because of the service is not started.
      */
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (JndiDisabledNode.class.getName());
     }
     
 }

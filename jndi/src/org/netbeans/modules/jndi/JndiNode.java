@@ -266,7 +266,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
      *  the JNDI directory
      */
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (JndiNode.class.getName());
     }
     
     protected void handleChangeJndiPropertyValue (Attributes attrs) throws NamingException {

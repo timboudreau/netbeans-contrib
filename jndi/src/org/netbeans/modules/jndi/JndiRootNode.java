@@ -375,7 +375,7 @@ public final class JndiRootNode extends AbstractNode{
      *  JNDI root node
      */
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (JndiRootNode.class.getName());
     }
 
 

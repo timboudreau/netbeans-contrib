@@ -143,7 +143,7 @@ public class JndiLeafNode extends JndiObjectNode {
      *  the end bound object (e.g. EJB HomeInterface)
      */
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (JndiLeafNode.class.getName());
     }
     
     protected void handleChangeJndiPropertyValue (Attributes attrs) throws NamingException {

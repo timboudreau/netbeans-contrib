@@ -36,6 +36,6 @@ public class JndiFailedNode extends JndiLeafNode {
      *  be accessed, e.g. for security reasons
      */
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (JndiFailedNode.class.getName());
     }
 }
