@@ -1044,7 +1044,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (dir == null) return ;
         dir.setIgnoreList(VcsUtilities.createIgnoreList(dir, path, ignSupport));//ignorelist);
         Enumeration existingFOEnum = existingFileObjects(fo);
-        existingFOEnum.nextElement(); // take out the root FileObject
+        if (existingFOEnum.hasMoreElements()) existingFOEnum.nextElement(); // take out the root FileObject
+        else return ; // there are no existing file objects.
         if (existingFOEnum.hasMoreElements()) { // there are some children
             statusChanged(path, false);
         } else {
