@@ -21,6 +21,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import org.openide.TopManager;
+import org.openide.ErrorManager;
 import org.openide.util.*;
 
 import org.netbeans.modules.vcscore.*;
@@ -183,7 +184,8 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
             if (input != null) vars.put("INPUT", input); // NOI18N
             //vars.put("TIMEOUT", new Long(list.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", list.getName()));
-            success = listCommand.list(vars, args, filesByName,
+            try {
+                success = listCommand.list(vars, args, filesByName,
                                        new CommandOutputListener() {
                                            public void outputLine(String line) {
                                                printOutput(line);
@@ -213,6 +215,14 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
               E.deb("filesByName: "+fileName+" | "+fileStatus);
         }
             */
+            } catch (ThreadDeath td) {
+                throw td; // re-throw the ThreadDeath
+            } catch (Throwable thr) { // Something bad has happened in the called class!
+                success = false;
+                ErrorManager.getDefault().notify(
+                    ErrorManager.getDefault().annotate(thr,
+                        NbBundle.getMessage(CommandLineVcsDirReader.class, "ERR_EXC_IN_CLASS", className)));
+            }
         }
         //if (!shouldFail) {
         //String[] elements = new String[2];

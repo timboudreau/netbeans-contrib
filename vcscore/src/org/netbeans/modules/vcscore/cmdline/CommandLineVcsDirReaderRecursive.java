@@ -16,6 +16,7 @@ package org.netbeans.modules.vcscore.cmdline;
 import java.text.*;
 import java.util.*;
 
+import org.openide.ErrorManager;
 import org.openide.TopManager;
 import org.openide.util.*;
 
@@ -156,7 +157,8 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
             if (input != null) vars.put("INPUT", input); // NOI18N
             //vars.put("TIMEOUT", new Long(listSub.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", listSub.getName()));
-            success = listCommand.listRecursively(vars, args, filesByName,
+            try {
+                success = listCommand.listRecursively(vars, args, filesByName,
                                            new CommandOutputListener() {
                                                public void outputLine(String line) {
                                                    printOutput(line);
@@ -186,6 +188,14 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
               E.deb("filesByName: "+fileName+" | "+fileStatus);
         }
             */
+            } catch (ThreadDeath td) {
+                throw td; // re-throw the ThreadDeath
+            } catch (Throwable thr) { // Something bad has happened in the called class!
+                success = false;
+                ErrorManager.getDefault().notify(
+                    ErrorManager.getDefault().annotate(thr,
+                        NbBundle.getMessage(CommandLineVcsDirReaderRecursive.class, "ERR_EXC_IN_CLASS", className)));
+            }
         }
         rawData = filesByName;
         //rawData = new VcsDirContainer();

@@ -22,6 +22,7 @@ import java.lang.reflect.*;
 import org.apache.regexp.*;
 
 import org.openide.TopManager;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.*;
 
@@ -43,6 +44,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.commands.VcsCommandVisualizer;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.modules.vcscore.util.*;
+
 //import org.netbeans.modules.vcscore.revision.RevisionListener;
 
 /** Execute command.
@@ -684,7 +686,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             if (input != null) vars.put("INPUT", input); // NOI18N
             //vars.put("TIMEOUT", new Long(cmd.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmd.getName()));
-            success = execCommand.exec(vars, args,
+            try {
+                success = execCommand.exec(vars, args,
                                        new CommandOutputListener() {
                                            public void outputLine(String line) {
                                                printOutput(line);
@@ -706,6 +709,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                                            }
                                        }, errorRegex
                                       );
+            } catch (ThreadDeath td) {
+                throw td; // re-throw the ThreadDeath
+            } catch (Throwable thr) { // Something bad has happened in the called class!
+                success = false;
+                ErrorManager.getDefault().notify(
+                    ErrorManager.getDefault().annotate(thr,
+                        NbBundle.getMessage(ExecuteCommand.class, "ERR_EXC_IN_CLASS", className)));
+            }
         }
         if (Thread.currentThread().interrupted()) {
             exitStatus = VcsCommandExecutor.INTERRUPTED;
