@@ -3250,7 +3250,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         for (int i = 0; i < files.length; i++) {
             if (isFilterBackupFiles() && files[i].endsWith(getBackupExtension()) ||
-                ignoredGarbageRE != null && ignoredGarbageRE.matcher(files[i]).matches()) {
+                ignoredGarbageRE != null && ignoredGarbageRE.matcher(files[i]).find()) {
 
                 files[i] = null;
             }

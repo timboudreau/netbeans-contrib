@@ -490,7 +490,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                         !fileSystem.isImportant((name.length() == 0) ? files[i] : name + "/" + files[i]) ||
                     //!isShowLocalFiles() && cache != null && status != null &&  -- makes problems, since every file is initially local
                     //    status.getLocalFileStatus().equals(status.getFileStatus((name.length() == 0) ? files[i] : name + "/" + files[i])) ||
-                    ignoredGarbageRE != null && ignoredGarbageRE.matcher(files[i]).matches()) {
+                    ignoredGarbageRE != null && ignoredGarbageRE.matcher(files[i]).find()) {
                 
                     files[i] = null;
                 }
