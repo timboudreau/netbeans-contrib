@@ -430,6 +430,13 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
     }
     
+    public String getPrimaryFileForSecondary(String secondary) {
+        initialize(); // Assure, that we're initialized.
+        synchronized (objectsWithLocalFiles) {
+            return (String) filesMap.get(secondary);
+        }
+    }
+    
     public void addIgnoredFiles(String[] ignoredFilePaths) {
         initialize(); // Assure, that we're initialized.
         ignoredSecondaryLocalFiles.addAll(Arrays.asList(ignoredFilePaths));

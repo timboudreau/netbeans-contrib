@@ -167,6 +167,11 @@ public class ObjectIntegrityCommandSupport extends CommandSupport implements jav
                         FileObject local = objectIntegritySupport.findFileObject(localFile);
                         if (local != null) localFiles.add(local);
                     }
+                } else { // A secondary files was passed in
+                    String primary = objectIntegritySupport.getPrimaryFileForSecondary(path);
+                    if (primary != null) { // We've found a primary for this local secondary
+                        localFiles.add(fo);
+                    }
                 }
             }
         }
