@@ -682,7 +682,7 @@ public class Task extends Suggestion implements Cloneable {
     }
     
     /** Create a node for this item */
-    protected Node[] createNode() {
+    public Node[] createNode() {
         //if (hasSubtasks()) {
         if (subtasks != null) {  // Want to make root a non-leaf; empty list, not null
             return new Node[] { new TaskNode(this, getSubtasks())};

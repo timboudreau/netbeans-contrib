@@ -27,8 +27,9 @@ import org.openide.util.NbBundle;
  * This class represents the tasklist itself
  *
  * @author Tor Norbye
+ * @author Tim Lebedkov
  */
-public class TaskList { // XXX remove the publicness
+public class TaskList { // XXX remove the publicness. 
 
     // List category
     public final static String USER_CATEGORY = "usertasks"; // NOI18N
@@ -168,6 +169,8 @@ public class TaskList { // XXX remove the publicness
 	if (show) {
 	    notifySelected(task);
 	}
+        
+        notifyAdded(task);
         
         // TODO make this smarter later on, such that I only save when necessary
         save();
@@ -342,6 +345,16 @@ public class TaskList { // XXX remove the publicness
 	}
     }
 
+    public void notifyStructureChanged(Task task) {
+	if (listeners != null) {
+	    int n = listeners.size();
+	    for (int i = 0; i < n; i++) {
+		TaskListener tl = (TaskListener)listeners.get(i);
+		tl.structureChanged(task);
+	    }
+	}
+    }
+
     public void notifyRemoved(Task task) {
 	if (listeners != null) {
 	    int n = listeners.size();
@@ -402,6 +415,7 @@ public class TaskList { // XXX remove the publicness
     public void clear() {
         if (root != null) {
             root.clear();
+            notifyStructureChanged(root);
         }
     }
 

@@ -114,9 +114,11 @@ public abstract class TaskListView extends ExplorerPanel
     /** Annotation showing the current position */
     transient protected TaskAnnotation taskMarker = null;
     
-    private JPanel centerPanel;
-    private Component northCmp;
-    private boolean northCmpCreated;
+    transient protected Component centerCmp;
+    
+    transient private JPanel centerPanel;
+    transient private Component northCmp;
+    transient private boolean northCmpCreated;
     
     /** Construct a new TaskListView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
@@ -329,12 +331,6 @@ public abstract class TaskListView extends ExplorerPanel
         FileSystem fs = Repository.getDefault().getDefaultFileSystem();
         FileObject fo = fs.findResource("TaskList/" + category + "/columns.settings"); // NOI18N
         
-        // todo remove
-        if (fo == null) {
-            System.out.println("cannot find file for " + category);
-            Thread.dumpStack();
-        }
-        
         try {
             DataObject dobj = DataObject.find(fo);
             InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
@@ -371,6 +367,32 @@ public abstract class TaskListView extends ExplorerPanel
         getActionMap().put(find.getActionMapKey(), filter);
         
         setLayout(new BorderLayout());
+        
+        centerPanel = new JPanel();
+        centerPanel.setLayout(new BorderLayout());
+        centerCmp = createCenterComponent();
+        centerPanel.add(centerCmp, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER); 
+
+        SystemAction actions[] = getToolBarActions();
+        if (actions != null) {
+            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+            toolbar.setOrientation(JToolBar.VERTICAL);
+            add(toolbar, BorderLayout.WEST);
+        }
+        
+	// Populate the view
+	showList();
+        
+        installJumpActions(true);
+    }
+
+    /**
+     * Creates the component that will be placed in the middle of the TC
+     *
+     * @return created component != null
+     */
+    protected Component createCenterComponent() {
         treeTable = new MyTreeTable();
         //treeTable.setProperties(createColumns());
 	if (columns == null) {
@@ -390,24 +412,10 @@ public abstract class TaskListView extends ExplorerPanel
 			JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         treeTable.setHorizontalScrollBarPolicy(
 			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        centerPanel = new JPanel();
-        centerPanel.setLayout(new BorderLayout());
-        centerPanel.add(treeTable, BorderLayout.CENTER);
-        add(centerPanel, BorderLayout.CENTER); 
-
-        SystemAction actions[] = getToolBarActions();
-        if (actions != null) {
-            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
-            toolbar.setOrientation(JToolBar.VERTICAL);
-            add(toolbar, BorderLayout.WEST);
-        }
         
-	// Populate the view
-	showList();
-        
-        installJumpActions(true);
+        return treeTable;
     }
-
+    
     /** Called when the window is closed. Cleans up. */    
     protected void componentClosed() {
         hideTask();
@@ -1041,6 +1049,9 @@ public abstract class TaskListView extends ExplorerPanel
 	}
     }
 
+    public void structureChanged(Task t) {
+    }
+    
     /**  Return the tasklist shown in this view */
     public TaskList getList() {
 	return tasklist;

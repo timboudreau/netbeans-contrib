@@ -44,10 +44,18 @@ public interface TaskListener  {
     void removedTask(Task t);
 
     /**
-     * A task has been changed.
+     * A task has been changed (some properties has been changed).
      */
     void changedTask(Task t);
 
+    /**
+     * Invoked after the tree has drastically changed structure from a 
+     * given node down. 
+     *
+     * @param t parent of the changed subtree.
+     */
+    void structureChanged(Task t);
+    
     /** Called to indicate that a particular task should be hidden.
 	This typically means that the task was deleted so it should
 	no longer have any visual cues. The task referred to is the

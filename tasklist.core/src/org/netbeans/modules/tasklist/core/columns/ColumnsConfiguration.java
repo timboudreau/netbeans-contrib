@@ -82,14 +82,33 @@ public class ColumnsConfiguration {
     }
     
     /**
+     * Sets widths of the columns
+     *
+     * @param widths widths. This array will NOT be copied!
+     */
+    public void setWidths(int[] widths) {
+        this.widths = widths;
+    }
+    
+    /**
      * Returns names of the properties for visible columns
      *
-     * @return properties
+     * @return properties. != null
      */
     public String[] getProperties() {
         return properties;
     }
 
+    /**
+     * Sets visible columns.
+     *
+     * @param properties names of visible columns. != null
+     * This array will NOT be copied!
+     */
+    public void setProperties(String[] properties) {
+        this.properties = properties;
+    }
+    
     /**
      * Returns property of the column the view is sorted on or null.
      *
@@ -100,12 +119,30 @@ public class ColumnsConfiguration {
     }
     
     /**
+     * Sets the property of the sorted column
+     *
+     * @param s sorted column
+     */
+    public void setSortingColumn(String s) {
+        this.sortingColumn = s;
+    }
+    
+    /**
      * Returns sorting order
      *
      * @return true = ascending, false = descending
      */
     public boolean getSortingOrder() {
         return ascending;
+    }
+    
+    /**
+     * Sets sorting order
+     *
+     * @param ascending true = ascending
+     */
+    public void setSortingOrder(boolean ascending) {
+        this.ascending = ascending;
     }
     
     /**
@@ -233,7 +270,7 @@ public class ColumnsConfiguration {
     /**
      * Fires a change event
      */
-    private void fireChange() {
+    public void fireChange() {
         ChangeEvent e = null;
         for (int i = 0; i < listeners.size(); i++) {
             ChangeListener l = (ChangeListener) listeners.get(i);
