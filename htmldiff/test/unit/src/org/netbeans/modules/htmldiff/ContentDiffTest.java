@@ -229,6 +229,37 @@ public final class ContentDiffTest extends NbTestCase {
         assertChanged ("Change is bettween", diff.getClusters()[0]);
     }
     
+    public void testAlphabeticallySorted () throws Exception {
+        String[] pages = new String[1000];
+        String page = "000";
+        for (int i = 0; i < pages.length - 1;) {
+            pages[i] = page;
+            i++;
+            page = java.text.MessageFormat.format ("{0, number,000}", new Object[] { new Integer (i) });
+            pages[i] = "<a href=\"" + page + "\" />";
+            i++;
+                
+        }
+        pages[pages.length - 1] = "<a href=\"000\" />";
+        
+        ContentDiff diff = diff (pages, pages);
+        
+        assertNotNull (diff);
+        assertEquals ("One big cluster", 1, diff.getClusters().length);
+        
+        ContentDiff.Page[] arr = (ContentDiff.Page[])diff.getPages ().toArray (new ContentDiff.Page[0]);
+        
+        for (int i = 0; i < arr.length; i++) {
+            assertEquals ("Pages are correctly sorted at index " + i, pages[i * 2], arr[i].getFileName());
+        }
+        
+        arr = (ContentDiff.Page[])diff.getClusters()[0].getPages ().toArray (new ContentDiff.Page[0]);
+        
+        for (int i = 0; i < arr.length; i++) {
+            assertEquals ("Pages are correct in cluster at " + i, pages[i * 2], arr[i].getFileName());
+        }
+    }
+    
     public void testPercentageIsInheritedFromDependentClusters () throws Exception {
         String[] oldPages = {
             "root.html",  "<a href=\"index.html\">index</a>",

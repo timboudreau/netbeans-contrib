@@ -77,6 +77,7 @@ public final class DiffPages extends Object {
             File f = new File (out, p.getFileName ());
             f.getParentFile().mkdirs ();
             
+            System.out.println("Writing diff for " + p.getFileName());
             FileWriter w = new FileWriter (f);
             p.writeDiff (w);
             w.close ();
@@ -153,7 +154,9 @@ public final class DiffPages extends Object {
             if (f.isDirectory()) {
                 allRefs (f, pref + arr[i] + '/', res);
             } else {
-                res.add (pref + arr[i]);
+                if (arr[i].endsWith (".html")) {
+                    res.add (pref + arr[i]);
+                }
             }
         }
     }

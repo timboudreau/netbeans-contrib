@@ -56,7 +56,7 @@ public final class ContentDiff extends Object {
      * @return Set<Page>
      */
     public Set getPages () {
-        return new HashSet (allPages.values ());
+        return new TreeSet (allPages.values ());
     }
     
 
@@ -82,7 +82,7 @@ public final class ContentDiff extends Object {
             Set[] sets = ex.topologicalSets();
             clusters = new Cluster[sets.length];
             for (int i = 0; i < clusters.length; i++) {
-                HashSet s = new HashSet ();
+                Set s = new TreeSet ();
                 Iterator it = sets[i].iterator();
                 while (it.hasNext ()) {
                     String name = (String)it.next ();
@@ -148,7 +148,7 @@ public final class ContentDiff extends Object {
                     c = new ArrayList ();
                     deps.put (name, c);
                 }
-                c.add (s);
+                c.add (s.intern ());
             }
         }
         r.close ();        
@@ -308,7 +308,7 @@ public final class ContentDiff extends Object {
     
     /** Describes one page in old or new sources.
      */
-    public final class Page extends Object {
+    public final class Page extends Object implements Comparable {
         /** name of the page */
         private String name;
         /** added, removed or changed */
@@ -433,6 +433,12 @@ public final class ContentDiff extends Object {
             }
             
             return getDiff () * 100 / getSize ();
+        }
+        
+        /** Compares pages based on their name
+         */
+        public int compareTo (Object o) {
+            return getFileName ().compareTo (((Page)o).getFileName());
         }
         
     } // end of Page
