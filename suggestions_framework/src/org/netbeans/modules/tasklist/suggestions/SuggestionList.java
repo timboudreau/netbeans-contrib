@@ -44,7 +44,7 @@ public class SuggestionList extends TaskList {
      * the task into a sublevel with a category task containing the
      * tasks of that type.
      */
-    private static final int MAX_INLINE = 4;
+    private static final int MAX_INLINE = 20;
 
     static final Object CATEGORY_NODE_SEED = new Object();
 
