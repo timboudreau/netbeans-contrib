@@ -3,6 +3,16 @@ vcsgeneric/src/org/netbeans/modules/vcs/advanced/commands/Bundle.properties
 vcsgeneric/stdprofiles/vcs/commands/Bundle.properties
 vcsgeneric/stdprofiles/vcs/commands/passwd/Bundle.properties
 vcsgeneric/stdprofiles/vcs/config/Bundle.properties
+vcsgeneric/stdprofiles/vcs/config/pvcsUnixLoc_XX.xml
+vcsgeneric/stdprofiles/vcs/config/pvcsUnixLoc_ja.xml
+vcsgeneric/stdprofiles/vcs/config/pvcsWin98Loc_XX.xml
+vcsgeneric/stdprofiles/vcs/config/pvcsWin98Loc_ja.xml
+vcsgeneric/stdprofiles/vcs/config/pvcsWinLoc_XX.xml
+vcsgeneric/stdprofiles/vcs/config/pvcsWinLoc_ja.xml
+vcsgeneric/stdprofiles/vcs/config/vssWin98Loc_XX.xml
+vcsgeneric/stdprofiles/vcs/config/vssWin98Loc_ja.xml
+vcsgeneric/stdprofiles/vcs/config/vssWinLoc_XX.xml
+vcsgeneric/stdprofiles/vcs/config/vssWinLoc_ja.xml
 vcsgeneric/stdprofiles/vcs/list/Bundle.properties
 vcsgeneric/src/org/netbeans/modules/vcs/advanced/config/Bundle.properties
 vcsgeneric/src/org/netbeans/modules/vcs/advanced/variables/Bundle.properties
