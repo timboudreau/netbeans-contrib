@@ -78,6 +78,10 @@ public class AccessoryVariableNode extends AbstractNode {
         return var;
     }
 
+    public boolean canDestroy() {
+        return true;
+    }
+        
     protected SystemAction [] createActions() {
         ArrayList actions = new ArrayList();
         actions.add(SystemAction.get(NewAction.class));
@@ -88,6 +92,9 @@ public class AccessoryVariableNode extends AbstractNode {
                 delete();
             }
         });
+        if (Children.LEAF.equals(getChildren())) {  // Delete not present on the root node.
+            actions.add(delete);
+        }
         actions.add(null);
         actions.add(SystemAction.get(PropertiesAction.class));
         SystemAction[] array = new SystemAction [actions.size()];
@@ -126,10 +133,61 @@ public class AccessoryVariableNode extends AbstractNode {
         });
     }
     
+    /** Get the new types that can be created in this node.
+     */
+    public NewType[] getNewTypes() {
+        //if (list == null) return new NewType[0];
+        return new NewType[] { new NewVariable() };
+    }
+    
+    private final class NewVariable extends NewType {
+
+        public String getName() {
+            return org.openide.util.NbBundle.getBundle(AccessoryVariableNode.class).getString("CTL_NewVariable_ActionName");
+        }
+        
+        public void create() throws java.io.IOException {
+            NotifyDescriptor.InputLine input = new NotifyDescriptor.InputLine(
+                org.openide.util.NbBundle.getBundle(AccessoryVariableNode.class).getString("CTL_NewVariableName"),
+                org.openide.util.NbBundle.getBundle(AccessoryVariableNode.class).getString("CTL_NewVariableTitle")
+                );
+            //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
+            if (TopManager.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
+                return;
+
+            String labelName = input.getInputText();
+            String name = labelName.toUpperCase();
+            /* TODO:
+            if (existsVariableName(name)) {
+                NotifyDescriptor.Message message = new NotifyDescriptor.Message(
+                    org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_VariableNameAlreadyExists")
+                );
+                TopManager.getDefault().notify(message);
+                return ;
+            }
+             */
+            VcsConfigVariable var = new VcsConfigVariable(name, null, "", false, false, false, null);
+            AccessoryVariableNode newVar = new AccessoryVariableNode(var);
+            //CommandNode newCommand = new CommandNode(Children.LEAF, cmd);
+            Children ch;
+            if (Children.LEAF.equals(AccessoryVariableNode.this.getChildren())) {
+                ch = AccessoryVariableNode.this.getParentNode().getChildren();
+            } else {
+                ch = AccessoryVariableNode.this.getChildren();
+            }
+            ch.add(new Node[] { newVar });
+        }
+    }
+    
     /**
      * Deletes the current variable.
      */
     public void delete() {
+        try {
+            destroy();
+        } catch (java.io.IOException exc) {
+            // silently ignored
+        }
     }
     
     private String g(String name) {

@@ -38,7 +38,12 @@ public class BasicVariableNode extends AbstractNode {
     public BasicVariableNode(Children.SortedArray list) {
         super(list);
         init(list, null);
-        list.setComparator(new Comparator() {
+        list.setComparator(getComparator());
+        setDisplayName(g("CTL_BasicVarsName"));
+    }
+    
+    private Comparator getComparator() {
+        return new Comparator() {
             public int compare(Object o1, Object o2) {
                 if (!(o1 instanceof BasicVariableNode) || !(o2 instanceof BasicVariableNode)) throw new IllegalArgumentException();
                 VcsConfigVariable v1 = ((BasicVariableNode) o1).getVariable();
@@ -50,8 +55,7 @@ public class BasicVariableNode extends AbstractNode {
                 if (BasicVariableNode.this.var == null) return false;
                 return BasicVariableNode.this.var.equals(obj);
             }
-        });
-        setDisplayName(g("CTL_BasicVarsName"));
+        };
     }
     
     public BasicVariableNode(VcsConfigVariable var) {
@@ -72,12 +76,17 @@ public class BasicVariableNode extends AbstractNode {
     private void init(Children.SortedArray list, VcsConfigVariable var) {
         this.var = var;
         this.list = list;
+        getCookieSet().add(new VariablesIndex());
     }
     
     public VcsConfigVariable getVariable() {
         return var;
     }
     
+    public boolean canDestroy() {
+        return true;
+    }
+        
     protected SystemAction [] createActions() {
         ArrayList actions = new ArrayList();
         actions.add(SystemAction.get(MoveUpAction.class));
@@ -91,6 +100,9 @@ public class BasicVariableNode extends AbstractNode {
                 delete();
             }
         });
+        if (Children.LEAF.equals(getChildren())) {  // Delete not present on the root node.
+            actions.add(delete);
+        }
         actions.add(null);
         actions.add(SystemAction.get(PropertiesAction.class));
         SystemAction[] array = new SystemAction [actions.size()];
@@ -131,6 +143,7 @@ public class BasicVariableNode extends AbstractNode {
         set.put(new PropertySupport.ReadOnly("order", String.class, g("CTL_Order"), "") {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);
+                            //int order = ((Children.SortedArray) getChildren()).indexOf(this);
                             return Integer.toString(var.getOrder());
                         }
                 });
@@ -178,10 +191,101 @@ public class BasicVariableNode extends AbstractNode {
         });
     }
     
+    /** Get the new types that can be created in this node.
+     */
+    public NewType[] getNewTypes() {
+        //if (list == null) return new NewType[0];
+        return new NewType[] { new NewVariable() };
+    }
+    
+    private final class NewVariable extends NewType {
+
+        public String getName() {
+            return org.openide.util.NbBundle.getBundle(BasicVariableNode.class).getString("CTL_NewVariable_ActionName");
+        }
+        
+        public void create() throws java.io.IOException {
+            NotifyDescriptor.InputLine input = new NotifyDescriptor.InputLine(
+                org.openide.util.NbBundle.getBundle(BasicVariableNode.class).getString("CTL_NewVariableName"),
+                org.openide.util.NbBundle.getBundle(BasicVariableNode.class).getString("CTL_NewVariableTitle")
+                );
+            //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
+            if (TopManager.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
+                return;
+
+            String labelName = input.getInputText();
+            String name = labelName.toUpperCase();
+            /* TODO:
+            if (existsVariableName(name)) {
+                NotifyDescriptor.Message message = new NotifyDescriptor.Message(
+                    org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_VariableNameAlreadyExists")
+                );
+                TopManager.getDefault().notify(message);
+                return ;
+            }
+             */
+            VcsConfigVariable var = new VcsConfigVariable(name, labelName, "", true, false, false, null, BasicVariableNode.this.getChildren().getNodes().length);
+            BasicVariableNode newVar = new BasicVariableNode(var);
+            //CommandNode newCommand = new CommandNode(Children.LEAF, cmd);
+            Children ch;
+            if (Children.LEAF.equals(BasicVariableNode.this.getChildren())) {
+                ch = BasicVariableNode.this.getParentNode().getChildren();
+            } else {
+                ch = BasicVariableNode.this.getChildren();
+            }
+            ch.add(new Node[] { newVar });
+        }
+    }
+    
+    private final class VariablesIndex extends org.openide.nodes.Index.Support {
+        
+        /**
+         * Get the nodes sorted by this index.
+         * @return the nodes
+         */
+        public Node[] getNodes() {
+            return BasicVariableNode.this.getChildren().getNodes();
+        }
+        
+        /** Get the node count.
+         * @return the count
+         */
+        public int getNodesCount() {
+            return getNodes().length;
+        }
+        
+        /** Reorder by permutation.
+         * @param perm the permutation
+         */
+        public void reorder(int[] perm) {
+            Children children = BasicVariableNode.this.getChildren();
+            /*
+            if (children instanceof Index.ArrayChildren) {
+                Index.ArrayChildren achildren = (Index.ArrayChildren) children;
+                achildren.reorder(perm);
+            }
+             */
+            Node[] nodes = children.getNodes();
+            for (int i = 0; i < nodes.length; i++) {
+                BasicVariableNode varNode = (BasicVariableNode) nodes[i];
+                VcsConfigVariable var = varNode.getVariable();
+                var.setOrder(perm[i]);
+                varNode.firePropertyChange(Node.PROP_PROPERTY_SETS, null, null);
+            }
+            // reset the comparator to refresh node order
+            ((Children.SortedArray) children).setComparator(getComparator());
+        }
+    }
+    
     /**
      * Deletes the current variable.
      */
     public void delete() {
+        try {
+            destroy();
+        } catch (java.io.IOException exc) {
+            // silently ignored
+        }
     }
     
     private String g(String name) {
