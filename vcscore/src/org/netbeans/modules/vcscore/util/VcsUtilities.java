@@ -66,6 +66,20 @@ public class VcsUtilities {
         if (i < len) return i;
         else return -1;
     }
+    
+    /**
+     * Returns the number of characters in the specified string.
+     * @param str the string
+     * @param c the character
+     */
+    public static int charCount(String str, char c) {
+        int len = str.length();
+        int count = 0;
+        for (int i = 0; i < len; i++) {
+            if (str.charAt(i) == c) count++;
+        }
+        return count;
+    }
 
     //-------------------------------------------
     public static String arrayToString(String []sa){
