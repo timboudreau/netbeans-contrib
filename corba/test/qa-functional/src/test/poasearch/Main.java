@@ -98,7 +98,7 @@ public class Main extends JellyTestCase {
                 fsroot = fs.getDisplayName ();
             System.out.println (fsroot);
         } catch (Exception e) {
-            new AssertionFailedErrorException ("Error while mounting working filesystem - data/poasearch", e);
+            throw new AssertionFailedErrorException ("Error while mounting working filesystem - data/poasearch", e);
         }
         Environment.loadORBEnvironment("JDK14");
     }
