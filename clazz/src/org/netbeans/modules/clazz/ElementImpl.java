@@ -59,11 +59,22 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
   public Node.Cookie getCookie(Class type) {
     return null;
   }
+
+  /** Mark the current element in the context of this element.
+  * The current element means the position for inserting new elements.
+  * @param beforeAfter <CODE>true</CODE> means that new element is inserted before
+  *        the specified element, <CODE>false</CODE> means after.
+  */
+  public void markCurrent(boolean beforeAfter) {
+    // nothing to do - class is not editable
+  }
   
 }
 
 /*
 * Log
+*  6    src-jtulach1.5         7/8/99   Petr Hamernik   interface Element.Impl 
+*       changes
 *  5    src-jtulach1.4         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  4    src-jtulach1.3         3/18/99  Petr Hamernik   
