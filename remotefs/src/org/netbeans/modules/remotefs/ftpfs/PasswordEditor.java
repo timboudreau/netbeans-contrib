@@ -23,9 +23,9 @@ import org.openide.explorer.propertysheet.editors.*;
 /** Password editor.
  *
  * @author  Libor Martinek
- * @version 1.0
+ * @version 1.1
  */
-public class PasswordEditor implements EnhancedPropertyEditor, ActionListener {
+public class PasswordEditor implements EnhancedPropertyEditor, ActionListener, FocusListener {
 
   private String password;
   private PropertyChangeSupport support;
@@ -52,6 +52,7 @@ public class PasswordEditor implements EnhancedPropertyEditor, ActionListener {
     if (field == null) {
       field = new JPasswordField();
       field.addActionListener(this);
+      field.addFocusListener(this);
     }
     if (password != null) {
       field.setText(password);
@@ -107,5 +108,13 @@ public class PasswordEditor implements EnhancedPropertyEditor, ActionListener {
   public void actionPerformed(ActionEvent ev) {
     setValue(new String(field.getPassword()));
   }
+  
+  public void focusGained(final java.awt.event.FocusEvent p1) {
+  }
+
+  public void focusLost(final java.awt.event.FocusEvent p1) {
+      setValue(new String(field.getPassword()));
+  }
+
 }
 
