@@ -48,6 +48,7 @@ import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 
 
 
@@ -93,26 +94,27 @@ public class ActionsFactory {
         File editor = findLideClient();
         
         if (editor != null) {
-            System.err.println("editor=" + editor.getAbsolutePath());
+            ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "editor=" + editor.getAbsolutePath());
             
             p.setProperty("xdvi.editor.format", editor.getAbsolutePath() + " -- -folder " + project.getProjectInternalDir().getParentFile().getAbsolutePath() + " -scroll %f?*?%l?*?%c");
         } else {
-            System.err.println("The lide-client binary not found!");
+            ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "The lide-client binary not found!");
         }
         
         JEditorPane lastPane = Utilities.getDefault().getLastActiveEditorPane();
         
         if (lastPane != null) {
             Document    lastDocument = lastPane.getDocument();
-//            LaTeXSource lastSource = Utilities.getDefault().getSource(lastDocument);
-//            
-//            if (source != null && source == lastSource) {
-                File source = FileUtil.toFile((FileObject) Utilities.getDefault().getFile(lastDocument));
+            FileObject  lastDocumentFO = (FileObject) Utilities.getDefault().getFile(lastDocument);
+            File        lastDocumentFile = FileUtil.toFile(lastDocumentFO);
+            File        mainFile = FileUtil.toFile(project.getMasterFile());
+
+            if (lastDocumentFile != null && project.contains(lastDocumentFO)) {
                 int  line   = NbDocument.findLineNumber((StyledDocument) lastDocument, lastPane.getCaret().getDot());
                 
-                p.setProperty("xdvi.filename", source.getName());//TODO: relative path to the main file should probably go here...
+                p.setProperty("xdvi.filename", org.netbeans.modules.latex.guiproject.Utilities.findShortestName(mainFile, lastDocumentFile));//TODO: relative path to the main file should probably go here...
                 p.setProperty("xdvi.linenumber", String.valueOf(line));
-//            }
+            }
         }
     }
     

@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -119,8 +119,11 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
     
     private void updateDocumentVersion() {
         LaTeXSource source = LaTeXSource.get(org.netbeans.modules.latex.model.Utilities.getDefault().getFile(document));
+        long result = source.getDocumentVersion();
         
-        documentVersion = source.getDocumentVersion();
+        synchronized (ColoringEvaluator.this) {
+            documentVersion = result;
+        }
     }
     
     public void addComponent(JTextComponent jtc) {
@@ -347,8 +350,6 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         LaTeXSource source = LaTeXSource.get(org.netbeans.modules.latex.model.Utilities.getDefault().getFile(document));
         
         if (source != null && (source.isUpToDate() || source.getDocument() == null)) {
-            LaTeXSource.Lock lock = null;
-            
             try {
                 if (source.getDocument() == null) {
                     LaTeXSource.Lock lock1 = null;
@@ -360,20 +361,12 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
                         }
                     }
                 }
-                if (false) {
-                    lock = source.lock(false);
-                    
-                    if (lock ==null) {
-                        lock = source.lock(true);
-                    }
-                }
                 
-                if (true || lock != null) {
-                    long start = System.currentTimeMillis();
-                    int  offset = org.netbeans.modules.latex.editor.Utilities.getTokenOffset(document, token);
-                    Node node  = source.findNode(document, offset);
-                    long end   = System.currentTimeMillis();
-                    
+                long start = System.currentTimeMillis();
+                int  offset = org.netbeans.modules.latex.editor.Utilities.getTokenOffset(document, token);
+                Node node  = source.findNode(document, offset);
+                long end   = System.currentTimeMillis();
+                
 /*                        if (!(node instanceof CommandNode)) {
                             System.err.println("Finding a node spent: " + (end - start));
                             System.err.println("token=" + token.getText().toString() + ", node=" + node);
@@ -390,31 +383,27 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
                             } catch (InterruptedException e) {
                             }
                         }*/
-                    
-                    if (node != null) {
-                        if (node instanceof CommandNode) {
-                            CommandNode cnode = (CommandNode) node;
+                
+                if (node != null) {
+                    if (node instanceof CommandNode) {
+                        CommandNode cnode = (CommandNode) node;
+                        
+                        if (cnode.isValid())
+                            proposed = getColoringForName(TexColoringNames.COMMAND_CORRECT).apply(proposed);
+                        else
+                            proposed = getColoringForName(TexColoringNames.COMMAND_INCORRECT).apply(proposed);
+                    } else {
+                        if (node instanceof ArgumentNode) {
+                            ArgumentNode anode = (ArgumentNode) node;
                             
-                            if (cnode.isValid())
-                                proposed = getColoringForName(TexColoringNames.COMMAND_CORRECT).apply(proposed);
-                            else
-                                proposed = getColoringForName(TexColoringNames.COMMAND_INCORRECT).apply(proposed);
-                        } else {
-                            if (node instanceof ArgumentNode) {
-                                ArgumentNode anode = (ArgumentNode) node;
-                                
-                                if (anode.getArgument().hasAttribute(Command.Param.ATTR_NO_PARSE)) {
-                                    proposed = getColoringForName(TexColoringNames.DEFINITION).apply(proposed);
-                                }
+                            if (anode.getArgument().hasAttribute(Command.Param.ATTR_NO_PARSE)) {
+                                proposed = getColoringForName(TexColoringNames.DEFINITION).apply(proposed);
                             }
                         }
                     }
                 }
             } catch (IOException e) {
                 ErrorManager.getDefault().notify(e);
-            } finally {
-                if (lock != null)
-                    source.unlock(lock);
             }
         }
         
@@ -422,13 +411,19 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
     }
 
     private Coloring findWordColoring(Token token, Coloring proposed) {
+        boolean doSpell = true;
+        
+        //no spelling for tokens inside the math mode (temporary, untill MathNode is created in structure:
+        if (Boolean.TRUE == TokenAttributes.getTokenAttribute(token, TokenAttributesNames.IS_IN_MATH))
+            doSpell = false;
+        
+        //no spelling for tokens shorter than 3 letters (hopefully no problem):
+        if (token.getText().length() < 3)
+            doSpell = false;
+        
         LaTeXSource source = LaTeXSource.get(org.netbeans.modules.latex.model.Utilities.getDefault().getFile(document));
         
         if (source != null && (source.isUpToDate() || source.getDocument() == null)) {
-            Dictionary dictionary = Dictionary.getDictionary(source.getDocumentLocale());
-            
-            LaTeXSource.Lock lock = null;
-            
             try {
                 if (source.getDocument() == null) {
                     LaTeXSource.Lock lock1 = null;
@@ -440,74 +435,49 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
                         }
                     }
                 }
-                if (false) {
-                    lock = source.lock(false);
-                    
-                    if (lock ==null) {
-                        lock = source.lock(true);
-                    }
-                }
+                long start = System.currentTimeMillis();
+                int  offset = org.netbeans.modules.latex.editor.Utilities.getTokenOffset(document, token);
+                Node node  = source.findNode(document, offset);
+                long end   = System.currentTimeMillis();
                 
-                if (true || lock != null) {
-                    long start = System.currentTimeMillis();
-                    int  offset = org.netbeans.modules.latex.editor.Utilities.getTokenOffset(document, token);
-                    Node node  = source.findNode(document, offset);
-                    long end   = System.currentTimeMillis();
-                    boolean doSpell = true;
-                    
-/*                        if (!(node instanceof CommandNode)) {
-                            System.err.println("Finding a node spent: " + (end - start));
-                            System.err.println("token=" + token.getText().toString() + ", node=" + node);
-                            System.err.println("offset=" + offset);
-                            TextNode tn = (TextNode) node.getParent();
- 
-                            for (int cntr = 0; cntr < tn.getChildrenCount(); cntr++) {
-                                Node n = tn.getChild(cntr);
- 
-                                System.err.println(cntr + "=" + n);
-                            }
-                            try {
-                            Thread.sleep(40000);
-                            } catch (InterruptedException e) {
-                            }
-                        }*/
-                    
-                    if (node != null) {
-                        if (node instanceof ArgumentNode) {
-                            ArgumentNode anode = (ArgumentNode) node;
+                if (node != null) {
+                    if (node instanceof ArgumentNode) {
+                        ArgumentNode anode = (ArgumentNode) node;
+                        
+                        if (anode.getArgument().isEnumerable()) {
+                            doSpell = false;
                             
-                            if (anode.getArgument().isEnumerable()) {
+                            if (anode.isValidEnum()) {
+                                proposed = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT).apply(proposed);
+                            } else {
+                                proposed = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT).apply(proposed);
+                            }
+                        } else {
+                            CommandNode cnode = anode.getCommand();
+                            
+                            Node parent = cnode.getParent();
+                            
+                            if (parent instanceof BlockNode) {
                                 doSpell = false;
                                 
-                                if (anode.isValidEnum()) {
+                                BlockNode bnode = (BlockNode) parent;
+                                Environment env = source.getEnvironment(bnode.getStartingPosition(), bnode.getBlockName());
+                                
+                                if (env != null) {
                                     proposed = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT).apply(proposed);
                                 } else {
                                     proposed = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT).apply(proposed);
                                 }
                             } else {
-                                CommandNode cnode = anode.getCommand();
-                                
-                                Node parent = cnode.getParent();
-                                
-                                if (parent instanceof BlockNode) {
-                                    doSpell = false;
-                                    
-                                    BlockNode bnode = (BlockNode) parent;
-                                    Environment env = source.getEnvironment(bnode.getStartingPosition(), bnode.getBlockName());
-                                    
-                                    if (env != null) {
-                                        proposed = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT).apply(proposed);
-                                    } else {
-                                        proposed = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT).apply(proposed);
-                                    }
-                                } else {
-                                    doSpell = !anode.getArgument().isCodeLike();
-                                }
+                                doSpell = !anode.getArgument().isCodeLike();
                             }
                         }
                     }
-                    
-                    if (dictionary != null && !dictionary.isEmpty() && doSpell) {
+                }
+                
+                if (doSpell) {
+                    Dictionary dictionary = Dictionary.getDictionary(source.getDocumentLocale());
+                    if (dictionary != null && !dictionary.isEmpty()) {
                         CharSequence word = token.getText();
                         
                         if (word.length() != 0) {
@@ -525,9 +495,6 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
                 }
             } catch (IOException e) {
                 ErrorManager.getDefault().notify(e);
-            } finally {
-                if (lock != null)
-                    source.unlock(lock);
             }
         }
         

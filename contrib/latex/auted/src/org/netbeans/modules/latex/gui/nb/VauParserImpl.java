@@ -394,13 +394,16 @@ public final class VauParserImpl {
                 return null;
             }
             
-            try {
-                String position = command.getArgument(0).getFullText().toString().replaceFirst("\\[(.*)\\]", "$1");
-                double labelPosition = Double.parseDouble(position);
-                
-                node.setLabelPosition(labelPosition);
-            } catch (NumberFormatException e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            if (command.getArgument(0).isPresent()) {
+                try {
+                    String position = command.getArgument(0).getFullText().toString().replaceFirst("\\[(.*)\\]", "$1");
+                    double labelPosition = Double.parseDouble(position);
+                    
+                    node.setLabelPosition(labelPosition);
+                } catch (NumberFormatException e) {
+                    ErrorManager.getDefault().annotate(e, ErrorManager.INFORMATIONAL, "VauParserImpl.AbstractEdgeParser, trying to parse: " + command.getArgument(0).getFullText().toString() + " for command: " + command.getCommand().getCommand(), null, null, null);
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                }
             }
             
             node.setOrientation(isLeft ? EdgeNode.LEFT : EdgeNode.RIGHT);
@@ -491,13 +494,16 @@ public final class VauParserImpl {
             
             LoopEdgeNode lineEdge  = new LoopEdgeNode((StateNode) leftState);
             
-            try {
-                String position = command.getArgument(0).getFullText().toString().replaceFirst("\\[(.*)\\]", "$1");
-                double labelPosition = Double.parseDouble(position);
-                
-                lineEdge.setLabelPosition(labelPosition);
-            } catch (NumberFormatException e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            if (command.getArgument(0).isPresent()) {
+                try {
+                    String position = command.getArgument(0).getFullText().toString().replaceFirst("\\[(.*)\\]", "$1");
+                    double labelPosition = Double.parseDouble(position);
+                    
+                    lineEdge.setLabelPosition(labelPosition);
+                } catch (NumberFormatException e) {
+                    ErrorManager.getDefault().annotate(e, ErrorManager.INFORMATIONAL, "VauParserImpl.AbstractEdgeParser, trying to parse: " + command.getArgument(0).getFullText().toString() + " for command: " + command.getCommand().getCommand(), null, null, null);
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                }
             }
 
             lineEdge.setDirection(orientation);

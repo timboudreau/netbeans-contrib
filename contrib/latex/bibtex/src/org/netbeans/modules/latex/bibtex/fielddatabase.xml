@@ -82,4 +82,27 @@
         </optional-attributes>
     </type>
     
+    <type name="INCOLLECTION">
+        <required-attributes>
+            <attribute>author</attribute>
+            <attribute>title</attribute>
+            <attribute>booktitle</attribute>
+            <attribute>publisher</attribute>
+            <attribute>year</attribute>
+        </required-attributes>
+        <optional-attributes>
+            <attribute>editor</attribute>
+            <attribute>volume</attribute>
+            <attribute>number</attribute>
+            <attribute>series</attribute>
+            <attribute>type</attribute>
+            <attribute>chapter</attribute>
+            <attribute>pages</attribute>
+            <attribute>address</attribute>
+            <attribute>edition</attribute>
+            <attribute>month</attribute>
+            <attribute>note</attribute>
+        </optional-attributes>
+    </type>
+    
 </types>

@@ -182,6 +182,9 @@ public abstract class NodeImpl implements Node {
         if (doc == null)
             throw new IllegalStateException();
         
+        if (start.getOffset().getOffset() == end.getOffset().getOffset()) //the node is empty
+            return Collections.EMPTY_LIST.iterator();
+        
         TokenRootElement tre    = getTokenRootElement(doc);
         List             result = new ArrayList();
         

@@ -58,6 +58,7 @@ public class ParserInput implements DocumentListener {
         changed = false;
         AbstractDocument ad = (AbstractDocument) Utilities.getDefault().openDocument(fo);
         
+        //TODO: ad may be null. is there something that can be done?:
         ad.addDocumentListener(this);
         
         documents.add(ad);

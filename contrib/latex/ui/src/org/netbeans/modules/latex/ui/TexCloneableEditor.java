@@ -27,6 +27,7 @@ import org.netbeans.modules.latex.editor.TexKit;
 import org.netbeans.modules.latex.loaders.TexCloneableEditorCreatorJustForUI;
 import org.netbeans.modules.latex.loaders.TexEditorSupport;
 import org.openide.text.CloneableEditor;
+import org.openide.util.RequestProcessor;
 import org.openide.util.actions.CallbackSystemAction;
 import org.openide.util.actions.SystemAction;
 
@@ -77,9 +78,14 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
     }
     
     private void prepareActions() {
-        bindAction(CiteAction.class, ActionsFactory.CITE_ACTION);
-        bindAction(RefAction.class, ActionsFactory.REF_ACTION);
-        bindAction(CountWordsAction.class, ActionsFactory.WORD_COUNT_ACTION);
+        //There was a deadlock during startup, trying to workaround it:
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                bindAction(CiteAction.class, ActionsFactory.CITE_ACTION);
+                bindAction(RefAction.class, ActionsFactory.REF_ACTION);
+                bindAction(CountWordsAction.class, ActionsFactory.WORD_COUNT_ACTION);
+            }
+        });
     }
     
     public void focusGained(FocusEvent e) {

@@ -52,7 +52,7 @@ Contributor(s): Jan Lahoda
     </folder>
     
     <folder name="Menu">
-      <folder name="BuildProject">
+      <folder name="RunProject">
             <file name="Show.shadow">
 	        <attr name="originalFile" stringvalue="Actions/Project/Show.instance" />
             </file>

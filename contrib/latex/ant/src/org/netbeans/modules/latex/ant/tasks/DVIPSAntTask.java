@@ -76,7 +76,7 @@ public class DVIPSAntTask extends Task {
 //        }
         
         cmdLine.addArguments(Commandline.translateCommandline(arguments));
-        cmdLine.addArguments(new String[] {dviFile.getAbsolutePath() /*, "-o", psFile*/});
+        cmdLine.addArguments(new String[] {dviFile.getAbsolutePath() , "-o", psFile.getAbsolutePath()});
         
         Execute exec = new Execute();
         
