@@ -68,7 +68,7 @@ abstract class ClassDataNode extends DataNode
         /* Changed for multiple factories
         super(obj, new SourceChildren(ClassElementNodeFactory.getInstance()));
         */
-        this(obj, new SourceChildren( ClassDataObject.getExplorerFactory()) );
+        this(obj, new LazySourceChildren( obj, ClassDataObject.getExplorerFactory()) );
     }
     
     protected ClassDataNode(ClassDataObject obj, Children ch) {
@@ -91,9 +91,7 @@ abstract class ClassDataNode extends DataNode
     protected abstract void requestResolveIcon();
 
     private void initialize () {
-        SourceCookie sc =
-            (SourceCookie)getDataObject().getCookie(SourceCookie.class);
-        getSourceChildren().setElement(sc.getSource());
+        
         setIconBase(initialIconBase());
         /* Disable the icon resolution - for now.
          *
