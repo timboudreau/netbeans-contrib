@@ -29,6 +29,11 @@ public class VcsUtilities {
     
     private static final String GET_BUNDLE = "getBundle(";
 
+    private static final String SYSTEM_ENV_PREFIX = "Env-";
+
+    private static HashMap systemEnvVariables = null;
+    private static final Object systemEnvVariablesLock = new Object();
+
 
     //-------------------------------------------
     public static int max3(int v1, int v2, int v3){
@@ -438,6 +443,55 @@ public class VcsUtilities {
     }
     
     /**
+     * Get just the system environment variables.
+     */
+    public static Map getSystemEnvVars() {
+        if (systemEnvVariables == null) {
+            synchronized (systemEnvVariablesLock) {
+                if (systemEnvVariables == null) {
+                    systemEnvVariables = new HashMap();
+                    for (Enumeration enum = System.getProperties().propertyNames(); enum.hasMoreElements(); ) {
+                        String key = (String) enum.nextElement();
+                        if (key.startsWith(SYSTEM_ENV_PREFIX)) {
+                            String value = (String) System.getProperty(key);
+                            if (value != null) {
+                                systemEnvVariables.put(key.substring(SYSTEM_ENV_PREFIX.length()), value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return systemEnvVariables;
+    }
+    
+    /**
+     * Add environment variables from the variables table.
+     */
+    public static Map addEnvVars(Map envVars, Hashtable vars, String varEnvPrefix) {
+        for (Enumeration enum = vars.keys(); enum.hasMoreElements(); ) {
+            String key = (String) enum.nextElement();
+            if (key.startsWith(varEnvPrefix)) {
+                String value = (String) vars.get(key);
+                if (value != null) {
+                    envVars.put(key.substring(varEnvPrefix.length()), value);
+                }
+            }
+        }
+        return envVars;
+    }
+    
+    public static String[] getEnvString(Map envVars) {
+        String[] vars = new String[envVars.size()];
+        int i = 0;
+        for (Iterator it = envVars.entrySet().iterator(); it.hasNext(); i++) {
+            Map.Entry entry = (Map.Entry) it.next();
+            vars[i] = entry.getKey()+"="+entry.getValue();
+        }
+        return vars;
+    }
+
+    /**
      * Creates a temporary directory.
      */
     public static File createTMP() {
@@ -460,18 +514,3 @@ public class VcsUtilities {
     }
 
 }
-
-/*
- * $Log: 
- *  8    Gandalf-post-FCS1.6.1.0     04/04/00 Martin Entlicher
- *       removeEnterFromKeymap() added.
- *  7    Gandalf   1.6         01/07/00 Martin Entlicher 
- *  6    Gandalf   1.5         11/23/99 Martin Entlicher 
- *  5    Gandalf   1.4         10/26/99 Martin Entlicher 
- *  4    Gandalf   1.3         10/26/99 Martin Entlicher 
- *  3    Gandalf   1.2         10/25/99 Pavel Buzek     
- *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  1    Gandalf   1.0         09/30/99 Pavel Buzek     
- * $
- */
