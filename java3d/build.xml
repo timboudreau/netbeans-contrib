@@ -17,19 +17,17 @@ Microsystems, Inc. All Rights Reserved.
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="../nbbuild/standard-nbm-license.txt"/>
+  <property name="build.compiler.debug" value="on"/>
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../nbbuild/nbantext.jar"/>
 
   <target name="compile">
-    <ant dir="J3dEditor_2.0/src" target="compile"/>
+    <ant dir="J3dEditor_2.0" target="compile"/>
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath>
         <fileset dir="../openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-       <pathelement location="release/lib/ext/vrml97.jar"/>
-       <pathelement location="release/lib/ext/portfolio.jar"/>
-       <pathelement location="release/lib/ext/StarfireExt.jar"/>
        <pathelement location="J3dFly_2.0/src"/>
        <pathelement location="J3dEditor_2.0/src"/>
        <pathelement location="../core/netbeans/lib/core.jar"/>
@@ -38,7 +36,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <ant dir="J3dEditor_2.0/src" target="jars"/>
+    <ant dir="J3dEditor_2.0" target="jars"/>
     <mkdir dir="release/lib/ext"/>
     <copy file="J3dEditor_2.0/lib/j3dedit.jar" tofile="release/lib/ext/j3dedit.jar"/>
     <copy file="J3dFly_2.0/lib/j3dfly-utils.jar" tofile="release/lib/ext/j3dfly-utils.jar"/>
@@ -74,10 +72,9 @@ Microsystems, Inc. All Rights Reserved.
     </makenbm>
   </target>
 
-  <target name="bundle">
+  <target name="bundle" depends="nbm" >
       <property name="dailyBuild" value="true"/>
       <tstamp/>
-<!--      <antcall target="nbm"/>-->
       <tar tarfile="release_2.0_beta_${DSTAMP}.tar"
            basedir="."
            excludes="**/CVS"
@@ -101,7 +98,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="clean">
-  <ant dir="J3dEditor_2.0/src" target="clean"/>
+  <ant dir="J3dEditor_2.0" target="clean"/>
   <delete>
       <fileset dir="src">
         <include name="**/*.class"/>
