@@ -124,7 +124,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         if (fo == null) {
             javax.swing.SwingUtilities.invokeLater(new Runnable () {
                 public void run () {
-                    TopManager.getDefault ().notify (new NotifyDescriptor.Message (CommandLineVcsFileSystem.this.g("DLG_ConfigurationPathNotFound", CONFIG_ROOT)));
+                    TopManager.getDefault ().notify (new NotifyDescriptor.Message (CommandLineVcsFileSystem.this.clg("DLG_ConfigurationPathNotFound", CONFIG_ROOT)));
                 }
             });
         } else {
@@ -179,7 +179,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
         if (dir.mkdirs() == false) {
             //E.err(g("MSG_UnableToCreateDirectory", path)); // NOI18N
-            debug(g("MSG_UnableToCreateDirectory", path)); // NOI18N
+            debug(clg("MSG_UnableToCreateDirectory", path)); // NOI18N
         }
     }
     
@@ -493,7 +493,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
 
-    protected String g(String s) {
+    private String clg(String s) {
         //D.deb("getting "+s);
         if (resourceBundle == null) {
             synchronized (this) {
@@ -503,6 +503,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             }
         }
         return resourceBundle.getString (s);
+    }
+    
+    private String clg(String s, Object obj) {
+        return MessageFormat.format (clg(s), new Object[] { obj });
     }
 }
 
