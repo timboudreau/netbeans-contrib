@@ -45,14 +45,3 @@ public interface DirReaderListener {
     public void readDirFinishedRecursive(String path, VcsDirContainer rawData, boolean success);
 
 }
-
-/*
- * Log
- *  5    Jaga      1.3.1.0     3/8/00   Martin Entlicher Recursive refresh added.
- *  4    Gandalf   1.3         12/21/99 Martin Entlicher 
- *  3    Gandalf   1.2         10/25/99 Pavel Buzek     copyright and log
- *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
- */

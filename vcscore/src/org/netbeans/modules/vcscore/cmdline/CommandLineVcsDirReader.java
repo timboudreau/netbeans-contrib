@@ -574,30 +574,3 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
     //-------------------------------------------
 
 }
-
-/*
- * Log
- *  19   Gandalf-post-FCS1.17.1.0    4/4/00   Martin Entlicher setPath fix
- *  18   Gandalf   1.17        2/10/00  Martin Entlicher Automatic refresh after 
- *       last command only.
- *  17   Gandalf   1.16        1/18/00  Martin Entlicher 
- *  16   Gandalf   1.15        1/15/00  Ian Formanek    NOI18N
- *  15   Gandalf   1.14        1/6/00   Martin Entlicher 
- *  14   Gandalf   1.13        1/3/00   Martin Entlicher 
- *  13   Gandalf   1.12        12/29/99 Martin Entlicher Debug messages added.
- *  12   Gandalf   1.11        12/28/99 Martin Entlicher 
- *  11   Gandalf   1.10        12/21/99 Martin Entlicher 
- *  10   Gandalf   1.9         12/14/99 Martin Entlicher Output listener added
- *  9    Gandalf   1.8         11/30/99 Martin Entlicher 
- *  8    Gandalf   1.7         11/23/99 Martin Entlicher 
- *  7    Gandalf   1.6         10/25/99 Pavel Buzek     
- *  6    Gandalf   1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  5    Gandalf   1.4         10/12/99 Martin Entlicher 
- *  4    Gandalf   1.3         10/12/99 Pavel Buzek     
- *  3    Gandalf   1.2         10/10/99 Pavel Buzek     
- *  2    Gandalf   1.1         10/5/99  Pavel Buzek     VCS at least can be 
- *       mounted
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
- */

@@ -158,18 +158,3 @@ public class ChooseFileDialog extends JDialog {
 
 
 }
-
-/*
- * Log
- *  8    Gandalf   1.7         1/17/00  Martin Entlicher 
- *  7    Gandalf   1.6         1/6/00   Martin Entlicher 
- *  6    Gandalf   1.5         12/15/99 Martin Entlicher 
- *  5    Gandalf   1.4         11/27/99 Patrik Knakal   
- *  4    Gandalf   1.3         10/25/99 Pavel Buzek     copyright and log
- *  3    Gandalf   1.2         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  2    Gandalf   1.1         10/5/99  Pavel Buzek     VCS at least can be 
- *       mounted
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
- */

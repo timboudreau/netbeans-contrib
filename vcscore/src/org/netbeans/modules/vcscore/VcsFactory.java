@@ -78,14 +78,3 @@ public interface VcsFactory {
     public VcsCommandExecutor getCommandExecutor(VcsCommand command, Hashtable variables);
 
 }
-
-/*
- * Log
- *  4    Jaga      1.2.1.0     3/8/00   Martin Entlicher Recursive VcsDir Reader 
- *       added
- *  3    Gandalf   1.2         10/25/99 Pavel Buzek     copyright and log
- *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
- */

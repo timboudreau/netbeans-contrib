@@ -94,19 +94,3 @@ public class NotifyDescriptorInputPassword extends NotifyDescriptor.InputLine {
         super (text, title, optionType, messageType);
     }
 }
-/*
- * Log
- *  10   Gandalf   1.9         2/8/00   Martin Entlicher Action on Enter added.
- *  9    Gandalf   1.8         1/15/00  Ian Formanek    NOI18N
- *  8    Gandalf   1.7         1/7/00   Martin Entlicher 
- *  7    Gandalf   1.6         1/6/00   Martin Entlicher 
- *  6    Gandalf   1.5         1/6/00   Jan Jancura     Icon removed from 
- *       NotifyDescriptor
- *  5    Gandalf   1.4         11/9/99  Martin Entlicher 
- *  4    Gandalf   1.3         10/25/99 Pavel Buzek     copyright and log
- *  3    Gandalf   1.2         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  2    Gandalf   1.1         10/13/99 Pavel Buzek     
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
- */

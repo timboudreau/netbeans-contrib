@@ -64,14 +64,3 @@ public abstract class VcsListCommand extends Object {
 
 
 }
-/*
- * Log
- *  6    Jaga      1.4.1.0     3/8/00   Martin Entlicher 
- *  5    Gandalf   1.4         1/6/00   Martin Entlicher 
- *  4    Gandalf   1.3         12/14/99 Martin Entlicher Listeners added
- *  3    Gandalf   1.2         10/25/99 Pavel Buzek     
- *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
- */
