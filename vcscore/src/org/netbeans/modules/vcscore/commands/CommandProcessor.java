@@ -120,11 +120,10 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     
     /**
      * The threads pool that is used to execute commands.
-     * Use a private threads pool for commands execution.
-     * This is necessary so that commands can not be accidentally started from
-     * a thread, that is later used as an execution thread for another command.
      */
-    private CommandsThreadsPool threadsPool;
+    private RequestProcessor threadsPool;
+    
+    private ThreadLocal threadTaskInfo;
     
     /** Map of instances of VcsCommandProvider and associated list of command
      * process listeners. */
@@ -148,9 +147,8 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         //outputContainers = new Hashtable();
         //outputVisualizers = new Hashtable();
         numRunningListCommands = 0;
-        threadsPool = new CommandsThreadsPool();
-        //group = new ThreadGroup("VCS Commands Group");
-        //executorStarterLoop();
+        threadsPool = RequestProcessor.getDefault();
+        threadTaskInfo = new ThreadLocal();
     }
     
     /**
@@ -209,7 +207,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
      */
     public synchronized void process(CommandTaskInfo info) {
         taskInfos.put(info.getTask(), info);
-        info.setSubmittingThread(Thread.currentThread());
+        info.setSubmittingInfo((CommandTaskInfo) threadTaskInfo.get());
         taskWaitQueue.add(info);
         notifyAll();
         if (!execStarterLoopStarted) {
@@ -625,16 +623,18 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     
     private synchronized void executorStarter(final CommandTaskInfo cw) {
         tasksRunning.add(cw);
-        threadsPool.processCommand(new Runnable() {
+        threadsPool.post(new Runnable() {
         //new Thread(new Runnable() {
             public void run() {
                 VcsCommandExecutor vce;
-                synchronized (CommandProcessor.this) {
-                    //vce = cw.getExecutor();
-                    cw.setRunningThread(Thread.currentThread());
-                    if (isListCommandTask(cw.getTask())) numRunningListCommands++;
+                if (isListCommandTask(cw.getTask())) {
+                    synchronized (CommandProcessor.this) {
+                        numRunningListCommands++;
+                    }
                 }
                 commandStarted(cw);
+                cw.setRunningThread(Thread.currentThread());
+                threadTaskInfo.set(cw);
                 //System.out.println("RUN: "+cw.getTask().getName()+", ID = "+cw.getCommandID()+", thread = "+Thread.currentThread()+", hash = "+Thread.currentThread().hashCode());
                 Error err = null;
                 try {
@@ -646,6 +646,8 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                 } catch (Throwable t) {
                     ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
                 }
+                threadTaskInfo.set(null);
+                cw.setRunningThread(null);
                 commandDone(cw);
                 //System.out.println("FINISHED: "+cw.getTask().getName()+", ID = "+cw.getCommandID()+", thread = "+Thread.currentThread()+", hash = "+Thread.currentThread().hashCode());
                 if (err != null) throw err;
@@ -786,16 +788,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         return task.getName().startsWith("LIST");
     }
     
-    private Collection getRunningThreadsFromCommands(Collection commandInfos) {
-        HashSet threads = new HashSet();
-        for (Iterator it = commandInfos.iterator(); it.hasNext(); ) {
-            CommandTaskInfo cw = (CommandTaskInfo) it.next();
-            Thread t = cw.getRunningThread();
-            if (t != null) threads.add(t);
-        }
-        return threads;
-    }
-    
     /**
      * Returns true iff all exceptionally running commands are
      * predecessors of the given command.
@@ -805,10 +797,10 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         boolean is;
         do {
             is = false;
-            Thread t = cw.getSubmittingThread();
+            CommandTaskInfo submittingInfo = cw.getSubmittingInfo();
             for (Iterator it = exceptionallyRunning.iterator(); it.hasNext(); ) {
                 CommandTaskInfo testCw = (CommandTaskInfo) it.next();
-                if (t.equals(testCw.getRunningThread())) {
+                if (submittingInfo.equals(testCw)) {
                     cw = testCw;
                     exceptionallyRunning.remove(testCw);
                     is = true;
@@ -833,8 +825,8 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             isListCommandTask(task) && numRunningListCommands >= MAX_NUM_RUNNING_LISTS) {
             
             //System.out.println("canRun("+task.getName()+") - limit reached.");
-            Thread submitter = cw.getSubmittingThread();
-            //System.out.println("  submitter = "+submitter+", hash = "+submitter.hashCode());
+            CommandTaskInfo submitter = cw.getSubmittingInfo();
+            //System.out.println("  submitter = "+submitter);
             //System.out.println("  runningThreads = "+getRunningThreadsFromCommands(tasksRunning));
             //Collection threads = getRunningThreadsFromCommands(tasksRunning);
             //System.out.println("  runningThreads = "+threads.size());
@@ -843,7 +835,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             //    System.out.println("   thread: "+th+", hash = "+th.hashCode());
             //}
             //System.out.println("   running contains submitter = "+threads.contains(submitter));
-            if (getRunningThreadsFromCommands(tasksRunning).contains(submitter)) {
+            if (tasksRunning.contains(submitter)) {
                 //System.out.println("  tasksExceptionallyRunning = "+tasksExceptionallyRunning);
                 /*
                 { HashSet exceptionallyRunning = new HashSet(tasksExceptionallyRunning);

@@ -28,7 +28,7 @@ public abstract class CommandTaskInfo {
     private static long lastId = 0;
     
     private long id;
-    private Reference submittingThread;
+    private Reference submittingInfo;
     private Thread runningThread;
     private boolean interrupted = false;
     private long startTime = 0;
@@ -67,12 +67,12 @@ public abstract class CommandTaskInfo {
         return id;
     }
     
-    void setSubmittingThread(Thread thread) {
-        this.submittingThread = new WeakReference(thread);
+    void setSubmittingInfo(CommandTaskInfo submittingInfo) {
+        this.submittingInfo = new WeakReference(submittingInfo);
     }
     
-    Thread getSubmittingThread() {
-        return (Thread) submittingThread.get();
+    CommandTaskInfo getSubmittingInfo() {
+        return (CommandTaskInfo) submittingInfo.get();
     }
     
     void setRunningThread(Thread thread) {
