@@ -20,6 +20,3 @@ Type: Environment
 Name: org/netbeans/modules/corba/browser/ir/IRRootNode.class
 OpenIDE-Module-Class: Node
 Type: Environment
-
-Name: org/netbeans/modules/corba/wizard/CorbaWizardAction.class
-OpenIDE-Module-Class: Action
