@@ -32,6 +32,7 @@ import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eePlatform;
 import org.netbeans.modules.j2ee.ejbfreeform.EJBProjectGenerator;
+import org.netbeans.modules.j2ee.ejbjarproject.ui.customizer.EjbJarProjectProperties;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -95,7 +96,10 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             EJBProjectGenerator.EJBModule wm = (EJBProjectGenerator.EJBModule)l.get(0);
             String configFiles = getLocationDisplayName(projectEvaluator, baseFolder, wm.configFiles);
             String classpath = getLocationDisplayName(projectEvaluator, baseFolder, wm.classpath);
+            String resourceFiles = getLocationDisplayName(projectEvaluator, baseFolder, projectEvaluator.getProperty(EjbJarProjectProperties.RESOURCE_DIR));
+            String serverID = projectEvaluator.getProperty(EjbJarProjectProperties.J2EE_SERVER_TYPE);
             jTextFieldConfigFiles.setText(configFiles);
+            resourcesTextField.setText(resourceFiles);
             
             setSrcPackages(classpath);
             
@@ -103,6 +107,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
                 j2eeSpecComboBox.setSelectedItem(NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_0"));
             else
                 j2eeSpecComboBox.setSelectedItem(NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_1"));
+            
+            selectServerID(serverID);
         }
 
     }
@@ -228,9 +234,9 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 11);
         add(jLabel3, gridBagConstraints);
 
-        serverTypeComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                serverTypeComboBoxActionPerformed(evt);
+        serverTypeComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                serverTypeComboBoxItemStateChanged(evt);
             }
         });
 
@@ -274,15 +280,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
 
     }
     // </editor-fold>//GEN-END:initComponents
-    
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        JFileChooser chooser = createChooser(getResourcesLocation().getAbsolutePath());
-        if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(this)) {
-            setResources(chooser.getSelectedFile());
-        }
-    }//GEN-LAST:event_jButton1ActionPerformed
-            
-    private void serverTypeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_serverTypeComboBoxActionPerformed
+
+    private void serverTypeComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_serverTypeComboBoxItemStateChanged
         String prevSelectedItem = (String)j2eeSpecComboBox.getSelectedItem();
         String serverID = (String) serverIDs.get(serverTypeComboBox.getSelectedIndex());
         String servInsID = getFirstServerInstanceID(serverID);
@@ -305,8 +304,15 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         if (prevSelectedItem != null) {
             j2eeSpecComboBox.setSelectedItem(prevSelectedItem);
         }
-    }//GEN-LAST:event_serverTypeComboBoxActionPerformed
+    }//GEN-LAST:event_serverTypeComboBoxItemStateChanged
     
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        JFileChooser chooser = createChooser(getResourcesLocation().getAbsolutePath());
+        if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(this)) {
+            setResources(chooser.getSelectedFile());
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+                
     private void jButtonEJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEJBActionPerformed
         JFileChooser chooser = createChooser(getConfigFilesLocation().getAbsolutePath());
         if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(this)) {
@@ -465,6 +471,9 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             }
             AuxiliaryConfiguration aux = Util.getAuxiliaryConfiguration(projectHelper);
             EJBProjectGenerator.putEJBModules(projectHelper, aux, panel.getEJBModules());
+            EJBProjectGenerator.putServerID(projectHelper, panel.getSelectedServerID());
+            EJBProjectGenerator.putResourceFolder(projectHelper, panel.getResourcesFolder());
+            EJBProjectGenerator.putJ2EELevel(projectHelper, ((EJBProjectGenerator.EJBModule)panel.getEJBModules().get(0)).j2eeSpecLevel);
         }
         
         public String getDisplayName() {
@@ -531,6 +540,15 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         }
         String serverID = (String) serverIDs.get(idx);
         return serverID;
+    }
+    
+    private void selectServerID(String serverID) {
+        for (int i = 0; i < serverIDs.size(); i++) {
+            if (serverID.equals(serverIDs.get(i))) {
+                serverTypeComboBox.setSelectedIndex(i);
+                break;
+            }
+        }
     }
     
     public String getSelectedJ2eeSpec() {

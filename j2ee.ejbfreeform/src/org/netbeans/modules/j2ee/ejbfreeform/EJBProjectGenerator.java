@@ -23,6 +23,7 @@ import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 
 /**
@@ -127,13 +128,30 @@ public class EJBProjectGenerator {
     private static void putProperty(Document doc, Element parent, String key, String value) {
         // TODO: ma154696: check NodeList length
         Element props = Util.findElement(parent, "properties", EJBProjectGenerator.NS_GENERAL); // NOI18N
-        if (props == null) {
-            props = doc.createElementNS(FreeformProjectType.NS_GENERAL, "properties"); // NOI18N
+        if (props == null)
+            // the <properties> element should have been created by the Java nature
+            return;
+        Element property = findPropertyElement(props, key);
+        if (property == null) {
+            property = doc.createElementNS(FreeformProjectType.NS_GENERAL, "property"); // NOI18N
+            property.setAttribute("name", key); // NOI18N
+            props.appendChild(property);
+        } else {
+            while (property.getFirstChild() != null)
+                property.removeChild(property.getFirstChild());
         }
-        Element property = doc.createElementNS(FreeformProjectType.NS_GENERAL, "property"); // NOI18N
-        property.setAttribute("name", key); // NOI18N
         property.appendChild(doc.createTextNode(value));
-        props.appendChild(property);
+    }
+    
+    private static Element findPropertyElement(Element parent, String key) {
+        for (Iterator i = Util.findSubElements(parent).iterator(); i.hasNext();) {
+            Element element = (Element)i.next();
+            if (element.getLocalName().equals("property") && element.getNamespaceURI().equals(FreeformProjectType.NS_GENERAL)) { // NOI18N
+                if (element.getAttribute("name").equals(key)) // NOI18N
+                    return element;
+            }
+        }
+        return null;
     }
     
     public static void putResourceFolder(AntProjectHelper helper, List/*<String>*/ resources) {
@@ -281,7 +299,6 @@ public class EJBProjectGenerator {
     public static final class EJBModule {
         public String configFiles;
         public String classpath;
-        //        public String contextPath;
         public String j2eeSpecLevel;
     }
     
