@@ -77,6 +77,8 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         setBorder (new EmptyBorder (12, 12, 0, 11));
         
         javax.swing.JTextArea descriptionArea = new javax.swing.JTextArea();
+        descriptionArea.getAccessibleContext().setAccessibleName(g("ACS_LBL_DescAreaVariablesView"));// NOI18N
+        descriptionArea.getAccessibleContext().setAccessibleDescription(g("ACSD_LBL_DescAreaVariablesView"));// NOI18N
         descriptionArea.setText(g("LBL_ReadOnlyVariablesView"));//, profileDisplayName));
         descriptionArea.setEditable(false);
         descriptionArea.setLineWrap(true);

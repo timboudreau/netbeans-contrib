@@ -123,6 +123,8 @@ public class UserCommandsPanel extends JPanel implements ExplorerManager.Provide
         setBorder(new EmptyBorder (12, 12, 0, 11));
         
         javax.swing.JTextArea descriptionArea = new javax.swing.JTextArea();
+        descriptionArea.getAccessibleContext().setAccessibleName(g("ACS_LBL_DescAreaCommandsView"));// NOI18N
+        descriptionArea.getAccessibleContext().setAccessibleDescription(g("ACSD_LBL_DescAreaCommandsView"));// NOI18N
         String profileDisplayName = null;
         if (executionContext instanceof CommandLineVcsFileSystem) {
             Profile profile = ((CommandLineVcsFileSystem) executionContext).getProfile();
