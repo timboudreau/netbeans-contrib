@@ -176,11 +176,14 @@ public final class SuggestionsScanner {
 //            if (((unfiltered == null) ||
 //                    (unfiltered == provider)) &&
 //                    (provider instanceof DocumentSuggestionProvider)) {
+
+                // FIXME no initialization events possibly fired
+                // I guess that reponsibility for recovering from missing
+                // lifecycle events should be moved to providers
                 List l = ((DocumentSuggestionProvider) provider).scan(env);
                 if (l != null) {
                     // XXX ensure that scan returns a homogeneous list of tasks
-                    manager.register(provider.getTypes()[0], l, null, list, null,
-                            true);
+                    manager.register(provider.getTypes()[0], l, null, list, true);
                 }
 //            }
         }

@@ -308,8 +308,7 @@ public final class FixAction extends NodeAction {
             // Remove suggestion when we've performed it
             List itemList = new ArrayList(1);
             itemList.add(item);
-            manager.register(item.getSType().getName(), null, itemList,
-                             sList, null, true);
+            manager.register(item.getSType().getName(), null, itemList, sList, true);
         }
         } finally {
             if (fixingStarted) {

@@ -103,7 +103,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
      * @param sizeKnown is this registration final (otherwise
      *        another one is planned by registrant)
      */
-    public synchronized void register(String typeName,
+    public void register(String typeName,
                                       List addList, List removeList,
                                       SuggestionList tasklist,
                                       boolean sizeKnown) {
@@ -327,6 +327,10 @@ public class DefaultSuggestionManager extends SuggestionManager {
     }
 
 
+
+    // XXX premature optimatization, kick it away or
+    // invent view-providers filter events
+    // (e.g. existing global isObserved(), isEnabled() )
 
     /**
      * When non null, a filter is in effect and only the unfilteredType
