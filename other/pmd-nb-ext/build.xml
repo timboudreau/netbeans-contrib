@@ -38,8 +38,8 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="jars" depends="compile">
-        <mkdir dir="netbeans/modules"/>
-        <jar jarfile="netbeans/modules/org-netbeans-modules-pmd-ext.jar" manifest="manifest.mf" compress="false">
+        <mkdir dir="netbeans/modules/eager"/>
+        <jar jarfile="netbeans/modules/eager/org-netbeans-modules-pmd-ext.jar" manifest="manifest.mf" compress="false">
             <fileset dir="classes">
             </fileset>
             <fileset dir="src">
@@ -60,7 +60,7 @@ Microsystems, Inc. All Rights Reserved.
     <delete dir="Info"/>
     <makenbm file="org-netbeans-modules-pmd-ext.nbm"
              topdir="."
-             module="netbeans/modules/org-netbeans-modules-pmd-ext.jar"
+             module="netbeans/modules/eager/org-netbeans-modules-pmd-ext.jar"
 	     homepage="http://www.netbeans.org/"
              needsrestart="false"
 	     distribution="http://${dist.base}/org-netbeans-modules-pmd-ext.nbm">
