@@ -573,9 +573,15 @@ final class StatusInfoPanel extends JPanel {
               txWorkRev.setForeground(oldColor);
           }
       }
-      boolean uptodate = (info.getStatus() ==StatusInformation.UP_TO_DATE || info.getStatus() == StatusInformation.UNKNOWN);
+      boolean uptodate = (info.getStatus() ==StatusInformation.UP_TO_DATE ||
+                          info.getStatus() == StatusInformation.UNKNOWN ||
+                          info.getStatus() == StatusInformation.INVALID ||
+                          info.getStatus() == StatusInformation.ADDED ||
+                          info.getStatus() == StatusInformation.REMOVED);
       btnDiff.setEnabled(!uptodate);
-      btnAdvanced.setEnabled(!(info.getStatus() == StatusInformation.UNKNOWN));
+      btnAdvanced.setEnabled(!(info.getStatus() == StatusInformation.UNKNOWN ||
+                               info.getStatus() == StatusInformation.INVALID ||
+                               info.getStatus() == StatusInformation.ADDED));
       txDate.setText(info.getStickyDate());
       txTag.setText(info.getStickyTag());
       txOptions.setText(info.getStickyOptions());

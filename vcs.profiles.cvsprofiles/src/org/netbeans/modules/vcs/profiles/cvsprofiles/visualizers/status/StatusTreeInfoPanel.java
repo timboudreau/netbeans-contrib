@@ -46,6 +46,7 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
     private javax.swing.JCheckBox cbLocRemoved;
     private javax.swing.JCheckBox cbNeedsCheckout;
     private javax.swing.JCheckBox cbUnknown;
+    private javax.swing.JCheckBox cbInvalid;
     private javax.swing.JLabel    lblCount;
     private javax.swing.JLabel lblTitle;    
     private int totalCount;
@@ -112,6 +113,7 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         if (sInfo.getStatus() == StatusInformation.NEEDS_PATCH && cbNeedsPatch.isSelected()) return true;
         if (sInfo.getStatus() == StatusInformation.HAS_CONFLICTS && cbHasConflict.isSelected()) return true;
         if (sInfo.getStatus() == StatusInformation.UNKNOWN && cbUnknown.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.INVALID && cbInvalid.isSelected()) return true;
         return false;
     }
     
@@ -167,6 +169,7 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         cbNeedsPatch = new javax.swing.JCheckBox();
         cbHasConflict = new javax.swing.JCheckBox();
         cbUnknown = new javax.swing.JCheckBox();
+        cbInvalid = new javax.swing.JCheckBox();
         panel.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
 
@@ -278,9 +281,21 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 5;
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        //gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints1.insets = new java.awt.Insets (0, 24, 0, 0);
         panel.add(cbUnknown, gridBagConstraints1);
+        
+        cbInvalid.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbInvalid.text")); // NOI18N
+        cbInvalid.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbInvalid.mnemonic").charAt(0)); // NOI18N
+        cbInvalid.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbInvalid.text")); // NOI18N
+        cbInvalid.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbInvalid.text")); // NOI18N
+        gridBagConstraints1 = new java.awt.GridBagConstraints();
+        gridBagConstraints1.gridx = 1;
+        gridBagConstraints1.gridy = 5;
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+        //gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints1.insets = new java.awt.Insets (0, 12, 0, 11);
+        panel.add(cbInvalid, gridBagConstraints1);
         
         lblCount.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblCount")); // NOI18N
         lblCount.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblCount")); // NOI18N
@@ -307,6 +322,7 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         cbLocRemoved.addActionListener(listener);
         cbNeedsCheckout.addActionListener(listener);
         cbUnknown.addActionListener(listener);
+        cbInvalid.addActionListener(listener);
         cbUptodate.setSelected(true);
         cbModified.setSelected(true);
         cbNeedsPatch.setSelected(true);
@@ -316,6 +332,7 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         cbLocRemoved.setSelected(true);
         cbNeedsCheckout.setSelected(true);
         cbUnknown.setSelected(true);
+        cbInvalid.setSelected(true);
     }
     
     public Component getTreeCellRendererComponent(JTree tree, Object value, 

@@ -1440,6 +1440,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
+        <property name="mergeOutputStreams">
+          <value>true</value>
+        </property>
           <property name="disabledOnStatus">
               <value>&local-statuses;</value>
           </property>

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -49,8 +49,8 @@ import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualize
  */
 public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorListener{
 
-    private static final String UNKNOWN = "server: nothing known about";        //NOI18N
-    private static final String EXAM_DIR = "server: Examining";                 //NOI18N
+    private static final String UNKNOWN = ": nothing known about";              //NOI18N
+    private static final String EXAM_DIR = ": Examining";                       //NOI18N
     private static final String NOT_IN_REPOSITORY = "No revision control file"; //NOI18N
     private static final String FILE = "File: ";                                //NOI18N
     private static final String STATUS = "Status:";                             //NOI18N
@@ -66,19 +66,20 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     private static final String UNKNOWN_FILE = "? ";                            //NOI18N
     private static final String STATUS_UNKNOWN = "Unknown";                     //NOI18N
     
-    private boolean addingSymNames;
-    private boolean addingDescription;
-    private boolean addingLogMessage;
+    /** The status information currently being filled */
     private StatusInformation statusInformation;
     private ArrayList resultList;
-    private StringBuffer tempBuffer = null;
-    private String fileDirectory;
-    private boolean beginning;
     private boolean readingTags;
-    private String relativeDirectory;
+    /** The current relative directory to <code>commonPath</code> */
+    //private String relativeDirectory;
+    /** The directory in which the processed files reside. */
+    private File fileDirectory;
+    /** Possible file status info map */
     private Map infoMap;
+    /** The map of output components (StatusTreeInfoPanel) by file paths */
     private HashMap output;
-    /** The map of file directories and associated status file paths builders. */
+    /** The map of file directories and associated status file paths builders.
+     *  Is <code>null</code> when running on JDK 1.5, useful only on JDK 1.4. */
     private Map statusFilePathsBuildersByFiles;
     /*
      * Used for Status_Get_Tags case. File is already known we need 
@@ -94,7 +95,6 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
      */
     public CvsStatusVisualizer() {
         super();
-        this.beginning = true;        
         statusInformation = null;                
         resultList = new ArrayList();
     }       
@@ -116,19 +116,27 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     
     public void setVcsTask(VcsDescribedTask task) {
         super.setVcsTask(task);
-        statusFilePathsBuildersByFiles = new HashMap();
-        Iterator  it = files.iterator();
         commonPath = rootDir;
         String commonParent = (String) task.getVariables().get("COMMON_PARENT");
         if (commonParent != null && commonParent.length() > 0) {
             commonPath = new File(commonPath, commonParent);
         }
-        while(it.hasNext()) {
-            String path = (String)it.next();
-            File file = getFile(path);
-            statusFilePathsBuildersByFiles.put(file,
-                new StatusFilePathsBuilder(commonPath,
-                                           (String) task.getVariables().get("CVS_REPOSITORY")));
+        // Use the statusFilePathsBuildersByFiles only on JDK 1.4 where we do not
+        // have the error stream merged in and therefore do not know the file paths.
+        // Also check which client is used, built-in can merge the streams everytime.
+        if (System.getProperty("java.version").startsWith("1.4")) { // NOI18N
+            String builtIn = (String) task.getVariables().get("BUILT-IN");
+            if (builtIn == null || builtIn.length() == 0) {
+                statusFilePathsBuildersByFiles = new HashMap();
+                Iterator  it = files.iterator();
+                while(it.hasNext()) {
+                    String path = (String)it.next();
+                    File file = getFile(path);
+                    statusFilePathsBuildersByFiles.put(file,
+                        new StatusFilePathsBuilder(commonPath,
+                                                   (String) task.getVariables().get("CVS_REPOSITORY")));
+                }
+            }
         }
     }
     
@@ -141,9 +149,11 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         while(it.hasNext()){
             String path = (String)it.next();
             File file = getFile(path);
-            StatusFilePathsBuilder statusFilePathBuilder = (StatusFilePathsBuilder) statusFilePathsBuildersByFiles.get(file);
-            if (statusFilePathBuilder != null) {
-                fillFilePaths(file, statusFilePathBuilder);
+            if (statusFilePathsBuildersByFiles != null) {
+                StatusFilePathsBuilder statusFilePathBuilder = (StatusFilePathsBuilder) statusFilePathsBuildersByFiles.get(file);
+                if (statusFilePathBuilder != null) {
+                    fillFilePaths(file, statusFilePathBuilder);
+                }
             }
             if (file.isDirectory()) {
                 StatusTreeInfoPanel treePanel = new StatusTreeInfoPanel(file, getCommandsProvider());
@@ -270,7 +280,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
             }
         }
 
-        if (line.startsWith(UNKNOWN_FILE) && beginning) {            
+        if (line.startsWith(UNKNOWN_FILE)) {
             statusInformation = new StatusInformation();
             resultList.add(statusInformation);
             String fileName = line.substring(UNKNOWN_FILE.length());
@@ -287,18 +297,18 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
             statusInformation.setFile(new File(commonPath, fileName));
         }
 
-        if (line.startsWith(UNKNOWN)) {            
-            beginning = false;
-        }
-        else if (line.indexOf(EXAM_DIR) >= 0) {
-            relativeDirectory = line.substring(line.indexOf(EXAM_DIR) + EXAM_DIR.length()).trim();
-            beginning = false;
+        if (line.indexOf(EXAM_DIR) >= 0) {
+            String relativeDirectory = line.substring(line.indexOf(EXAM_DIR) + EXAM_DIR.length()).trim();
+            if (".".equals(relativeDirectory)) {
+                fileDirectory = commonPath;
+            } else {
+                fileDirectory = new File(commonPath, relativeDirectory);
+            }
         }
         else if (line.startsWith(FILE)) {            
             statusInformation = new StatusInformation();
             resultList.add(statusInformation);
             processFileAndStatusLine(line.substring(FILE.length()));
-            beginning = false;
         }
         else if (line.startsWith(WORK_REV)) {
             processWorkRev(line.substring(WORK_REV.length()));
@@ -402,34 +412,59 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         }
         line = line.trim();
         if (line.startsWith(NOT_IN_REPOSITORY)) {
-            statusInformation.setRepositoryRevision(line.trim().intern());
-            return;
+            statusInformation.setRepositoryFileName(line.trim().intern());
+        } else {
+            int firstSpace = line.indexOf('\t');
+            if (firstSpace > 0) {
+                statusInformation.setRepositoryRevision(
+                        line.substring(0, firstSpace).trim().intern());
+                statusInformation.setRepositoryFileName(
+                        new String(line.substring(firstSpace).trim()));
+            }
+            else {
+                statusInformation.setRepositoryRevision(""); //NOI18N
+                statusInformation.setRepositoryFileName(""); //NOI18N
+            }
         }
-        int firstSpace = line.indexOf('\t');
-        if (firstSpace > 0) {
-            statusInformation.setRepositoryRevision(
-                    line.substring(0, firstSpace).trim().intern());
-            statusInformation.setRepositoryFileName(
-                    new String(line.substring(firstSpace).trim()));
-        }
-        else {
-            statusInformation.setRepositoryRevision(""); //NOI18N
-            statusInformation.setRepositoryFileName(""); //NOI18N
-        }
-        
         File file = getFileFromInfo();
         //if(file == null)  /* Not reliable. StatusFilePathsBuilder is used instead. */
         //    file = getFileFromRev(statusInformation.getRepositoryFileName());
         if (file != null) {
             statusInformation.setFile(file);
         } else {
-            for (Iterator it = statusFilePathsBuildersByFiles.values().iterator(); it.hasNext(); ) {
-                StatusFilePathsBuilder statusFilePathBuilder = (StatusFilePathsBuilder) it.next();
-                boolean found = statusFilePathBuilder.fillStatusInfoFilePath(statusInformation);
-                if (found) break;
+            if (statusFilePathsBuildersByFiles != null) {
+                for (Iterator it = statusFilePathsBuildersByFiles.values().iterator(); it.hasNext(); ) {
+                    StatusFilePathsBuilder statusFilePathBuilder = (StatusFilePathsBuilder) it.next();
+                    boolean found = statusFilePathBuilder.fillStatusInfoFilePath(statusInformation);
+                    if (found) break;
+                }
+            } else {
+                if (fileDirectory != null) {
+                    file = new File(fileDirectory, statusInformation.getFileName());
+                    statusInformation.setFile(file);
+                } else {
+                    statusInformation.setFile(getFileFromProcessedFiles(statusInformation.getFileName()));
+                }
             }
         }
         assert statusInformation.getFile() != null: "ERROR: null file in "+statusInformation+" in processRepRev("+line+")";
+    }
+    
+    /** Find the file of that name among processed files. */
+    private File getFileFromProcessedFiles(String fileName) {
+        File file = null;
+        for (Iterator it = files.iterator(); it.hasNext(); ) {
+            String filePath = (String) it.next(); // Path relative to rootDir
+            int fileIndex = filePath.lastIndexOf('/');
+            if (fileIndex > 0 && filePath.substring(fileIndex + 1).equals(fileName)) {
+                file = new File(rootDir, filePath);
+            }
+        }
+        if (file == null) {
+            // ? It's probably in the root?
+            file = new File(commonPath, fileName);
+        }
+        return file;
     }
 
     private void processTag(String line) {

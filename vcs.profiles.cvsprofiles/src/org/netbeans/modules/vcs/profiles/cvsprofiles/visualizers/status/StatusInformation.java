@@ -75,10 +75,15 @@ public final class StatusInformation extends FileInfoContainer {
     public static final String HAS_CONFLICTS = "File had conflicts on merge"; //NOI18N
 
     /**
-     * The unknown status, i.e. the file is not known to the CVS repository.
+     * The unknown status, the file is not versioned.
      */
     public static final String UNKNOWN = "Unknown"; //NOI18N
  
+    /**
+     * The invalid status, i.e. the file is not known to the CVS repository.
+     */
+    public static final String INVALID = "Entry Invalid"; //NOI18N
+    
     private File file;
     private String fileName;
     private String status;
@@ -154,6 +159,7 @@ public final class StatusInformation extends FileInfoContainer {
         if (NEEDS_MERGE.equals(status)) return NEEDS_MERGE;
         if (HAS_CONFLICTS.equals(status)) return HAS_CONFLICTS;
         if (UNKNOWN.equals(status)) return UNKNOWN;
+        if (INVALID.equals(status)) return INVALID;
         return status.trim();
     }
 
