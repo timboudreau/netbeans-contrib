@@ -31,10 +31,15 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 import org.openide.filesystems.FileStatusEvent;
+import org.openide.filesystems.RepositoryListener;
+import org.openide.filesystems.RepositoryEvent;
+import org.openide.filesystems.RepositoryReorderedEvent;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.Utilities;
+import org.openide.util.SharedClassObject;
+import org.openide.util.WeakListener;
 
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
@@ -42,6 +47,7 @@ import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
+import org.netbeans.modules.vcscore.settings.VcsSettings;
 import org.netbeans.modules.vcscore.revision.RevisionListener;
 
 /** Generic VCS filesystem.
@@ -56,19 +62,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           CacheHandlerListener, Serializable {
     private Debug E=new Debug("VcsFileSystem", false); // NOI18N
     private Debug D=E;
+
+    public static final String PROP_ROOT = "root"; // NOI18N
+    public static final String PROP_VARIABLES = "variables"; // NOI18N
+    public static final String PROP_COMMANDS = "commands"; // NOI18N
     
     private static ResourceBundle resourceBundle = null;
     
-    private transient Hashtable commandsByName=null;
-
-    protected static final int REFRESH_TIME = 15000; // This is default in LocalFileSystem
-    protected volatile int refreshTimeToSet = REFRESH_TIME;
-
-    private static final String LOCAL_FILES_ADD_VAR = "SHOWLOCALFILES"; // NOI18N
     public static final String VAR_TRUE = "true"; // NOI18N
     public static final String VAR_FALSE = "false"; // NOI18N
-    private static final String LOCK_FILES_ON = "LOCKFILES"; // NOI18N
-    private static final String PROMPT_FOR_LOCK_ON = "PROMPTFORLOCK"; // NOI18N
 
     /**
      * The value of this variable is used to surround file names.
@@ -85,6 +87,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * root path of the file system to create the display name.
      */
     public static final String VAR_FS_DISPLAY_NAME = "FS_DISPLAY_NAME"; // NOI18N
+
+    protected static final int REFRESH_TIME = 15000; // This is default in LocalFileSystem
+    protected volatile int refreshTimeToSet = REFRESH_TIME;
+
+    private static final String LOCAL_FILES_ADD_VAR = "SHOWLOCALFILES"; // NOI18N
+    private static final String LOCK_FILES_ON = "LOCKFILES"; // NOI18N
+    private static final String PROMPT_FOR_LOCK_ON = "PROMPTFORLOCK"; // NOI18N
 
     private static final String DEFAULT_QUOTING_VALUE = "\\\\\""; // NOI18N
 
@@ -116,6 +125,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private static boolean last_useUnixShell = false;
 
+    private transient Hashtable commandsByName=null;
     /** root file */
     private volatile File rootFile = last_rootFile; // NOI18N
 
@@ -165,6 +175,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected boolean ready=false;
     private boolean askIfDownloadRecursively = true;
     private volatile Hashtable numDoAutoRefreshes = new Hashtable();
+    
+    private transient boolean deserialized; // Whether this class was created by deserialization
 
     /**
      * Whether to prompt the user for variables for each selected file. Value of this variable
@@ -199,14 +211,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     /**
      * Whether to run command when doing refresh of folders. Recommended to turn this property off when working off-line.
      */
-    private boolean doCommandRefresh = true;
+    //private boolean doCommandRefresh = true;
     
     private volatile transient CommandsPool commandsPool = null;
     private int numOfFinishedCmdsToCollect = CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
     
     private ArrayList revisionListeners;
 
-    private volatile boolean offLine = false;
+    /** The offline mode.
+     * Whether to run command when doing refresh of folders.
+     * Recommended to turn this property on when working off-line.
+     */
+    private volatile boolean offLine; // is set in the constructor
+    private volatile int autoRefresh; // is set in the constructor
 
     private Collection notModifiableStatuses = Collections.EMPTY_SET;
 
@@ -225,6 +242,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         last_useUnixShell = unixShell;
     }
     
+    /*
     public void setDoCommandRefresh(boolean doCommandRefresh) {
         this.doCommandRefresh = doCommandRefresh;
     }
@@ -232,6 +250,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public boolean isDoCommandRefresh() {
         return this.doCommandRefresh;
     }
+     */
     
     public void setAcceptUserParams(boolean acceptUserParams) {
         this.acceptUserParams = acceptUserParams;
@@ -283,13 +302,30 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setOffLine(boolean offLine) {
-        this.offLine = offLine;
+        if (offLine != this.offLine) {
+            this.offLine = offLine;
+            firePropertyChange (VcsSettings.PROP_OFFLINE, new Boolean(!offLine), new Boolean(offLine));
+        }
     }
     
     public boolean isOffLine() {
         return offLine;
     }
 
+    /** Get the mode of auto refresh. */
+    public int getAutoRefresh() {
+        return autoRefresh;
+    }
+    
+    /** Set the mode of auto refresh. */
+    public void setAutoRefresh(int newAuto) {
+        if (newAuto != autoRefresh) {
+            int oldAuto = autoRefresh;
+            autoRefresh = newAuto;
+            firePropertyChange (VcsSettings.PROP_AUTO_REFRESH, new Integer(oldAuto), new Integer(autoRefresh));
+        }
+    }
+    
     public void addRevisionListener(RevisionListener listener) {
         if (revisionListeners == null) revisionListeners = new ArrayList();
         revisionListeners.add(listener);
@@ -677,8 +713,41 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         commandsPool = new CommandsPool(this);
         commandsPool.setCollectFinishedCmdsNum(numOfFinishedCmdsToCollect);
+        initListeners();
     }
 
+    private void initListeners() {
+        VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
+        settings.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(final PropertyChangeEvent event) { 
+                settingsChanged(event.getPropertyName(), event.getOldValue(), event.getNewValue());
+            }
+        });
+        RepositoryListener wl = /*WeakListener.repository (*/new RepositoryListener() {
+            public void fileSystemAdded(RepositoryEvent ev) {
+                System.out.println("fileSystemAdded("+ev.getFileSystem());
+                System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
+                if (ev.getFileSystem().equals(VcsFileSystem.this)
+                    && !isOffLine()
+                    && (deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_RESTART)
+                        || (!deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT)) {
+                    CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
+                    //FileCacheProvider cache = getCacheProvider();
+                    //if (cache != null) cache.refreshCacheDirRecursive("");
+                    System.out.println("refresh called.");
+                }
+            }
+            public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {
+            }
+            public void fileSystemRemoved(RepositoryEvent ev) {
+                if (ev.getFileSystem().equals(VcsFileSystem.this)) {
+                    System.out.println("FS "+VcsFileSystem.this+" removed");
+                    TopManager.getDefault ().getRepository ().removeRepositoryListener (this);
+                }
+            }
+        };//, null);
+        TopManager.getDefault ().getRepository ().addRepositoryListener (wl);
+    }
 
     private static final long serialVersionUID =8108342718973310275L;
 
@@ -687,6 +756,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public VcsFileSystem() {
         D.deb("VcsFileSystem()"); // NOI18N
+        deserialized = false;
         info = this;
         change = this;
         DefaultAttributes a = new DefaultAttributes (info, change, this);
@@ -698,6 +768,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
          */
+        VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
+        setOffLine(settings.isOffLine());
+        setAutoRefresh(settings.getAutoRefresh());
         init();
         //possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
         D.deb("constructor done.");
@@ -750,6 +823,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("VcsFileSystem.readObject() ...");
         //try {
             //ObjectInputStream din = (ObjectInputStream) in;
+        deserialized = true;
         boolean localFilesOn = in.readBoolean ();
         in.defaultReadObject();
         //last_rootFile = rootFile;
@@ -875,7 +949,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             variablesByName = new Hashtable(newVarsByName);
         }
 
-        firePropertyChange("variables", old, variables); // NOI18N
+        firePropertyChange(PROP_VARIABLES, old, variables);
     }
 
     public static String substractRootDir(String rDir, String module) {
@@ -905,7 +979,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //-------------------------------------------
     public synchronized Hashtable getVariablesAsHashtable() {
         int len = getVariables().size();
-        Hashtable result = new Hashtable(len+5);
+        Hashtable result = new Hashtable(len+10);
         for(int i = 0; i < len; i++) {
             VcsConfigVariable var = (VcsConfigVariable) getVariables().elementAt (i);
             result.put(var.getName (), var.getValue ());
@@ -1611,7 +1685,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //HACK 
   //      this.cache.refreshDir(this.getRelativeMountPoint());
          
-        firePropertyChange("root", null, refreshRoot ()); // NOI18N
+        firePropertyChange(PROP_ROOT, null, refreshRoot ());
         if (cache != null) {
             cache.setFSRoot(r.getAbsolutePath());
             cache.setRelativeMountPoint(module);
@@ -2063,9 +2137,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
         }
-        if (!file.canWrite () && file.exists()) {
-            throw new IOException ("Cannot Lock "+name); // NOI18N
-        }
         new Thread(new Runnable() {
                        public void run() {
                            D.deb("lock('"+name+"')"); // NOI18N
@@ -2105,6 +2176,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                            }
                        }
                    }, "VCS-Locking Files").start(); // NOI18N
+        if (!file.canWrite () && file.exists()) {
+            throw new IOException ("Cannot Lock "+name); // NOI18N
+        }
     }
 
     /** Call the UNLOCK command to unlock the file.
@@ -2205,9 +2279,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param root the tree of {@link VcsCommandNode} objects.
      */
     public void setCommands(Node root) {
+        Object old = commandsRoot;
         commandsRoot = root;
         commandsByName = new Hashtable();
         addCommandsToHashTable(root);
+        firePropertyChange(PROP_COMMANDS, old, commandsRoot);
     }
 
     /** Get the commands.
@@ -2228,20 +2304,24 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return (VcsCommand) commandsByName.get(name);
     }
-    
-    /*
-    public VcsCommand getOpenRevisionCmd() {
-        VcsCommand openCmd = null;
-        for(int i = 0; i < revisionCommands.size(); i++) {
-            VcsCommand cmd = (VcsCommand) revisionCommands.get(i);
-            if (VcsCommand.NAME_REVISION_OPEN.equals(cmd.getName())) {
-                openCmd = cmd;
-                break;
+
+    private void settingsChanged(String propName, Object oldVal, Object newVal) {
+        VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
+        if (propName.equals(VcsSettings.PROP_USE_GLOBAL)) {
+            if (((Boolean) newVal).booleanValue() == true) {
+                setOffLine(settings.isOffLine());
+                setAutoRefresh(settings.getAutoRefresh());
+            }
+        } else {
+            if (settings.isUseGlobal()) {
+                if (propName.equals(VcsSettings.PROP_OFFLINE)) {
+                    setOffLine(settings.isOffLine());
+                } else if (propName.equals(VcsSettings.PROP_AUTO_REFRESH)) {
+                    setAutoRefresh(settings.getAutoRefresh());
+                }
             }
         }
-        return openCmd;
     }
-     */
     
     public FilenameFilter getLocalFileFilter() {
         return null;
