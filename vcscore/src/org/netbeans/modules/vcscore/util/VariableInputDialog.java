@@ -336,8 +336,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        boolean ruralNavigation = Boolean.getBoolean("VID.navigationPanel");
-        if (ruralNavigation) {
+        boolean ruralNavigationOff = Boolean.getBoolean("VID.navigationPanelOff");
+        if (!ruralNavigationOff) {
             navigationPanel.setLayout(new java.awt.GridBagLayout());
 
             prevButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.text"));
@@ -378,7 +378,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
         add(navigationPanel, gridBagConstraints);
-        navigationPanel.setVisible(ruralNavigation);
+        navigationPanel.setVisible(!ruralNavigationOff);
 
         variableTabbedPane.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
         jPanel1.setLayout(new java.awt.GridBagLayout());
@@ -838,6 +838,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
     public void setExecutionContext(CommandExecutionContext executionContext, Hashtable vars) {
         this.executionContext = executionContext;
         this.vars = vars;
+        boolean hasDefaults = hasDefaults();
+        asDefaultButton.setEnabled(hasDefaults);
+        getDefaultButton.setEnabled(hasDefaults);
     }
 
     CommandExecutionContext getCommandExecutionContext() {

@@ -380,7 +380,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
             if (customizer instanceof UserCommandCustomizer) {
                 final UserCommandCustomizer vid = (UserCommandCustomizer) customizer;
-                if (vid.hasDefaults()) {
+                if (vid.hasDefaults() && Boolean.getBoolean("VID.navigationPanelOff")) {
                     btnStoreAsDefault = new JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.text"));
                     btnStoreAsDefault.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.mnemonic").charAt(0));
                     btnStoreAsDefault.setToolTipText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.tooltip"));
