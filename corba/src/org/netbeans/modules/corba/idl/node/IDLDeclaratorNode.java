@@ -77,7 +77,7 @@ public class IDLDeclaratorNode extends IDLAbstractNode {
 		    String retval = ""; // NOI18N
 		    Vector dim = _declarator.getDimension ();
 		    for (int i=0; i<dim.size (); i++) {
-			retval = retval + "[" + ((Integer)dim.elementAt (i)).toString () + "]"; // NOI18N
+			retval = retval + "[" + dim.elementAt (i).toString () + "]"; // NOI18N
 		    }
 		    return retval;
 		}
