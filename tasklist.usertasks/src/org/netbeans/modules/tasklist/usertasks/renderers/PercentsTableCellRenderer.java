@@ -36,22 +36,6 @@ public class PercentsTableCellRenderer extends JPanel implements TableCellRender
         NbBundle.getMessage(PercentsTableCellRenderer.class, "Computed"); // NOI18N
     
     protected static Border noFocusBorder = new EmptyBorder(2, 2, 2, 2); 
-    private static String[] TAGS = {
-        COMPUTED,
-        "0%", "5%", "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%", "50%", // NOI18N
-        "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%" // NOI18N
-    };
-    
-    /**
-     * Used to combine 2 properties: percentComplete and progressComputed
-     */
-    public static final class Value {
-        /** 0..100 progress of a task in percents */
-        public int progress;
-        
-        /** true = value is computed*/
-        public boolean computed;
-    }
     
     private JProgressBar progressBar;
     private DefaultTableCellRenderer def = new DefaultTableCellRenderer();
@@ -69,23 +53,6 @@ public class PercentsTableCellRenderer extends JPanel implements TableCellRender
         
         setLayout(new BorderLayout());
         add(progressBar, BorderLayout.CENTER);
-    }
-    
-    // TODO: not used
-    public void setAsText(String text) throws java.lang.IllegalArgumentException {
-        Value v = new Value();
-        if (text.equals(COMPUTED)) {
-            v.computed = true;
-        } else {
-            text = text.trim();
-            if (text.endsWith("%")) // NOI18N
-                text = text.substring(0, text.length() - 1);
-            try {
-                v.progress = Integer.parseInt(text);
-            } catch(NumberFormatException e) {
-                throw new IllegalArgumentException(e.getMessage());
-            }
-        }
     }
     
     public Component getTableCellRendererComponent(javax.swing.JTable table, 
@@ -112,7 +79,7 @@ public class PercentsTableCellRenderer extends JPanel implements TableCellRender
         return this;
     }
     
-    // TODO: workaround for a Swing bug (?)
+    // workaround for a Swing bug (?)
     protected void paintComponent(java.awt.Graphics g) {
         Rectangle oldClip = g.getClipBounds();
         g.setClip(oldClip.x, oldClip.y, 

@@ -62,7 +62,9 @@ public class PercentsPropertyEditor extends PropertyEditorSupport {
             setValue(new Integer(text));
         } catch (NumberFormatException e) {
             IllegalArgumentException iae = 
-                new java.lang.IllegalArgumentException("Not a number"); // TODO
+                new java.lang.IllegalArgumentException(
+                    NbBundle.getMessage(PercentsPropertyEditor.class, 
+                    "NotANumber")); // NOI18N
             ErrorManager.getDefault().annotate(iae, ErrorManager.USER, 
                 iae.getMessage(), 
                 iae.getMessage(), e, new java.util.Date());

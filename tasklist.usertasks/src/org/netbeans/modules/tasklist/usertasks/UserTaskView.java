@@ -65,8 +65,83 @@ import org.openide.windows.WindowManager;
  * @author Tor Norbye
  */
 public class UserTaskView extends TaskListView implements TaskListener {
+    // TODO: replace these constants with the equivalents from UserTaskProperties
+    public static final String PROP_TASK_DONE = UserTaskProperties.PROPID_DONE;
+    public static final String PROP_TASK_DUE = UserTaskProperties.PROPID_DUE_DATE;
+    public static final String PROP_TASK_PRIO = "priority"; // NOI18N
+    public static final String PROP_TASK_CAT = "category"; // NOI18N
+    public static final String PROP_TASK_FILE = "filename"; // NOI18N
+    public static final String PROP_TASK_LINE = "line"; // NOI18N
+    public static final String PROP_TASK_DETAILS = "details"; // NOI18N
+    public static final String PROP_TASK_CREATED = "created"; // NOI18N
+    public static final String PROP_TASK_EDITED = "edited"; // NOI18N
+    public static final String PROP_TASK_PERCENT = "progress"; // NOI18N
+    public static final String PROP_EFFORT = "effort"; // NOI18N
+    public static final String PROP_REMAINING_EFFORT = "remainingEffort"; // NOI18N
+    public static final String PROP_SPENT_TIME = "spentTime"; // NOI18N
+    
     private static final long serialVersionUID = 1;
 
+    private static UserTaskView defview = null;
+
+    static UserTaskView getDefault() {
+	if (defview == null) {
+	    defview = new UserTaskView();
+	
+	    WindowManager wm = WindowManager.getDefault();
+	    Mode mode  = wm.findMode("output"); // NOI18N
+	    if (mode != null) {
+		mode.dockInto(defview);
+	    }
+
+	    defview.open();
+	    defview.requestVisible(); // requestFocus???
+	}
+	return defview;
+    }
+
+    private static ArrayList views = null; // leak??? YES! Remove in componentClosed!
+
+    /** Return true iff the default view has been created already */
+    static boolean defaultViewCreated() {
+        return defview != null;
+    }
+    
+    /** 
+     * Return the currently active user task view, or the default
+     * one if none are active 
+     */
+    public static TaskListView getCurrent() {
+	// Try to figure out which view is current. If none is found to
+	// be visible, guess one.
+        if (views == null) {
+            return defview;
+        }
+	Iterator it = views.iterator();
+        while (it.hasNext()) {
+	    UserTaskView tlv = (UserTaskView)it.next();
+            if (tlv.isShowing()) {
+		return tlv;
+	    }
+	}
+        return defview;
+    }    
+
+    /** Locate a particular view showing the given list */
+    static UserTaskView findListView(FileObject file) {
+        if (views == null) {
+            return null;
+        }
+ 	Iterator it = views.iterator();
+        while (it.hasNext()) {
+	    UserTaskView tlv = (UserTaskView)it.next();
+            if (((UserTaskList)tlv.getList()).getFile() == file) {
+                return tlv;
+            }
+        }
+        return null;
+    }
+    
     private UserTasksTreeTable tt;
     
     /** 
@@ -252,279 +327,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
         }
     }
 
-    public static final String PROP_TASK_DONE = "done"; // NOI18N
-    public static final String PROP_TASK_DUE = "dueDate"; // NOI18N
-    public static final String PROP_TASK_PRIO = "priority"; // NOI18N
-    public static final String PROP_TASK_CAT = "category"; // NOI18N
-    public static final String PROP_TASK_FILE = "filename"; // NOI18N
-    public static final String PROP_TASK_LINE = "line"; // NOI18N
-    public static final String PROP_TASK_DETAILS = "details"; // NOI18N
-    public static final String PROP_TASK_CREATED = "created"; // NOI18N
-    public static final String PROP_TASK_EDITED = "edited"; // NOI18N
-    public static final String PROP_TASK_PERCENT = "percentComplete"; // NOI18N
-    public static final String PROP_EFFORT = "effort"; // NOI18N
-    public static final String PROP_REMAINING_EFFORT = "remainingEffort"; // NOI18N
-    public static final String PROP_SPENT_TIME = "spentTime"; // NOI18N
-    
     protected ColumnProperty[] createColumns() {
-        return new ColumnProperty[] {
-            getMainColumn(800),
-            getPriorityColumn(true, 100),
-            getCategoryColumn(false, 200),
-            getDetailsColumn(false, 800),
-            getFileColumn(false, 200),
-            getLineColumn(false, 80),
-            getCreatedColumn(false, 150),
-            getEditedColumn(false, 150),
-            getDueColumn(false, 150),
-            getDoneColumn(true, 40),
-            getPercentColumn(false, 100),
-            getEffortColumn(false, 50),
-            getRemainingEffortColumn(false, 50),
-            getSpentTimeColumn(false, 50)
-            
-            // When adding more columns here, also remember to go to the 
-            // constructor and add a column width setting 
-            // (setTableColumnPreferredWidth)
-        };
-    };
-
-    public ColumnProperty getPriorityColumn(boolean visible, int width) {
-        return new ColumnProperty(
-	    1, // UID -- never change (part of serialization
-            UserTaskProperties.PROP_PRIORITY.getID(),
-            SuggestionPriority.class,
-            UserTaskProperties.PROP_PRIORITY.getName(),
-            UserTaskProperties.PROP_PRIORITY.getHint(),
-            true,
-            visible,
-            width
-            );
-    }
-
-    public ColumnProperty getCategoryColumn(boolean visible, int width) {
-        ColumnProperty cp = new ColumnProperty(
-	    2, // UID -- never change (part of serialization
-            UserTaskProperties.PROP_CATEGORY.getID(),
-            String.class,
-            UserTaskProperties.PROP_CATEGORY.getName(),
-            UserTaskProperties.PROP_CATEGORY.getHint(),
-            true,
-            visible,
-            width
-            );
-        return cp;
-    }
-   
-    public ColumnProperty getDetailsColumn(boolean visible, int width) {
-        return new ColumnProperty(
-	    3, // UID -- never change (part of serialization
-            UserTaskProperties.PROP_DETAILS.getID(),
-            String.class,
-            UserTaskProperties.PROP_DETAILS.getName(),
-            UserTaskProperties.PROP_DETAILS.getHint(),
-            true,
-            visible,
-            width
-            );
-    }
-
-    public ColumnProperty getFileColumn(boolean visible, int width) {
-        ColumnProperty cp = new ColumnProperty(
-	    4, // UID -- never change (part of serialization
-            UserTaskProperties.PROP_FILENAME.getID(),
-            String.class,
-            UserTaskProperties.PROP_FILENAME.getName(),
-            UserTaskProperties.PROP_FILENAME.getHint(),
-            true,
-            visible,
-            width
-            );
-        return cp;
-    }
-
-    public ColumnProperty getLineColumn(boolean visible, int width) {
-        return new ColumnProperty(
-	    5, // UID -- never change (part of serialization
-	    UserTaskProperties.PROP_LINE_NUMBER.getID(),
-            Integer.TYPE,
-	    UserTaskProperties.PROP_LINE_NUMBER.getName(),
-	    UserTaskProperties.PROP_LINE_NUMBER.getHint(),
-            true,
-            visible,
-            width
-            );
-    }
-
-    public ColumnProperty getCreatedColumn(boolean visible, int width) {
-        ColumnProperty cp = new ColumnProperty(
-	    6, // UID -- never change (part of serialization
-	    UserTaskProperties.PROP_CATEGORY.getID(),
-            //String.class,
-            Date.class,
-	    UserTaskProperties.PROP_CATEGORY.getName(),
-	    UserTaskProperties.PROP_CATEGORY.getHint(),
-            true,
-            visible,
-            width
-            );
-        return cp;
-    }
-
-    public ColumnProperty getEditedColumn(boolean visible, int width) {
-        ColumnProperty cp = new ColumnProperty(
-	    7, // UID -- never change (part of serialization
-	    UserTaskProperties.PROP_LAST_EDITED_DATE.getID(),
-            //String.class,
-            Date.class,
-	    UserTaskProperties.PROP_LAST_EDITED_DATE.getName(),
-	    UserTaskProperties.PROP_LAST_EDITED_DATE.getHint(),
-            true,
-            visible,
-            width
-            );
-        return cp;
-    }
-
-    public ColumnProperty getDoneColumn(boolean visible, int width) {
-        return new ColumnProperty(
-	    8, // UID -- never change (part of serialization
-	    UserTaskProperties.PROP_DONE.getID(),
-            Boolean.TYPE,
-	    UserTaskProperties.PROP_DONE.getName(),
-	    UserTaskProperties.PROP_DONE.getHint(),
-            true,
-            visible,
-            width
-            );
-    }
-
-    public ColumnProperty getDueColumn(boolean visible, int width) {
-        return new ColumnProperty(
-	    9, // UID -- never change (part of serialization
-	    UserTaskProperties.PROP_DUE_DATE.getID(),
-            //String.class,
-            Date.class,
-	    UserTaskProperties.PROP_DUE_DATE.getName(),
-	    UserTaskProperties.PROP_DUE_DATE.getHint(),
-            true,
-            visible,
-            width
-            );
-    }
-
-    public ColumnProperty getPercentColumn(boolean visible, int width) {
-        return new ColumnProperty(
-    	    10, // UID -- never change (part of serialization
-	    UserTaskProperties.PROP_PERCENT_COMPLETE.getID(),
-            Integer.TYPE,
-	    UserTaskProperties.PROP_PERCENT_COMPLETE.getName(),
-	    UserTaskProperties.PROP_PERCENT_COMPLETE.getHint(),
-            true,
-            visible,
-            width
-            );
-    }
-            
-    public ColumnProperty getEffortColumn(boolean visible, int width) {
-        return new ColumnProperty(
-    	    11, // UID -- never change (part of serialization
-	    UserTaskProperties.PROP_EFFORT.getID(),
-            Integer.TYPE,
-	    UserTaskProperties.PROP_EFFORT.getName(),
-	    UserTaskProperties.PROP_EFFORT.getHint(),
-            true,
-            visible,
-            width
-            );
+        return new ColumnProperty[0];
     }
     
-    public ColumnProperty getRemainingEffortColumn(boolean visible, int width) {
-        return new ColumnProperty(
-    	    12, // UID -- never change (part of serialization
-	    UserTaskProperties.PROP_REMAINING_EFFORT.getID(),
-            Integer.TYPE,
-	    UserTaskProperties.PROP_REMAINING_EFFORT.getName(),
-	    UserTaskProperties.PROP_REMAINING_EFFORT.getHint(),
-            true,
-            visible,
-            width
-            );
-    }
-    
-    public ColumnProperty getSpentTimeColumn(boolean visible, int width) {
-        return new ColumnProperty(
-    	    13, // UID -- never change (part of serialization
-	    UserTaskProperties.PROP_SPENT_TIME.getID(),
-            Integer.TYPE,
-	    UserTaskProperties.PROP_SPENT_TIME.getName(),
-	    UserTaskProperties.PROP_SPENT_TIME.getHint(),
-            true,
-            visible,
-            width
-            );
-    }
-    
-    private static UserTaskView defview = null;
-
-    static UserTaskView getDefault() {
-	if (defview == null) {
-	    defview = new UserTaskView();
-	
-	    WindowManager wm = WindowManager.getDefault();
-	    Mode mode  = wm.findMode("output"); // NOI18N
-	    if (mode != null) {
-		mode.dockInto(defview);
-	    }
-
-	    defview.open();
-	    defview.requestVisible(); // requestFocus???
-	}
-	return defview;
-    }
-
-    private static ArrayList views = null; // leak??? YES! Remove in componentClosed!
-
-    /** Return true iff the default view has been created already */
-    static boolean defaultViewCreated() {
-        return defview != null;
-    }
-    
-    /** 
-     * Return the currently active user task view, or the default
-     * one if none are active 
-     */
-    public static TaskListView getCurrent() {
-	// Try to figure out which view is current. If none is found to
-	// be visible, guess one.
-        if (views == null) {
-            return defview;
-        }
-	Iterator it = views.iterator();
-        while (it.hasNext()) {
-	    UserTaskView tlv = (UserTaskView)it.next();
-            if (tlv.isShowing()) {
-		return tlv;
-	    }
-	}
-        return defview;
-    }    
-
-    /** Locate a particular view showing the given list */
-    static UserTaskView findListView(FileObject file) {
-        if (views == null) {
-            return null;
-        }
- 	Iterator it = views.iterator();
-        while (it.hasNext()) {
-	    UserTaskView tlv = (UserTaskView)it.next();
-            if (((UserTaskList)tlv.getList()).getFile() == file) {
-                return tlv;
-            }
-        }
-        return null;
-    }
-
     protected Node createRootNode() {
         return new UserTaskListNode((UserTaskList) getModel(), null);
     }
@@ -615,5 +421,4 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public void expandAll() {
         tt.expandAll();
     }
-    
 }

@@ -83,6 +83,8 @@ final class UserTaskNode extends AbstractNode {
         
         item.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
+                UserTaskNode.this.firePropertyChange(e.getPropertyName(),
+                    e.getOldValue(), e.getNewValue());
                 String n = e.getPropertyName();
                 if (n == "started" || n == "spentTimeComputed") {
                     fireCookieChange();
@@ -92,7 +94,7 @@ final class UserTaskNode extends AbstractNode {
     } 
 
     /**
-     * TODO: comment
+     * Returns the task associated with this node
      */
     public UserTask getTask() {
         return item;

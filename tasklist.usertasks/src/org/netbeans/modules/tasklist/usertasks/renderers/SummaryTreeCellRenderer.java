@@ -24,6 +24,7 @@ import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 /**
@@ -48,7 +49,8 @@ public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
             leaf, row, hasFocus);
         if (value instanceof UserTaskListTreeTableNode) {
             icon.setImage(IMAGE);
-            setText("Task List"); // TODO i18n
+            setText(NbBundle.getMessage(SummaryTreeCellRenderer.class, 
+                "TaskList")); // NOI18N
         } else {
             UserTaskTreeTableNode utl = (UserTaskTreeTableNode) value;
             UserTask ut = utl.getUserTask();

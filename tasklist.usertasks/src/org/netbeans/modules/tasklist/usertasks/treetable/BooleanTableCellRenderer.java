@@ -68,7 +68,7 @@ implements TableCellRenderer {
         return this;
     }
     
-    // TODO: workaround for a Swing bug (?)
+    // workaround for a Swing bug (?)
     protected void paintComponent(java.awt.Graphics g) {
         Rectangle oldClip = g.getClipBounds();
         g.setClip(oldClip.x, oldClip.y, 
