@@ -1115,9 +1115,6 @@ err.log("Couldn't find current nodes...");
             if (ManagerSettings.getDefault().isScanOnEdit()) {
                 scheduleRescan(false, ManagerSettings.getDefault().getEditScanDelay());
             }
-
-            // If there's a visible marker annotation on the line, clear it now
-            clearMarker();
         }
 
         public void removeUpdate(DocumentEvent e) {
@@ -1127,9 +1124,6 @@ err.log("Couldn't find current nodes...");
             if (ManagerSettings.getDefault().isScanOnEdit()) {
                 scheduleRescan(false, ManagerSettings.getDefault().getEditScanDelay());
             }
-
-            // If there's a visible marker annotation on the line, clear it now
-            clearMarker();
         }
 
         /** Moving the cursor position should cause a delay in document scanning,
@@ -1176,14 +1170,6 @@ err.log("Couldn't find current nodes...");
                     // XXX badge editor suggestion in tasklist
                     //[SuggestionsView]setCursorLine(line);
                 }
-            }
-        }
-
-        /** Get rid of any annotations marking the current task */
-        private void clearMarker() {
-            SuggestionsView tlv = SuggestionsView.getCurrentView();
-            if (tlv != null) {
-                tlv.hideTaskInEditor();
             }
         }
 
