@@ -109,11 +109,11 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         if (cmdName == null) {
             return;
         }
-        Set foSet = new HashSet();
-        for (int i = 0; i < fileObjects.length; i++) {
-            foSet.add(fileObjects[i]);
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+        VcsCommand cmd = fileSystem.getCommand(cmdName);
+        if (cmd != null) {
+            VcsAction.performVcsCommand(cmd, fileSystem, Arrays.asList(fileObjects), false);
         }
-        performCommand(cmdName, foSet);
     }
 
     
@@ -135,110 +135,6 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         return remaining;
     }
             
-    protected void performCommand(final String cmdName, Set fos) {
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        final VcsCommand cmd = fileSystem.getCommand(cmdName);
-        if (cmd == null) return;
-        boolean processAll = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
-        Table files = new Table();
-        //String mimeType = null;
-        //String path = "";
-        boolean refreshDone = false;
-        addImportantFiles(fos, files, processAll, false);
-        files = removeDisabled(fileSystem.getStatusProvider(), files, cmd);
-        if (cmdName.equals(VcsCommand.NAME_REFRESH)) {
-            ArrayList paths = new ArrayList();
-            for (Iterator it = files.values().iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                String path = fo.getPackageName('/');
-                if (!paths.contains(path)) {
-                    doList(path);
-                    paths.add(path);
-                }
-            }
-        } else if (cmdName.equals(VcsCommand.NAME_REFRESH_RECURSIVELY)) {
-            ArrayList paths = new ArrayList();
-            for (Iterator it = files.values().iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                String path = fo.getPackageName('/');
-                if (!paths.contains(path)) {
-                    doListSub(path);
-                    paths.add(path);
-                }
-            }
-        } else if (files.size() > 0) {
-            doCommand (files, cmd);
-        }
-    }
-
-
-    public void actionPerformed(String commandName, FileObject[] fos){
-        //D.deb("actionPerformed("+e+")"); // NOI18N
-        //System.out.println("actionPerformed("+e+")");
-        final String cmdName = commandName;
-        //D.deb("cmd="+cmd); // NOI18N
-        final Set fosSet = new HashSet();
-        for (int i = 0; i < fos.length; i++) {
-            fosSet.add(fos[i]);
-        }
-        Runnable cpr;
-        cpr = new Runnable() {
-             public void run() {
-                 performCommand(cmdName, fosSet);
-             }
-        };
-        new Thread(cpr, "Vcs Commands Performing Thread").start();
-    }
-
-    /**
-     * Do a command on a set of files.
-     * @param files the table of pairs of files and file objects, to perform the command on
-     * @param cmd the command to perform
-     * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
-     */
-    private void doCommand(Table files, VcsCommand cmd) {
-        Hashtable map = new Hashtable(1);
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        VcsAction.doCommand(files, cmd, map, fileSystem);
-    }
-    
-    /** Make sure, that the files are saved. If not, save them.
-     * @param fos the collection of FileObjects
-     */
-    private static void assureFilesSaved(Collection fos) {
-        for (Iterator it = fos.iterator(); it.hasNext(); ) {
-            FileObject fo = (FileObject) it.next();
-            DataObject dobj = null;
-            try {
-                dobj = DataObject.find(fo);
-            } catch (DataObjectNotFoundException exc) {
-                // ignored
-            }
-            if (dobj != null || dobj.isModified()) {
-                Node.Cookie cake = dobj.getCookie(SaveCookie.class);
-                try {
-                    if (cake != null) ((SaveCookie) cake).save();
-                } catch (java.io.IOException exc) {
-                    TopManager.getDefault().notifyException(exc);
-                }
-            }
-        }
-    }
-    
-    /** Reorder the table of files by the path hierarchical order.
-     * @param files the table of pairs of files and file objects
-     * @return the reordered table
-     */
-    private static Table createHierarchicalOrder(Table files) {
-        TreeMap sorted = new TreeMap(files);
-        Table sortedFiles = new Table();
-        for (Iterator it = sorted.keySet().iterator(); it.hasNext(); ) {
-            Object key = it.next();
-            sortedFiles.put(key, files.get(key));
-        }
-        return sortedFiles;
-    }
-
     /**
      * Test if some of the selected nodes are directories.
      * @return <code>true</code> if some of the selected nodes are directories,
@@ -287,57 +183,6 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
        return false;
     }
 
-    /**
-     * Add files marked as important.
-     * @param dd the data object from which the files are read.
-     * @param res the <code>Table</code> of path and FileObject pairs which are important.
-     * @param all whether to add unimportant files as well
-     */
-    protected void addImportantFiles(Collection fos, Table res, boolean all, boolean doNotTestFS) {
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        addImportantFiles(fos, res, all, fileSystem, doNotTestFS);
-    }
-
-    /**
-     * Add files.
-     * @param dd the data object from which the files are read.
-     * @param res the <code>Table</code> of path and FileObject pairs.
-     * @param all whether to add unimportant files as well
-     * @param fileSystem the file system
-     */
-    public static void addImportantFiles(Collection fos, Table res, boolean all, VcsFileSystem fileSystem) {
-        addImportantFiles(fos, res, all, fileSystem, false);
-    }
-    
-    /**
-     * Add files.
-     * @param dd the data object from which the files are read.
-     * @param res the <code>Table</code> of path and FileObject pairs.
-     * @param all whether to add unimportant files as well
-     * @param fileSystem the file system
-     * @param doNotTestFS if true, FileObjects will not be tested whether they belong to VcsFileSystem
-     */
-    public static void addImportantFiles(Collection fos, Table res, boolean all, VcsFileSystem fileSystem, boolean doNotTestFS) {
-        for(Iterator it = fos.iterator(); it.hasNext(); ) {
-            FileObject ff = (FileObject) it.next();
-            try {
-                if (!doNotTestFS && ff.getFileSystem() != fileSystem)
-                    continue;
-            } catch (FileStateInvalidException exc) {
-                continue;
-            }
-            String fileName = ff.getPackageNameExt('/','.');
-            //VcsFile file = fileSystem.getCache().getFile(fileName);
-            //D.deb("file = "+file+" for "+fileName);
-            //if (file == null || file.isImportant()) {
-            if (all || fileSystem.isImportant(fileName)) {
-                //D.deb(fileName+" is important");
-                res.put(fileName, ff);
-            }
-            //else D.deb(fileName+" is NOT important");
-        }
-    }
-    
     private Set getSelectedFileStatusAttributes(Set fileObjects) {
         Set statuses = new HashSet();
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
@@ -356,35 +201,4 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         return statuses;
     }
 
- 
-    /**
-     * Do refresh of a directory.
-     * @param path the directory path
-     */
-    public void doList(String path) {
-        //D.deb("doList('"+path+"')"); // NOI18N
-        //System.out.println("VcsAction.doList("+path+")");
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        FileCacheProvider cache = fileSystem.getCacheProvider();
-        if (statusProvider == null) return;
-        //System.out.println("cache = "+cache+", cache.isDir("+path+") = "+cache.isDir(path));
-        if (cache == null || cache.isDir(path)) {
-            statusProvider.refreshDir(path);
-        } else {
-            String dirName = VcsUtilities.getDirNamePart(path);
-            statusProvider.refreshDir(dirName);
-        }
-    }
-
-    /**
-     * Do recursive refresh of a directory.
-     * @param path the directory path
-     */
-    public void doListSub(String path) {
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        CommandExecutorSupport.doRefresh(fileSystem, path, true);
-    }
-
-    
 }
