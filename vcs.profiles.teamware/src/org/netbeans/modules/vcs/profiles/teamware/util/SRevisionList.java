@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
+import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem;
 import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList;
 
 public class SRevisionList extends NumDotRevisionList {
@@ -30,6 +31,21 @@ public class SRevisionList extends NumDotRevisionList {
     public synchronized void add(RevisionItem item) {
         if (activeRevision == null) {
             activeRevision = (SRevisionItem) item;
+        }
+        String revision = item.getRevision();
+        if (NumDotRevisionItem.numDots(revision) > 1) {
+            // Assure that we have the branch for that revision created
+            String branch = revision.substring(0, revision.lastIndexOf('.'));
+            for (Iterator i = iterator(); i.hasNext();) {
+                RevisionItem ri = (RevisionItem) i.next();
+                if (branch.equals(ri.getRevision())) {
+                    branch = null;
+                    break;
+                }
+            }
+            if (branch != null) {
+                super.add(new SRevisionItem(branch));
+            }
         }
         super.add(item);
     }
