@@ -65,7 +65,34 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   private transient Hashtable commandsByName=null;
   
   private transient VcsCache cache=null;
+
+  private long cacheId=0;
+
+  private static transient String CACHE_ROOT="vcscache";
+  private static transient long CACHE_LAST_ID=0;
   
+
+  //-------------------------------------------
+  private void createDir(String path){
+    File dir=new File(path);
+    if( dir.isDirectory() ){
+      return ;
+    }
+    if( dir.mkdirs()==false ){
+      E.err("Unable to create directory "+path);
+    }
+  }
+  
+  //-------------------------------------------
+  private void init(){
+    CACHE_ROOT=System.getProperty("netbeans.home")+
+      //"/home/mfadljevic/Development/src_modules/com/netbeans/enterprise/modules/vcs/cmdline"+
+      File.separator+"vcscache";
+    String cacheDir=CACHE_ROOT+File.separator+cacheId;
+    createDir(cacheDir);
+    cache=new VcsCache(this,cacheDir);
+  }
+
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
     D.deb("CommandLineVcsFileSystem()");
@@ -81,20 +108,34 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     variables=UserCommand.readVariables("st30",props);
     commands=UserCommand.readCommands("st30",props);
 
-    cache=new VcsCache(this);
+    cacheId=getNewCacheId();
+    init();
+  }
+
+  //-------------------------------------------
+  public static long getNewCacheId(){
+    return ++CACHE_LAST_ID;
+  }
+
+  //-------------------------------------------
+  public long getCacheId(){
+    return cacheId;
   }
 
   //-------------------------------------------
   private void readObject(ObjectInputStream in) throws 
     ClassNotFoundException, IOException, NotActiveException{
+    long savedCacheLastId=in.readLong();
     in.defaultReadObject();
-    cache=new VcsCache(this);
-    D.deb("readObject() - restoring bean");
+    init();
+    CACHE_LAST_ID=Math.max(savedCacheLastId, CACHE_LAST_ID);
+    //D.deb("readObject() - restoring bean");
   }
 
   //-------------------------------------------
   private void writeObject(ObjectOutputStream out) throws IOException {
     //D.deb("writeObject() - saving bean");
+    out.writeLong(CACHE_LAST_ID);
     out.defaultWriteObject();
   }  
   
@@ -559,6 +600,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         4/29/99  Michal Fadljevic 
  *  8    Gandalf   1.7         4/28/99  Michal Fadljevic 
  *  7    Gandalf   1.6         4/27/99  Michal Fadljevic 
  *  6    Gandalf   1.5         4/26/99  Michal Fadljevic 
