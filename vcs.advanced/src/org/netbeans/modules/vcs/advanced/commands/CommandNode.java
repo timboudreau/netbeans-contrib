@@ -55,6 +55,7 @@ public class CommandNode extends AbstractNode {
         propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
+        propertyClassTypes.put(VcsCommand.PROPERTY_INPUT_DESCRIPTOR, String.class);
         //propertyClassTypes.put(VcsCommand.PROPERTY_NOT_ON_ROOT, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_NUM_REVISIONS, Integer.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_ON_DIR, Boolean.TYPE);
@@ -199,6 +200,7 @@ public class CommandNode extends AbstractNode {
                 label = g("CTL_"+propertyName);
             } catch (MissingResourceException exc) {
                 label = null;
+                //exc.printStackTrace();
             }
             //System.out.println("label for property '"+propertyNames[i]+"' = "+label);
             if (label == null) continue;
