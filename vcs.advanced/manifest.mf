@@ -8,7 +8,7 @@ OpenIDE-Module-Specification-Version: 1.5
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.vcscore/1
 OpenIDE-Module-Layer: org/netbeans/modules/vcs/advanced/config/mf-layer.xml
-Class-Path: ext/regexp.jar
+OpenIDE-Module-Package-Dependencies: org.apache.regexp[RE]
 
 Name: org/netbeans/modules/vcs/advanced/CommandLineVcsFileSystem.class
 Display-Name: Generic VCS
