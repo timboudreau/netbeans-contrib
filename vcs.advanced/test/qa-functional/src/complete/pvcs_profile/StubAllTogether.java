@@ -302,12 +302,12 @@ public class StubAllTogether extends PVCSStub {
     public void testRemoveRevision() {
         D_File.waitStatus ("Current");
         D_File.pvcsNode ().pVCSRemoveRevision();
-        assertQuestionYesDialog("Are you sure you want to remove the last revision of the file \"" + D_File.filename (0) + "\"?");
+        assertQuestionYesDialog("Are you sure you want to remove the file \"" + D_File.filename (0) + "\"?");
         RemoveCommandOperator removeCommand = new RemoveCommandOperator(D_File.filename (0));
         removeCommand.ok();
         removeCommand.waitClosed ();
         D_File.waitHistory("Remove Revision");
-        assertInformationDialog("The last revision of the file \"D_File.java\" was removed successfully.");
+        assertInformationDialog("Chosen revision of the file \"" + D_File.filename (0) + "\" was removed successfully.");
         String status = Utilities.isWindows() ? "Locally Modified" : "Current"; // Workaround until #27634 is fixed.
         D_File.waitStatus (status);
     }
