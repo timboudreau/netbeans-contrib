@@ -77,7 +77,7 @@ Microsystems, Inc. All Rights Reserved.
          basedir="src"
          excludesfile="${nbroot1}/nbbuild/standard-jar-excludes.txt"
 	 excludes="org/netbeans/modules/vcs/profiles/clearcase/mf-layer_XX.xml"
-         compress="false">
+	 compress="${build.package.compress}" index="${build.package.index}">
       <locale name="ja"/>
       <fileset dir="src/" excludesfile="${nbroot1}/nbbuild/standard-jar-excludes.txt">
         <include name="**/*"/>
