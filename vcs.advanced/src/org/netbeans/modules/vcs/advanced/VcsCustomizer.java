@@ -53,8 +53,6 @@ import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
 
-import org.netbeans.modules.vcs.profiles.commands.RelativeMountPointSelector;
-
 /** Customizer
  *
  * @author Michal Fadljevic, Martin Entlicher
@@ -119,9 +117,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jLabel2.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.jLabel2.textA11yDesc"));  // NOI18N
         rootDirTextField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.workingDirectoryTextField.textA11yName"));  // NOI18N
         browseButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButton.textA11yDesc")); // NOI18N
-        relMountLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.relMountLabel.textA11yDesc"));  // NOI18N
-        relMountTextField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.relativeTextField.textA11yName"));  // NOI18N
-        relMountButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.relMountButton.textA11yDesc")); // NOI18N
         jLabel1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_AdditionalProfilesTextA11yDesc"));  // NOI18N
         jLabel5.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.modesLabel.textA11yDesc"));  // NOI18N
         jLabel6.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.actionsLabel.textA11yDesc"));  // NOI18N
@@ -166,9 +161,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jLabel2 = new javax.swing.JLabel();
         rootDirTextField = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
-        relMountLabel = new javax.swing.JLabel();
-        relMountTextField = new javax.swing.JTextField();
-        relMountButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel1 = new javax.swing.JLabel();
@@ -272,8 +264,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 5);
         propsPanel.add(rootDirTextField, gridBagConstraints);
 
-        browseButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.relMountButton.textA11yDesc"));
         browseButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.browseButton.text"));
+        browseButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButton.textA11yDesc"));
         browseButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -283,41 +275,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
         propsPanel.add(browseButton, gridBagConstraints);
-
-        relMountLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountLabel.text"));
-        relMountLabel.setLabelFor(relMountTextField);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 12);
-        propsPanel.add(relMountLabel, gridBagConstraints);
-
-        relMountTextField.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.relativeTextField.textA11yDesc"));
-        relMountTextField.setMinimumSize(new java.awt.Dimension(165, 21));
-        relMountTextField.addActionListener(formListener);
-        relMountTextField.addFocusListener(formListener);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 5);
-        propsPanel.add(relMountTextField, gridBagConstraints);
-
-        relMountButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.relMountButton.textA11yDesc"));
-        relMountButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountButton.text"));
-        relMountButton.addActionListener(formListener);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
-        propsPanel.add(relMountButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -759,12 +716,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             else if (evt.getSource() == browseButton) {
                 VcsCustomizer.this.browseButtonActionPerformed(evt);
             }
-            else if (evt.getSource() == relMountTextField) {
-                VcsCustomizer.this.relMountTextFieldActionPerformed(evt);
-            }
-            else if (evt.getSource() == relMountButton) {
-                VcsCustomizer.this.relMountButtonActionPerformed(evt);
-            }
             else if (evt.getSource() == advancedModeCheckBox) {
                 VcsCustomizer.this.advancedModeCheckBoxActionPerformed(evt);
             }
@@ -812,9 +763,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         public void focusLost(java.awt.event.FocusEvent evt) {
             if (evt.getSource() == rootDirTextField) {
                 VcsCustomizer.this.rootDirTextFieldFocusLost(evt);
-            }
-            else if (evt.getSource() == relMountTextField) {
-                VcsCustomizer.this.relMountTextFieldFocusLost(evt);
             }
             else if (evt.getSource() == promptEditTextField) {
                 VcsCustomizer.this.promptEditTextFieldFocusLost(evt);
@@ -1060,44 +1008,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         // Add your handling code here:
         fileSystem.setExpertMode(advancedModeCheckBox.isSelected());
     }//GEN-LAST:event_advancedModeCheckBoxActionPerformed
-
-  private void relMountTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_relMountTextFieldFocusLost
-// Add your handling code here:
-        relMountPointChanged();
-  }//GEN-LAST:event_relMountTextFieldFocusLost
-
-  private void relMountTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_relMountTextFieldActionPerformed
-// Add your handling code here:
-        relMountPointChanged();
-  }//GEN-LAST:event_relMountTextFieldActionPerformed
-
-  private void relMountButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_relMountButtonActionPerformed
-// Add your handling code here:
-        String work = rootDirTextField.getText();
-        String dir = work + File.separator + relMountTextField.getText();
-        RelativeMountDialog mountDlg = new RelativeMountDialog();
-        if (multipleMountPoints) {
-            mountDlg.setDir(work, RelativeMountPointSelector.getQuotedRelativeMountPoints(relMountTextField.getText()));
-        } else {
-            mountDlg.setDir(work, relMountTextField.getText());
-        }
-        java.awt.Dialog dlg = DialogDisplayer.getDefault().createDialog(mountDlg);
-        //VcsUtilities.centerWindow (mountDlg);
-        //HelpCtx.setHelpIDString (dlg.getRootPane (), CvsCustomizer.class.getName ());
-        dlg.setVisible(true);
-        String selected;
-        if (multipleMountPoints) {
-            String[] relMounts = mountDlg.getRelMounts();
-            if (relMounts == null) return ; // Nothing selected
-            selected = VcsUtilities.arrayToQuotedStrings(relMounts);
-        } else {
-            selected = mountDlg.getRelMount();
-        }
-        if (selected != null) {
-            relMountTextField.setText(selected);
-            relMountPointChanged();
-        }
-  }//GEN-LAST:event_relMountButtonActionPerformed
 
     private void rootDirTextFieldFocusLost (java.awt.event.FocusEvent evt) {//GEN-FIRST:event_rootDirTextFieldFocusLost
         // Add your handling code here:
@@ -1346,9 +1256,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private javax.swing.JLabel promptLockLabel;
     private javax.swing.JTextField promptLockTextField;
     private javax.swing.JPanel propsPanel;
-    private javax.swing.JButton relMountButton;
-    private javax.swing.JLabel relMountLabel;
-    private javax.swing.JTextField relMountTextField;
     private javax.swing.JTextField rootDirTextField;
     private javax.swing.JButton saveAsButton;
     private javax.swing.JLabel systemEnvLabel;
@@ -1377,7 +1284,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private String oldSelectedLabel = null;
     private boolean promptForConfigComboChange = true;
     private boolean doConfigComboChange = true;
-    private boolean multipleMountPoints = false;
 
     // Entries in hashtables are maintained as a cache of properties read from disk
     // and are read only. Changes are applied only to fileSystem.variables (fileSystem.commands).
@@ -1388,16 +1294,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private TableSorter envTableModel;
     private TableSorter systemEnvTableModel;
     
-    /**
-     * Set to use multiple mount points in the customization.
-     * The first mount point is set to the filesystem and variable
-     * "MULTIPLE_RELATIVE_MOUNT_POINTS" is defined, which contains
-     * all comma-separated mount points.
-     */
-    public void setMultipleMountPoints(boolean multipleMountPoints) {
-        this.multipleMountPoints = multipleMountPoints;
-    }
-
     /**
      * @return true if no profile is selected
      */
@@ -1468,9 +1364,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jLabel2.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.jLabel2.mnemonic").charAt (0));
         jLabel2.setLabelFor (rootDirTextField);
         browseButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.browseButton.mnemonic").charAt (0));
-        relMountLabel.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountLabel.mnemonic").charAt (0));
-        relMountLabel.setLabelFor (relMountTextField);
-        relMountButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountButton.mnemonic").charAt (0));
         //Advanced tab
         varButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.varButton.mnemonic").charAt (0));
         cmdButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.cmdButton.mnemonic").charAt (0));
@@ -1534,48 +1427,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
     }
 
-    private void relMountPointChanged() {
-        String module = relMountTextField.getText();
-        if (multipleMountPoints) {
-            variableChanged("MULTIPLE_RELATIVE_MOUNT_POINTS", null, module, null);
-            module = RelativeMountPointSelector.getQuotedRelativeMountPoints(module)[0];
-            if (module == null) module = "";
-        }
-        try {
-            fileSystem.setRelativeMountPoint(module);
-        } catch (PropertyVetoException exc) {
-            javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    if (isRootNotSetDlg) {
-                        isRootNotSetDlg = false;
-                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
-                        isRootNotSetDlg = true;
-                    }
-                }
-            });
-            module = null;
-        } catch (IOException ioexc) {
-            module = null;
-        }
-        if (module == null) {
-            relMountTextField.setText(fileSystem.getRelativeMountPoint());
-        }
-        String cmd = (String) autoFillVars.get("MODULE");
-        if (cmd != null) autoFillVariables(cmd);
-    }
-    
     //-------------------------------------------
     private void loadConfig(String profileName, String label) {
         if(!label.equals (fileSystem.getConfig ())) {
-            String modules = null;
-            if (multipleMountPoints) {
-                modules = (String) fileSystem.getVariablesAsHashtable().get("MULTIPLE_RELATIVE_MOUNT_POINTS");
-            }
             Profile profile = ProfilesFactory.getDefault().getProfile(profileName);
             fileSystem.setProfile(profile);
-            if (multipleMountPoints) {
-                variableChanged("MULTIPLE_RELATIVE_MOUNT_POINTS", null, modules, null);
-            }
             if (profile != null) {
                 String autoFillVarsStr = (String) fileSystem.getVariablesAsHashtable().get(VAR_AUTO_FILL);
                 if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
@@ -1704,11 +1560,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             VariableInputDescriptor configInputDescriptor = null;
             if (configInputDescriptorStr != null && configInputDescriptorStr.length() > 0) {
                 try {
-                    if (multipleMountPoints) {
-                        configInputDescriptorStr = renameVar(configInputDescriptorStr,
-                                                             "MODULE",
-                                                             "MULTIPLE_RELATIVE_MOUNT_POINTS");
-                    }
                     configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr);
                 } catch (VariableInputFormatException vifex) {
                     ErrorManager.getDefault().notify(vifex);//TopManager.getDefault().getErrorManager().annotate(vifex, "
@@ -1729,36 +1580,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             i++;
         } while (true);
         return cids;
-    }
-    
-    private static String renameVar(String str, String varOld, String varNew) {
-        StringBuffer buff = new StringBuffer(str);
-        int index = 0;
-        do {
-            index = buff.indexOf(varOld, index);
-            if (index < 0) break;
-            if (index > 0) {
-                char c = buff.charAt(index - 1);
-                if (!renameVarBoundaryChar(c)) {
-                    index++;
-                    continue;
-                }
-            }
-            if (index < buff.length() - 1) {
-                char c = buff.charAt(index + varOld.length());
-                if (!renameVarBoundaryChar(c)) {
-                    index++;
-                    continue;
-                }
-            }
-            buff.replace(index, index + varOld.length(), varNew);
-            index += varNew.length() - 1;
-        } while (true);
-        return buff.toString();
-    }
-    
-    private static boolean renameVarBoundaryChar(char c) {
-        return c == '(' || c == ')' || c == ',' || c == ']' || c == '{' || c == '}';
     }
     
     private void initAdditionalComponents (boolean doAutoFillVars) {
@@ -1857,9 +1678,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jLabel2.setVisible(configInputDescriptors == null);
         rootDirTextField.setVisible(configInputDescriptors == null);
         browseButton.setVisible(configInputDescriptors == null);
-        relMountLabel.setVisible(configInputDescriptors == null);
-        relMountTextField.setVisible(configInputDescriptors == null);
-        relMountButton.setVisible(configInputDescriptors == null);
         fsVarsByName = new HashMap();
         while (vars.hasMoreElements ()) {
             VcsConfigVariable var = (VcsConfigVariable) vars.nextElement ();
@@ -2102,24 +1920,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if ("ROOTDIR".equals(varName)) {
             rootDirTextField.setText(newValue);
             changeRootDir(newValue);
-            String module = relMountTextField.getText();
-            if (multipleMountPoints) {
-                variableChanged("MULTIPLE_RELATIVE_MOUNT_POINTS", null, module, fsVars);
-                module = RelativeMountPointSelector.getQuotedRelativeMountPoints(module)[0];
-                if (module == null) module = "";
-            }
-            fsVars.put("MODULE", module);
+            fsVars.put("MODULE", "");
         } else if ("MODULE".equals(varName)) {
             try {
                 fileSystem.setRelativeMountPoint(newValue);
-            } catch (PropertyVetoException pvex) {
-            } catch (IOException ioex) {}
-            relMountTextField.setText(newValue);
-            rootDirChanged();
-        } else if (multipleMountPoints && "MULTIPLE_RELATIVE_MOUNT_POINTS".equals(varName)) {
-            String module = RelativeMountPointSelector.getQuotedRelativeMountPoints(newValue)[0];
-            try {
-                fileSystem.setRelativeMountPoint(module);
             } catch (PropertyVetoException pvex) {
             } catch (IOException ioex) {}
             rootDirChanged();
@@ -2609,10 +2413,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         } catch (IOException ioexc) {
             module = "";
         }
-        if (multipleMountPoints) {
-            variableChanged("MULTIPLE_RELATIVE_MOUNT_POINTS", null, module, null);
-        }
-        relMountTextField.setText(module);
         oldSelectedLabel = fileSystem.getConfig();
         initLastConditionValues();
         updateConfigurations();
@@ -2667,19 +2467,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             if (cmd != null) autoFillVariables(cmd);
             if (lastRootDir != null && !selected.equals(lastRootDir)) {
                 lastRootDir = selected;
-                boolean resetMountPoint = false;
-                if (multipleMountPoints) {
-                    String relMount = RelativeMountPointSelector.getQuotedRelativeMountPoints(relMountTextField.getText())[0];
-                    if (relMount != null) {
-                        resetMountPoint = !(new File(selected, relMount).exists());
-                    }
-                } else {
-                    resetMountPoint = !(new File(selected, relMountTextField.getText()).exists());
-                }
-                if (resetMountPoint) {
-                    relMountTextField.setText("");
-                    relMountPointChanged();
-                }
             }
             updateConditionalValues();
         } catch (PropertyVetoException veto){
