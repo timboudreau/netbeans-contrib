@@ -44,7 +44,7 @@ final class JndiChildren extends Children.Keys {
   //Set actual offset in tree hierrarchy
   //This method shold be immediatelly called after JndiChildren is created
   public void setOffset(CompositeName offset) {
-    offset = offset;
+    this.offset = offset;
   }
   
   // Returns actual offset
@@ -65,6 +65,7 @@ final class JndiChildren extends Children.Keys {
   
   // this method creates keys and set them
   public void prepareKeys() throws NamingException {
+
     NamingEnumeration ne = parentContext.list(this.offset.toString());
     if (ne == null) return;
     Vector v = new Vector();
@@ -86,9 +87,9 @@ final class JndiChildren extends Children.Keys {
 
       NameClassPair np = (NameClassPair) key;
       if (isContext(np.getClassName())) {
-        return new Node[] {new JndiNode(parentContext, ((CompositeName)offset.clone()), np.getName())};
+        return new Node[] {new JndiNode(parentContext, ((CompositeName) offset.clone()), np.getName())};
       } else {
-        return new Node[] {new JndiLeafNode(parentContext, ((CompositeName)offset.clone()), np.getName(), np.getClassName())};
+        return new Node[] {new JndiLeafNode(parentContext, ((CompositeName) offset.clone()), np.getName(), np.getClassName())};
       }
     } catch (NamingException ne) {
       return new Node[0];
@@ -99,6 +100,8 @@ final class JndiChildren extends Children.Keys {
   static boolean isContext(String className) {
     if (className.equals(CONTEXT_CLASS_NAME)) {
       return true;
+    } else if (isPrimitive(className)) {
+      return false;
     } else {
       try {
         Class clazz = Class.forName(className);
@@ -106,13 +109,26 @@ final class JndiChildren extends Children.Keys {
           return true;
         }
       } catch (ClassNotFoundException e) {
-        e.printStackTrace();
-        if (className.indexOf("com.gemstone.admin.internal.GNSAgent$") >= 0) {
-          return true;
-        }
+        JndiRootNode.notifyForeignException(e);
       }
     }
     return false;
+  }
+
+  /** @return <tt>true</tt> iff <tt>s</tt> is one of int, long, char, boolean, float, byte, double */
+  private static boolean isPrimitive(String s) {
+    if (s.indexOf('.') >= 0) {
+      return false;
+    }
+
+    return s.equals("int") ||
+      s.equals("short") ||
+      s.equals("long") ||
+      s.equals("byte") ||
+      s.equals("char") ||
+      s.equals("float") ||
+      s.equals("double") ||
+      s.equals("boolean");
   }
 
   /** @return Class object for javax.naming.Context */

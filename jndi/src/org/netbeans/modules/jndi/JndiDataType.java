@@ -80,9 +80,8 @@ final class JndiDataType extends NewType {
                 if (ne instanceof JndiException) {
                   TopManager.getDefault().notify(new NotifyDescriptor.Message("Items Label, Factory, Context and root must be filled!",NotifyDescriptor.Message.ERROR_MESSAGE));
                 } else {
-                  TopManager.getDefault().notifyException(ne);
+                  JndiRootNode.notifyForeignException(ne);
                 }
-                return;
               }
               dlg.setVisible(false);
               dlg.dispose();
@@ -114,8 +113,7 @@ final class JndiDataType extends NewType {
                 context.createSubcontext(nCtx);
                 cld.prepareKeys();
               } catch(NamingException ne) {
-                TopManager.getDefault().notifyException(ne);
-                return;
+                JndiRootNode.notifyForeignException(ne);
               }
               dlg.setVisible(false);
               dlg.dispose();

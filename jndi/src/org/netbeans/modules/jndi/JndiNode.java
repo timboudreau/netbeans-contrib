@@ -29,24 +29,35 @@ import org.openide.actions.CopyAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
 import org.openide.nodes.AbstractNode;
+import org.openide.nodes.NodeAdapter;
+import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.Node.Cookie;
+import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 
 /** This class represents JNDI subdirectory */
-final class JndiNode extends AbstractNode implements TemplateCreator {
+final class JndiNode extends AbstractNode implements TemplateCreator, Cookie {
 
   private boolean isRoot;
   private NewType[] jndinewtypes;
   private SystemAction[] jndiactions;
 
+  /** Set to true only if this node is being destroyed.
+  * If a node with removed set to true is removed then its parent calls refresh.
+  */
+  boolean removed = false;
+
   //Constructor for creation of Top Level Directory
   public JndiNode(DirContext ctx) throws NamingException {
     super (new JndiChildren(ctx));
+    getCookieSet().add(this);
     isRoot = true;
-    ((JndiChildren)this.getChildren()).setOffset(new CompositeName(((String)ctx.getEnvironment().get(JndiRootNode.NB_ROOT))));
-    setName((String)ctx.getEnvironment().get(JndiRootNode.NB_LABEL));
-    ((JndiChildren)this.getChildren()).prepareKeys();
+    ((JndiChildren) this.getChildren()).setOffset(new CompositeName(((String)ctx.getEnvironment().get(JndiRootNode.NB_ROOT))));
+    setName((String) ctx.getEnvironment().get(JndiRootNode.NB_LABEL));
+    ((JndiChildren) this.getChildren()).prepareKeys();
     setIconBase(JndiIcons.ICON_BASE+JndiIcons.getIconName("javax.naming.Context"));
+    addNodeListener(new Refresher());
   }
   
   //Constructor of subdirectory 
@@ -55,12 +66,14 @@ final class JndiNode extends AbstractNode implements TemplateCreator {
   // my_name	name of this directory
   public JndiNode(DirContext ctx, CompositeName parentName, String myName) throws NamingException {
     super (new JndiChildren(ctx));
+    getCookieSet().add(this);
     isRoot = false;
     parentName.add(myName);
     ((JndiChildren)this.getChildren()).setOffset(parentName);
     setName(myName);
     ((JndiChildren)this.getChildren()).prepareKeys();
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName("javax.naming.Context"));
+    addNodeListener(new Refresher());
   }
 
   public boolean isRoot() {
@@ -89,25 +102,91 @@ final class JndiNode extends AbstractNode implements TemplateCreator {
   public boolean canCopy() {
       return true;
   }
+
+  /** @return @link isRoot */
+  public boolean canDestroy() {
+    return true;
+  }
+
+  /** Destroys this node.
+  * If this node is root then nothing more is done.
+  * If this node is not root then represented Context is destroyed.
+  *
+  * @exception IOException
+  */
+  public void destroy() throws IOException {
+
+    if (isRoot()) {
+      super.destroy();
+      return;
+    } else {
+      try {
+        // destroy this context first
+        JndiChildren children = (JndiChildren) getChildren();
+        DirContext parentCtx = children.getContext();
+        parentCtx.destroySubcontext(children.getOffset());
+        // destroy node
+        removed = true;
+        super.destroy();
+      } catch (NamingException e) {
+        JndiRootNode.notifyForeignException(e);
+      }
+    }
+  }
   
   
   public SystemAction[] createActions() {
-      return new SystemAction[] {
-        SystemAction.get(CopyAction.class),
-        null,
-        SystemAction.get(NewAction.class),
-        null,
-        SystemAction.get(ToolsAction.class),
-        SystemAction.get(PropertiesAction.class),
-      };
+    return new SystemAction[] {
+      SystemAction.get(CopyAction.class),
+      null,
+      SystemAction.get(NewAction.class),
+      null,
+      SystemAction.get(RefreshAction.class),
+      null,
+      SystemAction.get(ToolsAction.class),
+      SystemAction.get(PropertiesAction.class),
+    };
   }
   
   public Transferable clipboardCopy() throws IOException {
     try {
       return new StringSelection(this.createTemplate());
     } catch (NamingException ne) {
-      TopManager.getDefault().notifyException(ne);
-      return null;
+      JndiRootNode.notifyForeignException(ne);
+    }
+    
+    return null;
+  }
+
+  /** Refreshes this noe. */
+  void refresh() {
+    try {
+      ((JndiChildren) getChildren()).prepareKeys();
+    } catch (NamingException e) {
+      JndiRootNode.notifyForeignException(e);
+    }
+  }
+
+  /** Listens for changes of its subnodes. Calls refresh then. */
+  class Refresher extends NodeAdapter {
+    public void childrenRemoved(NodeMemberEvent ev) {
+      Node[] delta = ev.getDelta();
+      
+      for (int i = 0; i < delta.length; i++) {
+        JndiNode child = (JndiNode) delta[i].getCookie(JndiNode.class);
+        if (child != null) {
+          if (child.removed) {
+            refresh();
+          }
+        } else {
+          JndiLeafNode leaf = (JndiLeafNode) delta[i].getCookie(JndiLeafNode.class);
+          if (leaf != null) {
+            if (leaf.removed) {
+              refresh();
+            }
+          }
+        }
+      }
     }
   }
 }

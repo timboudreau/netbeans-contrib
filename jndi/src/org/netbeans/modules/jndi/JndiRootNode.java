@@ -18,16 +18,20 @@ import java.util.Properties;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.StringTokenizer;
+import java.util.ResourceBundle;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
 
+import org.openide.TopManager;
+import org.openide.NotifyDescriptor;
 import org.openide.actions.NewAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.DefaultHandle;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 
@@ -197,5 +201,36 @@ public final class JndiRootNode extends AbstractNode {
   }
 
   protected void createProperties() {
+  }
+
+  /** Notifies about an exception that was raised in non Netbeans code. */
+  static void notifyForeignException(Throwable t) {
+
+    String msg;
+    
+    if ((t.getMessage() == null) ||
+        t.getMessage().equals("")) {
+          msg = t.getClass().getName();
+    } else {
+      msg = t.getClass().getName() + ": " + t.getMessage();
+    }
+    
+    final NotifyDescriptor nd = new NotifyDescriptor.Exception(t, msg);
+    Runnable run = new Runnable() {
+      public void run() {
+        TopManager.getDefault().notify(nd);
+      }
+    };
+    java.awt.EventQueue.invokeLater(run);
+  }
+
+  /** Bundle with localizations. */
+  private static ResourceBundle bundle;
+  /** @return a localized string */
+  static String getString(String s) {
+    if (bundle == null) {
+      bundle = NbBundle.getBundle(JndiRootNode.class);
+    }
+    return bundle.getString(s);
   }
 }

@@ -27,13 +27,20 @@ import org.openide.actions.ToolsAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.actions.SystemAction;
+import org.openide.nodes.Node.Cookie;
 
 /** This class is Leaf Node in JNDI tree eg. File...*/
-final class JndiLeafNode extends AbstractNode implements TemplateCreator {
+final class JndiLeafNode extends AbstractNode implements TemplateCreator, Cookie {
 
   protected DirContext ctx;
   protected CompositeName offset;
   protected SystemAction[] actions;
+
+  /** Set to true only if this node is being destroyed.
+  * If a node with removed set to true is removed then its parent calls refresh.
+  */
+  boolean removed = false;
+  
   
   public JndiLeafNode(DirContext ctx, CompositeName parentOffset, String name, String classname) throws NamingException {
     super(Children.LEAF);
@@ -41,6 +48,7 @@ final class JndiLeafNode extends AbstractNode implements TemplateCreator {
     this.ctx = ctx;
     this.offset = (CompositeName) parentOffset.add(name);
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(classname));
+    getCookieSet().add(this);
   }
   
   // Generates code for accessing object that is represented by this node
@@ -77,4 +85,27 @@ final class JndiLeafNode extends AbstractNode implements TemplateCreator {
       SystemAction.get(PropertiesAction.class),
     };
   }
+
+  /** @return @link isRoot */
+  public boolean canDestroy() {
+    return true;
+  }
+
+  /** Destroys this node.
+  * If this node is root then nothing more is done.
+  * If this node is not root then represented Context is destroyed.
+  *
+  * @exception IOException
+  */
+  public void destroy() throws IOException {
+
+    try {
+      // destroy this context first
+      ctx.unbind(offset);
+      removed = true;
+      super.destroy();
+    } catch (NamingException e) {
+      JndiRootNode.notifyForeignException(e);
+    }
+  }  
 }
