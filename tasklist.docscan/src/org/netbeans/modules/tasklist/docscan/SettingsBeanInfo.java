@@ -49,26 +49,12 @@ public class SettingsBeanInfo extends SimpleBeanInfo {
 	PropertyDescriptor[] desc = null;
 	try {
 	    desc = new PropertyDescriptor[] {
-		new PropertyDescriptor(Settings.PROP_SCAN_SOURCES,
-				       Settings.class),
-		new PropertyDescriptor(Settings.PROP_SCAN_DELAY,
-				       Settings.class),
 		new PropertyDescriptor(Settings.PROP_SCAN_SKIP,
 				       Settings.class),
 		new PropertyDescriptor(Settings.PROP_SCAN_TAGS,
 				       Settings.class)
 	    };
 
-	    desc[i].setDisplayName(NbBundle.getMessage(SettingsBeanInfo.class,
-			    "PROP_SCAN_SOURCES"));	    //NOI18N
-	    desc[i++].setShortDescription(NbBundle.getMessage(SettingsBeanInfo.class,
-			    "HINT_SCAN_SOURCES"));	    //NOI18N
-	    desc[i].setDisplayName(NbBundle.getMessage(
-					       SettingsBeanInfo.class,
-			    "PROP_SCAN_DELAY"));	    //NOI18N
-	    desc[i++].setShortDescription(NbBundle.getMessage(
-					      SettingsBeanInfo.class,
-			    "HINT_SCAN_DELAY"));	    //NOI18N
 	    desc[i].setDisplayName(NbBundle.getMessage(
 					       SettingsBeanInfo.class,
 			    "PROP_SCAN_SKIP"));	    //NOI18N

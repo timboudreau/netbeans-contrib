@@ -22,7 +22,7 @@ import org.openide.util.NbBundle;
 /** Settings for the tasklist module.
  */
 
-public class Settings extends SystemOption {
+public final class Settings extends SystemOption {
 
     /** serial uid */
     // XXX check this one
@@ -30,9 +30,7 @@ public class Settings extends SystemOption {
 
     // Option labels
     public static final String
-	PROP_SCAN_SOURCES	= "scanSources",	//NOI18N
 	PROP_SCAN_SKIP  	= "skipComments",	//NOI18N
-	PROP_SCAN_DELAY		= "scanDelay",		//NOI18N
 	PROP_SCAN_TAGS		= "taskTags";		//NOI18N
 
     /** Return the signleton cppSettings */
@@ -56,34 +54,6 @@ public class Settings extends SystemOption {
 	return new HelpCtx ("Welcome_opt_editing_sources");	        //NOI18N
     }
     */
-
-
-    /**
-     * @return true iff the user wants source scanning (where
-     * when the todolist is visible, source files in the editor
-     * are scanned for tasks identified by (stringtable, such
-     * as TODO). The default value is False.
-     */
-    public boolean getScanSources() {
-        Boolean b = (Boolean)getProperty(PROP_SCAN_SOURCES);
-
-	/*
-	// Default to off (null != Boolean.TRUE)
-	return (b == Boolean.TRUE);
-	*/
-
-	// Default to on now that I'm still in a prototype stage
-	return (b != Boolean.FALSE);
-    }
-
-    /** Sets the scanSources property
-     * @param doScan True iff you want to scan sources
-     */
-    public void setScanSources(boolean doScan) {
-	Boolean b = doScan ? Boolean.TRUE : Boolean.FALSE;
-	putProperty(PROP_SCAN_SOURCES, b, true);
-	//firePropertyChange(PROP_SCAN_SOURCES, null, b);	
-    }
 
 
     /**
@@ -114,33 +84,6 @@ public class Settings extends SystemOption {
 	//firePropertyChange(PROP_SCAN_SKIP, null, b);	
     }
 
-
-    /**
-     * @return Delay (in milliseconds) after file exposure
-     * or file edit before the scanner kicks in to update the
-     * tasklist.
-     */
-    public int getScanDelay() {
-        Integer d = (Integer)getProperty(PROP_SCAN_DELAY);
-	if (d == null) {
-	    return 1000; // Default: 1 seconds
-	}
-	return d.intValue();
-    }
-
-    /** Sets the scanDelay type
-     * @param delay The delay (in milliseconds) after file exposure
-     * or file edit before the scanner kicks in to update the
-     * tasklist. Must be greater than or equal to 0.
-     */
-    public void setScanDelay(int delay) {
-	if (delay < 0) {
-	    throw new IllegalArgumentException();	    
-	}
-	Integer d = new Integer(delay);
-	putProperty(PROP_SCAN_DELAY, d, true);
-	//Done above: firePropertyChange(PROP_SCAN_DELAY, null, d);	
-    }
 
     public TaskTags getTaskTags() {
         if (tags == null) {
