@@ -363,6 +363,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (cache instanceof FileReaderListener) {
             vcmd.addFileReaderListener((FileReaderListener) cache);
         }
+        cmd.setExpertMode(fileSystem.isExpertMode());
     }
     
     /**
@@ -434,7 +435,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         Map additionalVars = cmd.getAdditionalVariables();
         if (additionalVars != null) vars.putAll(additionalVars);
         setVariablesFromCommandInterfaces(cmd, vars);
-        if (cmd.isExpertMode() && !fileSystem.isExpertMode()) {
+        if (cmd.isExpertMode()) {
             vars.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
         }
         if (files != null && files.size() > 1) {

@@ -180,34 +180,46 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
         if (filesByCommandProviders.size() == 0) return new JInlineMenu(); // return empty JInlineMenu
         CommandsTree commands;
 	//VcsCommandsProvider provider = null;
+        boolean globalExpertMode;
         if (filesByCommandProviders.size() == 1) {
             VcsCommandsProvider provider = (VcsCommandsProvider) filesByCommandProviders.keySet().iterator().next();
             //List files = (List) filesByCommandProviders.get(provider);
             if (provider instanceof CommandsTree.Provider) {
                 commands = ((CommandsTree.Provider) provider).getCommands();
+                globalExpertMode = ((CommandsTree.Provider) provider).isExpertMode();
             } else {
                 commands = createDefaultCommandsTree(provider);
+                globalExpertMode = false;
             }
         } else {
             commands = mergeProvidedCommands(filesByCommandProviders);
             // TODO it's necessary to get commands of known classes from all
             //      providers or somehow merge together the common commands.
+            globalExpertMode = true;
+            for (Iterator it = filesByCommandProviders.keySet().iterator(); it.hasNext(); ) {
+                VcsCommandsProvider provider = (VcsCommandsProvider) it.next();
+                if (provider instanceof CommandsTree.Provider) {
+                    globalExpertMode = globalExpertMode && ((CommandsTree.Provider) provider).isExpertMode();
+                }
+            }
         }
         JInlineMenu menu = new JInlineMenu();
         if (commands == null) return menu;
-        menu.setMenuItems(createMenuItems(commands, filesWithMessages, inMenu));
+        menu.setMenuItems(createMenuItems(commands, filesWithMessages, inMenu, globalExpertMode));
         if (inMenu && menu != null) {
             menu.setIcon(getIcon());
         }
         return menu;
     }
     
-    private JMenuItem[] createMenuItems(CommandsTree commands, Map filesWithMessages, boolean inMenu) {
+    private JMenuItem[] createMenuItems(CommandsTree commands, Map filesWithMessages,
+                                        boolean inMenu, boolean globalExpertMode) {
         ArrayList menuItems = new ArrayList();
         CommandsTree[] subCommands = commands.children();
         for (int i = 0; i < subCommands.length; i++) {
             //System.out.println("GlobAction.getPresenter() subCommands["+i+"] = "+subCommands[i]);
-            JMenuItem menuItem = getPopupPresenter(subCommands[i], filesWithMessages, inMenu);
+            JMenuItem menuItem = getPopupPresenter(subCommands[i], filesWithMessages,
+                                                   inMenu, globalExpertMode);
             //System.out.println("  menu item = "+menuItem);
             if (menuItem != null) menuItems.add(menuItem);
         }
@@ -218,11 +230,12 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
     private JMenuItem getPopupPresenter(CommandsTree commands, Map filesWithMessages,
-                                        boolean inMenu) {
+                                        boolean inMenu, boolean globalExpertMode) {
         JMenuItem menu;
         //System.out.println("  has Children = "+commands.hasChildren());
         if (commands.hasChildren()) {
-            menu = new CommandMenu(commands, filesWithMessages, true, inMenu);
+            menu = new CommandMenu(commands, filesWithMessages, true, inMenu,
+                                   globalExpertMode);
         } else {
             CommandSupport cmd = commands.getCommandSupport();
             if (cmd == null) return null;
@@ -242,7 +255,7 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                 return null;
                 //menu.setEnabled(false);
             }
-            menu = CommandMenu.createItem(cmd, false, CommandMenu.DEFAULT_ADVANCED_OPTIONS_SIGN,
+            menu = CommandMenu.createItem(cmd, globalExpertMode, CommandMenu.DEFAULT_ADVANCED_OPTIONS_SIGN,
                                           inMenu, filesWithMessages);
         }
         if (inMenu && menu != null) {

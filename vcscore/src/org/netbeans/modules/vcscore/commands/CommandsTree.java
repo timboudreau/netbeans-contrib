@@ -101,5 +101,17 @@ public final class CommandsTree extends Object {
          */
         public void setCommands(CommandsTree commands);
         
+        /**
+         * Get the expert mode of this commands provider. If it's true, all commands
+         * have the expert mode turned on by default;
+         */
+        public boolean isExpertMode();
+        
+        /**
+         * Set the expert mode of this commands provider. If it's true, all commands
+         * have the expert mode turned on by default;
+         */
+        public void setExpertMode(boolean expertMode);
+        
     }
 }

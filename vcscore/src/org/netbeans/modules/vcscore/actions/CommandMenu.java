@@ -54,10 +54,12 @@ public class CommandMenu extends JMenuPlus {
     private String advancedOptionsSign;
     private boolean removeDisabled;
     private boolean inMenu;
+    private boolean globalExpertMode;
     private ActionListener listener;
     private Map actionCommandMap;
     private boolean popupCreated = false;
-    private boolean[] CTRL_Down = { false };
+    /** two elements: 1) whether CTRL was pressed, 2) expertMode */
+    private boolean[] CTRL_Down = { false, false };
 
     /**
      * Creates a new instance of CommandMenu.
@@ -68,22 +70,23 @@ public class CommandMenu extends JMenuPlus {
      * @param inMenu Whether a menu or a popup-menu should be created.
      */
     public CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
-                       boolean removeDisabled, boolean inMenu) {
+                       boolean removeDisabled, boolean inMenu,
+                       boolean globalExpertMode) {
         this(commandRoot, filesWithMessages, DEFAULT_ADVANCED_OPTIONS_SIGN,
-             removeDisabled, inMenu, null, new HashMap());
+             removeDisabled, inMenu, globalExpertMode, null, new HashMap());
     }
     
     public CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
                        String advancedOptionsSign,
-                       boolean removeDisabled, boolean inMenu,
+                       boolean removeDisabled, boolean inMenu, boolean globalExpertMode,
                        ActionListener listener, Map actionCommandMap) {
         this(commandRoot, filesWithMessages, new ArrayList(), advancedOptionsSign,
-             removeDisabled, inMenu, listener, actionCommandMap);
+             removeDisabled, inMenu, globalExpertMode, listener, actionCommandMap);
     }
     
     private CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
                         List switchableList, String advancedOptionsSign,
-                        boolean removeDisabled, boolean inMenu,
+                        boolean removeDisabled, boolean inMenu, boolean globalExpertMode,
                         ActionListener listener, Map actionCommandMap) {
         super();
         this.commandRoot = commandRoot;
@@ -92,6 +95,8 @@ public class CommandMenu extends JMenuPlus {
         this.advancedOptionsSign = advancedOptionsSign;
         this.removeDisabled = removeDisabled;
         this.inMenu = inMenu;
+        this.globalExpertMode = globalExpertMode;
+        this.CTRL_Down[1] = globalExpertMode;
         this.listener = (listener != null) ?
                          listener :
                          new CommandMenu.CommandActionListener(CTRL_Down, actionCommandMap,
@@ -146,7 +151,7 @@ public class CommandMenu extends JMenuPlus {
             if (removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
                 continue;
             }
-            JMenuItem cmdMenu = createItem(cmd, false, switchableList,
+            JMenuItem cmdMenu = createItem(cmd, globalExpertMode, switchableList,
                                            advancedOptionsSign, inMenu,
                                            listener, actionCommandMap);
             if (cmdMenu == null) continue;
@@ -156,8 +161,8 @@ public class CommandMenu extends JMenuPlus {
                 JMenu submenu;
                 submenu = new CommandMenu(children[i], filesWithMessages,
                                           switchableList, advancedOptionsSign,
-                                          removeDisabled, inMenu, listener,
-                                          actionCommandMap);
+                                          removeDisabled, inMenu, globalExpertMode,
+                                          listener, actionCommandMap);
                 add(submenu);
                 item = submenu;
             } else {
@@ -200,7 +205,7 @@ public class CommandMenu extends JMenuPlus {
         }
         item.setActionCommand(commandStr);
         item.addActionListener(listener);
-        if (hasExpert && (!expertMode)) {
+        if (hasExpert) {// && (!expertMode)) {
             switchableList.add(item);
         }
         return item;
@@ -220,7 +225,7 @@ public class CommandMenu extends JMenuPlus {
         if (hasExpert && expertMode && advancedOptionsSign != null) {
             label += advancedOptionsSign;
         }
-        boolean[] CTRL_Down = { false };
+        boolean[] CTRL_Down = { false, expertMode };
         Map actionCommandMap = new HashMap();
         List switchableList = new ArrayList();
         ActionListener listener = new CommandMenu.CommandActionListener(CTRL_Down,
@@ -236,7 +241,7 @@ public class CommandMenu extends JMenuPlus {
             item.addMenuKeyListener(new CtrlMenuKeyListener(CTRL_Down, switchableList,
                                                             advancedOptionsSign));
         }
-        if (hasExpert && (!expertMode)) {
+        if (hasExpert) {// && (!expertMode)) {
             switchableList.add(item);
         }
         return item;
@@ -284,7 +289,7 @@ public class CommandMenu extends JMenuPlus {
                                 ((MessagingCommand) cmd).setMessage(message);
                             }
                             cmd.setGUIMode(true);
-                            if (CTRL_Down[0]) cmd.setExpertMode(CTRL_Down[0]);
+                            if (CTRL_Down[0]) cmd.setExpertMode(CTRL_Down[0] ^ CTRL_Down[1]);
                             boolean customized = VcsManager.getDefault().showCustomizer(cmd);
                             if (customized) cmd.execute();
                         }
@@ -331,7 +336,7 @@ public class CommandMenu extends JMenuPlus {
             while (it.hasNext()) {
                 JMenuItem item = (JMenuItem)it.next();
                 String text = item.getText();
-                if (newValue) {
+                if (newValue ^ CTRL_Down[1]) {
                     // do turn ctrl sign on
                     if (!text.endsWith(advancedOptionsSign)) {
                         text = text + advancedOptionsSign;

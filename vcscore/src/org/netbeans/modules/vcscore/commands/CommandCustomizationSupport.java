@@ -897,7 +897,7 @@ public class CommandCustomizationSupport extends Object {
                 final Hashtable userParamsIndexes = new Hashtable();
 
                 Boolean ctrlDown = (Boolean)vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
-                boolean expertCondition = fileSystem.isExpertMode() || (ctrlDown != null && ctrlDown.booleanValue() == true);
+                boolean expertCondition = /*fileSystem.isExpertMode() || */(ctrlDown != null && ctrlDown.booleanValue() == true);
                 boolean acceptUserParams = fileSystem.isAcceptUserParams() || (ctrlDown != null && ctrlDown.booleanValue() == true);
                 Table userParamsPromptLabels;
                 if (exec == null) {
@@ -1116,7 +1116,7 @@ public class CommandCustomizationSupport extends Object {
                 Hashtable userParamsIndexes = new Hashtable();
 
                 Boolean ctrlDown = (Boolean)vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
-                boolean expertCondition = fileSystem.isExpertMode() || (ctrlDown != null && ctrlDown.booleanValue() == true);
+                boolean expertCondition = /*fileSystem.isExpertMode() ||*/ (ctrlDown != null && ctrlDown.booleanValue() == true);
                 boolean acceptUserParams = fileSystem.isAcceptUserParams() || (ctrlDown != null && ctrlDown.booleanValue() == true);
                 Table userParamsPromptLabels = needPromptForUserParams(fileSystem, exec, vars, userParamsVarNames,
                                                                        userParamsIndexes, cmd, acceptUserParams);

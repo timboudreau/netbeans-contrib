@@ -524,6 +524,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setExpertMode(boolean expertMode) {
         if (expertMode != this.expertMode) {
             this.expertMode = expertMode;
+            if (commandsProvider instanceof CommandsTree.Provider) {
+                ((CommandsTree.Provider) commandsProvider).setExpertMode(expertMode);
+            }
             setAcceptUserParams(expertMode);
             firePropertyChange(PROP_EXPERT_MODE, !expertMode ? Boolean.TRUE : Boolean.FALSE, expertMode ? Boolean.TRUE : Boolean.FALSE);
         }

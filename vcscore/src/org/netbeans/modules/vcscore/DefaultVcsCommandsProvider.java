@@ -34,10 +34,27 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
     private Map commandSupportsByNames;
     private Map commandSupportsByClasses;
     private String[] commandNames;
+    private boolean expertMode;
     
     /** Creates a new instance of DefaultVcsCommandsProvider */
     public DefaultVcsCommandsProvider(CommandsTree commands) {
         setCommands(commands);
+    }
+    
+    /**
+     * Set the expert mode of this commands provider. If it's true, all commands
+     * have the expert mode turned on by default;
+     */
+    public void setExpertMode(boolean expertMode) {
+        this.expertMode = expertMode;
+    }
+    
+    /**
+     * Get the expert mode of this commands provider. If it's true, all commands
+     * have the expert mode turned on by default;
+     */
+    public boolean isExpertMode() {
+        return expertMode;
     }
     
     /**
