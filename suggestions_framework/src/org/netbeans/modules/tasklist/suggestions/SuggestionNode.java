@@ -36,6 +36,7 @@ import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
+import org.netbeans.modules.tasklist.core.editors.LocationPropertyEditor;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.text.Line;
 import org.openide.loaders.DataObject;
@@ -212,6 +213,13 @@ public class SuggestionNode extends TaskNode {
             p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "CategoryHint")); // NOI18N
             ss.put(p);
 
+            p = new Reflection(item, String.class, "getLocation", null); // NOI18N
+            p.setName(SuggestionsView.PROP_SUGG_LOC);
+            p.setDisplayName("Location"); //TODO i18n
+            p.setShortDescription("Task's file and line position");
+            // #38190 FIXME instead of renderer we do not have access to
+            p.setPropertyEditorClass(LocationPropertyEditor.class);
+            ss.put(p);
 
         } catch (NoSuchMethodException nsme) {
             ErrorManager.getDefault().notify(nsme);

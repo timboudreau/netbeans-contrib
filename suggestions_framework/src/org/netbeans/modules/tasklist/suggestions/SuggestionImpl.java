@@ -76,7 +76,19 @@ public class SuggestionImpl extends Task implements Node.Cookie {
             return l.getLineNumber()+1;
         }
     }
-    
+
+    /** @return path/file:line location or null. */
+    public String getLocation() {
+        Line l = getLine();
+        if (l != null) {
+            DataObject dobj = (DataObject) l.getLookup().lookup(DataObject.class);;
+            if (dobj != null) {
+                return dobj.getPrimaryFile().getPath() + ":" + (l.getLineNumber()+1); 
+            }
+        }
+        return null;
+    }
+
     /** Generate a string summary of the task; only used
      * for debugging. DO NOT depend on this format for anything!
      * Use generate() instead.

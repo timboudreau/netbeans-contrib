@@ -76,12 +76,14 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private final int PRIORITY_COLUMN_UID = 7896;
     private final int FILE_COLUMN_UID = 8902;
     private final int LINE_COLUMN_UID = 6646;
+    private final int LOCATION_COLUMN_UID = 6512;
 
     //XXX keep with sync with SuggestionNode, hidden dependency
     static final String PROP_SUGG_PRIO = "suggPrio"; // NOI18N
     static final String PROP_SUGG_FILE = "suggFile"; // NOI18N
     static final String PROP_SUGG_LINE = "suggLine"; // NOI18N
     static final String PROP_SUGG_CAT = "suggCat"; // NOI18N
+    static final String PROP_SUGG_LOC = "suggLoc"; // NOI18N
 
     private static final int CURRENT_FILE_MODE = 1;
     private static final int OPENED_FILES_MODE = 2;
@@ -236,10 +238,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     allFilesColumns = new ColumnProperty[]{
                         createMainColumn(800),
                         createPriorityColumn(false, 100),
-
-                        // TODO merge these two properties into one - location (file:line)
-                        createFileColumn(true, 150),
-                        createLineColumn(true, 50)
+                        createLocationColumn(true, 200),
                     };
                 }
                 return allFilesColumns;
@@ -297,8 +296,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 visible,
                 width
         );
-        // #38190 FIXME instead of renderer we do not have access to
-        file.setPropertyEditorClass(StringPropertyEditor.class);
         return file;
     }
 
@@ -315,6 +312,20 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         );
     }
 
+    private ColumnProperty createLocationColumn(boolean visible, int width) {
+        ColumnProperty location = new ColumnProperty(
+                LOCATION_COLUMN_UID, // UID -- never change (part of serialization
+                PROP_SUGG_LOC,
+                String.class,
+                "Position", // TODO i18n
+                "Task's file and line position",
+                true,
+                visible,
+                width
+        );
+        return location;
+
+    }
 
     protected void componentOpened() {
         super.componentOpened();
