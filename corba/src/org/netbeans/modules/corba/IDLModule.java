@@ -16,7 +16,6 @@ package com.netbeans.enterprise.modules.corba;
 
 import org.openide.compiler.Compiler;
 import org.openide.compiler.CompilerJob;
-import org.openide.compiler.ExternalCompiler;
 import org.openide.modules.ModuleInstall;
 import org.openide.loaders.DataObject;
 
@@ -61,13 +60,14 @@ public class IDLModule implements ModuleInstall {
       if (DEBUG) System.out.println ("CORBA Support Module restoring...");
       
       //System.out.println ("setting template map :))");
-
+/*
       Compiler.Manager.register (IDLDataObject.class, new Compiler.Manager () {
 	 public void prepareJob (CompilerJob job, Class type, DataObject ido) {
 	    ((IDLDataObject)ido).createCompiler (job, type);
 	 }
       });
-      
+*/
+
       /*
 
       Compiler.Manager.register (IDLDataObject.class,
@@ -303,6 +303,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  16   Gandalf   1.15        9/13/99  Jaroslav Tulach 
  *  15   Gandalf   1.14        8/7/99   Karel Gardas    changes in code which 
  *       hide generated files
  *  14   Gandalf   1.13        8/3/99   Karel Gardas    
