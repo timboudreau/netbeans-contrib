@@ -893,7 +893,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         DialogDescriptor dd = new DialogDescriptor(advancedPanel, org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("TIT_CommandsView"),
                                                    true, new Object[] { closeButton }, closeButton,
                                                    DialogDescriptor.DEFAULT_ALIGN, null, null);
-        dd.setHelpCtx (new HelpCtx ("VCS_CommandsView"));
         DialogDisplayer.getDefault ().createDialog (dd).setVisible(true);
     }//GEN-LAST:event_cmdButtonActionPerformed
 
@@ -904,7 +903,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         UserVariablesPanel variablePanel = new UserVariablesPanel (variableEditor);
 
         DialogDescriptor dd = new DialogDescriptor(variablePanel, org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("TIT_VariablesView"));
-        dd.setHelpCtx (new HelpCtx ("VCS_VariablesView"));
         DialogDisplayer.getDefault ().createDialog (dd).setVisible(true);
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
             fileSystem.setVariables ((Vector) variablePanel.getPropertyValue());
@@ -1389,7 +1387,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         systemEnvLabel.setLabelFor (systemEnvTable);
 
         linkLabel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
-        HelpCtx.setHelpIDString (this, VcsCustomizer.class.getName ());
         
         rootDirInputComponent = new VariableInputComponent(0, "ROOTDIR", jLabel2.getText());
         rootDirInputComponent.setValidator(VariableInputValidator.VALIDATOR_FOLDER);

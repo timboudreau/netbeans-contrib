@@ -67,7 +67,6 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
         this.editor = editor;
         initComponents();
         getExplorerManager().setRootContext(createNodes());
-        HelpCtx.setHelpIDString (this, "VCS_VariableEditor"); // NOI18N
     }
 
     //-------------------------------------------

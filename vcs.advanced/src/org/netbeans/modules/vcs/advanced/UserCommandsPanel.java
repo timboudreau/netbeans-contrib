@@ -85,7 +85,6 @@ public class UserCommandsPanel extends JPanel implements ExplorerManager.Provide
         getExplorerManager().setRootContext(commandsNode/*createNodes()*/);
         ExplorerActions actions = new ExplorerActions();
         actions.attach(getExplorerManager());
-        HelpCtx.setHelpIDString (this, "VCS_CommandsView"); // NOI18N
         getAccessibleContext().setAccessibleName(g("ACS_UserCommandsPanelA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsPanelA11yDesc"));  // NOI18N
     }

@@ -98,7 +98,6 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
         commandsNode = createCommandNodes(commands, newcmd, null, null);
         initComponents();
         getExplorerManager().setRootContext(commandsNode/*createNodes()*/);
-        HelpCtx.setHelpIDString (this, "VCS_CommandEditor"); // NOI18N
         getAccessibleContext().setAccessibleName(g("ACS_UserCommandsPanelA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsPanelA11yDesc"));  // NOI18N
     }

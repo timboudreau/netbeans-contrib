@@ -65,7 +65,6 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         getExplorerManager().setRootContext(createNodes());
         ExplorerActions actions = new ExplorerActions();
         actions.attach(getExplorerManager());
-        HelpCtx.setHelpIDString (this, "VCS_VariablesView"); // NOI18N
     }
 
     //-------------------------------------------

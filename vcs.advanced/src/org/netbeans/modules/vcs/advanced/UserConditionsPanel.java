@@ -58,7 +58,6 @@ public class UserConditionsPanel extends JPanel implements EnhancedCustomPropert
         getExplorerManager().setRootContext(createNodes());
         ExplorerActions actions = new ExplorerActions();
         actions.attach(getExplorerManager());
-        HelpCtx.setHelpIDString (this, "VCS_ConditionsEditor"); // NOI18N
     }
 
     public void initComponents(){
