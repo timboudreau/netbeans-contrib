@@ -78,13 +78,14 @@ public class IDLDataObject extends MultiDataObject {
   * @return help context
   */
   public HelpCtx getHelpCtx () {
-    return new HelpCtx ();
+    return HelpCtx.DEFAULT_HELP;
   }
 
 }
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         4/29/99  Ian Formanek    Fixed to compile
  *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
  * $
