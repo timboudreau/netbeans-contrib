@@ -53,10 +53,10 @@ public class BindingContextPanel extends javax.swing.JPanel {
         initComponents ();
         
         java.util.ResourceBundle b = org.openide.util.NbBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle"); //NOI18N
-        nameLabel.setDisplayedMnemonic(b.getString("CTL_LabelName1_MNE").charAt(0));    //NOI18N
-        urlLabel.setDisplayedMnemonic(b.getString("CTL_LabelURL1_MNE").charAt(0));      //NOI18N
-        kindLabel.setDisplayedMnemonic(b.getString("CTL_LabelKind1_MNE").charAt(0));         //NOI18N
-        iorLabel.setDisplayedMnemonic(b.getString("CTL_LabelIOR1_MNE").charAt(0));      //NOI18N
+        nameLabel.setDisplayedMnemonic(b.getString("CTL_LabelName_MNE").charAt(0));    //NOI18N
+        urlLabel.setDisplayedMnemonic(b.getString("CTL_LabelURL_MNE").charAt(0));      //NOI18N
+        kindLabel.setDisplayedMnemonic(b.getString("CTL_LabelKind_MNE").charAt(0));    //NOI18N
+        iorLabel.setDisplayedMnemonic(b.getString("CTL_LabelIOR_MNE").charAt(0));      //NOI18N
 
     }
 
@@ -87,14 +87,13 @@ public class BindingContextPanel extends javax.swing.JPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        nameLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelName1"));
-        nameLabel.setName("null");
+        nameLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelName"));
         nameLabel.setLabelFor(nameField);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(nameLabel, gridBagConstraints);
 
         nameField.setColumns(20);
@@ -106,13 +105,13 @@ public class BindingContextPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(12, 10, 0, 11);
         add(nameField, gridBagConstraints);
 
-        kindLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelKind1"));
+        kindLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelKind"));
         kindLabel.setLabelFor(kindField);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
         add(kindLabel, gridBagConstraints);
 
         kindField.addActionListener(new java.awt.event.ActionListener() {
@@ -129,13 +128,13 @@ public class BindingContextPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 11);
         add(kindField, gridBagConstraints);
 
-        urlLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelURL1"));
+        urlLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelURL"));
         urlLabel.setLabelFor(urlField);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
         add(urlLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -146,13 +145,13 @@ public class BindingContextPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 11);
         add(urlField, gridBagConstraints);
 
-        iorLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelIOR1"));
+        iorLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelIOR"));
         iorLabel.setLabelFor(iorField);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
-        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
         add(iorLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
