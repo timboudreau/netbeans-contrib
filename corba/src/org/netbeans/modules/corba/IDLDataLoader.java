@@ -55,12 +55,14 @@ package org.netbeans.modules.corba;
      //private static final boolean DEBUG = true;
      private static final boolean DEBUG = false;
 
-     CORBASupportSettings css;
+     CORBASupportSettings _M_css;
      public static final String IDL_EXTENSION = "idl";
 
      protected int fi_counter = 0;
 
      protected HashMap folders;
+
+     private double _M_msec_in_find_primary_file = 0;
 
      public IDLDataLoader() {
 	 super(IDLDataObject.class);
@@ -180,21 +182,51 @@ package org.netbeans.modules.corba;
       *   recognized by this loader
       */
      protected FileObject findPrimaryFile (FileObject fo) {
-	 if (DEBUG)
+	 long __time_at_start = 0;
+	 if (DEBUG) {
 	     System.out.println ("IDLDataLoader::findPrimaryFile (" + fo + ");");
-
+	     __time_at_start = System.currentTimeMillis ();
+	 }
 	 String ext = fo.getExt();
 	 if (ext.equals(IDL_EXTENSION)) {
 	     addFileObjectToCache (fo.getParent (), fo);
+	     if (DEBUG) {
+		 // profiling hack
+		 long __time_at_end = System.currentTimeMillis ();
+		 _M_msec_in_find_primary_file += __time_at_end - __time_at_start;
+		 System.out.println ("milisecond: " + _M_msec_in_find_primary_file);
+		 // end of profiling hack
+	     }
 	     return fo;
 	 }
 
-	 if (css == null)
-	     css = (CORBASupportSettings)
+	 // dirty hack for testing
+	 //return null;
+	 
+	 if (_M_css == null)
+	     _M_css = (CORBASupportSettings)
 		   CORBASupportSettings.findObject (CORBASupportSettings.class, true);
-	 if (!css.getActiveSetting ().hideGeneratedFiles ())
-	     return null;
-
+	 //System.out.println ("_M_css: " + _M_css);
+	 try {
+	     //ORBSettings __settings = _M_css.getActiveSetting ();
+	     //System.out.println ("__settings: " + __settings);
+	     //if (__settings != null) {
+	     //if (!__settings.hideGeneratedFiles ()) {
+	     if (!_M_css.getActiveSetting ().hideGeneratedFiles ()) {
+		 if (DEBUG) {
+		     // profiling hack
+		     long __time_at_end = System.currentTimeMillis ();
+		     _M_msec_in_find_primary_file += __time_at_end - __time_at_start;
+		     System.out.println ("milisecond: " + _M_msec_in_find_primary_file);
+		     // end of profiling hack
+		 }
+		 return null;
+	     }
+	     //}
+	 } catch (java.lang.NullPointerException __ex) {
+	     System.out.println (__ex + " at IDLDataLoader::findPrimaryFile (" + fo + ")");
+	 }
+	 
 	 //return null;
 	 // it can be java file generated from idl
 
@@ -208,8 +240,16 @@ package org.netbeans.modules.corba;
 
 	 Vector idos = getDataObjectsFromFileObjects (getFileObjectsForFileObject (fo));
 
-	 if (idos == null)
+	 if (idos == null) {
+	     if (DEBUG) {
+		 // profiling hack
+		 long __time_at_end = System.currentTimeMillis ();
+		 _M_msec_in_find_primary_file += __time_at_end - __time_at_start;
+		 System.out.println ("milisecond: " + _M_msec_in_find_primary_file);
+		 // end of profiling hack
+	     }
 	     return null;
+	 }
 
 	 FileObject retval = null;
 	 IDLDataObject tmp_ido = null;
@@ -220,7 +260,13 @@ package org.netbeans.modules.corba;
 		     retval = tmp_ido.getPrimaryFile ();
 		     if (DEBUG)
 			 System.out.println (fo.getName () + " generated from " + retval.getName ());
-
+		     if (DEBUG) {
+			 // profiling hack
+			 long __time_at_end = System.currentTimeMillis ();
+			 _M_msec_in_find_primary_file += __time_at_end - __time_at_start;
+			 System.out.println ("milisecond: " + _M_msec_in_find_primary_file);
+			 // end of profiling hack
+		     }
 		     return retval;
 		 }
 	     }
@@ -229,8 +275,15 @@ package org.netbeans.modules.corba;
 	     if (DEBUG)
 		 System.out.println ("exception: " + ex);
 	 }
-
+	 if (DEBUG) {
+	     // profiling hack
+	     long __time_at_end = System.currentTimeMillis ();
+	     _M_msec_in_find_primary_file += __time_at_end - __time_at_start;
+	     System.out.println ("milisecond: " + _M_msec_in_find_primary_file);
+	     // end of profiling hack
+	 }
 	 return null;
+	
      }
 
 
@@ -300,11 +353,11 @@ package org.netbeans.modules.corba;
 	   CORBASupportSettings css = (CORBASupportSettings) 
 	   CORBASupportSettings.findObject (CORBASupportSettings.class, true);	
 	 */
-	 if (css == null)
-	     css = (CORBASupportSettings)
+	 if (_M_css == null)
+	     _M_css = (CORBASupportSettings)
 		 CORBASupportSettings.findObject (CORBASupportSettings.class, true);
 
-	 return css.getActiveSetting ().getReplaceableStringsProps();
+	 return _M_css.getActiveSetting ().getReplaceableStringsProps();
      }
 
 

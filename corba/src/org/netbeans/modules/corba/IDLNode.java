@@ -13,8 +13,8 @@
 
 package org.netbeans.modules.corba;
 
-import java.util.*;
-
+import java.util.Vector;
+import java.beans.PropertyEditor;
 
 import org.openide.loaders.*;
 import org.openide.actions.*;
@@ -28,16 +28,19 @@ import org.openide.filesystems.FileUtil;
 
 
 import org.netbeans.modules.corba.idl.node.*;
+import org.netbeans.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.settings.OrbPropertyEditor;
+
 /**
  *
-*
-* @author Karel Gardas
-*/
+ *
+ * @author Karel Gardas
+ */
 
 /** IDL Node implementation.
-* Leaf node, default action opens editor or instantiates template.
-* Icons redefined.
-*/
+ * Leaf node, default action opens editor or instantiates template.
+ * Icons redefined.
+ */
 
 public class IDLNode extends DataNode {
 
@@ -99,6 +102,67 @@ public class IDLNode extends DataNode {
       return super.getCookie (clazz);
       }
     */
+    protected Sheet createSheet () {
+        Sheet sheet = super.createSheet();
+
+        Sheet.Set ps = sheet.get(Sheet.PROPERTIES);
+        ps = new Sheet.Set ();
+	ps.setName("Compilation");
+	//ps.setDisplayName(Util.getString("PROP_executionSetName"));
+	ps.setDisplayName (CORBASupport.IDL_COMPILATION);
+	//ps.setShortDescription(Util.getString("HINT_executionSetName"));
+	ps.setShortDescription (CORBASupport.IDL_COMPILATION_HINT);
+	ps.put (new PropertySupport.ReadWrite (
+					       "ha",
+					       String.class,
+					       "PROP_synchMode",
+					       "HINT_synchMode"
+					       ) {
+		public Object getValue() {
+		    String __setuped = getIDLDataObject().getOrbForCompilation ();
+		    if (__setuped != null)
+			return new String (__setuped);
+		    else {
+			CORBASupportSettings __css 
+			    = (CORBASupportSettings) CORBASupportSettings.findObject
+			    (CORBASupportSettings.class, true);
+			return new String (__css.getActiveSetting ().getName ());
+		    }
+		}
+		
+		public void setValue (Object __value) {
+		    if (__value instanceof String) {
+			try {
+			    getIDLDataObject().setOrbForCompilation ((String)__value);
+			    return;
+			}
+			catch(java.io.IOException __ex) {
+			    __ex.printStackTrace ();
+			}
+			catch(IllegalArgumentException __ex) {
+			    __ex.printStackTrace ();
+			}
+		    }
+		}
+		
+		public PropertyEditor getPropertyEditor() {
+		    return new OrbPropertyEditor ();
+		}
+	    });
+	
+	/*  
+	  ExecSupport es = (ExecSupport) getCookie (ExecSupport.class);
+	  if (es != null)
+	  es.addProperties (ps);
+	  CompilerSupport cs = (CompilerSupport) getCookie (CompilerSupport.class);
+	  if (cs != null)
+	  cs.addProperties (ps);
+	*/
+        sheet.put(ps);
+
+        return sheet;
+    }
+
 }
 
 

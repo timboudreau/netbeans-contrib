@@ -64,7 +64,8 @@ public class ORBSettingsWrapper implements java.io.Serializable {
     }
 
     public boolean equals (Object __value) {
-	System.out.print ("ORBSettingsWrapper::equals (...) -> ");
+	if (DEBUG)
+	    System.out.print ("ORBSettingsWrapper::equals (...) -> ");
 	boolean __return = false;
 	try {
 	    ORBSettingsWrapper __tmp = (ORBSettingsWrapper)__value;
@@ -74,7 +75,8 @@ public class ORBSettingsWrapper implements java.io.Serializable {
 	} catch (Exception __e) {
 	    __e.printStackTrace ();
 	}
-	System.out.println (__return);
+	if (DEBUG)
+	    System.out.println (__return);
 	return __return;
     }
 }

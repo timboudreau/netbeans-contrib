@@ -47,8 +47,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     private static final boolean DYNLOAD = true;
     //private static final boolean DYNLOAD = false;
 
-    //private static final boolean PRODUCTION = true;
-    private static final boolean PRODUCTION = false;
+    private static final boolean PRODUCTION = true;
+    //private static final boolean PRODUCTION = false;
 
     static final long serialVersionUID = -2809668725556980488L;
     /*
@@ -172,7 +172,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
         //addOption (getCORBASupportAdvancedSettings ());
         if (DEBUG) 
             System.out.println ("CORBASupportSettings () ...");
-	//Thread.dumpStack ();
+	    //Thread.dumpStack ();
 	//TopManager.getDefault ().getWindowManager ().addPropertyChangeListener (this);
     }
 
@@ -323,10 +323,14 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     }
 
     public void setOrb (String __value) {
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::setOrb (" + __value + ")");
         String __old = _M_orb_name;
 	_M_orb_name = __value;
 	//setJavaTemplateTable ();
-	this.getActiveSetting ().setJavaTemplateTable ();
+	ORBSettings __settings = this.getActiveSetting ();
+	if (__settings != null)
+	    __settings.setJavaTemplateTable ();
 	firePropertyChange ("_M_orb_name", __old, _M_orb_name);
     }
 
@@ -1271,14 +1275,16 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    loadImpl ();
 	if (_M_orb_name_cache != null) {
 	    if (_M_orb_name_cache.equals (this.getOrb ()) && (_M_setting_cache != null)) {
-		System.out.println ("cache hit");
+		if (DEBUG)
+		    System.out.println ("cache hit");
 		return _M_setting_cache;
 	    }
 	}
 
 	_M_orb_name_cache = this.getOrb ();
 
-	System.out.println ("cache wasn't successfull");
+	if (DEBUG)
+	    System.out.println ("cache wasn't successfull");
 
 	java.lang.Object[] __settings = getBeans ();
 	for (int __i = 0; __i < __settings.length; __i++) {
@@ -1286,11 +1292,13 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    String __name = __setting.getName ();
 	    //if (DEBUG)
 	    //System.out.println (__name + " X " + this.getOrb ());
-	    if (__name.equals (this.getOrb ())) {
+	    if (__name.equals (_M_orb_name_cache)) {
 		_M_setting_cache = __setting;
 		return __setting;
 	    }
 	}	
+	//System.out.println ("orb: " + _M_orb_name_cache);
+	//Thread.dumpStack ();
 	return null;
     }
     /*

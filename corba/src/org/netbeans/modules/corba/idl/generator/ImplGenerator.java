@@ -26,8 +26,10 @@ import org.openide.cookies.*;
 import org.openide.src.*;
 import org.openide.src.nodes.*;
 import org.openide.*;
+import org.openide.nodes.*;
 
 import org.netbeans.modules.java.JavaConnections;
+import org.netbeans.modules.java.JavaDataObject;
 import org.netbeans.*;
 
 
@@ -1979,22 +1981,22 @@ public class ImplGenerator {
 
         if (!TIE) {
             impl_name = IMPLBASE_IMPL_PREFIX + element.getName () + IMPLBASE_IMPL_POSTFIX;
-            if (where_generate == IN_IDL_PACKAGE){
+            if (where_generate == IN_IDL_PACKAGE) {
                 if (_package.length() >0)
                     super_name = _package + ".";
                 super_name = super_name + modules + EXT_CLASS_PREFIX + element.getName ()
                              + EXT_CLASS_POSTFIX;
-            }else
+            } else
                 super_name = EXT_CLASS_PREFIX + element.getName () + EXT_CLASS_POSTFIX;
         }
         else {
             impl_name = TIE_IMPL_PREFIX + element.getName () + TIE_IMPL_POSTFIX;
-            if (where_generate == IN_IDL_PACKAGE){
+            if (where_generate == IN_IDL_PACKAGE) {
                 if (_package.length() >0)
                     super_name = _package + ".";
                 super_name = super_name + modules + IMPL_INT_PREFIX + element.getName ()
                              + IMPL_INT_POSTFIX;
-            }else
+            } else
                 super_name = IMPL_INT_PREFIX + element.getName () + IMPL_INT_POSTFIX;
         }
 
@@ -2095,22 +2097,24 @@ public class ImplGenerator {
                 printer.println ("/*\n * This file was generated from "
                                  + ido.getPrimaryFile ().getName () + ".idl\n"
                                  + " */");
-
+		
                 if (_package.length() > 0) // If it isn't in file system root
-                printer.println ("\npackage " + _package + ";\n");
+		    printer.println ("\npackage " + _package + ";\n");
                 printer.println (clazz.toString ());
                 lock.releaseLock ();
             }
-
-        } catch (org.openide.src.SourceException e) {
-            //e.printStackTrace ();
-        } catch (java.io.IOException e) {
-            e.printStackTrace ();
-        }
+	    JavaDataObject __jdo = (JavaDataObject)DataObject.find (impl);
+	    OpenCookie __cookie = (OpenCookie)__jdo.getCookie (OpenCookie.class);
+	    __cookie.open ();
+	} catch (org.openide.src.SourceException e) {
+	    //e.printStackTrace ();
+	} catch (java.io.IOException e) {
+	    e.printStackTrace ();
+	}
     }
-
-
-    public void generate () {
+	
+	
+	public void generate () {
 	this.showMessage = true;  // We suppose that we generate or synchronization is not disabled
         if (DEBUG) {
             System.out.println ("generate :-))");
@@ -2143,7 +2147,7 @@ public class ImplGenerator {
         TopManager.getDefault ().setStatusText ("Successfully Generated Implementation Classes for "
                                                 + ido.getPrimaryFile ().getName () + ".");
 	}
-	else{
+	else {
 	    TopManager.getDefault ().setStatusText ("Idl synchronization for this project is disabled.");
 	}
 

@@ -81,7 +81,13 @@ public class CORBASupport {
             ("CTL_GEN_EXCEPTION");
 
     public static final String GEN_RETURN_NULL = CORBASupport.bundle.getString
-            ("CTL_GEN_RETURN_NULL");
+	("CTL_GEN_RETURN_NULL");
+
+    public static final String IDL_COMPILATION = CORBASupport.bundle.getString
+	("PROP_COMPILATION");
+
+    public static final String IDL_COMPILATION_HINT = CORBASupport.bundle.getString
+	("HINT_COMPILATION");
 
     /** constant for idl extension */
     private static final String IDL_EXT = "idl";

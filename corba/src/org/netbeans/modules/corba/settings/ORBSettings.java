@@ -281,6 +281,13 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     public String getClientBindingName () {
 
         String name = "";
+	if (DEBUG) {
+	    System.out.println ("ORBSettings::getClientBindingName ()");
+	    if (_M_client_binding != null)
+		System.out.println (_M_client_binding.getValue ());
+	    else
+		System.out.println ("is NULL");		
+	}
 
         if (_M_client_binding != null) {
             if (_M_client_binding.getValue ().equals (CORBASupport.CLIENT_NS))
@@ -292,6 +299,8 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
             if (_M_client_binding.getValue ().equals (CORBASupport.CLIENT_BINDER))
                 name = "BINDER";
         }
+	if (DEBUG)
+	    System.out.println ("name: " + name);
         return name;
     }
 
@@ -306,7 +315,10 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
         String name = "";
 	if (DEBUG) {
 	    System.out.println ("ORBSettings::getServerBindingName ()");
-	    System.out.println (_M_server_binding.getValue ());
+	    if (_M_server_binding != null)
+		System.out.println (_M_server_binding.getValue ());
+	    else
+		System.out.println ("is NULL");		
 	}
         if (_M_server_binding != null) {
             if (_M_server_binding.getValue ().equals (CORBASupport.SERVER_NS))
@@ -361,10 +373,13 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     public void setClientBinding (ORBSettingsWrapper __value) {
         ORBSettingsWrapper __old = _M_client_binding;
 	_M_client_binding = __value;
+	this.setJavaTemplateTable ();
         firePropertyChange ("_M_client_binding", __old, _M_client_binding);
     }
 
-    public void setClientBinding (String __value) {
+    public void setClientBindingFromString (String __value) {
+	if (DEBUG)
+	    System.out.println ("ORBSettings::setClientBindingFromString (" + __value + ")");
 	this.setClientBinding (new ORBSettingsWrapper (this, __value));
     }
     /*
@@ -381,6 +396,7 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 	    System.out.println ("ORBSettings::setServerBinding (" + __value + ")");
 	ORBSettingsWrapper __old = _M_server_binding;
 	_M_server_binding = __value;
+	this.setJavaTemplateTable ();
 	firePropertyChange ("_M_server_binding", __old, _M_server_binding);
 	//public void setServerBinding (String __value) {
 	//_M_server_binding = __value;
@@ -389,7 +405,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
         //firePropertyChange ("_server_binding", old, _server_binding);
     }
 
-    public void setServerBinding (String __value) {
+    public void setServerBindingFromString (String __value) {
+	if (DEBUG) {
+	    System.out.println ("ORBSettings::setServerBindingFromString (" + __value + ")");
+	    if (__value == null)
+		Thread.dumpStack ();
+	}
 	this.setServerBinding (new ORBSettingsWrapper (this, __value));
     }
 
@@ -934,30 +955,30 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
             //    System.out.println ("sett: " + ((Properties)props.elementAt (index)).getProperty
             //			("SETTINGS_ORB_PROPERTIES"));
             if (DEBUG)
-                System.out.println ("cb: " + getClientBindingName ());
+                System.out.println ("cb: " + this.getClientBindingName ());
             if (DEBUG)
-                System.out.println ("sb: " + getServerBindingName ());
+                System.out.println ("sb: " + this.getServerBindingName ());
 
-            __properties.setProperty ("ORB_NAME", getOrbName ());
+            __properties.setProperty ("ORB_NAME", this.getOrbName ());
 
-            if (getServerBinding () != null)
-                __properties.setProperty ("SERVER_BINDING", getServerBinding ().getValue ());
-            if (getClientBinding () != null)
-                __properties.setProperty ("CLIENT_BINDING", getClientBinding ().getValue ());
+            if (this.getServerBinding () != null)
+                __properties.setProperty ("SERVER_BINDING", this.getServerBinding ().getValue ());
+            if (this.getClientBinding () != null)
+                __properties.setProperty ("CLIENT_BINDING", this.getClientBinding ().getValue ());
 
 
             __properties.setProperty ("SETTINGS_ORB_PROPERTIES", _M_properties.getProperty
 				      ("SETTINGS_ORB_PROPERTIES"));
             if (_M_properties.getProperty
-		("IMPORT_" + getClientBindingName ()) != null) {
+		("IMPORT_" + this.getClientBindingName ()) != null) {
                 __properties.setProperty ("ORB_IMPORT",_M_properties.getProperty
-					  ("IMPORT_" + getClientBindingName ()));
+					  ("IMPORT_" + this.getClientBindingName ()));
             }
 	    else {
                 if (_M_properties.getProperty
-		    ("IMPORT_" + getServerBindingName ()) != null) {
+		    ("IMPORT_" + this.getServerBindingName ()) != null) {
                     __properties.setProperty ("ORB_IMPORT",_M_properties.getProperty
-					      ("IMPORT_" + getServerBindingName ()));
+					      ("IMPORT_" + this.getServerBindingName ()));
                 }
                 else {
                     __properties.setProperty ("ORB_IMPORT", _M_properties.getProperty
@@ -969,23 +990,24 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 				      ("ORB_SERVER_INIT"));
             __properties.setProperty ("ORB_CLIENT_INIT", _M_properties.getProperty
 				      ("ORB_CLIENT_INIT"));
+	    
+	    if (!this.getClientBindingName ().equals (""))
+		if ((tmp_property = _M_properties.getProperty
+		     ("CLIENT_" + this.getClientBindingName ())) != null)
+		    __properties.setProperty ("ORB_CLIENT_BINDING", tmp_property);
 	    /*
-	      if (!getClientBindingName ().equals (""))
-	      if ((tmp_property = _M_properties.getProperty
-	      ("CLIENT_" + getClientBindingName ())) != null)
-	      __properties.setProperty ("ORB_CLIENT_BINDING", tmp_property);
+	      __properties.setProperty ("ORB_CLIENT_BINDING", _M_properties.getProperty 
+	      ("CLIENT_" + this.getClientBindingName ()));
 	    */
-	    __properties.setProperty ("ORB_CLIENT_BINDING", _M_properties.getProperty 
-				      ("CLIENT_" + getClientBindingName ()));
+	    
+	    if (!this.getServerBindingName ().equals (""))
+		if ((tmp_property = _M_properties.getProperty
+		     ("SERVER_" + this.getServerBindingName ())) != null)
+		    __properties.setProperty ("ORB_SERVER_BINDING", tmp_property);
 	    /*
-	      if (!getServerBindingName ().equals (""))
-	      if ((tmp_property = _M_properties.getProperty
-	      ("SERVER_" + getServerBindingName ())) != null)
-	      __properties.setProperty ("ORB_SERVER_BINDING", tmp_property);
+	      __properties.setProperty ("ORB_SERVER_BINDING", _M_properties.getProperty 
+	      ("SERVER_" + this.getServerBindingName ()));
 	    */
-	    __properties.setProperty ("ORB_SERVER_BINDING", _M_properties.getProperty 
-				      ("SERVER_" + getServerBindingName ()));
-
             __properties.setProperty ("ORB_OBJECT_ACTIVATION", _M_properties.getProperty
 				      ("ORB_OBJECT_ACTIVATION"));
 

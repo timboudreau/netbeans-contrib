@@ -175,16 +175,19 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport {
     public String getAsText () {
 	try {
 	    ORBSettingsWrapper __tmp = (ORBSettingsWrapper)getValue ();
-	    System.out.println ("ServerBindingPropertyEditor::getAsText () -> " 
-				+ __tmp.getSettings () 
-				+ __tmp.getSettings ().displayName () + " : " 
-				+ __tmp.getValue ());
-
+	    if (DEBUG) {
+		System.out.println ("ServerBindingPropertyEditor::getAsText () -> " 
+				    + __tmp.getSettings () 
+				    + __tmp.getSettings ().displayName () + " : " 
+				    + __tmp.getValue ());
+	    }
 	    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
 		(CORBASupportSettings.class, true);
 	    java.lang.Object[] __beans = css.getBeans ();
-	    for (int __i = 0; __i < __beans.length; __i++) {
-		System.out.println (__i + " : " + __beans[__i]);
+	    if (DEBUG) {
+		for (int __i = 0; __i < __beans.length; __i++) {
+		    System.out.println (__i + " : " + __beans[__i]);
+		}
 	    }
 	    return ((ORBSettingsWrapper)getValue ()).getValue ();
 	} catch (Exception __e) {
@@ -195,7 +198,8 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport {
 
     /** @param text A text for the current value. */
     public void setAsText (String __value) {
-	System.out.println ("ServerBindingPropertyEditor::setAsText (" + __value + ")");
+	if (DEBUG)
+	    System.out.println ("ServerBindingPropertyEditor::setAsText (" + __value + ")");
         //((ORBSettingsWrapper)getValue ()).setValue (__value);
 	setValue (new ORBSettingsWrapper (((ORBSettingsWrapper)getValue ()).getSettings (), 
 					  __value));
