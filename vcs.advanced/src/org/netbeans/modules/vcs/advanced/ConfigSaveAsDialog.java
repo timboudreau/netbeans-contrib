@@ -40,6 +40,7 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
         this.dir = dir;
         setTitle(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ConfigSaveAsDialog.title"));
         initComponents ();
+        getRootPane().setDefaultButton(saveButton);
         fileNameLabel.setDisplayedMnemonic (org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString ("ConfigSaveAsDialog.fileNameLabel.mnemonic").charAt (0));
         configLabelLabel.setDisplayedMnemonic (org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString ("ConfigSaveAsDialog.configLabelLabel.mnemonic").charAt (0));
         fillFileList();
