@@ -9,5 +9,8 @@ OpenIDE-Module-Layer: org/netbeans/modules/tasklist/docscan/mf-layer.xml
 OpenIDE-Module-Install: org/netbeans/modules/tasklist/docscan/ModuleLifecycle.class
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/2 = @tl.core.impl@,
   org.netbeans.tasklistapi/1 = @tl.api.impl@,
-  org.netbeans.modules.suggestions_framework/2 = @tl.suggestions.impl@
+  org.netbeans.modules.suggestions_framework/2 = @tl.suggestions.impl@,
+  org.netbeans.modules.projectapi,
+  org.netbeans.modules.projectuiapi,
+  org.netbeans.api.java/1
 OpenIDE-Module-Public-Packages: -

@@ -17,9 +17,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
-import java.util.Iterator;
-import java.util.ArrayList;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.PopupMenuListener;
@@ -47,6 +45,12 @@ import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.ui.support.LogicalViews;
+import org.netbeans.spi.project.ui.LogicalViewProvider;
 
 
 /**
@@ -1154,8 +1158,28 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         background = null;
 
         // prepare content for selector
-
+        final Node content = projectView();
         NodeOperation op = NodeOperation.getDefault();
+
+        try {
+            Node[] selected = op.select(Util.getString("sel_title"), Util.getString("sel-head"), content, new NodeAcceptor() {
+                public boolean acceptNodes(Node[] nodes) {
+                    return nodes.length == 1 && nodes[0] != content && nodes[0].getCookie(DataFolder.class) != null;
+                }
+            });
+
+            DataObject dobj = (DataObject) selected[0].getCookie(DataObject.class);
+            resultsSnapshot = null;
+            updateRecent(selectedFolder);
+            selectedFolder = dobj.getPrimaryFile();
+
+            handleAllFiles();
+        } catch (UserCancelException e) {
+            // no folders selected keep previous one
+        }
+    }
+
+    private Node repositoryView() {
         Node repo = RepositoryNodeFactory.getDefault().repository(new DataFilter() {
             public boolean acceptDataObject(DataObject obj) {
                 return obj instanceof DataObject.Container;
@@ -1182,23 +1206,38 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         };
 
         content.setName(Util.getString("fs"));
+        return content;
+    }
 
-        try {
-            Node[] selected = op.select(Util.getString("sel_title"), Util.getString("sel-head"), content, new NodeAcceptor() {
-                public boolean acceptNodes(Node[] nodes) {
-                    return nodes.length == 1 && nodes[0] != content;
-                }
-            });
 
-            DataObject dobj = (DataObject) selected[0].getCookie(DataObject.class);
-            resultsSnapshot = null;
-            updateRecent(selectedFolder);
-            selectedFolder = dobj.getPrimaryFile();
+    private Node projectView() {
 
-            handleAllFiles();
-        } catch (UserCancelException e) {
-            // no folders selected keep previous one
+        Children kids = new Children.Array();
+        Set projects = new HashSet();
+
+        // XXX there is planned bettre api to get all opened projects
+        GlobalPathRegistry registry = GlobalPathRegistry.getDefault();
+        Set sourceRoots = registry.getPaths(ClassPath.SOURCE);
+        Iterator it = sourceRoots.iterator();
+        while (it.hasNext()) {
+            ClassPath next = (ClassPath) it.next();
+            FileObject[] roots = next.getRoots();
+            if (roots == null || roots.length == 0) continue;
+            Project project = FileOwnerQuery.getOwner(roots[0]);
+            if (projects.contains(project)) continue;
+            projects.add(project);
+            LogicalViewProvider viewProvider = LogicalViews.physicalView(project);
+            kids.add(new Node[] {viewProvider.createLogicalView()});
         }
+        final Node content = new AbstractNode(kids) {
+            public void setName(String name) {
+                super.setName(name);
+                super.setIconBase("org/netbeans/modules/tasklist/docscan/repository");  // NOI18N
+            }
+        };
+
+        content.setName(Util.getString("fs"));
+        return content;
     }
 
     private void updateRecent(FileObject fo) {
