@@ -59,7 +59,7 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
     /** Called when the preparetion of nodes is needed
      */
     protected void addNotify() {
-        setKeys (getFilesInGroup());
+        setKeys(getFilesInGroup());
         folder.getPrimaryFile().addFileChangeListener(wfsListener);
         VcsGroupSettings settings = (VcsGroupSettings)SharedClassObject.findObject(VcsGroupSettings.class, true);
         settings.addPropertyChangeListener(this);
@@ -110,7 +110,7 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
                  shadow.getOriginal().addPropertyChangeListener(doPropChange);
                  shadow.removePropertyChangeListener(shPropChange);
                  shadow.addPropertyChangeListener(shPropChange);
-                 list.add(shadow);
+                 list.add(shadow.getOriginal());
             }
             if (dos.getClass().getName().equals("org.openide.loaders.BrokenDataShadow")) { //NOI18N
                 list.add(dos);
@@ -133,24 +133,15 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
         return null;
         
     }
+
     
     /** Creates nodes for given key.
     */
     protected Node[] createNodes( final Object key ) {
-
         Node newNode;
         DataObject dobj = (DataObject)key;
         if (!dobj.isValid()) {
             return new Node[0];
-        }
-        if (key instanceof DataShadow) {
-            DataShadow shad = (DataShadow)key;
-            if (!shad.getOriginal().isValid()) {
-                shad.getOriginal().removePropertyChangeListener(doPropChange);
-                shad.removePropertyChangeListener(shPropChange);
-                return new Node[0];
-            }
-            return new Node[] {new VcsGroupFileNode(shad, shad.getOriginal().getNodeDelegate().cloneNode()) };
         }
         if (key.getClass().getName().equals("org.openide.loaders.BrokenDataShadow")) { //NOI18N
             DataObject obj = (DataObject)key;
@@ -159,8 +150,22 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
             }
             obj.addPropertyChangeListener(shPropChange);
             return new Node[] {obj.getNodeDelegate().cloneNode()};
+        } else {
+            DataObject obj = (DataObject)key;
+            DataShadow shad = (DataShadow)findShadowForDO(obj);
+            if (!obj.isValid()) {
+                if (shad != null) {
+                    shad.getOriginal().removePropertyChangeListener(doPropChange);
+                    shad.removePropertyChangeListener(shPropChange);
+                }
+                return new Node[0];
+            }
+//            System.out.println("creating new node..");
+            if (shad == null) {
+                return new Node[0];
+            }
+            return new Node[] {new VcsGroupFileNode(shad, obj.getNodeDelegate().cloneNode()) };
         }
-        return new Node[0];
     }
     
     public void propertyChange(java.beans.PropertyChangeEvent propertyChangeEvent) {
@@ -219,6 +224,7 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
                 && propertyChangeEvent.getNewValue() instanceof Boolean) {
                     Boolean bool = (Boolean)propertyChangeEvent.getNewValue();
                     if (bool.booleanValue() == false) {
+//                    System.out.println("shadow invalid");
                         DataObject obj = (DataObject)propertyChangeEvent.getSource();
                         obj.removePropertyChangeListener(shPropChange);
                         refreshAll();
@@ -235,15 +241,8 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
                 && propertyChangeEvent.getNewValue() instanceof Boolean) {
                     Boolean bool = (Boolean)propertyChangeEvent.getNewValue();
                     if (bool.booleanValue() == false) {
-                        DataObject dobj = (DataObject)propertyChangeEvent.getSource();
-                        DataObject shad = VcsGroupChildren.this.findShadowForDO(dobj);
-                        if (shad != null) {
-                            try {
-                                shad.setValid(false);
-                            } catch (java.beans.PropertyVetoException exc) {
-                                org.openide.TopManager.getDefault().getErrorManager().notify(org.openide.ErrorManager.WARNING, exc);
-                            }
-                        }
+//                        System.out.println("dataobject invalied..");
+                        refreshAll();
                     }
                 }
             }
