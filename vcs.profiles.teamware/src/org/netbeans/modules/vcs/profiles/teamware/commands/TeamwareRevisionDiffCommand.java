@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Hashtable;
 import org.netbeans.modules.vcs.profiles.teamware.util.SRevisionItem;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 import org.openide.windows.TopComponent;
 
@@ -41,6 +43,8 @@ public class TeamwareRevisionDiffCommand implements VcsAdditionalCommand {
                         final CommandDataOutputListener stderrData, String errorRegex) {
 
         File file = TeamwareSupport.getFile(vars);
+        FileObject fo = FileUtil.toFileObject(file);
+        String MIMEType = fo.getMIMEType();
         SFile sFile = new SFile(file);
         SRevisionItem revision1 = sFile.getRevisions()
             .getRevisionByName((String) vars.get("REVISION1"));
@@ -56,7 +60,7 @@ public class TeamwareRevisionDiffCommand implements VcsAdditionalCommand {
                     name1, name1, new FileReader(file),
                     name2, name2,
                     new StringReader(sFile.getAsString(revision1, true)),
-                    "text/java");
+                    MIMEType);
             } else {
                 String name1 = file.getName() + ": " + revision1;
                 String name2 = file.getName() + ": " + revision2;
@@ -65,7 +69,7 @@ public class TeamwareRevisionDiffCommand implements VcsAdditionalCommand {
                     new StringReader(sFile.getAsString(revision1, true)),
                     name2, name2,
                     new StringReader(sFile.getAsString(revision2, true)),
-                    "text/java");
+                    MIMEType);
             }
             if (c != null) {
                 ((TopComponent) c).open();
