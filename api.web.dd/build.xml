@@ -69,8 +69,10 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
+    <property file="${nb_root}/web/spec-vers.properties"/>
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+    <filter token="DDAPI_IMPL_VERSION" value="${ddap.impl.version}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     <locjar jarfile="netbeans/modules/autoload/ddapi.jar"
             manifest="manifest-subst.mf"
