@@ -16,12 +16,19 @@ package org.netbeans.modules.vcs.advanced.commands;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
+import java.util.Arrays;
 import javax.swing.table.DefaultTableModel;
 
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
 import org.openide.explorer.propertysheet.DefaultPropertyModel;
 import org.openide.explorer.propertysheet.PropertyPanel;
+import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
+import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec.Argument;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 
 /**
@@ -32,12 +39,14 @@ public class StructuredExecPanel extends javax.swing.JPanel {
     
     private String execString;
     private StructuredExec execStructured;
+    protected DefaultTableModel argTableModel;
     
     /** Creates new form StructuredExecPanel */
     public StructuredExecPanel() {
         initComponents();
         execButtonGroup.add(stringRadioButton);
         execButtonGroup.add(structuredRadioButton);
+        stringTextField.setColumns(50);
         postInitComponents();
     }
     
@@ -73,17 +82,19 @@ public class StructuredExecPanel extends javax.swing.JPanel {
         setLayout(new java.awt.GridBagLayout());
 
         stringRadioButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ExecString"));
+        stringRadioButton.addActionListener(formListener);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         add(stringRadioButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 6);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 6);
         add(stringTextField, gridBagConstraints);
 
         stringEditButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ExecString.EditButton"));
@@ -95,10 +106,12 @@ public class StructuredExecPanel extends javax.swing.JPanel {
         add(stringEditButton, gridBagConstraints);
 
         structuredRadioButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ExecStructured"));
+        structuredRadioButton.addActionListener(formListener);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 11);
         add(structuredRadioButton, gridBagConstraints);
 
         structuredPanel.setLayout(new java.awt.GridBagLayout());
@@ -107,15 +120,15 @@ public class StructuredExecPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 6);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 6);
         structuredPanel.add(workLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 6);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 12);
         gridBagConstraints.weightx = 1.0;
         structuredPanel.add(workTextField, gridBagConstraints);
 
@@ -133,15 +146,15 @@ public class StructuredExecPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         structuredPanel.add(execLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
         gridBagConstraints.weightx = 1.0;
         structuredPanel.add(execTextField, gridBagConstraints);
 
@@ -154,25 +167,7 @@ public class StructuredExecPanel extends javax.swing.JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         structuredPanel.add(execButton, gridBagConstraints);
 
-        argTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null},
-                {null},
-                {null},
-                {null}
-            },
-            new String [] {
-                "Title 1"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(400, 200));
         jScrollPane1.setViewportView(argTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -180,9 +175,9 @@ public class StructuredExecPanel extends javax.swing.JPanel {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 12);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 12);
         structuredPanel.add(jScrollPane1, gridBagConstraints);
 
         buttonsPanel.setLayout(new java.awt.GridBagLayout());
@@ -216,17 +211,17 @@ public class StructuredExecPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
         structuredPanel.add(buttonsPanel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(0, 30, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 30, 11, 11);
         add(structuredPanel, gridBagConstraints);
 
     }
@@ -253,11 +248,50 @@ public class StructuredExecPanel extends javax.swing.JPanel {
             else if (evt.getSource() == removeButton) {
                 StructuredExecPanel.this.removeButtonActionPerformed(evt);
             }
+            else if (evt.getSource() == stringRadioButton) {
+                StructuredExecPanel.this.stringRadioButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == structuredRadioButton) {
+                StructuredExecPanel.this.structuredRadioButtonActionPerformed(evt);
+            }
         }
     }//GEN-END:initComponents
 
+    private void structuredRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_structuredRadioButtonActionPerformed
+        // Add your handling code here:
+        if (stringRadioButton.isSelected() && execStructured == null) {
+            execStructured = new StructuredExec(new java.io.File(workTextField.getText()), execTextField.getText(), new Argument[0]);
+        }
+        enableString(stringRadioButton.isSelected());
+        enableStructured(structuredRadioButton.isSelected());
+    }//GEN-LAST:event_structuredRadioButtonActionPerformed
+
+    private void stringRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stringRadioButtonActionPerformed
+        // Add your handling code here:
+        enableString(stringRadioButton.isSelected());
+        enableStructured(structuredRadioButton.isSelected());
+    }//GEN-LAST:event_stringRadioButtonActionPerformed
+
     private void stringEditButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stringEditButtonActionPerformed
         // Add your handling code here:
+        PropertyEditor stringEditor = PropertyEditorManager.findEditor (String.class);
+        if (stringEditor == null) {
+            stringEditButton.setEnabled(false);
+        }
+        stringEditor.setValue(stringTextField.getText());
+        java.awt.Component editorComponent = stringEditor.getCustomEditor();
+        DialogDescriptor dd = new DialogDescriptor(editorComponent, org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ExecString"));
+        if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dd))) {
+            if (editorComponent instanceof EnhancedCustomPropertyEditor) {
+                try {
+                    stringTextField.setText((String) ((EnhancedCustomPropertyEditor) editorComponent).getPropertyValue());
+                } catch (IllegalStateException isex) {
+                    ErrorManager.getDefault().notify(isex);
+                }
+            } else {
+                stringTextField.setText((String) stringEditor.getValue());
+            }
+        }
     }//GEN-LAST:event_stringEditButtonActionPerformed
 
     private void execButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_execButtonActionPerformed
@@ -270,35 +304,82 @@ public class StructuredExecPanel extends javax.swing.JPanel {
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
         // Add your handling code here:
+        removeArgTableRow();
     }//GEN-LAST:event_removeButtonActionPerformed
 
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
         // Add your handling code here:
+        editArgTableRow();
     }//GEN-LAST:event_editButtonActionPerformed
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         // Add your handling code here:
+        addArgTableRow();
     }//GEN-LAST:event_addButtonActionPerformed
     
     protected void postInitComponents() {
-        DefaultTableModel model = new DefaultTableModel(new Object[0][0], new Object[] {
-            org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.Arguments")
-        });
-        argTable.setModel(model);
-        /*
-        PropertyEditor stringEditor = PropertyEditorManager.findEditor (String.class);
-        PropertyDescriptor pd;
-        PropertyPanel panel;
-        try {
-            pd = new PropertyDescriptor ("execString", String.class);
-        } catch (java.beans.IntrospectionException intrex) {
-            return ;
+        argTableModel = new DefaultTableModel(new Object[0][0], new Object[] {
+            org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.Arguments"),
+            org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ArgLine")
+        }) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Boolean.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        };
+        argTable.setModel(argTableModel);
+        Object lineHeaderValue = argTable.getColumnModel().getColumn(1).getHeaderValue();
+        javax.swing.table.TableCellRenderer tcr = argTable.getColumnModel().getColumn(1).getHeaderRenderer();
+        if (tcr == null) {
+            tcr = argTable.getTableHeader().getDefaultRenderer();
         }
-        pd.setPropertyEditorClass (stringEditor.getClass());
-        DefaultPropertyModel model = new DefaultPropertyModel (this, pd);
-        panel = new PropertyPanel (model, PropertyPanel.PREF_INPUT_STATE);
-        stringPanel.add(panel);
-         */
+        java.awt.Component lineHeaderComponent = tcr.getTableCellRendererComponent(argTable, lineHeaderValue, false, true, 0, 1);
+        int width = lineHeaderComponent.getPreferredSize().width;
+        argTable.getColumnModel().getColumn(1).setPreferredWidth(width + 24);
+        argTable.getColumnModel().getColumn(1).setMaxWidth(width + 24);
+        editButton.setVisible(false);
+        argTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent lsev) {
+                removeButton.setSelected(argTable.getSelectedRows().length > 0);
+            }
+        });
+    }
+    
+    private void enableString(boolean enable) {
+        stringTextField.setEnabled(enable);
+        stringEditButton.setEnabled(enable);
+    }
+    
+    private void enableStructured(boolean enable) {
+        structuredPanel.setEnabled(enable);
+        workLabel.setEnabled(enable);
+        workTextField.setEnabled(enable);
+        workButton.setEnabled(enable);
+        execLabel.setEnabled(enable);
+        execTextField.setEnabled(enable);
+        execButton.setEnabled(enable);
+        argTable.setEnabled(enable);
+        addButton.setEnabled(enable);
+        editButton.setEnabled(enable);
+        removeButton.setEnabled(enable);
+    }
+    
+    protected void addArgTableRow() {
+        argTableModel.addRow(new Object[] { "", Boolean.FALSE });
+    }
+    
+    protected void editArgTableRow() {
+    }
+    
+    protected void removeArgTableRow() {
+        int[] rows = argTable.getSelectedRows();
+        Arrays.sort(rows);
+        for (int i = rows.length - 1; i >= 0; i--) {
+            argTableModel.removeRow(rows[i]);
+        }
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -333,14 +414,43 @@ public class StructuredExecPanel extends javax.swing.JPanel {
     
     public void setExecString(String execString) {
         this.execString = execString;
-        stringTextField.setText(execString);
+        if (execString != null) {
+            stringTextField.setText(execString);
+            stringRadioButton.setSelected(true);
+        }
     }
     
     public void setExecStructured(StructuredExec execStructured) {
         this.execStructured = execStructured;
+        if (execStructured != null) {
+            setFromStructured();
+            structuredRadioButton.setSelected(true);
+        }
+    }
+    
+    private void setFromStructured() {
+        java.io.File wf = execStructured.getWorking();
+        if (wf == null) {
+            workTextField.setText("");
+        } else {
+            workTextField.setText(wf.getPath());
+        }
+        execTextField.setText(execStructured.getExecutable());
+        Argument[] args = execStructured.getArguments();
+        for (int i = 0; i < args.length; i++) {
+            argTable.removeAll();
+            argTableModel.addRow(new Object[] { args[i].getArgument(),
+                                                args[i].isLine() ?
+                                                    Boolean.TRUE :
+                                                    Boolean.FALSE });
+        }
     }
     
     public StructuredExec getExecStructured() {
         return execStructured;
+    }
+    
+    public boolean isStringExecSelected() {
+        return stringRadioButton.isSelected();
     }
 }

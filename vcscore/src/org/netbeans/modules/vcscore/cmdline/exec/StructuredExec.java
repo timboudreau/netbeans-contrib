@@ -24,19 +24,29 @@ public final class StructuredExec extends Object {
     
     private File working;
     private String executable;
-    private String[] args;
+    private Argument[] args;
     
-    /** Creates a new instance of StructuredExec */
-    public StructuredExec(File working, String executable, String[] args) {
+    /** Creates a new instance of StructuredExec.
+     * @param working The working directory
+     * @param executable The executable
+     * @param args The list of arguments passed to the executable
+     */
+    public StructuredExec(File working, String executable, Argument[] args) {
         this.working = working;
         this.executable = executable;
         this.args = args;
     }
     
+    /**
+     * Get the working directory.
+     */
     public File getWorking() {
         return working;
     }
     
+    /**
+     * Set the working directory.
+     */
     public void setWorking(File working) {
         this.working = working;
     }
@@ -49,24 +59,24 @@ public final class StructuredExec extends Object {
         this.executable = executable;
     }
     
-    public String[] getArguments() {
+    public Argument[] getArguments() {
         return args;
     }
     
-    public void setArguments(String[] args) {
+    public void setArguments(Argument[] args) {
         this.args = args;
     }
     
-    public void setArgument(int pos, String arg) {
+    public void setArgument(int pos, Argument arg) {
         if (pos < 0 || pos >= args.length) {
             throw new IllegalArgumentException("Illegal argument position: "+pos);
         }
         args[pos] = arg;
     }
     
-    public void addArgument(int pos, String arg) {
+    public void addArgument(int pos, Argument arg) {
         if (pos < 0) pos = 0;
-        String[] newArgs = new String[args.length + 1];
+        Argument[] newArgs = new Argument[args.length + 1];
         if (pos < args.length) {
             if (pos > 0) {
                 System.arraycopy(args, 0, newArgs, 0, pos);
@@ -84,7 +94,7 @@ public final class StructuredExec extends Object {
         if (pos < 0 || pos >= args.length) {
             throw new IllegalArgumentException("Illegal argument position: "+pos);
         }
-        String[] newArgs = new String[args.length - 1];
+        Argument[] newArgs = new Argument[args.length - 1];
         if (pos > 0) {
             System.arraycopy(args, 0, newArgs, 0, pos);
         }
@@ -92,6 +102,48 @@ public final class StructuredExec extends Object {
             System.arraycopy(args, pos + 1, newArgs, pos, args.length - pos - 1);
         }
         args = newArgs;
+    }
+    
+    /**
+     * Representation of an argument.<br>
+     * The argument can be either a single String argument, or a sequence of
+     * space-separated arguments in a single String. This is distinguished
+     * by the <code>line</code> property.
+     */
+    public static final class Argument extends Object {
+        
+        private String argument;
+        private boolean line;
+        
+        /**
+         * Create a new argument.
+         * @param argument The String value of the argument.
+         * @param line When <code>false</code>, the <code>argument</code>
+         *        represents a single String argument of the executable,
+         *        if <code>false</code>, the <code>argument</code> represents
+         *        a sequence of space-separated arguments.
+         */
+        public Argument(String argument, boolean line) {
+            this.argument = argument;
+            this.line = line;
+        }
+        
+        public String getArgument() {
+            return argument;
+        }
+        
+        public void setArgument(String argument) {
+            this.argument = argument;
+        }
+        
+        public boolean isLine() {
+            return line;
+        }
+        
+        public void setLine(boolean line) {
+            this.line = line;
+        }
+        
     }
     
 }
