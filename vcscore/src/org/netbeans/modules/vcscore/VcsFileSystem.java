@@ -722,6 +722,41 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         firePropertyChange(org.netbeans.modules.vcscore.runtime.RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT, null, null);
     }
 
+    public int getVFSMessageLength() {
+        return versioningFileSystemMessageLength;
+    }
+    public void setVFSMessageLength(int newVal) {
+        versioningFileSystemMessageLength = newVal;
+    }
+
+    public boolean getVFSShowLocalFiles() {
+        return versioningFileSystemShowLocalFiles;
+    }
+    public void setVFSShowLocalFiles(boolean newVal) {
+        versioningFileSystemShowLocalFiles = newVal;
+    }
+
+    public boolean getVFSShowMessage() {
+        return versioningFileSystemShowMessage;
+    }
+    public void setVFSShowMessage(boolean newVal) {
+        versioningFileSystemShowMessage = newVal;
+    }
+
+    public boolean getVFSShowUnimportantFiles() {
+        return versioningFileSystemShowUnimportantFiles;
+    }
+    public void setVFSShowUnimportantFiles(boolean newVal) {
+        versioningFileSystemShowUnimportantFiles = newVal;
+    }
+
+    public boolean getVFSShowDeadFiles() {
+        return versioningFileSystemShowDeadFiles;
+    }
+    public void setVFSShowDeadFiles(boolean newVal) {
+        versioningFileSystemShowDeadFiles = newVal;
+    }
+
     public void addRevisionListener(RevisionListener listener) {
         synchronized (revisionListenersLock) {
             if (revisionListeners == null) revisionListeners = new ArrayList();
