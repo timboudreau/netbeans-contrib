@@ -1733,6 +1733,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         deserialized = true;
         boolean localFilesOn = in.readBoolean ();
         in.defaultReadObject();
+        refresher = new VcsRefreshRequest (this, 0, this);
         actionSupporter = new VcsActionSupporter(this);
         if (!(attr instanceof VcsAttributes)) {
             VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
@@ -1996,7 +1997,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Hashtable result = new Hashtable(len+10);
         for(int i = 0; i < len; i++) {
             VcsConfigVariable var = (VcsConfigVariable) getVariables().elementAt (i);
-            result.put(var.getName (), var.getValue ());
+            String value = var.getValue();
+            if (value != null) result.put(var.getName (), value);
         }
 
         result.put("netbeans.home", System.getProperty("netbeans.home"));
@@ -4119,6 +4121,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     private void addCmdActionsToSupporter() {
+        ClassLoader ccl = TopManager.getDefault().currentClassLoader();
         for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
             VcsCommand cmd = (VcsCommand) it.next();
             Class actionClass = (Class) cmd.getProperty(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "generalCommandActionClass"); // NOI18N
@@ -4127,8 +4130,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (actionClassNameObj instanceof String) {
                     String actionClassName = (String) actionClassNameObj;
                     try {
-                        actionClass = Class.forName(actionClassName, false,
-                                                    TopManager.getDefault().currentClassLoader());
+                        actionClass = Class.forName(actionClassName, false, ccl);
                     } catch (ClassNotFoundException e) {
                         TopManager.getDefault().notifyException(
                             TopManager.getDefault().getErrorManager().annotate(e, g("EXC_CouldNotFindAction", actionClassName)));
