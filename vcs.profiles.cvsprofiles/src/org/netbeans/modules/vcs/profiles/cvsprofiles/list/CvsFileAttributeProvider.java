@@ -48,6 +48,9 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
     // see also cvs.xml: POSSIBLE_FILE_STAUSES*
     private static final String VERSIONED_FOLDER_STATUS = "";  // NOI18N
 
+    private static final String ENTRIES_LOG = "Entries.Log"; // NOI18N
+
+
     /** Must not be called directly exept from layer. */
     public CvsFileAttributeProvider() {
     }
@@ -99,7 +102,14 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
 
             File entries = getCVSEntriesFile(parent);
             if (entries == null) {
-                return FileProperties.createLocal(fo.getNameExt()); // [local] not versioned, missing Entries
+                // [local] or ignored, missing Entries
+                FileProperties fprops = new FileProperties();
+                FileObject folder = fo.getParent();
+                boolean ignored = IgnoreList.forFolder(folder).isIgnored(targetName);
+                String status = ignored ? Statuses.STATUS_IGNORED : Statuses.getLocalStatus();
+                status = applyParentStatus(fo, status);
+                fprops.setStatus(status);
+                return fprops;
             }
 
             // returns files only
@@ -124,6 +134,7 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
                 } else {
                     status = CvsListOffline.getStatusFromTime(elements[2], file);
                 }
+                status = applyParentStatus(fo, status);
                 fprops.setStatus(status);
                 fprops.setAttr(elements[3]);
                 String sticky = elements[4];
@@ -193,28 +204,26 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
             } else {
                 if (FolderProperties.ID.equals(name)) {
                     return null;
-                }
-
-                // folder without CVS/Entries can have 3 statuses: Missing, Local or Ignored
-                FileProperties fprops = new FileProperties();
-                fprops.setName(targetName + '/');
-                if (folder.exists()) {
-                    FileObject parent = fo.getParent();
-                    if (parent == null) {
-                        // FS root
-                        fprops.setStatus(VERSIONED_FOLDER_STATUS);
-                    } else {
-                        boolean ignored = IgnoreList.forFolder(parent).isIgnored(targetName);
-                        if (ignored) {
-                            fprops.setStatus(Statuses.STATUS_IGNORED);
+                } else if (FileProperties.ID.equals(name)) {
+                    // folder without CVS/Entries can have 3 statuses: Missing, Local or Ignored
+                    FileProperties fprops = new FileProperties();
+                    fprops.setName(targetName + '/');
+                    if (folder.exists()) {
+                        FileObject parent = fo.getParent();
+                        if (parent == null) {
+                            // FS root
+                            fprops.setStatus(VERSIONED_FOLDER_STATUS);
                         } else {
-                            fprops.setStatus(Statuses.getLocalStatus());
+                            boolean ignored = IgnoreList.forFolder(parent).isIgnored(targetName);
+                            String status = ignored ? Statuses.STATUS_IGNORED : Statuses.getLocalStatus();
+                            status = applyParentStatus(fo, status);
+                            fprops.setStatus(status);
                         }
+                    } else {
+                        fprops.setStatus("Needs Checkout"); // NOI18N
                     }
-                } else {
-                    fprops.setStatus("Needs Checkout"); // NOI18N
+                    value = fprops;
                 }
-                value = fprops;
             }
         }
 
@@ -222,7 +231,32 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
 
     }
 
-    // XXX read also Entries.log?
+    /**
+     * Look up to workdir root and check actual subtree status.
+     * Local in ignored statuses are inherited.
+     * @param fo file object that parents are in question
+     * @param status initial status of file object
+     */
+    private String applyParentStatus(FileObject fo, String status) {
+
+        if (status == VERSIONED_FOLDER_STATUS) return status;  // inheritance exception
+        if (status == Statuses.STATUS_IGNORED) return status;
+
+        FileObject parent = fo.getParent();
+        if (parent == null) {
+            // working dir root
+            return VERSIONED_FOLDER_STATUS;
+        }
+
+        FileProperties fprops = (FileProperties) readAttribute(parent, FileProperties.ID, null);
+        String up = FileProperties.getStatus(fprops);
+
+        if (up == Statuses.STATUS_IGNORED) return up;
+        if (up == Statuses.getLocalStatus()) return up;
+        return status;
+    }
+
+    /** Read Entries and Entries.log file and return set of FolderEntries*/
     private Set folderListing(File entries) {
         Set ret = new HashSet();
         BufferedReader reader = null;
@@ -230,17 +264,28 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
             reader = new BufferedReader(new FileReader(entries));
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.startsWith("/")) {       // NOI18N
-                    int end = line.indexOf('/', 1);
-                    if (end > 0) {
-                        String file = line.substring(1, end);
-                        ret.add(new FolderEntry(file, false));
-                    }
-                } else if (line.startsWith("D/")) { // NOI18N
-                    int end = line.indexOf('/', 2);
-                    if (end > 0) {
-                        String file = line.substring(2, end);
-                        ret.add(new FolderEntry(file, true));
+                FolderEntry entry = createEntry(line);
+                if (entry == null) continue;
+                ret.add(entry);
+            }
+
+            File folder = entries.getParentFile();
+            if (folder != null) {
+                File log = new File(folder, ENTRIES_LOG);
+                if (log.exists() && log.canRead()) {
+                    reader = new BufferedReader(new FileReader(log));
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith("A ")) {  // NOI18N
+                            String s = line.substring(2);
+                            FolderEntry entry = createEntry(s);
+                            if (entry == null) continue;
+                            ret.add(entry);
+                        } else if (line.startsWith("R ")) { // NOI18N
+                            String s = line.substring(2);
+                            FolderEntry entry = createEntry(s);
+                            if (entry == null) continue;
+                            ret.remove(entry);
+                        }
                     }
                 }
             }
@@ -256,6 +301,24 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
             }
         }
         return ret;
+    }
+
+    /** convert Entries line syntax to FolderEntry. */
+    private static FolderEntry createEntry(String line) {
+        if (line.startsWith("/")) {       // NOI18N
+            int end = line.indexOf('/', 1); // NOI18N
+            if (end > 0) {
+                String file = line.substring(1, end);
+                return new FolderEntry(file, false);
+            }
+        } else if (line.startsWith("D/")) { // NOI18N
+            int end = line.indexOf('/', 2); // NOI18N
+            if (end > 0) {
+                String file = line.substring(2, end);
+                return new FolderEntry(file, true);
+            }
+        }
+        return null;
     }
 
     /** No value is actually written here. */

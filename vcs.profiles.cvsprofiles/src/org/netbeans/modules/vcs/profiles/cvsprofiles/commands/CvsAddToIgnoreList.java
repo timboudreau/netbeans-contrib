@@ -21,6 +21,8 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
+import org.netbeans.modules.vcscore.turbo.Statuses;
+import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
 import org.netbeans.api.vcs.FileStatusInfo;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -84,14 +86,12 @@ public class CvsAddToIgnoreList implements VcsAdditionalCommand {
             ps.println();
             while (it2.hasNext()) {
                 String next = (String) it2.next();
+                FileObject ignored = parent.getFileObject(next);
+                ignoreRecursively(ignored);
                 ps.println(next);
             }
             ps.close();
             stdoutListener.outputLine(ignore.getPath() + " updated.");
-
-            // XXX better way to invalidate file status, these are ignored now
-            // at least it can be declated using command variable
-            TurboUtil.refreshFolder(parent);
             return ps.checkError() == false;
         } catch (FileNotFoundException e) {
             stderrListener.outputLine(e.getLocalizedMessage());
@@ -102,5 +102,21 @@ public class CvsAddToIgnoreList implements VcsAdditionalCommand {
     /** Called by introspection. */
     public void setFileSystem(VcsFileSystem vfs) {
         this.vfs = vfs;
+    }
+
+    /** Assure that ignored file and their descendants status is ignored. */
+    private void ignoreRecursively(FileObject fo) {
+        FileAttributeQuery faq = FileAttributeQuery.getDefault();
+        FileProperties fprops = (FileProperties) faq.readAttribute(fo, FileProperties.ID);
+        FileProperties ignoredProps = new FileProperties(fprops);
+        ignoredProps.setStatus(Statuses.STATUS_IGNORED);
+        faq.writeAttribute(fo, FileProperties.ID, ignoredProps);
+        if (fo.isFolder()) {
+            FileObject[] children = fo.getChildren();
+            for (int i = 0; i < children.length; i++) {
+                FileObject next = children[i];
+                ignoreRecursively(next);
+            }
+        }
     }
 }
