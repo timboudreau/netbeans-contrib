@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -54,6 +55,8 @@ import org.openide.util.WeakListener;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.xml.XMLUtil;
 
+import org.netbeans.modules.vcscore.VcsConfigVariable;
+
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
@@ -78,6 +81,10 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     /** The DTD for a configuration profile. */
     public static final String PUBLIC_ID = "-//NetBeans//DTD VCS Advanced FSSettings 1.0//EN"; // NOI18N
     public static final String SYSTEM_ID = "http://www.netbeans.org/dtds/vcs-advanced-fssettings-1_0.dtd"; // NOI18N
+    
+    /** This variable is expected to contain the profile module information.
+     * When the required module is not installed, the FS settings file is ignored. */
+    public static final String MODULE_INFO_CODE_NAME_BASE_VAR = "MODULE_INFORMATION_CODE_NAME_BASE"; // NOI18N
 
     /** The last FS instance. */
     private WeakReference weakFsInstance = new WeakReference(null);
@@ -91,6 +98,8 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     private Document doc;
     private InstanceContent ic;
     private FSPropertyChangeListener fsPropertyChangeListener;
+    /** The profile's module information */
+    private String moduleCodeNameBase = null;
     //private long timeIgnoreFileChange = 0L;
     //private static final int FILE_MODIFICATION_TIME_RANGE = 500;
 
@@ -154,10 +163,20 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     
     /** Creates new CommandLineVcsFileSystemInstance */
     public CommandLineVcsFileSystemInstance(FileObject fo, Document doc, InstanceContent ic) {
+        this(fo, doc, ic, true);
+    }
+
+    /** Creates new CommandLineVcsFileSystemInstance */
+    private CommandLineVcsFileSystemInstance(FileObject fo, Document doc, InstanceContent ic, boolean readModuleInfo) {
         this.fo = fo;
         this.doc = doc;
         this.ic = ic;
         fo.addFileChangeListener(WeakListener.fileChange(this, fo));
+        if (readModuleInfo) {
+            try {
+                readModuleInfo(doc);
+            } catch (DOMException dex) {}
+        }
     }
 
     public Object instanceCreate() throws java.io.IOException, ClassNotFoundException {
@@ -201,12 +220,12 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     }
     
     public Class instanceClass() throws java.io.IOException, ClassNotFoundException {
-        //if (!isModuleEnabled()) return BrokenSettings.class;
+        if (!isModuleEnabled()) return BrokenSettings.class;
         return CommandLineVcsFileSystem.class;
     }
     
     public boolean instanceOf(Class clazz) {
-        //if (!isModuleEnabled()) return BrokenSettings.class.isAssignableFrom(clazz);
+        if (!isModuleEnabled()) return BrokenSettings.class.isAssignableFrom(clazz);
         return (clazz.isAssignableFrom(CommandLineVcsFileSystem.class));
     }
     
@@ -286,9 +305,9 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     private PropertyChangeListener moduleListener;
 
     private boolean isModuleEnabled() {
-        final ModuleInfo m = getModuleInfo(CommandLineVcsFileSystem.class);
+        if (moduleCodeNameBase == null) return true;
+        final ModuleInfo m = getModule(moduleCodeNameBase);
         if (m == null) return false;
-        /*
         synchronized (MODULE_LST_LOCK) {
             if (moduleListener == null) {
                 wasEnabled = m.isEnabled();
@@ -306,7 +325,9 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                             if (!wasEnabled) {
                                 ic.remove((InstanceCookie) CommandLineVcsFileSystemInstance.this);
                             } else {
-                                ic.add((InstanceCookie) new CommandLineVcsFileSystemInstance(fo, doc, ic));
+                                CommandLineVcsFileSystemInstance newFSInstance = new CommandLineVcsFileSystemInstance(fo, doc, ic, false);
+                                newFSInstance.moduleCodeNameBase = CommandLineVcsFileSystemInstance.this.moduleCodeNameBase;
+                                ic.add(newFSInstance);
                             }
                         }
                     }
@@ -315,7 +336,6 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                     WeakListener.propertyChange(moduleListener, m));
             }
         }
-        */
         if (!m.isEnabled()) return false;
         // is release number ok?
         //if (recog.getCodeNameRelease() > m.getCodeNameRelease()) return false;
@@ -326,62 +346,74 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     }
     
     /** all modules <code bas name, ModuleInfo> */
-    private static HashMap modules = null;
-    /** lookup query to find out all modules */
-    private static Lookup.Result modulesResult = null;
+    private HashMap modules = null;
     private static final Object MODULES_LOCK = new Object();
     
     /** find module info.
      * @param codeBaseName module code base name (without revision)
      * @return module info or null
      */
-    private static ModuleInfo getModule(String codeBaseName) {
-        Collection l = null;
-        if (modules == null) {
-            l = getModulesResult().allInstances();
-        }
+    private ModuleInfo getModule(final String codeBaseName) {
         synchronized (MODULES_LOCK) {
-            if (modules == null) fillModules(l);
+            if (modules == null) {
+                Lookup.Result modulesResult =
+                    Lookup.getDefault().lookup(new Lookup.Template(ModuleInfo.class));
+                modulesResult.addLookupListener(new LookupListener() {
+                    public void resultChanged(LookupEvent ev) {
+                        Collection l = ((Lookup.Result) ev.getSource()).allInstances();
+                        boolean wasEnabled = isModuleEnabled();
+                        synchronized (MODULES_LOCK) {
+                            modules = fillModules(l);
+                        }
+                        if (wasEnabled != isModuleEnabled()) {
+                            setInstance(null);
+                            if (wasEnabled) {
+                                ic.remove((InstanceCookie) CommandLineVcsFileSystemInstance.this);
+                            } else {
+                                CommandLineVcsFileSystemInstance newFSInstance = new CommandLineVcsFileSystemInstance(fo, doc, ic, false);
+                                newFSInstance.moduleCodeNameBase = CommandLineVcsFileSystemInstance.this.moduleCodeNameBase;
+                                ic.add(newFSInstance);
+                            }
+                        }
+                    }
+                });
+                modules = fillModules(modulesResult.allInstances());
+            }
             return (ModuleInfo) modules.get(codeBaseName);
         }
     }
     
-    private static Lookup.Result getModulesResult() {
-        synchronized (MODULES_LOCK) {
-            if (modulesResult == null) {
-                modulesResult = Lookup.getDefault().
-                lookup(new Lookup.Template(ModuleInfo.class));
-                modulesResult.addLookupListener(new LookupListener() {
-                    public void resultChanged(LookupEvent ev) {
-                        Collection l = getModulesResult().allInstances();
-                        synchronized (MODULES_LOCK) {
-                            fillModules(l);
-                        }
-                    }
-                });
-            }
-            return modulesResult;
-        }
-    }
-    
     /** recompute accessible modules. */
-    private static void fillModules(Collection l) {
+    private static HashMap fillModules(Collection l) {
         HashMap m = new HashMap((l.size() << 2) / 3 + 1);
         Iterator it = l.iterator();
         while (it.hasNext()) {
             ModuleInfo mi = (ModuleInfo) it.next();
             m.put(mi.getCodeNameBase(), mi);
         }
-        modules = m;
+        return m;
     }
     
-    private static ModuleInfo getModuleInfo(Class clazz) {
-        Iterator it = getModulesResult().allInstances().iterator();
-        while (it.hasNext()) {
-            ModuleInfo mi = (ModuleInfo) it.next();
-            if (mi.owns(clazz)) return mi;
+    private void readModuleInfo(Document doc) throws DOMException {
+        Element rootElem = doc.getDocumentElement();
+        NodeList configList = rootElem.getElementsByTagName(VariableIO.CONFIG_ROOT_ELEM);
+        Vector variables = null;
+        if (configList.getLength() > 0) {
+            Element configNode = (Element) configList.item(0);
+            NodeList varList = configNode.getElementsByTagName(VariableIO.VARIABLES_TAG);
+            if (varList.getLength() > 0) {
+                Node varsNode = varList.item(0);
+                variables = VariableIO.getVariables(varsNode.getChildNodes());
+            }
         }
-        return null;
+        if (variables != null) {
+            for (Iterator it = variables.iterator(); it.hasNext(); ) {
+                VcsConfigVariable var = (VcsConfigVariable) it.next();
+                if (MODULE_INFO_CODE_NAME_BASE_VAR.equals(var.getName())) {
+                    moduleCodeNameBase = var.getValue();
+                }
+            }
+        }
     }
     
     private static void readFSProperties(CommandLineVcsFileSystem fs, Document doc) throws DOMException {
