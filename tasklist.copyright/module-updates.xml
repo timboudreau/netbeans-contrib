@@ -1,4 +1,8 @@
 <updates>
+    <update version="1.5">
+    <change>XML documents prolog preserved on adding copyright (#45151).</change>
+    </update>
+
     <update version="1.0">
     <change>Copyright checker separated from Source Tasks module.</change>
     </update>

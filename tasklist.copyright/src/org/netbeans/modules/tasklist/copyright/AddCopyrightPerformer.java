@@ -10,6 +10,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+
 import org.netbeans.modules.tasklist.client.Suggestion;
 import org.netbeans.modules.tasklist.client.SuggestionPerformer;
 import org.netbeans.modules.tasklist.core.ConfPanel;
@@ -28,7 +30,10 @@ import org.openide.util.NbBundle;
  */
 public class AddCopyrightPerformer implements SuggestionPerformer {
     private SuggestionContext env;
-    
+
+    /** For some file formats comment must be inseretd into middle of file. */
+    private int prologEnd = 0;
+
     /**
      * todo
      */
@@ -40,7 +45,7 @@ public class AddCopyrightPerformer implements SuggestionPerformer {
         String comment = getComment(false);
         if ((comment != null) && (comment.length() > 0)) {
             try {
-                env.getDocument().insertString(0, comment, null);
+                env.getDocument().insertString(prologEnd, comment, null);
             } catch (BadLocationException e) {
                 ErrorManager.getDefault().notify(
                 ErrorManager.WARNING, e);
@@ -98,9 +103,11 @@ public class AddCopyrightPerformer implements SuggestionPerformer {
         String copyright = settings.getScanCopyright();
         return copyright;
     }
-    
+
+    /** Side effect sets prologEnd */
     private String getComment(boolean makeHtml) {
         String copyright = getCopyright();
+        prologEnd = 0;
         if ((copyright == null) || (copyright.length() == 0)) {
             return null;
         }
@@ -115,10 +122,27 @@ public class AddCopyrightPerformer implements SuggestionPerformer {
             prefix = "/*"; // NOI18N
             suffix = "*/"; // NOI18N
         } else if (ext.equalsIgnoreCase("html") || // NOI18N
-        ext.equalsIgnoreCase("htm") || // NOI18N
-        ext.equalsIgnoreCase("xml")) {  // NOI18N
+            ext.equalsIgnoreCase("htm") || // NOI18N
+            ext.equalsIgnoreCase("xml")) {  // NOI18N
             prefix = "<!--"; // NOI18N
             suffix = "-->"; // NOI18N
+
+            // #45151 for XML <?xml version=".." encoding="..."?> prolog must be the first
+            // XXX works well only for ASCI based encodings, EBDIC ignored
+            Document doc = env.getDocument();
+            int prologLength = Math.max(doc.getLength(), 80);
+            try {
+                String prolog = doc.getText(0, prologLength);
+                if (prolog.startsWith("<?xml")) {
+                    int end = prolog.indexOf("?>");
+                    if (end != -1) {
+                        prologEnd =  end + 2;
+                        prefix = "\n<!--";
+                    }
+                }
+            } catch (BadLocationException e) {
+                assert false;
+            }
         } else if (ext.equalsIgnoreCase("jsp")) {  // NOI18N
             prefix = "<%--"; // NOI18N
             suffix = "--%>"; // NOI18N
