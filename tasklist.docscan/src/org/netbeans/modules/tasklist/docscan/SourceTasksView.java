@@ -402,8 +402,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     handleRefresh();
                 }
             });
+            adjustHeight(button);
             refresh = button;
-            adjustHeight(refresh);
         }
         return refresh;
     }
@@ -416,8 +416,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     handlePrev();
                 }
             });
+            adjustHeight(button);
             prev = button;
-            adjustHeight(prev);
         }
         return prev;
     }
@@ -430,8 +430,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     handleNext();
                 }
             });
+            adjustHeight(button);
             next = button;
-            adjustHeight(next);
         }
         return next;
     }
@@ -478,15 +478,16 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private JComponent folderSelector;
     private JComponent getFolderSelector() {
         if (folderSelector == null) {
-            JToggleButton button = new JToggleButton("...");
+            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/dropdown.gif");
+            JButton button = new JButton(new ImageIcon(image));
             button.setToolTipText("Selects folder to be scanned.");
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     handleSelectFolder();
                 }
             });
+            adjustHeight(button);
             folderSelector = button;
-            button.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 5));
         }
         return folderSelector;
     }
@@ -505,8 +506,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     handleCurrentFile();
                 }
             });
+            adjustHeight(button);
             currentFile = button;
-            adjustHeight(currentFile);
         }
         return currentFile;
     }
@@ -528,8 +529,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     }
                 }
             });
+            adjustHeight(button);
             gotoPresenter = button;
-            adjustHeight(gotoPresenter);
         }
         return gotoPresenter;
     }
@@ -594,10 +595,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     /** Toolbar controls must be smaller*/
-    private static void adjustHeight(JComponent c) {
-        // it kills roll-over feature
-        Insets in = c.getInsets();
-        c.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
+    private static void adjustHeight(AbstractButton c) {
+        Insets in = c.getMargin();
+        in.top = 0;
+        in.bottom = 0;
+        c.setMargin(in);
     }
 
     protected Component createNorthComponent() {
@@ -751,8 +753,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             }
         }
 
-        ((JToggleButton)allFilesButton).setSelected(true);
-        ((JToggleButton)folderSelector).setSelected(true);
         String path = selectedFolder.getPath();
         if ("".equals(path)) { // NOI18N
             try {
@@ -801,7 +801,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void handleCurrentFile() {
         if (job != null) return;
-        ((JToggleButton)folderSelector).setSelected(false);
         try {
             if (background != null) handleStop();
             background = null;

@@ -402,9 +402,11 @@ public final class SuggestionsScanner implements Cancellable {
             // there were many soft references or we are getting to maxMemory limit
             if (!interrupted) {
                 // XXX on most implementations it's maxMemory limit
-                interrupted = true;
-                if (progressMonitor != null) {
-                    progressMonitor.scanTerminated(-1);
+                if (Runtime.getRuntime().freeMemory() < 10000 ) {
+                    interrupted = true;
+                    if (progressMonitor != null) {
+                        progressMonitor.scanTerminated(-1);
+                    }
                 }
             }
         }
