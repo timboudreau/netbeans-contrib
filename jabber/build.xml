@@ -30,7 +30,7 @@ Contributor(s): Petr Nejedly
         <makenbm file="build/${nbm}"
                  productdir="${netbeans.dest.dir}/${cluster.dir}"
                  module="${module.jar}"
-                 homepage="http://${nbm.domain}.${homepage.base}/"
+                 homepage="${nbm.homepage}"
                  distribution="http://${dist.base}/${nbm}"
                  needsrestart="${nbm.needs.restart}">
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
