@@ -201,6 +201,10 @@ public class VcsAttributes extends DefaultAttributes {
         this.commandsProvider = commandsProvider;
     }
     
+    public RuntimeCommandsProvider getRuntimeCommandsProvider() {
+        return runtimeProvider;
+    }
+    
     public void setRuntimeCommandsProvider(RuntimeCommandsProvider provider) {
         this.runtimeProvider = provider;
     }

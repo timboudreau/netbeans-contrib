@@ -2813,6 +2813,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             // When we change the root, we have to create new attributes,
             // that are with respect to the new root.
             VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
+            VcsAttributes oldAttrs = getVcsAttributes();
+            if (oldAttrs != null) {
+                a.setRuntimeCommandsProvider(oldAttrs.getRuntimeCommandsProvider());
+            }
             attr = a;
             list = a;
         }
