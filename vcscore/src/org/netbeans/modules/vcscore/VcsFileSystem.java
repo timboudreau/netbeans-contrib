@@ -205,6 +205,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private String cacheID = null;
     protected transient FileCacheProvider cache = null;
     protected transient FileStatusProvider statusProvider = null;
+    
     private int[] multiFilesAnnotationTypes = null;
     private String annotationPattern = null;
 
@@ -989,7 +990,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         deserialized = false;
         info = this;
         change = this;
-        VcsAttributes a = new VcsAttributes (info, change, this, this);
+        VcsAttributes a = new VcsAttributes (info, change, this, this, new VcsActionSupporter(this));
         attr = a;
         list = a;
         setRefreshTime (0); // due to customization

@@ -22,6 +22,8 @@ import org.openide.filesystems.DefaultAttributes;
 import org.openide.util.RequestProcessor;
 
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
+import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.util.Table;
@@ -83,14 +85,19 @@ public class VcsAttributes extends DefaultAttributes {
      * or not.
      */
     public static String VCS_STATUS_UNKNOWN = "VCS_STATUS_UNKNOWN";
+    
+    private CommandActionSupporter supporter;
         
     private VcsFileSystem fileSystem;
 
+    static final long serialVersionUID = 8084585278800267078L;
+    
     /** Creates new VcsAttributes */
     public VcsAttributes(AbstractFileSystem.Info info, AbstractFileSystem.Change change,
-                         AbstractFileSystem.List list, VcsFileSystem fileSystem) {
+                         AbstractFileSystem.List list, VcsFileSystem fileSystem, CommandActionSupporter supp) {
         super(info, change, list);
         this.fileSystem = fileSystem;
+        supporter = supp;
     }
     
     /**
@@ -115,6 +122,8 @@ public class VcsAttributes extends DefaultAttributes {
                 return VCS_STATUS_UP_TO_DATE;
             }
             return VCS_STATUS_UNKNOWN;
+        } else if (GeneralCommandAction.VCS_ACTION_ATTRIBUTE.equals(attrName)) {
+                return supporter;            
         } else {
             return super.readAttribute(name, attrName);
         }
@@ -164,4 +173,14 @@ public class VcsAttributes extends DefaultAttributes {
             super.writeAttribute(name, attrName, value);
         }
     }
+    
+    private void readObject (java.io.ObjectInputStream ois)
+        throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        if (supporter != null && supporter instanceof VcsActionSupporter) {
+            ((VcsActionSupporter)supporter).setFileSystem(fileSystem);
+        }
+    }
+
+
 }
