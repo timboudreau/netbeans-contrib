@@ -73,3 +73,4 @@ public class AllTogether extends NbTestCase {
     protected void tearDown() {
         JellyProperties.setDefaults();
     }
+}

@@ -620,3 +620,4 @@ public class MountingWizard extends NbTestCase {
             throw e;
         }
     }
+}
