@@ -16,15 +16,15 @@ package com.netbeans.enterprise.modules.corba;
 import java.util.*;
 
 
-import com.netbeans.ide.loaders.*;
-import com.netbeans.ide.actions.*;
-import com.netbeans.ide.util.actions.*;
-import com.netbeans.ide.nodes.*;
-import com.netbeans.ide.cookies.OpenCookie;
-import com.netbeans.ide.actions.OpenAction;
+import org.openide.loaders.*;
+import org.openide.actions.*;
+import org.openide.util.actions.*;
+import org.openide.nodes.*;
+import org.openide.cookies.OpenCookie;
+import org.openide.actions.OpenAction;
 
 // my
-import com.netbeans.ide.filesystems.FileUtil;
+import org.openide.filesystems.FileUtil;
 
 /**
 *
@@ -67,6 +67,8 @@ public class IDLNode extends DataNode {
 
 /*
 * <<Log>>
+*  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
+*       org.openide ----
 *  7    Gandalf   1.6         5/28/99  Karel Gardas    
 *  6    Gandalf   1.5         5/28/99  Karel Gardas    
 *  5    Gandalf   1.4         5/22/99  Karel Gardas    

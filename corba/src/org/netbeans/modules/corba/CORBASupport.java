@@ -17,10 +17,10 @@ import java.io.*;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
-import com.netbeans.ide.util.NbBundle;
-import com.netbeans.ide.filesystems.FileLock;
-import com.netbeans.ide.filesystems.FileObject;
-import com.netbeans.ide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
+import org.openide.filesystems.FileLock;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /** Support for execution applets for applets
 *
@@ -158,6 +158,8 @@ public class CORBASupport {
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  8    Gandalf   1.7         5/28/99  Karel Gardas    
  *  7    Gandalf   1.6         5/28/99  Karel Gardas    
  *  6    Gandalf   1.5         5/22/99  Karel Gardas    

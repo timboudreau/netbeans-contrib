@@ -15,10 +15,10 @@ package com.netbeans.enterprise.modules.corba.settings;
 
 import java.io.*;
 
-import com.netbeans.ide.options.SystemOption;
-//import com.netbeans.ide.options.ContextSystemOption;
-import com.netbeans.ide.util.NbBundle;
-import com.netbeans.ide.execution.NbProcessDescriptor;
+import org.openide.options.SystemOption;
+//import org.openide.options.ContextSystemOption;
+import org.openide.util.NbBundle;
+import org.openide.execution.NbProcessDescriptor;
 
 import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
 
@@ -29,8 +29,8 @@ import java.util.StringTokenizer;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
-import com.netbeans.ide.TopManager;
-import com.netbeans.ide.filesystems.FileObject;
+import org.openide.TopManager;
+import org.openide.filesystems.FileObject;
 import com.netbeans.enterprise.modules.corba.*;
 
 public class CORBASupportSettings extends SystemOption implements PropertyChangeListener {
@@ -105,7 +105,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
    private boolean _is_tie;
 
    public static String _table = "USER="+System.getProperty("user.name")+"\n"; 
-      //      + "VERSION="+System.getProperty ("com.netbeans.ide.major.version")+"\n";
+      //      + "VERSION="+System.getProperty ("org.openide.major.version")+"\n";
 
 
    String addition = "";

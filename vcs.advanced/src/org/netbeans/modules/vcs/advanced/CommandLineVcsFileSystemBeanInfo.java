@@ -15,8 +15,8 @@ package com.netbeans.enterprise.modules.vcs.cmdline;
 import java.beans.*;
 import java.util.ResourceBundle;
 
-import com.netbeans.ide.util.NbBundle;
-import com.netbeans.ide.filesystems.*;
+import org.openide.util.NbBundle;
+import org.openide.filesystems.*;
 import com.netbeans.enterprise.modules.vcs.util.*;
 
 /** BeanInfo for CommandLineVcsFileSystem.
@@ -104,6 +104,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  10   Gandalf   1.9         6/9/99   Ian Formanek    ---- Package Change To 
+*       org.openide ----
 *  9    Gandalf   1.8         5/19/99  Michal Fadljevic 
 *  8    Gandalf   1.7         5/14/99  Michal Fadljevic 
 *  7    Gandalf   1.6         5/4/99   Michal Fadljevic 

@@ -21,8 +21,8 @@ import javax.swing.border.*;
 import java.text.*;
 
 import com.netbeans.enterprise.modules.vcs.util.*;
-import com.netbeans.ide.explorer.propertysheet.*;
-import com.netbeans.ide.util.*;
+import org.openide.explorer.propertysheet.*;
+import org.openide.util.*;
 
 /** User commands panel.
  * 
@@ -294,6 +294,8 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  7    Gandalf   1.6         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  6    Gandalf   1.5         5/27/99  Michal Fadljevic 
  *  5    Gandalf   1.4         5/4/99   Michal Fadljevic 
  *  4    Gandalf   1.3         5/4/99   Michal Fadljevic 

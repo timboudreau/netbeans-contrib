@@ -20,12 +20,12 @@ import javax.naming.NamingException;
 import javax.naming.CompositeName;
 import javax.naming.directory.DirContext;
 
-import com.netbeans.ide.TopManager;
-import com.netbeans.ide.actions.PropertiesAction;
-import com.netbeans.ide.actions.CopyAction;
-import com.netbeans.ide.nodes.AbstractNode;
-import com.netbeans.ide.nodes.Children;
-import com.netbeans.ide.util.actions.SystemAction;
+import org.openide.TopManager;
+import org.openide.actions.PropertiesAction;
+import org.openide.actions.CopyAction;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.util.actions.SystemAction;
 
 /** This class is Leaf Node in JNDI tree eg. File...*/
 final class JndiLeafNode extends AbstractNode implements TemplateCreator {

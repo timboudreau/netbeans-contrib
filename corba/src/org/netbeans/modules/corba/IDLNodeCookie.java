@@ -13,7 +13,7 @@
 
 package com.netbeans.enterprise.modules.corba;
 
-import com.netbeans.ide.nodes.Node;
+import org.openide.nodes.Node;
 
 /** Cookie for IDL Node.
 *
@@ -27,6 +27,8 @@ public interface IDLNodeCookie extends Node.Cookie {
 
 /*
  * <<Log>>
+ *  4    Gandalf   1.3         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  3    Gandalf   1.2         5/28/99  Karel Gardas    
  *  2    Gandalf   1.1         5/28/99  Karel Gardas    
  *  1    Gandalf   1.0         5/22/99  Karel Gardas    

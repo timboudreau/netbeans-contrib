@@ -14,7 +14,7 @@
 
 package com.netbeans.enterprise.modules.jndi;
 
-import com.netbeans.ide.modules.ModuleInstall;
+import org.openide.modules.ModuleInstall;
 
 /*JNDI Module*/
 public final class JndiModule implements ModuleInstall {

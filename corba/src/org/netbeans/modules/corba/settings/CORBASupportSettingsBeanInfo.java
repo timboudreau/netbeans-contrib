@@ -17,7 +17,7 @@ import java.awt.Image;
 import java.beans.*;
 import java.util.ResourceBundle;
 
-import com.netbeans.ide.util.NbBundle;
+import org.openide.util.NbBundle;
 //import com.netbeans.developer.editors.FileOnlyEditor;
 import com.netbeans.developer.editors.NbProcessDescriptorEditor;
 
@@ -157,6 +157,8 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 
 /*
  * <<Log>>
+ *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  7    Gandalf   1.6         5/28/99  Karel Gardas    
  *  6    Gandalf   1.5         5/28/99  Karel Gardas    
  *  5    Gandalf   1.4         5/22/99  Karel Gardas    

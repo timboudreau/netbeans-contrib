@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 
-import com.netbeans.ide.compiler.ExternalCompilerGroup;
-import com.netbeans.ide.execution.NbProcessDescriptor;
-import com.netbeans.ide.filesystems.*;
+import org.openide.compiler.ExternalCompilerGroup;
+import org.openide.execution.NbProcessDescriptor;
+import org.openide.filesystems.*;
 
 import com.netbeans.enterprise.modules.corba.settings.*;
 

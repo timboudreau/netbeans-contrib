@@ -20,18 +20,18 @@ import java.util.Map;
 import java.util.Date;
 import java.text.DateFormat;
 
-import com.netbeans.ide.loaders.MultiFileLoader;
-//import com.netbeans.ide.loaders.UniFileLoader;
-import com.netbeans.ide.loaders.ExtensionList;
-import com.netbeans.ide.loaders.DataObject;
-import com.netbeans.ide.loaders.MultiDataObject;
-import com.netbeans.ide.loaders.FileEntry;
-import com.netbeans.ide.loaders.ExtensionList;
-import com.netbeans.ide.filesystems.FileObject;
-import com.netbeans.ide.actions.*;
-import com.netbeans.ide.util.actions.SystemAction;
-import com.netbeans.ide.util.NbBundle;
-import com.netbeans.ide.util.MapFormat;
+import org.openide.loaders.MultiFileLoader;
+//import org.openide.loaders.UniFileLoader;
+import org.openide.loaders.ExtensionList;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.FileEntry;
+import org.openide.loaders.ExtensionList;
+import org.openide.filesystems.FileObject;
+import org.openide.actions.*;
+import org.openide.util.actions.SystemAction;
+import org.openide.util.NbBundle;
+import org.openide.util.MapFormat;
 
 
 import com.netbeans.enterprise.modules.corba.settings.*;
@@ -66,7 +66,7 @@ public class IDLDataLoader extends MultiFileLoader {
       setDisplayName(NbBundle.getBundle(IDLDataLoader.class).
 		     getString("PROP_IDLLoader_Name"));
       ExtensionList ext = new ExtensionList ();
-      //  com.netbeans.ide.loaders.ExtensionList ext = new com.netbeans.ide.loaders.ExtensionList();
+      //  org.openide.loaders.ExtensionList ext = new org.openide.loaders.ExtensionList();
       ext.addExtension(IDL_EXTENSION);
       //    ext.addExtension("properties"); // now provided by properties DataObject
       setExtensions(ext);

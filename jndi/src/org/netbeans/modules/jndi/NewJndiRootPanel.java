@@ -33,9 +33,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 
-import com.netbeans.ide.TopManager;
-import com.netbeans.ide.DialogDescriptor;
-import com.netbeans.ide.NotifyDescriptor;
+import org.openide.TopManager;
+import org.openide.DialogDescriptor;
+import org.openide.NotifyDescriptor;
 
 
 /** Panel for dialog for adding new Context*/

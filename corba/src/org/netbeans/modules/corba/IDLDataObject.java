@@ -19,26 +19,26 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 
-import com.netbeans.ide.*;
-import com.netbeans.ide.cookies.OpenCookie;
-import com.netbeans.ide.filesystems.*;
-import com.netbeans.ide.loaders.*;
-import com.netbeans.ide.windows.*;
-import com.netbeans.ide.actions.OpenAction;
-import com.netbeans.ide.text.*;
-import com.netbeans.ide.util.*;
-import com.netbeans.ide.util.actions.*;
-import com.netbeans.ide.nodes.Node;
-import com.netbeans.ide.nodes.Children;
+import org.openide.*;
+import org.openide.cookies.OpenCookie;
+import org.openide.filesystems.*;
+import org.openide.loaders.*;
+import org.openide.windows.*;
+import org.openide.actions.OpenAction;
+import org.openide.text.*;
+import org.openide.util.*;
+import org.openide.util.actions.*;
+import org.openide.nodes.Node;
+import org.openide.nodes.Children;
 //import com.netbeans.developer.modules.text.EditorBase;
 
-import com.netbeans.ide.loaders.*;
-import com.netbeans.ide.nodes.CookieSet;
+import org.openide.loaders.*;
+import org.openide.nodes.CookieSet;
 
-import com.netbeans.ide.compiler.Compiler;
-import com.netbeans.ide.compiler.CompilerJob;
-import com.netbeans.ide.compiler.ExternalCompiler;
-import com.netbeans.ide.execution.NbProcessDescriptor;
+import org.openide.compiler.Compiler;
+import org.openide.compiler.CompilerJob;
+import org.openide.compiler.ExternalCompiler;
+import org.openide.execution.NbProcessDescriptor;
 
 
 import com.netbeans.enterprise.modules.corba.settings.*;
@@ -124,6 +124,8 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  11   Gandalf   1.10        6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  10   Gandalf   1.9         6/4/99   Karel Gardas    
  *  9    Gandalf   1.8         5/28/99  Karel Gardas    
  *  8    Gandalf   1.7         5/28/99  Karel Gardas    

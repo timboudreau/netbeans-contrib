@@ -23,13 +23,13 @@ import javax.naming.NamingException;
 import javax.naming.CompositeName;
 import javax.naming.directory.DirContext;
 
-import com.netbeans.ide.TopManager;
-import com.netbeans.ide.actions.NewAction;
-import com.netbeans.ide.actions.CopyAction;
-import com.netbeans.ide.actions.PropertiesAction;
-import com.netbeans.ide.nodes.AbstractNode;
-import com.netbeans.ide.util.actions.SystemAction;
-import com.netbeans.ide.util.datatransfer.NewType;
+import org.openide.TopManager;
+import org.openide.actions.NewAction;
+import org.openide.actions.CopyAction;
+import org.openide.actions.PropertiesAction;
+import org.openide.nodes.AbstractNode;
+import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.NewType;
 
 /** This class represents JNDI subdirectory */
 final class JndiNode extends AbstractNode implements TemplateCreator {

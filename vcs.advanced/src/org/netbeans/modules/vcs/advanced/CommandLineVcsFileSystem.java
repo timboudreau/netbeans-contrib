@@ -20,18 +20,18 @@ import java.text.*;
 import javax.swing.*;
 
 import gnu.regexp.*;
-import com.netbeans.ide.util.actions.*;
-import com.netbeans.ide.util.NbBundle;
-import com.netbeans.ide.*;
+import org.openide.util.actions.*;
+import org.openide.util.NbBundle;
+import org.openide.*;
 import com.netbeans.enterprise.modules.vcs.*;
 import com.netbeans.enterprise.modules.vcs.util.*;
-import com.netbeans.ide.filesystems.FileObject;
-import com.netbeans.ide.filesystems.FileSystem;
-import com.netbeans.ide.filesystems.FileSystem.Status;
-import com.netbeans.ide.filesystems.FileUtil;
-import com.netbeans.ide.filesystems.FileStateInvalidException;
-import com.netbeans.ide.filesystems.AbstractFileSystem;
-import com.netbeans.ide.filesystems.DefaultAttributes;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileSystem.Status;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.AbstractFileSystem;
+import org.openide.filesystems.DefaultAttributes;
 
 /** Generic command line VCS filesystem.
  * 
@@ -482,7 +482,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   /** Set the root directory of the file system.
    * @param r file to set root to
    * @exception PropertyVetoException if the value if vetoed by someone else (usually
-   *    by the {@link com.netbeans.ide.filesystems.Repository Repository})
+   *    by the {@link org.openide.filesystems.Repository Repository})
    * @exception IOException if the root does not exists or some other error occured
    */
   public synchronized void setRootDirectory (File r) throws PropertyVetoException, IOException {
@@ -840,6 +840,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  32   Gandalf   1.31        6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  31   Gandalf   1.30        6/8/99   Michal Fadljevic 
  *  30   Gandalf   1.29        6/4/99   Michal Fadljevic 
  *  29   Gandalf   1.28        6/1/99   Michal Fadljevic 

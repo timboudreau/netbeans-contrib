@@ -15,13 +15,13 @@ package com.netbeans.enterprise.modules.corba;
 
 import java.io.IOException;
 
-import com.netbeans.ide.compiler.Compiler;
-import com.netbeans.ide.compiler.CompilerJob;
-import com.netbeans.ide.compiler.ExternalCompiler;
-import com.netbeans.ide.execution.NbProcessDescriptor;
-import com.netbeans.ide.filesystems.FileObject;
-import com.netbeans.ide.filesystems.FileLock;
-import com.netbeans.ide.filesystems.FileStateInvalidException;
+import org.openide.compiler.Compiler;
+import org.openide.compiler.CompilerJob;
+import org.openide.compiler.ExternalCompiler;
+import org.openide.execution.NbProcessDescriptor;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileLock;
+import org.openide.filesystems.FileStateInvalidException;
 
 /** Object that represents one file containing image in the tree of
 * beans representing data systems.

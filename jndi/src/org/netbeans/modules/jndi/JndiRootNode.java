@@ -22,13 +22,13 @@ import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
 
-import com.netbeans.ide.actions.NewAction;
-import com.netbeans.ide.actions.PropertiesAction;
-import com.netbeans.ide.nodes.AbstractNode;
-import com.netbeans.ide.nodes.Children;
-import com.netbeans.ide.nodes.DefaultHandle;
-import com.netbeans.ide.util.actions.SystemAction;
-import com.netbeans.ide.util.datatransfer.NewType;
+import org.openide.actions.NewAction;
+import org.openide.actions.PropertiesAction;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.DefaultHandle;
+import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.NewType;
 
 /** Top Level JNDI Node*/
 public final class JndiRootNode extends AbstractNode {

@@ -13,20 +13,20 @@
 
 package com.netbeans.enterprise.modules.corba;
 
-import com.netbeans.ide.compiler.Compiler;
-import com.netbeans.ide.compiler.CompilerJob;
-import com.netbeans.ide.compiler.ExternalCompiler;
-import com.netbeans.ide.modules.ModuleInstall;
-import com.netbeans.ide.loaders.DataObject;
+import org.openide.compiler.Compiler;
+import org.openide.compiler.CompilerJob;
+import org.openide.compiler.ExternalCompiler;
+import org.openide.modules.ModuleInstall;
+import org.openide.loaders.DataObject;
 
 import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
 import com.netbeans.developer.modules.loaders.java.settings.ExternalCompilerSettings;
-import com.netbeans.ide.execution.NbProcessDescriptor;
+import org.openide.execution.NbProcessDescriptor;
 
-import com.netbeans.ide.TopManager;
-import com.netbeans.ide.filesystems.FileObject;
-import com.netbeans.ide.filesystems.FileLock;
-import com.netbeans.ide.filesystems.FileSystem;
+import org.openide.TopManager;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileLock;
+import org.openide.filesystems.FileSystem;
 
 import java.util.Vector;
 import java.util.Properties;
@@ -334,7 +334,7 @@ public class IDLModule implements ModuleInstall {
 	    try {
 	       file =  ido.getPrimaryFile ().getFileSystem ().getSystemName();
 	       command = command + file;
-	    } catch (com.netbeans.ide.filesystems.FileStateInvalidException ex) {
+	    } catch (org.openide.filesystems.FileStateInvalidException ex) {
 	       System.out.println (ex);
 	    }
 	    
@@ -389,7 +389,7 @@ public class IDLModule implements ModuleInstall {
     StringBuffer buff = new StringBuffer(100);
     for (int i = 0; i < classpathItems.length; i++) {
        if (NbProcessDescriptor.CP_REPOSITORY.equals (classpathItems[i])) {
-        Enumeration ee = com.netbeans.ide.TopManager.getDefault().getRepository ().getFileSystems();
+        Enumeration ee = org.openide.TopManager.getDefault().getRepository ().getFileSystems();
         FileSystem fs;
 	String path;
         while (ee.hasMoreElements()) {
@@ -482,6 +482,8 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  12   Gandalf   1.11        6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  11   Gandalf   1.10        6/4/99   Karel Gardas    
  *  10   Gandalf   1.9         6/4/99   Karel Gardas    
  *  9    Gandalf   1.8         6/4/99   Karel Gardas    

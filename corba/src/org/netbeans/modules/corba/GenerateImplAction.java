@@ -13,10 +13,10 @@
 
 package com.netbeans.enterprise.modules.corba;
 
-import com.netbeans.ide.util.HelpCtx;
-import com.netbeans.ide.util.NbBundle;
-import com.netbeans.ide.util.actions.*;
-import com.netbeans.ide.nodes.Node;
+import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
+import org.openide.util.actions.*;
+import org.openide.nodes.Node;
 
 /** Actions for IDL Node.
 *
@@ -60,7 +60,7 @@ public class GenerateImplAction extends CookieAction {
   * @return resource name
   */
   protected String iconResource () {
-    return "/com/netbeans/ide/resources/actions/empty.gif"; // no icon
+    return "/org.openide/resources/actions/empty.gif"; // no icon
   }
 
   /**
@@ -79,6 +79,8 @@ public class GenerateImplAction extends CookieAction {
 
 /*
  * <<Log>>
+ *  4    Gandalf   1.3         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  3    Gandalf   1.2         5/28/99  Karel Gardas    
  *  2    Gandalf   1.1         5/28/99  Karel Gardas    
  *  1    Gandalf   1.0         5/22/99  Karel Gardas    

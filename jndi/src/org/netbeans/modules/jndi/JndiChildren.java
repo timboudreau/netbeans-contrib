@@ -18,8 +18,8 @@ import java.util.Vector;
 import javax.naming.*;
 import javax.naming.directory.*;
 
-import com.netbeans.ide.nodes.Children;
-import com.netbeans.ide.nodes.Node;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 
 /** Children class for Directories in JNDI tree.
 *    It's responsible for lazy initialization as well

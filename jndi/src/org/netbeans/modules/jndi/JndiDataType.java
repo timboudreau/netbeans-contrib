@@ -20,9 +20,9 @@ import javax.swing.JPanel;
 import javax.naming.*;
 import javax.naming.directory.*;
 
-import com.netbeans.ide.util.datatransfer.*;
-import com.netbeans.ide.*;
-import com.netbeans.ide.nodes.*;
+import org.openide.util.datatransfer.*;
+import org.openide.*;
+import org.openide.nodes.*;
 
 /** This class represents Datatype for JNDI subtree.
 * It is responsible for adding of new contexts and creating subdirs
