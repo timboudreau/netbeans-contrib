@@ -14,6 +14,7 @@
 package org.netbeans.modules.vcscore.cmdline;
 
 import org.openide.*;
+import org.openide.util.HelpCtx;
 
 /**
  *
@@ -32,7 +33,12 @@ public class RelativeMountDialog extends DialogDescriptor {
     }
     
     public RelativeMountDialog(Object innerPane, String title) {
+        this(innerPane, title, null);
+    }
+    
+    public RelativeMountDialog(Object innerPane, String title, HelpCtx help) {
         super(innerPane, title);
+        if (help != null) setHelpCtx(help);
         mountPanel = (RelativeMountPanel) innerPane;
         setButtonListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent ev) {
