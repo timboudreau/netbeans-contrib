@@ -42,7 +42,7 @@ Microsystems, Inc. All Rights Reserved.
         <mkdir dir="netbeans/modules"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../../version.properties"/>
-        <filter token="tl.suggestions_ui.spec" value="${tl.suggesions_ui.spec}"/>
+        <filter token="tl.suggestions_ui.spec" value="${tl.suggestions_ui.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
         <locjar jarfile="netbeans/modules/tasklist-suggestions.jar"
                 manifest="manifest-subst.mf"
