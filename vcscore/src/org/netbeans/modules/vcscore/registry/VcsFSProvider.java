@@ -29,9 +29,9 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
 
-import org.netbeans.api.masterfs.MountSupport;
-import org.netbeans.spi.masterfs.AutoMountProvider;
-import org.netbeans.spi.masterfs.FileSystemProvider;
+import org.netbeans.modules.masterfs.providers.MountSupport;
+import org.netbeans.modules.masterfs.providers.AutoMountProvider;
+import org.netbeans.modules.masterfs.providers.FileSystemProvider;
 import org.netbeans.modules.masterfs.*;
 
 import org.netbeans.modules.vcscore.registry.FSRegistryEvent;
