@@ -68,21 +68,21 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="netbeans" depends="jars,release"/>
 
-<!-- TODO:
+<!-- TODO:-->
   <target name="nbm" depends="netbeans">
     <makenbm file="corba.nbm"
              topdir="."
 	     manifest="manifest-subst.mf"
-	     homepage=""
-	     distribution="http://">
-      <license file="http://"/>
+	     homepage="http://${homepage.base}/corba.html"
+	     distribution="http://${dist.base}/corba.nbm" >
+      <license file="${f4jroot}/core/release/LICENSE.txt" />
       <description>
         Corba ...
       </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
     </makenbm>
   </target>
--->
+<!-- -->
 
   <target name="clean">
     <delete>
