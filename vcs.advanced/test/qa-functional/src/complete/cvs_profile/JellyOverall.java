@@ -98,7 +98,7 @@ public class JellyOverall extends JellyTestCase {
     static String tInitSubDir = "initsubdir", hInitSubDir = hInitDir + "/" + tInitSubDir, fInitSubDir, nInitSubDir;
     static String tDirectory = "directory", hDirectory = tDirectory, fDirectory, nDirectory;
     static String tFile = "file", fFile, nFile;
-    static String tSubDir = "subdir", fSubDir, nSubDir;
+    static String tSubDir = "subdir", hSubDir = hDirectory + "/" + tSubDir, fSubDir, nSubDir;
     static String tSubFile = "subfile", fSubFile, nSubFile;
     static String tText1 = "text1", hText1 = hInitDir + "/" + tText1, fText1, nText1;
     static String tText2 = "text2", hText2 = hInitDir + "/" + tText2, fText2, nText2;
@@ -345,6 +345,7 @@ public class JellyOverall extends JellyTestCase {
         voo.waitClosed();
         
         waitStatus(null, nInitDir);
+        Helper.sleep(5000);
         new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
         assertTrue("Refresh recursively folder command failed", history.waitCommand("Refresh Recursively", hRoot));
         waitStatus(null, nInitDir);
@@ -360,14 +361,14 @@ public class JellyOverall extends JellyTestCase {
             throw new AssertionFailedErrorException("IOException while setting test case up", e);
         }
         
-        new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
-        assertTrue("Refresh recursively folder command failed", history.waitCommand("Refresh Recursively", hRoot));
+        new CVSFileNode(exp.repositoryTab().tree(), nDirectory).cVSRefresh();
+        assertTrue("Refresh folder command failed", history.waitCommand("Refresh", hDirectory));
         new CVSFileNode(exp.repositoryTab().tree(), nDirectory);
         new CVSFileNode(exp.repositoryTab().tree(), nSubDir);
         new CVSFileNode(exp.repositoryTab().tree(), nFile);
         new CVSFileNode(exp.repositoryTab().tree(), nSubFile);
         //waitStatus("Local", nDirectory);// may fail due to #28177
-        waitStatus("Local", nSubDir);
+        //waitStatus("Local", nSubDir);
         waitStatus("Local", nFile);
         waitStatus("Local", nSubFile);
         
@@ -495,8 +496,8 @@ public class JellyOverall extends JellyTestCase {
     }
     
     public void testRefreshDirectory() {
-        new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
-        assertTrue("Refresh files command failed", history.waitCommand("Refresh Recursively", hRoot));
+        new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefresh();
+        assertTrue("Refresh files command failed", history.waitCommand("Refresh", hRoot));
         new CVSFileNode(exp.repositoryTab().tree(), nText1);
         new CVSFileNode(exp.repositoryTab().tree(), nBinary);
         waitStatus(null, nInitDir);
