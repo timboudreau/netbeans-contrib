@@ -79,6 +79,12 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
         return instance;
     }
     
+    public String getType() {
+        // TODO: Register separate global providers per every profile and
+        //       return a meaningful value here.
+        return "Global Commands"; // NOI18N
+    }
+    
     /** Create a new VCS command of the given class type.
      * @return The command or <code>null</code> when the command of the given
      * class type does not exist.
