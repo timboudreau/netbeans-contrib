@@ -31,7 +31,6 @@ public class JndiSystemOption extends SystemOption {
 
   private static int timeOut;
   
-  static final long serialVersionUID =2488076532292258803L;
   /** Creates new JndiSystemOption */
   public JndiSystemOption() {
     this.timeOut=4000;

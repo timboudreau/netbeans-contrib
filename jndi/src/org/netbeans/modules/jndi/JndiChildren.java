@@ -78,8 +78,8 @@ final class JndiChildren extends Children.Keys {
     ArrayList v = new ArrayList();
     while (ne.hasMore()) {
       v.add(ne.next());
-    }
-    this.setKeys(v);
+     }
+     JndiChildren.this.setKeys(v);
   }
   
   /** Creates Node for key
@@ -171,6 +171,7 @@ final class JndiChildren extends Children.Keys {
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         12/15/99 Tomas Zezula    
  *  9    Gandalf   1.8         12/15/99 Tomas Zezula    
  *  8    Gandalf   1.7         11/5/99  Tomas Zezula    
  *  7    Gandalf   1.6         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun

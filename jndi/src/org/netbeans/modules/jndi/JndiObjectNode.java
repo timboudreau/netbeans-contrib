@@ -182,6 +182,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
 
 /*
 * <<Log>>
+*  8    Gandalf   1.7         12/15/99 Tomas Zezula    
 *  7    Gandalf   1.6         12/15/99 Tomas Zezula    
 *  6    Gandalf   1.5         11/5/99  Tomas Zezula    
 *  5    Gandalf   1.4         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 

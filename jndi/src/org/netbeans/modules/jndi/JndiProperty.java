@@ -51,6 +51,7 @@ public final class JndiProperty extends PropertySupport.ReadOnly{
 
 /*
  * <<Log>>
+ *  5    Gandalf   1.4         12/15/99 Tomas Zezula    
  *  4    Gandalf   1.3         12/15/99 Tomas Zezula    
  *  3    Gandalf   1.2         11/5/99  Tomas Zezula    
  *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
