@@ -1,4 +1,4 @@
-OpenIDE-Module-Specification-Version: 0.8.14
+OpenIDE-Module-Specification-Version: 0.8.15
 OpenIDE-Module: org.netbeans.modules.tasklist.suggestions/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/suggestions/Bundle.properties
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
