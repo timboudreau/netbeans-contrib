@@ -489,7 +489,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             }
             String buffered = buff.toString();
             ArrayList filesCommited = getCommitedFiles(fsRoot, relativePath, buffered, ps);
-            buffered = addGroupsComment(vars, buffered);
+            buffered = addMessageComment(vars, buffered);
             vars.put("FILE_TEMPLATE", fileOutput(buffered));
             // commit all remaining files if they can not be retrieved from the template
             if (filesCommited == null || filesCommited.size() == 0) {
@@ -515,8 +515,12 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         return true;
     }
     
-    private static String addGroupsComment(Hashtable vars, String template) {
-        String description = (String) vars.get(Variables.GROUP_DESCRIPTION);
+    /**
+     * This command implements messaging command and thus it can have the message
+     * set in "message" variable.
+     */
+    private static String addMessageComment(Hashtable vars, String template) {
+        String description = (String) vars.get("message");
         if (description != null && description.length() > 0) {
             template = description + "\n" + template; // NOI18N
         }
