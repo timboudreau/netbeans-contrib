@@ -275,6 +275,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient VcsFactory factory = null;
     private transient VcsCommandsProvider commandsProvider = new DefaultVcsCommandsProvider(new CommandsTree(null));
 
+    private transient Object processUnimportantFilesLock = new Object();
     private Boolean processUnimportantFiles = Boolean.FALSE;
 
     /**
@@ -582,7 +583,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setProcessUnimportantFiles(boolean processUnimportantFiles) {
         boolean fire = false;
         Boolean old = null;
-        synchronized (this.processUnimportantFiles) {
+        synchronized (this.processUnimportantFilesLock) {
             if (processUnimportantFiles != this.processUnimportantFiles.booleanValue()) {
                 old = this.processUnimportantFiles;
                 this.processUnimportantFiles = processUnimportantFiles ? Boolean.TRUE : Boolean.FALSE;
@@ -595,7 +596,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public boolean isProcessUnimportantFiles() {
-        synchronized (processUnimportantFiles) {
+        synchronized (processUnimportantFilesLock) {
             return processUnimportantFiles.booleanValue();
         }
     }
@@ -1860,6 +1861,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             versioningFileSystemShowGarbageFiles = "";
         }
         //cache.setLocalFilesAdd (localFilesOn);
+        processUnimportantFilesLock = new Object();
         if (null == processUnimportantFiles) processUnimportantFiles = Boolean.FALSE;
         last_rootFile = new File(getFSRoot());
         //} catch (Throwable thr) {
