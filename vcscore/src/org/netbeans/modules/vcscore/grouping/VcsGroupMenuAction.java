@@ -137,6 +137,8 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             }
             myMode.dockInto(panel);
         }
+        panel.getAccessibleContext().setAccessibleDescription(
+            org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
         panel.setIcon(org.openide.util.Utilities.loadImage("/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"));
         panel.open(TopManager.getDefault().getWindowManager().getCurrentWorkspace());
         panel.requestFocus();
@@ -158,7 +160,9 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
                 ExplorerManager manager = getExplorerManager();
                 
                 manager.setRootContext(root);
-                add(new BeanTreeView());
+                BeanTreeView cvsBeanTreeView = new BeanTreeView();
+                initAccessibilityBTV(cvsBeanTreeView);
+                add(cvsBeanTreeView);
                 ExplorerActions actions = new ExplorerActions();
                 actions.attach(manager);
             }
@@ -176,11 +180,20 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
                 ExplorerManager manager = getExplorerManager();
                 
                 manager.setRootContext(root);
-                add(new BeanTreeView());
+                BeanTreeView cvsBeanTreeView = new BeanTreeView();
+                initAccessibilityBTV(cvsBeanTreeView);
+                add(cvsBeanTreeView);
                 ExplorerActions actions = new ExplorerActions();
                 actions.attach(manager);
             }
             super.open(workspace);
+        }
+        
+        private void initAccessibilityBTV(BeanTreeView BTV) {
+            BTV.getAccessibleContext().setAccessibleName(
+                org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSN_AddVcsGroupAction.BTV"));
+            BTV.getAccessibleContext().setAccessibleDescription(
+                org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.BTV"));
         }
         
         protected void updateTitle() {
