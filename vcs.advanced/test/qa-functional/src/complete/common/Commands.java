@@ -434,7 +434,8 @@ public class Commands extends org.netbeans.junit.NbTestCase {
             commandEditor.addCommand("Empty|My Submenu", "Test");
             new Node(commandEditor.treeCommands(), "Empty|My Submenu|Test").select();
             String executionString = "sh -c \"cd ${ROOTDIR}; java -cp . ${MYFILE}; echo ${MYNAME}!\"";
-            if (org.openide.util.Utilities.isWindows()) executionString = "cmd /x /c \"cd ${ROOTDIR}&& java -cp . ${MYFILE}&& echo ${MYNAME}!\"";
+            String drive = getWorkDirPath().substring(0, 2);
+            if (org.openide.util.Utilities.isWindows()) executionString = "cmd /x /c \"" + drive + "&& cd ${ROOTDIR}&& java -cp . ${MYFILE}&& echo ${MYNAME}!\"";
             commandEditor.setProperty("Empty|My Submenu|Test", "Properties", "Exec", executionString);
             commandEditor.setProperty("Empty|My Submenu|Test", "Properties", "Display Output", true);
             commandEditor.ok();
