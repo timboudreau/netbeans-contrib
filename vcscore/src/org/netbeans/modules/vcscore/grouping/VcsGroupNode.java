@@ -49,16 +49,24 @@ public class VcsGroupNode extends AbstractNode {
         FileObject propsFo = dobj.getPrimaryFile().getParent().getFileObject(dobj.getPrimaryFile().getName(), PROPFILE_EXT);
         if (propsFo != null) {
             try {
-                ResourceBundle bundle = new PropertyResourceBundle(propsFo.getInputStream());
-                groupName = bundle.getString(PROP_NAME);
-                groupDescription = bundle.getString(PROP_SHORT_DESCRIPTION);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(propsFo.getInputStream()));
+                groupName = getBundleValue(reader.readLine());
+                groupDescription = getBundleValue(reader.readLine());
                 groupDescription = org.openide.util.Utilities.replaceString(groupDescription, "\\n", "\n"); //NOI18N
             } catch (IOException exc) {
-                System.out.println("io exc, while preading props for group");
-            } catch (MissingResourceException exc3) {
-//                System.out.println("msr exc, while preading props for group");
+                TopManager.getDefault().getErrorManager().notify(ErrorManager.WARNING, exc);
             }
         }
+    }
+    
+    private String getBundleValue(String keyValue) {
+        if (keyValue != null) {
+            int index = keyValue.indexOf('=');
+            if (index > 0 && keyValue.length() > index) {
+                return keyValue.substring(index + 1);
+            }
+        }
+        return "";
     }
     
     
