@@ -222,18 +222,27 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     return icon;
   }
 
+
   //-------------------------------------------
   public String annotateName(String name, Set files) {
-    //D.deb("annotateName("+name+")");
+    //D.deb("annotateName("+name+","+files.size()+")");
     Object[] oo=files.toArray();
-    if( oo.length==0 ){
+    if( oo.length==0 || name.indexOf("Root of")>=0){
       return name;
     }
-    for(int i=0;i<oo.length;i++){
-      FileObject ff=(FileObject)oo[i]; 
-      //D.deb("oo["+i+"]="+ff);
-    }
     return name;
+    /*    int len=oo.length;
+    String[] statusArr=new String[len];
+    for(int i=0;i<len;i++){
+      FileObject ff=(FileObject)oo[i]; 
+      D.deb("annotateName('"+name+"') oo["+i+"]="+ff);
+      String fullName=ff.getPackageNameExt('/','.');
+      D.deb("fullName="+fullName);
+      statusArr[i]=cache.getFileStatus(fullName);
+    }
+    D.deb("statusArr="+MiscStuff.arrayToString(statusArr));
+    return name+" "+MiscStuff.arrayToString(statusArr) ;
+    */
   }
 
   //-------------------------------------------
@@ -347,22 +356,24 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   */
   public String[] children (String name) {
     D.deb("children('"+name+"')");
+    String[] vcsFiles=null;
+    String[] localFiles=null;
     String[] files=null;
+
     if( cache.isDir(name) ){
-      files=cache.getFilesAndSubdirs(name);
-      D.deb("files="+MiscStuff.arrayToString(files));
+      vcsFiles=cache.getFilesAndSubdirs(name);
+      //D.deb("vcsFiles="+MiscStuff.arrayToString(vcsFiles));
     }
+
+    File f = getFile (name);
+    if (f.isDirectory ()) {
+      localFiles=f.list();
+      //D.deb("localFiles="+MiscStuff.arrayToString(localFiles));
+    }
+    
+    files=MiscStuff.mergeArrays(vcsFiles,localFiles);
+    D.deb("files="+MiscStuff.arrayToString(files));
     return files;
-
-    /*
-      D.deb("fallback -> return local files");
-      File f = getFile (name);
-      if (f.isDirectory ()) {
-      files=f.list();
-      }
-      }
-    */
-
   }
 
   //-------------------------------------------
@@ -526,7 +537,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @exception FileNotFoundException if the file does not exists or is invalid
   */
   public InputStream inputStream (String name) throws java.io.FileNotFoundException {
-    D.deb("inputStream("+name+")");
+    //D.deb("inputStream("+name+")");
     return new FileInputStream (getFile (name));
   }
 
@@ -614,6 +625,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  13   Gandalf   1.12        5/7/99   Michal Fadljevic 
  *  12   Gandalf   1.11        5/6/99   Michal Fadljevic 
  *  11   Gandalf   1.10        5/4/99   Michal Fadljevic 
  *  10   Gandalf   1.9         5/4/99   Michal Fadljevic 
