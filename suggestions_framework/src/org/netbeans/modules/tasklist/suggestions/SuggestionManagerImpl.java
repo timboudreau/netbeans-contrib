@@ -2048,14 +2048,15 @@ final public class SuggestionManagerImpl extends SuggestionManager
         TopComponent [] tcs = mode.getTopComponents();
         for (int j = 0; j < tcs.length; j++) {
             TopComponent tc = tcs[j];
+            /*
             if (tc instanceof EditorSupport.Editor) {
                 // Found the source editor...
                 if (tc.isShowing()) {
 		    current = tc;
                     break;
                 }
-            } else if (tc instanceof CloneableEditor) {
-                // Found the source editor...  html or text most likely
+            } else */ if (tc instanceof CloneableEditor) {
+                // Found the source editor...
                 if (tc.isShowing()) {
 		    current = tc;
                     break;
@@ -2316,8 +2317,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
         pendingScan = true;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                findCurrentFile(true);
-                pendingScan = false;
+                // docStop() might have happened
+                // in the mean time - make sure we don't do a
+                // findCurrentFile(true) when we're not supposed to
+                // be processing views
+                if (running) {
+                    findCurrentFile(true);
+                    pendingScan = false;
+                }
             }
         });
     }
