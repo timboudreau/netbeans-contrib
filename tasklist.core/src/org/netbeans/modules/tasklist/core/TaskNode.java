@@ -59,7 +59,6 @@ public class TaskNode extends AbstractNode {
     public TaskNode(Task item) {
         super(Children.LEAF);
         this.item = item;
-        assert item.getList() != null;
         init();
     }
 
@@ -80,15 +79,13 @@ public class TaskNode extends AbstractNode {
     public TaskNode(Task item, Iterator subtasks) {
         super(new TaskChildren(item));
         this.item = item;
-        assert item.getList() != null;
         init();
     }
 
     private void init() {
         setName(item.getSummary());
         monitor = new Monitor();
-        ObservableList list = item.getList();
-        list.addTaskListener(monitor);
+        item.addTaskListener(monitor);
         item.addPropertyChangeListener(monitor);
         DisposalListener dl = new DisposalListener();
         addNodeListener(dl); // XXX it comes only if being child of Children.Keys on setKeys() call
@@ -102,8 +99,7 @@ public class TaskNode extends AbstractNode {
     private class DisposalListener extends NodeAdapter {
         public void nodeDestroyed(NodeEvent ev) {
             if (ev.getNode() == TaskNode.this) {
-                ObservableList list = item.getList();
-                list.removeTaskListener(monitor);
+                item.removeTaskListener(monitor);
                 item.removePropertyChangeListener(monitor);
             }
         }
@@ -180,8 +176,7 @@ public class TaskNode extends AbstractNode {
 
     public void destroy() throws IOException {
         item.removePropertyChangeListener(monitor);
-        ObservableList tl = item.getList();
-        tl.removeTaskListener(monitor);
+        item.removeTaskListener(monitor);
 
         // XXX to alter model use some cookie or so
         // this call destroy visualization only

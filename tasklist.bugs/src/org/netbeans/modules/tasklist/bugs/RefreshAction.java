@@ -19,6 +19,8 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 
+import java.awt.*;
+
 
 /** Perform a refresh on the buglist
     @todo This should probably be made a CallableSystemAction - doesn't
@@ -39,20 +41,11 @@ public class RefreshAction extends NodeAction {
     }
     
     protected void performAction(Node[] node) {
-        BugList list = null;
-
-        if ((node != null) &&
-            (node.length == 1) &&
-            (TaskNode.getTaskNode(node[0]) != null) &&
-            (TaskNode.getTaskNode(node[0]) instanceof BugNode)) {
-            final Bug item = (Bug)TaskNode.getTask(node[0]);
-            list = (BugList)item.getList();
-        }
-//        if (list == null) {
-//            list = BugList.getDefault();
-//        }
+        BugList list = (BugList) BugsView.getCurrent().getList();
         if (list != null) {
             list.refresh();
+        } else {
+            Toolkit.getDefaultToolkit().beep();
         }
     }
     

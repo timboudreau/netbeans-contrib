@@ -47,7 +47,12 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     public static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
 
+    /** @deprecated it forces cloning */
     protected ObservableList list;
+
+    /** Set&lt;TaskListener> */  // replacement for above attribute
+    private Set listeners = new HashSet(2);
+
     private boolean visitable;
 
     /**
@@ -163,11 +168,24 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         }
     }
 
+    public void addTaskListener(TaskListener l) {
+        listeners.add(l);
+    }
+
+    public void removeTaskListener(TaskListener l) {
+        listeners.remove(l);
+    }
+
     protected final void fireStructureChanged() {
         if (!silentUpdate) {
-            if (getList() instanceof TaskList) {
-                ((TaskList) getList()).fireStructureChanged(this);
+            Iterator it = listeners.iterator();
+            while (it.hasNext()) {
+                TaskListener listener = (TaskListener) it.next();
+                listener.structureChanged(this);
             }
+//            if (getList() instanceof TaskList) {
+//                ((TaskList) getList()).fireStructureChanged(this);
+//            }
             if (this instanceof TaskListener) {
                 ((TaskListener) this).structureChanged(this);
             }
@@ -181,9 +199,14 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      */
     protected final void fireAddedTask(Task t) {
         if (!silentUpdate) {
-            if (getList() instanceof TaskList) {
-                ((TaskList) getList()).fireAdded(t);
+            Iterator it = listeners.iterator();
+            while (it.hasNext()) {
+                TaskListener listener = (TaskListener) it.next();
+                listener.addedTask(t);
             }
+//            if (getList() instanceof TaskList) {
+//                ((TaskList) getList()).fireAdded(t);
+//            }
             if (this instanceof TaskListener) {
                 ((TaskListener) this).addedTask(t);
             }
@@ -198,9 +221,14 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      */
     protected final void fireRemovedTask(Task t) {
         if (!silentUpdate) {
-            if (getList() instanceof TaskList) {
-                ((TaskList) getList()).fireRemoved(this, t);
+            Iterator it = listeners.iterator();
+            while (it.hasNext()) {
+                TaskListener listener = (TaskListener) it.next();
+                listener.removedTask(this, t);
             }
+//            if (getList() instanceof TaskList) {
+//                ((TaskList) getList()).fireRemoved(this, t);
+//            }
             if (this instanceof TaskListener) {
                 ((TaskListener) this).removedTask(this, t);
             }
@@ -526,7 +554,10 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         this.list = list;
     }
 
-    /** Get the list this task is contained in. */
+    /**
+     * Get the list this task is contained in.
+     * @deprecated Task should not have knowledge of its list, list have know of its members   
+     */
     public ObservableList getList() {
         return list;
     }

@@ -86,8 +86,8 @@ public class TaskChildren extends Children.Keys {
         // weak listener must be used here because children
         // all listening on tasklist that has different
         // lifetime than parent node nor is driven by it.
-        TaskListener l = (TaskListener) WeakListeners.create(TaskListener.class, monitor, parent.getList());
-        parent.getList().addTaskListener(l);
+        TaskListener l = (TaskListener) WeakListeners.create(TaskListener.class, monitor, parent);
+        parent.addTaskListener(l);
         refreshKeys();
     }
     

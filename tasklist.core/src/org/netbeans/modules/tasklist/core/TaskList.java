@@ -28,11 +28,12 @@ import org.openide.util.NbBundle;
 
 /**
  * This class models flat list or hierarchical tasks.
+ * It dispatches membership events.
  *
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-public class TaskList implements ObservableList {
+public class TaskList implements ObservableList, TaskListener {
 
     // List category
     final static String USER_CATEGORY = "usertasks"; // NOI18N
@@ -57,6 +58,7 @@ public class TaskList implements ObservableList {
     public TaskList(Task root) { // Must this be public?
         this.root = root;
         root.setList(this);
+        root.addTaskListener(this);
     }
 
     protected void setNeedSave(boolean b) {
@@ -80,6 +82,7 @@ public class TaskList implements ObservableList {
             root = new Task();
             root.setSummary(NbBundle.getMessage(TaskList.class,
                     "Description")); // NOI18N
+            root.addTaskListener(this);
             root.setList(this);  // TODO why does task know about its list?
         }
         return root;
@@ -112,11 +115,12 @@ public class TaskList implements ObservableList {
 
         // Remove items
         // TODO add Task.removeSubtasks(List) ? See addSubtasks below
-        ListIterator it;
+        Iterator it;
         if (removeList != null) {
-            it = removeList.listIterator();
+            it = removeList.iterator();
             while (it.hasNext()) {
                 Task task = (Task) it.next();
+                task.removeTaskListener(this);
                 if (parent != null) {
                     parent.removeSubtask(task);
                 } else {
@@ -135,6 +139,12 @@ public class TaskList implements ObservableList {
 
         if (addList != null) {
             modified = true;
+
+            it = addList.iterator();
+            while (it.hasNext()) {
+                Task next = (Task) it.next();
+                next.addTaskListener(this);
+            }
 
             // User insert: prepend to the list
             parent.addSubtasks(addList, append, after);
@@ -305,7 +315,10 @@ public class TaskList implements ObservableList {
      * Remove all the tasks in this tasklist 
      */
     public void clear() {
-        if (root != null) root.clear();
+        if (root != null) {
+            root.clear();
+            fireStructureChanged(root);
+        }
     }
 
     /** For debugging purposes, only. Writes directly to serr. */
@@ -335,6 +348,33 @@ public class TaskList implements ObservableList {
                 recursivePrint(task, depth + 1);
             }
         }
+    }
+
+    // TaskListener impl ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    /** Internal listener implementtaion. Cumulates event from list members to list level. */
+    public void selectedTask(Task t) {
+        // XXX ignore
+    }
+
+    /** Internal listener implementtaion. Cumulates event from list members to list level. */
+    public void warpedTask(Task t) {
+        // XXX ignore
+    }
+
+    /** Internal listener implementtaion. Cumulates event from list members to list level. */
+    public void addedTask(Task t) {
+        fireAdded(t);
+    }
+
+    /** Internal listener implementtaion. Cumulates event from list members to list level. */
+    public void removedTask(Task pt, Task t) {
+        fireRemoved(pt, t);
+    }
+
+    /** Internal listener implementtaion. Cumulates event from list members to list level. */
+    public void structureChanged(Task t) {
+        fireStructureChanged(t);
     }
 
 
