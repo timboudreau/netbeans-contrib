@@ -18,93 +18,34 @@ import net.sourceforge.pmd.Report;
 import net.sourceforge.pmd.Rule;
 import net.sourceforge.pmd.RuleContext;
 import net.sourceforge.pmd.RuleSet;
-import net.sourceforge.pmd.RuleSetFactory;
-import net.sourceforge.pmd.RuleSetNotFoundException;
 import net.sourceforge.pmd.RuleViolation;
-
 import pmd.*;
 import pmd.config.ConfigUtils;
 import pmd.config.PMDOptionsSettings;
-
-
 import org.netbeans.api.tasklist.*;
 import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
 import org.netbeans.spi.tasklist.LineSuggestionPerformer;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
-
-
-import javax.swing.text.Document;
-import javax.swing.event.DocumentEvent;
-
 import javax.swing.text.*;
 import javax.swing.event.*;
-import java.io.IOException;
 import java.awt.*;
 import java.awt.event.*;
-import java.net.URL;
 import javax.swing.*;
-import java.io.Externalizable;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.beans.PropertyChangeEvent;
-import java.text.SimpleDateFormat;
-import java.util.StringTokenizer;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.ListIterator;
-
 import org.openide.cookies.SourceCookie;
-import org.openide.awt.StatusDisplayer;
 import org.openide.TopManager;
-import org.openide.text.EditorSupport;
-import org.openide.text.NbDocument;
 import org.openide.cookies.EditorCookie;
-import org.openide.windows.WindowManager;
-import org.openide.windows.TopComponent;
-import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.ExplorerPanel;
 import org.openide.explorer.view.*;
 import org.openide.nodes.*;
-import org.openide.util.HelpCtx;
-import org.openide.text.CloneableEditor;
-import org.openide.text.CloneableEditorSupport;
-import org.openide.util.WeakListener;
-
-
-
-
-import java.awt.BorderLayout;
-import java.awt.Image;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
-import javax.swing.JLabel;
 import org.openide.ErrorManager;
-import org.openide.NotifyDescriptor;
 import org.openide.cookies.LineCookie;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.Node;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.actions.SystemAction;
-import org.openide.windows.Mode;
-import org.openide.windows.Workspace;
 
 
 /**
@@ -241,7 +182,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         Image taskIcon = Utilities.loadImage("org/netbeans/modules/tasklist/pmd/fixable.gif"); // NOI18N
 
         if(!ctx.getReport().isEmpty()) {
-            ArrayList list = new ArrayList(ctx.getReport().size());
             while(iterator.hasNext()) {
                 RuleViolation violation = (RuleViolation)iterator.next();
                 try {
@@ -265,8 +205,17 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                                         deleteLine(line, "import ", // NOI18N
                                                    false); // whitespace etc.?
                                     }
+                                    public boolean hasConfirmation() {
+                                        return true;
+                                    }
                                     public Object getConfirmation(Suggestion s) {
-                                        return null; // TODO provide a confirmation!
+                                        DataObject dao = line.getDataObject();
+                                        int linenumber = line.getLineNumber();
+                                        Integer lineobj = new Integer(linenumber);
+                                        String text = getLineContents(line);
+                                        String filename = dao.getPrimaryFile().getNameExt();
+                                        return NbBundle.getMessage(ViolationProvider.class,
+                                              "ImportConfirmation", text, filename, lineobj);
                                     }
                                 };
                         } else if ((rulename.equals("UnusedPrivateField") || // NOI18N
@@ -278,8 +227,17 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                                         // Remove the particular line
                                         deleteLine(line, "", false);
                                     }
+                                    public boolean hasConfirmation() {
+                                        return true;
+                                    }
                                     public Object getConfirmation(Suggestion s) {
-                                        return null; // TODO provide a confirmation!
+                                        DataObject dao = line.getDataObject();
+                                        int linenumber = line.getLineNumber();
+                                        Integer lineobj = new Integer(linenumber);
+                                        String text = getLineContents(line);
+                                        String filename = dao.getPrimaryFile().getNameExt();
+                                        return NbBundle.getMessage(ViolationProvider.class,
+                                              "UnusedConfirmation", text, filename, lineobj);
                                     }
                                 };
                         } else {
@@ -335,34 +293,41 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         
     }
     
-    /** Remove a particular line. Make sure that the line begins with
-     * a given prefix, just in case.
-     * @param prefix A prefix that the line to be deleted must start with
-     * @param checkOnly When true, don't actually delete the line, only
-     *         report whether the deletion should be attempted or not
-     */
-    boolean deleteLine(Line line, String prefix, boolean checkOnly) {
-        DataObject dao = line.getDataObject();
-        if (!dao.isValid()) {
-            return false;
+    private String getLineContents(Line line) {
+        Document doc = getDoc(line);
+        if (doc == null) {
+                        ErrorManager.getDefault().log(ErrorManager.USER, "doc was null");
         }
+        Element elm = getElement(doc, line);
+        if (elm == null) {
+            ErrorManager.getDefault().log(ErrorManager.USER, "getElement was null");
+            return null;
+        }
+        int offset = elm.getStartOffset();
+        int endOffset = elm.getEndOffset();
 
-	final EditorCookie edit = (EditorCookie)dao.getCookie(EditorCookie.class);
-	if (edit == null) {
-	    return false;
-	}
+        try {
+            String text = doc.getText(offset, endOffset-offset);
+            return text;
+        } catch (BadLocationException ex) {
+            TopManager.getDefault().
+                getErrorManager().notify(ErrorManager.WARNING, ex);
+        }
+        return null;
+    }
 
-	Document d = edit.getDocument(); // Does not block
+    private Element getElement(Document d, Line line) {
 	if (d == null) {
-	    return false;
+            ErrorManager.getDefault().log(ErrorManager.USER, "d was null");
+            return null;
 	}
 
         if (!(d instanceof StyledDocument)) {
-            return false;
+            ErrorManager.getDefault().log(ErrorManager.USER, "Not a styleddocument");
+            return null;
         }
             
         StyledDocument doc = (StyledDocument)d;
-
         Element e = doc.getParagraphElement(0).getParentElement();
         if (e == null) {
             // try default root (should work for text/plain)
@@ -370,6 +335,36 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         }
         int lineNumber = line.getLineNumber();
         Element elm = e.getElement(lineNumber);
+        return elm;
+    }
+
+    private Document getDoc(Line line) {
+        DataObject dao = line.getDataObject();
+        if (!dao.isValid()) {
+            ErrorManager.getDefault().log(ErrorManager.USER, "dataobject was not null");
+            return null;
+        }
+
+	final EditorCookie edit = (EditorCookie)dao.getCookie(EditorCookie.class);
+	if (edit == null) {
+            ErrorManager.getDefault().log(ErrorManager.USER, "no editor cookie!");
+	    return null;
+	}
+
+        Document d = edit.getDocument(); // Does not block
+        return d;
+    }
+
+    
+    /** Remove a particular line. Make sure that the line begins with
+     * a given prefix, just in case.
+     * @param prefix A prefix that the line to be deleted must start with
+     * @param checkOnly When true, don't actually delete the line, only
+     *         report whether the deletion should be attempted or not
+     */
+    boolean deleteLine(Line line, String prefix, boolean checkOnly) {
+        Document doc = getDoc(line);
+        Element elm = getElement(doc, line);
         if (elm == null) {
             return false;
         }
@@ -401,14 +396,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
      * on the safe side; e.g. not delete even when it would be safe to do so.
      */
     private boolean isDeleteSafe(String text) {
-        // Does this line contain multiple statements?
-        // I consider that to be the case when there is at least one
-        //   - comma, or
-        //   - semicolon
-        // and the next nonspace character is not "/"
-        // TODO - fix it such that the following doesn't trip us up:
-        //   int y = "a,b";
-
         /*
           What about a weird corner case like this:
           int z = 0;
@@ -418,6 +405,8 @@ public class ViolationProvider extends DocumentSuggestionProvider {
           importantCall();
           }
           Will I delete the "for(int y = 0" line since y is unused?
+
+          No - because I will see the "(" and bail!
         */
 
         // A small statemachine to figure out if the line can

@@ -1064,6 +1064,7 @@ public abstract class TaskListView extends ExplorerPanel
 
     
     public void componentActivated() {
+        super.componentActivated();
         FindAction find = (FindAction)FindAction.get(FindAction.class);
         FilterAction filter = (FilterAction)FilterAction.get(FilterAction.class);
         find.setActionPerformer(filter);
@@ -1073,6 +1074,8 @@ public abstract class TaskListView extends ExplorerPanel
     } 
     
     public void componentDectivated() {
+        super.componentDeactivated();
+        
         FindAction find = (FindAction)FindAction.get(FindAction.class);
         find.setActionPerformer(null);
 

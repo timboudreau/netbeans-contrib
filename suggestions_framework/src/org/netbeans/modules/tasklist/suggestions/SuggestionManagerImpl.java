@@ -15,17 +15,8 @@ package org.netbeans.modules.tasklist.suggestions;
 
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
-import org.netbeans.modules.tasklist.core.Task;
 import java.io.File;
-import java.io.InputStream;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.Writer;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
@@ -36,7 +27,6 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Map;
 import java.util.Collection;
@@ -55,6 +45,7 @@ import org.openide.TopManager;
 import org.openide.ErrorManager;
 
 import org.netbeans.api.tasklist.*;
+import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
 
 /**
  * Actual suggestion manager provided to clients when the Suggestions
@@ -198,7 +189,9 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         SuggestionType type = s.getSType();
         SuggestionImpl category = getCategoryTask(type);
         s.setParent(category);
-        getList().add(s, false, false);
+        synchronized(this) {
+            getList().add(s, false, false);
+        }
         updateCategoryCount(category); // TODO: skip this when filtered
     }
 
@@ -235,11 +228,13 @@ final public class SuggestionManagerImpl extends SuggestionManager {
 
         SuggestionImpl category = getCategoryTask(type);
         // XXX Do I need to set the parent field on each item?
-        getList().addRemove(suggestions, null, false, category);
+        synchronized(this) {
+            getList().addRemove(suggestions, null, false, category);
+        }
         updateCategoryCount(category); // TODO: skip this when filtered
     }
 
-    private SuggestionImpl getCategoryTask(SuggestionType type) {
+    private synchronized SuggestionImpl getCategoryTask(SuggestionType type) {
         SuggestionImpl category = null;
         if (categoryTasks != null) {
             category = (SuggestionImpl)categoryTasks.get(type);
@@ -260,7 +255,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
         return category;
     }
-    private HashMap categoryTasks = null;
+    private Map categoryTasks = null;
 
     private void updateCategoryCount(SuggestionImpl category) {
         SuggestionType type = category.getSType();
@@ -297,7 +292,9 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             return;
         }
 
-        getList().remove(s);
+        synchronized(this) {
+            getList().remove(s);
+        }
 
         
         // Leave category task around? Or simply make it invisible?
@@ -311,7 +308,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         updateCategoryCount(category); // TODO: skip this when filtered
     }
 
-    private void removeCategory(SuggestionImpl s) {
+    private synchronized void removeCategory(SuggestionImpl s) {
         SuggestionImpl category = (SuggestionImpl)s.getParent();
         if ((category != null) && !category.hasSubtasks()) {
             getList().remove(category);
@@ -333,7 +330,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
 
         // TODO check instanceof Task here, and throw an exception if not?
-        getList().addRemove(null, suggestions, false, null);
+        
+        synchronized(this) {
+            getList().addRemove(null, suggestions, false, null);
+        }
 
         // Leave category task around? Or simply make it invisible?
         // (Need new Task attribute and appropriate handling in filter
@@ -501,7 +501,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      *
      * @return True iff the given suggestion type is enabled
      */
-    public boolean isEnabled(String id) {
+    public synchronized boolean isEnabled(String id) {
         if (disabled == null) {
             readTypeRegistry();
             if (disabled == null) {
@@ -525,18 +525,19 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      *    are registered and named.
      * @param enabled True iff the suggestion type should be enabled
      */
-    public void setEnabled(String id, boolean enabled) {
+    public synchronized void setEnabled(String id, boolean enabled) {
+        SuggestionType type = SuggestionTypes.getTypes().getType(id);
+
         if (disabled == null) {
             disabled = new HashSet(40);
         }
 
         if (enabled) {
             disabled.remove(id);
+            setConfirm(type, true, false);
         } else {
             disabled.add(id);
         }
-
-        SuggestionType type = SuggestionTypes.getTypes().getType(id);
         
         // Update the suggestions list: when disabling, rip out suggestions
         // of the same type, and when enabling, trigger a recompute in case
@@ -569,6 +570,79 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         return disabled;
     }
 
+    
+    /**
+     * Return true iff the type of suggestion indicated by the
+     * type argument should produce a confirmation dialog
+     * By default, all suggestion types have confirmation dialogs
+     * (if they provide one) but users can select to skip these.
+     * <p>
+     * The only way to get it back is to disable the type, and
+     * re-enable it.
+     *
+     * @param type The Suggestion Type. See the
+     *    {@link Suggestion} documentation for how Suggestion Types
+     *    are registered and named.
+     *
+     * @return True iff the given suggestion type should have a 
+     *    confirmation dialog.
+     */
+    public synchronized boolean isConfirm(SuggestionType type) {
+        if (noconfirm == null) {
+            readTypeRegistry();
+            if (noconfirm == null) {
+                noconfirm = new HashSet(40);
+            }
+        }
+        return !noconfirm.contains(type);
+    }
+
+    
+    /** Map containing names of Suggestion Types that the user wants to
+     * fix without a confirmation dialog */
+    private Set noconfirm = null;
+
+    /**
+     * Store whether or not a particular Suggestion type should produce
+     * a confirmation popup.
+     * <p>
+     *
+     * @param id The String id of the Suggestion Type. See the
+     *    {@link Suggestion} documentation for how Suggestion Types
+     *    are registered and named.
+     * @param write Write to disk the update iff true.
+     * @param enabled True iff the suggestion type should have a confirmation
+     *     dialog
+     */
+    public synchronized void setConfirm(SuggestionType type, boolean confirm, boolean write) {
+        if (noconfirm == null) {
+            noconfirm = new HashSet(40);
+        }
+
+        if (confirm) {
+            noconfirm.remove(type);
+        } else {
+            noconfirm.add(type);
+        }
+        if (write) {
+            writeTypeRegistry();
+        }
+    }
+    
+    /** Notify manager that a fix (of potentially multiple suggetions)
+     * is in progress. */
+    void setFixing(boolean fixing) {
+        List providers = getProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            Object o = it.next();
+            if (o instanceof DocumentSuggestionProvider) {
+                DocumentSuggestionProvider provider =
+                 (DocumentSuggestionProvider)o;
+                provider.setWait(fixing);
+            }
+        }
+    }
     
     /** Notify the SuggestionManager that a particular category filter
      * is in place.
@@ -681,7 +755,9 @@ final public class SuggestionManagerImpl extends SuggestionManager {
 
     private static class TypeXMLHandler extends DefaultHandler {
         private boolean parsingDisabled = false;
+        private boolean parsingNoConfirm = false;
         private Set disabled = null;
+        private Set noconfirm = null;
 
         
         TypeXMLHandler() {
@@ -689,6 +765,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
 
         public Set getDisabled() {
             return disabled;
+        }
+		
+        public Set getNoConfirm() {
+            return noconfirm;
         }
 		
         public void startDocument() {
@@ -708,15 +788,26 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                         disabled = new HashSet(50);
                     }
                     disabled.add(type);
+                } else if (parsingNoConfirm) {
+                    String id = (String)attrs.getValue("id"); // NOI18N
+                    if (noconfirm == null) {
+                        noconfirm = new HashSet(50);
+                    }
+                    SuggestionType type = SuggestionTypes.getTypes().getType(id);
+                    noconfirm.add(type);
                 }
             } else if (name.equals("disabled")) { // NOI18N
                 parsingDisabled = true;
+            } else if (name.equals("noconfirm")) { // NOI18N
+                parsingNoConfirm = true;
             }
         }
             
         public void endElement(String uri, String localName, String name) throws SAXException {
             if (name.equals("disabled")) { // NOI18N
                 parsingDisabled = false;
+            } else if (name.equals("noconfirm")) { // NOI18N
+                parsingNoConfirm = false;
             }
 
         }
@@ -728,10 +819,17 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
     }
 
+    /** Have we read the type registry yet? */
+    private boolean registryRead = false;
+    
     /** Read in the SuggestionType registry preferences.
      * @return True iff the registry was completely initialized without error
      */
     private boolean readTypeRegistry() {
+        if (registryRead) {
+            return true;
+        }
+        registryRead = true;
         File file = getRegistryFile(false);
         if (file.exists()) {
             try {
@@ -745,6 +843,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                     reader.setEntityResolver(handler);
                     reader.parse(new InputSource(fileReader));
                     disabled = handler.getDisabled();
+                    noconfirm = handler.getNoConfirm();
                     return true;
                 } catch (SAXException e) {
                     TopManager.getDefault().getErrorManager().notify(
@@ -769,19 +868,29 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             writer.write("<?xml version=\"1.0\"?>\n"); // NOI18N
             writer.write("<!DOCTYPE suggestionregistry PUBLIC '-//NetBeans//DTD suggestion registry 1.0//EN' 'http://www.netbeans.org/dtds/suggestion-registry-1_0.dtd'>\n"); // NOI18N
             writer.write("<typeregistry>\n"); // NOI18N
-            writer.write("  <disabled>\n"); // NOI18N
             Iterator it = disabled.iterator();
-            while (it.hasNext()) {
-                String typeName = (String)it.next();
-                writer.write("    <type id=\""); // NOI18N
-                writer.write(typeName);
-                writer.write("\"/>\n"); // NOI18N
+            if (it.hasNext()) {
+                writer.write("  <disabled>\n"); // NOI18N
+                while (it.hasNext()) {
+                    String typeName = (String)it.next();
+                    writer.write("    <type id=\""); // NOI18N
+                    writer.write(typeName);
+                    writer.write("\"/>\n"); // NOI18N
+                }
+                writer.write("  </disabled>\n"); // NOI18N
             }
-            writer.write("  </disabled>\n"); // NOI18N
-            /* TODO
-               writer.write("  <noconfirm>\n"); // NOI18N
-               writer.write("  </noconfirm>\n"); // NOI18N
-            */
+
+            it = noconfirm.iterator();
+            if (it.hasNext()) {
+                writer.write("  <noconfirm>\n"); // NOI18N
+                while (it.hasNext()) {
+                    SuggestionType type = (SuggestionType)it.next();
+                    writer.write("    <type id=\""); // NOI18N
+                    writer.write(type.getName());
+                    writer.write("\"/>\n"); // NOI18N
+                }    
+                writer.write("  </noconfirm>\n"); // NOI18N
+            }
             writer.write("</typeregistry>\n"); // NOI18N
             writer.close();
             return true;

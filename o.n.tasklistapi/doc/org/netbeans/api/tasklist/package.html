@@ -108,6 +108,9 @@ So here's what a complete code segment might look like:
         public Object getConfirmation(Suggestion s) {
             return "Ring the system bell 3 times, then quit. Will echo \007.";
         }
+	public boolean hasConfirmation() {
+	    return true;
+	}
      });
      Suggestion s = manager.createSuggestion(suggestionType, summary, performer);
      mgr.add(s);

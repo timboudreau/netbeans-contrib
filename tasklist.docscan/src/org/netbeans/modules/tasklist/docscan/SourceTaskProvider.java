@@ -19,67 +19,28 @@ import org.netbeans.spi.tasklist.LineSuggestionPerformer;
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.*;
 
-import javax.swing.text.Document;
-import javax.swing.event.DocumentEvent;
 
 import javax.swing.text.*;
 import javax.swing.event.*;
-import java.io.IOException;
 import java.awt.*;
 import java.awt.event.*;
-import java.net.URL;
 import javax.swing.*;
-import java.io.Externalizable;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.beans.PropertyChangeEvent;
-import java.text.SimpleDateFormat;
-import java.util.StringTokenizer;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.openide.awt.StatusDisplayer;
 import org.openide.TopManager;
-import org.openide.text.EditorSupport;
-import org.openide.text.NbDocument;
 import org.openide.cookies.EditorCookie;
-import org.openide.windows.WindowManager;
-import org.openide.windows.TopComponent;
-import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.ExplorerPanel;
 import org.openide.explorer.view.*;
 import org.openide.nodes.*;
-import org.openide.util.HelpCtx;
-import org.openide.text.CloneableEditor;
-import org.openide.text.CloneableEditorSupport;
-import org.openide.util.WeakListener;
 
 
 
 
-import java.awt.BorderLayout;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
-import javax.swing.JLabel;
 import org.openide.ErrorManager;
-import org.openide.NotifyDescriptor;
 import org.openide.cookies.LineCookie;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.Node;
 import org.openide.text.Line;
-import org.openide.util.NbBundle;
-import org.openide.util.actions.SystemAction;
-import org.openide.windows.Mode;
-import org.openide.windows.Workspace;
 
 
 /**
@@ -235,7 +196,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
         }
         
     }
-
+    
     
     /**
      * The given document has been "hidden"; it's still open, but

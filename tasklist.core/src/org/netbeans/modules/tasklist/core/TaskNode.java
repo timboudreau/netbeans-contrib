@@ -161,8 +161,6 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
             // XXX moved to usertasks package: SystemAction.get(ShowTaskAction.class),
 		// XXX moved to editor package: SystemAction.get(GoToTaskAction.class),
             null,
-            SystemAction.get(AutoFixAction.class),
-            null,
             SystemAction.get(FilterAction.class),
             null,
             SystemAction.get(ExpandAllAction.class),

@@ -17,5 +17,5 @@ Microsystems, Inc. All Rights Reserved.
     name="nb-tasklist-scannedtask"
     description_key="HINT_scannedtype"
     localizing_bundle="org.netbeans.modules.tasklist.docscan.Bundle"
-    icon="nbresloc:org/netbeans/modules/tasklist/core/editorTask.gif"
+    icon="nbresloc:org/netbeans/modules/tasklist/docscan/scanned-task.gif"
 />

@@ -16,7 +16,6 @@ package org.netbeans.modules.tasklist.bugs.issuezilla;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import javax.swing.JFileChooser;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;

@@ -15,7 +15,6 @@ package org.netbeans.modules.tasklist.suggestions;
 
 import java.util.List;
 
-import org.netbeans.modules.tasklist.core.AutoFixAction;
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskListView;
@@ -32,6 +31,7 @@ import org.openide.nodes.PropertySupport.Reflection;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
+import java.awt.datatransfer.Transferable;
 
 
 /**
@@ -59,7 +59,7 @@ class SuggestionNode extends TaskNode {
         if (item.getAction() instanceof LineSuggestionPerformer) {
             setDefaultAction(SystemAction.get(GoToTaskAction.class));
         } else if (item.getAction() != null) {
-            setDefaultAction(SystemAction.get(AutoFixAction.class));
+            setDefaultAction(SystemAction.get(FixAction.class));
         } else {
             setDefaultAction(null);
         }
@@ -121,7 +121,7 @@ class SuggestionNode extends TaskNode {
                 };
             } else {
                 return new SystemAction[] {
-                    SystemAction.get(AutoFixAction.class),
+                    SystemAction.get(FixAction.class),
                     SystemAction.get(GoToTaskAction.class),
                     null,
                     SystemAction.get(ShowCategoryAction.class),
@@ -216,6 +216,10 @@ class SuggestionNode extends TaskNode {
     public boolean canCut () {
         // No point since it gets recreated after every edit
         return false;
-    }        
+    }
+
+    /** Don't allow pastes */
+    protected void createPasteTypes(Transferable t, List s) {
+    }
 }
 
