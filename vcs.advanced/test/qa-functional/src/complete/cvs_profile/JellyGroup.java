@@ -13,9 +13,8 @@
 
 package complete.cvs_profile;
 
-import complete.cvs_profile.JellyStub.Configuration;
+import complete.GenericStub.GenericNode;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 import junit.framework.Test;
@@ -27,9 +26,6 @@ import org.netbeans.jellytools.actions.DeleteAction;
 import org.netbeans.jellytools.modules.vcscore.GroupVerificationOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSGroupsFrameOperator;
 import org.netbeans.jellytools.modules.vcscore.VersioningFrameOperator;
-import org.netbeans.jellytools.modules.vcsgeneric.actions.IncludeInVCSGroupAction;
-import org.netbeans.jellytools.modules.vcsgeneric.actions.IncludeInVCSGroupActionNoBlock;
-import org.netbeans.jellytools.modules.vcsgeneric.actions.VCSGroupsAction;
 import org.netbeans.jellytools.modules.vcsgeneric.nodes.CVSFileNode;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
@@ -39,16 +35,14 @@ import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
 import org.netbeans.jemmy.util.PNGEncoder;
-import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFileAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFolderAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCommitFileAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSUpdateFileAdvDialog;
 import util.Helper;
-import util.History;
 
-public class JellyGroup extends JellyStub {
+public class JellyGroup extends CVSStub {
     
     public static final String TEST_GROUP = "TestGroup";
     public static final String GROUP_DESCRIPTION = "Description of " + TEST_GROUP;
@@ -58,8 +52,9 @@ public class JellyGroup extends JellyStub {
     }
     
     public static Test suite() {
+//        complete.GenericStub.DEBUG = true;
         TestSuite suite = new NbTestSuite();
-        suite.addTest(new JellyGroup("testWorkDir"));
+        suite.addTest(new JellyGroup("configure"));
 //        suite.addTest(new JellyGroup("testDefaultGroup")); // cause destabilization
         suite.addTest(new JellyGroup("testGroups"));
         suite.addTest(new JellyGroup("testAddToGroup"));
@@ -76,13 +71,8 @@ public class JellyGroup extends JellyStub {
         TestRunner.run(suite());
     }
     
-    static String clientDirectory;
-    static History history;
-    static String nRoot;
-    static String tInitDir = "initdir", hInitDir = tInitDir, fInitDir, nInitDir;
-    static String tText1 = "text1", hText1 = hInitDir + "/" + tText1, fText1, nText1;
-    static String tText2 = "text2", hText2 = hInitDir + "/" + tText2, fText2, nText2;
-    static String tText3 = "text3", hText3 = hInitDir + "/" + tText3, fText3, nText3;
+    static String tInitDir = "initdir";
+    GenericNode InitDir, Text1, Text2, Text3;
     
     static boolean text1InDefaultGroup = false;
 
@@ -90,72 +80,56 @@ public class JellyGroup extends JellyStub {
         new File(dir + "/" + tInitDir).mkdirs();
     }
     
-    public void testWorkDir() {
-        Configuration conf = super.configureWorkDir ();
-        
-        nRoot = conf.nRoot;
-        clientDirectory = conf.clientDirectory;
-        history = conf.history;
-        
-        fInitDir = clientDirectory + "/" + tInitDir;
-        nInitDir = nRoot + "|" + tInitDir;
-        
-        fText1 = fInitDir + "/" + tText1;
-        nText1 = nInitDir + "|" + tText1;
-        
-        fText2 = fInitDir + "/" + tText2;
-        nText2 = nInitDir + "|" + tText2;
-        
-        fText3 = fInitDir + "/" + tText3;
-        nText3 = nInitDir + "|" + tText3;
-        
-        if (!JellyStub.DEBUG) {
-            // add
-            try {
-                new File(fText1).createNewFile();
-                new File(fText2).createNewFile();
-            } catch (IOException e) {
-                throw new AssertionFailedErrorException("IOException while setting test case up", e);
-            }
+    public void createStructure () {
+        InitDir = new GenericNode (root, tInitDir);
+        Text1 = new GenericNode (InitDir, "text1");
+        Text2 = new GenericNode (InitDir, "text2");
+        Text3 = new GenericNode (InitDir, "text3");
+    }
 
-            new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
-            assertTrue("Refresh recursively folder command failed", history.waitCommand("Refresh Recursively", hRoot));
-            new CVSFileNode(exp.repositoryTab().tree(), nText1);
-            new CVSFileNode(exp.repositoryTab().tree(), nText2);
+    public void prepareClient () {
+        super.prepareClient ();
+        Text1.save ("");
+        Text2.save ("");
 
-            new CVSFileNode(exp.repositoryTab().tree(), nInitDir).cVSAdd();
-            CVSAddFolderAdvDialog add = new CVSAddFolderAdvDialog();
-            add.setFileDescription("Initial state");
-            add.addAllLocalFilesInFolderContents();
-            add.checkAddTheFolderContentsRecursively(true);
-            add.oK();
-            new NbDialogOperator("Information").ok();
-            assertTrue("Add folder recursively command failed", history.waitCommand("Add", hInitDir));
-            waitStatus("Locally Added", nText1);
-            waitStatus("Locally Added", nText2);
+        refreshRecursively (root);
+        Text1.cvsNode ();
+        Text2.cvsNode ();
 
-            // commit
-            new CVSFileNode(exp.repositoryTab().tree(), nInitDir).cVSCommit ();
-            CVSCommitFileAdvDialog com = new CVSCommitFileAdvDialog();
-            com.txtEnterReason().setCaretPosition(0);
-            com.txtEnterReason().typeText("Initial commit");
-            com.oK();
-            com.waitClosed();
-            assertTrue("Commit files command failed", history.waitCommand("Commit", hInitDir));
-            waitStatus("Up-to-date; 1.1", nText1, true);
-            waitStatus("Up-to-date; 1.1", nText2, true);
-        }
+        InitDir.cvsNode ().cVSAdd();
+        CVSAddFolderAdvDialog add = new CVSAddFolderAdvDialog();
+        add.setFileDescription("Initial state");
+        add.addAllLocalFilesInFolderContents();
+        add.checkAddTheFolderContentsRecursively(true);
+        add.oK();
+        assertInformationDialog(null);
+        InitDir.waitHistory ("Add");
+        Text1.waitStatus("Locally Added");
+        Text2.waitStatus("Locally Added");
+
+        InitDir.cvsNode ().cVSCommit();
+        CVSCommitFileAdvDialog com = new CVSCommitFileAdvDialog();
+        com.txtEnterReason().setCaretPosition(0);
+        com.txtEnterReason().typeText("Initial commit");
+        com.oK();
+        com.waitClosed();
+        InitDir.waitHistory ("Commit");
+        Text1.waitStatus("Up-to-date; 1.1");
+        Text2.waitStatus("Up-to-date; 1.1");
     }
     
+    public void configure () {
+        super.configure();
+    }
+
     public void testDefaultGroup () {
-        new VCSGroupsAction ().perform ();
-        VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
-        new IncludeInVCSGroupAction ().perform (new CVSFileNode (exp.repositoryTab ().tree (), nText1));
-        new Node (vgf.treeVCSGroupsTreeView (), "<Default Group>|" + tText1);
-        vgf.removeVCSGroup("<Default Group>");
-        Helper.waitNoNode (vgf.treeVCSGroupsTreeView (), "", "<Default Group>");
-        new IncludeInVCSGroupAction ().perform (new CVSFileNode (exp.repositoryTab ().tree (), nText1));
-        new Node (vgf.treeVCSGroupsTreeView (), "<Default Group>|" + tText1);
+        closeAllVCSWindows();
+        openGroupsFrame();
+        Text1.cvsNode ().includeInVCSGroupDefaultGroup();
+        vgf.removeVCSGroup(DEFAULT_GROUP);
+        new Node (vgf.treeVCSGroupsTreeView (), "").waitChildNotPresent(DEFAULT_GROUP);
+        Text1.cvsNode ().includeInVCSGroupDefaultGroup();
+        Text1.cvsGroupNode (DEFAULT_GROUP);
         text1InDefaultGroup = true;
     }
     
@@ -170,59 +144,47 @@ public class JellyGroup extends JellyStub {
     }
     
     public void testGroups () {
-        VCSGroupsFrameOperator vgf;
-
         closeAllVCSWindows();
-        new VCSGroupsAction ().perform ();
-        vgf = new VCSGroupsFrameOperator ();
+        openGroupsFrame();
 
         addVCSGroup(vgf, TEST_GROUP);
 
         closeAllVCSWindows(); // stabilization
-        new VCSGroupsAction ().perform (); // stabilization
-        vgf = new VCSGroupsFrameOperator (); // stabilization
+        openGroupsFrame(); // stabilization
         addVCSGroup(vgf, "GroupToRename");
         new Node (vgf.treeVCSGroupsTreeView (), "GroupToRename");
 
         closeAllVCSWindows(); // stabilization
-        new VCSGroupsAction ().perform (); // stabilization
-        vgf = new VCSGroupsFrameOperator (); // stabilization
+        openGroupsFrame(); // stabilization
         vgf.renameVCSGroup("GroupToRename", "RenamedGroup");
-        Helper.waitNoNode (vgf.treeVCSGroupsTreeView (), "", "GroupToRename");
+        new Node (vgf.treeVCSGroupsTreeView (), "").waitChildNotPresent("GroupToRename");
         new Node (vgf.treeVCSGroupsTreeView (), "RenamedGroup");
 
         closeAllVCSWindows(); // stabilization
-        new VCSGroupsAction ().perform (); // stabilization
-        vgf = new VCSGroupsFrameOperator (); // stabilization
+        openGroupsFrame(); // stabilization
         addVCSGroup(vgf, "GroupToRemove");
         new Node (vgf.treeVCSGroupsTreeView (), "GroupToRemove");
 
         closeAllVCSWindows(); // stabilization
-        new VCSGroupsAction ().perform (); // stabilization
-        vgf = new VCSGroupsFrameOperator (); // stabilization
+        openGroupsFrame(); // stabilization
         vgf.removeVCSGroup("GroupToRemove");
-        Helper.waitNoNode(vgf.treeVCSGroupsTreeView (), "", "GroupToRemove");
+        new Node (vgf.treeVCSGroupsTreeView (), "").waitChildNotPresent("GroupToRemove");
     }
 
     public void testAddToGroup () {
         closeAllVCSWindows();
-        new VCSGroupsAction ().perform ();
-        VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
+        openGroupsFrame();
 
-        new IncludeInVCSGroupAction (TEST_GROUP).perform(
-            new CVSFileNode (exp.repositoryTab ().tree (), nText2)
-        );
-        new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP + "|" + tText2);
+        Text2.cvsNode ().includeInVCSGroup(TEST_GROUP);
+        Text2.cvsGroupNode(TEST_GROUP);
 
         if (text1InDefaultGroup)
-            new CVSFileNode (vgf.treeVCSGroupsTreeView (), "<Default Group>|" + tText1);
-        new IncludeInVCSGroupActionNoBlock (TEST_GROUP).perform(
-            new CVSFileNode (exp.repositoryTab ().tree (), nText1)
-        );
+            Text1.cvsGroupNode (DEFAULT_GROUP);
+        Text1.cvsNode ().includeInVCSGroup(TEST_GROUP);
         if (text1InDefaultGroup)
             new NbDialogOperator ("Question").yes ();
-        new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP + "|" + tText1);
-        Helper.waitNoNode (vgf.treeVCSGroupsTreeView(), "<Default Group>", tText1);
+        Text1.cvsGroupNode (TEST_GROUP);
+        new Node (vgf.treeVCSGroupsTreeView(), DEFAULT_GROUP).waitChildNotPresent(Text1.name ());
         
         closeAllProperties();
         new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).select (); // stabilization
@@ -247,22 +209,15 @@ public class JellyGroup extends JellyStub {
     
     public void testCommitGroup () {
         closeAllVCSWindows();
-        new VCSGroupsAction ().perform ();
-        VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
-        new CVSFileNode (exp.repositoryTab ().tree (), nInitDir).cVSRefresh ();
-        assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
-        waitStatus (vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.1", TEST_GROUP + "|" + tText1, true);
-        waitStatus (vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.1", TEST_GROUP + "|" + tText2, true);
-        try {
-            JellyStub.saveToFile (fText1, "text1");
-            JellyStub.saveToFile (fText2, "text2");
-        } catch (IOException e) {
-            throw new AssertionFailedErrorException("IOException while setting test case up", e);
-        }
-        new CVSFileNode (exp.repositoryTab ().tree (), nInitDir).cVSRefresh ();
-        assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
-        waitStatus (vgf.treeVCSGroupsTreeView (), "Locally Modified; 1.1", TEST_GROUP + "|" + tText1, true);
-        waitStatus (vgf.treeVCSGroupsTreeView (), "Locally Modified; 1.1", TEST_GROUP + "|" + tText2, true);
+        openGroupsFrame();
+        refresh (InitDir);
+        waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text1.name (), "Up-to-date; 1.1", true);
+        waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text2.name (), "Up-to-date; 1.1", true);
+        Text1.save ("text1");
+        Text2.save ("text2");
+        refresh (InitDir);
+        waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text1.name (), "Locally Modified; 1.1", true);
+        waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text2.name (), "Locally Modified; 1.1", true);
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP).select (); // stabilization
 	Helper.sleep (2000); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP).cVSCommit ();
@@ -277,25 +232,25 @@ public class JellyGroup extends JellyStub {
         } catch (Exception e) {}
         co.oK ();
         co.waitClosed ();
-        assertTrue("Commit files command failed", history.waitCommand("Commit", hText1 + "\n" + hText2));
-        waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText1, true);
-        waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText2, true);
+        waitCommand ("Commit", new GenericNode [] { Text1, Text2 });
+        waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text1.name (), "Up-to-date; 1.2", true);
+        waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text2.name (), "Up-to-date; 1.2", true);
         closeAllVersionings(); // stabilization
-        waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText1, true); // stabilization
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText1).versioningExplorer();
-        VersioningFrameOperator vfo = new VersioningFrameOperator ();
+        waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text1.name (), "Up-to-date; 1.2", true); // stabilization
+        Text1.cvsGroupNode (TEST_GROUP).versioningExplorer(); // stabilization
+        newVersioningFrame ();
         if (validDescription)
-            new Node (vfo.treeVersioningTreeView(), nText1 + " [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
+            Text1.cvsVersioningNode (" [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
         else
-            new Node (vfo.treeVersioningTreeView(), nText1 + " [Up-to-date; 1.2]|1.2");
+            Text1.cvsVersioningNode (" [Up-to-date; 1.2]|1.2");
         closeAllVersionings(); // stabilization
-        waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText2, true); // stabilization
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText2).versioningExplorer(); // stabilization
+        waitNodeStatus(vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text2.name (), "Up-to-date; 1.2", true); // stabilization
+        Text2.cvsGroupNode (TEST_GROUP).versioningExplorer(); // stabilization
         vfo = new VersioningFrameOperator (); // stabilization
         if (validDescription)
-            new Node (vfo.treeVersioningTreeView(), nText2 + " [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
+            Text2.cvsVersioningNode (" [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
         else
-            new Node (vfo.treeVersioningTreeView(), nText2 + " [Up-to-date; 1.2]|1.2");
+            Text2.cvsVersioningNode (" [Up-to-date; 1.2]|1.2");
         // assertTrue ("Invalid description in group commit dialog", validDescription); // fails due to issue #28679
     }
     
@@ -311,9 +266,9 @@ public class JellyGroup extends JellyStub {
                 if (b != 0)
                     comp += "    ";
                 String str = (table.getValueAt(a, b) != null) ? table.getValueAt(a, b).toString () : "<NULL>";
-                int i = str.indexOf (nRoot);
+                int i = str.indexOf (root.node ());
                 if (i >= 0)
-                    str = str.substring (0, i) + "<FS>" + str.substring (i + nRoot.length());
+                    str = str.substring (0, i) + "<FS>" + str.substring (i + root.node ().length());
                 comp += str;
             }
             strs[a] = comp;
@@ -323,20 +278,13 @@ public class JellyGroup extends JellyStub {
             out.println (a + ". - " + strs[a]);
     }
     
-    
     public void testVerifyGroupToAdd () {
         closeAllVCSWindows();
-        new VCSGroupsAction ().perform ();
-        VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
-        try {
-            JellyStub.saveToFile (fText3, "text3");
-        } catch (IOException e) {
-            throw new AssertionFailedErrorException("IOException while setting test case up", e);
-        }
-        new CVSFileNode (exp.repositoryTab ().tree (), nInitDir).cVSRefresh ();
-        assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
-        new CVSFileNode (exp.repositoryTab ().tree (), nText3).includeInVCSGroup(TEST_GROUP);
-        new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP + "|" + tText3);
+        openGroupsFrame();
+        Text3.save ("text3");
+        refresh (InitDir);
+        Text3.cvsNode ().includeInVCSGroup(TEST_GROUP);
+        Text3.cvsGroupNode (TEST_GROUP);
         
         new Action (null,"Verify").performPopup (new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP));
         GroupVerificationOperator gvo = new GroupVerificationOperator ();
@@ -351,21 +299,22 @@ public class JellyGroup extends JellyStub {
         
         CVSAddFileAdvDialog add = new CVSAddFileAdvDialog ();
         add.oK();
-        assertTrue("Add file command failed", history.waitCommand("Add", hText3));
-        waitStatus (vgf.treeVCSGroupsTreeView (), "Locally Added", TEST_GROUP + "|" + tText3, false);
+        Text3.waitHistory ("Add");
+        waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text3.name (), "Locally Added", false);
         compareReferenceFiles();
     }
     
     public void testVerifyGroupNeedsUpdate () {
         closeAllVCSWindows();
-        new VCSGroupsAction ().perform ();
-        VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
+        openGroupsFrame ();
 
-        new DeleteAction ().performPopup (new CVSFileNode (exp.repositoryTab ().tree (), nText2));
-        new NbDialogOperator ("Confirm Object Deletion").yes ();
+        new DeleteAction ().performPopup (
+            Text2.cvsNode ()
+        );
+        assertConfirmObjectDeletionYes (null);
         
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText2);
-        waitStatus (vgf.treeVCSGroupsTreeView(), "Needs Update", TEST_GROUP + "|" + tText2, false);
+        Text3.cvsGroupNode (TEST_GROUP);
+        waitNodeStatus (vgf.treeVCSGroupsTreeView(), TEST_GROUP + "|" + Text2.name (), "Needs Update", false);
         
         new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP).select (); // stabilization
         Helper.sleep (2000); // stabilization
@@ -381,15 +330,14 @@ public class JellyGroup extends JellyStub {
         CVSUpdateFileAdvDialog up = new CVSUpdateFileAdvDialog ();
         up.oK ();
         
-        assertTrue("Update file command failed", history.waitCommand("Update", hText2));
-        waitStatus (vgf.treeVCSGroupsTreeView (), "Up-to-date", TEST_GROUP + "|" + tText2, false);
+        Text2.waitHistory ("Update");
+        waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text2.name (), "Up-to-date", false);
         compareReferenceFiles();
     }
     
     public void testVerifyGroupNotChanged () {
         closeAllVCSWindows();
-        new VCSGroupsAction ().perform ();
-        VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
+        openGroupsFrame();
 
         new Action (null,"Verify").performPopup (new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP));
         GroupVerificationOperator gvo = new GroupVerificationOperator ();
@@ -400,28 +348,28 @@ public class JellyGroup extends JellyStub {
         gvo.removeAllFiles();
         gvo.btCorrectGroup().pushNoBlock();
 
-        Helper.waitNoNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP, tText1);
-        Helper.waitNoNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP, tText2);
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText3);
+        new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP).waitChildNotPresent(Text1.name ());
+        new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP).waitChildNotPresent(Text2.name ());
+        Text3.cvsGroupNode(TEST_GROUP);
         compareReferenceFiles();
     }
     
     public void testUnmount() {
         closeAllVCSWindows();
-        new VCSGroupsAction ().perform ();
-        VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
+        openGroupsFrame ();
 
-        new CVSFileNode (exp.repositoryTab ().tree (), nText1).includeInVCSGroup(TEST_GROUP);
-        new CVSFileNode (exp.repositoryTab ().tree (), nText2).includeInVCSGroup(TEST_GROUP);
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText1);
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText2);
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText3);
+        Text1.cvsNode ().includeInVCSGroup(TEST_GROUP);
+        Text2.cvsNode ().includeInVCSGroup(TEST_GROUP);
+        Text1.cvsGroupNode (TEST_GROUP);
+        Text2.cvsGroupNode (TEST_GROUP);
+        Text3.cvsGroupNode (TEST_GROUP);
         
-        new FilesystemNode(exp.repositoryTab().tree(), nRoot).unmount();
+        new FilesystemNode(exp.repositoryTab().tree(), root.node ()).unmount();
+        new Node (exp.repositoryTab ().tree (), "").waitChildNotPresent(root.node ());
         
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText1 + " (Broken link)");
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText2 + " (Broken link)");
-        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText3 + " (Broken link)");
+        Text1.cvsGroupNode (TEST_GROUP, " (Broken link)");
+        Text2.cvsGroupNode (TEST_GROUP, " (Broken link)");
+        Text3.cvsGroupNode (TEST_GROUP, " (Broken link)");
     }
 
 }

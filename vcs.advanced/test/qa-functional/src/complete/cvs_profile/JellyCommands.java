@@ -13,7 +13,7 @@
 
 package complete.cvs_profile;
 
-import complete.cvs_profile.JellyStub.Configuration;
+import complete.GenericStub.GenericNode;
 import java.awt.Color;
 import java.awt.Component;
 import java.io.File;
@@ -27,25 +27,15 @@ import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.modules.vcscore.AnnotateCommandOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.nodes.FilesystemNode;
+import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.operators.JLabelOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.junit.NbTestSuite;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAnnotateAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCommitFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSExportFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSExportFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSHistoryAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSImportFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSLogFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSLogFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSStatusFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSStatusFolderAdvDialog;
+import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
 import util.Filter;
 import util.Helper;
-import util.History;
 
-public class JellyCommands extends JellyStub {
+public class JellyCommands extends CVSStub {
     
     public JellyCommands(String testName) {
         super(testName);
@@ -54,7 +44,7 @@ public class JellyCommands extends JellyStub {
     public static Test suite() {
 //        JellyStub.DEBUG = true;
         TestSuite suite = new NbTestSuite();
-        suite.addTest(new JellyCommands("testWorkDir"));
+        suite.addTest(new JellyCommands("configure"));
         suite.addTest(new JellyCommands("testRelease"));
         suite.addTest(new JellyCommands("testStatusLogPrepare"));
         suite.addTest(new JellyCommands("testStatus"));
@@ -71,80 +61,61 @@ public class JellyCommands extends JellyStub {
         TestRunner.run(suite());
     }
     
-    static String serverDirectory;
-    static String clientDirectory;
-    static History history;
     static String username;
-    static MyNode root, initdir;
-    static MyNode statusDir1, statusDir2, statusFile1, statusFile2;
-    static MyNode imdir, imfile;
+    GenericNode initdir;
+    GenericNode statusDir1, statusDir2, statusFile1, statusFile2;
+    GenericNode imdir, imfile;
     
     protected void prepareServer(String dir) {
         new File(dir + "/initdir").mkdirs();
     }
     
-    public void testWorkDir() {
-        Configuration conf = super.configureWorkDir ();
-        
-        serverDirectory = conf.serverDirectory;
-        clientDirectory = conf.clientDirectory;
-        history = conf.history;
-        getLog ().println ("nRoot: " + conf.nRoot);
-        root = new MyNode (null, conf.nRoot.substring (4));
-        initdir = new MyNode (root, "initdir");
-        
-        statusDir1 = new MyNode (root, "StatusDir1");
-        statusDir2 = new MyNode (statusDir1, "StatusDir2");
-        statusFile1 = new MyNode (statusDir1, "File1");
-        statusFile2 = new MyNode (statusDir2, "File2");
+    public void createStructure() {
+        initdir = new GenericNode (root, "initdir");
+        statusDir1 = new GenericNode (root, "StatusDir1");
+        statusDir2 = new GenericNode (statusDir1, "StatusDir2");
+        statusFile1 = new GenericNode (statusDir1, "File1");
+        statusFile2 = new GenericNode (statusDir2, "File2");
 
-        imdir = new MyNode (root, "imdir");
-        imfile = new MyNode (imdir, "imfile");
+        imdir = new GenericNode (root, "imdir");
+        imfile = new GenericNode (imdir, "imfile");
     }
     
-    public void deleteRecursively (File file) {
-        File[] fs = file.listFiles();
-        if (fs == null)
-            return;
-        for (int a = 0; a < fs.length; a ++) {
-            File f = fs[a];
-            if (!f.exists())
-                continue;
-            if (!file.isFile())
-                deleteRecursively (fs[a]);
-            info.println ("Deleting: " + file + " Return: " + file.delete ());
-        }
+    public void configure () {
+        super.configure();
     }
-    
+
     public void testRelease () {
         String str, s;
-        MyNode releaseNode = new MyNode (root, "releasedirectory");
+        GenericNode releaseNode = new GenericNode (root, "releasedirectory");
         releaseNode.mkdirs ();
-        MyNode releaseFileNode1 = new MyNode (releaseNode, "releasefile1");
-        releaseFileNode1.saveToFile("Init1");
-        MyNode releaseFileNode2 = new MyNode (releaseNode, "releasefile2");
-        releaseFileNode2.saveToFile("Init2");
+        GenericNode releaseFileNode1 = new GenericNode (releaseNode, "releasefile1");
+        releaseFileNode1.save("Init1");
+        GenericNode releaseFileNode2 = new GenericNode (releaseNode, "releasefile2");
+        releaseFileNode2.save("Init2");
 
-        refresh (history, root);
-//        waitStatus ("Local", releaseNode.node ());
-        addDirectory (history, releaseNode);
+        refresh (root);
+//        releaseNode.waitStatus ("Local");
+        addDirectory (releaseNode);
         
-        refresh (history, releaseNode);
-        waitStatus ("Local", releaseFileNode1.node ());
-        addFile (history, releaseFileNode1, null);
-        commitFile (history, releaseFileNode1, null, null);
-        waitStatus ("Up-to-date; 1.1", releaseFileNode1.node ());
+        refresh (releaseNode);
+        releaseFileNode1.waitStatus ("Local");
+        addFile (releaseFileNode1, null);
+        commitFile (releaseFileNode1, null, null);
+        releaseFileNode1.waitStatus ("Up-to-date; 1.1");
         
-        releaseFileNode1.saveToFile("Mod1");
-        refresh (history, releaseNode);
-        waitStatus ("Locally Modified; 1.1", releaseFileNode1.node ());
-        waitStatus ("Local", releaseFileNode2.node ());
+        releaseFileNode1.save("Mod1");
+        refresh (releaseNode);
+        releaseFileNode1.waitStatus ("Locally Modified; 1.1");
+        releaseFileNode2.waitStatus ("Local");
 
-        releaseNode.cvsNode (exp).cVSRelease();
-        new NbDialogOperator ("Question").no ();
-        waitStatus (null, releaseNode.node ());
+        releaseNode.cvsNode ().cVSRelease();
+        assertQuestionNoDialog(null);
+        releaseNode.waitHistory ("Release");
+        refresh (root); // stabilization
+        releaseNode.waitStatus (null);
 
-        releaseNode.cvsNode (exp).cVSRelease();
+        releaseNode.cvsNode ().cVSRelease();
         NbDialogOperator dia = new NbDialogOperator ("Question");
         str = new JLabelOperator (dia, "M ").getText ();
         s = "M " + releaseFileNode1.name ();
@@ -175,23 +146,23 @@ public class JellyCommands extends JellyStub {
     public void testStatusLogPrepare () {
         statusDir1.mkdirs ();
         statusDir2.mkdirs ();
-        statusFile1.saveToFile("Init1");
-        statusFile2.saveToFile("Init2");
-        refresh(history, root);
-        addDirectory (history, statusDir1);
-        addDirectory (history, statusDir2);
-        addFile (history, statusFile1, "Init1");
-        addFile (history, statusFile2, "Init2");
-        commitFile (history, statusFile1, null, "HEAD1");
-        waitStatus ("Up-to-date; 1.1", statusFile1.node ());
-        commitFile (history, statusFile2, null, "HEAD2");
-        waitStatus ("Up-to-date; 1.1", statusFile2.node ());
-        addTagFile (history, statusFile1, "BranchTag1", true);
-        addTagFile (history, statusFile2, "BranchTag2", true);
-        statusFile1.saveToFile ("Mod1");
-        statusFile2.saveToFile("Mod2");
-        commitFile (history, statusFile1, "BranchTag1", "BranchCommit1");
-        commitFile (history, statusFile2, "BranchTag2", "BranchCommit2");
+        statusFile1.save("Init1");
+        statusFile2.save("Init2");
+        refresh(root);
+        addDirectory (statusDir1);
+        addDirectory (statusDir2);
+        addFile (statusFile1, "Init1");
+        addFile (statusFile2, "Init2");
+        commitFile (statusFile1, null, "HEAD1");
+        statusFile1.waitStatus ("Up-to-date; 1.1");
+        commitFile (statusFile2, null, "HEAD2");
+        statusFile2.waitStatus ("Up-to-date; 1.1");
+        addTagFile (statusFile1, "BranchTag1", true);
+        addTagFile (statusFile2, "BranchTag2", true);
+        statusFile1.save ("Mod1");
+        statusFile2.save ("Mod2");
+        commitFile (statusFile1, "BranchTag1", "BranchCommit1");
+        commitFile (statusFile2, "BranchTag2", "BranchCommit2");
     }
     
     public void testStatus () {
@@ -205,11 +176,11 @@ public class JellyCommands extends JellyStub {
         info.println ("File1 - Brief");
         out.println ("File1 - Brief");
         closeAllVCSOutputs();
-        statusFile1.cvsNode (exp).cVSStatus();
+        statusFile1.cvsNode ().cVSStatus();
         stat1 = new CVSStatusFileAdvDialog ();
         stat1.oK ();
         stat1.waitClosed ();
-        assertTrue("Status file command failed", history.waitCommand("Status", statusFile1.history ()));
+        statusFile1.waitHistory ("Status");
         coo = new VCSCommandsOutputOperator ("Status");
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput().getText ();
@@ -219,12 +190,12 @@ public class JellyCommands extends JellyStub {
         info.println ("File1 - Verbose");
         out.println ("File1 - Verbose");
         closeAllVCSOutputs();
-        statusFile1.cvsNode (exp).cVSStatus();
+        statusFile1.cvsNode ().cVSStatus();
         stat1 = new CVSStatusFileAdvDialog ();
         stat1.checkVerboseFormatTagInfo(true);
         stat1.oK ();
         stat1.waitClosed ();
-        assertTrue("Status file command failed", history.waitCommand("Status", statusFile1.history ()));
+        statusFile1.waitHistory ("Status");
         coo = new VCSCommandsOutputOperator ("Status");
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput().getText ();
@@ -234,13 +205,13 @@ public class JellyCommands extends JellyStub {
         info.println ("Dir1 - Recursive - Brief");
         out.println ("Dir1 - Recursive - Brief");
         closeAllVCSOutputs();
-        statusDir1.cvsNode (exp).cVSStatus();
+        statusDir1.cvsNode ().cVSStatus();
         stat2 = new CVSStatusFolderAdvDialog ();
         stat2.checkProcessDirectoriesRecursively(true);
         stat2.checkVerboseFormatTagInfo(false);
         stat2.oK ();
         stat2.waitClosed ();
-        assertTrue("Status file command failed", history.waitCommand("Status", statusDir1.history ()));
+        statusDir1.waitHistory ("Status");
         coo = new VCSCommandsOutputOperator ("Status");
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput().getText ();
@@ -250,13 +221,13 @@ public class JellyCommands extends JellyStub {
         info.println ("Dir1 - Recursive - Verbose");
         out.println ("Dir1 - Recursive - Verbose");
         closeAllVCSOutputs();
-        statusDir1.cvsNode (exp).cVSStatus();
+        statusDir1.cvsNode ().cVSStatus();
         stat2 = new CVSStatusFolderAdvDialog ();
         stat2.checkProcessDirectoriesRecursively(true);
         stat2.checkVerboseFormatTagInfo(true);
         stat2.oK ();
         stat2.waitClosed ();
-        assertTrue("Status file command failed", history.waitCommand("Status", statusDir1.history ()));
+        statusDir1.waitHistory ("Status");
         coo = new VCSCommandsOutputOperator ("Status");
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput().getText ();
@@ -266,13 +237,13 @@ public class JellyCommands extends JellyStub {
         info.println ("Dir1 - Brief");
         out.println ("Dir1 - Brief");
         closeAllVCSOutputs();
-        statusDir1.cvsNode (exp).cVSStatus();
+        statusDir1.cvsNode ().cVSStatus();
         stat2 = new CVSStatusFolderAdvDialog ();
         stat2.checkProcessDirectoriesRecursively(false);
         stat2.checkVerboseFormatTagInfo(false);
         stat2.oK ();
         stat2.waitClosed ();
-        assertTrue("Status file command failed", history.waitCommand("Status", statusDir1.history ()));
+        statusDir1.waitHistory ("Status");
         coo = new VCSCommandsOutputOperator ("Status");
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput().getText ();
@@ -282,13 +253,13 @@ public class JellyCommands extends JellyStub {
         info.println ("Dir1 - Verbose");
         out.println ("Dir1 - Verbose");
         closeAllVCSOutputs();
-        statusDir1.cvsNode (exp).cVSStatus();
+        statusDir1.cvsNode ().cVSStatus();
         stat2 = new CVSStatusFolderAdvDialog ();
         stat2.checkProcessDirectoriesRecursively(false);
         stat2.checkVerboseFormatTagInfo(true);
         stat2.oK ();
         stat2.waitClosed ();
-        assertTrue("Status file command failed", history.waitCommand("Status", statusDir1.history ()));
+        statusDir1.waitHistory ("Status");
         coo = new VCSCommandsOutputOperator ("Status");
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput().getText ();
@@ -307,11 +278,11 @@ public class JellyCommands extends JellyStub {
         filt.addFilterBetween("author: ", ";");
         closeAllVCSOutputs();
 
-        statusDir1.cvsNode (exp).cVSLog();
+        statusDir1.cvsNode ().cVSLog();
         CVSLogFolderAdvDialog log = new CVSLogFolderAdvDialog ();
         log.oK ();
         log.waitClosed ();
-        assertTrue("Log directory command failed", history.waitCommand("Log", statusDir1.history ()));
+        statusDir1.waitHistory ("Log");
         coo = new VCSCommandsOutputOperator ("Log");
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput().getText ();
@@ -326,11 +297,11 @@ public class JellyCommands extends JellyStub {
         String str;
         closeAllVCSOutputs();
 
-        root.cvsNode (exp).cVSHistory ();
+        root.cvsNode ().cVSHistory ();
         CVSHistoryAdvDialog hi = new CVSHistoryAdvDialog ();
         hi.ok ();
         hi.waitClosed();
-        assertTrue("History command failed", history.waitCommand("History", root.history ()));
+        root.waitHistory("History");
         coo = new VCSCommandsOutputOperator ("History");
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput ().getText ();
@@ -353,11 +324,6 @@ public class JellyCommands extends JellyStub {
         }
     }
 
-    static Color annoWhite = new Color (254, 254, 254);
-    static Color annoGreen = new Color (180, 255, 180);
-    static Color annoBlue = new Color (160, 200, 255);
-    static Color annoRed = new Color (255, 160, 180);
-    
     public void dumpTableColors (JTableOperator table) {
         for (int a = 0; a < table.getRowCount(); a ++) {
             Object o0 = table.getValueAt(a, 0);
@@ -396,26 +362,26 @@ public class JellyCommands extends JellyStub {
     
     public void testDefaultAnnotate () {
         closeAllVCSOutputs();
-        MyNode annofile = new MyNode (initdir, "annofile");
+        GenericNode annofile = new GenericNode (initdir, "annofile");
         if (!JellyStub.DEBUG) {
-            annofile.saveToFile ("Commit-1.1 - Line1\nCommit-1.1 - Line2\nCommit-1.1 - Line4\nCommit-1.1 - Line5\n");
-            refresh(history, initdir);
-            annofile.cvsNode (exp);
-            addFile (history, annofile, "InitialState");
-            commitFile (history, annofile, null, "Commit_1.1");
-            waitStatus ("Up-to-date; 1.1", annofile.node ());
-            annofile.saveToFile ("Commit-1.1 - Line1\nCommit-1.1 - Line2 - Modified-1.2\nCommit-1.2 - Line3 - Added-1.2\nCommit-1.1 - Line4\nCommit-1.1 - Line5 - Modified-1.2\n");
-            commitFile (history, annofile, null, "Commit_1.2");
-            waitStatus ("Up-to-date; 1.2", annofile.node ());
-            annofile.saveToFile ("Commit-1.3 - Line0 - Added-1.3\nCommit-1.1 - Line1\nCommit-1.1 - Line2 - Modified-1.2 - Modified-1.3\nCommit-1.2 - Line3 - Added-1.2\nCommit-1.1 - Line4\nCommit-1.1 - Line5 - Modified-1.2\n");
-            commitFile (history, annofile, null, "Commit_1.3");
-            waitStatus ("Up-to-date; 1.3", annofile.node ());
+            annofile.save ("Commit-1.1 - Line1\nCommit-1.1 - Line2\nCommit-1.1 - Line4\nCommit-1.1 - Line5\n");
+            refresh(initdir);
+            annofile.cvsNode ();
+            addFile (annofile, "InitialState");
+            commitFile (annofile, null, "Commit_1.1");
+            annofile.waitStatus ("Up-to-date; 1.1");
+            annofile.save ("Commit-1.1 - Line1\nCommit-1.1 - Line2 - Modified-1.2\nCommit-1.2 - Line3 - Added-1.2\nCommit-1.1 - Line4\nCommit-1.1 - Line5 - Modified-1.2\n");
+            commitFile (annofile, null, "Commit_1.2");
+            annofile.waitStatus ("Up-to-date; 1.2");
+            annofile.save ("Commit-1.3 - Line0 - Added-1.3\nCommit-1.1 - Line1\nCommit-1.1 - Line2 - Modified-1.2 - Modified-1.3\nCommit-1.2 - Line3 - Added-1.2\nCommit-1.1 - Line4\nCommit-1.1 - Line5 - Modified-1.2\n");
+            commitFile (annofile, null, "Commit_1.3");
+            annofile.waitStatus ("Up-to-date; 1.3");
         }
-        annofile.cvsNode (exp).cVSAnnotate();
+        annofile.cvsNode ().cVSAnnotate();
         CVSAnnotateAdvDialog anno = new CVSAnnotateAdvDialog ();
         anno.oK ();
         anno.waitClosed ();
-        assertTrue("Annotate command failed", history.waitCommand("Annotate", annofile.history ()));
+        annofile.waitHistory ("Annotate");
         AnnotateCommandOperator aco = new AnnotateCommandOperator (annofile.name ());
         
         dumpTable (aco.tabTableOfFileAnnotations ());
@@ -442,9 +408,9 @@ public class JellyCommands extends JellyStub {
         NbDialogOperator dia;
         String str, s;
         imdir.mkdirs ();
-        imfile.saveToFile("Init");
-        refresh(history, root);
-        imdir.cvsNode (exp).cVSImport();
+        imfile.save("Init");
+        refresh(root);
+        imdir.cvsNode ().cVSImport();
         CVSImportFolderAdvDialog imp = new CVSImportFolderAdvDialog ();
         imp.setLoggingMessage("LoggingMessage");
 /*        imp.oK ();
@@ -466,12 +432,12 @@ public class JellyCommands extends JellyStub {
         imp.oK ();
 
         imp.waitClosed ();
-        new NbDialogOperator ("Information").ok ();
-        assertTrue("Import command failed", history.waitCommand("Import", imdir.history ()));
-        refresh (history, root);
-        waitStatus (null, imdir.node ());
-        refresh (history, imdir);
-        waitStatus ("Up-to-date; 1.1.1.1", imfile.node ());
+        assertInformationDialog (null);
+        imdir.waitHistory ("Import");
+        refresh (root);
+        imdir.waitStatus (null);
+        refresh (imdir);
+        imfile.waitStatus ("Up-to-date; 1.1.1.1");
         
         VCSCommandsOutputOperator coo;
         Filter filt = new Filter ();
@@ -480,11 +446,11 @@ public class JellyCommands extends JellyStub {
         filt.addFilterBetween("author: ", ";");
         closeAllVCSOutputs();
 
-        imfile.cvsNode (exp).cVSLog();
+        imfile.cvsNode ().cVSLog();
         CVSLogFileAdvDialog log = new CVSLogFileAdvDialog ();
         log.oK ();
         log.waitClosed ();
-        assertTrue("Log file command failed", history.waitCommand("Log", imfile.history ()));
+        imfile.waitHistory ("Log");
         coo = new VCSCommandsOutputOperator ("Log");
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput().getText ();
@@ -495,42 +461,43 @@ public class JellyCommands extends JellyStub {
     }
     
     public void testDefaultExport () {
-        MyNode exported1 = new MyNode (root, "exported1");
-        MyNode exdir1 = new MyNode (exported1, "imdir");
-        MyNode exfile1 = new MyNode (exdir1, "imfile");
-        MyNode exported2 = new MyNode (root, "exported2");
-        MyNode exdir2 = new MyNode (exported2, "imdir");
-        MyNode exfile2 = new MyNode (exdir2, "imfile");
+        GenericNode exported1 = new GenericNode (root, "exported1");
+        GenericNode exdir1 = new GenericNode (exported1, "imdir");
+        GenericNode exfile1 = new GenericNode (exdir1, "imfile");
+        GenericNode exported2 = new GenericNode (root, "exported2");
+        GenericNode exdir2 = new GenericNode (exported2, "imdir");
+        GenericNode exfile2 = new GenericNode (exdir2, "imfile");
 
-        imdir.cvsNode (exp).cVSExport ();
+        imdir.cvsNode ().cVSExport ();
         CVSExportFolderAdvDialog exp1 = new CVSExportFolderAdvDialog ();
         exp1.setFolderToExportTo(exported1.file ());
         exp1.setRevisionOrTag("HEAD");
         exported1.mkdirs();
         exp1.oK ();
         exp1.waitClosed ();
-        assertTrue("Export folder command failed", history.waitCommand("Export", imdir.history ()));
-        refresh (history, root);
-        exported1.cvsNode (exp);
-        exdir1.cvsNode (exp);
-        exfile1.cvsNode (exp);
+        imdir.waitHistory ("Export");
+        refresh (root);
+        exported1.cvsNode ();
+        exdir1.cvsNode ();
+        exfile1.cvsNode ();
         
-        imfile.cvsNode (exp).cVSExport ();
+        imfile.cvsNode ().cVSExport ();
         CVSExportFileAdvDialog exp2 = new CVSExportFileAdvDialog ();
         exp2.setFolderToExportTo(exported2.file ());
         exp2.setRevisionOrTag("HEAD");
         exported2.mkdirs();
         exp2.oK ();
         exp2.waitClosed ();
-        assertTrue("Export file command failed", history.waitCommand("Export", imfile.history ()));
-        refresh (history, root);
-        exported2.cvsNode (exp);
-        exdir2.cvsNode (exp);
-        exfile2.cvsNode (exp);
+        imfile.waitHistory ("Export");
+        refresh (root);
+        exported2.cvsNode ();
+        exdir2.cvsNode ();
+        exfile2.cvsNode ();
     }
     
     public void testUnmount() {
         new FilesystemNode(exp.repositoryTab().tree(), root.node ()).unmount();
+        new Node (exp.repositoryTab().tree(), "").waitChildNotPresent(root.node ());
     }
 
 }

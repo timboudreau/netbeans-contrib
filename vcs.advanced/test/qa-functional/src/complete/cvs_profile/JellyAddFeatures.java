@@ -13,19 +13,17 @@
 
 package complete.cvs_profile;
 
-import complete.cvs_profile.JellyStub.Configuration;
+import complete.GenericStub.GenericNode;
 import java.io.*;
 import java.lang.reflect.Field;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.actions.DeleteAction;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSAddAction;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSCommitAction;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSRemoveAction;
-import org.netbeans.jellytools.modules.vcsgeneric.nodes.CVSFileNode;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.operators.JCheckBoxOperator;
@@ -37,11 +35,11 @@ import org.netbeans.modules.vcscore.runtime.VcsRuntimeCommand;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.CVSRemoveFileAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.CVSRemoveFolderAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
-import util.Helper;
 import util.History;
 
 
-public class JellyAddFeatures extends JellyStub {
+
+public class JellyAddFeatures extends CVSStub {
     
     public JellyAddFeatures(String testName) {
         super(testName);
@@ -49,7 +47,7 @@ public class JellyAddFeatures extends JellyStub {
     
     public static Test suite() {
         TestSuite suite = new NbTestSuite();
-        suite.addTest(new JellyAddFeatures("testWorkDir"));
+        suite.addTest(new JellyAddFeatures("configure"));
         suite.addTest(new JellyAddFeatures("testAddCommit"));
 //        suite.addTest(new JellyAddFeatures("testForceCommit")); // fails due to bug #27997
         suite.addTest(new JellyAddFeatures("testRemoveCommit"));
@@ -69,18 +67,8 @@ public class JellyAddFeatures extends JellyStub {
         TestRunner.run(suite());
     }
     
-    static String serverDirectory;
-    static String clientDirectory;
-    static History history;
-    static String nRoot;
-    static String tInitDir = "initdir", hInitDir = tInitDir, fInitDir, nInitDir;
-    static String tSubInitDir = "subdir", hSubInitDir = tInitDir + "/" + tSubInitDir, fSubInitDir, nSubInitDir;
-    static String tText1 = "text1", hText1 = hInitDir + "/" + tText1, fText1, nText1;
-    static String tText2 = "text2", hText2 = hInitDir + "/" + tText2, fText2, nText2;
-    static String tText3 = "text3", hText3 = hSubInitDir + "/" + tText3, fText3, nText3;
-    static String tText4 = "text4", hText4 = hInitDir + "/" + tText4, fText4, nText4;
-    static String tText5 = "text5", hText5 = hInitDir + "/" + tText5, fText5, nText5;
-    static String tText6 = "text6", hText6 = hInitDir + "/" + tText6, fText6, nText6;
+    static String tInitDir = "initdir";
+    GenericNode InitDir, SubInitDir, Text1, Text2, Text3, Text4, Text5, Text6;
     
     static boolean text1InDefaultGroup = false;
 
@@ -88,60 +76,38 @@ public class JellyAddFeatures extends JellyStub {
         new File(dir + "/" + tInitDir).mkdirs();
     }
     
-    public void testWorkDir() {
-        Configuration conf = super.configureWorkDir ();
-        
-        nRoot = conf.nRoot;
-        serverDirectory = conf.serverDirectory;
-        clientDirectory = conf.clientDirectory;
-        history = conf.history;
-        
-        fInitDir = clientDirectory + "/" + tInitDir;
-        nInitDir = nRoot + "|" + tInitDir;
-        
-        fSubInitDir = fInitDir + "/" + tSubInitDir;
-        nSubInitDir = nInitDir + "|" + tSubInitDir;
-        
-        fText1 = fInitDir + "/" + tText1;
-        nText1 = nInitDir + "|" + tText1;
-        
-        fText2 = fInitDir + "/" + tText2;
-        nText2 = nInitDir + "|" + tText2;
-
-        fText3 = fSubInitDir + "/" + tText3;
-        nText3 = nSubInitDir + "|" + tText3;
-
-        fText4 = fInitDir + "/" + tText4;
-        nText4 = nInitDir + "|" + tText4;
-
-        fText5 = fInitDir + "/" + tText5;
-        nText5 = nInitDir + "|" + tText5;
-
-        fText6 = fInitDir + "/" + tText6;
-        nText6 = nInitDir + "|" + tText6;
+    public void createStructure () {
+        InitDir = new GenericNode (root, tInitDir);
+        SubInitDir = new GenericNode (InitDir, "subdir");
+        Text1 = new GenericNode (InitDir, "text1");
+        Text2 = new GenericNode (InitDir, "text2");
+        Text3 = new GenericNode (SubInitDir, "text3");
+        Text4 = new GenericNode (InitDir, "text4");
+        Text5 = new GenericNode (InitDir, "text5");
+        Text6 = new GenericNode (InitDir, "text6");
     }
     
-    public void testAddCommit () {
-        try {
-            new File(fText1).createNewFile();
-            new File(fText2).createNewFile();
-            new File(fSubInitDir).mkdirs();
-            new File(fText3).createNewFile();
-            new File(fText6).createNewFile();
-        } catch (IOException e) {
-            throw new AssertionFailedErrorException("IOException while setting test case up", e);
-        }
+    public void configure () {
+        super.configure();
+    }
 
-        new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
-        assertTrue("Refresh recursively folder command failed", history.waitCommand("Refresh Recursively", hRoot));
-        new CVSFileNode(exp.repositoryTab().tree(), nText1);
-        new CVSFileNode(exp.repositoryTab().tree(), nText2);
-        new CVSFileNode(exp.repositoryTab().tree(), nText6);
+    public void testAddCommit () {
+        Text1.save ("");
+        Text2.save ("");
+        SubInitDir.mkdirs ();
+        Text3.save ("");
+        Text6.save ("");
+
+        root.cvsNode ().cVSRefreshRecursively();
+        root.waitHistory ("Refresh Recursively");
+        Text1.cvsNode ();
+        Text2.cvsNode ();
+        Text6.cvsNode ();
 
         new CVSAddAction ().perform (new Node[] {
-            new CVSFileNode(exp.repositoryTab().tree(), nText1),
-            new CVSFileNode(exp.repositoryTab().tree(), nText2),
-            new CVSFileNode(exp.repositoryTab().tree(), nText6),
+            Text1.cvsNode (),
+            Text2.cvsNode (),
+            Text6.cvsNode (),
         });
         CVSAddFileAdvDialog add = new CVSAddFileAdvDialog();
         add.setFileDescription("Initial state");
@@ -153,13 +119,13 @@ public class JellyAddFeatures extends JellyStub {
         com.txtEnterReason().typeText("Initial commit of text1 and text2");
         com.oK();
         com.waitClosed();
-        assertTrue("Add files command failed", history.waitCommand("Add", hText1 + '\n' + hText2 + '\n' + hText6));
-        assertTrue("Commit files command failed", history.waitCommand("Commit", hText1 + '\n' + hText2 + '\n' + hText6));
-        waitStatus("Up-to-date; 1.1", nText1, true);
-        waitStatus("Up-to-date; 1.1", nText2, true);
-        waitStatus("Up-to-date; 1.1", nText6, true);
+        waitCommand("Add", new GenericNode[] { Text1, Text2, Text6 });
+        waitCommand("Commit", new GenericNode[] { Text1, Text2, Text6 });
+        Text1.waitStatus ("Up-to-date; 1.1");
+        Text2.waitStatus ("Up-to-date; 1.1");
+        Text6.waitStatus ("Up-to-date; 1.1");
 
-        new CVSFileNode(exp.repositoryTab().tree(), nSubInitDir).cVSAdd();
+        SubInitDir.cvsNode ().cVSAdd();
         CVSAddFolderAdvDialog addfo = new CVSAddFolderAdvDialog();
         addfo.addAllLocalFilesInFolderContents();
         addfo.setFileDescription("Initial state");
@@ -172,20 +138,20 @@ public class JellyAddFeatures extends JellyStub {
         comfo.txtEnterReason().typeText("Initial commit");
         comfo.oK();
         comfo.waitClosed();
-        assertTrue("Add files command failed", history.waitCommand("Add", hSubInitDir));
-        assertTrue("Commit files command failed", history.waitCommand("Commit", hSubInitDir));
-        waitStatus(null, nSubInitDir, false);
-        waitStatus("Up-to-date; 1.1", nText3, true);
+        SubInitDir.waitHistory ("Add");
+        SubInitDir.waitHistory ("Commit");
+        SubInitDir.waitStatus (null);
+        Text3.waitStatus("Up-to-date; 1.1");
     }
     
     public void testForceCommit () {
-        waitStatus("Up-to-date; 1.1", nText1, true);
-        waitStatus("Up-to-date; 1.1", nText2, true);
-        waitStatus("Up-to-date; 1.1", nText3, true);
+        Text1.waitStatus("Up-to-date; 1.1");
+        Text2.waitStatus("Up-to-date; 1.1");
+        Text3.waitStatus("Up-to-date; 1.1");
         new CVSCommitAction ().perform (new Node[] {
-            new CVSFileNode(exp.repositoryTab().tree(), nText1),
-            new CVSFileNode(exp.repositoryTab().tree(), nText2),
-            new CVSFileNode(exp.repositoryTab().tree(), nText3),
+            Text1.cvsNode (),
+            Text2.cvsNode (),
+            Text3.cvsNode (),
         });
         CVSCommitFileAdvDialog com;
         com = new CVSCommitFileAdvDialog();
@@ -202,25 +168,25 @@ public class JellyAddFeatures extends JellyStub {
         com.txtEnterReason().typeText("Force commit of text2 and test3");
         com.oK();
         com.waitClosed();
-        assertTrue("Force commit files command failed", history.waitCommand("Remove", hText1 + '\n' + hText2 + '\n' + hText3));
-        waitStatus("Up-to-date; 1.2", nText1, true);
-        waitStatus("Up-to-date; 1.2", nText2, true);
-        waitStatus("Up-to-date; 1.2", nText3, true);
+        waitCommand("Remove", new GenericNode [] { Text1, Text2, Text3 });
+        Text1.waitStatus("Up-to-date; 1.2");
+        Text2.waitStatus("Up-to-date; 1.2");
+        Text3.waitStatus("Up-to-date; 1.2");
     }
 
     public void testRemoveCommit () {
         new CVSRemoveAction ().perform (new Node[] {
-            new CVSFileNode(exp.repositoryTab().tree(), nText1),
-            new CVSFileNode(exp.repositoryTab().tree(), nText2),
+            Text1.cvsNode (),
+            Text2.cvsNode (),
         });
         CVSRemoveDialog rd = new CVSRemoveDialog ();
         rd.no();
         rd.waitClosed();
-        waitStatus("Up-to-date", nText1, false);
-        waitStatus("Up-to-date", nText2, false);
+        Text1.waitStatus("Up-to-date", false);
+        Text2.waitStatus("Up-to-date", false);
         new CVSRemoveAction ().perform (new Node[] {
-            new CVSFileNode(exp.repositoryTab().tree(), nText1),
-            new CVSFileNode(exp.repositoryTab().tree(), nText2),
+            Text1.cvsNode (),
+            Text2.cvsNode (),
         });
         rd = new CVSRemoveDialog ();
         rd.yes();
@@ -234,18 +200,18 @@ public class JellyAddFeatures extends JellyStub {
         com.txtEnterReason().typeText("Initial commit");
         com.oK();
         com.waitClosed();
-        assertTrue("Remove file command failed", history.waitCommand("Remove", hText1 + '\n' + hText2));
-        assertTrue("Commit file command failed", history.waitCommand("Commit", hText1 + '\n' + hText2));
-        Helper.waitNoNode (exp.repositoryTab ().tree (), nInitDir, tText1);
-        Helper.waitNoNode (exp.repositoryTab ().tree (), nInitDir, tText2);
+        waitCommand ("Remove", new GenericNode [] { Text1, Text2 } );
+        waitCommand ("Commit", new GenericNode [] { Text1, Text2 } );
+        InitDir.cvsNode ().waitChildNotPresent(Text1.name ());
+        InitDir.cvsNode ().waitChildNotPresent(Text2.name ());
 
-        new CVSFileNode(exp.repositoryTab().tree(), nSubInitDir).cVSRemove();
+        SubInitDir.cvsNode ().cVSRemove();
         rd = new CVSRemoveDialog ();
         rd.no();
         rd.waitClosed();
-        waitStatus(null, nSubInitDir, false);
-        waitStatus("Up-to-date", nText3, false);
-        new CVSFileNode(exp.repositoryTab().tree(), nSubInitDir).cVSRemove();
+        SubInitDir.waitStatus(null);
+        Text3.waitStatus("Up-to-date", false);
+        SubInitDir.cvsNode ().cVSRemove();
         rd = new CVSRemoveDialog ();
         rd.yes();
         rd.waitClosed();
@@ -259,18 +225,14 @@ public class JellyAddFeatures extends JellyStub {
         com2.txtEnterReason().typeText("Initial commit");
         com2.oK();
         com2.waitClosed();
-        assertTrue("Remove file command failed", history.waitCommand("Remove", hSubInitDir));
-        assertTrue("Commit file command failed", history.waitCommand("Commit", hSubInitDir));
-        Helper.waitNoNode (exp.repositoryTab ().tree (), nSubInitDir, tText3);
+        SubInitDir.waitHistory("Remove");
+        SubInitDir.waitHistory("Commit");
+        SubInitDir.cvsNode ().waitChildNotPresent(Text3.name ());
     }
 
     public void testRunProgram () {
-        try {
-            new File(fText4).createNewFile();
-            new File(fText5).createNewFile();
-        } catch (IOException e) {
-            throw new AssertionFailedErrorException("IOException while setting test case up", e);
-        }
+        Text4.save ("");
+        Text5.save ("");
         
         Field f;
         try {
@@ -282,11 +244,11 @@ public class JellyAddFeatures extends JellyStub {
             throw new AssertionFailedErrorException("SecurityException while setting test case up", e);
         }
 
-        new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
-        assertTrue("Refresh recursively folder command failed", history.waitCommand("Refresh Recursively", hRoot));
-        new CVSFileNode(exp.repositoryTab().tree(), nText4);
-
-        new CVSFileNode(exp.repositoryTab().tree(), nText4).cVSAdd ();
+        root.cvsNode ().cVSRefreshRecursively();
+        root.waitHistory("Refresh Recursively");
+        Text4.cvsNode ();
+        
+        Text4.cvsNode ().cVSAdd ();
         CVSAddFileAdvDialog add = new CVSAddFileAdvDialog();
         add.setFileDescription("Initial state");
         add.checkProceedWithCommitIfAddSucceeds(true);
@@ -298,10 +260,10 @@ public class JellyAddFeatures extends JellyStub {
         com.checkRunTheModuleProgramIfAny(false);
         com.oK();
         com.waitClosed();
-        assertTrue("Add file command failed", history.waitCommand("Add", hText4));
-        assertTrue("Commit file command failed", history.waitCommand("Commit", hText4));
-        waitStatus("Up-to-date; 1.1", nText4, true);
-        VcsRuntimeCommand rc = (VcsRuntimeCommand) history.getWaitCommand("COMMIT_CMD", hText4);
+        Text4.waitHistory ("Add");
+        Text4.waitHistory ("Commit");
+        Text4.waitStatus("Up-to-date; 1.1");
+        VcsRuntimeCommand rc = (VcsRuntimeCommand) history.getWaitCommand("Commit Command", Text4.history ());
         VcsCommandExecutor ce;
         try {
             ce = (VcsCommandExecutor) f.get(rc);
@@ -310,7 +272,7 @@ public class JellyAddFeatures extends JellyStub {
         }
         assertTrue ("Execution String does not contain No-Run argument", ce.getExec ().indexOf ("-n") >= 0);
         
-        new CVSFileNode(exp.repositoryTab().tree(), nText5).cVSAdd ();
+        Text5.cvsNode ().cVSAdd ();
         add = new CVSAddFileAdvDialog();
         add.setFileDescription("Initial state");
         add.checkProceedWithCommitIfAddSucceeds(true);
@@ -323,10 +285,10 @@ public class JellyAddFeatures extends JellyStub {
         com.checkRunTheModuleProgramIfAny(true);
         com.oK();
         com.waitClosed();
-        assertTrue("Add file command failed", history.waitCommand("Add", hText5));
-        assertTrue("Commit file command failed", history.waitCommand("Commit", hText5));
-        waitStatus("Up-to-date; 1.1", nText5, true);
-        rc = (VcsRuntimeCommand) history.getWaitCommand("COMMIT_CMD", hText5);
+        Text5.waitHistory ("Add");
+        Text5.waitHistory ("Commit");
+        Text5.waitStatus("Up-to-date; 1.1");
+        rc = (VcsRuntimeCommand) history.getWaitCommand("Commit Command", Text5.history ());
         try {
             ce = (VcsCommandExecutor) f.get(rc);
         } catch (IllegalAccessException e) {
@@ -336,16 +298,16 @@ public class JellyAddFeatures extends JellyStub {
     }
     
     public void testToStandardOutput () {
-        waitStatus("Up-to-date; 1.1", nText4, true);
-        new CVSFileNode(exp.repositoryTab().tree(), nText4).cVSUpdate ();
+        Text4.waitStatus("Up-to-date; 1.1");
+        Text4.cvsNode ().cVSUpdate ();
         CVSUpdateFileAdvDialog up = new CVSUpdateFileAdvDialog ();
         up.checkSendUpdatesToStandardOutput(true);
         up.oK();
         up.waitClosed ();
-        assertTrue("Update file command failed", history.waitCommand("Update", hText4));
+        Text4.waitHistory("Update");
         
         closeAllVCSOutputs();
-        JellyStub.viewOutput(history, "UPDATE_CMD", hText4);
+        viewOutput("UPDATE_CMD", Text4);
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("UPDATE_CMD");
         String str = coo.txtStandardError().getText ();
         getLog ().println ("Standard Error:");
@@ -358,49 +320,49 @@ public class JellyAddFeatures extends JellyStub {
     
     public void testQuiet () {
         String str;
-        waitStatus("Up-to-date; 1.1", nText4, true);
-        new CVSFileNode(exp.repositoryTab().tree(), nText4).cVSStatus ();
+        Text4.waitStatus("Up-to-date; 1.1");
+        Text4.cvsNode ().cVSStatus ();
         CVSStatusFileAdvDialog stat = new CVSStatusFileAdvDialog ();
         stat.setQuietness(CVSStatusFileAdvDialog.ITEM_BESOMEWHATQUIET);
         stat.oK();
         stat.waitClosed();
-        RuntimeCommand rc = history.getWaitCommand("Status", hText4);
+        RuntimeCommand rc = history.getWaitCommand("Status", Text4.history ());
         assertTrue("Status file command failed", History.resultCommand (rc));
         
         closeAllVCSOutputs();
-        JellyStub.viewOutput(rc);
+        viewOutput(rc);
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Status");
         assertTrue ("Execution string does not contain -q", coo.txtExecutionString().getText ().indexOf ("-q") >= 0);
         closeAllVCSOutputs();
         
-        waitStatus("Up-to-date; 1.1", nText4, true);
-        new CVSFileNode(exp.repositoryTab().tree(), nText4).cVSStatus ();
+        Text4.waitStatus("Up-to-date; 1.1");
+        Text4.cvsNode ().cVSStatus ();
         stat = new CVSStatusFileAdvDialog ();
         stat.setQuietness(CVSStatusFileAdvDialog.ITEM_BEREALLYQUIET);
         stat.oK();
         stat.waitClosed();
-        rc = history.getWaitCommand("Status", hText4);
+        rc = history.getWaitCommand("Status", Text4.history ());
         assertTrue("Status file command failed", History.resultCommand (rc));
         
         closeAllVCSOutputs();
-        JellyStub.viewOutput(rc);
+        viewOutput(rc);
         coo = new VCSCommandsOutputOperator ("Status");
         assertTrue ("Execution string does not contain -Q", coo.txtExecutionString().getText ().indexOf ("-Q") >= 0);
         closeAllVCSOutputs();
         
-        waitStatus("Up-to-date; 1.1", nText5, true);
-        new DeleteAction ().perform (new CVSFileNode(exp.repositoryTab().tree(), nText5));
-        new NbDialogOperator ("Confirm Object Deletion").yes ();
-        waitStatus("Needs Update", nText5, false); // sometimes fails due to bug #28399
-        new CVSFileNode(exp.repositoryTab().tree(), nText5).cVSUpdate ();
+        Text5.waitStatus("Up-to-date; 1.1");
+        new DeleteAction ().perform (Text5.cvsNode ());
+        assertConfirmObjectDeletionYes (null);
+        Text5.waitStatus("Needs Update", false); // sometimes fails due to bug #28399
+        Text5.cvsNode ().cVSUpdate ();
         CVSUpdateFileAdvDialog up = new CVSUpdateFileAdvDialog ();
         up.setQuietness(CVSUpdateFileAdvDialog.ITEM_BEREALLYQUIET);
         up.oK();
         up.waitClosed();
-        assertTrue("Update file command failed", history.waitCommand("Update", hText5));
+        Text5.waitHistory ("Update");
         
         closeAllVCSOutputs();
-        JellyStub.viewOutput(history, "UPDATE_CMD", hText5);
+        viewOutput("UPDATE_CMD", Text5);
         coo = new VCSCommandsOutputOperator ("UPDATE_CMD");
         System.out.println(coo.tabbedPane().getTitleAt(0));
         System.out.println(coo.tabbedPane().isEnabledAt(0));
@@ -409,8 +371,8 @@ public class JellyAddFeatures extends JellyStub {
     }
     
     public void testRemovePreview () {
-        waitStatus("Up-to-date; 1.1", nText5, true);
-        new CVSFileNode(exp.repositoryTab().tree(), nText5).cVSRemove ();
+        Text5.waitStatus("Up-to-date; 1.1");
+        Text5.cvsNode ().cVSRemove ();
         CVSRemoveDialog rem = new CVSRemoveDialog ();
         rem.yes ();
         rem.waitClosed();
@@ -418,13 +380,13 @@ public class JellyAddFeatures extends JellyStub {
         rr.checkDoNotMakeChangesPreview(true);
         rr.oK ();
         rr.waitClosed ();
-        assertTrue("Remove file command failed", history.waitCommand("Remove", hText5));
-        waitStatus("Up-to-date; 1.1", nText5, true);
+        Text5.waitHistory ("Remove");
+        Text5.waitStatus("Up-to-date; 1.1");
     }
     
     public void testRemoveDebug () {
-        waitStatus("Up-to-date; 1.1", nText5, true);
-        new CVSFileNode(exp.repositoryTab().tree(), nText5).cVSRemove ();
+        Text5.waitStatus("Up-to-date; 1.1");
+        Text5.cvsNode ().cVSRemove ();
         CVSRemoveDialog rem = new CVSRemoveDialog ();
         rem.yes ();
         rem.waitClosed();
@@ -433,12 +395,12 @@ public class JellyAddFeatures extends JellyStub {
         rr.checkShowTraceOfCommandExecution(true);
         rr.oK ();
         rr.waitClosed ();
-        RuntimeCommand rc = history.getWaitCommand("Remove", hText5);
+        RuntimeCommand rc = history.getWaitCommand("Remove", Text5.history ());
         assertTrue("Remove file command failed", History.resultCommand(rc));
-        waitStatus("Up-to-date; 1.1", nText5, true);
+        Text5.waitStatus("Up-to-date; 1.1");
         
         closeAllVCSOutputs ();
-        JellyStub.viewOutput(rc);
+        viewOutput(rc);
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Remove");
         assertTrue ("Execution string does not contain -t", coo.txtExecutionString().getText ().indexOf ("-t") >= 0);
         /*String str = coo.txtStandardOutput().getText ();
@@ -450,33 +412,30 @@ public class JellyAddFeatures extends JellyStub {
     }
     
     public void testNoHistory () {
-        try {
-            JellyStub.saveToFile (fText5, "T5-1");
-        } catch (IOException e) {
-            throw new AssertionFailedErrorException("IOException while setting test case up", e);
-        }
-        new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
-        assertTrue("Refresh recursively folder command failed", history.waitCommand("Refresh Recursively", hRoot));
-        waitStatus("Locally Modified; 1.1", nText5, true);
+        Text5.save ("T5-1");
+        
+        root.cvsNode ().cVSRefreshRecursively();
+        root.waitHistory ("Refresh Recursively");
+        Text5.waitStatus("Locally Modified; 1.1");
 
-        new CVSFileNode (exp.repositoryTab ().tree (), nText5).cVSCommit ();
+        Text5.cvsNode ().cVSCommit ();
         CVSCommitFileAdvDialog com = new CVSCommitFileAdvDialog();
         com.txtEnterReason().setCaretPosition(0);
         com.txtEnterReason().typeText("Next commit of text5");
         com.checkDisableHistoryLogging(true);
         com.oK();
         com.waitClosed();
-        assertTrue("Commit file command failed", history.waitCommand("Commit", hText5));
-        waitStatus("Up-to-date; 1.2", nText5, true);
+        Text5.waitHistory("Commit");
+        Text5.waitStatus("Up-to-date; 1.2");
         
         BufferedReader br = null;
         try {
-            br = new BufferedReader (new FileReader (serverDirectory + "/CVSROOT/history"));
+            br = new BufferedReader (new FileReader (root.file () + "/../server/CVSROOT/history"));
             for (;;) {
                 String str = br.readLine ();
                 if (str == null)
                     break;
-                assertTrue ("History contains information about commiting version 1.2 of text5 file", str.indexOf ("1.2") < 0  ||  str.indexOf (tText5) < 0);
+                assertTrue ("History contains information about commiting version 1.2 of text5 file", str.indexOf ("1.2") < 0  ||  str.indexOf (Text5.name ()) < 0);
             }
         } catch (FileNotFoundException e) {
             throw new AssertionFailedErrorException("FileNotFoundException while setting test case up", e);
@@ -488,17 +447,17 @@ public class JellyAddFeatures extends JellyStub {
     }
     
     public void testReadOnly () {
-        new DeleteAction ().perform (new CVSFileNode (exp.repositoryTab ().tree (), nText4));
-        new NbDialogOperator ("Confirm Object Deletion").yes ();
-        waitStatus("Needs Update; 1.1", nText4, true);
-        new CVSFileNode (exp.repositoryTab ().tree (), nText4).cVSUpdate ();
+        new DeleteAction ().perform (Text4.cvsNode ());
+        assertConfirmObjectDeletionYes (null);
+        Text4.waitStatus("Needs Update; 1.1");
+        Text4.cvsNode ().cVSUpdate ();
         CVSUpdateFolderAdvDialog up = new CVSUpdateFolderAdvDialog ();
         up.checkCheckOutFilesAsReadOnly(true);
         up.oK ();
         up.waitClosed ();
-        assertTrue("Update file command failed", history.waitCommand("Update", hText4));
-        waitStatus("Up-to-date; 1.1", nText4, true);
-        assertTrue ("File is not read-only", !new File (fText4).canWrite ());
+        Text4.waitHistory ("Update");
+        Text4.waitStatus("Up-to-date; 1.1");
+        assertTrue ("File is not read-only", !new File (Text4.file ()).canWrite ());
     }
     
     public void testCompressionLevel () {
@@ -514,24 +473,20 @@ public class JellyAddFeatures extends JellyStub {
         }
 
         for (int a = 1; a <= 9; a ++) {
-            waitStatus("Up-to-date; 1." + a, nText6, true);
-            try {
-                JellyStub.saveToFile (fText6, "T6-" + a);
-            } catch (IOException e) {
-                throw new AssertionFailedErrorException("IOException while setting test case up", e);
-            }
-            new CVSFileNode(exp.repositoryTab().tree(), nText6).cVSRefresh ();
-            assertTrue("Refresh file command failed: Level: " + a, history.waitCommand("Refresh", hText6));
+            Text6.waitStatus("Up-to-date; 1." + a);
+            Text6.save ("T6-" + a);
+            Text6.cvsNode ().cVSRefresh ();
+            Text6.waitHistory ("Refresh");
             
-            new CVSFileNode(exp.repositoryTab().tree(), nText6).cVSCommit ();
+            Text6.cvsNode ().cVSCommit ();
             CVSCommitFileAdvDialog com = new CVSCommitFileAdvDialog ();
             com.setCompressionLevel("" + a);
             com.oK ();
             com.waitClosed();
-            assertTrue("Commit file command failed: Level: " + a, history.waitCommand("Commit", hText6));
-            waitStatus("Up-to-date; 1." + (a + 1), nText6, true);
+            Text6.waitHistory ("Commit");
+            Text6.waitStatus("Up-to-date; 1." + (a + 1));
 
-            VcsRuntimeCommand rc = (VcsRuntimeCommand) history.getWaitCommand("COMMIT_CMD", hText6);
+            VcsRuntimeCommand rc = (VcsRuntimeCommand) history.getWaitCommand("Commit Command", Text6.history ());
             VcsCommandExecutor ce;
             try {
                 ce = (VcsCommandExecutor) f.get(rc);
@@ -543,7 +498,8 @@ public class JellyAddFeatures extends JellyStub {
     }
     
     public void testUnmount() {
-        new FilesystemNode(exp.repositoryTab().tree(), nRoot).unmount();
+        new FilesystemNode(exp.repositoryTab().tree(), root.node ()).unmount();
+        new Node (exp.repositoryTab().tree(), "").waitChildNotPresent(root.node ());
     }
 
 }

@@ -13,13 +13,8 @@
 
 package complete.cvs_profile;
 
-import complete.cvs_profile.JellyStub.Configuration;
-import complete.cvs_profile.JellyStub.MyNode;
-import java.awt.Color;
+import complete.GenericStub.GenericNode;
 import java.util.StringTokenizer;
-import javax.swing.text.Style;
-import javax.swing.text.StyledDocument;
-import javax.swing.text.StyleConstants.ColorConstants;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
@@ -27,24 +22,22 @@ import org.netbeans.jellytools.EditorWindowOperator;
 import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.nodes.FilesystemNode;
-import org.netbeans.jemmy.operators.JComboBoxOperator;
-import org.netbeans.jemmy.operators.JEditorPaneOperator;
+import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
 import util.Filter;
-import util.History;
 
 
-public class JellyAddCommands extends JellyStub {
+public class JellyAddCommands extends CVSStub {
     
     public JellyAddCommands(String testName) {
         super(testName);
     }
     
     public static Test suite() {
-//        JellyStub.DEBUG = true;
+//        complete.GenericStub.DEBUG = true;
         TestSuite suite = new NbTestSuite();
-        suite.addTest(new JellyAddCommands("testWorkDir"));
+        suite.addTest(new JellyAddCommands("configure"));
         suite.addTest(new JellyAddCommands("testEdit"));
         suite.addTest(new JellyAddCommands("testEditors"));
         suite.addTest(new JellyAddCommands("testUndoEdit"));
@@ -66,65 +59,54 @@ public class JellyAddCommands extends JellyStub {
         TestRunner.run(suite());
     }
     
-    static String serverDirectory;
-    static String clientDirectory;
-    static History history;
     static String username;
-    static MyNode root;
-    static MyNode editdir, editfile;
-    static MyNode lockdir, lockfile;
-    static MyNode diffdir, difffile;
+    GenericNode editdir, editfile;
+    GenericNode lockdir, lockfile;
+    GenericNode diffdir, difffile;
    
-    protected void prepareServer(String dir) {
-    }
-    
-    public void testWorkDir() {
-        Configuration conf = super.configureWorkDir ();
-        
-        serverDirectory = conf.serverDirectory;
-        clientDirectory = conf.clientDirectory;
-        history = conf.history;
-        getLog ().println ("nRoot: " + conf.nRoot);
-        root = new MyNode (null, conf.nRoot.substring (4));
-        
-        editdir = new MyNode (root, "editdir");
-        editfile = new MyNode (editdir, "editfile");
+    protected void createStructure() {
+        editdir = new GenericNode (root, "editdir");
+        editfile = new GenericNode (editdir, "editfile");
 
-        lockdir = new MyNode (root, "lockdir");
-        lockfile = new MyNode (lockdir, "lockfile");
+        lockdir = new GenericNode (root, "lockdir");
+        lockfile = new GenericNode (lockdir, "lockfile");
         
-        diffdir = new MyNode (root, "diffdir");
-        difffile = new MyNode (diffdir, "difffile");
+        diffdir = new GenericNode (root, "diffdir");
+        difffile = new GenericNode (diffdir, "difffile");
     }
     
+    public void configure () {
+        super.configure();
+    }
+
     public void testEdit () {
         editdir.mkdirs ();
-        editfile.saveToFile("Init");
+        editfile.save("Init");
         
-        refresh (history, root);
-        addDirectory (history, editdir);
-        addFile (history, editfile, "InitialState");
-        commitFile (history, editfile, null, "InitialCommit");
-        waitStatus ("Up-to-date; 1.1", editfile.node ());
-        editdir.cvsNode (exp).cVSEditingEdit();
+        refresh (root);
+        addDirectory (editdir);
+        addFile (editfile, "InitialState");
+        commitFile (editfile, null, "InitialCommit");
+        editfile.waitStatus("Up-to-date; 1.1");
+        editdir.cvsNode ().cVSEditingEdit();
         CVSEditFolderAdvDialog edit = new CVSEditFolderAdvDialog ();
         edit.checkProcessDirectoriesRecursively(true);
         edit.checkSpecifyActionsForTemporaryWatch(true);
         edit.setTemporaryWatch(CVSEditFolderAdvDialog.ITEM_ALL);
         edit.oK ();
         edit.waitClosed ();
-        assertTrue("Edit directory command failed", history.waitCommand("Edit", editdir.history ()));
+        editdir.waitHistory("Edit");
         assertInformationDialog ("The file \"" + editdir.name () + "\" is prepared to edit.");
     }
     
     public void testEditors () {
         closeAllVCSOutputs();
-        editdir.cvsNode (exp).cVSEditingEditors();
+        editdir.cvsNode ().cVSEditingEditors();
         CVSEditorsFolderAdvDialog ed = new CVSEditorsFolderAdvDialog ();
         ed.checkProcessDirectoriesRecursively(true);
         ed.oK();
         ed.waitClosed ();
-        assertTrue("Editors command failed", history.waitCommand("Editors", editdir.history ()));
+        editdir.waitHistory ("Editors");
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Editors");
         waitNoEmpty (coo.txtStandardOutput ());
         String str = coo.txtStandardOutput().getText ();
@@ -133,50 +115,49 @@ public class JellyAddCommands extends JellyStub {
     }
     
     public void testUndoEdit () {
-        editfile.saveToFile ("Modification");
-        refresh (history, editdir);
-        waitStatus ("Locally Modified; 1.1", editfile.node ());
-        editdir.cvsNode(exp).cVSEditingUndoEdit();
+        editfile.save ("Modification");
+        refresh (editdir);
+        editfile.waitStatus ("Locally Modified; 1.1");
+        editdir.cvsNode().cVSEditingUndoEdit();
         CVSUndoEditFolderAdvDialog undo = new CVSUndoEditFolderAdvDialog ();
         undo.checkProcessDirectoriesRecursively(true);
         undo.oK ();
         undo.waitClosed ();
         assertQuestionYesDialog ("Are you sure you want to revert the changes in these files: \"" + editfile.history () + "\"?");
-        assertTrue("Undo edit directory command failed", history.waitCommand("Undo Edit", editdir.history ()));
+        editdir.waitHistory ("Undo Edit");
         assertInformationDialog("Changes reverted in the file \"" + editdir.history () + "\".");
-        waitStatus ("Up-to-date; 1.1", editfile.node ());
+        editfile.waitStatus ("Up-to-date; 1.1");
     }
     
     public void testNoEdit () {
-        editfile.cvsNode(exp).cVSEditingUndoEdit();
+        editfile.cvsNode().cVSEditingUndoEdit();
         assertInformationDialog ("No files has been changed or the edit command was not issued before.");
     }
     
     public void testSetWatchers () {
-        MyNode watchdir = new MyNode (root, "watchdir");
-        MyNode watchfile = new MyNode (watchdir, "watchfile");
-        if (!JellyStub.DEBUG) {
-            watchdir.mkdirs ();
-            watchfile.saveToFile("Init");
-        
-            refresh (history, root);
-            addDirectory (history, watchdir);
-            addFile (history, watchfile, "InitialState");
-            commitFile (history, watchfile, null, "InitialCommit");
-            waitStatus ("Up-to-date; 1.1", watchfile.node ());
-        }
-        watchfile.cvsNode (exp).cVSWatchesSetWatch();
+        GenericNode watchdir = new GenericNode (root, "watchdir");
+        GenericNode watchfile = new GenericNode (watchdir, "watchfile");
+        watchdir.mkdirs ();
+        watchfile.save("Init");
+
+        refresh (root);
+        addDirectory (watchdir);
+        addFile (watchfile, "InitialState");
+        commitFile (watchfile, null, "InitialCommit");
+        watchfile.waitStatus ("Up-to-date; 1.1");
+
+        watchfile.cvsNode ().cVSWatchesSetWatch();
         CVSWatchSetFileAdvDialog wa = new CVSWatchSetFileAdvDialog ();
         wa.checkCommit(true);
         wa.checkEdit(true);
         wa.checkUnedit(true);
         wa.oK ();
         wa.waitClosed ();
-        assertTrue("Set watch file command failed", history.waitCommand("Set Watch", watchfile.history ()));
+        watchfile.waitHistory ("Set Watch");
         
         closeAllVCSOutputs ();
-        watchfile.cvsNode (exp).cVSWatchesWatchers();
-        assertTrue("Watchers file command failed", history.waitCommand("Watchers", watchfile.history ()));
+        watchfile.cvsNode ().cVSWatchesWatchers();
+        watchfile.waitHistory ("Watchers");
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Watchers");
         waitNoEmpty (coo.txtStandardOutput ());
         String str = coo.txtStandardOutput().getText ();
@@ -194,7 +175,7 @@ public class JellyAddCommands extends JellyStub {
         assertTrue ("Unedit watcher does not exist", str.indexOf ("unedit") >= 0);
         assertTrue ("Commit watcher does not exist", str.indexOf ("commit") >= 0);
 
-        watchdir.cvsNode (exp).cVSWatchesSetWatch();
+        watchdir.cvsNode ().cVSWatchesSetWatch();
         CVSWatchSetFolderAdvDialog war = new CVSWatchSetFolderAdvDialog ();
         war.setWatchRecursively();
         war.checkCommit(false);
@@ -202,40 +183,39 @@ public class JellyAddCommands extends JellyStub {
         war.checkUnedit(false);
         war.oK ();
         war.waitClosed ();
-        assertTrue("Set watch file command failed", history.waitCommand("Set Watch", watchdir.history ()));
+        watchdir.waitHistory ("Set Watch");
         
         closeAllVCSOutputs ();
-        watchdir.cvsNode (exp).cVSWatchesWatchers();
+        watchdir.cvsNode ().cVSWatchesWatchers();
         CVSWatchersFolderAdvDialog wars = new CVSWatchersFolderAdvDialog ();
         wars.checkProcessDirectoriesRecursively(true);
         wars.oK ();
         wars.waitClosed();
-        assertTrue("Watchers file command failed", history.waitCommand("Watchers", watchdir.history ()));
+        watchdir.waitHistory ("Watchers");
         coo = new VCSCommandsOutputOperator ("Watchers");
         assertTrue ("Some watchers exist", !coo.tabbedPane().isEnabledAt(0));
     }
 /*    cannot create test due to using of local cvs filesystem
     public void testLock () {
-        if (!JellyStub.DEBUG) {
-            lockdir.mkdirs ();
-            lockfile.saveToFile("Init");
-        
-            refresh (history, root);
-            addDirectory (history, lockdir);
-            addFile (history, lockfile, "InitialState");
-            commitFile (history, lockfile, null, "InitialCommit");
-            waitStatus ("Up-to-date; 1.1", lockfile.node ());
-        }
-        lockfile.cvsNode (exp).cVSLockingLock();
+        lockdir.mkdirs ();
+        lockfile.save("Init");
+
+        refresh (root);
+        addDirectory (lockdir);
+        addFile (lockfile, "InitialState");
+        commitFile (lockfile, null, "InitialCommit");
+        lockfile.waitStatus ("Up-to-date; 1.1");
+
+        lockfile.cvsNode ().cVSLockingLock();
         CVSLockFileAdvDialog lock = new CVSLockFileAdvDialog ();
         lock.oK ();
         lock.waitClosed();
-        assertTrue("Lock file command failed", history.waitCommand("Lock", lockfile.history ()));
+        lockfile.waitHistory("Lock");
         assertInformationDialog("The file \"" + lockfile.name () + "\" was locked successfully.");
-        lockfile.saveToFile ("Mod");
-        refresh (history, lockdir);
-        waitStatus ("Locally Modified; 1.1", lockfile.node ());
-        commitFile (history, lockfile, null, "Trying to commit locked file");
+        lockfile.save ("Mod");
+        refresh (lockdir);
+        lockfile.waitStatus ("Locally Modified; 1.1");
+        commitFile (lockfile, null, "Trying to commit locked file");
         // !!! do it - check for no commit
     }
     
@@ -249,86 +229,35 @@ public class JellyAddCommands extends JellyStub {
 */    
     public void testDiffPrepare () {
         diffdir.mkdirs ();
-        difffile.saveToFile ("Line 1\nLine 3\nLine 5\n");
-        refresh (history, root);
-        addDirectory(history, diffdir);
-        addFile (history, difffile, "InitialState");
-        commitFile (history, difffile, null, "Commit1");
-        waitStatus ("Up-to-date; 1.1", difffile.node ());
-        difffile.saveToFile ("Line 2\nLine 3\nLine 4\nLine 5\n");
-        commitFile (history, difffile, null, "Commit2");
-        waitStatus ("Up-to-date; 1.2", difffile.node ());
-        difffile.saveToFile ("Line 1\nLine 2\nLine 3\nLine 4\nLine 5\n");
-        commitFile (history, difffile, null, "Commit3");
-        waitStatus ("Up-to-date; 1.3", difffile.node ());
-    }
-    
-    static Color annoWhite = new Color (254, 254, 254);
-    static Color annoGreen = new Color (180, 255, 180);
-    static Color annoBlue = new Color (160, 200, 255);
-    static Color annoRed = new Color (255, 160, 180);
-    
-    public void dumpColors (StyledDocument sd) {
-//        !!! do it - not working - problem with StyledDocument, add test of textual diff view too
-        int a = 0;
-        for (;;) {
-            Style st = sd.getLogicalStyle(a);
-            if (st == null)
-                break;
-            Color col = (Color) st.getAttribute(ColorConstants.Background);
-            String str;
-            if (annoWhite.equals (col))
-                str = "White";
-            else if (annoGreen.equals (col))
-                str = "Green";
-            else if (annoBlue.equals (col))
-                str = "Blue";
-            else if (annoRed.equals (col))
-                str = "Red";
-            else
-                str = col.toString ();
-            out.println ("Line: " + a + " ---- " + str);
-            a ++;
-        }
-    }
-    
-    public void dumpDiffGraphical (TopComponentOperator tco) {
-        new JComboBoxOperator (tco).selectItem("Graphical Diff Viewer");
-        JEditorPaneOperator p1 = new JEditorPaneOperator (tco, 0);
-        JEditorPaneOperator p2 = new JEditorPaneOperator (tco, 1);
-        out.println ("==== Text - Panel 1 ====");
-        out.println (p1.getText ());
-        out.println ("==== Text - Panel 2 ====");
-        out.println (p2.getText ());
-        StyledDocument sd1 = (StyledDocument) p1.getDocument();
-        StyledDocument sd2 = (StyledDocument) p2.getDocument();
-        out.println ("==== Colors - Panel 1 ====");
-//        dumpColors(sd1);
-        out.println ("==== Colors - Panel 2 ====");
-//        dumpColors(sd2);
-    }
-    
-    public void dumpDiffGraphicalTextual (TopComponentOperator tco) {
-        new JComboBoxOperator (tco).selectItem("Textual Diff Viewer");
-        JEditorPaneOperator p = new JEditorPaneOperator (tco);
-        out.println (p.getText ());
+        difffile.save ("Line 1\nLine 3\nLine 5\n");
+        refresh (root);
+        addDirectory(diffdir);
+        addFile (difffile, "InitialState");
+        commitFile (difffile, null, "Commit1");
+        difffile.waitStatus ("Up-to-date; 1.1");
+        difffile.save ("Line 2\nLine 3\nLine 4\nLine 5\n");
+        commitFile (difffile, null, "Commit2");
+        difffile.waitStatus ("Up-to-date; 1.2");
+        difffile.save ("Line 1\nLine 2\nLine 3\nLine 4\nLine 5\n");
+        commitFile (difffile, null, "Commit3");
+        difffile.waitStatus ("Up-to-date; 1.3");
     }
     
     public void testDefaultDiffGraphical () {
-        difffile.cvsNode (exp).cVSDiffGraphical();
+        difffile.cvsNode ().cVSDiffGraphical();
         CVSGraphicalDiffFileAdvDialog gr = new CVSGraphicalDiffFileAdvDialog ();
         gr.oK();
         gr.waitClosed ();
         assertInformationDialog ("No differences were found in " + difffile.name () + ".");
-        assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
+        difffile.waitHistory("Diff Graphical");
 
-        difffile.cvsNode (exp).cVSDiffGraphical();
+        difffile.cvsNode ().cVSDiffGraphical();
         gr = new CVSGraphicalDiffFileAdvDialog ();
         gr.setRevisionOrTag1("1.1");
         gr.setRevisionOrTag2("1.2");
         gr.oK ();
         gr.waitClosed ();
-        assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
+        difffile.waitHistory("Diff Graphical");
         
         EditorWindowOperator ewo = new EditorWindowOperator ();
         TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
@@ -340,13 +269,13 @@ public class JellyAddCommands extends JellyStub {
             waitIsShowing(tco.getSource());
         }
 
-        difffile.cvsNode (exp).cVSDiffGraphical();
+        difffile.cvsNode ().cVSDiffGraphical();
         gr = new CVSGraphicalDiffFileAdvDialog ();
         gr.setRevisionOrTag1("1.2");
         gr.setRevisionOrTag2("1.3");
         gr.oK ();
         gr.waitClosed ();
-        assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
+        difffile.waitHistory("Diff Graphical");
         
         ewo = new EditorWindowOperator ();
         tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
@@ -362,13 +291,13 @@ public class JellyAddCommands extends JellyStub {
     }
     
     public void testDefaultDiffGraphicalTextual () {
-        difffile.cvsNode (exp).cVSDiffGraphical();
+        difffile.cvsNode ().cVSDiffGraphical();
         CVSGraphicalDiffFileAdvDialog gr = new CVSGraphicalDiffFileAdvDialog ();
         gr.setRevisionOrTag1("1.1");
         gr.setRevisionOrTag2("1.2");
         gr.oK ();
         gr.waitClosed ();
-        assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
+        difffile.waitHistory("Diff Graphical");
         
         EditorWindowOperator ewo = new EditorWindowOperator ();
         TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
@@ -380,13 +309,13 @@ public class JellyAddCommands extends JellyStub {
             waitIsShowing(tco.getSource());
         }
 
-        difffile.cvsNode (exp).cVSDiffGraphical();
+        difffile.cvsNode ().cVSDiffGraphical();
         gr = new CVSGraphicalDiffFileAdvDialog ();
         gr.setRevisionOrTag1("1.2");
         gr.setRevisionOrTag2("1.3");
         gr.oK ();
         gr.waitClosed ();
-        assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
+        difffile.waitHistory("Diff Graphical");
         
         ewo = new EditorWindowOperator ();
         tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
@@ -407,20 +336,22 @@ public class JellyAddCommands extends JellyStub {
         Filter filt = new Filter ();
         filt.addFilterAfter("RCS file: ");
 
-        difffile.cvsNode (exp).cVSDiffTextual();
+        difffile.cvsNode ().cVSDiffTextual();
         CVSTextualDiffFileAdvDialog diff = new CVSTextualDiffFileAdvDialog ();
         diff.oK();
         diff.waitClosed ();
-        assertTrue("Diff Textual file command failed", history.waitCommand("Diff Textual", difffile.history ()));
+        difffile.waitHistory("Diff Textual");
 
         closeAllVCSOutputs ();
-        difffile.cvsNode (exp).cVSDiffTextual();
+        difffile.cvsNode ().cVSDiffTextual();
         diff = new CVSTextualDiffFileAdvDialog ();
         diff.setRevisionOrTag1("1.1");
         diff.setRevisionOrTag2("1.2");
+        info.println ("PASS3");
+        history.print();
         diff.oK();
         diff.waitClosed ();
-        assertTrue("Diff Textual file command failed", !history.waitCommand("Diff Textual", difffile.history ()));
+        difffile.waitHistoryFailed("Diff Textual");
         coo = new VCSCommandsOutputOperator ("Diff Textual");
         waitNoEmpty(coo.txtStandardOutput());
         str = coo.txtStandardOutput ().getText ();
@@ -429,13 +360,13 @@ public class JellyAddCommands extends JellyStub {
         filt.filterStringLinesToStream(out, str);
         
         closeAllVCSOutputs ();
-        difffile.cvsNode (exp).cVSDiffTextual();
+        difffile.cvsNode ().cVSDiffTextual();
         diff = new CVSTextualDiffFileAdvDialog ();
         diff.setRevisionOrTag1("1.2");
         diff.setRevisionOrTag2("1.3");
         diff.oK();
         diff.waitClosed ();
-        assertTrue("Diff Textual file command failed", !history.waitCommand("Diff Textual", difffile.history ()));
+        difffile.waitHistoryFailed ("Diff Textual");
         coo = new VCSCommandsOutputOperator ("Diff Textual");
         waitNoEmpty(coo.txtStandardOutput());
         str = coo.txtStandardOutput ().getText ();
@@ -452,11 +383,11 @@ public class JellyAddCommands extends JellyStub {
         filt.addFilterAfter ("--- " + difffile.history ());
 
         closeAllVCSOutputs ();
-        difffile.cvsNode (exp).cVSPatch ();
+        difffile.cvsNode ().cVSPatch ();
         CVSPatchFileAdvDialog diff = new CVSPatchFileAdvDialog ();
         diff.oK();
         diff.waitClosed ();
-        assertTrue("Patch file command failed", history.waitCommand("Patch", difffile.history ()));
+        difffile.waitHistory ("Patch");
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Patch");
         waitNoEmpty(coo.txtStandardOutput());
         String str = coo.txtStandardOutput ().getText ();
@@ -469,6 +400,7 @@ public class JellyAddCommands extends JellyStub {
     
     public void testUnmount() {
         new FilesystemNode(exp.repositoryTab().tree(), root.node ()).unmount();
+        new Node (exp.repositoryTab ().tree (), "").waitChildNotPresent(root.node ());
     }
 
 }
