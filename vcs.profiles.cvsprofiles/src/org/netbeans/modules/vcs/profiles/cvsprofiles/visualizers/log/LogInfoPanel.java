@@ -19,7 +19,6 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.log;
  */
 
 import org.openide.util.*;
-import org.openide.awt.SplittedPanel;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.FileInfoContainer;
 import org.netbeans.modules.vcscore.util.table.*;
 
