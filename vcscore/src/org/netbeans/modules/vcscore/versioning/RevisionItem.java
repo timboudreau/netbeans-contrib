@@ -200,12 +200,14 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         return revision.hashCode();
     }
     
+    /*
     public boolean equals(Object obj) {
         if (obj instanceof RevisionItem)
             return this.revision.equals(((RevisionItem) obj).getRevision());
         else
             return false;
     }
+     */
     
     public int compareTo(final java.lang.Object p1) {
         //System.out.println(getRevision()+".compareTo("+((RevisionItem) p1).getRevision()+") = "+this.cmpRev(((RevisionItem) p1).getRevision()));
@@ -245,7 +247,15 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         }
     }
     
+    /*
+    public boolean equals(Object obj) {
+        boolean isEqual = super.equals(obj);
+        System.out.println("RevisionItem: "+this+".equals("+obj+") = "+isEqual);
+        return isEqual;
+    }
+     */
+    
     public String toString() {
-        return revision;
+        return "["+revision+", branches = "+((branches == null) ? null : (new ArrayList(branches)))+", tags = "+getTagNames()+"]";
     }
 }
