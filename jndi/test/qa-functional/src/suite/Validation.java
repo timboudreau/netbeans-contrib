@@ -23,10 +23,10 @@ public class Validation extends org.netbeans.junit.NbTestCase {
         org.netbeans.junit.NbTestSuite test = new org.netbeans.junit.NbTestSuite();
         test.addTest (new basic.JNDITest.JNDITest ("testJNDI"));
         test.addTest (new providers.CNSTest.CNSTest ("testAll_CNS"));
-        test.addTest (new providers.LDAPTest.LDAPTest ("testAll_LDAP"));
         test.addTest (new providers.NISTest.NISTest ("testAll_NIS"));
         test.addTest (new providers.RefFSTest.RefFSTest ("testAll_FS"));
         test.addTest (new providers.RegistryTest.RegistryTest ("testAll_Reg"));
+        test.addTest (new providers.LDAPTest.LDAPTest ("testAll_LDAP"));
         test.addTest (new a11y.Main ("testAll"));
         return test;
     }
