@@ -1,24 +1,3 @@
-vcscore/src/org/netbeans/modules/vcscore/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/actions/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/annotation/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/caching/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/cmdline/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/cmdline/exec/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/commands/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/grouping/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/resources/templatesCVSFS.html
-vcscore/src/org/netbeans/modules/vcscore/resources/templatesVCSFS.html
-vcscore/src/org/netbeans/modules/vcscore/revision/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/runtime/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/search/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/settings/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/ui/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/ui/views/actions/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/ui/views/types/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/util/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/util/table/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/util/virtuals/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/versioning/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/versioning/impl/Bundle.properties
-vcscore/src/org/netbeans/modules/vcscore/wizard/mountcvs/Bundle.properties
-
+vcscore/src/**/Bundle.properties
+vcscore/src/**/*.html
+exclude vcscore/src/**/*_??.html
