@@ -525,6 +525,10 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
      * @return new set of elements in the correct form for <code>RefreshCommandSupport</code>
      */
     public static String[] translateElements(String[] cmdElements, UserCommand list) {
+        int removedIndex = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_REMOVED_FILE_NAME);
+        if (removedIndex >= 0) {
+            return new String[] { cmdElements[removedIndex] };
+        }
         int n = RefreshCommandSupport.NUM_ELEMENTS;
         int[] index = new int[n];
         index[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] =

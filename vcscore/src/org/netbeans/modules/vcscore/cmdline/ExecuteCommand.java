@@ -41,6 +41,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private Debug D=E;
         
     public static final String DEFAULT_REGEX = "^(.*$)"; // Match the whole line by default.
+    public static final String STATUS_USE_REG_EXP_PARSE_OUTPUT = "REG_EXP_PARSE_OUTPUT"; // Use the output of the parsing as the status
 
     private VcsFileSystem fileSystem = null;
     private UserCommand cmd = null;
@@ -60,7 +61,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private ArrayList commandDataOutputListener = new ArrayList(); 
     private ArrayList commandDataErrorOutputListener = new ArrayList(); 
     private ArrayList fileReaderListeners = new ArrayList();
-    private boolean doFileRefresh; // Whether this command refresh status of processed files
+    private boolean doFileRefresh; // Whether this command provides updated status of processed files
+    private boolean doPostExecutionRefresh; // Whether this command refresh status of all processed files
+    private boolean getFileRefreshFromErrOut = false; // Whether to read the refresh info from the error data output also
     private ArrayList filesToRefresh; // The list of files, that were not refreshed.
                                       // Files, that were not refreshed when the command finish
                                       // will be refreshed by the LIST_FILE command (if present).
@@ -92,14 +95,16 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         this.preferredExec = preferredExec;
         this.doFileRefresh =
             VcsCommandIO.getIntegerPropertyAssumeNegative(cmd, UserCommand.PROPERTY_LIST_INDEX_FILE_NAME) >= 0;
+        this.doPostExecutionRefresh =
+            VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES);
         if (doFileRefresh) {
-            filesToRefresh = new ArrayList();
             refreshInfoElements = new ArrayList();
             String statusSubstitutions = (String) cmd.getProperty(UserCommand.PROPERTY_REFRESH_FILE_STATUS_SUBSTITUTIONS);
             substituteStatuses = (statusSubstitutions != null && statusSubstitutions.length() > 0);
             if (substituteStatuses) {
                 parseStatusSubstitutions(statusSubstitutions);
             }
+            getFileRefreshFromErrOut = VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_INFO_FROM_BOTH_DATA_OUTS);
         }
     }
     
@@ -354,6 +359,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
             ((CommandDataOutputListener) it.next()).outputData(data);
         }
+        if (getFileRefreshFromErrOut) {
+            collectRefreshInfo(data);
+        }
     }
 
     /**
@@ -474,7 +482,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             preferredExec = "";
             return ; // Silently ignore empty exec
         }
-        filesToRefresh = new ArrayList(getFiles());
+        if (doPostExecutionRefresh) {
+            filesToRefresh = new ArrayList(getFiles()); // All files should be refreshed at the end.
+        } else if (doFileRefresh) {
+            filesToRefresh = new ArrayList(); // Only some files (with unmatched status) should be refreshed.
+        }
         
         StringTokenizer tokens = new StringTokenizer(exec);
         String first = tokens.nextToken();
@@ -571,6 +583,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private void collectRefreshInfo(String[] elements) {
         //System.out.println("collectRefreshInfo("+VcsUtilities.arrayToString(elements)+")");
         elements = CommandLineVcsDirReader.translateElements(elements, cmd);
+        if (elements.length == 1) {
+            flushRemoveFile(elements[0]);
+            return ;
+        }
         //System.out.println("  translated = "+VcsUtilities.arrayToString(elements));
         if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
             elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].length() > 0) {
@@ -578,6 +594,34 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             flushRefreshInfo();
         }
         refreshInfoElements.add(elements);
+    }
+    
+    private void flushRemoveFile(String fileName) {
+        String fileDir = "";
+        String filePath;
+        fileName.replace(java.io.File.separatorChar, '/');
+        int sepIndex = fileName.indexOf('/');
+        if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
+            fileDir = findFileDir(fileName);
+            if (fileName.startsWith(fileDir + "/")) {
+                //System.out.println("fileName = "+fileName+", fileDir = "+fileDir+", substring("+(fileDir.length() + 1)+")");
+                fileName = fileName.substring(fileDir.length() + 1);
+            }
+            if (fileDir.length() == 0) {
+                filePath = fileName;
+            } else {
+                filePath = fileDir + "/" + fileName;
+            }
+        } else {
+            filePath = fileName;
+            fileDir = VcsUtilities.getDirNamePart(filePath);
+            fileName = VcsUtilities.getFileNamePart(filePath);
+        }
+        //System.out.println("readFileFinished("+fileDir+", [REMOVED:] "+fileName+")");
+        for (Iterator it = fileReaderListeners.iterator(); it.hasNext(); ) {
+            ((FileReaderListener) it.next()).readFileFinished(fileDir, Collections.singleton(new String[] { fileName }));
+        }
+        filesToRefresh.remove(filePath);
     }
     
     private void flushRefreshInfo() {
@@ -589,12 +633,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
                 elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].length() > 0) {
                 
-                if (substituteStatuses) {
-                    elements = performStatusSubstitution(elements);
-                    if (elements == null) continue;
-                }
                 String fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
                 String fileDir = "";
+                String filePath;
                 fileName.replace(java.io.File.separatorChar, '/');
                 int sepIndex = fileName.indexOf('/');
                 if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
@@ -604,16 +645,28 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                         fileName = fileName.substring(fileDir.length() + 1);
                         elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
                     }
+                    if (fileDir.length() == 0) {
+                        filePath = fileName;
+                    } else {
+                        filePath = fileDir + "/" + fileName;
+                    }
+                } else {
+                    filePath = fileName;
+                    fileDir = VcsUtilities.getDirNamePart(filePath);
+                    fileName = VcsUtilities.getFileNamePart(filePath);
+                }
+                if (substituteStatuses) {
+                    elements = performStatusSubstitution(elements);
+                    if (elements == null) {
+                        if (!doPostExecutionRefresh) {
+                            filesToRefresh.add(filePath);
+                        }
+                        continue;
+                    }
                 }
                 //System.out.println("readFileFinished("+fileDir+", "+VcsUtilities.arrayToString(elements)+")");
                 for (Iterator it = fileReaderListeners.iterator(); it.hasNext(); ) {
                     ((FileReaderListener) it.next()).readFileFinished(fileDir, Collections.singleton(elements));
-                }
-                String filePath;
-                if (fileDir.length() == 0) {
-                    filePath = fileName;
-                } else {
-                    filePath = fileDir + "/" + fileName;
                 }
                 filesToRefresh.remove(filePath);
             }
@@ -654,7 +707,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String status = elements[RefreshCommandSupport.ELEMENT_INDEX_STATUS];
         for (int i = 0; i < substituitionRegExps.length; i++) {
             if (substituitionRegExps[i].match(status)) {
-                status = substituitionStatuses[i];
+                if (STATUS_USE_REG_EXP_PARSE_OUTPUT.equals(substituitionStatuses[i])) {
+                    status = substituitionRegExps[i].getParen(0);
+                } else {
+                    status = substituitionStatuses[i];
+                }
                 elements[RefreshCommandSupport.ELEMENT_INDEX_STATUS] = status;
                 return elements;
             }
@@ -664,7 +721,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     
     private String findFileDir(String name) {
         String dir = "";
-        Collection files = filesToRefresh;
+        Collection files;
+        if (doPostExecutionRefresh) {
+            files = filesToRefresh;
+        } else {
+            files = getFiles();
+        }
         for (Iterator it = files.iterator(); it.hasNext(); ) {
             String filePath = (String) it.next();
             if (filePath.endsWith(name)) {
@@ -679,7 +741,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     
     private void refreshRemainingFiles() {
         if (!UserCommand.NAME_REFRESH_FILE.equals(cmd.getName())) {
-            if (filesToRefresh.size() > 0) {
+            if (filesToRefresh != null && filesToRefresh.size() > 0) {
                 ExecuteCommand.doRefreshFiles(fileSystem, filesToRefresh);
             } else if (VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES)) {
                 ExecuteCommand.doRefreshFiles(fileSystem, getFiles());

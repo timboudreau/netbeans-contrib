@@ -54,6 +54,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     //public static final String PROPERTY_PRECOMMANDS_EXECUTE = "preCommandsExecute";
     
     public static final String PROPERTY_LIST_INDEX_FILE_NAME = "data.fileName.index";
+    public static final String PROPERTY_LIST_INDEX_REMOVED_FILE_NAME = "data.removedFileName.index";
     public static final String PROPERTY_LIST_INDEX_STATUS = "data.status.index";
     public static final String PROPERTY_LIST_INDEX_LOCKER = "data.locker.index";
     public static final String PROPERTY_LIST_INDEX_REVISION = "data.revision.index";
@@ -71,6 +72,12 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
      * by the LIST_FILE command.
      */
     public static final String PROPERTY_REFRESH_FILE_STATUS_SUBSTITUTIONS = "refreshFileStatusSubstitutions";
+    
+    /**
+     * The file refresh data information is normally read from the standard data output. If you want to
+     * add the error data output, set this property as true.
+     */
+    public static final String PROPERTY_REFRESH_INFO_FROM_BOTH_DATA_OUTS = "refreshInfoFromBothDataOuts";
     
     // Properties:
     private String name="";          // e.g. "CHECKIN" // NOI18N
