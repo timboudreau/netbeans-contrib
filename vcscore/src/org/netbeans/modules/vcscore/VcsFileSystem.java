@@ -4010,11 +4010,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
             if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
                 CommandSupport cmd = getCommandSupport("UNLOCK");
-                Command command = cmd.createCommand();
-                command.setFiles(new FileObject[] { findResource(name) });
-                boolean customized = VcsManager.getDefault().showCustomizer(command);
-                if (customized) {
-                    CommandTask exec = command.execute();
+                if (cmd != null) {
+                    Command command = cmd.createCommand();
+                    command.setFiles(new FileObject[] { findResource(name) });
+                    boolean customized = VcsManager.getDefault().showCustomizer(command);
+                    if (customized) {
+                        CommandTask exec = command.execute();
+                    }
                 }
             }
         }
