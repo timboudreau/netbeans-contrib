@@ -16,16 +16,27 @@ Microsystems, Inc. All Rights Reserved.
 
 <filesystem>
 
+	<!-- Actions -->	
+	<folder name="Actions">
+		<folder name="Tools">
+			<file name="org-netbeans-modules-rmi-MarkRMIAction.instance"/>
+			<file name="org-netbeans-modules-rmi-UnMarkRMIAction.instance"/>
+		</folder>
+	</folder>
+
+	<!-- Menu -->	
+	<folder name="Menu">
+		<folder name="Tools">
+			<file name="org-netbeans-modules-rmi-wizard-RMIWizardAction.instance" />
+		</folder>
+	</folder>
+
+	<!-- Temporary files -->
   <folder name="RMI">
     <file name="rmi.policy" url="rmi.policy" />
   </folder>
   
-  <folder name="Menu">
-    <folder name="Tools">
-      <file name="org-netbeans-modules-rmi-wizard-RMIWizardAction.instance" />
-    </folder>
-  </folder>
-  
+	<!-- Templates -->  
   <folder name="Templates">
     <folder name="RMI">
       <attr name="templateWizardDescResource" stringvalue="org/netbeans/modules/rmi/resources/RMI.html"/>
@@ -245,5 +256,220 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
     
   </folder>
+
+
+	<!-- Services -->
+    <folder name="Services">
+    
+    	<!-- Settings -->
+  	    <file name="RMISettings.settings">
+			<![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.util.SharedClassObject"/>
+				    <instanceof class="java.beans.beancontext.BeanContextProxy"/>
+				    <instanceof class="org.netbeans.modules.rmi.settings.RMISettings"/>
+				    <instanceof class="java.io.Externalizable"/>
+				    <instanceof class="org.openide.options.ContextSystemOption"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.openide.options.SystemOption"/>
+				    <instance class="org.netbeans.modules.rmi.settings.RMISettings"/>
+				</settings>
+	        ]]>
+  	    </file>
+
+  	    <file name="RMIRegistryItems.settings">
+  	    	<attr name="hidden" boolvalue="true" />
+			<![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.util.SharedClassObject"/>
+				    <instanceof class="org.netbeans.modules.rmi.settings.RMIRegistryItems"/>
+				    <instanceof class="java.io.Externalizable"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.openide.options.SystemOption"/>
+				    <instance class="org.netbeans.modules.rmi.settings.RMIRegistryItems"/>
+				</settings>
+	        ]]>
+  	    </file>
+
+    	<!-- Compiler -->
+        <folder name="CompilerType">
+        <attr name="SystemFileSystem.localizingBundle"
+              stringvalue="org.netbeans.modules.rmi.Bundle"/>
+        <!--<attr name="SystemFileSystem.icon"
+              urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiStubCompilation.gif"/>
+		-->
+		<file name="RMIStubCompiler.settings">
+		    <![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="org.openide.ServiceType"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.compiler.CompilerType"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.netbeans.modules.rmi.RMIStubCompilerType"/>
+				    <instanceof class="org.openide.compiler.ExternalCompilerType"/>
+				    <instance class="org.netbeans.modules.rmi.RMIStubCompilerType"/>
+			    </settings>
+			]]>
+	        <attr name="template" boolvalue="true" />
+		</file>
+		</folder>
+
+		<!-- Debugger -->
+        <folder name="DebuggerType">
+        <attr name="SystemFileSystem.localizingBundle"
+              stringvalue="org.netbeans.modules.rmi.Bundle"/>
+        <!--<attr name="SystemFileSystem.icon"
+              urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIDebugger.gif"/>
+		-->
+		<file name="RMIDebugger.settings">
+		    <![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="org.openide.ServiceType"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.debugger.DebuggerType"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.netbeans.modules.debugger.support.ProcessDebuggerType"/>
+				    <instanceof class="org.netbeans.modules.debugger.delegator.DefaultDebuggerType"/>
+				    <instanceof class="org.netbeans.modules.rmi.RMIDebugType"/>
+				    <instance class="org.netbeans.modules.rmi.RMIDebugType"/>
+			    </settings>
+			]]>
+	        <attr name="template" boolvalue="true" />
+		</file>
+		</folder>
+
+		<!-- Executor -->
+        <folder name="Executor">
+        <attr name="SystemFileSystem.localizingBundle"
+              stringvalue="org.netbeans.modules.rmi.Bundle"/>
+        <!--<attr name="SystemFileSystem.icon"
+              urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/>
+		-->
+		<!-- Default -->
+		<file name="RMIExecutor.settings">
+		    <![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="org.openide.ServiceType"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.execution.ProcessExecutor"/>
+				    <instanceof class="org.openide.execution.Executor"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.netbeans.modules.rmi.RMIExecutor"/>
+				    <instance class="org.netbeans.modules.rmi.RMIExecutor"/>
+			    </settings>
+			]]>
+	        <attr name="template" boolvalue="true" />
+		</file>
+
+		<!-- Debug -->
+		<file name="RMIExecutorDbg.settings">
+		    <![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="org.openide.ServiceType"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.execution.ProcessExecutor"/>
+				    <instanceof class="org.openide.execution.Executor"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.netbeans.modules.rmi.RMIExecutor"/>
+				    <instance class="org.netbeans.modules.rmi.serialized.RMIExecutorGenerator" method="createExecutorDbg"/>
+			    </settings>
+			]]>
+	        <attr name="template" boolvalue="true" />
+		</file>
+		<attr name="RMIExecutor.settings/RMIExecutorDbg.settings" boolvalue="true" />
+
+
+		<!-- Client -->
+		<file name="RMIClientExecutor.settings">
+		    <![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="org.openide.ServiceType"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.execution.ProcessExecutor"/>
+				    <instanceof class="org.openide.execution.Executor"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.netbeans.modules.rmi.RMIExecutor"/>
+				    <instance class="org.netbeans.modules.rmi.serialized.RMIExecutorGenerator" method="createClientExecutor"/>
+			    </settings>
+			]]>
+	        <attr name="template" boolvalue="true" />
+		</file>
+		<attr name="RMIExecutorDbg.settings/RMIClientExecutor.settings" boolvalue="true" />
+		
+		<!-- Client debug -->
+		<file name="RMIClientExecutorDbg.settings">
+		    <![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="org.openide.ServiceType"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.execution.ProcessExecutor"/>
+				    <instanceof class="org.openide.execution.Executor"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.netbeans.modules.rmi.RMIExecutor"/>
+				    <instance class="org.netbeans.modules.rmi.serialized.RMIExecutorGenerator" method="createClientExecutorDbg"/>
+			    </settings>
+			]]>
+	        <attr name="template" boolvalue="true" />
+		</file>
+		<attr name="RMIClientExecutor.settings/RMIClientExecutorDbg.settings" boolvalue="true" />
+
+		<!-- Unicast Export -->
+		<file name="RMIUnicastExport.settings">
+		    <![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="org.openide.ServiceType"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.execution.ProcessExecutor"/>
+				    <instanceof class="org.openide.execution.Executor"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.netbeans.modules.rmi.RMIExecutor"/>
+				    <instance class="org.netbeans.modules.rmi.serialized.RMIExecutorGenerator" method="createUnicastExport"/>
+			    </settings>
+			]]>
+	        <attr name="template" boolvalue="true" />
+		</file>
+		<attr name="RMIClientExecutorDbg.settings/RMIUnicastExport.settings" boolvalue="true" />
+
+		<!-- Unicast Export debug -->
+		<file name="RMIExportDbg.settings">
+		    <![CDATA[<?xml version="1.0"?>
+			<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+				<settings version="1.0">
+				    <module name="org.netbeans.modules.rmi" spec="1.4"/>
+				    <instanceof class="org.openide.ServiceType"/>
+				    <instanceof class="java.lang.Object"/>
+				    <instanceof class="org.openide.execution.ProcessExecutor"/>
+				    <instanceof class="org.openide.execution.Executor"/>
+				    <instanceof class="java.io.Serializable"/>
+				    <instanceof class="org.netbeans.modules.rmi.RMIExecutor"/>
+				    <instance class="org.netbeans.modules.rmi.serialized.RMIExecutorGenerator" method="createUnicastExportDbg"/>
+			    </settings>
+			]]>
+	        <attr name="template" boolvalue="true" />
+		</file>
+		<attr name="RMIUnicastExport.settings/RMIUnicastExportDbg.settings" boolvalue="true" />
+
+		</folder>
+	</folder>
 
 </filesystem>

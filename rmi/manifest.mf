@@ -28,38 +28,9 @@ Name: org/netbeans/modules/rmi/activation/ActivationBrowserNode.class
 OpenIDE-Module-Class: Node
 Type: Environment
 
-Name: org/netbeans/modules/rmi/settings/RMISettings.class
-OpenIDE-Module-Class: Option
-
-Name: org/netbeans/modules/rmi/settings/RMIRegistryItems.class
-OpenIDE-Module-Class: Option
-
-Name: org/netbeans/modules/rmi/RMIDebugType.class
-OpenIDE-Module-Class: Service
-
 Name: org/netbeans/modules/rmi/MarkRMIAction.class
 OpenIDE-Module-Class: Action
 
 Name: org/netbeans/modules/rmi/UnMarkRMIAction.class
 OpenIDE-Module-Class: Action
 
-Name: org/netbeans/modules/rmi/RMIStubCompilerType.class
-OpenIDE-Module-Class: Service
-
-Name: org/netbeans/modules/rmi/serialized/RMIExecutor_0.ser
-OpenIDE-Module-Class: Service
-
-Name: org/netbeans/modules/rmi/serialized/RMIExecutor_1.ser
-OpenIDE-Module-Class: Service
-
-Name: org/netbeans/modules/rmi/serialized/RMIExecutor_2.ser
-OpenIDE-Module-Class: Service
-
-Name: org/netbeans/modules/rmi/serialized/RMIExecutor_3.ser
-OpenIDE-Module-Class: Service
-
-Name: org/netbeans/modules/rmi/serialized/RMIExecutor_4.ser
-OpenIDE-Module-Class: Service
-
-Name: org/netbeans/modules/rmi/serialized/RMIExecutor_5.ser
-OpenIDE-Module-Class: Service
