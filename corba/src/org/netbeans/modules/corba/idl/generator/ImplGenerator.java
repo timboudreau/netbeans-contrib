@@ -55,6 +55,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     private boolean showMessage; // Fix of showing message when the sync is disabled
+    private boolean _M_exception_occured;
     private IDLElement _M_src;
 
     private String IMPLBASE_IMPL_PREFIX;
@@ -271,7 +272,7 @@ public class ImplGenerator implements PropertyChangeListener {
             return isAbsoluteScopeName (type.ofType ().getName ());
     }
 
-    public boolean isAbsoluteScopeName (String name) {
+    public static boolean isAbsoluteScopeName (String name) {
         if (DEBUG)
             System.out.println ("isAbsoluteScopeName (" + name + ");"); // NOI18N
         if (name.length () >= 3)
@@ -306,7 +307,7 @@ public class ImplGenerator implements PropertyChangeListener {
             return isScopeName (type.ofType ().getName ());
     }
 
-    public boolean isScopeName (String name) {
+    public static boolean isScopeName (String name) {
         if (DEBUG)
             System.out.println ("isScopeName (" + name + ");"); // NOI18N
         if (name.indexOf ("::") > -1) { // NOI18N
@@ -322,7 +323,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    public String getSimpleName (String name) {
+    public static String getSimpleName (String name) {
         String retval = name.substring (name.lastIndexOf ("::") + 2, name.length ()); // NOI18N
         if (DEBUG)
             System.out.println ("getSimpleName (" + name + "); => " + retval); // NOI18N
@@ -1192,7 +1193,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    public IDLElement findModule (String name, IDLElement from) {
+    public static IDLElement findModule (String name, IDLElement from) {
         if (DEBUG)
             System.out.println ("ImplGenerator::findModule (" + name + ", " + from.getName () + ":" // NOI18N
                                 + from + ");"); // NOI18N
@@ -1211,7 +1212,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    public IDLElement findModuleIn (String name, IDLElement from) {
+    public static IDLElement findModuleIn (String name, IDLElement from) {
 
         if (from == null)
             return null;
@@ -1236,7 +1237,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    public IDLElement findElementByName (String name, IDLElement from) {
+    public static IDLElement findElementByName (String name, IDLElement from) {
         // constructed type by name
         if (DEBUG)
             System.out.println ("ImplGenerator::findElementByName (" + name + ", " + from.getName () // NOI18N
@@ -1270,7 +1271,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    public IDLElement findModuleForScopeName (String name, IDLElement from) {
+    public static IDLElement findModuleForScopeName (String name, IDLElement from) {
         if (DEBUG)
             System.out.println ("ImplGenerator::findModuleForScopeName (" + name + ", " + // NOI18N
                                 from.getName () + ":" + from + ");"); // NOI18N
@@ -1322,7 +1323,7 @@ public class ImplGenerator implements PropertyChangeListener {
         */
     }
 
-    public IDLElement findTopLevelModuleForName (String name, IDLElement from) {
+    public static IDLElement findTopLevelModuleForName (String name, IDLElement from) {
         if (DEBUG)
             System.out.println ("ImplGenerator::findTopLevelModuleForName (" + name + ", " // NOI18N
                                 + from.getName () + ":" + from + ");"); // NOI18N
@@ -1400,7 +1401,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    public String nameFromScopeName (String name) {
+    public static String nameFromScopeName (String name) {
         if (name != null) {
             if (name.lastIndexOf ("::") != -1) { // NOI18N
                 return name.substring (name.lastIndexOf ("::") + 2, name.length ()); // NOI18N
@@ -1410,7 +1411,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    public IDLElement findElementInElement (String name, IDLElement element) {
+    public static IDLElement findElementInElement (String name, IDLElement element) {
         name = nameFromScopeName (name);
         if (element == null)
             return null;
@@ -1520,6 +1521,7 @@ public class ImplGenerator implements PropertyChangeListener {
                     return JavaTypeToHolder (type);
                 } catch (UnknownTypeException e) {
                     TopManager.getDefault ().notifyException (e);
+		    _M_exception_occured = true;
 		    //e.printStackTrace ();
                 }
                 //else
@@ -1983,12 +1985,13 @@ public class ImplGenerator implements PropertyChangeListener {
     */
 
     public void interface2java (InterfaceElement element)
-	throws SymbolNotFoundException, java.io.IOException {
+	throws SymbolNotFoundException, RecursiveInheritanceException, java.io.IOException {
         if (DEBUG)
             System.out.println ("interface2java: " + element.getName ()); // NOI18N
         if (DEBUG)
             System.out.println ("name: " + _M_ido.getPrimaryFile ().getName ()); // NOI18N
 
+	RecursiveInheritanceChecker.check (element);
 
         String impl_name = ""; // NOI18N
         String super_name = ""; // NOI18N
@@ -2076,8 +2079,8 @@ public class ImplGenerator implements PropertyChangeListener {
         }
             */
 
-            FileObject folder = _M_ido.getPrimaryFile ().getParent ();
-            FileObject impl;
+            final FileObject folder = _M_ido.getPrimaryFile ().getParent ();
+            final FileObject impl;
 
             if ((impl = folder.getFileObject (impl_name, "java")) != null) { // NOI18N
                 if (DEBUG)
@@ -2087,8 +2090,8 @@ public class ImplGenerator implements PropertyChangeListener {
                     full_name = full_name + _package + "."; // NOI18N
                 full_name = full_name + impl_name;
                 if (DEBUG)
-                    System.out.println ("full name: " + full_name); // NOI18N
-                final ClassElement dest = ClassElement.forName (full_name);
+		    System.out.println ("full name: " + full_name); // NOI18N
+                ClassElement dest = ClassElement.forName (full_name);
                 if (DEBUG) {
                     System.out.println ("orig class: " + dest.toString ()); // NOI18N
                     System.out.println ("new class: " + clazz.toString ()); // NOI18N
@@ -2119,30 +2122,41 @@ public class ImplGenerator implements PropertyChangeListener {
                 if (DEBUG)
                     System.out.println ("file don't exists"); // NOI18N
                 //try {
-		impl = folder.createData (impl_name, "java"); // NOI18N
-                //} catch (IOException e) {
-		//e.printStackTrace ();
-                //}
-
-                FileLock lock = impl.lock ();
-                //	 if (source != null)
-                //   source.addClass (clazz);
-                PrintStream printer = new PrintStream (impl.getOutputStream (lock));
-
-                // add comment
-                printer.println ("/*\n * This file was generated from "
-                                 + _M_ido.getPrimaryFile ().getName () + ".idl\n"
-                                 + " */"); // NOI18N
-		
-                if (_package.length() > 0) // If it isn't in file system root
-		    printer.println ("\npackage " + _package + ";\n"); // NOI18N
-                printer.println (clazz.toString ());
-                lock.releaseLock ();
-            }
+		//final FileObject __final_impl = impl;
+		//final FileObject __final_impl;// = impl;
+		final String __final_package = _package;
+		final String __final_impl_name = impl_name;
+		folder.getFileSystem ().runAtomicAction 
+		    (new org.openide.filesystems.FileSystem.AtomicAction () {
+			    public void run () throws java.io.IOException {
+				final FileObject __final_impl = folder.createData (__final_impl_name, "java"); // NOI18N
+				//} catch (IOException e) {
+				//e.printStackTrace ();
+				//}
+				
+				FileLock lock = __final_impl.lock ();
+				//	 if (source != null)
+				//   source.addClass (clazz);
+				PrintStream printer = new PrintStream (__final_impl.getOutputStream (lock));
+				
+				// add comment
+				printer.println ("/*\n * This file was generated from "
+						 + _M_ido.getPrimaryFile ().getName () + ".idl\n"
+						 + " */"); // NOI18N
+				
+				if (__final_package.length() > 0) // If it isn't in file system root
+				    printer.println ("\npackage " + __final_package + ";\n"); // NOI18N
+				printer.println (clazz.toString ());
+				_M_generated_impls.add (__final_impl);
+				lock.releaseLock ();
+			    }
+			});
+	    }
+		     
 	    //JavaDataObject __jdo = (JavaDataObject)DataObject.find (impl);
 	    //OpenCookie __cookie = (OpenCookie)__jdo.getCookie (OpenCookie.class);
 	    //__cookie.open ();
-	    _M_generated_impls.add (impl);
+	    //_M_generated_impls.add (impl);
 
 	} catch (org.openide.src.SourceException e) {
 	    //e.printStackTrace ();
@@ -2211,14 +2225,29 @@ public class ImplGenerator implements PropertyChangeListener {
                     //} catch (SymbolNotFound e) {
                 } catch (SymbolNotFoundException __ex) {
 		    java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
+		    //String __msg = MessageFormat.format ("can't find symbol: {0}", __arr);
+		    //System.out.println ("msg: " + __msg);
 		    TopManager.getDefault ().notify 
 			(new NotifyDescriptor.Exception 
 			    (__ex, MessageFormat.format (CORBASupport.CANT_FIND_SYMBOL, __arr)));
+			    //(__ex, MessageFormat.format ("Can't find symbol: {0}", __arr)));
 		    //(__ex, "can't find symbol: " + __ex.getSymbolName ())); // NOI18N
-                    //System.err.println ("can't find symbol: " + e.getSymbolName ());
+                    //System.err.println ("can't find symbol: " + __ex.getSymbolName ());
                     //System.err.println (e);
-                } catch (Exception __ex) {
+		    _M_exception_occured = true;
+		} catch (RecursiveInheritanceException __ex) {
+		    java.lang.Object[] __arr 
+			= new java.lang.Object[] {__ex.getName (), new Integer (__ex.getLine ())};
+		    String __msg = MessageFormat.format 
+			(CORBASupport.RECURSIVE_INHERITANCE, __arr);
+		    TopManager.getDefault ().notify 
+			(new NotifyDescriptor.Exception 
+			    (__ex, __msg));
+		    _M_exception_occured = true;
+		} catch (Exception __ex) {
 		    TopManager.getDefault ().notify (new NotifyDescriptor.Exception (__ex));
+		    __ex.printStackTrace ();
+		    _M_exception_occured = true;
 		}
         }
 
@@ -2238,8 +2267,10 @@ public class ImplGenerator implements PropertyChangeListener {
 		}
 	    }
 	}
-
-	if (this.showMessage) { // Bug Fix, when sync is disabled, don't show the message
+	//System.out.println ("showMessage: " + this.showMessage);
+	//System.out.println ("_M_exception_occured: " + this._M_exception_occured);
+	if (this.showMessage && (!this._M_exception_occured)) { 
+	    // Bug Fix, when sync is disabled, don't show the message
 	    //javax.swing.SwingUtilities.invokeLater (new Runnable () {
 	    //public void run () {
 	    java.lang.Object[] __arr = new Object[] {_M_ido.getPrimaryFile ().getName ()};
@@ -2250,7 +2281,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    //}
 	    //});
 	}
-	else {
+	if (!this.showMessage) {
 	    TopManager.getDefault ().setStatusText 
 		(ORBSettingsBundle.SYNCHRO_DISABLED);
 		//("Idl synchronization for this project is disabled."); // NOI18N

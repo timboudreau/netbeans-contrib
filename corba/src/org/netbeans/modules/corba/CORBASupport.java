@@ -122,6 +122,10 @@ public class CORBASupport {
 
     public static final String SUCESS_GENERATED = CORBASupport.bundle.getString
 	("CTL_SUCESS_GENERATED"); // NOI18N
+    
+    public static final String RECURSIVE_INHERITANCE = CORBASupport.bundle.getString
+	("CTL_RECURSIVE_INHERITANCE");
+
     /*
       public static final String SYNC_DISABLED = CORBASupport.bundle.getString
       ("CTL_SYNC_DISABLED"); // NOI18N
