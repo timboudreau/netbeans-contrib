@@ -7,16 +7,25 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.docbook;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -29,9 +38,17 @@ import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 import org.openide.util.actions.CookieAction;
-import org.openide.windows.*;
-import org.xml.sax.*;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
+import org.openide.windows.OutputWriter;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
 
 /**
  * Converts a DocBook XML file (currently, Slides only) to HTML.
@@ -46,13 +63,21 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
     }
     
     protected int mode() {
-        return MODE_EXACTLY_ONE;
+        return CookieAction.MODE_EXACTLY_ONE;
     }
     
     private OutputWriter err;
     
     protected void performAction(Node[] nodes) {
-        DocBookDataObject o = (DocBookDataObject)nodes[0].getCookie(DocBookDataObject.class);
+        final DocBookDataObject o = (DocBookDataObject)nodes[0].getCookie(DocBookDataObject.class);
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                process(o);
+            }
+        });
+    }
+    
+    private void process(DocBookDataObject o) {
         FileObject fo = o.getPrimaryFile();
         File f = FileUtil.toFile(fo);
         if (f == null) {
@@ -66,8 +91,11 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
             InputOutput io = IOProvider.getDefault().getIO(NbBundle.getMessage(ToHtmlAction.class, "LBL_tab_db_conv"), false);
             io.select();
             err = io.getErr();
+            OutputWriter out = io.getOut();
             try {
+                // XXX #45604: throws an NPE later: out.reset();
                 err.reset();
+                err.println("Initializing...");
                 FileObject folder = fo.getParent().getFileObject(name);
                 if (folder == null) {
                     folder = fo.getParent().createFolder(name);
@@ -89,6 +117,7 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 Source style = new SAXSource(reader, styleSource);
                 TransformerFactory tf = TransformerFactory.newInstance();
                 tf.setURIResolver(new EntityResolver2URIResolver(resolver));
+                err.println("Loading stylesheet...");
                 Transformer t = tf.newTransformer(style);
                 t.setParameter("output.indent", "yes");
                 t.setParameter("graphics.dir", "graphics");
@@ -104,6 +133,7 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 Source source = new SAXSource(reader, new InputSource(fo.getURL().toExternalForm()));
                 Result result = new StreamResult(dummyF);
                 t.setErrorListener(this);
+                err.println("Processing...");
                 t.transform(source, result);
                 dummy.delete();
                 folder.refresh();
@@ -118,6 +148,8 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
             } catch (Exception e) {
                 e.printStackTrace(err);
             } finally {
+                err.close();
+                out.close();
                 err = null;
             }
         } else if (mime.equals(DocBookDataLoader.MIME_DOCBOOK)) {
@@ -239,6 +271,10 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
     public void warning(SAXParseException exception) throws SAXException {
         // XXX show location etc.
         err.println(exception.getMessage());
+    }
+
+    protected boolean asynchronous() {
+        return false;
     }
     
     private static final class EntityResolver2URIResolver implements URIResolver {
