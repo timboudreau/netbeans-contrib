@@ -106,6 +106,28 @@ public class Environment {
         
     }
     
+    public static class JDKORB extends ORB {
+        
+        public JDKORB (String shortcut, String displayName) {
+            super (shortcut, displayName, null, null, null);
+        }
+
+        public void load () {
+            super.load ();
+            NbProcessDescriptor pd = css.getActiveSetting().getIdl();
+            String prog = System.getProperty ("java.home", null);
+            if (prog != null) {
+                if (winOS)
+                    prog += "/bin/java.exe";
+                else
+                    prog += "/bin/java";
+            } else
+                prog = pd.getProcessName();
+            css.getActiveSetting().setIdl(new NbProcessDescriptor(prog, pd.getArguments(), pd.getInfo()));
+        }
+        
+    }
+    
     public static final boolean winOS = System.getProperty("os.name").startsWith("Win");
     public static final CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject(CORBASupportSettings.class, true);
     public static final ORB[] orbs;
@@ -113,8 +135,8 @@ public class Environment {
     static {
         orbs = new ORB[14];
         orbs[0] = new ORB ("J2EE", "J2EE ORB");
-        orbs[1] = new ORB ("JDK13", "JDK 1.3 ORB");
-        orbs[2] = new ORB ("JDK14", "JDK 1.4 ORB");
+        orbs[1] = new JDKORB ("JDK13", "JDK 1.3 ORB");
+        orbs[2] = new JDKORB ("JDK14", "JDK 1.4 ORB");
         orbs[3] = new ORB ("OB4X", winOS ? "ORBacus for Java 4.x for Windows" : "ORBacus for Java 4.x");
         orbs[4] = new ORB ("OW2000", "Orbix 2000 1.x for Java");
         orbs[5] = new ORB ("OW32", "OrbixWeb 3.2");
