@@ -114,6 +114,16 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         }
         super.open(workspace);
     }
+
+    protected void componentActivated() {
+        super.componentActivated();
+        outputPanel.componentActivated();
+    }
+    
+    protected void componentDeactivated() {
+        super.componentDeactivated();
+        outputPanel.componentDeactivated();
+    }
     
     /**
      * Disable serialization.
