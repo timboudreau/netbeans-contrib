@@ -1199,6 +1199,11 @@ err.log("Couldn't find current nodes...");
             DataObject.getRegistry().removeChangeListener(cl);
         }
 
+        /**
+         * Locates active editor topcomponent. Eliminates Welcome screen, JavaDoc
+         * and orher non-editor stuff in EDITOR_MODE.
+         * @return tc or <code>null</code> for non-editor selected topcomponent
+         */
         public TopComponent findActiveEditor() {
 
             Mode mode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
@@ -1207,7 +1212,11 @@ err.log("Couldn't find current nodes...");
                 return null;
             }
             TopComponent tc = mode.getSelectedTopComponent();
-            if (tc instanceof CloneableEditor) {
+
+            // form files within MultiViewCloneableTopComponent contantly returns null
+            // so I got suggestion to use instanceof CloneableEditorSupport.Pane workaround
+            //  if (tc != null && tc.getLookup().lookup(EditorCookie.class)  != null) {
+            if (tc instanceof CloneableEditorSupport.Pane) {
                 // Found the source editor...
 //                if (tc.isShowing()) {   // FIXME it returns false for components I can positivelly see
                                           // hopefully mode does not return hidden TC as selected one.
