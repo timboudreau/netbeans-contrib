@@ -219,9 +219,9 @@ Not yet.
         </question>
 -->
 <answer id="compat-standards">
-The module implements <api name="OMG Meta-Object Facility (MOF)" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/mof.htm"/>,
-    <api name="OMG XML Metadata Interchange (XMI)" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/xmi.htm"/>
-    and <api name="JSR-40: Java Metadata Interface" category="standard" type="export" url="http://java.sun.com/products/jmi"/>.
+The module implements <api group="java" name="OMG Meta-Object Facility (MOF)" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/mof.htm"/>,
+    <api group="java" name="OMG XML Metadata Interchange (XMI)" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/xmi.htm"/>
+    and <api group="java" name="JSR-40: Java Metadata Interface" category="standard" type="export" url="http://java.sun.com/products/jmi"/>.
 </answer>
 
 
@@ -287,7 +287,7 @@ JRE is enough.
         </question>
 -->
 <answer id="dep-nb">
-    <api name="openide" type="import" category="official">Lookup, filesystems API, modules API.</api>
+    <api group="java" name="openide" type="import" category="official">Lookup, filesystems API, modules API.</api>
 </answer>
 
 
@@ -306,8 +306,8 @@ JRE is enough.
 -->
 <answer id="dep-non-nb">
 The module depends on output of MOF and JMI specifications. Particularily
-    <api name="MOF 1.4 Metamodel definition XML file" type="import" category="standard" url="http://www.omg.org/cgi-bin/doc?ptc/01-10-08"/>
-    and <api name="JMI Reflective API and JMI interfaces generated from the MOF metamodel" category="standard" type="import" url="http://java.sun.com/products/jmi"/>.
+    <api group="java" name="MOF 1.4 Metamodel definition XML file" type="import" category="standard" url="http://www.omg.org/cgi-bin/doc?ptc/01-10-08"/>
+    and <api group="java" name="JMI Reflective API and JMI interfaces generated from the MOF metamodel" category="standard" type="import" url="http://java.sun.com/products/jmi"/>.
 </answer>
 
 

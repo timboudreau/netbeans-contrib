@@ -149,8 +149,8 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="dep-nb">
-    <api name="OpenAPIs" type="import" category="official" url="http://openide.netbeans.org/"/> 
-    <api name="OpenAPIsExtensions" type="import" category="devel" url="http://openidex.netbeans.org/"/>
+    <api group="java" name="OpenAPIs" type="import" category="official" url="http://openide.netbeans.org/"/> 
+    <api group="java" name="OpenAPIsExtensions" type="import" category="devel" url="http://openidex.netbeans.org/"/>
 </answer>
 
 
@@ -169,7 +169,7 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="dep-non-nb">
-    <api name="Jakarta-Regexp-1.2" type="import" category="deprecated" url="http://jakarta.apache.org/regexp/apidocs/">
+    <api group="java" name="Jakarta-Regexp-1.2" type="import" category="deprecated" url="http://jakarta.apache.org/regexp/apidocs/">
     Regular expressions API - distributed with the IDE (in lib/ext/regexp-1.2.jar).
     </api>
 </answer>
@@ -251,8 +251,8 @@ for more information.<p>List of the main features:</p>
 -->
 <answer id="deploy-packages">
     All public packages are accessible, no restriction applied. Vcscore module contains
-    <api name="VCSAPI" type="export" category="official" url="http://www.netbeans.org/download/dev/javadoc/VCSAPI/index.html"/>.
-    VcsGeneric module can use semi-private API <api name="VcsCoreImplementationAPI" type="export" category="friend"/>.
+    <api group="java" name="VCSAPI" type="export" category="official" url="http://www.netbeans.org/download/dev/javadoc/VCSAPI/index.html"/>.
+    VcsGeneric module can use semi-private API <api group="java" name="VcsCoreImplementationAPI" type="export" category="friend"/>.
 </answer>
 
 
