@@ -132,7 +132,7 @@ Microsystems, Inc. All Rights Reserved.
   
   <target name="javadoc" depends="init" description="Build Javadoc."> 
       <property name="_cp" refid="cp"/> 
-      <ant dir="${netbeans.dest.dir}/javadoctools" antfile="template.xml" target="javadoc"> 
+      <ant dir="${nb_all}/nbbuild/javadoctools" antfile="template.xml" target="javadoc"> 
        <property name="javadoc.base" location="."/> 
        <property name="javadoc.name" value="DD-API"/> 
        <property name="javadoc.title" value="Deployment Descriptor API"/> 
