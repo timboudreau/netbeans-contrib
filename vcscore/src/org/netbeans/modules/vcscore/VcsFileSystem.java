@@ -623,6 +623,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public synchronized void setIgnoredGarbageFiles (String nue) throws IllegalArgumentException {
+        System.err.println("--------------nue: "+nue);
+        Thread.dumpStack();
         if (! nue.equals (ignoredGarbageFiles)) {
             if (nue.length () > 0) {
                 try {
@@ -644,7 +646,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 ignoredGarbageRE = null;
             }
             ignoredGarbageFiles = nue;
-            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, null); // NOI18N
+            System.err.println("fire");
+            //firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, null); // NOI18N
+            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null,ignoredGarbageFiles ); // NOI18N
             refreshExistingFolders();
         }
     }
@@ -2619,8 +2623,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         //String result = annotateName (name, files);
-        result = Utilities.replaceString(result, name,
-            name + "<font color='!controlShadow'>") + "</font>"; //NOI18N
+        String fontColor = "<font color='!controlShadow'>";
+        if(javax.swing.UIManager.getDefaults().getColor("Tree.selectionBackground").equals(javax.swing.UIManager.getDefaults().getColor("controlShadow"))){
+            fontColor = "<font color='!Tree.selectionBorderColor'>";
+        }
+        result = Utilities.replaceString(result,name, name + fontColor);
         return result;
     }
 
