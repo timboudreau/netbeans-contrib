@@ -115,7 +115,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Lookup lookup = Aspects.getLookup(representedObject, provider);
         
         assertSame ("Next time the same lookup is returned", lookup, Aspects.getLookup(representedObject, provider));
-        Object representedObject2 = "sampleRO2";
+        Object representedObject2 = new String ("sampleRO2");
         Lookup lookup2 = Aspects.getLookup(representedObject2, provider);
         
         Lookup.Result resultListener = lookup.lookup (new Lookup.Template (java.awt.event.ActionListener.class));
@@ -168,7 +168,12 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         java.lang.ref.WeakReference refLookup2 = new java.lang.ref.WeakReference (lookup2);
         lookup2 = null;
-//        assertGC ("Lookup shall disappear as well", refLookup2);
+        assertGC ("Lookup shall disappear as well", refLookup2);
+        
+        java.lang.ref.WeakReference refRepresented2 = new java.lang.ref.WeakReference (representedObject2);
+        representedObject2 = null;
+        assertGC ("Represeted object shall disappear as well", refRepresented2);
+        
     }
     
     /** Counting listener */
