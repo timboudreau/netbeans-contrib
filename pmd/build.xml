@@ -14,6 +14,9 @@ Microsystems, Inc. All Rights Reserved.
 <!-- Simply a wrapper for an externally distributed NBM. -->
 <project name="contrib/pmd-nb-wrapper" basedir="." default="netbeans">
 
+    <property name="nbm_alias" value="nb_ide"/>
+    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+
     <target name="init">
         <ant dir="../../libs/external" target="unscramble"/>
         <mkdir dir="tmp"/>
@@ -34,8 +37,48 @@ Microsystems, Inc. All Rights Reserved.
         <!-- genlist cannot handle the nbm target currently; cf. #14839 -->
     </target>
 
-    <target name="nbm" depends="init">
+    <!-- Handle stupid ${dist.base} values without the URL protocol: -->
+    <target name="check-dist.base">
+        <condition property="dist.base-broken">
+            <not>
+                <contains string="${dist.base}" substring="http://"/>
+            </not>
+        </condition>
+    </target>
+    <target name="do-fix-dist.base" depends="check-dist.base" if="dist.base-broken">
+        <property name="dist.base.fixed" value="http://${dist.base}"/>
+    </target>
+    <target name="dont-fix-dist.base" depends="check-dist.base" unless="dist.base-broken">
+        <property name="dist.base.fixed" value="${dist.base}"/>
+    </target>
+
+    <target name="nbm" depends="init,do-fix-dist.base,dont-fix-dist.base">
+        <!-- Distribution attr not set, so this will not work for Dev AU:
         <copy file="tmp/pmd.nbm" tofile="pmd.nbm"/>
+        -->
+        <mkdir dir="tmp/expanded-nbm"/>
+        <unzip dest="tmp/expanded-nbm" src="tmp/pmd.nbm">
+            <patternset>
+                <!-- Signatures will not work after patching, so redo them: -->
+                <exclude name="META-INF/*"/>
+            </patternset>
+        </unzip>
+        <copy file="tmp/expanded-nbm/Info/info.xml" tofile="tmp/info-subst.xml"/>
+        <replace file="tmp/info-subst.xml" token='codenamebase="pmd"' value='codenamebase="pmd" distribution="${dist.base.fixed}/pmd.nbm"'/>
+        <jar jarfile="tmp/pmd-subst.nbm" compress="true">
+            <fileset dir="tmp/expanded-nbm">
+                <exclude name="Info/info.xml"/>
+            </fileset>
+            <zipfileset dir="tmp" includes="info-subst.xml" fullpath="Info/info.xml"/>
+        </jar>
+        <antcall target="maybe-sign-nbm"/>
+        <antcall target="maybe-dont-sign-nbm"/>
+    </target>
+    <target name="maybe-sign-nbm" if="keystore">
+        <signjar jar="tmp/pmd-subst.nbm" signedjar="pmd.nbm" keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+    </target>
+    <target name="maybe-dont-sign-nbm" unless="keystore">
+        <copy file="tmp/pmd-subst.nbm" tofile="pmd.nbm"/>
     </target>
 
     <target name="clean">
