@@ -127,6 +127,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String PROP_CREATE_BACKUP_FILES = "createBackupFiles"; // NOI18N
     public static final String PROP_FILTER_BACKUP_FILES = "filterBackupFiles"; // NOI18N
     public static final String PROP_PROMPT_FOR_VARS_FOR_EACH_FILE = "promptForVarsForEachFile"; // NOI18N
+    public static final String PROP_VCS_REFRESH_TIME = "vcsRefreshTime"; // NOI18N
     protected static final String PROP_USE_UNIX_SHELL = "useUnixShell"; // NOI18N
     protected static final String PROP_NOT_MODIFIABLE_STATUSES = "notModifiableStatuses"; // NOI18N
     
@@ -882,15 +883,25 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      *
      * @param ms number of milliseconds between two refreshes; if <code><= 0</code> then refreshing is disabled
      */
-    protected synchronized final void setVcsRefreshTime(int ms) {
-        if (refresher != null) {
-            refresher.stop ();
+    protected final void setVcsRefreshTime(int ms) {
+        setVcsRefreshTime(ms, true);
+    }
+    
+    private final void setVcsRefreshTime(int ms, boolean fireChange) {
+        int oldMS = getVcsRefreshTime();
+        if (oldMS == ms) return ;
+        synchronized (this) {
+            if (refresher != null) {
+                refresher.stop ();
+            }
+            if (ms <= 0 || System.getProperty ("netbeans.debug.heap") != null) { // NOI18N
+                refresher = null;
+            } else {
+                refresher = new VcsRefreshRequest (this, ms, this);
+            }
         }
-        if (ms <= 0 || System.getProperty ("netbeans.debug.heap") != null) { // NOI18N
-            refresher = null;
-        } else {
-            refresher = new VcsRefreshRequest (this, ms, this);
-        }
+        refreshTimeToSet = ms;
+        if (fireChange) firePropertyChange(PROP_VCS_REFRESH_TIME, null, null);
     }
     
     /** Get the number of milliseconds between automatic refreshes of the
@@ -1204,13 +1215,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void disableRefresh() {
         synchronized (this) {
             refreshTimeToSet = getVcsRefreshTime();
-            setVcsRefreshTime(0);
+            setVcsRefreshTime(0, false);
         }
     }
     
     public void enableRefresh() {
         synchronized (this) {
-            setVcsRefreshTime(refreshTimeToSet);
+            setVcsRefreshTime(refreshTimeToSet, false);
         }
     }
     
@@ -1677,7 +1688,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         list = a;
         vcsList = new VcsList();
         setRefreshTime (0); // disable the standard refresh, VcsRefreshRequest is used instead
-        setVcsRefreshTime (0); // due to customization
+        setVcsRefreshTime (0, false); // due to customization
         refreshTimeToSet = last_refreshTime;
         /*
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
