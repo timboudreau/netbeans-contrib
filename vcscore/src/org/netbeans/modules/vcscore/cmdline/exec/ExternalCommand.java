@@ -362,6 +362,10 @@ public class ExternalCommand {
                 }
             }
             //D.deb("process exit="+exit); // NOI18N
+            output.doStop();
+            try {
+                output.waitToFinish();
+            } catch (InterruptedException iex) {}
 
             setExitStatus(exit == 0 ? VcsCommandExecutor.SUCCEEDED
                                     : VcsCommandExecutor.FAILED);
@@ -524,6 +528,7 @@ public class ExternalCommand {
                             }
                         }
                     }
+                    //if (n > 0) System.out.println("IMMEDIATE OUT("+n+") = '"+new String(buff, 0, n)+"'");
                     if (n > 0 && isImmediateOut) {
                         synchronized (stdOutLock) {
                             Iterator it = stdImmediateOutListeners.iterator();
@@ -556,6 +561,7 @@ public class ExternalCommand {
                             }
                         }
                     }
+                    //if (n > 0) System.out.println("IMMEDIATE ERR("+n+") = '"+new String(buff, 0, n)+"'");
                     if (n > 0 && isImmediateErr) {
                         synchronized (stdErrLock) {
                             Iterator it = stdImmediateErrListeners.iterator();
