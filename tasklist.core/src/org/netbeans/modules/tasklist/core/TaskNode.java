@@ -15,10 +15,12 @@ package org.netbeans.modules.tasklist.core;
 
 
 import java.awt.Image;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -240,6 +242,11 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
     public Transferable clipboardCopy() throws IOException {
         Transferable deflt = super.clipboardCopy();
         ExTransferable enriched = ExTransferable.create(deflt);
+        
+        // TODO: remove DataFlavor.stringFlavor
+        // ExClipboard.Convertor doesn't work yet
+        // see http://www.netbeans.org/issues/show_bug.cgi?id=30923
+        // That's why we create DataFlavor.stringFlavor here
         enriched.put(new ExTransferable.Single(TaskTransfer.TODO_FLAVOR) {
             protected Object getData() {
                 try {
@@ -250,6 +257,13 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
                     // a checked exception so I'm forced to catch it.
                     return null;
                 }
+            }
+        });
+        enriched.put(new ExTransferable.Single(DataFlavor.stringFlavor) {
+            protected Object getData() throws IOException {
+                StringWriter wr = new StringWriter();
+                Task.generate(item, wr);
+                return wr.toString();
             }
         });
         return enriched;
