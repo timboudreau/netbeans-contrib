@@ -45,6 +45,7 @@ public class Main extends JellyTestCase {
     }
     
     public static junit.framework.Test suite() {
+        setupWorkdir ();
         org.netbeans.junit.NbTestSuite test = new org.netbeans.junit.NbTestSuite();
         test.addTest(new Main("testPOASearch_Servant_Package"));
         test.addTest(new Main("testPOASearch_Servant_Sub"));
@@ -67,23 +68,26 @@ public class Main extends JellyTestCase {
     Timeouts time;
     
     CORBASupportSettings css;
-    String fsroot;
+    static String fsroot;
 
     public void setUp () {
-        time = JemmyProperties.getCurrentTimeouts ();
+/*        time = JemmyProperties.getCurrentTimeouts ();
         Timeouts t = new Timeouts ();
         try { t.loadDebugTimeouts (); } catch (IOException e) {}
-        JemmyProperties.setCurrentTimeouts (t);
+        JemmyProperties.setCurrentTimeouts (t);*/
         exp = new ExplorerOperator ();
         ev = new EventTool ();
         out = getRef ();
         closeAllModal = true;
         css = (CORBASupportSettings) CORBASupportSettings.findObject(CORBASupportSettings.class, true);
         assertNotNull ("Cannot find CORBASupportSettings class", css);
-
+    }
+        
+    public static void setupWorkdir () {
         try {
-            String name = System.getProperty("work.dir") + "/tests/qa-functional/src/data/poasearch";
-			getLog ().println (name);
+            //String name = System.getProperty("work.dir") + "/tests/qa-functional/src/data/poasearch";
+            String name = "e:/sources/nb_all/corba/test/qa-functional/src/data/poasearch";
+            System.out.println (name);
             FileSystem fs = TopManager.getDefault().getRepository().findFileSystem(name);
             if (fs == null) {
                 LocalFileSystem lfs = new LocalFileSystem();
@@ -92,7 +96,7 @@ public class Main extends JellyTestCase {
                 fsroot = lfs.getDisplayName ();
             } else
                 fsroot = fs.getDisplayName ();
-			getLog ().println (fsroot);
+            System.out.println (fsroot);
         } catch (Exception e) {
             new AssertionFailedErrorException ("Error while mounting working filesystem - data/poasearch", e);
         }
@@ -100,7 +104,7 @@ public class Main extends JellyTestCase {
     }
     
     public void tearDown () {
-        JemmyProperties.setCurrentTimeouts (time);
+//        JemmyProperties.setCurrentTimeouts (time);
     }
     
     public static void main(java.lang.String[] args) {
@@ -108,6 +112,7 @@ public class Main extends JellyTestCase {
     }
     
     public void findServants () {
+        ev.waitNoEvent(1000);
         new POAChildNode (exp.repositoryTab().tree (), fsroot + "|main|ServerMain|class ServerMain|RootPOA|Servant").addServant();
         NewServantDialog di = new NewServantDialog ();
         di.verify ();
@@ -146,6 +151,7 @@ public class Main extends JellyTestCase {
     }
 
     public void findDefaults () {
+        ev.waitNoEvent(1000);
         new POAChildNode (exp.repositoryTab().tree (), fsroot + "|main|ServerMain|class ServerMain|RootPOA|Default").addDefaultServant();
         NewDefaultServantDialog di = new NewDefaultServantDialog ();
         di.verify ();
@@ -184,6 +190,7 @@ public class Main extends JellyTestCase {
     }
 
     public void findManagers () {
+        ev.waitNoEvent(1000);
         new POAChildNode (exp.repositoryTab().tree (), fsroot + "|main|ServerMain|class ServerMain|RootPOA|Manager").addServantManager();
         NewServantManagerDialog di = new NewServantManagerDialog ();
         di.verify ();
@@ -222,6 +229,7 @@ public class Main extends JellyTestCase {
     }
 
     public void findActivators () {
+        ev.waitNoEvent(1000);
         new POAChildNode (exp.repositoryTab().tree (), fsroot + "|main|ServerMain|class ServerMain|RootPOA|Activator").addPOAActivator();
         NewPOAActivatorDialog di = new NewPOAActivatorDialog ();
         di.verify ();
