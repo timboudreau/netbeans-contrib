@@ -48,7 +48,7 @@ public class AdditionalCommands extends PVCSStub {
     public static Test suite() {
 //        complete.GenericStub.DEBUG = true;
         TestSuite suite = new NbTestSuite();
-        try { if (Runtime.getRuntime().exec(Utilities.isUnix() ? "sh -c \"vlog\"" : "cmd /x /c \"vlog\"").waitFor() != 0) return suite; } catch (Exception e) { e.printStackTrace (); return suite; }
+        try { System.out.println ("vlog return code: " + Runtime.getRuntime().exec("vlog").waitFor()); } catch (Exception e) { e.printStackTrace (); return suite; }
         suite.addTest(new AdditionalCommands("configure"));
         suite.addTest(new AdditionalCommands("testUnlockSpecificRevision"));
         suite.addTest(new AdditionalCommands("testLockSpecificRevision"));
