@@ -366,7 +366,9 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
                 } else {
                     DialogDescriptor dd = new DialogDescriptor(cust,
                     NbBundle.getMessage(VcsManager.class, "LAB_FS_Customizer"));
-                    Object[] options = new Object[]{ NbBundle.getMessage(VcsManager.class, "LBL_VcsManagerClose") };
+                    javax.swing.JButton close = new javax.swing.JButton(NbBundle.getMessage(VcsManager.class, "LBL_VcsManagerClose"));
+                    close.setMnemonic(NbBundle.getMessage(VcsManager.class, "LBL_VcsManagerClose_mnc").charAt(0));
+                    Object[] options = new Object[]{close};
                     dd.setOptions(options);                   
                     dd.setValue(options[0]);
                     dd.setClosingOptions(options);
