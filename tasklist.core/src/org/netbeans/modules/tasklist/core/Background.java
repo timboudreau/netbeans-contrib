@@ -143,6 +143,7 @@ public final class Background {
         if (loadfailed) return;
         if (false == loaded) {
             try {
+                // XXX be aware of #32080, that changes location of native libraries
                 System.loadLibrary("tasklist_bgthreads");
                 loaded = true;
             } catch (Throwable t) {
