@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore;
 
 import java.awt.*;
 import java.io.*;
+import java.lang.ref.Reference;
 import java.util.*;
 import java.beans.*;
 import java.text.*;
@@ -303,6 +304,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private Boolean createRuntimeCommands = Boolean.TRUE;
     
     private transient IgnoreListSupport ignoreListSupport = null;
+    
+    private transient Set unimportantFiles = Collections.synchronizedSet(new HashSet());
 
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
@@ -627,18 +630,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param name the file name
      */
     public void markUnimportant(String name) {
-        CacheReference ref = (CacheReference)findReference(name);
-        if (ref != null) {
-            ref.markUnimportant();
+        Reference ref = findReference(name);
+        if (ref != null && ref instanceof CacheReference) {
+            ((CacheReference) ref).markUnimportant();
+        } else {
+            unimportantFiles.add(name);
         }
     }
     
     public boolean isImportant(String name) {
-        CacheReference ref = (CacheReference)findReference(name);
-        if (ref != null) {
-            return ref.isImportant();
+        Reference ref = findReference(name);
+        if (ref != null && ref instanceof CacheReference) {
+            return ((CacheReference) ref).isImportant();
+        } else {
+            return unimportantFiles.contains(name);
         }
-        return true;
     }
 
     /**
@@ -819,55 +825,55 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param fo is FileObject. It`s reference yourequire to get.
      * @return Reference to FileObject
      */
-    protected java.lang.ref.Reference createReference(FileObject fo) {
+    protected java.lang.ref.Reference createReference(final FileObject fo) {
 	if (cache != null) {
             java.lang.ref.Reference ref = cache.createReference(fo);
-            IgnoreListSupport ignSupport = this.getIgnoreListSupport();
+            final IgnoreListSupport ignSupport = this.getIgnoreListSupport();
             if (ignSupport != null) {
-                String path = fo.getPackageNameExt('/','.');
+                final String path = fo.getPackageNameExt('/','.');
                 if (cache.isDir (path)) {
-                    CacheDir dir = cache.getDir(path);
-                    FileObject parent = fo.getParent();
-                    ArrayList ignorelist = null;
-                    if (fo == null)
-                        ignorelist = ignSupport.createIgnoreList (fo, ignSupport.createInitialIgnoreList());
-                    else {
-                        CacheDir pd = cache.getDir(parent.getPackageNameExt('/','.'));
-                        if (pd != null) {
-                            ArrayList parentIgnoreList = pd.getIgnoreList();
-                            if (parentIgnoreList == null) {
-                                // Parent is a root of FS
-                                ignorelist = ignSupport.createIgnoreList (fo, ignSupport.createInitialIgnoreList());
-                            } else {
-                                // Parent is a package in FS
-                                ignorelist = ignSupport.createIgnoreList (fo,parentIgnoreList);
+                    org.openide.util.RequestProcessor.postRequest(new Runnable() {
+                        public void run() {
+                            synchronized (ignSupport) {
+                                createIgnoreList(fo, path, ignSupport);
                             }
                         }
-                        else {
-                            // If called for root of file system
-                            ignorelist = ignSupport.createIgnoreList (fo, ignSupport.createInitialIgnoreList());
-                        }
-                    }
-                    dir.setIgnoreList (ignorelist);
-                }
-                else {
-                    /*
-                    FileObject parent = fo.getParent();
-                    if (parent != null) {
-                        CacheDir dir = cache.getDir (parent.getPackageNameExt('/','.'));
-                        if (dir != null) {
-                            if (dir.isIgnored(fo.getNameExt())) {
-                                CacheReference cr = (CacheReference) ref;
-                                cr.markUnimportant ();
-                            }
-                        }
-                    }
-                     */
+                    });
                 }
             }
 	    return ref;
 	}
 	else return super.createReference(fo);
+    }
+    
+    private void createIgnoreList(final FileObject fo, final String path, final IgnoreListSupport ignSupport) {
+        CacheDir dir = cache.getDir(path);
+        FileObject parent = fo.getParent();
+        ArrayList ignorelist = null;
+        if (parent == null)
+            ignorelist = ignSupport.createIgnoreList(fo, ignSupport.createInitialIgnoreList());
+        else {
+            CacheDir pd = cache.getDir(parent.getPackageNameExt('/','.'));
+            if (parent.getParent() == null && pd != null && pd.getIgnoreList() == null) {
+                createIgnoreList(parent, parent.getPackageNameExt('/', '.'), ignSupport);
+            }
+            if (pd != null) {
+                ArrayList parentIgnoreList = pd.getIgnoreList();
+                if (parentIgnoreList == null) {
+                    // Parent is a root of FS
+                    ignorelist = ignSupport.createIgnoreList(fo, ignSupport.createInitialIgnoreList());
+                } else {
+                    // Parent is a package in FS
+                    ignorelist = ignSupport.createIgnoreList(fo,parentIgnoreList);
+                }
+            }
+            else {
+                // If called for root of file system
+                ignorelist = ignSupport.createIgnoreList(fo, ignSupport.createInitialIgnoreList());
+            }
+        }
+        dir.setIgnoreList(ignorelist);
+        statusChanged(path, false);
     }
 
     /**
