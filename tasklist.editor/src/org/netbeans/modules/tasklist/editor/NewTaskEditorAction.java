@@ -80,7 +80,7 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
 	if (!((filename != null) && (filename.length() > 0))) {
 	    line = 0;
 	}
-	NewTaskAction.performAction(null, filename, line, true, false);
+	NewTaskAction.performAction(null, filename, line, true);
     }
     
     public String getString(String str) {
