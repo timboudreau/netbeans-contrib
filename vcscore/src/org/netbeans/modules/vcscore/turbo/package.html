@@ -16,6 +16,7 @@ They are responsible for:
 <ul>
 <li>STATUS: keeping last known status (up-to-date, localy modified, ....)
 <li>UNKNOWN: model unknown status
+<li>NOTIFICATIONS: support exteral status change listeners
 <li>UPDATED_ON: holding retrieval date of last known status
 <li>LEVELS: client can put strategy contraints
 <li>IGNORELIST: keep merged .ignorelists
@@ -56,7 +57,7 @@ following client code conversions (it obviously excludes cache and caching packa
   <li>objectidentity package implements CacheHandlerListener, there is nothing like that in
      simplified implementation
   <li>VcsFileSystem.getRealStatus() used in search, it also implements CacheHandlerListener
-     to perform refresh and distribute events to FileStatusListeners to update annotations
+     to perform refresh
   <li>VcsFileSystem.Info implementation takes String arguments. Why? Can I convert to fileObject.
   <li>cvsprofiles.list package STATUS_DEAD management, where should it be defined? Also VcsFilesystem.List.children().
   <li>vcscore.commans package STATUS_IGNORED management, where should it be defined?

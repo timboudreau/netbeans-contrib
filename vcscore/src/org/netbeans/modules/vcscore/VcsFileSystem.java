@@ -92,9 +92,7 @@ import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
-import org.netbeans.modules.vcscore.turbo.Turbo;
-import org.netbeans.modules.vcscore.turbo.FileReference;
-import org.netbeans.modules.vcscore.turbo.FileProperties;
+import org.netbeans.modules.vcscore.turbo.*;
 
 /** Generic VCS filesystem.
  *
@@ -107,7 +105,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           AbstractFileSystem.Change, FileSystem.Status,
                                                                           CommandExecutionContext, CacheHandlerListener,
                                                                           FileObjectExistence, VcsOISActivator, Serializable,
-                                                                          FileSystem.HtmlStatus {
+                                                                          FileSystem.HtmlStatus,
+                                                                          TurboListener {
+
     public static interface IgnoreListSupport {
 
         public ArrayList createInitialIgnoreList ();
@@ -1038,8 +1038,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient RequestProcessor.Task statusUpdateTask;
 
     /**
-     * Perform refresh of status information of a file
-     * @param name the full file name
+     * Fire status chnage information of a file. Batch to minimally 200ms chunks.
+     * @param name the full file name (path to root)
      */
     public void statusChanged (final String name) {
         //System.out.println("statusChanged("+name+")");
@@ -1503,6 +1503,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         deleteFolderCommandQueue = new ArrayList();
 
         if (Turbo.implemented()) {
+            // listen on turbo changes and redistribute as file status changes
+            Turbo.singleton().addTurboListener((TurboListener) WeakListeners.create(TurboListener.class, this, Turbo.singleton()));
+
             // TODO revisit possible side effects of old implementaion
             integritySupportMaintainer = new IntegritySupportMaintainer(this, this);
             return;
@@ -4072,6 +4075,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             file.setImportant(false);
 }
     */
+
+    // TurboListener implementation of CacheHandlerListener ~~~~~~~~~~~~~~
+    public void turboChanged(TurboEvent e) {
+        FileObject fo = e.getFileObject();
+        String path = fo.getPath();
+        statusChanged(path);
+    }
+
 
 //-------------------- methods from CacheHandlerListener------------------------
     public void cacheAdded(CacheHandlerEvent event) {

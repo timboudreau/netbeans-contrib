@@ -15,6 +15,9 @@ package org.netbeans.modules.vcscore.turbo;
 import org.openide.filesystems.FileObject;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
 
 /**
  * Client code main entry point.
@@ -22,6 +25,13 @@ import javax.swing.*;
  * @author Petr Kuzel
  */
 public final class Turbo {
+
+    private static TurboListener[] listeners = new TurboListener[0];
+
+    private static final Turbo SINGLETON = new Turbo();
+
+    private Turbo() {
+    }
 
     /**
      * Request last known status. It can contact repository if
@@ -90,6 +100,26 @@ public final class Turbo {
         status.freeze();
         Memory.put(fileObject, status);
         Disk.put(fileObject, status);
+
+        // notify listeners
+        if (listeners.length > 0) {
+            TurboEvent e = new TurboEvent(fileObject, status);
+            for (int i=0; i<listeners.length; i++) {
+                listeners[i].turboChanged(e);
+            }
+        }
+    }
+
+    public void addTurboListener(TurboListener l) {
+        List clone = Arrays.asList(listeners);
+        clone.add(l);
+        listeners = (TurboListener[]) clone.toArray(new TurboListener[clone.size()]);
+    }
+
+    public void removeTurboListener(TurboListener l) {
+        List clone = Arrays.asList(listeners);
+        clone.remove(l);
+        listeners = (TurboListener[]) clone.toArray(new TurboListener[clone.size()]);
     }
 
     /**
@@ -115,5 +145,16 @@ public final class Turbo {
      */
     public static boolean implemented() {
         return false;
+    }
+
+    /**
+     * You do not need this until you need add listeners. There are static
+     * methods for all other oprations. Listeners must be added on default
+     * instance in order to support WeakListeners. WeakListeners
+     * are crucial here as Turbo's lifetime (it's static) exceeds
+     * lifetime of most potentional listeners.
+     */
+    public static Turbo singleton() {
+        return SINGLETON;
     }
 }
