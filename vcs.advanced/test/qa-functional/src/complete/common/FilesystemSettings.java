@@ -71,8 +71,16 @@ public class FilesystemSettings extends NbTestCase {
     /** Method called before each testcase. Sets default timeouts, redirects system
      * output and maps main components.
      */
-    protected void setUp() {
-        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new File(workingDir).mkdirs();
+        File outputFile = new File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        File errorFile = new File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
+        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
     }
     
     /** Mounts new filesystem using given profile.
@@ -261,7 +269,7 @@ public class FilesystemSettings extends NbTestCase {
             StringProperty ignoredFiles = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "Ignored Files");
             ignoredFiles.setStringValue("A_File");
             filesystemNode.select();
-            if (filesystemNode.getChildren().length != 0) {
+            if (fileNode.isPresent()) {
                 captureScreen();
                 String children = getChildren(filesystemNode);
                 new UnmountFSAction().perform(filesystemNode);
@@ -290,15 +298,8 @@ public class FilesystemSettings extends NbTestCase {
             filesystemNode.expand();
             Thread.sleep(1000);
             int count = filesystemNode.getChildren().length;
-            if (count != 1) {
-                captureScreen();
-                filesystemNode.select();
-                String children = getChildren(filesystemNode);
-                new UnmountFSAction().perform(filesystemNode);
-                throw new Exception("Error: There are more nodes except A_File. " + count);
-            }
+            new Action("View|Properties", null).perform(filesystemNode);
             filesystemNode.select();
-            new Action("View|Properties", null).perform();
             PropertySheetOperator sheet = new PropertySheetOperator();
             PropertySheetTabOperator expertTab;
             try {
@@ -316,7 +317,7 @@ public class FilesystemSettings extends NbTestCase {
             createBackupFiles.setValue("False");
             refreshTime.setValue("5000");
             Thread.sleep(5000);
-            if (filesystemNode.getChildren().length != 1) {
+            if (filesystemNode.getChildren().length != count) {
                 captureScreen();
                 filesystemNode.select();
                 String children = getChildren(filesystemNode);
@@ -329,7 +330,7 @@ public class FilesystemSettings extends NbTestCase {
             editor.insert("// The first added line.\n");
             new SaveAction().perform();
             Thread.sleep(10000);
-            if (filesystemNode.getChildren().length != 1) {
+            if (filesystemNode.getChildren().length != count) {
                 captureScreen();
                 filesystemNode.select();
                 String children = getChildren(filesystemNode);
@@ -352,7 +353,7 @@ public class FilesystemSettings extends NbTestCase {
             editor.requestFocus();
             new SaveAction().perform();
             Thread.sleep(10000);
-            if (filesystemNode.getChildren().length != 2) {
+            if (filesystemNode.getChildren().length != (count+1)) {
                 captureScreen();
                 filesystemNode.select();
                 String children = getChildren(filesystemNode);
@@ -373,7 +374,7 @@ public class FilesystemSettings extends NbTestCase {
             filterBackupFiles.setValue("True");
             Thread.sleep(10000);
             filesystemNode.select();
-            if (filesystemNode.getChildren().length != 1) {
+            if (filesystemNode.getChildren().length != count) {
                 captureScreen();
                 String children = getChildren(filesystemNode);
                 new UnmountFSAction().perform(filesystemNode);

@@ -56,8 +56,16 @@ public class Variables extends org.netbeans.junit.NbTestCase {
     /** Method called before each testcase. Sets default timeouts, redirects system
      * output and maps main components.
      */
-    protected void setUp() {
-        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new java.io.File(workingDir).mkdirs();
+        java.io.File outputFile = new java.io.File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        java.io.File errorFile = new java.io.File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        java.io.PrintWriter outputWriter = new java.io.PrintWriter(new java.io.FileWriter(outputFile));
+        java.io.PrintWriter errorWriter = new java.io.PrintWriter(new java.io.FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
     }
     
     /** Method will create a file and capture the screen together with saving the exception.
@@ -126,6 +134,8 @@ public class Variables extends org.netbeans.junit.NbTestCase {
             VariableEditor variableEditor = new VariableEditor();
             Node accessoryNode = new Node(variableEditor.treeVariables(), "Accessory");
             Node node = new Node(accessoryNode, "NAME2");
+            node.select();
+            Thread.sleep(1000);
             new DeleteAction().perform(node);
             NbDialogOperator question = new NbDialogOperator("Confirm Object Deletion");
             new org.netbeans.jemmy.operators.JLabelOperator(question, "Are you sure you want to delete NAME2?");

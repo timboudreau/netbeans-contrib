@@ -71,8 +71,16 @@ public class MountingWizard extends NbTestCase {
     
     /** Method called before each testcase. Redirects system output.
      */
-    protected void setUp() {
-        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new File(workingDir).mkdirs();
+        File outputFile = new File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        File errorFile = new File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
+        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
     }
 
     /** Method will create a file and capture the screen.
@@ -112,6 +120,7 @@ public class MountingWizard extends NbTestCase {
                 wizard.setProfileNoBlock(profiles[i]);
                 new JLabelOperator(new JDialogOperator("Question"), "settings for " + profiles[i] + "?");
                 new QuestionDialogOperator(question).yes();
+                Thread.sleep(3000);
                 long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
                 org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
                 try { new NbDialogOperator("Exception").ok(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -362,6 +371,7 @@ public class MountingWizard extends NbTestCase {
                 profile = profiles[i];
                 wizardProfile.setProfileNoBlock(profile);
                 new QuestionDialogOperator().yes();
+                Thread.sleep(3000);
                 long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
                 org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
                 try { new NbDialogOperator("Exception").ok(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -445,6 +455,7 @@ public class MountingWizard extends NbTestCase {
             wizardAdvanced.editCommands();
             CommandEditor commandEditor = new CommandEditor();
             commandEditor.selectCommand("Empty|Lock");
+            new Node(commandEditor.treeCommands(), "Empty|Lock").select();
             NbDialogOperator dialog = new NbDialogOperator("Command Editor");
             PropertySheetOperator sheet = new PropertySheetOperator(dialog);
             PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Properties");
@@ -456,12 +467,15 @@ public class MountingWizard extends NbTestCase {
             commandEditor.ok();
             wizardEnvironment.finish();
             Thread.sleep(2000);
-            new Action(null, "Empty|Lock").perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath()));
+            Node rootNode = new ExplorerOperator().repositoryTab().getRootNode();
+            String filesystem = "Empty " + getWorkDirPath();
+            new Action(null, "Empty|Lock").perform(new Node(rootNode, filesystem));
+            Thread.sleep(3000);
             VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Lock");
             String output = outputWindow.txtStandardOutput().getText();
             String desired = Utilities.isUnix() ? "My name is: Jirka \nPath =\n" : "My name is: Jirka \nPath = %PATH%\n";
             outputWindow.close();
-            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath()));
+            new UnmountFSAction().perform(new Node(rootNode, filesystem));
             if (!output.equals(desired))
                 throw new Exception("Error: Incorrect output result. Actual: |" + output + "| Requested: |" + desired + "|");
             System.out.println(". done !");
@@ -508,6 +522,7 @@ public class MountingWizard extends NbTestCase {
             if (property.getValue().equals("False"))
                 throw new Exception("Error: Can't propagate Print Command Output setting from wizard to filesystem property.");
             new org.netbeans.jellytools.actions.CustomizeAction().perform(filesystemNode);
+            Thread.sleep(5000);
             NbDialogOperator customizer = new NbDialogOperator("Customizer Dialog");
             new JTabbedPaneOperator(customizer).selectPage("Advanced");
             JCheckBoxOperator checkBox = new JCheckBoxOperator(customizer, "Advanced Mode");
@@ -541,7 +556,9 @@ public class MountingWizard extends NbTestCase {
             wizardProfile.setProfile(Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT);
             Thread.sleep(5000);
             new File(getWorkDirPath()).mkdirs();
-            wizardProfile.setPVCSWorkfilesLocation(getWorkDirPath());
+            JTextFieldOperator textField = wizardProfile.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION);
+            textField.clearText();
+            textField.setText(getWorkDirPath());
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
             wizardAdvanced.checkAdvancedMode(true);
