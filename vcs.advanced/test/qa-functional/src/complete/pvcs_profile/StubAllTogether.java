@@ -140,7 +140,8 @@ public class StubAllTogether extends PVCSStub {
         refresh (B_File.parent ());
         B_File.waitStatus ("Local");
         D_File.save ("B_File - Initial content");
-        refresh (D_File.parent ());
+        D_File.parent ().pvcsNode ().pVCSRefresh();
+        history.waitCommand("Refresh", D_File.parent ().history ());
         D_File.waitStatus ("Local");
 
         new PVCSAddAction ().perform (new Node [] {
