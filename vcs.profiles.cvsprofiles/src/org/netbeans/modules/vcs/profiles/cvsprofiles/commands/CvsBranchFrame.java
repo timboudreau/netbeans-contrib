@@ -239,8 +239,8 @@ public class CvsBranchFrame extends javax.swing.JFrame {
         branchDraw = new BranchDraw();
         branchScrollPane.setViewportView(branchDraw);
         branchDraw.addMouseListener(new BranchMouseListener());
-        closeButton.setMnemonic(KeyEvent.VK_C);
-        diffButton.setMnemonic(KeyEvent.VK_D);
+        closeButton.setMnemonic(org.openide.util.NbBundle.getBundle(CvsBranchFrame.class).getString("CvsBranchFrame.closeButton.mnemonic").charAt(0));
+        diffButton.setMnemonic(org.openide.util.NbBundle.getBundle(CvsBranchFrame.class).getString("CvsBranchFrame.diffButton.mnemonic").charAt(0));
     }
 
     public void setPositions(int graphWidth, int graphHeight, Hashtable branchPositions) {
