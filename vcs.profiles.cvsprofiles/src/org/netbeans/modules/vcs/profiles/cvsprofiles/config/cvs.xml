@@ -698,6 +698,12 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+        <property name="notificationSuccessMsg">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_INIT_Success)</value>
+        </property>
+        <property name="notificationFailMsg">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_INIT_Fail)</value>
+        </property>
       </command>
       <separator />
       <command name="COMMIT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_COMMIT)">
@@ -2951,6 +2957,12 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="error.regex">
 	  <value>$ ^</value>
 	</property>
+        <property name="notificationSuccessMsg">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_INIT_Success)</value>
+        </property>
+        <property name="notificationFailMsg">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_INIT_Fail)</value>
+        </property>
       </command>
       <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_GLOBAL_CHECKOUT)">
         <property name="labelMnemonic">
