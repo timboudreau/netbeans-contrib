@@ -117,9 +117,6 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="SystemFileSystem.layer" stringvalue="project" />
             </file>
         </folder>
-    </folder>
-
-    <folder name="SearchType">
         <file name="org-netbeans-modules-vcscore-search-VcsSearchType.settings" url="VcsSearchType.settings">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.search.Bundle" />
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/search/find.gif" />
