@@ -512,6 +512,7 @@ public class ConditionNode extends AbstractNode {
 
                 public void setValue(Object value) {
                     c.setLogicalOperation(operation = ((Integer) value).intValue());
+                    fireDisplayNameChange(null, null);
                 }
                 
                 public Object getValue(String attributeName) {
