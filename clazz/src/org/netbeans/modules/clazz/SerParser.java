@@ -58,7 +58,7 @@ easier to select Customize Bean... in the IDE and save as *.ser.
  */
 public final class SerParser implements ObjectStreamConstants {
     
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = Boolean.getBoolean("org.netbeans.modules.clazz.SerParser.DEBUG"); // NOI18N
     
     private final InputStream is;
     private int seq = 0;
