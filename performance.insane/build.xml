@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -20,6 +20,7 @@ Microsystems, Inc. All Rights Reserved.
             <include name="${module.jar}"/>
             <include name="${javahelp.jar}" if="has.javahelp"/>
             <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
+            <include name="${netbeans.dest.dir}/${cluster.dir}/modules/ext/insanelib.jar"/>
             <include name="${nb.lib.dir}/org-netbeans-modules-performance-insane-cli.jar"/>
         </patternset>
     </target>
@@ -41,9 +42,22 @@ Microsystems, Inc. All Rights Reserved.
         </jar>
     </target>
 
-    <target name="compile" depends="jar-cli,projectized.compile"/>
+    <target name="compile-lib" depends="init">
+        <echo message="Building library..."/>
+        <ant dir="../insanelib" target="jar" inheritAll="false"/>
+        <copy file="../insanelib/dist/insanelib.jar" todir="${netbeans.dest.dir}/${cluster.dir}/modules/ext" />
+    </target>
+
+    <target name="clean-lib">
+        <echo message="Cleaning library..."/>
+        <ant dir="../insanelib" target="clean" inheritAll="false"/>
+    </target>
+    
+    <target name="compile" depends="compile-lib,jar-cli,projectized.compile"/>
 
     <target name="netbeans-extra" depends="jar-cli"/>
+
+    <target name="clean" depends="clean-lib,projectized.clean"/>
 
 </project>
 
