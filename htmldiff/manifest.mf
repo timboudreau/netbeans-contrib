@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.htmldiff/1
-OpenIDE-Module-Specification-Version: 0.1
+OpenIDE-Module-Specification-Version: 0.2
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.17
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.diff/1 > 1.7	
 OpenIDE-Module-Layer: org/netbeans/modules/htmldiff/layer.xml

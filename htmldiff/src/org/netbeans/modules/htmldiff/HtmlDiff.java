@@ -65,8 +65,34 @@ public final class HtmlDiff extends Object {
      * @exception IOException if there is I/O problem
      */
     public static HtmlDiff[] diff (Reader old, Reader current) throws IOException {
-        List oldArr = wordize (old);
-        List newArr = wordize (current);
+        List oldSentences = sententize (old);
+        List newSentences = sententize (current);
+        
+        HtmlDiff[] arr = doDiff (oldSentences, newSentences, false);
+        
+        ArrayList compare = new ArrayList (arr.length);
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i].isDifference ()) {
+                List oldArr = wordize (new StringReader (arr[i].getOld ()));
+                List newArr = wordize (new StringReader (arr[i].getNew ()));
+                
+                HtmlDiff[] diffs = doDiff (oldArr, newArr, true);
+
+                compare.addAll (java.util.Arrays.asList (diffs));
+            } else {
+                if (arr[i].getNew ().length () > 0) {
+                    // just copy
+                    compare.add (arr[i]);
+                }
+            }
+        }
+        
+        return (HtmlDiff[])compare.toArray (new HtmlDiff[0]);
+    }
+    
+    /** Compares items.
+     */
+    private static HtmlDiff[] doDiff (List oldArr, List newArr, boolean ignoreTags) throws IOException {
         
         org.netbeans.spi.diff.DiffProvider diff = (org.netbeans.spi.diff.DiffProvider)org.openide.util.Lookup.getDefault().lookup(org.netbeans.spi.diff.DiffProvider.class);
         if (diff == null) {
@@ -108,7 +134,16 @@ public final class HtmlDiff extends Object {
             }
              */
             
-            res.add (new HtmlDiff (newText));
+            if (
+                oldText == null || oldText.equals (newText) ||
+                (ignoreTags && oldText.startsWith ("<")) // NOI18N
+            ) {
+                if (newText.length () > 0) {
+                    res.add (new HtmlDiff (newText));
+                }
+            } else {
+                res.add (new HtmlDiff (oldText, newText));
+            }
             
             // process the difference
             int oe = arr[i].getFirstEnd ();
@@ -125,7 +160,10 @@ public final class HtmlDiff extends Object {
                 oldText = oldItems.size () > j ? (String)oldItems.get (j) : null;
                 newText = newItems.size () > j ? (String)newItems.get (j) : "";
                 
-                if (oldText == null || oldText.equals (newText) || oldText.startsWith ("<")) {
+                if (
+                    oldText == null || oldText.equals (newText) ||
+                    (ignoreTags && oldText.startsWith ("<")) // NOI18N
+                ) {
                     if (newText.length () > 0) {
                         res.add (new HtmlDiff (newText));
                     }
@@ -152,7 +190,7 @@ public final class HtmlDiff extends Object {
     }
     
     
-    /** Converts the stream to pieces.
+    /** Converts the stream to pieces of words.
      * @param r strea of characters
      * @return List<Item> of items
      *
@@ -232,6 +270,69 @@ public final class HtmlDiff extends Object {
         
         if (word != null) {
             arr.add (newWord (word.toString()));
+        }
+        
+        return arr;
+    }
+    
+    private static boolean isDot (char ch) {
+        return ch == '.' || ch == ',' || ch == '?' || ch == '!';
+    }
+    
+    /** Converts the stream to pieces of sentences.
+     * @param r stream of characters
+     * @return List<Item> of items
+     *
+     */
+    private static List sententize (Reader r) throws IOException {
+        BufferedReader buf = new BufferedReader (r);
+        
+        ArrayList arr = new ArrayList ();
+        int state = 0;
+        int prevState = -1;
+        StringBuffer sentence = null;
+        for (;;) {
+            int ch = buf.read ();
+            if (ch == -1) break;
+
+            switch (state) {
+                case 0: // spaces
+                    if (!Character.isWhitespace ((char)ch)) {
+                        state = 1;
+                        sentence = new StringBuffer ();
+                        // fallthru
+                    } else {
+                        break;
+                    }
+                case 1: // character
+                    sentence.append ((char)ch);
+                    if (ch == '<') {
+                        prevState = state;
+                        state = 2;
+                        break;
+                    }
+                    
+                    if (isDot ((char)ch)) {
+                        arr.add (newWord (sentence.toString()));
+                        state = 0;
+                        sentence = null;
+                        break;
+                    }
+                    break;
+                case 2: // search for end of tag
+                    sentence.append ((char)ch);
+                    if (ch == '>') {
+                        state = prevState;
+                        break;
+                    }
+                    break;
+                default:
+                    throw new IllegalStateException ("state: " + state); // NOI18N
+            }
+        }
+        
+        if (sentence != null) {
+            arr.add (newWord (sentence.toString()));
         }
         
         return arr;

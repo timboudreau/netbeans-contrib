@@ -568,11 +568,47 @@ public final class DiffTest extends NbTestCase {
         r1.close ();
         r2.close ();
     }
+
+    public void testAddingASentenceInMiddleCorrectlyJoinsOuterInnerGroups () throws Exception {
+        Reader r1 = new StringReader (
+            "    Hello Yarda.\n" +
+            "    how are you?\n"
+        );
+        Reader r2 = new StringReader (
+            "    Hello Yarda.\n" +
+            "    how old you are?\n" +
+            "    how are you?\n" 
+        );
+        
+        
+        HtmlDiff[] res = HtmlDiff.diff (r1, r2);
+        assertNotNull ("Some result is there", res);
+        
+        assertDifferences ("One difference", 1, res);
+        assertEquals ("Three sequences", 3, res.length);
+        assertEquals ("First sentence", "Hello Yarda.", res[0].getOld ().trim ());
+        assertEquals ("Last sentence", "how are you?", res[2].getOld ().trim ());
+        assertEquals ("Middle was nothing", "", res[1].getOld ());
+        assertEquals ("Middle is the sentence", "how old you are?", res[1].getNew ());
+        
+        r1.close ();
+        r2.close ();
+    }
     
     private static void assertDifferences (String txt, int cnt, HtmlDiff[] res) {
         int was = 0;
         for (int i = 0; i < res.length; i++) {
             if (res[i].isDifference()) was++;
+        }
+        if (cnt != was) {
+            StringBuffer sb = new StringBuffer (txt);
+            for (int i = 0; i < res.length; i++) {
+                if (res[i].isDifference()) {
+                    sb.append ('\n');
+                    sb.append ("  was: " + res[i].getOld () + " now: " + res[i].getNew ());
+                }
+            }
+            fail (sb.toString ());
         }
         assertEquals (txt, cnt, was);
     }

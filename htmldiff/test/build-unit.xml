@@ -200,7 +200,7 @@ Microsystems, Inc. All Rights Reserved.
  	      --> 
 	      <pathelement location="../../../openide/util/netbeans/lib/openide-util.jar"/>
               <pathelement location="../../../diff/netbeans/modules/diff.jar"/>
-              <pathelement location="../netbeans/modules/htmldiff.jar"/>
+              <pathelement location="../netbeans/modules/eager/htmldiff.jar"/>
     	</path>
     </target>
     
