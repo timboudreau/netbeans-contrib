@@ -27,6 +27,7 @@ public interface IDLNodeCookie extends Node.Cookie {
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         11/4/99  Karel Gardas    - update from CVS
  *  9    Gandalf   1.8         11/4/99  Karel Gardas    update from CVS
  *  8    Gandalf   1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment

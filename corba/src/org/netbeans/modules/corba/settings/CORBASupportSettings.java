@@ -78,7 +78,13 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
   public static String _client_binding;
 
 
-  public boolean _hide_generated_files = true;
+  public static boolean _hide_generated_files = true;
+
+  public static String generation = CORBASupport.GEN_NOTHING;
+  //public static String generation;
+
+  public static String synchro = CORBASupport.SYNCHRO_ON_UPDATE;
+  //public static String synchro;
 
   // advanced settings
 
@@ -1078,31 +1084,29 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
     IRChildren = children;
   }
 
-   
+
+  public String getGeneration () {
+    //System.out.println ("getGeneration () -> " + generation);
+    return generation;
+  }
+
+  public void setGeneration (String value) {
+    //System.out.println ("setGeneration (" + value + ");");
+    generation = value;
+  }
+
+  public String getSynchro () {
+    //System.out.println ("getSynchro () -> " + synchro);
+    return synchro;
+  }
+
+  public void setSynchro (String value) {
+    //System.out.println ("setSynchro (" + value + ");");
+    synchro = value;
+  }
+
 }
 
 
 
 
-
-/*
- * <<Log>>
- *  14   Gandalf   1.13        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  13   Gandalf   1.12        10/13/99 Karel Gardas    Update from CVS
- *  12   Gandalf   1.11        10/1/99  Karel Gardas    updates from CVS
- *  11   Gandalf   1.10        8/7/99   Karel Gardas    added option for hidding
- *       generated files
- *  10   Gandalf   1.9         8/3/99   Karel Gardas    
- *  9    Gandalf   1.8         7/10/99  Karel Gardas    
- *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  7    Gandalf   1.6         6/4/99   Karel Gardas    
- *  6    Gandalf   1.5         5/28/99  Karel Gardas    
- *  5    Gandalf   1.4         5/22/99  Karel Gardas    
- *  4    Gandalf   1.3         5/15/99  Karel Gardas    
- *  3    Gandalf   1.2         5/8/99   Karel Gardas    
- *  2    Gandalf   1.1         4/24/99  Karel Gardas    
- *  1    Gandalf   1.0         4/23/99  Karel Gardas    
- * $
- */

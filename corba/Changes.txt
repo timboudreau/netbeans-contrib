@@ -15,20 +15,6 @@
 
 --------------------------------------------------------------------------------
 
--- Release --------------------------------------
-
-  Released version:          Beta 5 Public
-  Released build number:     414
-  Release type:              Public Beta 2 Entry, EAP Pro/Enterprise modules
-  StarTeam Label:            Gandalf-Build414
-  Label Date:                18.10.1999 10:01:47
-  Release Date:              20.10.1999
-  
-  Specification-Version:     0.9.2
-  Implementation-Version:    0.9.2
-
--------------------------------------------------
-
 Aug/31 USER CHANGE: Correctly provides FileSystemAction on its data objects
 
 -- Release --------------------------------------

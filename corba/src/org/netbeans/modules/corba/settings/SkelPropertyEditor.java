@@ -48,6 +48,7 @@ public class SkelPropertyEditor extends PropertyEditorSupport {
 
 /*
  * <<Log>>
+ *  13   Gandalf   1.12        11/4/99  Karel Gardas    - update from CVS
  *  12   Gandalf   1.11        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  11   Gandalf   1.10        10/1/99  Karel Gardas    updates from CVS

@@ -101,6 +101,7 @@ public class CORBASupport {
 
 /*
  * <<Log>>
+ *  18   Gandalf   1.17        11/4/99  Karel Gardas    - update from CVS
  *  17   Gandalf   1.16        11/4/99  Karel Gardas    update from CVS
  *  16   Gandalf   1.15        11/4/99  Karel Gardas    update from CVS
  *  15   Gandalf   1.14        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun

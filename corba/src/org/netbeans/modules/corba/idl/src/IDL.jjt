@@ -1,18 +1,15 @@
+// -*- java -*- 
 /*
  * IDL.jjt -- synopsis.
  *
- * Copyright (C) 1997-1999 NetBeans, Inc.
  *
- * $Author Karel Gardas$
  * <<Date>>
  * <<Revision>>
  *
- * This file is part of $Project: Corona$.
+ * SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
  *
- * This software is the exclusive property of NetBeans, Inc.("SOFTWARE").
- * Any distribution, public posting, duplication, or dissemination of this
- * SOFTWARE, either by print, electronically, or any other form, is strictly
- * prohibited and will be prosecuted to the full extent of the law.
+ * Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
+ * Use is subject to license terms.
  */
 
 options {
@@ -32,7 +29,7 @@ import java.util.Vector;
 
 public class IDLParser {
 
-  public static void main(String args[]) {
+  public static void main (String args[]) {
     IDLParser parser = null;
     if (args.length == 0) {
       System.out.println("IDL Parser Version 0.1:  Reading from standard input . . .");
@@ -126,13 +123,6 @@ void definition() :
 }
 
 /* Production 3 */
-/*
-void module() #ModuleElement :
-{}
-{
-  "module" identifier() "{" ( definition() )+ "}"
-}
-*/
 
 void module() #ModuleElement :
 {}
@@ -154,35 +144,16 @@ void interfacex() :
 }
 
 /* Production 5 */
-/*
-void interface_dcl() #InterfaceElement :
-{
- // Token t;
-}
-{ 
- // t=<ID>
- // {
- //    jjtThis.setLine (t.beginLine);
- // }
-  interface_header() "{" interface_body() "}"
-}
-*/
+
 void interface_dcl() #InterfaceElement :
 {}
 { 
-/*
-  { 
-    Vector header = null;
-  }
+  { Vector header = null; }
   header = interface_header() 
   { 
-    jjtThis.setName (((Identifier)header.elementAt (0)).getName ());
-    jjtThis.setLine (((Identifier)header.elementAt (0)).getLine ());
     if (header.size () > 1)
-      jjtThis.inherited_from = (Vector)header.elementAt (1);
+      jjtThis.setParent ((Vector)header.elementAt (1)); 
   }
-*/
-  interface_header()
   "{" interface_body() "}"
 }
 
@@ -195,13 +166,7 @@ void forward_dcl() :
 }
 
 /* Production 7 */
-/*
-void interface_header() :
-{}
-{
-  "interface" identifier() [ inheritance_spec() ]
-}
-*/
+
 Vector interface_header() :
 {}
 {
@@ -244,13 +209,7 @@ void export() :
 }
 
 /* Production 10 */
-/*
-void inheritance_spec() :
-{}
-{
-  ":" scoped_name() ( "," scoped_name() )*
-}
-*/
+
 Vector inheritance_spec() :
 {}
 {
@@ -266,13 +225,6 @@ Vector inheritance_spec() :
 }
 
 /* Production 11 */
-/*
-void scoped_name() :
-{}
-{
-  [ "::" ] identifier() ( "::" identifier() )*
-}
-*/
 
 String scoped_name() :
 {}
@@ -287,13 +239,6 @@ String scoped_name() :
 }
 
 /* Production 12 */
-/*
-void const_dcl() #ConstElement :
-{}
-{
-  "const" const_type() identifier() "=" const_exp()
-}
-*/
 
 void const_dcl() #ConstElement :
 {}
@@ -304,23 +249,7 @@ void const_dcl() #ConstElement :
 }
 
 /* Production 13 */
-/*
-void const_type() :
-{}
-{
-  integer_type()
-|
-  char_type()
-|
-  boolean_type()
-|
-  floating_pt_type()
-|
-  string_type()
-|
-  scoped_name()
-}
-*/
+
 IDLType const_type() :
 {}
 {
@@ -345,13 +274,7 @@ IDLType const_type() :
 }
 
 /* Production 14 */
-/*
-void const_exp() :
-{}
-{
-  or_expr()
-}
-*/
+
 String const_exp() :
 {}
 {
@@ -361,13 +284,7 @@ String const_exp() :
 }
 
 /* Production 15 */
-/*
-void or_expr() :
-{}
-{
-  xor_expr() ( "|" xor_expr() )*
-}
-*/
+
 String or_expr() :
 {}
 {
@@ -377,13 +294,7 @@ String or_expr() :
 }
 
 /* Production 16 */
-/*
-void xor_expr() :
-{}
-{
-  and_expr() ( "^" and_expr() )*
-}
-*/
+
 String xor_expr() :
 {}
 {
@@ -392,13 +303,7 @@ String xor_expr() :
   { return name;}
 }
 /* Production 17 */
-/*
-void and_expr() :
-{}
-{
-  shift_expr() ( "&" shift_expr() )*
-}
-*/
+
 String and_expr() :
 {}
 {
@@ -407,13 +312,7 @@ String and_expr() :
   { return name;}
 }
 /* Production 18 */
-/*
-void shift_expr() :
-{}
-{
-  add_expr() ( ( ">>" | "<<" ) add_expr() )*
-}
-*/
+
 String shift_expr() :
 {}
 {
@@ -423,13 +322,7 @@ String shift_expr() :
 }
 
 /* Production 19 */
-/*
-void add_expr() :
-{}
-{
-  mult_expr() ( ( "+" | "-" ) mult_expr() )*
-}
-*/
+
 String add_expr() :
 {}
 { 
@@ -439,13 +332,7 @@ String add_expr() :
 }
 
 /* Production 20 */
-/*
-void mult_expr() :
-{}
-{
-  unary_expr() ( ( "*" | "/" | "%" ) unary_expr() )*
-}
-*/
+
 String mult_expr() :
 {}
 {
@@ -455,13 +342,7 @@ String mult_expr() :
 }
 
 /* Production 21 */
-/*
-void unary_expr() :
-{}
-{
-  [ unary_operator() ] primary_expr()
-}
-*/
+
 String unary_expr() :
 {}
 { 
@@ -471,17 +352,7 @@ String unary_expr() :
 }
 
 /* Production 22 */
-/*
-void unary_operator() :
-{}
-{
-  "-"
-|
-  "+"
-|
-  "~"
-}
-*/
+
 String unary_operator() :
 {}
 {
@@ -497,17 +368,7 @@ String unary_operator() :
 }
 
 /* Production 23 */
-/*
-void primary_expr() :
-{}
-{
-  scoped_name()
-|
-  literal()
-|
-  "(" const_exp() ")"
-}
-*/
+
 String primary_expr() :
 {}
 {
@@ -523,21 +384,7 @@ String primary_expr() :
 }
 
 /* Production 24 */
-/*
-void literal() :
-{}
-{
-  integer_literal()
-|
-  string_literal()
-|
-  character_literal()
-|
-  floating_pt_literal()
-|
-  boolean_literal()
-}
-*/
+
 String literal() :
 {}
 {
@@ -559,15 +406,7 @@ String literal() :
 }
 
 /* Production 25 */
-/*
-void boolean_literal() :
-{}
-{
-  "TRUE"
-|
-  "FALSE"
-}
-*/
+
 String boolean_literal() :
 {}
 {
@@ -579,13 +418,7 @@ String boolean_literal() :
 }
 
 /* Production 26 */
-/*
-void positive_int_const() :
-{}
-{
-  const_exp()
-}
-*/
+
 String positive_int_const() :
 {}
 {
@@ -595,21 +428,7 @@ String positive_int_const() :
 }
 
 /* Production 27 */
-/*
-void type_dcl() #TypeElement :
-{}
-{
-  "typedef" type_declarator()
-|
-  struct_type()
-|
-  union_type()
-|
-  enum_type()
-}
-*/
 
-/* void type_dcl() : */
 void type_dcl() #TypeElement : 
 {}
 {
@@ -638,13 +457,6 @@ void type_dcl() #TypeElement :
 }
 
 /* Production 28 */
-/*
-void type_declarator() :
-{}
-{
-  type_spec() declarators()
-}
-*/
 
 IDLType type_declarator() :
 {}
@@ -655,15 +467,7 @@ IDLType type_declarator() :
 }
 
 /* Production 29 */
-/*
-void type_spec() :
-{}
-{
-  simple_type_spec()
-|
-  constr_type_spec()
-}
-*/
+
 IDLType type_spec() :
 {}
 {
@@ -676,17 +480,7 @@ IDLType type_spec() :
 }
 
 /* Production 30 */
-/*
-void simple_type_spec() :
-{}
-{
-  base_type_spec()
-|
-  template_type_spec()
-|
-  scoped_name()
-}
-*/
+
 IDLType simple_type_spec() :
 {}
 {
@@ -702,23 +496,7 @@ IDLType simple_type_spec() :
 }
 
 /* Production 31 */
-/*
-void base_type_spec() :
-{}
-{
-  floating_pt_type()
-|
-  integer_type()
-|
-  char_type()
-|
-  boolean_type()
-|
-  octet_type()
-|
-  any_type()
-}
-*/
+
 IDLType base_type_spec() :
 {}
 {
@@ -754,15 +532,7 @@ IDLType base_type_spec() :
 }
 
 /* Production 32 */
-/*
-void template_type_spec() :
-{}
-{
-  sequence_type()
-|
-  string_type()
-}
-*/
+
 IDLType template_type_spec() :
 {}
 {
@@ -775,17 +545,7 @@ IDLType template_type_spec() :
 }
 
 /* Production 33 */
-/*
-void constr_type_spec() :
-{}
-{
-  struct_type()
-|
-  union_type()
-|
-  enum_type()
-}
-*/
+
 IDLType constr_type_spec() :
 {}
 {
@@ -809,16 +569,6 @@ void declarators() :
 }
 
 /* Production 35 */
-/*
-void declarator() :
-{}
-{
-  LOOKAHEAD(2)
-  complex_declarator()
-|
-  simple_declarator()
-}
-*/
 
 void declarator() #DeclaratorElement:
 {}
@@ -831,13 +581,7 @@ void declarator() #DeclaratorElement:
 }
 
 /* Production 36 */
-/*
-void simple_declarator() :
-{}
-{
-  identifier()
-}
-*/
+
 String simple_declarator() :
 {}
 {
@@ -847,13 +591,7 @@ String simple_declarator() :
 }
 
 /* Production 37 */
-/*
-void complex_declarator() :
-{}
-{
-  array_declarator()
-}
-*/
+
 Vector complex_declarator() :
 {}
 {
@@ -863,15 +601,7 @@ Vector complex_declarator() :
 }
 
 /* Production 38 */
-/*
-void floating_pt_type() :
-{}
-{
-  "float"
-|
-  "double"
-}
-*/
+
 IDLType floating_pt_type() :
 {}
 {
@@ -887,15 +617,6 @@ IDLType floating_pt_type() :
 }
 
 /* Production 39 */
-/*
-void integer_type() :
-{}
-{
-  signed_int()
-|
-  unsigned_int()
-}
-*/
 
 IDLType integer_type() :
 {}
@@ -915,15 +636,7 @@ IDLType integer_type() :
 }
 
 /* Production 40 */
-/*
-void signed_int() :
-{}
-{
-  signed_long_int()
-|
-  signed_short_int()
-}
-*/
+
 IDLType signed_int() :
 {}
 {
@@ -942,13 +655,7 @@ IDLType signed_int() :
 }
 
 /* Production 41 */
-/*
-void signed_long_int() :
-{}
-{
-  "long"
-}
-*/
+
 IDLType signed_long_int() :
 {}
 {
@@ -959,13 +666,7 @@ IDLType signed_long_int() :
 }
 
 /* Production 42 */
-/*
-void signed_short_int() :
-{}
-{
-  "short"
-}
-*/
+
 IDLType signed_short_int() :
 {}
 {
@@ -976,16 +677,7 @@ IDLType signed_short_int() :
 }
 
 /* Production 43 */
-/*
-void unsigned_int() :
-{}
-{
-  LOOKAHEAD(2)
-  unsigned_long_int()
-|
-  unsigned_short_int()
-}
-*/
+
 IDLType unsigned_int() :
 {}
 {
@@ -1008,13 +700,7 @@ IDLType unsigned_int() :
 }
 
 /* Production 44 */
-/*
-void unsigned_long_int() :
-{}
-{
-  "unsigned" "long"
-}
-*/
+
 IDLType unsigned_long_int() :
 {}
 {
@@ -1025,13 +711,7 @@ IDLType unsigned_long_int() :
 }
 
 /* Production 45 */
-/*
-void unsigned_short_int() :
-{}
-{
-  "unsigned" "short"
-}
-*/
+
 IDLType unsigned_short_int() :
 {}
 {
@@ -1042,13 +722,7 @@ IDLType unsigned_short_int() :
 }
 
 /* Production 46 */
-/*
-void char_type() :
-{}
-{
-  "char"
-}
-*/
+
 IDLType char_type() :
 {}
 {
@@ -1059,13 +733,7 @@ IDLType char_type() :
 }
 
 /* Production 47 */
-/*
-void boolean_type() :
-{}
-{
-  "boolean"
-}
-*/
+
 IDLType boolean_type() :
 {}
 {
@@ -1076,13 +744,7 @@ IDLType boolean_type() :
 }
 
 /* Production 48 */
-/*
-void octet_type() :
-{}
-{
-  "octet"
-}
-*/
+
 IDLType octet_type() :
 {}
 {
@@ -1093,13 +755,7 @@ IDLType octet_type() :
 }
 
 /* Production 49 */
-/*
-void any_type() :
-{}
-{
-  "any"
-}
-*/
+
 IDLType any_type() :
 {}
 {
@@ -1119,13 +775,7 @@ IDLType object_type() :
 }
 
 /* Production 50 */
-/*
-void struct_type() :
-{}
-{
-  "struct" identifier() "{" member_list() "}"
-}
-*/
+
 IDLType struct_type() #StructTypeElement :
 {}
 {
@@ -1165,23 +815,9 @@ void member() #MemberElement :
   type = type_spec() { jjtThis.setType (type); jjtThis.setName (name);} 
   declarators() ";"
 }
-/*
-void member() : 
-{}
-{
-  { String type, name = "";}
-  type = type_spec() 
-  declarators() ";"
-}
-*/
+
 /* Production 53 */
-/*
-void union_type() :
-{}
-{
-  "union" identifier() "switch" "(" switch_type_spec() ")" "{" switch_body() "}"
-}
-*/
+
 IDLType union_type() #UnionTypeElement :
 {}
 { 
@@ -1207,21 +843,7 @@ IDLType union_type() #UnionTypeElement :
 
 
 /* Production 54 */
-/*
-void switch_type_spec() :
-{}
-{
-  integer_type()
-|
-  char_type()
-|
-  boolean_type()
-|
-  enum_type()
-|
-  scoped_name()
-}
-*/
+
 IDLType switch_type_spec() :
 {}
 {
@@ -1262,15 +884,7 @@ void casex() #UnionMemberElement :
 }
 
 /* Production 57 */
-/*
-void case_label() : 
-{}
-{
-  "case" const_exp() ":"
-|
-  "default" ":"
-}
-*/
+
 String case_label() : 
 {}
 {
@@ -1295,13 +909,7 @@ IDLType element_spec() :
 }
 
 /* Production 59 */
-/*
-void enum_type() :
-{}
-{
-  "enum" identifier() "{" enumerator() ( "," enumerator() )* "}"
-}
-*/
+
 IDLType enum_type() #EnumTypeElement :
 {}
 {
@@ -1324,13 +932,7 @@ IDLType enum_type() #EnumTypeElement :
 }
 
 /* Production 60 */
-/*
-void enumerator() :
-{}
-{
-  identifier()
-}
-*/
+
 void enumerator() #ConstElement :
 {}
 {
@@ -1344,13 +946,7 @@ void enumerator() #ConstElement :
 }
 
 /* Production 61 */
-/*
-void sequence_type() :
-{}
-{
-  "sequence" "<" simple_type_spec() [ "," positive_int_const() ] ">"
-}
-*/
+
 IDLType sequence_type() :
 {}
 {
@@ -1371,13 +967,7 @@ IDLType sequence_type() :
 }
 
 /* Production 62 */
-/*
-void string_type() :
-{}
-{
-  "string" [ "<" positive_int_const() ">" ]
-}
-*/
+
 IDLType string_type() :
 {}
 {
@@ -1398,13 +988,7 @@ IDLType string_type() :
 }
 
 /* Production 63 */
-/*
-void array_declarator() :
-{}
-{
-  identifier() ( fixed_array_size() )+
-}
-*/
+
 Vector array_declarator() :
 {}
 {
@@ -1427,13 +1011,7 @@ Vector array_declarator() :
 }
 
 /* Production 64 */
-/*
-void fixed_array_size() :
-{}
-{
-  "[" positive_int_const() "]"
-}
-*/
+
 String fixed_array_size() :
 {}
 {
@@ -1463,13 +1041,7 @@ void except_dcl() #ExceptionElement :
 }
 
 /* Production 67 */
-/*
-void op_dcl() #OperationElement :
-{}
-{
-  [ op_attribute() ] op_type_spec() identifier() parameter_dcls() [ raises_expr() ] [ context_expr() ]
-}
-*/
+
 void op_dcl() #OperationElement :
 {}
 {
@@ -1490,13 +1062,6 @@ void op_dcl() #OperationElement :
 
 
 /* Production 68 */
-/*
-void op_attribute() :
-{}
-{
-  "oneway"
-}
-*/
 
 String op_attribute() :
 {}
@@ -1508,38 +1073,7 @@ String op_attribute() :
 }
 
 /* Production 69 */
-/*
-void op_type_spec() :
-{}
-{
-  param_type_spec()
-|
-  "void"
-}
-*/
-/*
-Identifier op_type_spec() :
-{}
-{
-  {
-    IDLType type; 
-    Identifier id;
-  }
-  type = param_type_spec()
-  {
-    id = new Identifier (-1); 
-    id.setName (type.name);
-    return id;
-  }
-|
-  "void"  
-  {
-     id = new Identifier (-1); 
-     id.setName ("void");
-     return id;
-  }
-}
-*/
+
 IDLType op_type_spec() :
 {}
 {
@@ -1559,36 +1093,9 @@ void parameter_dcls() :
 {
   "(" [ param_dcl() ( "," param_dcl() )* ] ")"
 }
-/*
-String parameter_dcls() :
-{}
-{
-  { 
-    String name = "", tmp; 
-    Vector params = new Vector ();
-  }
-  "(" [ name = param_dcl() {params.addElement (name);} 
-   ( "," name = param_dcl() { params.addElement (name);} )* ] ")"
-  { return params;}
-}
-*/
+
 /* Production 71 */
-/*
-void param_dcl() :
-{}
-{
-  param_attribute() param_type_spec() simple_declarator()
-}
-*/
-/*
-String param_dcl() :
-{}
-{
-  { String attr, type, name;}
-  attr = param_attribute() type = param_type_spec() name = simple_declarator()
-  { return attr + " " + type + " " + name;}
-}
-*/
+
 void param_dcl() #ParameterElement :
 {}
 {
@@ -1598,17 +1105,7 @@ void param_dcl() #ParameterElement :
 }
 
 /* Production 72 */
-/*
-void param_attribute() :
-{}
-{
-  "in"
-|
-  "out"
-|
-  "inout"
-}
-*/
+
 int param_attribute() :
 {}
 {
@@ -1623,13 +1120,7 @@ int param_attribute() :
 }
 
 /* Production 73 */
-/*
-void raises_expr() :
-{}
-{
-  "raises" "(" scoped_name() ( "," scoped_name() )* ")"
-}
-*/
+
 Vector raises_expr() :
 {}
 {
@@ -1640,13 +1131,7 @@ Vector raises_expr() :
 }
 
 /* Production 74 */
-/*
-void context_expr() :
-{}
-{
-  "context" "(" string_literal() ( "," string_literal() )* ")"
-}
-*/
+
 Vector context_expr() :
 {}
 {
@@ -1657,17 +1142,7 @@ Vector context_expr() :
 }
 
 /* Production 75 */
-/*
-void param_type_spec() :
-{}
-{
-  base_type_spec()
-|
-  string_type()
-|
-  scoped_name()
-}
-*/
+
 IDLType param_type_spec() :
 {}
 {
@@ -1704,17 +1179,7 @@ Identifier identifier() #Identifier :
      return jjtThis;
   }
 }
-/*
-void integer_literal() :
-{}
-{
-  <OCTALINT>
-|
-  <DECIMALINT>
-|
-  <HEXADECIMALINT>
-}
-*/
+
 String integer_literal() :
 {
   Token t;
@@ -1729,13 +1194,7 @@ String integer_literal() :
   t = <HEXADECIMALINT>
   { return t.image;}
 }
-/*
-void string_literal() :
-{}
-{
-  <STRING>
-}
-*/
+
 String string_literal() :
 {
   Token t;
@@ -1744,13 +1203,7 @@ String string_literal() :
   t = <STRING>
   { return t.image;}
 }
-/*
-void character_literal() :
-{}
-{
-  <CHARACTER>
-}
-*/
+
 String character_literal() :
 {
   Token t; 
@@ -1759,15 +1212,7 @@ String character_literal() :
   t = <CHARACTER>
   { return t.image;}
 }
-/*
-void floating_pt_literal() :
-{}
-{
-  <FLOATONE>
-|
-  <FLOATTWO>
-}
-*/
+
 String floating_pt_literal() :
 {
   Token t;

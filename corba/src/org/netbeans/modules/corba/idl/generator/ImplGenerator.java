@@ -14,6 +14,8 @@
 package com.netbeans.enterprise.modules.corba.idl.generator;
 
 import java.util.Vector;
+import java.util.List;
+import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.io.*;
 import java.lang.reflect.*;
@@ -25,6 +27,7 @@ import org.openide.src.*;
 import org.openide.src.nodes.*;
 import org.openide.*;
 
+import com.netbeans.developer.modules.loaders.java.JavaConnections;
 import com.netbeans.*;
 
 
@@ -67,11 +70,13 @@ public class ImplGenerator {
   // => it must be setuped to
   
 
+  CORBASupportSettings css;
+
   public ImplGenerator (IDLDataObject _do) {
       
     ido = _do;
 
-    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+    css = (CORBASupportSettings) CORBASupportSettings.findObject
       (CORBASupportSettings.class, true);
 
     IMPLBASE_IMPL_PREFIX = css.getImplBasePrefix ();
@@ -136,6 +141,9 @@ public class ImplGenerator {
     if (idl_type.getType () == IDLType.OBJECT)
       type = "org.omg.CORBA.Object";
 
+    if (idl_type.getType () == IDLType.ANY)
+      type = "org.omg.CORBA.Any";
+
     if (DEBUG)
       System.out.println ("simple2java: " + type);
     return type;
@@ -174,6 +182,9 @@ public class ImplGenerator {
     if (java_type.equals ("org.omg.CORBA.Object"))
       return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.Object"));
 
+    if (java_type.equals ("org.omg.CORBA.Any"))
+      return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.Any"));
+
     return null;
   }
 
@@ -209,6 +220,10 @@ public class ImplGenerator {
     if (type.equals (Type.createClass (org.openide.src.Identifier.create
 				       ("org.omg.CORBA.Object"))))
       return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.ObjectHolder"));
+
+    if (type.equals (Type.createClass (org.openide.src.Identifier.create
+				       ("org.omg.CORBA.Any"))))
+      return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.AnyHolder"));
 
     if (DEBUG)
       System.out.println ("error unknown type!!!");
@@ -270,6 +285,14 @@ public class ImplGenerator {
 	System.out.println ("NO");
       return false;
     }
+  }
+
+
+  public String getSimpleName (String name) {
+    String retval = name.substring (name.lastIndexOf ("::") + 2, name.length ());
+    if (DEBUG)
+      System.out.println ("getSimpleName (" + name + "); => " + retval);
+    return retval;
   }
 
   public String scopedName2javaName (String name, boolean absolute) {
@@ -862,9 +885,12 @@ public class ImplGenerator {
 	      return Type.createArray (java_type);
 	    }
 	    else {
-	      if (WAS_TEMPLATE)
+	      if (WAS_TEMPLATE) {
+		if (DEBUG)
+		  System.out.println ("::id1 " + type_element.getName ());
 		return Type.createClass (org.openide.src.Identifier.create 
 					 (type_element.getName ()));
+	      }
 	      else
 		return null;
 	    }
@@ -886,6 +912,8 @@ public class ImplGenerator {
 		if (DEBUG)
 		  System.out.println ("hasn't template parent -- is constructed type but"
 				      + " WAS_TEMPLATE");
+		if (DEBUG)
+		  System.out.println ("::id2 " + type_element.getName ());
 		return Type.createClass (org.openide.src.Identifier.create 
 					 (type_element.getName ()));
 	      }
@@ -901,30 +929,39 @@ public class ImplGenerator {
 	      return java_type;
 	    }
 	    else {
-	      if (WAS_TEMPLATE)
+	      if (WAS_TEMPLATE) {
+		if (DEBUG)
+		  System.out.println ("::id3 " + type_element.getName ());
 		return Type.createClass (org.openide.src.Identifier.create 
 					 (type_element.getName ()));
+	      }
 	      else
 		return null;
 	    }
 	  }	  
 	}
 	if (tmp_element instanceof InterfaceElement) {
-	  if (WAS_TEMPLATE)
+	  if (WAS_TEMPLATE) {
+	    if (DEBUG) 
+	      System.out.println ("::id4 " + type.getName ());
 	    return Type.createClass (org.openide.src.Identifier.create (type.getName ()));
+	  }
 	  else
 	    return null;
 	}
       }
       else {
-	IDLElement tmp_element = (TypeElement)findElementByName (type.getName (), from);
+	IDLElement tmp_element = findElementByName (type.getName (), from);
 	if (DEBUG)
 	  System.out.println ("tmp_element: " + tmp_element.getName () + " : " + tmp_element);
 	String full_name = _package + "." + ctype2package (tmp_element);
 	full_name = full_name + "Holder";
 
-	if (WAS_TEMPLATE)
+	if (WAS_TEMPLATE) {
+	  if (DEBUG)
+	    System.out.println ("::id5 " + full_name);
 	  return Type.createClass (org.openide.src.Identifier.create (full_name));
+	}
 	else
 	  return null;
       }
@@ -1167,6 +1204,22 @@ public class ImplGenerator {
     //from = findType (name, from);
     Vector mm = from.getMembers ();
     IDLElement result = null;
+    // for absolute sope names
+    if (isAbsoluteScopeName (name)) {
+      IDLElement tmp_from = findTopLevelModuleForName (name, from);
+      String tmp_name = getSimpleName (name);
+      result = findElementInElement (name, tmp_from);
+      
+      return result;
+    }
+
+    if (isScopeName (name)) {
+      IDLElement tmp_from = findModuleForScopeName (name, from);
+      String tmp_name = getSimpleName (name);
+      result = findElementInElement (name, tmp_from);
+      
+      return result;
+    }
     result = findElementInElement (name, from);
     if (result != null)
       return result;
@@ -1505,6 +1558,8 @@ public class ImplGenerator {
       String full_name = _package + "." + ctype2package (element_for_type);
       if (mode != Parameter.IN)
 	full_name = full_name + "Holder";
+      if (DEBUG)
+	System.out.println ("::id6 " + full_name);
       type = Type.createClass (org.openide.src.Identifier.create (full_name));
       
       return type;
@@ -1523,6 +1578,8 @@ public class ImplGenerator {
       String full_name = _package + "." + ctype2package (element_for_type);
       if (mode != Parameter.IN)
 	full_name = full_name + "Holder";
+      if (DEBUG)
+	System.out.println ("::id7 " + full_name);
       type = Type.createClass (org.openide.src.Identifier.create (full_name));
 
       return type;
@@ -1554,6 +1611,8 @@ public class ImplGenerator {
     String full_name = _package + "." + ctype2package (element_for_type);
     if (mode != Parameter.IN)
       full_name = full_name + "Holder";
+    if (DEBUG)
+      System.out.println ("::id8 " + full_name);
     type = Type.createClass (org.openide.src.Identifier.create (full_name));
     if (mode == Parameter.IN) {
       for (int i=0; i<dim; i++) {
@@ -1701,10 +1760,13 @@ public class ImplGenerator {
     }
     try {
       MethodElement geter = new MethodElement ();
+      if (DEBUG)
+	System.out.println ("::id9 " + attr.getName ());
       geter.setName (org.openide.src.Identifier.create (attr.getName ()));
       geter.setModifiers (Modifier.PUBLIC);
       geter.setReturn (attr_type);
-      geter.setBody ("\n  return null;\n");
+      //geter.setBody ("\n  return null;\n");
+      setBodyOfMethod (geter);
       //if (!existMethodInClass (clazz, geter))
       clazz.addMethod (geter); // now addMethod throws SourceExcetion
     } catch (SourceException e) {
@@ -1714,10 +1776,13 @@ public class ImplGenerator {
     if (!attr.getReadOnly ()) {
       try {
 	MethodElement seter = new MethodElement ();
+	if (DEBUG)
+	  System.out.println ("::id10 " + attr.getName ());
 	seter.setName (org.openide.src.Identifier.create (attr.getName ()));
 	seter.setModifiers (Modifier.PUBLIC);
 	seter.setReturn (Type.VOID);
-	seter.setBody ("\n");
+	//seter.setBody ("\n");
+	setBodyOfMethod (seter);
 	seter.setParameters (new MethodParameter[] { 
 	  new MethodParameter ("value", attr_type, false) });
 	//if (!existMethodInClass (clazz, seter))
@@ -1742,6 +1807,8 @@ public class ImplGenerator {
     }
     try {
       MethodElement oper = new MethodElement ();
+      if (DEBUG)
+	System.out.println ("::id11 " + operation.getName ());
       oper.setName (org.openide.src.Identifier.create (operation.getName ()));
       oper.setModifiers (Modifier.PUBLIC);
       oper.setReturn (rettype);
@@ -1774,8 +1841,9 @@ public class ImplGenerator {
       oper.setExceptions (excs);
 
       // set body to return null if rettype != void;
-      if (oper.getReturn () != Type.VOID)
-	oper.setBody ("\n  return null;\n");
+      //if (oper.getReturn () != Type.VOID)
+      //oper.setBody ("\n  return null;\n");
+      setBodyOfMethod (oper);
 
       //if (!existMethodInClass (clazz, oper)) 
       clazz.addMethod (oper); // now addMethod throws SourceExcetion
@@ -1821,8 +1889,11 @@ public class ImplGenerator {
 
     Vector parents = element.getParents ();
     for (int i=0; i<parents.size (); i++) {
-      String name_of_parent = ((com.netbeans.enterprise.modules.corba.idl.src.Identifier)
-			       parents.elementAt (i)).getName ();
+      /*
+	String name_of_parent = ((com.netbeans.enterprise.modules.corba.idl.src.Identifier)
+	parents.elementAt (i)).getName ();
+      */
+      String name_of_parent = (String)parents.elementAt (i);
       IDLElement parent 
 	= findElementByName (name_of_parent, element);
       //InterfaceElement parent = (InterfaceElement)id.getParent ();
@@ -1941,6 +2012,22 @@ public class ImplGenerator {
       if ((impl = folder.getFileObject (impl_name, "java")) != null) {
 	if (DEBUG)
 	  System.out.println ("file exists");
+	String full_name = _package + "." + impl_name;
+	if (DEBUG)
+	  System.out.println ("full name: " + full_name);
+	ClassElement dest = ClassElement.forName (full_name);
+	if (DEBUG) {
+	  System.out.println ("orig class: " + dest.toString ());
+	  System.out.println ("new class: " + clazz.toString ());	  
+	}
+	
+	if (css.getSynchro () != CORBASupport.SYNCHRO_DISABLE) {
+	  List changes = new LinkedList ();
+	  JavaConnections.compareMethods (dest, clazz, changes, "Add Method {0}", 
+					  "Update Method {0}");
+	  if (changes.size () > 0)
+	    JavaConnections.showChangesDialog (changes, (byte)JavaConnections.TYPE_ALL);
+	}
       }
       else {
 	if (DEBUG)
@@ -1950,33 +2037,46 @@ public class ImplGenerator {
 	} catch (IOException e) {
 	  e.printStackTrace ();
 	}
+
+	FileLock lock = impl.lock ();
+	//	 if (source != null)
+	//   source.addClass (clazz);
+	PrintStream printer = new PrintStream (impl.getOutputStream (lock));
+	
+	// add comment 
+	printer.println ("/*\n * This file was generated from " 
+			 + ido.getPrimaryFile ().getName () + ".idl file\n"
+			 + " * by NetBeans Developer Enterprise Implementation Generator\n"
+			 + " */");
+	
+	printer.println ("\npackage " + _package + ";\n");
+	printer.println (clazz.toString ());
+	lock.releaseLock ();
       }
-      FileLock lock = impl.lock ();
-      //	 if (source != null)
-      //   source.addClass (clazz);
-      PrintStream printer = new PrintStream (impl.getOutputStream (lock));
 
-      // add comment 
-      printer.println ("/*\n * This file was generated from " 
-		       + ido.getPrimaryFile ().getName () + ".idl file\n"
-		       + " * by NetBeans Developer Enterprise Implementation Generator\n"
-		       + " */");
-
-      printer.println ("\npackage " + _package + ";\n");
-      printer.println (clazz.toString ());
-      lock.releaseLock ();
     } catch (org.openide.src.SourceException e) {
       //e.printStackTrace ();
     } catch (java.io.IOException e) {
       e.printStackTrace ();
     }
   }
+  
 
   public void generate () {
     if (DEBUG) {
       System.out.println ("generate :-))");
-      src.dump ("");
+      try {
+	src.dump ("");
+      } catch (NullPointerException ex) {
+	ex.printStackTrace ();
+      }
     }
+    if (src == null) {
+      TopManager.getDefault ().setStatusText ("Parse Error in " + ido.getPrimaryFile ().getName ()
+					      + ".");
+      return;
+    }
+      
     //Vector members = src.getMembers ();     // update for working with modules :-))
     Vector members = getInterfaces (src.getMembers ());
     for (int i=0; i<members.size (); i++) {
@@ -1993,6 +2093,29 @@ public class ImplGenerator {
     TopManager.getDefault ().setStatusText ("Successfully Generated Implementation Classes for "
 					    + ido.getPrimaryFile ().getName () + ".");
 
+  }
+
+
+  public void setBodyOfMethod (MethodElement method) throws SourceException {
+    if (DEBUG) {
+      System.out.println ("setBodyOfMethod (" + method + ");");
+      System.out.println ("css.getGeneration () : " + css.getGeneration ());
+    }
+    if (css.getGeneration ().equals (CORBASupport.GEN_NOTHING)) {
+      //System.out.println ("CORBASupport.GEN_NOTHING");
+      method.setBody ("\n");
+      return;
+    }
+    if (css.getGeneration ().equals (CORBASupport.GEN_EXCEPTION)) {
+      //System.out.println ("CORBASupport.GEN_EXCEPTION");
+      method.setBody ("\n  throw new UnsupportedOperationException ();\n");
+      return;
+    }
+    if (css.getGeneration ().equals (CORBASupport.GEN_RETURN_NULL)) {
+      //System.out.println ("CORBASupport.GEN_RETURN_NULL");
+      method.setBody ("\n  return null;\n");
+      return;
+    }
   }
 
    

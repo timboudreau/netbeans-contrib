@@ -11,18 +11,6 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-/*
- * NAME_SUBSTITUTION.java -- synopsis.
- *
- *
- * Date: 15.6.1998 12:22:29$
- * <<Revision>>
- *
- * SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
- *
- * Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
- * Use is subject to license terms.
- */
 //package com.netbeans.enterprise.modules.corba.idl.parser;
 package com.netbeans.enterprise.modules.corba.idl.src;
 
@@ -251,7 +239,10 @@ void interface_dcl() #InterfaceElement :
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-      interface_header();
+    Vector header = null;
+      header = interface_header();
+    if (header.size () > 1)
+      jjtn000.setParent ((Vector)header.elementAt (1));
       jj_consume_token(11);
       interface_body();
       jj_consume_token(12);
@@ -2854,6 +2845,18 @@ void floating_pt_literal() :
     return retval;
   }
 
+  final private boolean jj_3R_26() {
+    if (jj_scan_token(13)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    if (jj_3R_28()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_29()) jj_scanpos = xsp;
+    else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
   final private boolean jj_3R_27() {
     if (jj_3R_28()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
@@ -2874,16 +2877,22 @@ void floating_pt_literal() :
     return false;
   }
 
+  final private boolean jj_3R_23() {
+    if (jj_3R_26()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    if (jj_scan_token(11)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
   final private boolean jj_3R_28() {
     if (jj_scan_token(ID)) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }
 
-  final private boolean jj_3R_23() {
-    if (jj_3R_26()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    if (jj_scan_token(11)) return true;
+  final private boolean jj_3_1() {
+    if (jj_3R_23()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }
@@ -2896,12 +2905,6 @@ void floating_pt_literal() :
 
   final private boolean jj_3R_24() {
     if (jj_3R_27()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3_1() {
-    if (jj_3R_23()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }
@@ -2935,18 +2938,6 @@ void floating_pt_literal() :
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     if (jj_scan_token(37)) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_26() {
-    if (jj_scan_token(13)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    if (jj_3R_28()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_29()) jj_scanpos = xsp;
-    else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }
 
@@ -3213,15 +3204,3 @@ void floating_pt_literal() :
   }
 
 }
-
-/*
- * <<Log>>
- *  6    Gandalf   1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  5    Gandalf   1.4         10/13/99 Karel Gardas    Update from CVS
- *  4    Gandalf   1.3         10/5/99  Karel Gardas    
- *  3    Gandalf   1.2         10/5/99  Karel Gardas    
- *  2    Gandalf   1.1         8/3/99   Karel Gardas    
- *  1    Gandalf   1.0         7/10/99  Karel Gardas    initial revision
- * $
- */

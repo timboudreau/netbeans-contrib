@@ -99,7 +99,11 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
  		new PropertyDescriptor ("IRChildren", CORBASupportSettings.class,
 					"getInterfaceRepositoryChildren", 
 					"setInterfaceRepositoryChildren"),
- 
+		
+		new PropertyDescriptor ("generation", CORBASupportSettings.class,
+					"getGeneration", "setGeneration"),
+		new PropertyDescriptor ("synchro", CORBASupportSettings.class,
+					"getSynchro", "setSynchro")
 		
 	    };
 
@@ -117,7 +121,6 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    desc[4].setDisplayName (CORBASupport.bundle.getString ("PROP_SERVER_BINDING"));
 	    desc[4].setShortDescription (CORBASupport.bundle.getString ("HINT_SERVER_BINDING"));
 	    desc[4].setPropertyEditorClass (ServerBindingPropertyEditor.class);
-
 	    // advanced settings
 
 	    desc[5].setDisplayName (CORBASupport.bundle.getString ("PROP_PACKAGE_PARAM"));
@@ -168,6 +171,13 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    desc[25].setShortDescription ("Hide Generated Files from IDL file");
 
 	    desc[26].setHidden (true); // children of persistent Interface Repository Browser
+
+	    desc[27].setDisplayName (CORBASupport.bundle.getString ("PROP_GENERATION"));
+	    desc[27].setShortDescription (CORBASupport.bundle.getString ("HINT_GENERATION"));
+	    desc[27].setPropertyEditorClass (GenerationPropertyEditor.class);
+	    desc[28].setDisplayName (CORBASupport.bundle.getString ("PROP_SYNCHRO"));
+	    desc[28].setShortDescription (CORBASupport.bundle.getString ("HINT_SYNCHRO"));
+	    desc[28].setPropertyEditorClass (SynchronizationPropertyEditor.class);
 	} catch (IntrospectionException ex) {
 	    //throw new InternalError ();
 	    ex.printStackTrace ();
@@ -203,6 +213,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 
 /*
  * <<Log>>
+ *  14   Gandalf   1.13        11/4/99  Karel Gardas    - update from CVS
  *  13   Gandalf   1.12        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  12   Gandalf   1.11        10/1/99  Karel Gardas    updates from CVS

@@ -26,60 +26,61 @@ import com.netbeans.enterprise.modules.corba.idl.src.*;
  */
 public class IDLInterfaceNode extends AbstractNode {
 
-   InterfaceElement _interface;
+  InterfaceElement _interface;
 
-   private static final String INTERFACE_ICON_BASE =
-      "com/netbeans/enterprise/modules/corba/idl/node/interface";
+  private static final String INTERFACE_ICON_BASE =
+    "com/netbeans/enterprise/modules/corba/idl/node/interface";
 
-   public IDLInterfaceNode (InterfaceElement value) {
-      super (new IDLDocumentChildren ((IDLElement)value));
-      setIconBase (INTERFACE_ICON_BASE);
-      _interface = value;
-   }
+  public IDLInterfaceNode (InterfaceElement value) {
+    super (new IDLDocumentChildren ((IDLElement)value));
+    setIconBase (INTERFACE_ICON_BASE);
+    _interface = value;
+  }
 
-   public String getDisplayName () {
-      if (_interface != null)
-	 //return ((Identifier)_interface.jjtGetChild (0)).getName ();
-	 return _interface.getName ();
-      else 
-	 return "NoName :)";
-   }
+  public String getDisplayName () {
+    if (_interface != null)
+      //return ((Identifier)_interface.jjtGetChild (0)).getName ();
+      return _interface.getName ();
+    else 
+      return "NoName :)";
+  }
 
-   public String getName () {
-      return "interface";
-   }
+  public String getName () {
+    return "interface";
+  }
 
-   public SystemAction getDefaultAction () {
-      SystemAction result = super.getDefaultAction();
-      return result == null ? SystemAction.get(OpenAction.class) : result;
-   }
+  public SystemAction getDefaultAction () {
+    SystemAction result = super.getDefaultAction();
+    return result == null ? SystemAction.get(OpenAction.class) : result;
+  }
 
-   protected Sheet createSheet () {
-      Sheet s = Sheet.createDefault ();
-      Sheet.Set ss = s.get (Sheet.PROPERTIES);
-      ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of interface") {
-	 public Object getValue () {
-	    return _interface.getName ();
-	 }
-      });
-      ss.put (new PropertySupport.ReadOnly ("inherited", String.class, "inherited", 
-					    "inherited from") {
-	 public Object getValue () {
-	    String inher = "";
-	    if (_interface.getParents ().size () > 0) {
-	       for (int i=0; i<_interface.getParents ().size (); i++)
-		  inher = inher + ((Identifier)_interface.getParents ().elementAt (i)).getName () 
-		     + ", ";
-	       inher = inher.substring (0, inher.length () - 2);
-	    }
-	    else
-	       inher = "";
-	    return inher;
-	 }
-      });
+  protected Sheet createSheet () {
+    Sheet s = Sheet.createDefault ();
+    Sheet.Set ss = s.get (Sheet.PROPERTIES);
+    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of interface") {
+      public Object getValue () {
+	return _interface.getName ();
+      }
+    });
+    ss.put (new PropertySupport.ReadOnly ("inherited", String.class, "inherited", 
+					  "inherited from") {
+      public Object getValue () {
+	String inher = "";
+	if (_interface.getParents ().size () > 0) {
+	  for (int i=0; i<_interface.getParents ().size (); i++)
+	    //inher = inher + ((Identifier)_interface.getParents ().elementAt (i)).getName () 
+	    inher = inher + (String)_interface.getParents ().elementAt (i)
+	      + ", ";
+	  inher = inher.substring (0, inher.length () - 2);
+	}
+	else
+	  inher = "";
+	return inher;
+      }
+    });
 
-      return s;
-   }
+    return s;
+  }
 
 }
 
@@ -87,3 +88,4 @@ public class IDLInterfaceNode extends AbstractNode {
  * $Log
  * $
  */
+
