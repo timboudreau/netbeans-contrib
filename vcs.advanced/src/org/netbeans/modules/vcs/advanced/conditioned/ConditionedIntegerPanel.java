@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.advanced.conditioned;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.table.DefaultTableModel;
@@ -177,6 +178,7 @@ public class ConditionedIntegerPanel extends javax.swing.JPanel implements Enhan
     private void fillConditions() {
         infoLabel.setText(org.openide.util.NbBundle.getMessage(ConditionedIntegerPanel.class, "ConditionedStringPanel.title", ci.getName()));
         IfUnlessCondition[] iucs = ci.getIfUnlessConditions();
+        Arrays.sort(iucs, new IfUnlessCondition.IfUnlessComparator());
         jTable1.removeAll();
         Object[][] data = new Object[iucs.length][2];
         for (int i = 0; i < iucs.length; i++) {

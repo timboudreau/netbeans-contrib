@@ -76,7 +76,6 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
 
     public static final String VARIABLES_TAG = "variables";                      // NOI18N
     public static final String VARIABLE_TAG = "variable";                        // NOI18N
-    public static final String VARIABLE_SELECTOR_TAG = "selector";               // NOI18N
     public static final String VARIABLE_NAME_ATTR = "name";                      // NOI18N
     public static final String VARIABLE_LABEL_ATTR = "label";                    // NOI18N
     public static final String VARIABLE_LABEL_MNEMONIC_ATTR = "labelMnemonic";   // NOI18N
@@ -87,6 +86,7 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
     public static final String VARIABLE_LOCAL_DIR_ATTR = "localDir";             // NOI18N
     public static final String VARIABLE_EXECUTABLE_ATTR = "executable";          // NOI18N
     public static final String VARIABLE_ORDER_ATTR = "order";                    // NOI18N
+    public static final String VARIABLE_SELECTOR_ATTR = "selector";               // NOI18N
     public static final String VARIABLE_PROPERTY_VALUE_TAG = "value";            // NOI18N
     
     public static final String COMMANDS_TAG = "commands";                        // NOI18N
@@ -689,7 +689,7 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
                 order = -1;
             }
         }
-        String customSelector = atts.getValue(VARIABLE_SELECTOR_TAG);
+        String customSelector = atts.getValue(VARIABLE_SELECTOR_ATTR);
         if (customSelector == null) customSelector = ""; //NOI18N
         VcsConfigVariable var = new VcsConfigVariable(name, label, value, true, localFile, localDir, customSelector, order);
         var.setExecutable(executable);

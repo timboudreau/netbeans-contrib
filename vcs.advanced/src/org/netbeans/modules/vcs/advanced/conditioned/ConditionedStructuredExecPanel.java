@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.advanced.conditioned;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.table.DefaultTableModel;
@@ -234,12 +235,14 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
         IfUnlessCondition[] iucs1 = null;
         if (cexecString != null) {
             iucs1 = cexecString.getIfUnlessConditions();
+            Arrays.sort(iucs1, new IfUnlessCondition.IfUnlessComparator());
             for (int i = 0; i < iucs1.length; i++) {
                 conditionComboBox.addItem(iucs1[i]);
             }
         }
         if (cexecStructured != null) {
             IfUnlessCondition[] iucs2 = cexecStructured.getIfUnlessConditions();
+            Arrays.sort(iucs2, new IfUnlessCondition.IfUnlessComparator());
 fori:       for (int i = 0; i < iucs2.length; i++) {
                 if (iucs1 != null) {
                     //Condition c2 = iucs2[i].getCondition();

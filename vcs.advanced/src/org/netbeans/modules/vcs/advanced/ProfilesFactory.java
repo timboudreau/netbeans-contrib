@@ -17,6 +17,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
+import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.Reference;
@@ -60,7 +61,6 @@ import org.netbeans.modules.vcs.advanced.commands.ConditionedCommands;
 import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
 import org.netbeans.modules.vcs.advanced.commands.UserCommandIOCompat;
 import org.netbeans.modules.vcs.advanced.variables.Condition;
-import org.netbeans.modules.vcs.advanced.variables.ConditionIO;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
@@ -558,31 +558,14 @@ public final class ProfilesFactory extends Object {
         }
         
         private void saveConfig() throws org.w3c.dom.DOMException, java.io.IOException {
-            org.w3c.dom.Document doc = org.openide.xml.XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, null, null);
-            String type = getType();
-            if (type != null) {
-                doc.getDocumentElement().setAttribute(VariableIO.CONFIG_TYPE_ATTR, type);
-            }
-            String profileDisplayName = (String) profileLabelsByName.get(profileName);
-            if (conditions != null) {
-                ConditionIO.writeConditions(doc, conditions);
-            }
-            VariableIO.writeVariables(doc, profileDisplayName, getResourceBundles(), variables,
-                                      (Set) compatibleOSsByName.get(profileName),
-                                      (Set) uncompatibleOSsByName.get(profileName));
-            UserCommandIO.writeCommands(doc, commands);
-            if (globalCommands != null) {
-                UserCommandIO.writeGlobalCommands(doc, globalCommands);
-            }
             FileObject file = profileRoot.getFileObject(profileName);//, VariableIO.CONFIG_FILE_EXT);
             if (file != null) {
                 org.openide.filesystems.FileLock lock = null;
                 java.io.OutputStream out = null;
                 try {
                     lock = file.lock();
-                    out = file.getOutputStream(lock);
-                    org.openide.xml.XMLUtil.write(doc, out, null);
-                    //XMLDataObject.write(doc, new BufferedWriter(new OutputStreamWriter(file.getOutputStream(lock))));
+                    out = new BufferedOutputStream(file.getOutputStream(lock));
+                    ProfileWriter.write(out, this);
                 } finally {
                     if (out != null) out.close();
                     if (lock != null) lock.releaseLock();

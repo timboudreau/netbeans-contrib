@@ -290,7 +290,7 @@ public final class StatusFormat {
         return annotationFontColor;
     }
 
-    private static String escapeSpecialHTMLCharacters(String str) {
+    public static String escapeSpecialHTMLCharacters(String str) {
         str = org.openide.util.Utilities.replaceString(str, "&", "&amp;");
         str = org.openide.util.Utilities.replaceString(str, "<", "&lt;");
         str = org.openide.util.Utilities.replaceString(str, ">", "&gt;");

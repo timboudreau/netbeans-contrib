@@ -373,7 +373,7 @@ public final class ConditionedCommandsBuilder {
         public Object getValue(Map conditionalVars) {
             for (Iterator it = valuesByConditions.keySet().iterator(); it.hasNext(); ) {
                 Condition c = (Condition) it.next();
-                if (c.isSatisfied(conditionalVars)) {
+                if (c == null || c.isSatisfied(conditionalVars)) {
                     Object value = valuesByConditions.get(c);
                     if (value instanceof ConditionedStructuredExec) {
                         //value = getStructuredExec((ConditionedStructuredExec) value, conditionalVars);

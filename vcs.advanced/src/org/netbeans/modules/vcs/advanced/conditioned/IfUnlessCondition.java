@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.advanced.conditioned;
 
+import java.util.Comparator;
 import org.netbeans.modules.vcs.advanced.variables.Condition;
 
 /**
@@ -127,5 +128,30 @@ public class IfUnlessCondition extends Object {
         } else {
             return org.openide.util.NbBundle.getMessage(IfUnlessCondition.class, "IfUnlessCondition.Default");
         }
+    }
+    
+    public static final class IfUnlessComparator extends Object implements Comparator {
+        
+        public int compare(Object o1, Object o2) {
+            IfUnlessCondition c1 = (IfUnlessCondition) o1;
+            IfUnlessCondition c2 = (IfUnlessCondition) o2;
+            String[] ifUnless1 = retrieveIfUnless(c1); // IF and UNLESS var names
+            String[] ifUnless2 = retrieveIfUnless(c2); // IF and UNLESS var names
+            if (!ifUnless1[0].equals(ifUnless2[0])) {
+                return ifUnless1[0].compareTo(ifUnless2[0]); // Compare the IF attributes first
+            } else {
+                return ifUnless1[1].compareTo(ifUnless2[1]); // If IF are the same then UNLESS
+            }
+        }
+        
+        private static String[] retrieveIfUnless(IfUnlessCondition c) {
+            String[] ifUnless = new String[2];
+            ifUnless[0] = c.getIf();
+            if (ifUnless[0] == null) ifUnless[0] = "";
+            ifUnless[1] = c.getUnless();
+            if (ifUnless[1] == null) ifUnless[1] = "";
+            return ifUnless;
+        }
+        
     }
 }

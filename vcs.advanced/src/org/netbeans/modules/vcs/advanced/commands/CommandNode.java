@@ -37,10 +37,12 @@ import org.openide.util.actions.ActionPerformer;
 import org.openide.util.datatransfer.NewType;
 
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
+import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
+import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
-import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
-import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.Table;
 
 import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedPropertiesCommand;
@@ -754,7 +756,12 @@ public class CommandNode extends AbstractNode {
                             }
                         }
                         
+                        private PropertyEditor cachedPropertyEditor;
+                        
                         public PropertyEditor getPropertyEditor() {
+                            if (cachedPropertyEditor != null) {
+                                return cachedPropertyEditor;
+                            }
                             if (valueClass.equals(StructuredExec.class)) {
                                 Map valuesByConditions = new HashMap();
                                 ConditionedProperty cproperty = (ConditionedProperty) cproperties.get(VcsCommand.PROPERTY_EXEC);
@@ -764,10 +771,11 @@ public class CommandNode extends AbstractNode {
                                     valuesByConditions.put(null, cmd.getProperty(VcsCommand.PROPERTY_EXEC));
                                 }
                                 ConditionedString cexec = new ConditionedString(getName(), valuesByConditions);
-                                return new ConditionedStructuredExecEditor(cexec, cmd, cproperties);
+                                cachedPropertyEditor = new ConditionedStructuredExecEditor(cexec, cmd, cproperties);
                             } else {
-                                return ConditionedObject.getConditionedPropertyEditor(valueClass);
+                                cachedPropertyEditor = ConditionedObject.getConditionedPropertyEditor(valueClass);
                             }
+                            return cachedPropertyEditor;
                         }
                         
                         public boolean supportsDefaultValue() {
@@ -1003,7 +1011,13 @@ public class CommandNode extends AbstractNode {
             //int[] order = CommandNode.this.cmd.getOrder();
             //int index = ++order[order.length - 1];
             //cmd.setOrder(order);
-            CommandNode newCommand = new CommandNode(Children.LEAF, cmd);              
+            
+            ConditionedPropertiesCommand cpc = null;
+            if (CommandNode.this.cpcommand != null) {
+                CommandExecutionContext exContext = CommandNode.this.cpcommand.getCommand().getExecutionContext();
+                cpc = new ConditionedPropertiesCommand(new UserCommandSupport((UserCommand) cmd, exContext));
+            }
+            CommandNode newCommand = new CommandNode(Children.LEAF, cmd, null, cpc);              
             Children ch;
             if (Children.LEAF.equals(CommandNode.this.getChildren())) {
                 ch = CommandNode.this.getParentNode().getChildren();

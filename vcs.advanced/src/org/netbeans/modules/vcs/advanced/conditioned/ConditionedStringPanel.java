@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.advanced.conditioned;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import org.openide.DialogDescriptor;
@@ -227,6 +228,7 @@ public class ConditionedStringPanel extends javax.swing.JPanel implements Enhanc
     private void fillConditions() {
         infoLabel.setText(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.title", cs.getName()));
         IfUnlessCondition[] iucs = cs.getIfUnlessConditions();
+        Arrays.sort(iucs, new IfUnlessCondition.IfUnlessComparator());
         for (int i = 0; i < iucs.length; i++) {
             conditionComboBox.addItem(iucs[i]);
         }
