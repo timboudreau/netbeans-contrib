@@ -16,7 +16,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <property name="build.sysclasspath" value="ignore"/>
 
-    <property name="netbeans.home" location="../../../nbbuild/netbeans"/>
+    <property name="netbeans.home" location="../../../nbbuild/netact"/>
     <property name="netbeans.test.home" value="${netbeans.home}"/>
     
     <!-- says how to create classpath for code tests -->
