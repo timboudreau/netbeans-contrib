@@ -134,7 +134,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
         List addList, List removeList,
         SuggestionList tasklist, boolean sizeKnown) {
         suggestions.addAll(addList);
-        suggestions.removeAll(removeList);
+        if (removeList != null) suggestions.removeAll(removeList);
         fireChange();
         
         //System.err.println("register(" + typeName + ", " + addList +
