@@ -43,8 +43,9 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-
-
+import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 
@@ -409,7 +410,7 @@ public abstract class TaskListView extends ExplorerPanel
 
             //table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	    // No, I can use TreeTableView.setTableAutoResizeMode(int) for this
-	    
+	     
             // No white clipping lines on selected table rows: reduce separator
             // to 0. That means text may touch but HIE prefers this.
             table.setIntercellSpacing(new Dimension(0, table.getRowMargin()));
@@ -837,7 +838,7 @@ public abstract class TaskListView extends ExplorerPanel
     */
     
     /** Expand nodes and select the particular todo item, IF the todolist
-     *  view is showing
+     *  view is showing 
      * @param item The item to be shown 
      */
     public void select(final Task item) {
@@ -1175,6 +1176,8 @@ public abstract class TaskListView extends ExplorerPanel
      * no filter (e.g. all tasks are shown unconditionally).
      */
     public Filter getFilter() {
+        if (filter == null)
+            filter = new Filter(null, true, new ArrayList(), false);
         return filter;
     }
     

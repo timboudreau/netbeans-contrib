@@ -28,6 +28,9 @@ import org.openide.explorer.propertysheet.editors.EnhancedPropertyEditor;
 /**
  * PropertyEditor for task priorities.
  *
+ * TODO: investigate this call
+ * putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
+ *
  * @author Tim Lebedkov
  */
 public class PriorityPropertyEditor extends PropertyEditorSupport 

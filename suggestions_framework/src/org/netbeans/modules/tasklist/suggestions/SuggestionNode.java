@@ -20,7 +20,6 @@ import java.util.Iterator;
 import org.netbeans.api.tasklist.Suggestion;
 
 import org.netbeans.modules.tasklist.core.ExportAction;
-import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.TaskNode;
@@ -39,6 +38,7 @@ import java.awt.datatransfer.Transferable;
 import org.netbeans.api.tasklist.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.text.Line;
 
 

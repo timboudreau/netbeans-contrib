@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
