@@ -1485,4 +1485,32 @@ public abstract class TaskListView extends ExplorerPanel
             treeTable.getTable().requestFocus();
         }
     }
+
+
+    ///* For debugging purposes:
+    public void nodePrint() {
+        System.err.println("\nTask List (As Seen via Nodes):\n-------------");
+        nodeRecursivePrint(getEffectiveRoot(), 0);
+        System.err.println("\n\n");
+    }
+    
+    private void nodeRecursivePrint(Node node, int depth) {
+        if (depth > 20) { // probably invalid list
+            Thread.dumpStack();
+            return;
+        }
+        for (int i = 0; i < depth; i++) {
+            System.err.print("   ");
+        }
+        System.err.println(node.getDisplayName());
+        if ((node.getChildren() != null) && 
+            (node.getChildren().getNodes() != null)) {
+            Node[] nodes = node.getChildren().getNodes();
+            for (int i = 0; i < nodes.length; i++) {
+                nodeRecursivePrint(nodes[i], depth+1);
+            }
+        }
+    }
+    // */
+
 }
