@@ -77,7 +77,7 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         setDisplayName(item.getDisplayName());
         setShortDescription(NbBundle.getMessage(RevisionNode.class,
                             "RevisionNode.Description",
-                            list.getFileObject().getName(), item.getRevision()));
+                            list.getFileObject().getName(), item.getRevisionVCS()));
         init(list, item);
     }
 

@@ -104,7 +104,7 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
         this.list = list;
         this.obj = list.getFileObject();
         this.revisionItem = revisionItem;
-        this.revision = revisionItem.getRevision();
+        this.revision = revisionItem.getRevisionVCS();
     }
     
     /** Getter of the file object that this support is associated with.
