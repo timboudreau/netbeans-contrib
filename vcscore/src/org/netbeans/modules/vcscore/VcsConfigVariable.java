@@ -283,6 +283,7 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
         }
         ch = (FileObject[]) list.toArray(new FileObject[0]);
         Locale locale = Locale.getDefault();
+        // [PENDING] if uncommented, please use NbBundle.getLocalizingSuffixes() instead --jglick
         for(int i = 0; i < ch.length; i++) {
             String name = ch[i].getName();
             //System.out.println("name = "+name+", locale = "+locale.toString());
