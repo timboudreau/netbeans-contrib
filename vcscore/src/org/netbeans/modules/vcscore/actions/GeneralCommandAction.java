@@ -21,6 +21,7 @@ import java.util.Enumeration;
 import java.lang.ref.WeakReference;
 
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataShadow;
 import org.openide.nodes.Node;
@@ -353,6 +354,7 @@ public class GeneralCommandAction extends NodeAction {
             suppMap = null;
             return false;
         }
+        FileSystem primaryFS = (FileSystem) fileOb.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
         CommandActionSupporter supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);
         if (supp != null) {
             Set fileSet = new HashSet();
@@ -361,6 +363,13 @@ public class GeneralCommandAction extends NodeAction {
                 FileObject fo = (FileObject)it.next();
                 supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);                
                 if (supp != null) {
+                    if (primaryFS != null) {
+                        FileSystem fs = (FileSystem) fo.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
+                        if (!primaryFS.equals(fs)) {
+                            // We have a secondary file on another filesystem!
+                            continue;
+                        }
+                    }
                     fileSet.clear();
                     fileSet.add(fo);
                     addToMap(suppMap, supp, fileSet);
