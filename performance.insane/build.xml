@@ -20,7 +20,7 @@ Microsystems, Inc. All Rights Reserved.
             <include name="${module.jar}"/>
             <include name="${javahelp.jar}" if="has.javahelp"/>
             <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
-            <include name="${netbeans.dest.dir}/${cluster.dir}/modules/ext/insanelib.jar"/>
+            <include name="${nb.modules.dir}/ext/insanelib.jar"/>
             <include name="${nb.lib.dir}/org-netbeans-modules-performance-insane-cli.jar"/>
         </patternset>
     </target>
