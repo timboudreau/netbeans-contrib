@@ -3116,6 +3116,12 @@ Microsystems, Inc. All Rights Reserved.
                  ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_Recursive_mnc)) ,"-R", "-l")
           </value>
 	</property>
+	<property name="data.regex">
+	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
+	</property>
+	<property name="error.regex">
+	  <value>^.* warning: (.*) (is not \(any longer\).*)$|^.*: (.*) (is no longer.*)$|^.*: Updating (.*)$</value>
+	</property>
         <property name="preCommands">
           <value>PRE_CHECKOUT_CREATE_CVS_FOLDER</value>
         </property>
@@ -3124,6 +3130,9 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
         <property name="runOnMultipleFiles">
           <value>true</value>
+        </property>
+        <property name="visualizer">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizer</value>
         </property>
         <property name="commandsAfterSuccess">
           <value>GLOBAL_REGISTER</value>
