@@ -31,7 +31,7 @@ public abstract class SerStructureNode {
         public StreamNode(SerParser.Stream s) {
             super(new GeneralChildren(s.contents));
             setName(NbBundle.getMessage(SerStructureNode.class, "LBL_ser_stream"));
-            setIconBase("/org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
+            setIconBase("org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
         }
     }
     
@@ -69,35 +69,35 @@ public abstract class SerStructureNode {
                 }
                 AbstractNode n = new AbstractNode(ch);
                 n.setName(NbBundle.getMessage(SerStructureNode.class, "LBL_instance_of", name));
-                n.setIconBase("/org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
+                n.setIconBase("org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
                 return n;
             } else if (key instanceof SerParser.ArrayWrapper) {
                 SerParser.ArrayWrapper aw = (SerParser.ArrayWrapper)key;
                 AbstractNode n = new AbstractNode(new GeneralChildren(aw.values));
                 if (! aw.classdesc.name.startsWith("[")) throw new IllegalStateException("Strange array name: " + aw.classdesc.name); // NOI18N
                 n.setName(prettify(aw.classdesc.name.substring(1, aw.classdesc.name.length())) + "[" + aw.values.size() + "]"); // NOI18N
-                n.setIconBase("/org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
+                n.setIconBase("org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
                 return n;
             } else if (key instanceof byte[]) {
                 // Block data.
                 AbstractNode n = new AbstractNode(Children.LEAF);
                 n.setName(SerParser.hexify((byte[])key));
-                n.setIconBase("/org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
+                n.setIconBase("org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
                 return n;
             } else if (key instanceof SerParser.ClassDesc) {
                 AbstractNode n = new AbstractNode(Children.LEAF);
                 n.setName("class " + prettify(((SerParser.ClassDesc)key).name)); // NOI18N
-                n.setIconBase("/org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
+                n.setIconBase("org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
                 return n;
             } else if (key == SerParser.NULL) {
                 AbstractNode n = new AbstractNode(Children.LEAF);
                 n.setName("null"); // NOI18N
-                n.setIconBase("/org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
+                n.setIconBase("org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
                 return n;
             } else if (key instanceof String) {
                 AbstractNode n = new AbstractNode(Children.LEAF);
                 n.setName("\"" + (String)key + "\""); // NOI18N
-                n.setIconBase("/org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
+                n.setIconBase("org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
                 return n;
             } else if ((key instanceof Boolean) || (key instanceof Character) ||
                        (key instanceof Byte) || (key instanceof Short) ||
@@ -105,13 +105,13 @@ public abstract class SerStructureNode {
                        (key instanceof Float) || (key instanceof Double)) {
                 AbstractNode n = new AbstractNode(Children.LEAF);
                 n.setName(key.toString());
-                n.setIconBase("/org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
+                n.setIconBase("org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
                 return n;
             } else {
                 // ????
                 AbstractNode n = new AbstractNode(Children.LEAF);
                 n.setName("What is this? " + key + " [" + key.getClass().getName() + "]"); // NOI18N
-                n.setIconBase("/org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
+                n.setIconBase("org/netbeans/modules/clazz/resources/serAlone"); // NOI18N
                 return n;
             }
         }

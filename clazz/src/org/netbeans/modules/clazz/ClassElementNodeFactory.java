@@ -121,8 +121,8 @@ final class ClassElementNodeFactory extends DefaultFactory {
             ch.setFilter (cel);
             n.setActions(getDefaultActions());
             n.setIconBase (element.isInterface () ?
-                           "/org/netbeans/modules/clazz/resources/interfaceBr" : // NOI18N
-                           "/org/netbeans/modules/clazz/resources/classBr" // NOI18N
+                           "org/netbeans/modules/clazz/resources/interfaceBr" : // NOI18N
+                           "org/netbeans/modules/clazz/resources/classBr" // NOI18N
                           );
             return n;
         }

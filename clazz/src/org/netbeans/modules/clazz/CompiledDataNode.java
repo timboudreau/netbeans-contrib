@@ -40,15 +40,15 @@ public class CompiledDataNode extends ClassDataNode {
     
     /** Icon bases for icon manager */
     protected final static String CLASS_BASE =
-        "/org/netbeans/modules/clazz/resources/class"; // NOI18N
+        "org/netbeans/modules/clazz/resources/class"; // NOI18N
     private final static String CLASS_MAIN_BASE =
-        "/org/netbeans/modules/clazz/resources/classMain"; // NOI18N
+        "org/netbeans/modules/clazz/resources/classMain"; // NOI18N
     private final static String ERROR_BASE =
-        "/org/netbeans/modules/clazz/resources/classError"; // NOI18N
+        "org/netbeans/modules/clazz/resources/classError"; // NOI18N
     private final static String BEAN_BASE =
-        "/org/netbeans/modules/clazz/resources/bean"; // NOI18N
+        "org/netbeans/modules/clazz/resources/bean"; // NOI18N
     private final static String BEAN_MAIN_BASE =
-        "/org/netbeans/modules/clazz/resources/beanMain"; // NOI18N
+        "org/netbeans/modules/clazz/resources/beanMain"; // NOI18N
 
 
     /** Creates new CompiledDataNode */
