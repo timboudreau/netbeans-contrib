@@ -608,7 +608,11 @@ public class ExternalCommand {
                     out.write(input);
                 }
             } catch (IOException ioex) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+                // Something bad has happened => stop
+                stop = true;
+                // Might be a Brokem pipe here. Do not notify anyone, we can not
+                // cleanly test whether the process is still running or not anyway.
+                // ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
             }
         }
         
