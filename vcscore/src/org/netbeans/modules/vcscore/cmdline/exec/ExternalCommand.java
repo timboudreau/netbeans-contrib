@@ -640,7 +640,7 @@ public class ExternalCommand {
             for (int i = 0; i < n; i++) {
                 RE pattern = (RE) stdOutRegexps.get(i);
                 String[] sa = matchToStringArray(pattern, line);
-                if (sa != null && sa.length > 0) ((CommandDataOutputListener) stdOutListeners.get(i)).outputData(sa);
+                if (sa != null && sa.length > 0) ((CommandDataOutputListener) stdOutDataListeners.get(i)).outputData(sa);
             }
         }
         synchronized(stdOutLock) {
@@ -658,7 +658,7 @@ public class ExternalCommand {
             for (int i = 0; i < n; i++) {
                 RE pattern = (RE) stdErrRegexps.get(i);
                 String[] sa = matchToStringArray(pattern, line);
-                if (sa != null && sa.length > 0) ((CommandDataOutputListener) stdErrListeners.get(i)).outputData(sa);
+                if (sa != null && sa.length > 0) ((CommandDataOutputListener) stdErrDataListeners.get(i)).outputData(sa);
             }
         }
         synchronized(stdErrLock) {
