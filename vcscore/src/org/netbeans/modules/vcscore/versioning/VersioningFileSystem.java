@@ -107,7 +107,12 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      * can reside.
      */
     public String[] getPossibleFileStatuses() {
-        return (String[]) getFileStatusProvider().getPossibleFileStatusesTable().values().toArray(new String[0]);
+        FileStatusProvider statusProvider = getFileStatusProvider();
+        if (statusProvider != null) {
+            return (String[]) statusProvider.getPossibleFileStatusesTable().values().toArray(new String[0]);
+        } else {
+            return new String[0];
+        }
     }
 
     /** returns the status for a dataobject. If it matches the status 
