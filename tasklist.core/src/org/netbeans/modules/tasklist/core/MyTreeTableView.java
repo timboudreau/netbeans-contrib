@@ -44,20 +44,6 @@ final class MyTreeTableView extends TreeTableView implements TreeTableIntf {
         int intheight = (int) height;
         table.setRowHeight(intheight);
 
-        // #45006 "cancelEdit" and parent's UI map "cancel" bound to ESC eliminates our ESC handling
-        // replace registration by our action that is always disabled (and ignored during dispatching)
-        KeyStroke esc = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-        final String WORKAROUND = "#45006";  // NOI18N
-        table.getInputMap(WHEN_FOCUSED).remove(esc);
-        table.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(esc, WORKAROUND);
-        table.getActionMap().put(WORKAROUND, new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-            }
-            public boolean isEnabled() {
-                return false;
-            }
-        });
-
             /* Issue 23993 was fixed which probably makes this unnecessary:
 // Grid color: HIE's asked for (230,230,230) but that seems troublesome
 // since we'd have to make a GUI for customizing it. Instead, go
