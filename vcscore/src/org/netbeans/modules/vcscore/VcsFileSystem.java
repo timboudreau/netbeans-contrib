@@ -33,6 +33,7 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 import org.openide.filesystems.FileStatusEvent;
+import org.openide.filesystems.Repository;
 import org.openide.filesystems.RepositoryListener;
 import org.openide.filesystems.RepositoryEvent;
 import org.openide.filesystems.RepositoryReorderedEvent;
@@ -362,6 +363,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private volatile boolean hideShadowFiles; // is set in the constructor
     
     private transient PropertyChangeListener settingsChangeListener = null;
+    
+    private transient RepositoryListener addRemoveFSListener;
     
     private VariableValueAdjustment varValueAdjustment;
     
@@ -1595,6 +1598,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
         settings.addPropertyChangeListener(WeakListener.propertyChange(settingsChangeListener, settings));
         addPropertyChangeListener(new FSPropertyChangeListener());
+        addRemoveFSListener = new VcsFileSystem.FSRepositoryListener();
+        Repository.getDefault().addRepositoryListener(WeakListener.repository(addRemoveFSListener, this));
     }
     
     protected AbstractFileSystem.List getVcsList() {
@@ -1614,19 +1619,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         vers.setMessageLength(versioningFileSystemMessageLength);
     }
     
-    /** Notifies this file system that it has been added to the repository. 
+    /**
+     * Notifies this file system that it has been added to the repository.
+     * Since we can not rely on the addNotify() method (see issue #30763),
+     * this method was introduced to be notified when this FS is really added.
+     * Call super.notifyFSAdded() when you're extending this method. Do not
+     * call directly.
      */
-    public void addNotify() {
+    protected void notifyFSAdded() {
         //System.out.println("fileSystemAdded("+this+")");
         //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
-//        if (Boolean.TRUE.equals(createRuntimeCommands)) commandsPool.setupRuntime();
         if (!isOffLine()
             && (getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_MOUNT_AND_RESTART
             || (deserialized && getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_RESTART)
             || (!deserialized && getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_MOUNT))) {
                 CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
         }
-        super.addNotify();
         if (isCreateVersioningSystem()) {
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 public void run() {
@@ -1649,13 +1657,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         enableRefresh();
     }
     
-    /** Notifies this file system that it has been removed from the repository. 
+    /**
+     * Notifies this file system that it has been removed from the repository.
+     * Since we can not rely on the removeNotify() method (see issue #30763),
+     * this method was introduced to be notified when this FS is really removed.
+     * Call super.notifyFSRemoved() when you're extending this method. Do not
+     * call directly.
      */
-    public void removeNotify() {
+    protected void notifyFSRemoved() {
         disableRefresh();
         //System.out.println("fileSystem Removed("+this+")");
-        //commandsPool.cleanup();
-        super.removeNotify();
         if (versioningSystem != null) {
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 public void run() {
@@ -4490,6 +4501,31 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             });
         }
+    }
+    
+    /**
+     * The listener on Repository to be informed when this filesystem was mounted
+     * and unmounted. addNotify() and removeNotify() are not reliable methods.
+     * They can be called even when this filesystem is added into or removed from
+     * a multifilesystem.
+     */
+    private class FSRepositoryListener extends Object implements RepositoryListener {
+        
+        public void fileSystemAdded(RepositoryEvent repositoryEvent) {
+            if (VcsFileSystem.this.equals(repositoryEvent.getFileSystem())) {
+                notifyFSAdded();
+            }
+        }
+        
+        public void fileSystemPoolReordered(RepositoryReorderedEvent repositoryReorderedEvent) {
+        }
+        
+        public void fileSystemRemoved(RepositoryEvent repositoryEvent) {
+            if (VcsFileSystem.this.equals(repositoryEvent.getFileSystem())) {
+                notifyFSRemoved();
+            }
+        }
+        
     }
     
     public String getBundleProperty(String s) {
