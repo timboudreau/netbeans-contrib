@@ -259,6 +259,12 @@ public class ExternalCommand {
               execClass(commandArr);
         }
             */
+	    System.out.println ("In ExternalCommand::Exec");
+	    if (envp != null) {
+		for (int i=0; i<envp.length; i++)
+		    System.out.println (envp[i]); 
+	    }
+	    
             try{
                 if (envp == null) {
                     proc = Runtime.getRuntime().exec(commandArr);
