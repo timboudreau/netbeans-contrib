@@ -305,7 +305,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private transient IgnoreListSupport ignoreListSupport = null;
     
-    private transient Set unimportantFiles = Collections.synchronizedSet(new HashSet());
+    private transient Set unimportantFiles;
 
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
@@ -643,7 +643,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (ref != null && ref instanceof CacheReference) {
             return ((CacheReference) ref).isImportant();
         } else {
-            return unimportantFiles.contains(name);
+            return !unimportantFiles.contains(name);
         }
     }
 
@@ -959,6 +959,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected void init() {
         D.deb ("init()"); // NOI18N
         if (tempFiles == null) tempFiles = new Vector();
+        unimportantFiles = Collections.synchronizedSet(new HashSet());
         //cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
         cache = getVcsFactory().getFileCacheProvider();
         statusProvider = getVcsFactory().getFileStatusProvider();
