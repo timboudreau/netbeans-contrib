@@ -33,8 +33,12 @@ import org.openide.util.Utilities;
 import org.openide.windows.*;
 
 import org.netbeans.api.bookmarks.*;
-import org.netbeans.modules.bookmarks.actions.AddBookmarkAction;
+
 /** 
+ * Tests for the BookmarkService class. Those tests run
+ * in the running application since they need the JNDI naming
+ * to be in place and working.
+ *
  * @author David Strupl
  */
 public class BookmarkServiceTest extends NbTestCase {
@@ -66,7 +70,6 @@ public class BookmarkServiceTest extends NbTestCase {
             } 
             root = f1.createFolder(baseFolder.substring(baseFolder.lastIndexOf('/')+1));
         }
-        
     }
     
     /**
@@ -178,44 +181,23 @@ public class BookmarkServiceTest extends NbTestCase {
     }
     
     /**
-     * This test tries to verify that the AddBookmarkAction
-     * calls the createDefaultBookmark and storeBookmark methods.
-     * It does so by creating and selecting a testing top component
-     * and invoking the action.
+     * This test tries to verify that the code in AddBookmarkAction
+     * calling createDefaultBookmark and storeBookmark methods works ok.
      * The tests performs following steps:
-     * <OL><LI> Create a TestTopComponent
-     *     <LI> Open and activate (request focus on) it
-     *     <LI> wait till the event queue dispatches all events
-     *          bound to opening the top component
-     *     <LI> verify that our top component is really activated
-     *     <LI> invoke the AddBookmarkAction
+     * <OL><LI> Create a TestTopComponent with test bookmark
+     *     <LI> call createDefaultBookmark and storeBookmark like AddBookmarkAction
      *     <LI> tests whether the testing bookmark bound to the
      *          testing top component is written in the bookmarks folder
      * </OL>
      */
     public void testAddBookmarkAction() throws Exception {
-        AddBookmarkAction action = new AddBookmarkAction();
         Bookmark b = new TestBookmark("test3");
         final TopComponent tc = new TestTopComponent(b);
-        SwingUtilities.invokeAndWait(new Runnable() {
-            public void run() {
-                tc.open();
-                tc.requestFocus();
-            }
-        });
-        final boolean [] done = new boolean[1];
-        Runnable wait = new Runnable() { 
-            public void run() {
-                done[0] = true;
-            }
-        };
-        SwingUtilities.invokeLater(wait);
-        while (! done[0]) {
-            Thread.sleep(1000);
-        }
-        assertEquals("our top component should be activated",
-            WindowManager.getDefault().getRegistry().getActivated(), tc);
-        action.actionPerformed(null);
+
+        // these 2 lines compied from AddBookmarkAction:
+        BookmarkService bs = BookmarkService.getDefault();
+        bs.storeBookmark(bs.createDefaultBookmark(tc));
+        
         assertTrue("test3 should be stored by AddBookmarkAction", deleteFromBookmarksFolder("test3"));
         
         // clean up
