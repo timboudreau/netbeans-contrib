@@ -255,7 +255,9 @@ public final class SuggestionsBroker {
         LOGGER.info("Starting active suggestions fetching....");  // NOI18N
 
         // must be removed in docStop
-        env.addTCRegistryListener(getWindowSystemMonitor());
+        WindowSystemMonitor monitor = getWindowSystemMonitor();
+        monitor.enableOpenCloseEvents();
+        env.addTCRegistryListener(monitor);
         env.addDORegistryListener(getDataSystemMonitor());
 
         /* OLD:
@@ -920,6 +922,9 @@ err.log("Couldn't find current nodes...");
     }
 
     private void handleTopComponentClosed(TopComponent tc) {
+
+        componentsChanged();
+
         DataObject dobj = extractDataObject(tc);
         if (dobj == null) return;
 
@@ -929,9 +934,14 @@ err.log("Couldn't find current nodes...");
         }
     }
 
+    private void handleTopComponentOpened(TopComponent tc) {
+        // XXX assume that tc is currently selected one
+        componentsChanged();
+    }
 
     private WindowSystemMonitor windowSystemMonitor;
 
+    /** See note on {@link WindowSystemMonitor#enableOpenCloseEvents} */
     private WindowSystemMonitor getWindowSystemMonitor() {
         if (windowSystemMonitor == null) {
             windowSystemMonitor = new WindowSystemMonitor();
@@ -943,11 +953,22 @@ err.log("Couldn't find current nodes...");
 
         private Set openedSoFar = null;
 
+        private TopComponent shouldBeShown;
+
+        /**
+         * Must be called before adding this listener to environment if in hope that
+         * it will provide (initial) open/close events.
+         */
+        private void enableOpenCloseEvents() {
+            List list = Arrays.asList(SuggestionsScanner.openedTopComponents());
+            openedSoFar = new HashSet(list);
+            shouldBeShown = null;
+        }
+
         /** Reacts to changes */
         public void propertyChange(PropertyChangeEvent ev) {
             String prop = ev.getPropertyName();
             if (prop.equals(TopComponent.Registry.PROP_OPENED)) {
-                componentsChanged();
 
                 if (allOpenedClientsCount > 0) {
                     // determine what components have been closed, window system does not
@@ -957,28 +978,44 @@ err.log("Couldn't find current nodes...");
                     Set actual = new HashSet(list);
 
                     if (openedSoFar != null) {
-                        openedSoFar.removeAll(actual);
-
                         Iterator it = openedSoFar.iterator();
                         while(it.hasNext()) {
                             TopComponent tc = (TopComponent) it.next();
+                            if (actual.contains(tc) ) continue;
                             handleTopComponentClosed(tc);
+                        }
+
+                        Iterator ita = actual.iterator();
+                        while(ita.hasNext()) {
+                            TopComponent tc = (TopComponent) ita.next();
+                            if (openedSoFar.contains(tc)) continue;
+                            assert shouldBeShown == null : "Multiple opened TCs in burst without showing them one-by-one is not handled"; // NOI18N
+                            // defer actual action to componentShown, We need to assure opened TC is
+                            // selected one. At this moment previous one is still selected.
+                            shouldBeShown = tc;
                         }
                     }
 
                     openedSoFar = actual;
                 } else {
+                    componentsChanged();
                     openedSoFar = null;
                 }
             }
         }
 
         public void componentShown(ComponentEvent e) {
-            // Don't care
+            if (shouldBeShown != null) {
+                handleTopComponentOpened(shouldBeShown);
+                shouldBeShown = null;
+            }
         }
 
         public void componentHidden(ComponentEvent e) {
-            componentsChanged();
+            //XXX it does not support both "current file" and "all opened" clients at same time
+            if (allOpenedClientsCount == 0) {
+                componentsChanged();
+            }
         }
 
         public void componentResized(ComponentEvent e) {
