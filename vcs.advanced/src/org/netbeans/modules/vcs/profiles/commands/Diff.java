@@ -316,17 +316,17 @@ public class Diff extends AbstractDiffCommand {
     
     private void addCADiffAction() {
         switch (lastDiff) {
-            case  1: addDifference(new Difference(Difference.CHANGE, lastLine1, lastLine2, lastDiffLine1, lastDiffLine2, "", secondText.toString()));
+            case  1: addDifference(new Difference(Difference.CHANGE, lastLine1, lastLine2, lastDiffLine1, lastDiffLine2, null, secondText.toString()));
                      //diff.addChangeAction(lastLine1, lastLine2, lastDiffLine1, lastDiffLine2);
                      caDocShift -= lastLine2 - lastLine1 - (lastDiffLine2 - lastDiffLine1);
                      //System.out.println("Change("+lastLine1+", "+lastLine2+", "+lastDiffLine1+", "+lastDiffLine2+"), caDocShift = "+caDocShift);
                      break;
-            case -1: addDifference(new Difference(Difference.DELETE, lastLine1, lastLine2, lastDiffLine1, 0, "", secondText.toString()));
+            case -1: addDifference(new Difference(Difference.DELETE, lastLine1, lastLine2, lastDiffLine1, 0, null, secondText.toString()));
                      //diff.addDeleteAction(lastLine1, lastLine2, lastDiffLine1);
                      caDocShift -= lastLine2 + 1 - lastLine1;
                      //System.out.println("Delete("+lastLine1+", "+lastLine2+", "+lastDiffLine1+"), caDocShift = "+caDocShift);
                      break;
-            case  2: addDifference(new Difference(Difference.ADD, lastLine1, 0, lastDiffLine1, lastDiffLine2, "", secondText.toString()));
+            case  2: addDifference(new Difference(Difference.ADD, lastLine1, 0, lastDiffLine1, lastDiffLine2, null, secondText.toString()));
                      //diff.addAddAction(lastLine1, lastDiffLine1, lastDiffLine2);
                      caDocShift += lastDiffLine2 + 1 - lastDiffLine1;
                      //System.out.println("Add("+lastLine1+", "+lastDiffLine1+", "+lastDiffLine2+"), caDocShift = "+caDocShift);
