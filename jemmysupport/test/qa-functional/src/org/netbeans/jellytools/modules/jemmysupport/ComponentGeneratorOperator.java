@@ -34,7 +34,7 @@ public class ComponentGeneratorOperator extends JDialogOperator {
     /** Creates new ComponentGeneratorOperator that can handle it.
      */
     public ComponentGeneratorOperator() {
-        super("Jemmy Components Generator");
+        super("Jemmy Component Generator");
     }
 
     private JTreeOperator _treePackage;
@@ -94,7 +94,7 @@ public class ComponentGeneratorOperator extends JDialogOperator {
      */
     public JCheckBoxOperator cbCreateScreenshot() {
         if (_cbCreateScreenshot==null) {
-            _cbCreateScreenshot = new JCheckBoxOperator(this, " Create Screenshot");
+            _cbCreateScreenshot = new JCheckBoxOperator(this, "Create Screenshot");
         }
         return _cbCreateScreenshot;
     }
@@ -104,7 +104,7 @@ public class ComponentGeneratorOperator extends JDialogOperator {
      */
     public JCheckBoxOperator cbShowComponentsEditor() {
         if (_cbShowComponentsEditor==null) {
-            _cbShowComponentsEditor = new JCheckBoxOperator(this, " Show Components Editor");
+            _cbShowComponentsEditor = new JCheckBoxOperator(this, "Show Component Editor");
         }
         return _cbShowComponentsEditor;
     }
@@ -184,7 +184,7 @@ public class ComponentGeneratorOperator extends JDialogOperator {
     }
 
     public static ComponentGeneratorOperator invoke() {
-        new Action("Tools|Jemmy Components Generator", null).performMenu();
+        new Action("Tools|Jemmy Component Generator", null).performMenu();
         return new ComponentGeneratorOperator();
     }
 }

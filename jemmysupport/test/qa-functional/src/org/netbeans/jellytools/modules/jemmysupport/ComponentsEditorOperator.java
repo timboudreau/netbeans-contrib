@@ -32,7 +32,7 @@ public class ComponentsEditorOperator extends JDialogOperator {
     /** Creates new ComponentsEditor that can handle it.
      */
     public ComponentsEditorOperator() {
-        super("Components Editor");
+        super("Component Editor");
     }
 
     private JSplitPaneOperator _sppSplitPane;
