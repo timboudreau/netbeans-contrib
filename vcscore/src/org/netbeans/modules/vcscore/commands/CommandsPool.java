@@ -761,7 +761,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         //System.out.println("  serialOfCommand = "+serialOfCommand);
         //System.out.println("  serialOfAll = "+serialOfAll);
         //System.out.println("  commandsToTestAgainst = "+commandsToTestAgainst);
-        if (serialOfAll && commandsToTestAgainst.size() > 0) return false;
+        //if (serialOfAll && commandsToTestAgainst.size() > 0) return false;
         //commandsToTestAgainst.addAll(commandsToRun);
         //commandsToTestAgainst.addAll(commandsWaitQueue);
         //commandsToTestAgainst.remove(vce);
@@ -773,6 +773,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
             int cmdConcurrency = VcsCommandIO.getIntegerPropertyAssumeZero(uc, VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
             //System.out.println("  cmdConcurrency = "+cmdConcurrency);
             if (VcsCommand.EXEC_SERIAL_INERT == cmdConcurrency) continue;
+            if (serialOfAll) {
+                haveToWait = true;
+                break;
+            }
             String cmdName = uc.getName();
             if (serialOnFile) {
                 for(Iterator it = files.iterator(); it.hasNext(); ) {
