@@ -55,9 +55,13 @@ public class ChooseDirDialog extends JDialog {
         chooser.setFileHidingEnabled(false);
 
         if( initialDir != null ){
-            chooser.setCurrentDirectory(initialDir);
+            if (Utilities.getOperatingSystem() != Utilities.OS_VMS) {
+                chooser.setCurrentDirectory(initialDir);
+            }
         }
-        chooser.setSelectedFile (initialDir);
+        if (Utilities.getOperatingSystem() != Utilities.OS_VMS) {
+            chooser.setSelectedFile (initialDir);
+        }
         chooser.setApproveButtonText( g("CTL_Select") ); // NOI18N
         chooser.setApproveButtonToolTipText( g("CTL_SelectToolTip") ); // NOI18N
 
