@@ -48,7 +48,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
 
 
     /** @deprecated it forces cloning */
-    protected ObservableList list;
+    private ObservableList list;
 
     /** Set&lt;TaskListener> */  // replacement for above attribute
     private Set listeners = new HashSet(2);
@@ -549,14 +549,17 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         }
     }
 
-    /** Set the list this task is contained in. */
+    /**
+     * Set the list this task is contained in.
+     * @deprecated Task should not have knowledge of its list
+     */
     public void setList(ObservableList list) { // XXX remove publicness
         this.list = list;
     }
 
     /**
      * Get the list this task is contained in.
-     * @deprecated Task should not have knowledge of its list, list have know of its members   
+     * @deprecated Task should not have knowledge of its list, list have know of its members
      */
     public ObservableList getList() {
         return list;

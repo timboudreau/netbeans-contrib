@@ -14,15 +14,19 @@
 package org.netbeans.modules.tasklist.bugs;
 
 import java.util.Date;
+
 import org.netbeans.modules.tasklist.core.Task;
 import org.openide.nodes.Node;
 
 
 // XXX todo: fire property change whenever anything changes in the node...
 
-/** Class which represents a task in the
+/**
+ * Class which represents a task in the
  * tasklist.
- * @author Tor Norbye */
+ *
+ * @author Tor Norbye
+ */
 public final class Bug extends Task {
     private BugEngine engine = null;
 
@@ -47,42 +51,44 @@ public final class Bug extends Task {
     }
 
     public Bug(String id,
-	       String synopsis,
-	       int priority,
-	       String type,
-	       String component,
-	       String subcomponent,
-	       Date created,
-	       String keywords,
-	       String assignedto,
-	       String reportedby,
-	       String status,
-	       String target,
-	       int votes
-	       ) {
+               String synopsis,
+               int priority,
+               String type,
+               String component,
+               String subcomponent,
+               Date created,
+               String keywords,
+               String assignedto,
+               String reportedby,
+               String status,
+               String target,
+               int votes) {
         super(id, null);
         this.id = id;
         this.synopsis = synopsis;
         this.priority = priority;
-	this.type = type;
-	this.component = component;
-	this.subcomponent = subcomponent;
-	this.created = created;
-	this.keywords = keywords;
-	this.assignedto = assignedto;
-	this.reportedby = reportedby;
-	this.status = status;
-	this.target = target;
-	this.votes = votes;
+        this.type = type;
+        this.component = component;
+        this.subcomponent = subcomponent;
+        this.created = created;
+        this.keywords = keywords;
+        this.assignedto = assignedto;
+        this.reportedby = reportedby;
+        this.status = status;
+        this.target = target;
+        this.votes = votes;
 
         setSummary(id + ": " + synopsis); // NOI18N
     }
 
-    /** Return the priority of the task.
+    /**
+     * Return the priority of the task.
+     *
      * @return The priority of the task. "0" is considered
-     * "not prioritized". Lower number is considered
-     * a higher priority, by convention. The default
-     * priority of tasks is "3". */    
+     *         "not prioritized". Lower number is considered
+     *         a higher priority, by convention. The default
+     *         priority of tasks is "3".
+     */
     public int getPriorityNumber() {
         return priority;
     }
@@ -90,8 +96,10 @@ public final class Bug extends Task {
     public void setPriorityNumber(int priority) {
         this.priority = priority;
     }
-    
-    /** Return the bug number
+
+    /**
+     * Return the bug number
+     *
      * @return The bug number
      */
     public String getId() {
@@ -102,8 +110,10 @@ public final class Bug extends Task {
         this.id = id;
     }
 
-    
-    /** Return the description for the bug
+
+    /**
+     * Return the description for the bug
+     *
      * @return Bug description.
      */
     public String getSynopsis() {
@@ -113,171 +123,218 @@ public final class Bug extends Task {
     public void setSynopsis(String synopsis) {
         this.synopsis = synopsis;
     }
-    
-    /** Return the bug's component/category */
+
+    /**
+     * Return the bug's component/category
+     */
     public String getComponent() {
-	return component;
+        return component;
     }
+
     public void setComponent(String component) {
-	this.component = component;
+        this.component = component;
     }
 
-    
-    /** Return the bug's subcomponent/subcategory */
+
+    /**
+     * Return the bug's subcomponent/subcategory
+     */
     public String getSubComponent() {
-	return subcomponent;
-    }
-    public void setSubComponent(String subcomponent) {
-	this.subcomponent = subcomponent;
+        return subcomponent;
     }
 
-    
-    /** Return the bug's creation date */
-    public Date getCreated() {
-	return created;
+    public void setSubComponent(String subcomponent) {
+        this.subcomponent = subcomponent;
     }
+
+
+    /**
+     * Return the bug's creation date
+     */
+    public Date getCreated() {
+        return created;
+    }
+
     public void setCreated(Date created) {
         this.created = created;
     }
 
-    
-    /** Return keywords associated with the bug */
+
+    /**
+     * Return keywords associated with the bug
+     */
     public String getKeywords() {
-	return keywords;
-    }
-    public void setKeywords(String keywords) {
-	this.keywords = keywords;
-    }
-    
-    /** Return the name of the person assigned to the bug */
-    public String getAssignedTo() {
-	return assignedto;
-    }
-    public void setAssignedTo(String assignedto) {
-	this.assignedto = assignedto;
+        return keywords;
     }
 
-    /** Return the name of the person who filed the bug */
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
+    }
+
+    /**
+     * Return the name of the person assigned to the bug
+     */
+    public String getAssignedTo() {
+        return assignedto;
+    }
+
+    public void setAssignedTo(String assignedto) {
+        this.assignedto = assignedto;
+    }
+
+    /**
+     * Return the name of the person who filed the bug
+     */
     public String getReportedBy() {
-	return reportedby;
+        return reportedby;
     }
+
     public void setReportedBy(String reportedby) {
-	this.reportedby = reportedby;
+        this.reportedby = reportedby;
     }
-    
-    /** Return the current status of the bug */
+
+    /**
+     * Return the current status of the bug
+     */
     public String getStatus() {
-	return status;
+        return status;
     }
+
     public void setStatus(String status) {
-	this.status = status;
+        this.status = status;
     }
-    
-    /** Return the target milestone for the bug */
+
+    /**
+     * Return the target milestone for the bug
+     */
     public String getTarget() {
-	return target;
+        return target;
     }
+
     public void setTarget(String target) {
-	this.target = target;
+        this.target = target;
     }
-    
-    /** Return the type of bug: enhancement, bug, ... */
+
+    /**
+     * Return the type of bug: enhancement, bug, ...
+     */
     public String getType() {
-	return type;
+        return type;
     }
+
     public void setType(String type) {
-	this.type = type;
+        this.type = type;
     }
-    
-    /** Return the number of votes for the bug */
+
+    /**
+     * Return the number of votes for the bug
+     */
     public int getVotes() {
-	return votes;
+        return votes;
     }
+
     public void setVotes(int votes) {
-	this.votes = votes;
+        this.votes = votes;
     }
 
     // TODO: Issuezilla also provides: getResolution, getDescriptions,
     // getObservedBy, getBlocks, getDependsOn -- do I care about these
     
-    /** Generate a string summary of the task; only used
+    /**
+     * Generate a string summary of the task; only used
      * for debugging. DO NOT depend on this format for anything!
      * Use generate() instead.
-     * @return summary string */    
+     *
+     * @return summary string
+     */
     public String toString() {
         return "Bug[\"" + id + "\", " + synopsis + ":" + priority + "]"; // NOI18N
     }
 
-    /** Create a node for this item */
+    /**
+     * Create a node for this item
+     */
     public Node[] createNode() {
         // PENDING Do I allow subnodes for bugs? IssueZilla depends on
         // seems like something you could consider a "subtask", although
         // not quite
         if (hasSubtasks()) {
-            return new Node[] { new BugNode(this, subtasksIterator())};
+            return new Node[]{new BugNode(this, subtasksIterator())};
         } else {
-            return new Node[] { new BugNode(this)};
+            return new Node[]{new BugNode(this)};
         }
     }
 
-    /** Create an identical copy of a task (a deep copy, e.g. the
-        list of subtasks will be cloned as well */
+    /**
+     * Create an identical copy of a task (a deep copy, e.g. the
+     * list of subtasks will be cloned as well
+     */
     protected Object clone() {
         Bug t = new Bug();
         t.copyFrom(this);
         return t;
     }
 
-    /** Copy all the fields in the given task into this object.
-        Should only be called on an object of the EXACT same type.
-        Thus, if you're implementing a subclass of Task, say
-        UserTask, you can implement copy assuming that the passed
-        in Task parameter is of type UserTask. When overriding,
-        remember to call super.copyFrom.
-        <p>
-        Make a deep copy - except when that doesn't make sense.
-        For example, you can share the same icon reference.
-        And in particular, the tasklist reference should be the same.
-        But the list of subitems should be unique. You get the idea.
-    */
+    /**
+     * Copy all the fields in the given task into this object.
+     * Should only be called on an object of the EXACT same type.
+     * Thus, if you're implementing a subclass of Task, say
+     * UserTask, you can implement copy assuming that the passed
+     * in Task parameter is of type UserTask. When overriding,
+     * remember to call super.copyFrom.
+     * <p/>
+     * Make a deep copy - except when that doesn't make sense.
+     * For example, you can share the same icon reference.
+     * And in particular, the tasklist reference should be the same.
+     * But the list of subitems should be unique. You get the idea.
+     */
     protected void copyFrom(Bug from) {
         super.copyFrom(from);
 
-	engine = from.engine;
+        engine = from.engine;
 
         id = from.id;
         synopsis = from.synopsis;
         priority = from.priority;
-	type = from.type;
-	component = from.component;
-	subcomponent = from.subcomponent;
-	created = from.created;
-	keywords = from.keywords;
-	assignedto = from.assignedto;
-	reportedby = from.reportedby;
-	status = from.status;
-	target = from.target;
-	votes = from.votes;
+        type = from.type;
+        component = from.component;
+        subcomponent = from.subcomponent;
+        created = from.created;
+        keywords = from.keywords;
+        assignedto = from.assignedto;
+        reportedby = from.reportedby;
+        status = from.status;
+        target = from.target;
+        votes = from.votes;
     }
 
-    /** Get rid of the children/subtasks associated with this task */
+    /**
+     * Get rid of the children/subtasks associated with this task
+     */
     void dropSubtasks() {
         subtasks = null;
     }
 
-    /** View the particular bug */
+    /**
+     * View the particular bug in current view
+     */
     void view() {
-	((BugList)list).viewBug(this);
+        BugList list = (BugList) BugsView.getCurrent().getList();
+        list.viewBug(this);
     }
 
-    /** Return the bug engine associated with this bug */
+    /**
+     * Return the bug engine associated with this bug
+     */
     public void setEngine(BugEngine engine) {
-	this.engine = engine;
+        this.engine = engine;
     }
 
-    /** Set the bug engine associated with this bug */
+    /**
+     * Set the bug engine associated with this bug
+     */
     public BugEngine getEngine() {
-	return engine;
+        return engine;
     }
 }
 
