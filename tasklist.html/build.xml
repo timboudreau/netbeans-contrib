@@ -25,9 +25,6 @@ Microsystems, Inc. All Rights Reserved.
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
 
-    <!-- TODO Remove this when the module is part of the full tasklist build -->
-    <property name="build.compiler.debug" value="on"/>
-  
     <target name="init">
        <ant dir="external" target="unscramble"/>
     </target>
