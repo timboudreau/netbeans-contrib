@@ -42,6 +42,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.*;
 import org.openide.util.WeakListener;
+import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 
 /** Creates a new VCS filesystem from template in the "Templates/Mount/VCS" folder.
@@ -455,12 +456,16 @@ public class VcsMountFromTemplateAction extends NodeAction {
         /** Updates the keys.
          */
         private void updateKeys () {
-            DataFolder folder = wizard.getTemplatesFolder ();
-            if (folder.isValid()) {
-                setKeys (folder.getNodeDelegate ().getChildren ().getNodes (true));
-            } else {
-                setKeys(new Object[0]);
-            }
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    DataFolder folder = wizard.getTemplatesFolder ();
+                    if (folder.isValid()) {
+                        setKeys (folder.getNodeDelegate ().getChildren ().getNodes (true));
+                    } else {
+                        setKeys(new Object[0]);
+                    }
+                }
+            });
         }
         
         /** Fired when the order of children is changed.
