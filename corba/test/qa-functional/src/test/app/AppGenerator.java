@@ -42,6 +42,7 @@ import java.io.PrintStream;
 import junit.framework.AssertionFailedError;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.Repository;
 import util.Environment;
 
 public class AppGenerator {
@@ -88,13 +89,13 @@ public class AppGenerator {
         css = (CORBASupportSettings) CORBASupportSettings.findObject(CORBASupportSettings.class, true);
         css.getActiveSetting().setGeneration(ORBSettingsBundle.GEN_NOTHING);
         css.getActiveSetting().setSkeletons(tie ? ORBSettingsBundle.TIE : ORBSettingsBundle.INHER);
-        clientTemplate = getTemplate("CORBA/ClientMain");
-        serverTemplate = getTemplate("CORBA/ServerMain");
+        clientTemplate = getTemplate("CORBA/ClientMain.java");
+        serverTemplate = getTemplate("CORBA/ServerMain.java");
         foDst = Environment.findFileObject(outdir);
         try {
             daoDst = (DataFolder) DataObject.find(foDst);
             nodeDst = daoDst.getNodeDelegate();
-            DataObject idlTemplate = getTemplate("CORBA/Empty");
+            DataObject idlTemplate = getTemplate("CORBA/Empty.idl");
             daoIDL = (IDLDataObject) idlTemplate.createFromTemplate(daoDst, "HelloWorld");
             nodeIDL = (IDLNode) daoIDL.getNodeDelegate();
             final StyledDocument sdIDL = ((EditorCookie) daoIDL.getCookie(EditorCookie.class)).openDocument();
@@ -347,30 +348,14 @@ public class AppGenerator {
     }
     
     public static DataObject getTemplate(String name) {
-        return getTemplateFromTokenizer(new StringTokenizer(name, "/"));
-    }
-    
-    public static DataObject getTemplateFromTokenizer(StringTokenizer st) {
-        return null;
-        // !!! do it - always fail
-/*        if (! st.hasMoreTokens())
-            return null;
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        DataObject dao = .templates();
-        while (st.hasMoreTokens()) {
-            String str = st.nextToken();
-            DataObject[] daos = ((DataFolder) dao).getChildren();
-            dao = null;
-            for (int A = 0; A < daos.length; A ++) {
-                if (str.equals(daos[A].getName())) {
-                    dao = daos[A];
-                    break;
-                }
-            }
-            if (dao == null)
-                return null;
+        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Templates/" + name);
+        if (fo == null)
+            throw new AssertionFailedError ("Template not found: Template: " + name);
+        try {
+            return DataObject.find (fo);
+        } catch (DataObjectNotFoundException e) {
+            throw new AssertionFailedErrorException ("Template DataObject not found: Template: " + name, e);
         }
-        return dao;*/
     }
     
     public void doGenerateAndCompile() {
