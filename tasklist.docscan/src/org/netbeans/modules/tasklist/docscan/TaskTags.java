@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -17,8 +17,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import org.netbeans.api.tasklist.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.Task;
 import org.openide.ErrorManager;
 
 import org.apache.regexp.RE;
@@ -86,9 +84,9 @@ public final class TaskTags implements Externalizable {
                 int n = s.length();
                 // Insert token/boundary separator when we're dealing
                 // with text tokens, since you probably don't want
-                // a TODO match in a comment like
+                // a todo-match in a comment like
                 // "and now process GLYPTODON content".
-                // However, for non-token tags, such as "<<<<<<<" don't
+                // However, for non-token tags, such as "<<<<" don't
                 // insert word boundary markers since it won't work - there's
                 // no word on the right...
                 if (Character.isJavaIdentifierPart(s.charAt(0))) {

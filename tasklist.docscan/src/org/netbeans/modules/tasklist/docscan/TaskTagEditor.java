@@ -14,21 +14,14 @@
 package org.netbeans.modules.tasklist.docscan;
 
 import java.util.ArrayList;
-import java.awt.Color;
 import java.awt.Component;
 import java.beans.FeatureDescriptor;
 import java.beans.PropertyEditorSupport;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import org.netbeans.api.tasklist.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.TaskNode;
 import org.openide.explorer.propertysheet.ExPropertyEditor;
 import org.openide.explorer.propertysheet.PropertyEnv;
-import org.openide.explorer.propertysheet.editors.EnhancedPropertyEditor;
 import org.openide.nodes.Node;
-import org.openide.util.NbBundle;
 
 /**
  * PropertyEditor for task tags

@@ -7,14 +7,13 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.docscan;
 
 import org.netbeans.api.tasklist.*;
-import org.netbeans.api.tasklist.DocumentSuggestionProvider;
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.*;
 
@@ -40,10 +39,6 @@ import org.openide.loaders.DataObject;
 /**
  * This class scans the given document for source tasks and
  * copyright errors.
- *
- * @todo Consider showing only a few of the scanned tasks (to prevent a file
- *     with lots of todos from hiding say the syntax errors). It might be
- *     useful to show the N tasks closest to the cursor position!
  *
  * @author Tor Norbye
  */

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import org.netbeans.api.tasklist.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.Task;
-import org.openide.ErrorManager;
 
 
 /** Represents a tag in the user's source code that should be interpreted
