@@ -90,7 +90,7 @@ Microsystems, Inc. All Rights Reserved.
 	        <filename name="org-netbeans-modules-latex-antint.nbm"/>
 	    </fileset>
 	    <fileset dir="core/build">
-	        <filename name="org-netbeans-modules-latex-core.nbm"/>
+	        <filename name="org-netbeans-modules-latex.nbm"/>
 	    </fileset>
 	    <fileset dir="auted/build">
 	        <filename name="org-netbeans-modules-latex-auted.nbm"/>

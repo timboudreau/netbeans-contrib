@@ -40,15 +40,16 @@ public class MainStructuralElement extends StructuralElement {
         return -1;
     }
     
-    public List getLabels() {
-        return labels;
+    public synchronized List getLabels() {
+        //Defense copy (against concurrent modifications):
+        return new ArrayList(labels);
     }
     
-    public void addLabel(LabelStructuralElement el) {
+    public synchronized void addLabel(LabelStructuralElement el) {
         labels.add(el);
     }
     
-    public void clearLabels() {
+    public synchronized void clearLabels() {
         labels.clear();
     }
     

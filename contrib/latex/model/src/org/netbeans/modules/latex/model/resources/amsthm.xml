@@ -11,16 +11,26 @@ The Original Code is the LaTeX module. The Initial Developer of the Original
 Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-<!DOCTYPE file PUBLIC "-//NetBeans//LaTeX Commands Description 1.0//EN" "command_description.dtd"
-[
-<!ENTITY symbols
-         SYSTEM "symbols_amsfonts.xml" >
-]>
+<!--<!DOCTYPE file PUBLIC "-//NetBeans//LaTeX Commands Description 1.0//EN" "command_description.dtd">-->
+<!DOCTYPE file SYSTEM "command_description.dtd">
 
-<file name="amsfonts" type="package">
+<file name="amsthm" type="package">
 <options/>
-<environments/>
+<environments>
+<environment name="proof"></environment>
+</environments>
 <commands>
-&symbols;
+<command name="\theoremstyle">
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+    <value value="plain" />
+    <value value="definition" />
+    <value value="remark" />
+  </argument>
+
+</command>
 </commands>
 </file>
+
+

@@ -616,14 +616,6 @@ Microsystems, Inc. All Rights Reserved.
 
 </command>
 
-<command name="\theoremstyle">
-
-  <argument type="mandatory">
-    <attribute name="#code" value="true" />
-  </argument>
-
-</command>
-
 <command name="\setlength">
 
   <argument type="mandatory">

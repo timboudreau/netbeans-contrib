@@ -7,7 +7,7 @@
 %
 %The Original Code is the LaTeX module.
 %The Initial Developer of the Original Code is Jan Lahoda.
-%Portions created by Jan Lahoda are Copyright 2002-2003.
+%Portions created by Jan Lahoda are Copyright 2002-2004.
 %All Rights Reserved.
 %
 %Contributor(s): Jan Lahoda
@@ -88,36 +88,11 @@ It is NOT a WYSIWYG (or WYSIWYM --- What You See Is What You Meant) editor.
 
 %\chapter{Usage}
 
-\label{ch:usage}
+%\label{ch:usage}
 
 \section{Project System}
 
-\label{sec:project:system}
-
-The \lenv{} uses a simple project system. This project system is based on so called
-\emph{main file} (sometimes called also the master file). This is the
-file you run \LaTeX{} on. Each main file includes a set (possibly empty) of included
-files. Any number of files (main and included) can be opened.
-
-If you open a file for the first time, the IDE will try to find out whether it is
-the main file or not. If it looks like a main file (it has the \LaTeX{} header),
-it is marked as the main file and opened. If the file does not look like a main file,
-user is asked to provide appropriate main file.
-
-\subsection{Compiling}
-
-\subsection{Showing the result}
-
-\subsection{Setting Paths to Executables}
-
-\label{ssec:setting:paths}
-
-In the LaTeX Build Settings dialog, paths to executables of \LaTeX, BibTex, DVIPS and DVIPDF
-can be set. Also default argument for these programs can be set. The main file
-(the file to be compiled) should not be set in this dialog, as it is added automatically
-during build process.
-
-%TODO: reverse/forward search.
+\label{}
 
 %\section{Syntax highlighting}
 %
@@ -308,6 +283,37 @@ It is not necessary to save the resulting automaton. The content of the visual e
 is dumped into the \LaTeX{} code each time the visual editor looses focus.
 While the visual editor is opened, the corresponding code in the editor is marked as
 guarded, meaning that it cannot be changed.
+
+\section{Extras}
+
+\section{Project System}
+
+\label{sec:project:system}
+
+The \lenv{} uses a simple project system. This project system is based on so called
+\emph{main file} (sometimes called also the master file). This is the
+file you run \LaTeX{} on. Each main file includes a set (possibly empty) of included
+files. Any number of files (main and included) can be opened.
+
+If you open a file for the first time, the IDE will try to find out whether it is
+the main file or not. If it looks like a main file (it has the \LaTeX{} header),
+it is marked as the main file and opened. If the file does not look like a main file,
+user is asked to provide appropriate main file.
+
+\subsection{Compiling}
+
+\subsection{Showing the result}
+
+\subsection{Setting Paths to Executables}
+
+\label{ssec:setting:paths}
+
+In the LaTeX Build Settings dialog, paths to executables of \LaTeX, BibTex, DVIPS and DVIPDF
+can be set. Also default argument for these programs can be set. The main file
+(the file to be compiled) should not be set in this dialog, as it is added automatically
+during build process.
+
+%TODO: reverse/forward search.
 
 %\section{\LaTeX{} Model}
 

@@ -302,9 +302,14 @@ public class CommandParser {
         int argumentCount = actual.getArgumentCount();
         int currentArgument = 0;
         
-        SourcePosition endingPosition = input.getPosition();
+        //Trying to fix problem that if it is written in preable: \beg| and the CC is invoked, it finds nothing
+        //It seems that the main problem is that the command has zero length startPosition == endPosition,
+        //and so is not found.
+//        SourcePosition endingPosition = input.getPosition();
         
         input.next();
+        
+        SourcePosition endingPosition = input.getPosition();
         
         while (currentArgument < argumentCount && input.hasNext()) {
             if (actual.getArgument(currentArgument).getType() == Command.Param.SPECIAL) {

@@ -48,7 +48,7 @@ public class ProjectSettings {
     private LaTeXGUIProject project;
     
     /** Creates a new instance of ProjectSettings */
-    private ProjectSettings(LaTeXGUIProject project) {
+    /*package private, for tests!*/ ProjectSettings(LaTeXGUIProject project) {
         this.project = project;
         load();
     }
@@ -82,8 +82,8 @@ public class ProjectSettings {
         bibtexCommand = getProperty(p, "bibtex-command", "bibtex");
         bibtexArguments = parseArguments(p.getProperty("bibtex-arguments"));
         
-        defaultBuildCommand = getProperty(p, "default-build-command", "build");
-        defaultShowCommand  = getProperty(p, "default-show-command", "show");
+        defaultBuildCommand = getProperty(p, "default-build-target", "build");
+        defaultShowCommand  = getProperty(p, "default-show-target", "show");
     }
     
     private void load() {
@@ -142,8 +142,8 @@ public class ProjectSettings {
             p.setProperty("bibtex-command", bibtexCommand);
             p.setProperty("bibtex-arguments", toPlainString(bibtexArguments));
             
-            p.setProperty("default-build-command", getDefaultBuildCommand());
-            p.setProperty("default-show-command", getDefaultShowCommand());
+            p.setProperty("default-build-target", getDefaultBuildCommand());
+            p.setProperty("default-show-target", getDefaultShowCommand());
             
             lock = settings.lock();
             
@@ -231,7 +231,7 @@ public class ProjectSettings {
     }
     
     public void setLaTeXArguments(String[] arguments) {
-        this.latexArguments = latexArguments;
+        this.latexArguments = arguments;
         this.modified = true;
     }
     
@@ -240,7 +240,7 @@ public class ProjectSettings {
     }
     
     public void setBiBTeXArguments(String[] arguments) {
-        this.bibtexArguments = bibtexArguments;
+        this.bibtexArguments = arguments;
         this.modified = true;
     }
     
@@ -265,6 +265,7 @@ public class ProjectSettings {
 
     public void setDefaultBuildCommand(String defaultBuildCommand) {
         this.defaultBuildCommand = defaultBuildCommand;
+        modified = true;
     }
 
     public String getDefaultShowCommand() {
@@ -273,5 +274,6 @@ public class ProjectSettings {
 
     public void setDefaultShowCommand(String defaultShowCommand) {
         this.defaultShowCommand = defaultShowCommand;
+        modified = true;
     }
 }
