@@ -502,9 +502,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     /**
      * Loads class of given name with some arguments and execute its list() method.
      * @param className the name of the class to be loaded
-     * @param tokens the arguments
+     * @param args the arguments
      */
-    private void runClass(String exec, String className, StringTokenizer tokens) {
+    private void runClass(String exec, String className, String[] args) {
 
         E.deb("runClass: "+className); // NOI18N
         boolean success = true;
@@ -548,11 +548,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         if (success) {
             E.deb("VcsAdditionalCommand created."); // NOI18N
-            String[] args = new String[tokens.countTokens()];
-            int i = 0;
-            while(tokens.hasMoreTokens()) {
-                args[i++] = tokens.nextToken();
-            }
             ExecuteCommand.setAdditionalParams(execCommand, fileSystem);
             String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
             String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
@@ -646,16 +641,19 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             filesToRefresh = new ArrayList(); // Only some files (with unmatched status) should be refreshed.
         }
         
-        StringTokenizer tokens = new StringTokenizer(exec);
-        String first = tokens.nextToken();
+        String[] allArgs = VcsUtilities.getQuotedArguments(exec);
+        String first = allArgs[0];
         E.deb("first = "+first); // NOI18N
         boolean disableRefresh = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS);
         if (disableRefresh) fileSystem.disableRefresh();
         try {
-            if (first != null && (first.toLowerCase().endsWith(".class"))) // NOI18N
-                runClass(exec, first.substring(0, first.length() - ".class".length()), tokens); // NOI18N
-            else
+            if (first != null && (first.toLowerCase().endsWith(".class"))) {// NOI18N
+                String[] args = new String[allArgs.length - 1];
+                System.arraycopy(allArgs, 1, args, 0, args.length);
+                runClass(exec, first.substring(0, first.length() - ".class".length()), args); // NOI18N
+            } else {
                 runCommand(execs);
+            }
         } finally {
             if (disableRefresh) fileSystem.enableRefresh();
             if (tempFile != null) tempFile.delete();

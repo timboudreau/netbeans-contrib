@@ -306,6 +306,50 @@ public class VcsUtilities {
     }
     
     /**
+     * Get the quoted string.
+     * @return the string inside of quotation marks or null when no string found.
+     */
+    private static String getQuotedArgument(String str, int[] pos) {
+        while(pos[0] < str.length() && Character.isWhitespace(str.charAt(pos[0]))) pos[0]++;
+        if (pos[0] >= str.length()) return null;
+        StringBuffer result = new StringBuffer();
+        if (str.charAt(pos[0]) == '"') { // getting quoted string
+            pos[0]++;
+            while(pos[0] < str.length()) {
+                if (str.charAt(pos[0]) != '"') result.append(str.charAt(pos[0]));
+                else if (str.charAt(pos[0] - 1) == '\\') result.setCharAt(result.length() - 1, '"'); // replace '\\' with '"' => \" becomes "
+                else break;
+                pos[0]++;
+            }
+        } else { // getting not-quoted string
+            while(pos[0] < str.length() && !Character.isWhitespace(str.charAt(pos[0]))) {
+                result.append(str.charAt(pos[0]));
+                pos[0]++;
+            }
+        }
+        return result.toString();
+    }
+    
+    /**
+     * Converts a String of quoted values delimited by spaces or any other white
+     * characters to an array of String values.
+     * If the values are not quoted, only white characters works as delimeters.
+     */
+    public static String[] getQuotedArguments(String str) {
+        LinkedList list = new LinkedList();
+        int[] index = new int[] { 0 };
+        String element = VcsUtilities.getQuotedArgument(str, index);
+        while(element != null) {
+            list.add(element);
+            //while(index[0] < str.length() && Character.isWhitespace(str.charAt(index[0]))) index[0]++;
+            index[0]++;
+            element = VcsUtilities.getQuotedArgument(str, index);
+        }
+        //String element = str.substring(index, end);
+        return (String[]) list.toArray(new String[0]);
+    }
+    
+    /**
      * Find out, whether some string from the field of quoted strings is contained in a set of strings.
      * @param quotedStr the field of quoted strings, can be <code>null</code>
      * @param set the set of strings
