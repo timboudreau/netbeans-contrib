@@ -146,7 +146,6 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 new PropertyDescriptor("VFSShowMessage", CommandLineVcsFileSystem.class, "getVFSShowMessage", "setVFSShowMessage"), //NOI18N
                 new PropertyDescriptor("VFSShowLocalFiles", CommandLineVcsFileSystem.class, "getVFSShowLocalFiles", "setVFSShowLocalFiles"), //NOI18N
                 new PropertyDescriptor("VFSShowUnimportantFiles", CommandLineVcsFileSystem.class, "getVFSShowUnimportantFiles", "setVFSShowUnimportantFiles"), //NOI18N
-                new PropertyDescriptor("VFSShowGarbageFiles", CommandLineVcsFileSystem.class, "getVFSShowGarbageFiles", "setVFSShowGarbageFiles"), //NOI18N
                 new PropertyDescriptor("VFSShowDeadFiles", CommandLineVcsFileSystem.class, "getVFSShowDeadFiles", "setVFSShowDeadFiles"), // NOI18N
                 
             };
