@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <!-- Simply a wrapper for an externally distributed NBM. -->
@@ -26,6 +26,8 @@ Microsystems, Inc. All Rights Reserved.
             </patternset>
         </unzip>
         <move file="tmp/pmd.nbm" tofile="tmp/pmd.en-bee-em"/>
+        <!-- Daily build scripts may set this differently: -->
+        <property name="nbm.target.dir" location="."/>
     </target>
 
     <target name="netbeans" depends="init">
@@ -76,10 +78,10 @@ Microsystems, Inc. All Rights Reserved.
         <antcall target="maybe-dont-sign-nbm"/>
     </target>
     <target name="maybe-sign-nbm" if="keystore">
-        <signjar jar="tmp/pmd-subst.en-bee-em" signedjar="pmd.nbm" keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+        <signjar jar="tmp/pmd-subst.en-bee-em" signedjar="${nbm.target.dir}/pmd.nbm" keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </target>
     <target name="maybe-dont-sign-nbm" unless="keystore">
-        <copy file="tmp/pmd-subst.en-bee-em" tofile="pmd.nbm"/>
+        <copy file="tmp/pmd-subst.en-bee-em" tofile="${nbm.target.dir}/pmd.nbm"/>
     </target>
 
     <target name="clean">
