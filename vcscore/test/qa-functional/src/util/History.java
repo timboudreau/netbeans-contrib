@@ -35,8 +35,7 @@ public class History {
     
     public void breakpoint () {
         RuntimeCommand[] rc = provider.children();
-        if (rc != null)
-            breakpoint = rc[rc.length - 1];
+        breakpoint = (rc != null  &&  rc.length > 0) ? rc[rc.length - 1] : null;
     }
     
     public RuntimeCommand getLastCommand (String name, String file) {
