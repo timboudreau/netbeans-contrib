@@ -101,6 +101,9 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     
     public void setExecutionContext(CommandExecutionContext executionContext) {
         this.executionContext = executionContext;
+        if (executionContext instanceof VcsFileSystem) {
+            fileSystem = (VcsFileSystem) executionContext;
+        }
     }
     
     /**
@@ -258,6 +261,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         RegexErrorListener regexOutputListener = new RegexErrorListener() {
             public void outputMatchedGroups(String[] elements) {
                 if (elements != null && elements.length > 0) {
+                    if (messageBuff.length() > 0) messageBuff.append(' ');
                     messageBuff.append(elements[0]);
                     if (eom == null || elements[0].endsWith(eom)) {
                         if (eom != null) {
@@ -328,7 +332,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         for (int i = 0; i < messages.length; i++) {
             int begin = messages[i].indexOf(rootDir);
             if (begin >= 0) {
-                String file = retrieveFile(messages[i].substring(begin));
+                String file = retrieveFile(messages[i].substring(begin), getEndChar(messages[i], begin));
                 String path = file.substring(rdl).replace(File.separatorChar, '/');
                 while (path.startsWith("/")) path = path.substring(1);
                 FileObject fo = (fileSystem != null) ? fileSystem.findResource(path) : null;
@@ -348,22 +352,41 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         return (fileObjects.size() > 0 || files.size() > 0);
     }
     
-    private static String retrieveFile(String message) {
+    private static String retrieveFile(String message, char endChar) {
         int l = message.length();
         int end = message.indexOf(' ');
         if (end < 0) end = l;
+        else {
+            if (end > 0 && message.charAt(end - 1) == endChar) {
+                return message.substring(0, end - 1);
+            }
+        }
         String file = message.substring(0, end);
         while (end < l && !(new File(file).exists())) {
             end = message.indexOf(' ', end + 1);
             if (end < 0) end = l;
+            else {
+                if (end > 0 && message.charAt(end - 1) == endChar) {
+                    return message.substring(0, end - 1);
+                }
+            }
             file = message.substring(0, end);
         }
+        // Take the first space if the file was not found
         if (end >= l && !(new File(file).exists())) {
             end = message.indexOf(' ');
             if (end < 0) end = l;
             file = message.substring(0, end);
         }
         return file;
+    }
+    
+    private static char getEndChar(String message, int pos) {
+        if (pos > 0) {
+            char c = message.charAt(pos - 1);
+            if (c == '"' || c == '\'') return c;
+        }
+        return (char) 0;
     }
     
     private static boolean confirm(String message) {
@@ -421,17 +444,20 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
      * Add a pattern, that will match the provided message type.
      */
     private static void addPattern(List patterns, String message, String rootDir) {
-        int begin = message.indexOf(rootDir);
-        String[] pattern = new String[2];
-        if (begin >= 0) {
-            String file = retrieveFile(message.substring(begin));
-            pattern[0] = message.substring(0, begin);
-            pattern[1] = message.substring(begin + file.length());
-        } else {
-            pattern[0] = message;
-            pattern[1] = "";
+        ArrayList patternItems = new ArrayList();
+        int begin = 0;
+        int fileIndex;
+        while((fileIndex = message.indexOf(rootDir, begin)) >= 0) {
+            String file = retrieveFile(message.substring(fileIndex), getEndChar(message, fileIndex));
+            patternItems.add(message.substring(begin, fileIndex));
+            begin = fileIndex + file.length();
         }
-        patterns.add(pattern);
+        if (begin < message.length()) {
+            patternItems.add(message.substring(begin));
+        } else {
+            patternItems.add("");
+        }
+        patterns.add(patternItems.toArray(new String[0]));
     }
     
     /**
@@ -441,9 +467,13 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         int n = patterns.size();
         for (int i = 0; i < n; i++) {
             String[] pattern = (String[]) patterns.get(i);
-            if (message.startsWith(pattern[0]) && message.endsWith(pattern[1])) {
-                return true;
+            if (!message.startsWith(pattern[0])) continue;
+            int l = pattern.length - 1;
+            if (!message.endsWith(pattern[l])) continue;
+            for (l-- ; l > 0; l--) {
+                if (message.indexOf(pattern[l]) < 0) break;
             }
+            if (l == 0) return true;
         }
         return false;
     }
