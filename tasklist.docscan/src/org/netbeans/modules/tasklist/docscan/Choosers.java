@@ -25,7 +25,9 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.netbeans.api.project.*;
 import org.netbeans.api.project.ui.OpenProjects;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Collections;
@@ -140,7 +142,9 @@ class Choosers {
 
         public Image getIcon(int type) {
             ProjectInformation pi = getProjectInformation();
-            //TODO return pi != null ? pi.getIcon().
+            if (pi != null) {
+                return convertIconToImage(pi.getIcon());
+            }
             if (icons != null) {
                 return icons.getIcon(type);
             } else {
@@ -187,13 +191,12 @@ class Choosers {
 
         public Image getIcon(int type) {
 
-            // XXX how to convert icon to image?
-//            if (group != null) {
-//                Icon icon  = group.getIcon(false);
-//                if (icon != null) {
-//                    return icon.
-//                }
-//            }
+            if (group != null) {
+                Icon icon  = group.getIcon(false);
+                if (icon != null) {
+                    return convertIconToImage(icon);
+                }
+            }
 
             // XXX how to dynamically get icon (that is subject to L&F)
             if (icons != null) {
@@ -204,6 +207,14 @@ class Choosers {
         }
 
         public Image getOpenedIcon(int type) {
+
+            if (group != null) {
+                Icon icon  = group.getIcon(true);
+                if (icon != null) {
+                    return convertIconToImage(icon);
+                }
+            }
+
             // XXX how to dynamically get icon (that is subject to L&F)
             if (icons != null) {
                 return icons.getOpenedIcon(type);
@@ -249,5 +260,26 @@ class Choosers {
                 }
             }
         }
+    }
+
+
+    private static Component CONVERTOR_COMPONENT = new Panel();
+
+    /**
+     * Converts Icon to Image
+     */
+    private static Image convertIconToImage(Icon icon) {
+
+        if ( icon instanceof ImageIcon ) {
+            return ((ImageIcon)icon).getImage();
+        }
+
+        int height = icon.getIconHeight();
+        int width = icon.getIconWidth();
+
+        BufferedImage bImage = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
+        icon.paintIcon( CONVERTOR_COMPONENT, bImage.getGraphics(), 0, 0 );
+
+        return bImage;
     }
 }
