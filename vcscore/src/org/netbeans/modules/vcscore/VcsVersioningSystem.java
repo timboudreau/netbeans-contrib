@@ -581,8 +581,16 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             CommandSupport cmdSupport = fileSystem.getCommandSupport(VcsCommand.NAME_REVISION_LIST);
             Command cmd = cmdSupport.createCommand();
             if (cmd == null || !(cmd instanceof RegexOutputCommand)) return null;
-            FileObject[] files = new FileObject[] { fileSystem.findFileObject(name) };
-            cmd.setFiles(files);
+            FileObject fo = fileSystem.findFileObject(name);
+            if (fo == null) fo = VcsVersioningSystem.this.findResource(name);
+            if (fo != null) {
+                FileObject[] files = new FileObject[] { fo };
+                cmd.setFiles(files);
+            } else if (cmd instanceof VcsDescribedCommand) {
+                ((VcsDescribedCommand) cmd).setDiskFiles(new java.io.File[] {
+                    fileSystem.getFile(name)
+                });
+            }
             final StringBuffer dataBuffer = new StringBuffer();
             RegexOutputListener dataListener = new RegexOutputListener() {
                 public void outputMatchedGroups(String[] data) {
