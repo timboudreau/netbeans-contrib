@@ -23,7 +23,12 @@ import javax.naming.Context;
 import org.openide.TopManager;
 import org.openide.nodes.*;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
+
+import org.netbeans.modules.projects.CurrentProjectNode;
+import org.openide.util.Lookup;
+
 /**
+ *
  *
  * @author  Tomas Zezula
  */
@@ -41,14 +46,14 @@ public class JndiRootNodeChildren extends Children.Keys implements PropertyChang
     /** Called by IDE when the children are needed
      */
     public void addNotify () {
-        TopManager.getDefault().addPropertyChangeListener (this);
+        CurrentProjectNode.getDefault().addPropertyChangeListener(this);
         this.update ();
     }
     
     /** Called by IDE when the children are disposing
      */
     public void removeNotify () {
-        TopManager.getDefault().removePropertyChangeListener (this);
+        CurrentProjectNode.getDefault().removePropertyChangeListener(this);
         this.setKeys (new Object[0]);
     }
     
@@ -68,6 +73,7 @@ public class JndiRootNodeChildren extends Children.Keys implements PropertyChang
      *  @param int index
      */
     public void add (Hashtable contextProperties, int index) {
+        
         if (this.settings == null)
             this.init ();
         this.contexts.add (index, contextProperties);
@@ -119,7 +125,7 @@ public class JndiRootNodeChildren extends Children.Keys implements PropertyChang
      *  @param PropertyChangeEvent event
      */
     public void propertyChange (PropertyChangeEvent event) {
-        if (TopManager.PROP_PLACES.equals (event.getPropertyName())) {
+        if (CurrentProjectNode.PROP_PROJECT_AFTER_OPEN.equals (event.getPropertyName())) {
             // Project has changed
             this.settings = null;
             this.update ();
@@ -160,8 +166,8 @@ public class JndiRootNodeChildren extends Children.Keys implements PropertyChang
     
     /** Initializes binding to settings
      */
-    private void init () {
-        this.settings = (JndiSystemOption) JndiSystemOption.findObject (JndiSystemOption.class, true);
+    private void init () {     
+        this.settings = (JndiSystemOption)Lookup.getDefault().lookup(JndiSystemOption.class);
         this.contexts = this.settings.getInitialContexts();
     }
     
