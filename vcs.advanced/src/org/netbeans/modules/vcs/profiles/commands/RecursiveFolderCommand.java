@@ -432,7 +432,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         }
     }
     
-    private boolean runCommandsRecursively(VcsCacheDir dir, Collection cmdInfos) {
+    private boolean runCommandsRecursively(VcsCacheDir dir, Collection cmdInfos) throws InterruptedException {
         ArrayList realRecursiveCommands = new ArrayList();
         ArrayList somewhatRecursiveCommands = new ArrayList();
         if (printFilesToProcess) {
@@ -452,21 +452,13 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
             status = runCommandsReallyRecursively(dir, realRecursiveCommands);
         }
         if (somewhatRecursiveCommands.size() > 0) {
-            try {
-                status &= runCommandsSomewhatRecursively(dir, somewhatRecursiveCommands);
-            } catch (InterruptedException iexc) {
-                return false;
-            }
+            status &= runCommandsSomewhatRecursively(dir, somewhatRecursiveCommands);
         }
         return status;
     }
     
-    private boolean runCommandsReallyRecursively(VcsCacheDir dir, Collection cmdInfos) {
-        try {
-            waitToLoad(dir, true);
-        } catch (InterruptedException iexc) {
-            return false;
-        }
+    private boolean runCommandsReallyRecursively(VcsCacheDir dir, Collection cmdInfos) throws InterruptedException {
+        waitToLoad(dir, true);
         //String path = dir.getAbsolutePath().substring(fileSystem.getFile("").getAbsolutePath());
         //while (path.startsWith("/")) path = path.substring(1);
         //FileObject fo = fileSystem.findResource(path);
@@ -491,7 +483,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                     for (int j = i; j < executors.length; j++) {
                         cPool.kill(executors[j]);
                     }
-                    return false;
+                    throw iexc;
                 }
                 status &= (executors[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED);
             }
@@ -627,20 +619,16 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         return true;
     }
     
-    private boolean runCommandsRecursively(FileObject dir, Collection cmdInfos) {
+    private boolean runCommandsRecursively(FileObject dir, Collection cmdInfos) throws InterruptedException {
         boolean status = true;
         for (Iterator it = cmdInfos.iterator(); it.hasNext(); ) {
             CommandInfo info = (CommandInfo) it.next();
-            try {
-                status &= runCommandRecursively(dir, info.vars, info.cmd);
-            } catch (InterruptedException iexc) {
-                return false;
-            }
+            status &= runCommandRecursively(dir, info.vars, info.cmd);
         }
         return status;
     }
     
-    private boolean runCommandsRecursively(String path, Collection cmdInfos) {
+    private boolean runCommandsRecursively(String path, Collection cmdInfos) throws InterruptedException {
         //System.out.println("runCommandsRecursively("+path+", "+cmdInfos.size());
         cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
         if (cache != null) {
@@ -741,18 +729,22 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         Collection processingFiles = ExecuteCommand.createProcessingFiles(fileSystem, vars);
         boolean success = true;
         if (printDebug) stdoutListener.outputData(new String[] { "Selected on "+processingFiles.size()+" files" });
-        for (Iterator it = processingFiles.iterator(); it.hasNext() && success; ) {
-            String path = (String) it.next();
-            if (printDebug) stdoutListener.outputData(new String[] { "Processing in "+path });
-            /*
-            FileObject fo = fileSystem.findResource(path);
-            if (fo != null) {
-                for (Enumeration enum = fo.getChildren(true); enum.hasMoreElements(); ) {
-                    lockedFileObjects.add(enum.nextElement());
+        try {
+            for (Iterator it = processingFiles.iterator(); it.hasNext() && success; ) {
+                String path = (String) it.next();
+                if (printDebug) stdoutListener.outputData(new String[] { "Processing in "+path });
+                /*
+                FileObject fo = fileSystem.findResource(path);
+                if (fo != null) {
+                    for (Enumeration enum = fo.getChildren(true); enum.hasMoreElements(); ) {
+                        lockedFileObjects.add(enum.nextElement());
+                    }
                 }
+                 */
+                success &= runCommandsRecursively(path, cmdInfos);
             }
-             */
-            success &= runCommandsRecursively(path, cmdInfos);
+        } catch (InterruptedException iexc) {
+            Thread.currentThread().interrupt();
         }
         //lockedFileObjects.clear();
         return success;
