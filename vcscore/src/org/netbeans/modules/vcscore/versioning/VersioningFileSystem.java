@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.EventListenerList;
 
+import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.AbstractFileSystem;
@@ -83,6 +84,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
     }
     
     public VersioningFileSystem(AbstractFileSystem underlyingFs) {
+        this();
         fileSystem = underlyingFs;
 //        change = new VersioningFSChange();
 //        attr = new VersioningAttrs();
@@ -197,27 +199,6 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         addPropertyChangeListener(propertyChangeListener);
     }
     
-    
-    /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
-     * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)
-     * @param fo is FileObject. It`s reference yourequire to get.
-     * @return Reference to FileObject
-     */
-    protected java.lang.ref.Reference createReference(final FileObject fo) {
-        try {
-            if (fo.isFolder()) {
-                org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
-                    (VersioningFolderDataLoader) org.openide.util.SharedClassObject.findObject(VersioningFolderDataLoader.class, true));
-            } else {
-                org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
-                    (VersioningDataLoader) org.openide.util.SharedClassObject.findObject(VersioningDataLoader.class, true));
-            }
-        } catch (java.io.IOException exc) {}
-        java.lang.ref.Reference toReturn = super.createReference(fo);
-        return toReturn;
-    }
-    
-
     
     public String getDisplayName() {
         return fileSystem.getDisplayName();
@@ -425,8 +406,13 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
     public static class VersioningAttrs extends Object implements AbstractFileSystem.Attr {
         
         private HashMap files = new HashMap();
+        private AbstractFileSystem.Info info;
         
         private static final long serialVersionUID = 7177122547454760079L;
+        
+        public VersioningAttrs(AbstractFileSystem.Info info) {
+            this.info = info;
+        }
         
         public void deleteAttributes(String name) {
             files.remove(name);
@@ -457,6 +443,13 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         }
         
         public java.lang.Object readAttribute(String name, String attrName) {
+            if ("NetBeansAttrAssignedLoader".equals(attrName)) {
+                if (info != null && info.folder(name)) {
+                    return org.netbeans.modules.vcscore.versioning.impl.VersioningFolderDataLoader.class.getName();
+                } else {
+                    return org.netbeans.modules.vcscore.versioning.impl.VersioningDataLoader.class.getName();
+                }
+            }
             HashMap attrs = (HashMap) files.get(name);
             Object toReturn = null;
             if (attrs == null) toReturn =  null;
@@ -549,6 +542,5 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         }
         
     }
-
     
 }

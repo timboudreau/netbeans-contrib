@@ -501,6 +501,10 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
 
     private class VcsVersioningAttrs extends VersioningAttrs {
         
+        public VcsVersioningAttrs() {
+            super(VcsVersioningSystem.this.info);
+        }
+        
         public Object readAttribute(String name, String attrName) {
             Object value = super.readAttribute(name, attrName);
             if (value == null) {
