@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.runtime;
 
+import java.awt.Image;
+
 import org.openide.nodes.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.PropertiesAction;
@@ -35,6 +37,14 @@ class RuntimeCommandNode extends AbstractNode {
     static final int STATE_DONE = 2;
     static final int STATE_CANCELLED = 3;
     
+    private static final int BADGE_ICON_SHIFT_X = 16;
+    private static final int BADGE_ICON_SHIFT_Y = 8;
+
+    private static Image icon = null;
+    private static Image badgeRunning = null;
+    private static Image badgeWaiting = null;
+    private static Image badgeError = null;
+
     private VcsCommandExecutor executor;
     private CommandsPool cpool;
     private int state;
@@ -54,6 +64,8 @@ class RuntimeCommandNode extends AbstractNode {
     
     void setState(int state) {
         this.state = state;
+        fireIconChange();
+        firePropertyChange("status", null, null);
     }
     
     VcsCommandExecutor getExecutor() {
@@ -62,6 +74,43 @@ class RuntimeCommandNode extends AbstractNode {
     
     CommandsPool getCommandsPool() {
         return cpool;
+    }
+    
+    public Image getIcon(int type) {
+        if (icon == null) {
+            icon = new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/vcscore/runtime/commandIcon.gif")).getImage();
+        }
+        Image badge = null;
+        switch (state) {
+            case STATE_RUNNING:
+                if (badgeRunning == null) {
+                    badgeRunning = new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/vcscore/runtime/badgeRunning.gif")).getImage();
+                }
+                badge = badgeRunning;
+                break;
+            case STATE_WAITING:
+                if (badgeWaiting == null) {
+                    badgeWaiting = new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/vcscore/runtime/badgeWaiting.gif")).getImage();
+                }
+                badge = badgeWaiting;
+                break;
+            case STATE_CANCELLED:
+            case STATE_DONE:
+                if (executor.getExitStatus() != VcsCommandExecutor.SUCCEEDED) {
+                    if (badgeError == null) {
+                        badgeError = new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/vcscore/runtime/badgeError.gif")).getImage();
+                    }
+                    badge = badgeError;
+                }
+                break;
+        }
+        Image badgedIcon;
+        if (badge != null) {
+            badgedIcon = org.openide.util.Utilities.mergeImages(icon, badge, BADGE_ICON_SHIFT_X, BADGE_ICON_SHIFT_Y);
+        } else {
+            badgedIcon = icon;
+        }
+        return badgedIcon;
     }
     
     public SystemAction[] getActions() {
