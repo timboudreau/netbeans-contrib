@@ -486,7 +486,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setEnabled(job == null);
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+//                    Component glass = getRootPane().getGlassPane();
+//                    JPanel shadow = new JPanel();
+//                    shadow.setOpaque(false);
+//                    shadow.setBackground(new Color(50,50,50,150));
+//                    getRootPane().setGlassPane(shadow);
                     handleRefresh();
+//                    getRootPane().setGlassPane(glass);
                 }
             });
             adjustHeight(button);

@@ -231,7 +231,7 @@ final class SourceCodeCommentParser {
 
         /**
          * Get the next line of text from the file.
-         * @param ret Where to store the result
+         * @param reg Where to store the result
          * @return false when EOF, true otherwise
          * @throws java.io.IOException if a read error occurs on the input
          *         stream.
@@ -244,20 +244,22 @@ final class SourceCodeCommentParser {
 
                 reg.start = matcher.start();
 
-                if (lineComment.equals(token)) {
+                if (lineComment != null && lineComment.equals(token)) {
                     int idx = text.indexOf("\n", reg.start);
                     if (idx != -1) {
                         reg.stop = idx;
                     } else {
                         reg.stop = text.length();
                     }
-                } else {
+                } else if (blockStart != null) {
                     int idx = text.indexOf(blockEnd, reg.start);
                     if (idx != -1) {
                         reg.stop = idx + blockEnd.length();
                     } else {
                         reg.stop = text.length();
                     }
+                } else {
+                    return false;  // no need to scan for commens if these are not defined at all
                 }
 
                 curr = reg.stop + 1;
