@@ -20,10 +20,10 @@ import java.awt.Color;
 import java.awt.Font;
 import com.netbeans.editor.Settings;
 import com.netbeans.editor.SettingsUtil;
-import com.netbeans.editor.SettingNames;
+import com.netbeans.editor.SettingsNames;
+import com.netbeans.editor.SettingsDefaults;
 import com.netbeans.editor.Coloring;
 import com.netbeans.editor.Syntax;
-import com.netbeans.editor.SettingDefaults;
 import com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLKit;
 import com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLSyntax;
 
@@ -37,13 +37,13 @@ public class IDLEditorSettingsInitializer implements Settings.Initializer {
 	settingsMap = new HashMap();
       }
 
-      settingsMap.put (SettingNames.ABBREV_MAP, getIDLAbbrevMap());
+      settingsMap.put (SettingsNames.ABBREV_MAP, getIDLAbbrevMap());
 
-      Font boldFont = SettingDefaults.defaultFont.deriveFont(Font.BOLD);
-      Font italicFont = SettingDefaults.defaultFont.deriveFont(Font.ITALIC);
-      Settings.Substituter boldSubst = new SettingsUtil.FontStylePrintColoringSubstituter(Font.BOLD);
-      Settings.Substituter italicSubst = new SettingsUtil.FontStylePrintColoringSubstituter(Font.ITALIC);
-      Settings.Substituter lightGraySubst = new SettingsUtil.ForeColorPrintColoringSubstituter(Color.lightGray);
+      Font boldFont = SettingsDefaults.defaultFont.deriveFont(Font.BOLD);
+      Font italicFont = SettingsDefaults.defaultFont.deriveFont(Font.ITALIC);
+      Settings.Evaluator boldSubst = new SettingsUtil.FontStylePrintColoringEvaluator(Font.BOLD);
+      Settings.Evaluator italicSubst = new SettingsUtil.FontStylePrintColoringEvaluator(Font.ITALIC);
+      Settings.Evaluator lightGraySubst = new SettingsUtil.ForeColorPrintColoringEvaluator(Color.lightGray);
 
       // Colorings
       SettingsUtil.setColoring(settingsMap, IDLSyntax.TEXT.getName(),
@@ -108,7 +108,7 @@ public class IDLEditorSettingsInitializer implements Settings.Initializer {
 	 new Coloring(null, Color.green.darker().darker(), null)
       );
 
-      SettingsUtil.updateListSetting(settingsMap, SettingNames.COLORING_NAME_LIST,
+      SettingsUtil.updateListSetting(settingsMap, SettingsNames.COLORING_NAME_LIST,
         new String[] {
           IDLSyntax.TEXT.getName(),
           IDLSyntax.ERROR.getName(),
@@ -182,6 +182,7 @@ public class IDLEditorSettingsInitializer implements Settings.Initializer {
 
 /*
  * <<Log>>
+ *  3    Jaga      1.2         3/24/00  Miloslav Metelka renaming
  *  2    Jaga      1.1         3/22/00  Miloslav Metelka fix
  *  1    Jaga      1.0         3/15/00  Miloslav Metelka 
  * $
