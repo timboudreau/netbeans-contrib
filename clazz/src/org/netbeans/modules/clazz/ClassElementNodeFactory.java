@@ -33,6 +33,9 @@ import org.openide.util.actions.SystemAction;
 * @author Petr Hamernik, Dafe Simonek
 */
 final class ClassElementNodeFactory extends DefaultFactory {
+
+  private final FactoryGetterNode FACTORY_GETTER_NODE = new FactoryGetterNode();
+
   /** Default instance of this factory. */
   private static DefaultFactory instance;
 
@@ -94,8 +97,11 @@ final class ClassElementNodeFactory extends DefaultFactory {
   * @return ElementNode
   */
   public Node createClassNode (final ClassElement element) {
+    if ( element == null ) {
+      return FACTORY_GETTER_NODE;
+    }
     if (tree) {
-      ClassChildren ch = new ClassChildren(this, element);
+      ClassChildren ch = new ClassChildren(ClassDataObject.getBrowserFactory(), element);
       ClassElementNode n = new ClassElementNode(element, ch, false);
       
       CookieSet css = n.getCookieSet ();
@@ -119,7 +125,7 @@ final class ClassElementNodeFactory extends DefaultFactory {
       return n;
     }
     else {
-      Children ch = createClassChildren(element);
+      Children ch = createClassChildren(element, ClassDataObject.getExplorerFactory() );
       ClassElementNode n = new ClassElementNode(element, ch, false);
       n.setActions(getDefaultActions());
       return n;
@@ -144,10 +150,42 @@ final class ClassElementNodeFactory extends DefaultFactory {
     return instance;
   }
 
+
+  /** This is an unusuall use of Node and FilterCookie */
+
+  private class FactoryGetterNode extends AbstractNode implements FilterCookie {
+  
+    FactoryGetterNode( ) {
+      super ( Children.LEAF );
+    }
+
+    public synchronized Node.Cookie getCookie( Class clazz ) {
+      if ( clazz == FilterFactory.class ) 
+        return this;
+      else
+        return super.getCookie( clazz );
+    }
+      
+    public Class getFilterClass() {
+      return null;        
+    }
+
+    public void setFilter( Object filter ) {}
+
+    public Object getFilter( ) {
+      if ( tree )
+        return ClassDataObject.getBrowserFactory();
+      else
+        return ClassDataObject.getExplorerFactory();        
+    }
+
+  }
+
 }
 
 /*
 * Log
+*  10   src-jtulach1.9         7/9/99   Petr Hrebejk    Factory chaining fixed
 *  9    src-jtulach1.8         7/8/99   Jan Jancura     Special icons for Object 
 *       Br.
 *  8    src-jtulach1.7         6/28/99  Petr Hamernik   new hierarchy under 
