@@ -379,7 +379,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 0);
         configPanel.add(jPanel1, gridBagConstraints);
 
         jTabbedPane1.addTab("Configuration", null, configPanel, "");
@@ -2097,7 +2097,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             rootDirChanged();
         } else {
             String cmd = (String) autoFillVars.get(varName);
-            if (cmd != null) autoFillVariables(cmd);
+            if (cmd != null) {
+                autoFillVariables(cmd);
+            }
         }
         updateConditionalValues();
     }
@@ -2131,45 +2133,77 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         updateConditionalValues();
     }
     
+    private volatile RequestProcessor.Task autoFillTask;
+    private volatile String lastCommandName;
+    
     private void autoFillVariables(String cmdName) {
         VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd == null) return ;
-        final Hashtable vars = fileSystem.getVariablesAsHashtable();
-        final VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-        final CommandsPool pool = fileSystem.getCommandsPool();
-        pool.startExecutor(vce, fileSystem);
-        RequestProcessor.postRequest(new Runnable() {
-            public void run() {
-                try {
-                    pool.waitToFinish(vce);
-                } catch (InterruptedException iexc) {
-                    return ;
-                }
-                int len = varTextFields.size();
-                for (int i = 0; i < len; i++) {
-                    VcsConfigVariable var = (VcsConfigVariable) varVariables.get(i);
-                    String value = (String) vars.get(var.getName());
-                    if (value != null) {
-                        JTextField field = (JTextField) varTextFields.get(i);
-                        field.setText(value);
-                        var.setValue(value);
-                    }
-                }
-                if (configInputPanels != null) {
-                    for (int i = 0; i < configInputPanels.length; i++) {
-                        configInputPanels[i].updateVariableValues(vars);
-                    }
-                    Vector variables = fileSystem.getVariables();
-                    for (Iterator it = variables.iterator(); it.hasNext(); ) {
-                        VcsConfigVariable var = (VcsConfigVariable) it.next();
-                        String value = (String) vars.get(var.getName());
-                        if (value != null) var.setValue(value);
-                    }
-                }
-                // enable fs to react on change in variables
-                fileSystem.setVariables(fileSystem.getVariables());
+        if (autoFillTask != null && cmdName.equals(lastCommandName)) {
+            autoFillTask.schedule(100);
+        } else {
+            lastCommandName = cmdName;
+            autoFillTask = RequestProcessor.postRequest(new AutoFillRunner(cmd), 100);
+        }
+    }
+        
+    private class AutoFillRunner extends Object implements Runnable {
+        
+        private VcsCommand cmd;
+        
+        public AutoFillRunner(VcsCommand cmd) {
+            this.cmd = cmd;
+        }
+        
+        public void run() {
+            Hashtable vars = fileSystem.getVariablesAsHashtable();
+            HashMap varsOrig = (configInputPanels != null) ? new HashMap(vars) : null;
+            VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+            CommandsPool pool = fileSystem.getCommandsPool();
+            pool.startExecutor(vce, fileSystem);
+            //System.out.println("RUNNING AUTOFILL...");
+            try {
+                pool.waitToFinish(vce);
+            } catch (InterruptedException iexc) {
+                return ;
             }
-        });
+            //System.out.println("AUTOFILL FINISHED.");
+            int len = varTextFields.size();
+            for (int i = 0; i < len; i++) {
+                VcsConfigVariable var = (VcsConfigVariable) varVariables.get(i);
+                String value = (String) vars.get(var.getName());
+                if (value != null) {
+                    JTextField field = (JTextField) varTextFields.get(i);
+                    field.setText(value);
+                    var.setValue(value);
+                }
+            }
+            Vector variables = fileSystem.getVariables();
+            if (configInputPanels != null) {
+                for (int i = 0; i < configInputPanels.length; i++) {
+                    configInputPanels[i].updateVariableValues(vars);
+                }
+                for (Iterator it = variables.iterator(); it.hasNext(); ) {
+                    VcsConfigVariable var = (VcsConfigVariable) it.next();
+                    String value = (String) vars.get(var.getName());
+                    if (value != null) var.setValue(value);
+                }
+                if (varsOrig != null) {
+                    for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+                        String name = (String) it.next();
+                        if (!varsOrig.containsKey(name)) {
+                            VcsConfigVariable var = new VcsConfigVariable(name, null, (String) vars.get(name), false, false, false, null);
+                            variables.add(var);
+                            //System.out.println("  Adding variable \""+name+"\" = '"+vars.get(name)+"' to fileSystem.");
+                        }
+                    }
+                }
+            }
+            // enable fs to react on change in variables
+            fileSystem.setVariables(variables);
+            lastCommandName = null;
+            autoFillTask = null;
+        }
     }
     
     /** A map of variable names as keys and their last values as values. */
