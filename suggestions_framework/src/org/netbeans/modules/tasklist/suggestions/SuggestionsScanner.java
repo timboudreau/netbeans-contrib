@@ -161,6 +161,17 @@ public final class SuggestionsScanner {
 
                 scanLeaf(list, env);
 
+                if (false) {
+                    try {
+                        Thread.sleep(1000);  // simulate long document processing
+                                             // to see what timeout based tasks are triggered
+                                             // (e.g. background java.parser.ParsingSupport.parse)
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                }
+
+
                 // XXX default editor cookie implementation (CloneableEditorSupport)
                 // does not release documents on unless one explicitly
                 // call close() that as side effect closes all components.

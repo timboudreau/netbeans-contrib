@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.openide.ErrorManager;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.client.Suggestion;
@@ -75,7 +76,15 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     public String[] getTypes() {
         return new String[] { TYPE };
     }
-    
+
+    public void notifyFinish() {
+        Cache.store();
+    }
+
+    public void notifyPrepare() {
+        Cache.load();
+    }
+
     /**
      * The given document has been "shown"; it is now visible.
      * <p>
@@ -118,9 +127,22 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     }
     
     public List scan(final SuggestionContext env) {
+
         SuggestionManager manager = SuggestionManager.getDefault();
         if (!manager.isEnabled(TYPE)) {
             return null;
+        }
+
+        // Would it be better to move caching one level higher
+        // to suggestions framework? Such simple cache may be,
+        // more advanced caching probably not.
+        try {
+            if (DataObject.find(env.getFileObject()).isModified() == false) {
+                List cached = Cache.get(env);
+                if (cached != null) return cached;
+            }
+        } catch (DataObjectNotFoundException e) {
+            // ignore cache
         }
 
         // Initialize the regular expression, if necessary
@@ -138,6 +160,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         } else {
             tasks = scanAll(env);
         }
+        Cache.put(env, tasks);
         return tasks;
     }
     
@@ -265,8 +288,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     
     /**
      * Given the contents of a buffer, scan it for todo items.
-     * @param doc The document to scan
-     * @param dobj The data object whose primary file should be scanned
      */
     private List scanAll(SuggestionContext env) {
         ArrayList newTasks = new ArrayList();
@@ -282,7 +303,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
             Matcher matcher = regexp.matcher(text);
             while (index < len && matcher.find(index)) {
                 int begin = matcher.start();
-	        int end   = matcher.end();
+	            int end   = matcher.end();
                 matchTag = getTag(text, begin, end);
 
                 // begin should be the beginning of this line (but avoid 
@@ -344,8 +365,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     }
     
     private TaskTag getTag(CharSequence text, int start, int end) {
-        String token = text.subSequence(start, end).toString().trim();
-        TaskTag tag = tags.getTag(token);
+        TaskTag tag = tags.getTag(text, start, end);
         return tag;
     }    
 

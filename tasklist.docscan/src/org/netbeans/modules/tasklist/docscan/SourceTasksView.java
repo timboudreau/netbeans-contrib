@@ -232,6 +232,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     protected void componentClosed() {
         super.componentClosed();
         interrupt = true;  // stop the background process
+        Cache.store();
     }
 
     private ColumnProperty createLineColumn(boolean visible, int width) {
@@ -256,6 +257,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
 
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
+
+        Cache.store();
 
         // It's called by window system depending on actual value of:
         // putClientProperty("PersistenceType", "OnlyOpened"|"Never");

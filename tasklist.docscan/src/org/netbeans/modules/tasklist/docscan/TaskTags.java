@@ -48,16 +48,24 @@ public final class TaskTags implements Externalizable {
         return tags;
     }
 
-    public TaskTag getTag(String token) {
+    public TaskTag getTag(CharSequence token, int start, int len) {
         if (tags == null) {
             return null;
         }
         for (int i = 0; i < tags.length; i++) {
-            if (tags[i].getToken().equals(token)) {
+            if (same(tags[i].getToken(), token, start, len)) {
                 return tags[i];
             }
         }
         return null;
+    }
+
+    private static boolean same(String s1, CharSequence s2, int start, int len) {
+        if (s1.length() != len) return false;
+        for (int i = 0; i<len; i++) {
+            if (s1.charAt(i) != s2.charAt(start+1)) return false;
+        }
+        return true;
     }
 
     private Pattern regexp = null;
