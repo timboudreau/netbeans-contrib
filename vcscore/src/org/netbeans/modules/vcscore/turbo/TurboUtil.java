@@ -118,17 +118,22 @@ public final class TurboUtil {
 
                 FileObject fo = fileObject.getFileObject(fileName);
 
-                if (fo.isData()) {
-                    fprops = new FileProperties();
-                    fprops.setName(fileName);
-                    fprops.setStatus(status);
-                    fprops.setRevision(revision);
-                    Turbo.setMeta(fo, fprops);
+                if (fo == null) {
+                    // TODO it disappeared
+                    System.out.println("[turbo] FO=" + fo + " child=" + fileName + " disappeared.");
                 } else {
-                    fprops = new FileProperties();
-                    fprops.setName(fileName);
-                    fprops.setStatus(status == null ? STATUS_VERSIONED_FOLDER : status);
-                    Turbo.setMeta(fo, fprops);
+                    if (fo.isData()) {
+                        fprops = new FileProperties();
+                        fprops.setName(fileName);
+                        fprops.setStatus(status);
+                        fprops.setRevision(revision);
+                        Turbo.setMeta(fo, fprops);
+                    } else {
+                        fprops = new FileProperties();
+                        fprops.setName(fileName);
+                        fprops.setStatus(status == null ? STATUS_VERSIONED_FOLDER : status);
+                        Turbo.setMeta(fo, fprops);
+                    }
                 }
             }
 
