@@ -210,6 +210,7 @@ public final class SuggestionsBroker {
             allOpenedClientsCount--;
             if (allOpenedClientsCount == 0) {
                 allOpenedJob.stopBroker();
+                openedFilesSuggestionsMap.clear();
             }
         }
     }
