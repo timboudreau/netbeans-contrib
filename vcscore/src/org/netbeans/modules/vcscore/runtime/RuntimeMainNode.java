@@ -19,7 +19,6 @@ import org.openide.nodes.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.*;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
@@ -52,13 +51,4 @@ public class RuntimeMainNode extends AbstractNode {
         return NbBundle.getMessage(RuntimeMainNode.class, name);
     }
     
-    public HelpCtx getHelpCtx() {
-        return new HelpCtx(RuntimeMainNode.class);
-    }    
-
-    
-
-    
-
-
 }
