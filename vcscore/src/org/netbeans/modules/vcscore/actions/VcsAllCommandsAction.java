@@ -87,26 +87,9 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
     }
     
     public JMenuItem getPresenter(boolean inMenu, Lookup lookup) {
-        return createMergedMenu(!inMenu, lookup);
+        return new MergedMenu(!inMenu, lookup);
     }
     
-    private JMenuItem createMergedMenu(boolean popup, Lookup lookup) {
-        JMenuItem[] globalMenu = getGlobalMenu(popup, lookup);
-        JMenuItem[] contextMenu = getContextMenu(popup, lookup);
-        MergedMenu mergedMenu = new MergedMenu(globalMenu, contextMenu);
-        Lookup.Result globalProvidersRes = Lookup.getDefault().lookup(new Lookup.Template(VcsCommandsProvider.class));
-        Lookup.Result contextRes = lookup.lookup (new Lookup.Template (Node.class));
-        if (lastProvidersLookupListener != null) {
-            globalProvidersRes.removeLookupListener(lastProvidersLookupListener);
-            contextRes.removeLookupListener(lastProvidersLookupListener);
-        }
-        LookupListener providersLookupListener = new GlobalProvidersLookupListener(lookup, new WeakReference(mergedMenu), popup);
-        lastProvidersLookupListener = providersLookupListener;
-        globalProvidersRes.addLookupListener(providersLookupListener);
-        contextRes.addLookupListener(providersLookupListener);
-        return mergedMenu;
-    }
-
     /* Getter for name
     */
     public String getName () {
@@ -141,50 +124,28 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         return contextMenu;
     }
     
-    private class GlobalProvidersLookupListener extends Object implements LookupListener {
-        
-        private Lookup lookup;
-        private Reference mergedMenuRef;
-        private boolean popup;
-        
-        public GlobalProvidersLookupListener(Lookup lookup, Reference mergedMenuRef, boolean popup) {
-            this.lookup = lookup;
-            this.mergedMenuRef = mergedMenuRef;
-            this.popup = popup;
-        }
-        
-        public void resultChanged(LookupEvent ev) {
-            MergedMenu mergedMenu = (mergedMenuRef != null) ? (MergedMenu) mergedMenuRef.get() : null;
-            if (mergedMenu != null) {
-                mergedMenu.update(getGlobalMenu(!popup, lookup), getContextMenu(!popup, lookup));
-            }
-        }
-    
-    }
-    
-    private class MergedMenu extends JInlineMenu {
+    private class MergedMenu extends JInlineMenu implements LookupListener {
         
         static final long serialVersionUID = 2650151487189209767L;
         
-        private JMenuItem[] contextMenu;
-        private JMenuItem[] globalMenu;
-        private boolean needsChange = false;
+        private boolean popup;
+        private Lookup lookup;
+        private boolean needsChange = true;
         
-        public MergedMenu(JMenuItem[] globalMenu, JMenuItem[] contextMenu) {
-            this.globalMenu = globalMenu;
-            this.contextMenu = contextMenu;
-            setMenuItems(mergeMenu(globalMenu, contextMenu));
-        }
-        
-        public void update(JMenuItem[] globalMenu, JMenuItem[] contextMenu) {
-            this.globalMenu = globalMenu;
-            this.contextMenu = contextMenu;
-            needsChange = true;
+        public MergedMenu(boolean popup, Lookup lookup) {
+            this.popup = popup;
+            this.lookup = lookup;
+            Lookup.Result globalProvidersRes = Lookup.getDefault().lookup(new Lookup.Template(VcsCommandsProvider.class));
+            Lookup.Result contextRes = lookup.lookup (new Lookup.Template (Node.class));
+            globalProvidersRes.addLookupListener((LookupListener) WeakListeners.create(LookupListener.class, this, globalProvidersRes));
+            contextRes.addLookupListener((LookupListener) WeakListeners.create(LookupListener.class, this, contextRes));
         }
         
         public void addNotify() {
             if (needsChange) {
                 needsChange = false;
+                JMenuItem[] globalMenu = getGlobalMenu(popup, lookup);
+                JMenuItem[] contextMenu = getContextMenu(popup, lookup);
                 setMenuItems(mergeMenu(globalMenu, contextMenu));
             }
             super.addNotify();
@@ -235,6 +196,10 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
             contextPlaceHolder.setEnabled(false);
             cm.add(contextPlaceHolder);
             return cm;
+        }
+        
+        public void resultChanged(LookupEvent ev) {
+            needsChange = true;
         }
         
     }
