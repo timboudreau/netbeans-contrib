@@ -60,6 +60,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     private int currentIndex;    
     private MountWizardData data;    
     private TemplateWizard templateWizard;
+    private boolean isNext = true;
     
     private static final long serialVersionUID = 6804299241178632175L;
     
@@ -78,14 +79,15 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     }
     
     public boolean hasNext() {
-        return currentIndex < panels.size() - 1;
+        return ((currentIndex < panels.size() - 1)&&(isNext));
     }
     
     public void initialize(org.openide.loaders.TemplateWizard templateWizard) {
         if (panels == null) {
             Object instance = new org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem();/*null;                                                              */
             data = new MountWizardData(instance);
-            data.addProfileChangeListener(this);
+            //data.addProfileChangeListener(this);
+            data.addPropertyChangeListener(this);
             setupPanels(templateWizard);
             listenerList = new javax.swing.event.EventListenerList();            
         }
@@ -178,23 +180,49 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
         this.currentIndex = 0;// = this.relativeIndex_ = 0;
     }
     
-    public void propertyChange(java.beans.PropertyChangeEvent evt) {        
-        VcsCustomizer customizer = data.getCustomizer();
-        if(panels.size() > 1){            
-            panels.removeRange(1, panels.size());
-            names.removeRange(2, names.size());            
+    public void propertyChange(java.beans.PropertyChangeEvent evt) { 
+       // System.err.println("porpoerty change Iterator:"+evt.getPropertyName());
+        if(evt.getPropertyName().equals(VcsCustomizer.PROP_PROFILE_SELECTION_CHANGED)){            
+            VcsCustomizer customizer = data.getCustomizer();
+            if(panels.size() > 1){
+                panels.removeRange(1, panels.size());
+                names.removeRange(2, names.size());
+            }
+            int num = customizer.getNumConfigPanels();
+            for(int i = 1; i < num; i++){
+                ProfilePanel panel = new ProfilePanel(i);
+                panels.add(panel);
+                names.add(customizer.getConfigPanelName(i));
+            }
+            setContentData();
         }
-        int num = customizer.getNumConfigPanels();        
-        for(int i = 1; i < num; i++){
-            ProfilePanel panel = new ProfilePanel(i);
-            panels.add(panel);
-            names.add(customizer.getConfigPanelName(i));
+        if(evt.getPropertyName().equals(VcsCustomizer.PROP_IS_FINISH_ENABLED_CHANGED)){            
+            String isFinishEnabled = (String)evt.getNewValue();
+            ProfilePanel panel = (ProfilePanel)current();            
+            if(isFinishEnabled.length()>0){
+                //System.err.println("isFinishEnabled - true");                                 
+                panel.setFinish(true);                
+                isNext = false;
+                panel.fireChange();                
+            }else{
+                //System.err.println("isFinishEnabled - false");
+                panel.setFinish(false);
+                isNext = true;
+                panel.fireChange();           
+                
+            }
+            setContentData();
         }
-        setContentData();
     }
     
     private void setContentData () {
         String[] namesAr = (String[])names.toArray(new String[0]);
+        if(!isNext){
+            String[] newNames = new String[currentIndex+2];
+            System.arraycopy(namesAr, 0, newNames, 0, newNames.length);
+            namesAr = newNames;
+        }
+        
         //javax.swing.JPanel panel = (javax.swing.JPanel) this.panels.get(this.currentIndex);
         templateWizard.putProperty("WizardPanel_contentData", namesAr);
         //templateWizard.putProperty("WizardPanel_contentSelectedIndex", new Integer(1)); // NOI18N

@@ -77,12 +77,12 @@ public class MountWizardData {
         return customizer;
     }
     
-    void addProfileChangeListener(java.beans.PropertyChangeListener l) {
-        customizer.addPropertyChangeListener(VcsCustomizer.PROP_PROFILE_SELECTION_CHANGED, l);
+    void addPropertyChangeListener(java.beans.PropertyChangeListener l){       
+        customizer.addPropertyChangeListener(l);
     }
     
-    void removeProfileChangeListener(java.beans.PropertyChangeListener l) {
-        customizer.removePropertyChangeListener(VcsCustomizer.PROP_PROFILE_SELECTION_CHANGED, l);
+    void removePropertyChangeListener(java.beans.PropertyChangeListener l) {    
+        customizer.removePropertyChangeListener(l);
     }
     
     CommandLineVcsFileSystem getFileSystem() {

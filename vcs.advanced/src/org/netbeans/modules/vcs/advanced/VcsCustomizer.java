@@ -90,6 +90,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     public static final String VAR_WIZARD_INPUT_DESCRIPTOR = "WIZARD_INPUT_DESCRIPTOR";
     
     public static final String PROP_PROFILE_SELECTION_CHANGED = "profileSelectionChanged";
+    
+    public static final String PROP_IS_FINISH_ENABLED_CHANGED = "isFinishEnablesChanged";
 
     private HashMap autoFillVars = new HashMap();
     private Map fsVarsByName = null;
@@ -115,7 +117,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
     static final long serialVersionUID = -8801742771957370172L;
     private ExplorerManager manager = null;
-    
+
     /** Creates new form VcsCustomizer */
     public VcsCustomizer () {
         initComponents ();
@@ -1091,7 +1093,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 configCombo.removeItemAt(0);
                 selectedIndex--;
                 promptForConfigComboChange = false;
-                firePropertyChange(PROP_PROFILE_SELECTION_CHANGED, null, null);
+                changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_PROFILE_SELECTION_CHANGED, null, null));
             }
 
             if (oldSelectedLabel == null) {
@@ -1123,7 +1125,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 String profileName = (String) profileNamesForLabels.get(selectedLabel);
                 loadConfig(profileName, selectedLabel);
                 oldSelectedLabel = selectedLabel;
-                firePropertyChange(PROP_PROFILE_SELECTION_CHANGED, null, selectedLabel);
+                changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_PROFILE_SELECTION_CHANGED, null, selectedLabel));
             } else {
                 if (oldSelectedLabel == null) {
                     configCombo.setSelectedIndex(0);
@@ -1933,7 +1935,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                     var.setValue(value);
                 }
             }
-            Vector variables = fileSystem.getVariables();
+            Vector variables = fileSystem.getVariables();            
             synchronized (configInputPanelsLock) {
                 if (configInputPanels != null) {
                     for (Iterator it = adjustedNames.iterator(); it.hasNext(); ) {
@@ -2067,8 +2069,16 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             }
         }
         fileSystem.setVariables(variables);
+        updateFinishableState(fileSystem.getVariablesAsHashtable());
     }
     
+    private void updateFinishableState(Hashtable variables){        
+        String isFinishEnabled = (String)variables.get("IS_FINISH_ENABLED");    //NOI18N        
+        if((isFinishEnabled != null)&&(isFinishEnabled.length() > 0)){            
+            isFinishEnabled = Variables.expand(variables, isFinishEnabled, false);       
+            changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_IS_FINISH_ENABLED_CHANGED,null,isFinishEnabled));
+        }
+    }
     /**
     * Read configurations from disk.
     *

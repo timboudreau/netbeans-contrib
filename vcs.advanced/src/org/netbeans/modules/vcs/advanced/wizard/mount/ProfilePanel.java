@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.advanced.wizard.mount;
 
+import org.netbeans.modules.vcs.advanced.VcsCustomizer;
 import org.openide.loaders.TemplateWizard;
 
 /**
@@ -24,6 +25,7 @@ public class ProfilePanel extends AbstractWizardPanel {
     private int index;
     private ProfilePanelUI panelUI;
     private boolean initialized = false;
+    private boolean isFinish = true;
     
     MountWizardData data;
     
@@ -48,10 +50,12 @@ public class ProfilePanel extends AbstractWizardPanel {
             getPanelUI().add (profilePanel);
             initialized = true;
         }
-        if (index == 0 && data.isNoneProfileSelected()) {
-            data.addProfileChangeListener(new java.beans.PropertyChangeListener() {
-                public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                    fireChange();
+        if (index == 0 && data.isNoneProfileSelected()) {            
+            data.addPropertyChangeListener(new java.beans.PropertyChangeListener() {                
+                public void propertyChange(java.beans.PropertyChangeEvent evt) {                    
+                    if(evt.getPropertyName().equals(VcsCustomizer.PROP_PROFILE_SELECTION_CHANGED)){
+                        fireChange();
+                    }
                 }
             });
         }
@@ -83,9 +87,12 @@ public class ProfilePanel extends AbstractWizardPanel {
         return panelUI;
     }
     
-    public boolean isFinishPanel() {
-        //todo add logic
-        return false;
+    public boolean isFinishPanel() {               
+        return isFinish;
+    }
+    
+    public void setFinish(boolean isFinish){
+        this.isFinish = isFinish;
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

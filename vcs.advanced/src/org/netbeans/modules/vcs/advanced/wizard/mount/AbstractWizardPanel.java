@@ -59,7 +59,7 @@ public abstract class AbstractWizardPanel implements org.openide.WizardDescripto
     
     protected abstract void readWizardSettings (MountWizardData data);
     
-    protected void fireChange () {
+    public void fireChange () {   
         javax.swing.event.ChangeEvent event = new javax.swing.event.ChangeEvent (this);
         java.util.Iterator iterator;
         synchronized (this) {
