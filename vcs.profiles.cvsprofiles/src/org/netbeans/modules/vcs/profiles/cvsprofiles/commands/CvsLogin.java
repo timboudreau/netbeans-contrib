@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
+import java.awt.Dialog;
 import java.util.*;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
@@ -21,6 +22,7 @@ import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.cmdline.*;
 
 import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.CvsLoginDialog;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.LoginPanel;
 
 /**
  * This class is used as a CVS login command.
@@ -46,11 +48,13 @@ public class CvsLogin implements VcsAdditionalCommand {
         if (fileSystem instanceof CvsFileSystem) {
             CvsFileSystem cvsFileSystem = (CvsFileSystem) fileSystem;
          */
-        CvsLoginDialog login = CvsLoginDialog.createDialog(fileSystem);
+        LoginPanel login = new LoginPanel();
         login.setPserverName(serverName);
         String connectStr = ":pserver:" + userName + "@" + serverName + ":" + cvsRoot;
-        login.setConnectString(connectStr);
-        login.show();
+        login.setConnectString(connectStr); 
+        Dialog logDialog = login.createDialog(fileSystem);
+        logDialog.show();
+        
         boolean loginCancelled = !login.isOffline();
         boolean isLoggedIn = login.isLoggedIn();
         if (!isLoggedIn && !loginCancelled) {
@@ -58,7 +62,7 @@ public class CvsLogin implements VcsAdditionalCommand {
         } else if (isLoggedIn) {
             fileSystem.setOffLine(false); // unset offline mode
         }
-        return isLoggedIn || loginCancelled;
+        return isLoggedIn || loginCancelled;     
     }
 }
 
