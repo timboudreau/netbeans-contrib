@@ -80,6 +80,9 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @return the name of the action
      */
     public String getName() {
+        if (fileSystem == null) {
+            return org.openide.util.NbBundle.getBundle(VcsAction.class).getString("CTL_Version_Control");
+        }
         return fileSystem.getBundleProperty("CTL_Version_Control"); // NOI18N
     }
 
@@ -575,8 +578,8 @@ public class VcsAction extends NodeAction implements ActionListener {
 
                 continue;
             }
-            boolean disabled = VcsUtilities.matchQuotedStringToSet(
-                (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
+            boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
+		(String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
             if (disabled && REMOVE_DISABLED) continue;
             JMenuItem item;
             if (!child.isLeaf()) {
@@ -600,6 +603,13 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
     }
 
+    /**
+     * Get a menu item that can present this action in a <code>JMenu</code>.
+     */
+    public JMenuItem getMenuPresenter() {
+        return getPopupPresenter();
+    }
+    
     /**
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
@@ -692,6 +702,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         String file = VcsUtilities.getFileNamePart(fullName);
         path = path.replace('/', java.io.File.separatorChar);
         fullName = fullName.replace('/', java.io.File.separatorChar);
+        if (fullName.length() == 0) fullName = ".";
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
         vars.put("DIR", path); // NOI18N
@@ -706,6 +717,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         StringBuffer vfiles = new StringBuffer();
         for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
             fullName = (String) enum.nextElement();
+            if (fullName.length() == 0) fullName = ".";
             fo = (FileObject) files.get(fullName);
             isFileFolder |= fo.isFolder();
             file = VcsUtilities.getFileNamePart(fullName);
