@@ -14,19 +14,19 @@
 package org.netbeans.modules.vcscore.runtime;
 
 /**
- * default implementation of RuntimeCommand. Gets the info that is needed by runtimenode from 
- *CommandsPool and vcsCommandExecutor
+ * The default implementation of RuntimeCommand. Gets the info that is needed by
+ * RuntimeCommandNode from CommandsPool and VcsCommandExecutor
  * @author  Milos Kleint
  */
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.netbeans.modules.vcscore.commands.CommandsPool;
-import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
-import org.openide.actions.PropertiesAction;
 
-
+import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.CommandsPool;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.netbeans.modules.vcscore.Variables;
 
 public class VcsRuntimeCommand extends RuntimeCommand {
     
@@ -45,7 +45,11 @@ public class VcsRuntimeCommand extends RuntimeCommand {
     }    
 
     public String getDisplayName() {
-        return executor.getCommand().getDisplayName();
+        String displayName = executor.getCommand().getDisplayName();
+        if (displayName != null) {
+            displayName = Variables.expand(executor.getVariables(), displayName, false);
+        }
+        return displayName;
     }
     
     public int getExitStatus() {

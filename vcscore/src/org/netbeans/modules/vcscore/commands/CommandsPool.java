@@ -207,7 +207,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars,
                                  VcsFileSystem fileSystem, boolean[] askForEachFile) {
         //setCommandID(vce);
-        VcsCommandWrapper cw = new VcsCommandWrapper(vce, fileSystem);
+        VcsCommandWrapper cw = new VcsCommandWrapper(vce, fileSystem, vars);
         commandsWrappers.put(vce, cw);
         synchronized (commandsToRun) {
             commandsToRun.add(cw);
@@ -215,6 +215,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         VcsCommand cmd = vce.getCommand();
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
+        name = Variables.expand(vars, name, false);
         String exec = vce.getExec();
         RuntimeCommand rCom = null;
         if (fileSystem != null) {
@@ -259,6 +260,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
         //waitToRun(cmd, vce.getFiles());
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
+        if (cw.getFSVariables() != null) {
+            name = Variables.expand(cw.getFSVariables(), name, false);
+        }
         final String finalName = name;
         RequestProcessor.postRequest(new Runnable() {
             public void run() {
@@ -306,6 +310,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
         VcsCommand cmd = vce.getCommand();
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
+        if (cw.getFSVariables() != null) {
+            name = Variables.expand(cw.getFSVariables(), name, false);
+        }
         synchronized (this) {
             if (isListCommand(cmd)) numRunningListCommands--;
             commandsRunning.remove(cw);
@@ -466,7 +473,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (cancelledCommandExecutors.contains(vce)) return ;
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) {
-            cw = new VcsCommandWrapper(vce, fileSystem);
+            cw = new VcsCommandWrapper(vce, fileSystem, (fileSystem != null) ? fileSystem.getVariablesAsHashtable() : null);
             commandsWrappers.put(vce, cw);
         }
         cw.setSubmittingThread(Thread.currentThread());
@@ -1081,6 +1088,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         
         private VcsCommandExecutor vce;
         private VcsFileSystem fileSystem;
+        private Hashtable fsVariables;
         private long id;
         private Reference submittingThread;
         private Thread runningThread;
@@ -1089,9 +1097,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
         private long startTime = 0;
         private long finishTime = 0;
         
-        public VcsCommandWrapper(VcsCommandExecutor vce, VcsFileSystem vfs) {
+        public VcsCommandWrapper(VcsCommandExecutor vce, VcsFileSystem vfs,
+                                 Hashtable fsVariables) {
             this.vce = vce;
             this.fileSystem = vfs;
+            this.fsVariables = fsVariables;
             synchronized (VcsCommandWrapper.class) {
                 this.id = lastId++;
             }
@@ -1103,6 +1113,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
         
         public VcsFileSystem getFileSystem() {
             return fileSystem;
+        }
+        
+        public Hashtable getFSVariables() {
+            return fsVariables;
         }
         
         public long getCommandID() {
