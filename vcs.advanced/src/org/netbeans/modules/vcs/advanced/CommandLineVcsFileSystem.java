@@ -305,6 +305,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     }
 
     result.put("netbeans.home",System.getProperty("netbeans.home"));
+    result.put("java.home",System.getProperty("java.home"));
     String osName=System.getProperty("os.name");
     result.put("classpath.separator", (osName.indexOf("Win")<0 ? ":":";" ));
     result.put("path.separator", ""+File.separator);
@@ -841,6 +842,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  34   Gandalf   1.33        8/7/99   Ian Formanek    Martin Entlicher's 
+ *       improvements
  *  33   Gandalf   1.32        6/10/99  Michal Fadljevic 
  *  32   Gandalf   1.31        6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
@@ -877,5 +880,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
  *  1    Gandalf   1.0         4/15/99  Michal Fadljevic 
  * $
  */
+
 
 
