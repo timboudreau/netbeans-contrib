@@ -463,7 +463,8 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                 notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG);
             }
         }
-        if (notification != null) {
+        String disabledNotification = (String) executor.getVariables().get("COMMAND_NOTIFICATION_DISABLED");
+        if (notification != null && (disabledNotification == null || disabledNotification.length() == 0)) {
             CommandCustomizationSupport.commandNotification(executor, notification, executionContext);
         }
         CommandExecutorSupport.postprocessCommand(executionContext, executor);
