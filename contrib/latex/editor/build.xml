@@ -16,9 +16,8 @@ Microsystems, Inc. All Rights Reserved.
 
   <import file="../../nbbuild/templates/projectized.xml"/>
   
-  <target name="basic-init" depends="projectized.basic-init,compile-language">
-  </target>
-      
+  <target name="compile" depends="compile-language,projectized.compile" />
+  
   <target name="compile-language">
     <property name="grammar.name" value="Tex" />
     <property name="grammar.pkg" value="org.netbeans.modules.latex.editor" />
