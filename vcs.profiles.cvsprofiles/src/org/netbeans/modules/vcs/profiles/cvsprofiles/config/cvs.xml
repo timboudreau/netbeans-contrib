@@ -999,7 +999,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
 
       <!-- Add commands:
-         ADD_DIR_RECURSIVE is enabled on folders only
+         ADD_DIR_RECURSIVE is enabled on [Local] folders only
+         ADD_DIR_RECURSIVE_CONTENT is enabled on versioned folders only
          ADD is enabled on files only
       -->
       <command name="ADD_DIR_RECURSIVE" displayName="ResourceMsg1(CVS_ADD)">
@@ -1078,8 +1079,80 @@ Microsystems, Inc. All Rights Reserved.
           <value>$[? FOLDER_CONTENTS] [$[? DO_COMMIT] [COMMIT][]] [ADD_CMD]</value>
         </property>
         <property name="disabledOnStatus">
-              <value>&versioned-statuses;, "Yet-Unknown"</value>
-          </property>
+          <value>&versioned-statuses;, "Yet-Unknown"</value>
+        </property>
+      </command>
+      <command name="ADD_DIR_RECURSIVE_CONTENT" displayName="ResourceMsg1(CVS_ADD)">
+        <property name="labelMnemonic">
+          <value>ResourceMsg1(CVS_ADD_Mnemonic)</value>
+        </property>
+        <property name="advancedName">
+	  <value>add</value>
+	</property>
+        <property name="visualizer">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
+        </property>
+        <property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+        <property name="exec">
+	  <value>vcs.commands.RecursiveFolderCommand.class ${RUN_RECURSIVELY} ADD_CMD</value>
+	</property>
+        <property name="inputDescriptor">
+	  <value>LABEL(ResourceMsg1(COMMAND_ADD_Label),
+                    ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Label)))
+                 VARIABLE_DEFAULTS(RUN_RECURSIVELY USER, DO_COMMIT USER)
+                 PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_ADD_Description), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc)))
+                 IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RUN_RECURSIVELY, ResourceMsg1(COMMAND_ADD_Recursively), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Recursively);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Recursively_mnc)) ,"", "-l")
+                 ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))
+
+                 SELECT_RADIO_TRIVIAL(KFLAG_TRIVIAL, ResourceMsg1(COMMAND_ADD_BFlag), "", A11Y,
+                    ["ResourceMsg1(COMMAND_ADD_BFlag_a)", "", A11Y],
+                    ["ResourceMsg1(COMMAND_ADD_BFlag_b)", "-kb", A11Y],
+                    ["ResourceMsg1(COMMAND_ADD_BFlag_c)", "-kkv", A11Y] )
+
+                 SELECT_COMBO_EXPERT(KFLAG_EXPERT, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)),["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
+          </value>
+	</property>
+        <property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
+        <property name="onFile">
+	  <value>false</value>
+	</property>
+        <property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="onRoot">
+	  <value>true</value>
+	</property>
+        <property name="concurrentExec">
+          <value>-1</value>  <!-- INERT -->
+        </property>
+        <property name="concurrentExecWith">
+          <value>ADD_DIR_RECURSIVE_CONTENT 38</value>  <!-- myself - (SERIAL_ON_PACKAGE || SERIAL_WITH_PARENT) + SERIAL_WITH_PENDING -->
+        </property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
+        <property name="needsHierarchicalOrder">
+          <value>true</value>
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
+        </property>
+        <property name="generalCommandActionDisplayName">
+          <value>ResourceMsg1(CVS_GENERAL_ACTION_ADD)</value>
+        </property>
+        <property name="commandsAfterSuccess">
+          <value>$[? DO_COMMIT] [COMMIT][]</value>
+        </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;, "Yet-Unknown"</value>
+        </property>
       </command>
       <command name="ADD" displayName="ResourceMsg1(CVS_ADD)">
         <property name="labelMnemonic">
