@@ -72,7 +72,7 @@ public class ClusteringAction extends GeneralCommandAction  {
     public static final String IS_SWITCHABLE_POPUP = "IsSwitchable";
     
     protected static final String CLIENT_PROP_ACTION = "SELECTED_COMMAND_ACTION"; //NOI18N
-    transient boolean  CTRL_Down = false;
+    protected transient boolean  CTRL_Down = false;
     
     private transient ArrayList switchableList;
     
