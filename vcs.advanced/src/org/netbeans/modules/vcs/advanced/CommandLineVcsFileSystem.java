@@ -17,6 +17,7 @@ import java.io.*;
 import java.util.*;
 import java.beans.*;
 import java.text.*;
+import javax.swing.*;
 
 import gnu.regexp.*;
 import com.netbeans.ide.util.actions.*;
@@ -59,6 +60,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   /** user variables Vector<String> 'name=value' */
   private Vector variables=new Vector(10);
 
+  private transient String password=null;
+
   /** user commands Vector<UserCommand> */
   private Vector commands=new Vector(10);
 
@@ -78,6 +81,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   private transient VcsAction action=null;
 
   private boolean ready=false;
+
   
 
   //-------------------------------------------
@@ -229,7 +233,62 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     this.variables=variables;
     firePropertyChange("variables", old, variables);
   }
+
+
+  //-------------------------------------------
+  public void setPassword(String password){
+    this.password=password;
+  }
   
+  //-------------------------------------------
+  public String getPassword(){
+    return password;
+  }
+  
+
+  //-------------------------------------------
+  private boolean needPromptFor(String name, String exec, Hashtable vars){
+    //D.deb("needPromptFor('"+name+"','"+exec+"')");
+    boolean result=false;
+    String oldPassword=(String)vars.get("PASSWORD"); vars.put("PASSWORD","");
+    String oldReason=(String)vars.get("REASON"); vars.put("REASON","");
+
+    String test="variable_must_be_prompt_for";
+    vars.put(name,test);
+    Variables v=new Variables();
+    String s=v.expand(vars,exec);
+    result= ( s.indexOf(test)>=0 ) ? true : false ;
+
+    if( oldPassword!=null ){ vars.put("PASSWORD",oldPassword); }
+    if( oldReason!=null ){ vars.put("REASON",oldReason); }
+
+    return result ;
+  }
+  
+
+  //-------------------------------------------
+  public void promptForVariables(String exec, Hashtable vars){
+    if( needPromptFor("PASSWORD",exec,vars) ){
+      String password=getPassword();
+      if(password==null){
+	EditUserVariable edit=new EditUserVariable(new JFrame(),"PASSWORD","");
+	MiscStuff.centerWindow(edit);
+	edit.show();
+	password=edit.getValue();
+	setPassword(password);
+      }
+      vars.put("PASSWORD",password);
+    }
+    if( needPromptFor("REASON",exec,vars) ){
+      String reason="";
+      EditUserVariable edit=new EditUserVariable(new JFrame(),"REASON","");
+      MiscStuff.centerWindow(edit);
+      edit.show();
+      reason=edit.getValue().replace(' ','_');
+      vars.put("REASON",reason);
+    }
+  }
+
 
   //-------------------------------------------
   public Hashtable getVariablesAsHashtable(){
@@ -278,6 +337,37 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
       setCommands(commands);
     }
     return (UserCommand)commandsByName.get(name);
+  }
+
+
+  //-------------------------------------------
+  public  Vector getAdditionalCommands(){
+    Vector commands=getCommands();
+    int len=commands.size();
+    Vector additionalCommands=new Vector(5);
+    for(int i=0;i<len;i++){
+      UserCommand uc=(UserCommand)commands.elementAt(i);
+      if( isAdditionalCommand(uc.getName()) ){
+	additionalCommands.add(uc);
+      }
+    }
+    return additionalCommands;
+  }
+  
+  //-------------------------------------------
+  public boolean isAdditionalCommand(String name){
+    if( name.equals("LIST") || 
+	name.equals("DETAILS") || 
+	name.equals("CHECKIN") || 
+	name.equals("CHECKOUT") || 
+	name.equals("LOCK") || 
+	name.equals("UNLOCK") || 
+	name.equals("ADD") || 
+	name.equals("REMOVE") || 
+	name.equals("LIST_SUB") ){
+      return false ;
+    }
+    return true;
   }
 
 
@@ -383,11 +473,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /** Set the root directory of the file system.
-  * @param r file to set root to
-  * @exception PropertyVetoException if the value if vetoed by someone else (usually
-  *    by the {@link com.netbeans.ide.filesystems.Repository Repository})
-  * @exception IOException if the root does not exists or some other error occured
-  */
+   * @param r file to set root to
+   * @exception PropertyVetoException if the value if vetoed by someone else (usually
+   *    by the {@link com.netbeans.ide.filesystems.Repository Repository})
+   * @exception IOException if the root does not exists or some other error occured
+   */
   public synchronized void setRootDirectory (File r) throws PropertyVetoException, IOException {
     D.deb("setRootDirectory("+r+")");
     if (!r.exists() || r.isFile ()) {
@@ -405,7 +495,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   //-------------------------------------------
   /** Get the root directory of the file system.
    * @return root directory
-  */
+   */
   public File getRootDirectory () {
     D.deb("getRootDirectory() ->"+rootFile);
     return rootFile;
@@ -414,7 +504,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   //-------------------------------------------
   /** Set whether the file system should be read only.
    * @param flag <code>true</code> if it should
-  */
+   */
   public void setReadOnly(boolean flag) {
     D.deb("setReadOnly("+flag+")");
     if (flag != readOnly) {
@@ -434,8 +524,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /** Prepare environment by adding the root directory of the file system to the class path.
-  * @param environment the environment to add to
-  */
+   * @param environment the environment to add to
+   */
   public void prepareEnvironment(FileSystem.Environment environment) {
     D.deb("prepareEnvironment() ->"+rootFile.toString());
     environment.addClassPath(rootFile.toString ());
@@ -443,12 +533,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /** Compute the system name of this file system for a given root directory.
-  * <P>
-  * The default implementation simply returns the filename separated by slashes.
-  * @see FileSystem#setSystemName
-  * @param rootFile root directory for the filesystem
-  * @return system name for the filesystem
-  */
+   * <P>
+   * The default implementation simply returns the filename separated by slashes.
+   * @see FileSystem#setSystemName
+   * @param rootFile root directory for the filesystem
+   * @return system name for the filesystem
+   */
   protected String computeSystemName (File rootFile) {
     D.deb("computeSystemName() ->"+rootFile.toString ().replace(File.separatorChar, '/') );
     return rootFile.toString ().replace(File.separatorChar, '/');
@@ -456,9 +546,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /** Creates file for given string name.
-  * @param name the name
-  * @return the file
-  */
+   * @param name the name
+   * @return the file
+   */
   private File getFile (String name) {
     return new File (rootFile, name);
   }
@@ -470,7 +560,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /* Scans children for given name
-  */
+   */
   public String[] children (String name) {
     D.deb("children('"+name+"')");
     String[] vcsFiles=null;
@@ -507,9 +597,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   //
 
   /* Creates new folder named name.
-  * @param name name of folder
-  * @throws IOException if operation fails
-  */
+   * @param name name of folder
+   * @throws IOException if operation fails
+   */
   public void createFolder (String name) throws java.io.IOException {
     D.deb("createFolder('"+name+"')");
     File f = getFile (name);
@@ -535,12 +625,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /* Create new data file.
-  *
-  * @param name name of the file
-  *
-  * @return the new data file object
-  * @exception IOException if the file cannot be created (e.g. already exists)
-  */
+   *
+   * @param name name of the file
+   *
+   * @return the new data file object
+   * @exception IOException if the file cannot be created (e.g. already exists)
+   */
   public void createData (String name) throws IOException {
     D.deb("createData("+name+")");
     File f = getFile (name);
@@ -558,10 +648,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /* Renames a file.
-  *
-  * @param oldName old name of the file
-  * @param newName new name of the file
-  */
+   *
+   * @param oldName old name of the file
+   * @param newName new name of the file
+   */
   public void rename(String oldName, String newName) throws IOException {
     D.deb("rename(oldName="+oldName+",newName="+newName+")");
     File of = getFile (oldName);
@@ -574,10 +664,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /* Delete the file. 
-  *
-  * @param name name of file
-  * @exception IOException if the file could not be deleted
-  */
+   *
+   * @param name name of file
+   * @exception IOException if the file could not be deleted
+   */
   public void delete (String name) throws IOException {
     D.deb("delete('"+name+"')");
     File file = getFile (name);
@@ -594,10 +684,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /*
-  * Get last modification time.
-  * @param name the file to test
-  * @return the date
-  */
+   * Get last modification time.
+   * @param name the file to test
+   * @return the date
+   */
   public java.util.Date lastModified(String name) {
     D.deb("lastModified("+name+")");
     return new java.util.Date (getFile (name).lastModified ());
@@ -605,9 +695,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /* Test if the file is folder or contains data.
-  * @param name name of the file
-  * @return true if the file is folder, false otherwise
-  */
+   * @param name name of the file
+   * @return true if the file is folder, false otherwise
+   */
   public boolean folder (String name) {
     return cache.isDir(name);
     // return getFile (name).isDirectory ();
@@ -615,20 +705,20 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------  
   /* Test whether this file can be written to or not.
-  * @param name the file to test
-  * @return <CODE>true</CODE> if file is read-only
-  */
+   * @param name the file to test
+   * @return <CODE>true</CODE> if file is read-only
+   */
   public boolean readOnly (String name) {
     //D.deb("readOnly('"+name+"')");
     return !getFile (name).canWrite ();
   }
   
   /** Get the MIME type of the file.
-  * Uses {@link FileUtil#getMIMEType}.
-  *
-  * @param name the file to test
-  * @return the MIME type textual representation, e.g. <code>"text/plain"</code>
-  */
+   * Uses {@link FileUtil#getMIMEType}.
+   *
+   * @param name the file to test
+   * @return the MIME type textual representation, e.g. <code>"text/plain"</code>
+   */
   public String mimeType (String name) {
     D.deb("mimeType('"+name+"')");
     int i = name.lastIndexOf ('.');
@@ -644,22 +734,22 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /* Get the size of the file.
-  *
-  * @param name the file to test
-  * @return the size of the file in bytes or zero if the file does not contain data (does not
-  *  exist or is a folder).
-  */
+   *
+   * @param name the file to test
+   * @return the size of the file in bytes or zero if the file does not contain data (does not
+   *  exist or is a folder).
+   */
   public long size (String name) {
     D.deb("size("+name+")");
     return getFile (name).length ();
   }
   
   /* Get input stream.
-  *
-  * @param name the file to test
-  * @return an input stream to read the contents of this file
-  * @exception FileNotFoundException if the file does not exists or is invalid
-  */
+   *
+   * @param name the file to test
+   * @return an input stream to read the contents of this file
+   * @exception FileNotFoundException if the file does not exists or is invalid
+   */
   public InputStream inputStream (String name) throws java.io.FileNotFoundException {
     //D.deb("inputStream("+name+")");
     return new FileInputStream (getFile (name));
@@ -667,53 +757,53 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /* Get output stream.
-  *
-  * @param name the file to test
-  * @return output stream to overwrite the contents of this file
-  * @exception IOException if an error occures (the file is invalid, etc.)
-  */
+   *
+   * @param name the file to test
+   * @return output stream to overwrite the contents of this file
+   * @exception IOException if an error occures (the file is invalid, etc.)
+   */
   public OutputStream outputStream (String name) throws java.io.IOException {
     D.deb("outputStream("+name+")");
     return new FileOutputStream (getFile (name));
   }
 
   /** Does nothing to lock the file.
-  *
-  * @param name name of the file
-  */
+   *
+   * @param name name of the file
+   */
   public void lock (String name) throws IOException {
     D.deb("lock('"+name+"')");
   }
 
   /** Does nothing to unlock the file.
-  *
-  * @param name name of the file
-  */
+   *
+   * @param name name of the file
+   */
   public void unlock (String name) {
     D.deb("unlock('"+name+"')");
   }
 
   //-------------------------------------------
   /** Does nothing to mark the file as unimportant.
-  *
-  * @param name the file to mark
-  */
+   *
+   * @param name the file to mark
+   */
   public void markUnimportant (String name) {
-// TODO...
-//  D.deb("markUnimportant("+name+")");
-//      VcsFile file=cache.getFile(name);
-//      if( file==null ){
-//        E.err("no such file '"+name+"'");
-//        return ;
-//      }
-//      file.setImportant(false);
+    // TODO...
+    //  D.deb("markUnimportant("+name+")");
+    //      VcsFile file=cache.getFile(name);
+    //      if( file==null ){
+    //        E.err("no such file '"+name+"'");
+    //        return ;
+    //      }
+    //      file.setImportant(false);
   }
 
   //-------------------------------------------
   /** Getter for the resource string
    * @param s the resource name
-  * @return the resource
-  */
+   * @return the resource
+   */
   static String getString(String s) {
     return NbBundle.getBundle
       ("com.netbeans.enterprise.modules.vcs.cmdline.Bundle").getString (s);
@@ -721,33 +811,33 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   /** Creates message for given string property with one parameter.
-  * @param s resource name
-  * @param obj the parameter to the message
-  * @return the string for that text
-  */
+   * @param s resource name
+   * @param obj the parameter to the message
+   * @return the string for that text
+   */
   static String getString (String s, Object obj) {
     return MessageFormat.format (getString (s), new Object[] { obj });
   }
 
   //-------------------------------------------
   /** Creates message for given string property with two parameters.
-  * @param s resource name
-  * @param obj1 the parameter to the message
-  * @param obj2 the parameter to the message
-  * @return the string for that text
-  */
+   * @param s resource name
+   * @param obj1 the parameter to the message
+   * @param obj2 the parameter to the message
+   * @return the string for that text
+   */
   static String getString (String s, Object obj1, Object obj2) {
     return MessageFormat.format (getString (s), new Object[] { obj1, obj2 });
   }
 
   //-------------------------------------------
   /** Creates message for given string property with three parameters.
-  * @param s resource name
-  * @param obj1 the parameter to the message
-  * @param obj2 the parameter to the message
-  * @param obj3 the parameter to the message
-  * @return the string for that text
-  */
+   * @param s resource name
+   * @param obj1 the parameter to the message
+   * @param obj2 the parameter to the message
+   * @param obj3 the parameter to the message
+   * @return the string for that text
+   */
   static String getString (String s, Object obj1, Object obj2, Object obj3) {
     return MessageFormat.format (getString (s), new Object[] { obj1, obj2, obj3 });
   }
@@ -756,6 +846,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  26   Gandalf   1.25        5/27/99  Michal Fadljevic 
  *  25   Gandalf   1.24        5/25/99  Michal Fadljevic 
  *  24   Gandalf   1.23        5/25/99  Michal Fadljevic 
  *  23   Gandalf   1.22        5/24/99  Michal Fadljevic 
@@ -783,3 +874,5 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
  *  1    Gandalf   1.0         4/15/99  Michal Fadljevic 
  * $
  */
+
+
