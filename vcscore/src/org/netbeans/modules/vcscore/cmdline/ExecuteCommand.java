@@ -354,7 +354,17 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec) {
         this.preferredExec = exec;
         fileSystem.getVarValueAdjustment().adjustVarValues(vars);
+        if (exec.indexOf(Variables.TEMPORARY_FILE) >= 0) {
+            try {
+                File tempFile = File.createTempFile("VCS", "tmp");
+                tempFile.deleteOnExit();
+                vars.put(Variables.TEMPORARY_FILE, tempFile.getAbsolutePath());
+            } catch (IOException ioex) {}
+        }
         this.vars = vars;
+        if (exec != null) {
+            this.preferredExec = Variables.expand(vars, exec, false);
+        }
         /*
         if (!(vc instanceof UserCommand)) return "";
         UserCommand uc = (UserCommand) vc;
@@ -732,14 +742,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec == null) return ; // Silently ignore null exec
         String execOrig = exec;
-        File tempFile = null;
-        if (exec.indexOf(Variables.TEMPORARY_FILE) >= 0) {
-            try {
-                tempFile = File.createTempFile("VCS", "tmp");
-                tempFile.deleteOnExit();
-                vars.put(Variables.TEMPORARY_FILE, tempFile.getAbsolutePath());
-            } catch (IOException ioex) {}
-        }
         exec = Variables.expand(vars, exec, false);
         exec = exec.trim();
         if (exec.trim().length() == 0) {
@@ -773,7 +775,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
         } finally {
             if (disableRefresh) fileSystem.enableRefresh();
-            if (tempFile != null) tempFile.delete();
+            String tempFilePath = (String) vars.get(Variables.TEMPORARY_FILE);
+            if (tempFilePath != null) new File(tempFilePath).delete();
         }
     }
     
