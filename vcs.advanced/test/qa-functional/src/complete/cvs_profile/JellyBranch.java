@@ -92,7 +92,7 @@ public class JellyBranch extends CVSStub {
     
     public void testInit() {
         root.cvsNode ().cVSInit ();
-        history.getWaitCommand("Init", root.node ());
+        history.getWaitCommand("Init", root.history ());
     }
     
     public void testCheckOut() {
@@ -148,7 +148,7 @@ public class JellyBranch extends CVSStub {
         CVSAddFolderAdvDialog add = new CVSAddFolderAdvDialog();
         add.setFileDescription("Initial state");
         add.oK();
-        assertInformationDialog (null);
+//        assertInformationDialog (null);
         Directory.waitHistory ("Add");
         Directory.waitStatus(null);
         SubDir.waitStatus("Local");

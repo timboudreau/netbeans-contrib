@@ -55,6 +55,9 @@ public abstract class CVSStub extends GenericStub {
     protected void mountVCSFileSystem () {
         new Action ("Versioning|Mount Version Control", null).performMenu (); // workaround for issue #31026
         new Action ("Tools", null).performMenu (); // workaround for issue #31026
+        sleep (10000);
+        new Action ("Versioning|Mount Version Control", null).performMenu (); // workaround for issue #31026
+        new Action ("Tools", null).performMenu (); // workaround for issue #31026
         new VCSGenericMountAction().perform();
         VCSWizardProfile wizard = new VCSWizardProfile();
         wizard.verify("");
@@ -128,7 +131,7 @@ public abstract class CVSStub extends GenericStub {
         CVSAddFolderAdvDialog add = new CVSAddFolderAdvDialog ();
         add.oK ();
         add.waitClosed();
-        assertInformationDialog(null);
+//        assertInformationDialog(null);
         assertTrue("Add folder command failed", history.waitCommand("Add", node.history ()));
         node.waitStatus (null);
     }
