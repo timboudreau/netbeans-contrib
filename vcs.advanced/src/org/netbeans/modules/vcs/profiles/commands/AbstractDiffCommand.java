@@ -257,10 +257,14 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
                                                    new File(file1), new File(file2),
                                                    tmpDir, tmpDir2);
         DiffPresenter presenter = new DiffPresenter(diffInfo);
-        DefaultDiff.DiffTopComponent diffComponent = new DefaultDiff.DiffTopComponent(presenter);
+        final DefaultDiff.DiffTopComponent diffComponent = new DefaultDiff.DiffTopComponent(presenter);
         diffInfo.setPresentingComponent(diffComponent);
         presenter.setVisualizer((DiffVisualizer) Lookup.getDefault().lookup(DiffVisualizer.class));
-        diffComponent.open();
+        javax.swing.SwingUtilities.invokeLater(new Runnable () {
+            public void run () {
+                diffComponent.open();
+            }
+        });
         /*
         javax.swing.SwingUtilities.invokeLater(new Runnable () {
                                                    public void run () {
