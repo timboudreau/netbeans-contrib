@@ -79,7 +79,15 @@ class TeamwareRefreshSupport {
                         stderr.outputLine(file + " should be writable");
                     }
                 } else {
-                    state = file.exists() ? "Checked in" : "Needs checkout";
+                    if (file.exists()) {
+                        if (writable) {
+                            state = "Writable but not checked out for editing";
+                        } else {
+                            state = "Checked in";
+                        }
+                    } else {
+                        state = "Needs checkout";
+                    }
                     if (writable) {
                         stderr.outputLine(file + " should not be writable");
                     }
@@ -88,7 +96,7 @@ class TeamwareRefreshSupport {
         }
         String[] data = {
             state,
-            file.getName(),
+            fileName,
             revision
         };
         return data;
