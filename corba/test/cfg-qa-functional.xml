@@ -70,7 +70,7 @@ Microsystems, Inc. All Rights Reserved.
 			</patternset>
 		</testset>
 	</testbag>
-
+<!--
 	<testbag testattribs="((stable,full) and jdk13),appjdk13" executor="ide" name="testbag_jdk13" resultsprocessor="qa-functional">
 		<testset dir="qa-functional/src">
 			<patternset>
@@ -79,7 +79,7 @@ Microsystems, Inc. All Rights Reserved.
 			</patternset>
 		</testset>
 	</testbag>
-
+-->
 	<testbag testattribs="stable,local,ir" executor="ide" name="testbag_IR" resultsprocessor="qa-functional">
 		<testset dir="qa-functional/src">
 			<patternset>
