@@ -990,8 +990,10 @@ public class ImplGenerator implements PropertyChangeListener {
             System.out.println ("ImplGenerator::find_element_by_type ("
 				+ __type + ", " // NOI18N
                                 + __from.getName () + ":" + __from + ");"); // NOI18N
-        if (__type.getType () == IDLType.SEQUENCE)
-            return ImplGenerator.find_element_by_name (__type.ofType ().getName (), __from);
+        if (__type.getType () == IDLType.SEQUENCE) {
+            //return ImplGenerator.find_element_by_name (__type.ofType ().getName (), __from);
+	    return ImplGenerator.find_element_by_type (__type.ofType (), __from);
+	}
         else
             return ImplGenerator.find_element_by_name (__type.getName (), __from);
     }
@@ -1838,6 +1840,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	//boolean DEBUG = true;
 	Type __java_type = null;
 	if (DEBUG) {
+	    System.out.println ("*type2java*");
 	    System.out.println ("__idl_type: " + __idl_type);
 	    System.out.println ("__orig_type: " + __orig_type);
 	    System.out.println ("__mode: " + __mode);
@@ -1867,43 +1870,6 @@ public class ImplGenerator implements PropertyChangeListener {
 		}
 	    }
 	}
-	//if (this.is_absolute_scope_type (__idl_type) 
-	//|| this.is_scope_type (__idl_type)) {
-	    /*
-	      IDLElement __top_level_module = null;
-	      if (this.is_absolute_scope_type (__idl_type))
-	      __top_level_module = this.findTopLevelModuleForType 
-	      (__idl_type, __start_element);
-	      if (this.is_scope_type (__idl_type))
-	      __top_level_module = this.findModuleForScopeType 
-	      (__idl_type, __start_element);
-	    */
-	    /*
-	      IDLElement __element_for_type = this.findElementInElement 
-	      (__idl_type.getName (), __top_level_module);
-	    */
-	//IDLElement __element_for_type = ImplGenerator.find_element_by_type
-	//(__idl_type, __start_element);
-	//if (__element_for_type != null) {
-	//if (__orig_type_element == null)
-	//__orig_type_element = __element_for_type;
-	//IDLType __new_type = this.create_child_from_type (__idl_type);
-	//return this.type2java (__new_type, __orig_type, __mode, __package, 
-	//__top_level_module, __array_counter, 
-	//__orig_type_element);
-	//return this.type2java (__new_type, __orig_type, __mode, __package, 
-	//__start_element, __array_counter, 
-	//__orig_type_element);
-	//}
-	//}
-	/*
-	  IDLElement __element_for_type = this.findElementInElement 
-	  (__idl_type.getName (), __start_element);
-	*/
-	/*
-	  IDLElement __element_for_type = ImplGenerator.findElementUpward
-	  (__idl_type.getName (), __start_element);
-	*/
 	IDLElement __element_for_type = ImplGenerator.find_element_by_type
 	    (__idl_type, __start_element);
 
@@ -1936,11 +1902,29 @@ public class ImplGenerator implements PropertyChangeListener {
 		
 		if (this.is_sequence (__parent)) {
 		    //__new_type = null; // new IDLType (...);
-		    __new_type = new IDLType (__parent_type.ofType ().getType (),
-					      __parent_type.ofType ().getName (),
-					      __parent_type.ofType (),
-					      __parent_type.ofDimension ());
+		    __new_type = __parent_type;
+		    if (DEBUG)
+			System.out.println ("sequence...");
+		    while (__new_type.ofType ().getType () == IDLType.SEQUENCE) {
+			if (DEBUG) {
+			    System.out.println ("seq...");
+			    System.out.println ("__new_type.ofType (): "
+						+ __new_type.ofType ());
+			    System.out.println ("__new_type.ofDimension (): "
+						+ __new_type.ofDimension ());
+			}
+			__array_counter += 1;
+			__new_type = __new_type.ofType ();
+			if (DEBUG) {
+			    System.out.println ("__array_counter: " + __array_counter);
+			    System.out.println ("__new_type: " + __new_type);
+			}
+		    }
 		    __array_counter += 1;
+		    __new_type = new IDLType (__new_type.ofType ().getType (),
+					      __new_type.ofType ().getName (),
+					      __new_type.ofType (),
+					      __new_type.ofDimension ());
 		}
 		else {
 		    if (DEBUG)
@@ -2360,7 +2344,12 @@ public class ImplGenerator implements PropertyChangeListener {
 	    }
 	}
 	if (__recursive) {
+	    if (DEBUG)
+		System.out.println ("parents for recursion: " + __result);
 	    Iterator __r_iter = __result.iterator ();
+	    ArrayList __final_result = new ArrayList ();
+	    HashSet __set = new HashSet ();
+	    __set.addAll (__result);
 	    while (__r_iter.hasNext ()) {
 		IDLElement __t_element = (IDLElement)__r_iter.next ();
 		if (DEBUG)
@@ -2371,15 +2360,12 @@ public class ImplGenerator implements PropertyChangeListener {
 		    System.out.println ("__t_result: " + __t_result);
 		//Iterator __t_iter = __t_result.iterator ();
 		//while
-		HashSet __set = new HashSet ();
-		__set.addAll (__result);
 		__set.addAll (__t_result);
-		ArrayList __final_result = new ArrayList ();
-		__final_result.addAll (__set);
-		if (DEBUG)
-		    System.out.println ("generic_parents (recursive) -> " + __final_result);
-		return __final_result;
 	    }
+	    __final_result.addAll (__set);
+	    if (DEBUG)
+		System.out.println ("generic_parents (recursive) -> " + __final_result);
+	    return __final_result;
 	}
 	if (DEBUG)
 	    System.out.println ("generic_parents (non-recursive) -> " + __result);
@@ -2719,6 +2705,9 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     private void add_element (ClassElement __clazz, MemberElement __element) {
+	if (DEBUG)
+	    System.out.println ("add_element (" + __clazz.getName () + ", "
+				+ __element + ");");
 	if (_M_use_guarded_blocks)
 	    _M_elements_for_guard_blocks.add (__element);
 	try {
@@ -2762,6 +2751,17 @@ public class ImplGenerator implements PropertyChangeListener {
 	return __types;
     }
 
+    private boolean compare_methods_parameters (MethodParameter[] __p1,
+						MethodParameter[] __p2) {
+	if (__p1.length == __p2.length) {
+	    for (int __i=0; __i<__p1.length; __i++) {
+		if (!__p1[__i].compareTo (__p2[__i], false, true))
+		    return false;
+	    }
+	    return true;
+	}
+	return false;
+    }
 
     private String create_block_name_from_parameters (MethodParameter[] __params) {
 	String __name = "";
@@ -3539,6 +3539,7 @@ public class ImplGenerator implements PropertyChangeListener {
     private void synchronize_delegation_methods (ClassElement __source,
 						 ClassElement __target)
 	throws SourceException {
+	//boolean DEBUG=true;
 	if (DEBUG)
 	    System.out.println ("synchronize_delegation_methods");
 	Assertion.assert (__source != null);
@@ -3595,6 +3596,42 @@ public class ImplGenerator implements PropertyChangeListener {
 		if (DEBUG)
 		    System.out.println ("adding method: " + __m);
 		__target.addMethod (__m);
+	    }
+	    else {
+		// I have to test if this method is user defined or generated
+		// int case of user defined method I have to remove it from
+		// the list of elements for guarding
+		if (__s.getBody ().indexOf (__comment) == -1) {
+		    if (DEBUG)
+			System.out.println ("removing method from guarding: " + __s);
+		    Iterator __i_guard = _M_elements_for_guard_blocks.iterator ();
+		    Object __rm_object = null;
+		    while (__i_guard.hasNext ()) {
+			MemberElement __me = (MemberElement)__i_guard.next ();
+			if (__me instanceof MethodElement) {
+			    MethodElement __mm_method = (MethodElement)__me;
+			    if (__s.getName ().equals (__mm_method.getName ())) {
+				if (__s.getReturn ().equals (__mm_method.getReturn ())) {
+				    if (this.compare_methods_parameters
+					(__s.getParameters (),
+					 __mm_method.getParameters ())) {
+					if (DEBUG)
+					    System.out.println ("found: " + __mm_method);
+					//_M_elements_for_guard_blocks.remove (__mm_method);
+					__rm_object = __mm_method;
+				    }
+				}
+			    }
+			}
+		    }
+		    if (DEBUG)
+			System.out.println ("before: " + _M_elements_for_guard_blocks);
+		    if (__rm_object != null)
+			_M_elements_for_guard_blocks.remove (__rm_object);
+		    //_M_elements_for_guard_blocks.remove (__s);
+		    if (DEBUG)
+			System.out.println ("after: " + _M_elements_for_guard_blocks);
+		}
 	    }
 	}
     }
@@ -4353,9 +4390,11 @@ public class ImplGenerator implements PropertyChangeListener {
 	__current_folder = this.create_folders (__folders, __current_folder);
 
         String __package = _M_ido.getPrimaryFile ().getParent ().getPackageName ('.');
-	if (!__modules.equals (""))
-	    __package += "." + __modules.substring (0, __modules.length () - 1);
-
+	if (!__modules.equals ("")) {
+	    if (!__package.equals (""))
+		__package += ".";
+	    __package += __modules.substring (0, __modules.length () - 1);
+	}
         if (DEBUG) {
             System.out.println ("modules:>" + __modules + "<"); // NOI18N
             System.out.println ("package:>" + __package + "<"); // NOI18N

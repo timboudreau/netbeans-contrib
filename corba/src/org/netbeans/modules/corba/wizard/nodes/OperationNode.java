@@ -50,10 +50,10 @@ public class OperationNode extends AbstractMutableLeafNode implements Node.Cooki
         code = code + this.getName () + " ("; // No I18N
         code = code + key.getParameters () + ")"; // No I18N
         if (key.getExceptions().length() > 0) {
-            code = code + "raises ("+key.getExceptions () +")"; // No I18N
+            code = code + " raises ("+key.getExceptions () +")"; // No I18N
         }
         if (key.getContext().length() > 0) {
-            code = code + "context (";  // No I18N
+            code = code + " context (";  // No I18N
             String ctx = key.getContext ();
             StringTokenizer tk = new StringTokenizer (ctx, ","); // No I18N
             while (tk.hasMoreTokens()) {

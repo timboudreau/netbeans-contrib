@@ -19,6 +19,7 @@ import java.util.StringTokenizer;
 
 import org.openide.filesystems.FileObject;
 
+import org.openide.execution.NbClassPath;
 /*
  * @author Dusan Balek
  */
@@ -27,12 +28,18 @@ public class FileUtils {
     
     public static String getRealFileName (FileObject fo) {
         try {
-            String __filesystem = fo.getFileSystem ().getDisplayName ();
+	    File __fs_file = NbClassPath.toFile (fo.getFileSystem ().getRoot ());
+	    String __filesystem = __fs_file.getAbsolutePath ();
+	    //System.out.println ("__filesystem: " + __filesystem);
             String __file_name = fo.getPackageNameExt (File.separatorChar, '.');
+	    //System.out.println ("__file_name: " + __file_name);
+	    String __retval = "";
             if (__file_name != null && __file_name.length() > 0)
-                return __filesystem + File.separator + __file_name;
+                __retval = __filesystem + File.separator + __file_name;
             else
-                return __filesystem;
+                __retval = __filesystem;
+	    //System.out.println ("-> " + __retval);
+	    return __retval;
         }
         catch (Exception e) {
             return null;

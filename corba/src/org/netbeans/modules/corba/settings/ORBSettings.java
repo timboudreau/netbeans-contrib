@@ -724,6 +724,7 @@ public class ORBSettings implements java.io.Serializable {
 
 
     public void setImplBaseImplPrefix (String __value) {
+	//System.out.println (this.getOrbName () + " -> setImplBaseImplPrefix '" + __value + "'");
 	if (_M_property_change_support == null)
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_implbase_impl_prefix;
@@ -733,10 +734,12 @@ public class ORBSettings implements java.io.Serializable {
     }
 
     public String getImplBaseImplPrefix () {
+	//System.out.println (this.getOrbName () + " -> getImplBaseImplPrefix -> '" + _M_implbase_impl_prefix + "'");
         return _M_implbase_impl_prefix;
     }
 
     public void setImplBaseImplPostfix (String __value) {
+	//System.out.println (this.getOrbName () + " -> setImplBaseImplPostfix '" + __value + "'");
 	if (_M_property_change_support == null)
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_implbase_impl_postfix;
@@ -746,6 +749,7 @@ public class ORBSettings implements java.io.Serializable {
     }
 
     public String getImplBaseImplPostfix () {
+	//System.out.println (this.getOrbName () + " -> getImplBaseImplPostfix -> '" + _M_implbase_impl_postfix + "'");
         return _M_implbase_impl_postfix;
     }
 
@@ -777,6 +781,7 @@ public class ORBSettings implements java.io.Serializable {
     }
 
     public void setTieImplPrefix (String __value) {
+	//System.out.println (this.getOrbName () + " -> setTieImplPrefix '" + _M_tie_impl_prefix + "'");
 	if (_M_property_change_support == null)
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_tie_impl_prefix;
@@ -786,10 +791,12 @@ public class ORBSettings implements java.io.Serializable {
     }
 
     public String getTieImplPrefix () {
+	//System.out.println (this.getOrbName () + " -> getTieImplPrefix () -> '" + _M_tie_impl_prefix + "'");
         return _M_tie_impl_prefix;
     }
 
     public void setTieImplPostfix (String __value) {
+	//System.out.println (this.getOrbName () + " -> setTieImplPostfix '" + _M_tie_impl_postfix + "'");
 	if (_M_property_change_support == null)
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_tie_impl_postfix;
@@ -799,6 +806,7 @@ public class ORBSettings implements java.io.Serializable {
     }
 
     public String getTieImplPostfix () {
+	//System.out.println (this.getOrbName () + " -> getTieImplPostfix () -> '" + _M_tie_impl_postfix + "'");
         return _M_tie_impl_postfix;
     }
 

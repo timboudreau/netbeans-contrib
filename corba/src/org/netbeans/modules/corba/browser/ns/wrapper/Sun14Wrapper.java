@@ -11,66 +11,57 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-/*
- * Sun13Wrapper.java
- * Sun JDK 1.3 Wrapper 
- * Created on November 6, 2000, 4:17 PM
- */
-
 package org.netbeans.modules.corba.browser.ns.wrapper;
 
-import java.util.Properties;
 
+import java.util.Properties;
 /**
  *
- * @author  tzezula
+ * @author  xtom
  * @version 
  */
-public class Sun13Wrapper extends AbstractWrapper {
+public class Sun14Wrapper extends AbstractWrapper {
 
-    /** Creates new Sun13Wrapper */
-    public Sun13Wrapper() {
+    /** Creates new Sun14Wrapper */
+    public Sun14Wrapper() {
     }
-    
-    public void run () {
-        //System.out.println ("Sun13Wrapper::run ()");
+
+    public void run() {
         Properties properties = new Properties();
-        try {
-            Class.forName ("com.sun.corba.se.internal.POA.POAORB");
-            properties.put ("org.omg.CORBA.ORBClass","com.sun.corba.se.internal.POA.POAORB");
-        } catch (ClassNotFoundException cnfe) {
-            properties.put ("org.omg.CORBA.ORBClass","com.sun.corba.se.internal.iiop.ORB");
-        }
+        properties.put ("org.omg.CORBA.ORBClass","com.sun.corba.se.internal.CosNaming.NSORB");
+        
         try {
             Class orbClass = Class.forName ("org.omg.CORBA.ORB");
             java.lang.Object[] params = new Object[]{new String[0],properties};
             java.lang.reflect.Method m = orbClass.getMethod ("init", new Class[]{params[0].getClass(),params[1].getClass()});
-            Object orb = m.invoke (null,params);
+            Object orb = m.invoke (null,params);        
+//           ORB orb = (ORB) org.omg.CORBA.ORB.init(new String[]{}, properties);
         
-//        ORB orb = (ORB) org.omg.CORBA.ORB.init(new String[]{}, properties);
             Class transientNameServiceClass = Class.forName ("com.sun.corba.se.internal.CosNaming.TransientNameService");
-            java.lang.reflect.Constructor c = transientNameServiceClass.getConstructor (new Class[] {org.omg.CORBA.ORB.class});
+            java.lang.reflect.Constructor c = transientNameServiceClass.getConstructor (new Class[] {Class.forName("com.sun.corba.se.internal.POA.POAORB")});
             Object transientNameService = c.newInstance (new java.lang.Object[]{orb});
         
-//        TransientNameService transientnameservice = new TransientNameService(orb);
-
+//           TransientNameService transientnameservice = new TransientNameService(orb);
+        
             m = transientNameServiceClass.getMethod ("initialNamingContext",new Class[0]);
             java.lang.Object namingContext = m.invoke (transientNameService, new Object[0]);
-        
-//        org.omg.CosNaming.NamingContext namingcontext = transientnameservice.initialNamingContext(); 
-        
+             
+//           org.omg.CosNaming.NamingContext namingcontext = transientnameservice.initialNamingContext(); 
+            
             params = new java.lang.Object[]{namingContext};
             m = orbClass.getMethod ("object_to_string", new Class[]{org.omg.CORBA.Object.class});
             this.ior = (String) m.invoke (orb,params);
-        
-//        this.ior = orb.object_to_string(namingcontext);
-        
+            
+//           this.ior = orb.object_to_string(namingcontext);
+            
             properties.put("NameService", this.ior);
+            
             Class bootstrapServerClass = Class.forName ("com.sun.corba.se.internal.CosNaming.BootstrapServer");
             params = new Object[] {orb,new Integer (this.port),null,properties};
-            c = bootstrapServerClass.getConstructor (new Class[]{params[0].getClass(),Integer.TYPE,java.io.File.class,params[3].getClass()});
+            c = bootstrapServerClass.getConstructor (new Class[]{Class.forName("com.sun.corba.se.internal.iiop.ORB"),Integer.TYPE,java.io.File.class,params[3].getClass()});
             java.lang.Object bootstrapServer = c.newInstance (params);
-//        BootstrapServer bootstrapserver = new BootstrapServer(orb, (int)this.port, null, properties);
+            
+//           BootstrapServer bootstrapserver = new BootstrapServer(orb, (int)this.port, null, properties);
         
             try {
                 m = bootstrapServerClass.getMethod ("start", new Class[0]);
@@ -100,6 +91,7 @@ public class Sun13Wrapper extends AbstractWrapper {
                 this.notify();
             }
         }
+        
     }
-
+    
 }

@@ -123,7 +123,7 @@ public class UnionPanel extends ExPanel implements DocumentListener {
 
     private void checkState () {
         if (IdlUtilities.isValidIDLIdentifier(name.getText()) && 
-	    type.getText().length() >0) {
+	    IdlUtilities.isValidIDLIdentifier(type.getText())) {
             enableOk();
         }
         else {

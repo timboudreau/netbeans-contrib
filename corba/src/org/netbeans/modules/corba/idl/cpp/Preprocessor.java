@@ -28,6 +28,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.TopManager;
 import org.netbeans.modules.corba.utils.FileUtils;
+import org.openide.execution.NbClassPath;
 
 /*
  * @author David Kaspar
@@ -1281,12 +1282,12 @@ public class Preprocessor {
             FileSystem fs = null;
             for (Enumeration ffs = TopManager.getDefault().getRepository().fileSystems(); ffs.hasMoreElements();) {
                 fs = (FileSystem)ffs.nextElement();
-                if (filename.startsWith(fs.getDisplayName()))
+                if (filename.startsWith(NbClassPath.toFile (fs.getRoot()).getAbsolutePath()))
                     break;
                 fs = null;
             }
             if (fs != null) {
-                String _filename = filename.substring(fs.getDisplayName().length());
+                String _filename = filename.substring(NbClassPath.toFile (fs.getRoot()).getAbsolutePath().length());
                 if (_filename.length() > 1) {
                     _filename = FileUtils.convert2Canonical(_filename);
                     _filename = _filename.replace(File.separatorChar, '/');
@@ -1302,12 +1303,12 @@ public class Preprocessor {
             if (fobj == null && pwd != null) {
                 for (Enumeration ffs = TopManager.getDefault().getRepository().fileSystems(); ffs.hasMoreElements();) {
                     fs = (FileSystem)ffs.nextElement();
-                    if (pwd.startsWith(fs.getDisplayName()))
+                    if (pwd.startsWith(NbClassPath.toFile (fs.getRoot()).getAbsolutePath()))
                         break;
                     fs = null;
                 }
                 if (fs != null) {
-                    String _filename = pwd.substring(fs.getDisplayName().length());
+                    String _filename = pwd.substring(NbClassPath.toFile (fs.getRoot()).getAbsolutePath().length());
                     if (_filename.length() > 1)
                         _filename += File.separatorChar + filename;
                     else

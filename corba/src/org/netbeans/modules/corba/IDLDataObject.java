@@ -1129,12 +1129,7 @@ public class IDLDataObject extends MultiDataObject
     }
     
     public String getRealFileName() throws FileStateInvalidException {
-        String __filesystem = this.getPrimaryFile().getFileSystem().getDisplayName();
-        //String __file_name = __filesystem + File.separator
-        //+ this.getPrimaryFile ().toString ();
-        String __file_name = __filesystem + File.separator + this.getPrimaryFile().getPackageNameExt(File.separatorChar, '.');
-        
-        return __file_name;
+	return FileUtils.getRealFileName (this.getPrimaryFile ());
     }
     
     class FileListener extends FileChangeAdapter {

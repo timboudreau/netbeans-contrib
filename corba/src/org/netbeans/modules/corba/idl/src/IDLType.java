@@ -121,7 +121,7 @@ public class IDLType {
     }
 
     public String toString () {
-        return type + ":" + name; // NOI18N
+        return type + ":" + name + "-<" + of_type + ">"; // NOI18N
     }
 
 }

@@ -18,6 +18,7 @@ import java.io.ObjectOutput;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.File;
 
 import org.omg.CORBA.ORB;
 
@@ -25,7 +26,10 @@ import org.xml.sax.SAXException;
 
 import org.openide.options.SystemOption;
 //import org.openide.options.ContextSystemOption;
+
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
+
 import org.openide.execution.NbProcessDescriptor;
 
 import org.netbeans.modules.java.settings.JavaSettings;
@@ -122,20 +126,26 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    this.setORBTag ("jdk13");
 	_M_in_init = false;
     }
-    
+
     public void readExternal (ObjectInput __in) 
 	throws java.io.IOException, java.lang.ClassNotFoundException {
 	if (DEBUG)
-	    System.out.println ("CORBASupportSettings::readExternal (" + __in + ")"); // NOI18N
+	    System.out.println (":-)CORBASupportSettings::readExternal (" + __in + ")"); // NOI18N
 	_M_in_init = true;
 	//deserealization = true;
+	//try {
 	super.readExternal (__in);
+	//} catch (Exception __x) {
+	//__x.printStackTrace ();
+	//throw __x;
+	//}
 	//IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
 	//    (IDLDataLoader.class, true);
 	//System.out.println ("CORBASupportSettings (IDLDataLoader)__in.readObject ()"); // NOI18N
 	//__loader = (IDLDataLoader)__in.readObject ();
 	//System.out.println ("CORBASupportSettings done"); // NOI18N
 	_M_in_init = false;
+	//this.setOrb (this.getOrb ());
 	//deserealization = false;
 	//this.setOrb (_M_orb_name);
 	/*
@@ -385,20 +395,24 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	String __orb_class = System.getProperty ("org.omg.CORBA.ORBClass");
 	String __orb_singleton = System.getProperty ("org.omg.CORBA.ORBSingletonClass");
 	boolean __set_property = false;
+	String __home = System.getProperty ("netbeans.home");
+	String __config_url = "";
+	if (__home != null && (!(__home.equals ("")))) {
+	    __config_url = "file://";
+	    if (Utilities.isWindows ())
+		__config_url += "/";
+	    __config_url += __home + File.separatorChar + "bin" + File.separatorChar;
+	    __config_url += "openorb.xml";
+	}
+	else {
+	    __config_url = "openorb.xml";
+	}
 	if (__orb_class == null && __orb_singleton == null) {
 	    __set_property = true;
 	}
 	else {
 	    if (__orb_class == null || __orb_singleton == null) {
 		// partial setup
-		/*
-		  System.out.println ("Partial ORB setup:");
-		  System.out.println ();
-		  System.out.println ("org.omg.CORBA.ORBClass = " + __orb_class);
-		  System.out.println ("org.omg.CORBA.ORBSingletonClass = " + __orb_singleton); 
-		  System.out.println ();
-		  System.out.println ("IDE will use standard OpenORB Configuration!");
-		*/
 		StringBuffer __buf = new StringBuffer ();
 		__buf.append (CORBASupport.PARTIAL_CONFIGURATION);
 		__buf.append ("\n\n");
@@ -416,13 +430,14 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    }
 	}
 	Properties __props = System.getProperties ();
+	System.out.println ("Initializing ORB");
 	if (__set_property) {
 	    __props.put ("org.omg.CORBA.ORBClass", "org.openorb.CORBA.ORB");
 	    __props.put ("org.omg.CORBA.ORBSingletonClass",
 			 "org.openorb.CORBA.ORBSingleton");
-	    __props.put ("openorb.config", "openorb.xml");
+	    System.out.println ("openorb.config=" + __config_url);
+	    __props.put ("openorb.config", __config_url);
 	}
-	System.out.println ("Initializing ORB");
         _M_orb = ORB.init (new String[] {""}, __props); // NOI18N
 	System.out.println ("ORB class: " + _M_orb.getClass ().getName ());
     }
@@ -499,6 +514,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     public void setBeans (java.lang.Object[] __beans) {
 	try {
 	//boolean DEBUG = true;
+
+        boolean __boston_project = false;
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::setBeans (" 
 			    + __beans + ":" + __beans.length + ");"); // NOI18N
@@ -598,6 +615,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		    if (DEBUG)
 			System.out.println ("old project for "
 					    + __serialized_setting.getName ());
+		    __boston_project = true;
 		    // sometimes on boston Orb name has '(unsupported)' postfix
 		    // we must recovery it after deserialization from boston
 		    __serialized_setting.setOrbName (__loaded_setting.getOrbName ());
@@ -684,6 +702,22 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
 	//System.out.println ("At the end of setBeans method");
 	//this.setORBTag (this.getORBTag ());
+	if (__boston_project) {
+	    if (DEBUG) {
+		System.out.println ("Boston project hack for changing name");
+		System.out.println ("tag: " + this.getORBTag ());
+	    }
+	    ORBSettings __settings = this.getSettingByTag (this.getORBTag ());
+	    if (DEBUG)
+		System.out.println ("found name: " + __settings.getOrbName ());
+	    //this.setORBTag (this.getORBTag ());
+	    this.setOrb (__settings.getOrbName ());
+	    //this.setORBTag (this.getORBTag ());
+	}
+	else {
+	    if (DEBUG)
+		System.out.println ("Pilsen project.");
+	}
 	this.cacheThrow ();
 	if (_M_loaded && this.getActiveSetting () != null) {
 	    if (DEBUG)

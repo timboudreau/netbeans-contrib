@@ -148,7 +148,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
         static final long serialVersionUID =1779771962982570995L;
 
-        public static final boolean DEBUG=true;
+        //public static final boolean DEBUG=true;
 
         //public PrintWriter out;
 

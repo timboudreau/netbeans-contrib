@@ -52,7 +52,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 		new PropertyDescriptor ("IRChildren", CORBASupportSettings.class, // NOI18N
 					"getInterfaceRepositoryChildren", // NOI18N
 					"setInterfaceRepositoryChildren"), // NOI18N
-		new PropertyDescriptor ("_S_implementations", // NOI18N
+		new PropertyDescriptor ("_M_implementations", // NOI18N
 					CORBASupportSettings.class, // NOI18N
 					"getBeans", "setBeans") // NOI18N
 		    };

@@ -41,6 +41,10 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     = "org/netbeans/modules/corba/browser/ns/resources/ns-root";
     static final String ICON_BASE_FAILED
     = "org/netbeans/modules/corba/browser/ns/resources/ns-failed";
+    static final String JAVA_SPEC_VERSION
+    = "java.specification.version";
+    static final String JAVA_1_3
+    = "1.3";
 
     public static final boolean DEBUG = false;
     //public static final boolean DEBUG = true;
@@ -118,10 +122,14 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                             wrapper.start(port);
 			} catch (ClassNotFoundException cnfe2) {
                             try {
-                                // Is it Sun 1.3 JDK
+                                // Is it Sun 1.3 JDK or JDK 1.4
 				Class.forName ("com.sun.corba.se.internal.CosNaming.TransientNameServer");
 				//System.out.println ("found com.sun.corba.se.internal.CosNaming.TransientNameServer");
-				wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.Sun13Wrapper();
+                                String sval = System.getProperty (JAVA_SPEC_VERSION);
+                                if (sval!=null && sval.equals(JAVA_1_3))
+                                    wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.Sun13Wrapper();
+                                else
+                                    wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.Sun14Wrapper();
 				wrapper.start(port);
                             } catch (ClassNotFoundException cnfe3) {
                                 TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ContextNode.class).getString("TXT_ClassNotFound"),NotifyDescriptor.Message.ERROR_MESSAGE));
