@@ -16,7 +16,6 @@ package org.netbeans.api.web.dd;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import org.netbeans.modules.web.dd.impl.WebAppProxy;
 import org.openide.filesystems.*;
 import org.xml.sax.*;
@@ -57,14 +56,14 @@ public final class DDProvider {
      */
     public WebApp getDDRoot(FileObject fo) throws java.io.IOException {
         
-        WebAppProxy webApp = getFromCache (fo);
+        WebAppProxy webApp = (WebAppProxy)ddMap.get(fo);
         if (webApp!=null) return webApp;
         
         fo.addFileChangeListener(new FileChangeAdapter() {
             public void fileChanged(FileEvent evt) {
                 FileObject fo=evt.getFile();
                 try {
-                    WebAppProxy webApp = getFromCache (fo);
+                    WebAppProxy webApp = (WebAppProxy)ddMap.get(fo);
                     if (webApp!=null) {
                         String version = null;
                         try {
@@ -125,7 +124,7 @@ public final class DDProvider {
                 webApp.setError((SAXParseException)ex.getException());
             }
         }
-        ddMap.put(fo, new WeakReference (webApp));
+        ddMap.put(fo,webApp);
         return webApp;
     }
 
@@ -139,18 +138,6 @@ public final class DDProvider {
      */
     public WebApp getDDRootCopy(FileObject fo) throws java.io.IOException {
         return (WebApp)getDDRoot(fo).clone();
-    }
-
-    private WebAppProxy getFromCache (FileObject fo) {
-        WeakReference wr = (WeakReference) ddMap.get(fo);
-        if (wr == null) {
-            return null;
-        }
-        WebAppProxy webApp = (WebAppProxy) wr.get ();
-        if (webApp == null) {
-            ddMap.remove (fo);
-        }
-        return webApp;
     }
     
     /**
