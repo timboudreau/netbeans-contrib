@@ -351,9 +351,7 @@ err.log("Couldn't find current nodes...");
             document.removeDocumentListener(getEditorMonitor());
             handleDocHidden(document, dataobject);
         }
-        if (editors != null) {
-            removeCaretListeners();
-        }
+        removeCaretListeners();
 
         // Find which component is showing in it
         // Add my own component listener to it
@@ -675,29 +673,34 @@ err.log("Couldn't find current nodes...");
      editor component */
     private TopComponent current = null;
 
-    private JEditorPane[] editors = null;
+    private JEditorPane[] editorsWithCaretListener = null;
 
+    /** Add caret listener to dataobject's editor panes. */
     private void addCaretListeners() {
+
+        assert editorsWithCaretListener == null : "addCaretListeners() must not be called twice without removeCaretListeners() => memory leak";  // NOI18N
+
         EditorCookie edit = (EditorCookie) dataobject.getCookie(EditorCookie.class);
         if (edit != null) {
             JEditorPane panes[] = edit.getOpenedPanes();
             if ((panes != null) && (panes.length > 0)) {
                 // We want to know about cursor changes in ALL panes
-                editors = panes;
-                for (int i = 0; i < editors.length; i++) {
-                    editors[i].addCaretListener(getEditorMonitor());
+                editorsWithCaretListener = panes;
+                for (int i = 0; i < editorsWithCaretListener.length; i++) {
+                    editorsWithCaretListener[i].addCaretListener(getEditorMonitor());
                 }
             }
         }
     }
 
+    /** Unregister prebiously added caret listeners. */
     private void removeCaretListeners() {
-        if (editors != null) {
-            for (int i = 0; i < editors.length; i++) {
-                editors[i].removeCaretListener(getEditorMonitor());
+        if (editorsWithCaretListener != null) {
+            for (int i = 0; i < editorsWithCaretListener.length; i++) {
+                editorsWithCaretListener[i].removeCaretListener(getEditorMonitor());
             }
         }
-        editors = null;
+        editorsWithCaretListener = null;
     }
 
     boolean pendingScan = false;
@@ -808,6 +811,7 @@ err.log("Couldn't find current nodes...");
                         findCurrentFile(true);
                     }
                 } finally {
+                    // XXX findCurrent file spawns a thread
                     pendingScan = false;
                 }
             }
@@ -840,9 +844,7 @@ err.log("Couldn't find current nodes...");
             // NOTE: we do NOT null it out since we still need to
             // see if the document is unchanged
         }
-        if (editors != null) {
-            removeCaretListeners();
-        }
+        removeCaretListeners();
 
         handleDocHidden(document, dataobject);
         document = null;
