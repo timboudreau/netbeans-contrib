@@ -45,6 +45,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor config=null;
         PropertyDescriptor lock=null;
         PropertyDescriptor lockPrompt=null;
+        PropertyDescriptor acceptUserParams = null;
+        PropertyDescriptor runRefreshCommand = null;
 
 
         try {
@@ -74,10 +76,14 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
             lockPrompt=new PropertyDescriptor
                        ("lockPrompt",CommandLineVcsFileSystem.class,"isPromptForLockOn","setPromptForLockOn"); // NOI18N
+            acceptUserParams = new PropertyDescriptor
+                               ("acceptUserParams", CommandLineVcsFileSystem.class, "isAcceptUserParams", "setAcceptUserParams"); // NOI18N
+            runRefreshCommand = new PropertyDescriptor
+                               ("doCommandRefresh", CommandLineVcsFileSystem.class, "isDoCommandRefresh", "setDoCommandRefresh"); // NOI18N
 
 
             desc = new PropertyDescriptor[] {
-                       rootDirectory, debug, variables, commands, cacheId, config, lock, lockPrompt
+                       rootDirectory, debug, variables, commands, cacheId, config, lock, lockPrompt, acceptUserParams, runRefreshCommand
                    };
 
             ResourceBundle bundle = NbBundle.getBundle
@@ -98,6 +104,10 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             lock.setShortDescription          (bundle.getString("HINT_lock"));
             lockPrompt.setDisplayName         (bundle.getString("PROP_lockPrompt"));
             lockPrompt.setShortDescription    (bundle.getString("HINT_lockPrompt"));
+            acceptUserParams.setDisplayName   (bundle.getString("PROP_acceptUserParams"));
+            acceptUserParams.setShortDescription(bundle.getString("HINT_acceptUserParams"));
+            runRefreshCommand.setDisplayName  (bundle.getString("PROP_runRefreshCommand"));
+            runRefreshCommand.setShortDescription(bundle.getString("HINT_runRefreshCommand"));
 
         } catch (IntrospectionException ex) {
             ex.printStackTrace ();
