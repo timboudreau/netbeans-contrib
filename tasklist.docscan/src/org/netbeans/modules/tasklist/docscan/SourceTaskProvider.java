@@ -22,6 +22,8 @@ import java.util.regex.*;
 import java.io.IOException;
 
 import org.openide.ErrorManager;
+import org.openide.text.Line;
+import org.openide.util.WeakSet;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 
@@ -57,11 +59,8 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
 
     final static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
 
-    // recent request
-    private Object request = null;
-
-    /** The list of tasks we're currently showing for recent request */
-    private List showingTasks = null;
+    /** The Set<SuggetionAgent> of recent task agents. Agent is identified by line. */
+    private WeakSet agents = new WeakSet();
 
     // context being scanned for recent request
     private SuggestionContext env;
@@ -105,35 +104,6 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         ||  Settings.PROP_SCAN_SKIP.equals(ev.getPropertyName())) {
             if (env == null) return;
             // TODO propagate to consumers ()
-        }
-    }
-
-    private void EXPERIMENTAL_merge() {
-        List newTasks = scan(env);
-        // merge found TODOs
-        // it has one drawback, final order depends on manager
-        // and is random until user select sorting e.g. by line
-        List duplicates = new ArrayList(4);
-        if (Boolean.getBoolean("netbeans.todo.merge")) {
-            if (showingTasks != null && newTasks != null) {
-                Iterator it = showingTasks.iterator();
-                while (it.hasNext()) {
-                    Suggestion next = (Suggestion) it.next();
-                    Iterator nit = newTasks.iterator();
-                    while(nit.hasNext()) {
-                        Suggestion nnext = (Suggestion) nit.next();
-                        // suppose they are equal if contains same summary and line number
-                        if (nnext.getSummary().equals(next.getSummary())) {
-                            if (nnext.getLine().getLineNumber() == next.getLine().getLineNumber()) {
-                                duplicates.add(next);
-                                it.remove();
-                                nit.remove();
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -293,26 +263,18 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                 
                 String description = text.subSequence(begin, nonwhite+1).toString();
 
-                SuggestionManager manager = SuggestionManager.getDefault();
-                SuggestionAgent item =
-                    manager.createSuggestion(SourceTaskProvider.TYPE,
-                                             description,
-                                             null,
-                                             this);
                 DataObject dataObject = DataObject.find(env.getFileObject());
-                item.setLine(TLUtils.getLineByNumber(dataObject, lineno));
-                if (matchTag != null) {
-                    item.setPriority(matchTag.getPriority());
-                }
+                Line line = TLUtils.getLineByNumber(dataObject, lineno);
 
-                newTasks.add(item.getSuggestion());
+                Suggestion task = prepareSuggestion(matchTag, description, line);
+                newTasks.add(task);
             }
         } catch (Exception e) {
             ErrorManager.getDefault().notify(e);
         }
         return newTasks;
     }
-    
+
     /**
      * Given the contents of a buffer, scan it for todo items.
      */
@@ -371,26 +333,51 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                 
                 String description = text.subSequence(begin, nonwhite+1).toString();
 
-                SuggestionManager manager = SuggestionManager.getDefault();
-                SuggestionAgent item =
-                    manager.createSuggestion(SourceTaskProvider.TYPE,
-                                             description,
-                                             null,
-                                             this);
                 DataObject dataObject = DataObject.find(env.getFileObject());
-                item.setLine(TLUtils.getLineByNumber(dataObject, lineno));
-                if (matchTag != null) {
-                    item.setPriority(matchTag.getPriority());
-                }
+                Line line = TLUtils.getLineByNumber(dataObject, lineno);
 
-                newTasks.add(item.getSuggestion());
+                Suggestion task = prepareSuggestion(matchTag, description, line);
+                newTasks.add(task);
+
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return newTasks;
     }
-    
+
+    /** Merges found sugegstions with known ones if one exists. */
+    private Suggestion prepareSuggestion(TaskTag matchTag, String description, Line line) {
+        Suggestion suggestion = null;
+        if (line != null) {
+            SuggestionAgent agent = getAgent(line);
+            if (agent != null) {
+                suggestion = agent.getSuggestion();
+                agent.setSummary(description);
+                if (matchTag != null) {
+                    agent.setPriority(matchTag.getPriority());
+                }
+            }
+        }
+
+        if (suggestion == null) {
+            SuggestionManager manager = SuggestionManager.getDefault();
+            SuggestionAgent agent = manager.createSuggestion(SourceTaskProvider.TYPE,
+                                         description,
+                                         null,
+                                         this);
+
+            agent.setLine(line);
+            if (matchTag != null) {
+                agent.setPriority(matchTag.getPriority());
+            }
+            agents.add(agent);
+            suggestion = agent.getSuggestion();
+        }
+
+        return suggestion;
+    }
+
     private TaskTag getTag(CharSequence text, int start, int end) {
         TaskTag tag = settings().getTaskTags().getTag(text, start+1, (end - start)-1);
         return tag;
@@ -403,4 +390,16 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         }
         return settings;
     }
+
+    private SuggestionAgent getAgent(Line l) {
+        Iterator it = agents.iterator();
+        while (it.hasNext()) {
+            SuggestionAgent next = (SuggestionAgent) it.next();
+            if (next == null) continue;
+            if (l.equals(next.getSuggestion().getLine())) return next;
+        }
+        return null;
+    }
 }
+
+
