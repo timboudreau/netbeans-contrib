@@ -26,8 +26,10 @@ import java.util.Set;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileSystemCapability;
 import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.FileStatusListener;
+import org.openide.util.NbBundle;
 import org.openide.util.WeakListener;
 import org.openide.util.actions.SystemAction;
 
@@ -76,10 +78,12 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         //this.status = new VersioningFileStatus();
         this.list = fileSystem.getVcsList();
         this.info = fileSystem.getVcsInfo();
+        this.change = new VersioningFSChange();
         this.attr = new VersioningAttrs();
         this.versions = new VersioningVersions();
         revisionListsByName = new Hashtable();
         initListeners();
+        setCapability(null);//FileSystemCapability.DOC);
     }
     
     private void initListeners() {
@@ -253,6 +257,68 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         
     }
      */
+
+    private class VersioningFSChange extends Object implements AbstractFileSystem.Change {
+
+        public void delete(String name) throws java.io.IOException {
+            FileObject fo = fileSystem.findFileObject(name);
+            if (fo != null) {
+                fo.delete(fo.lock());
+                //fileSystem.delete(name);
+            } else {
+                throw new java.io.IOException(NbBundle.getMessage(VcsVersioningSystem.class, "Exc_FileCanNotDelete", name));
+            }
+        }
+
+        public void createFolder(String path) throws java.io.IOException {
+            String dir = VcsUtilities.getDirNamePart(path);
+            String file = VcsUtilities.getFileNamePart(path);
+            FileObject fo = fileSystem.findFileObject(dir);
+            if (fo != null) {
+                fo.createFolder(file);
+            } else {
+                throw new java.io.IOException(NbBundle.getMessage(VcsVersioningSystem.class, "Exc_FolderCanNotCreate", path));
+            }
+        }
+
+        public void createData(String path) throws java.io.IOException {
+            String dir = VcsUtilities.getDirNamePart(path);
+            String file = VcsUtilities.getFileNamePart(path);
+            FileObject fo = fileSystem.findFileObject(dir);
+            if (fo != null) {
+                fo.createData(file);
+            } else {
+                throw new java.io.IOException(NbBundle.getMessage(VcsVersioningSystem.class, "Exc_FileCanNotCreate", path));
+            }
+        }
+
+        public void rename(String oldName, String newName) throws java.io.IOException {
+            int extIndex = newName.lastIndexOf('.');
+            if (extIndex >= 0) {
+                // sort of a hack: the VersioningDataNode adds the file extension to it's name.
+                //                 Therefore we need to remove it here otherwise it would be added twise.
+                newName = newName.substring(0, extIndex);
+            }
+            String oldDir = VcsUtilities.getDirNamePart(oldName);
+            String oldFile = VcsUtilities.getFileNamePart(oldName);
+            String newFile = VcsUtilities.getFileNamePart(newName);
+            String newFileExt;
+            extIndex = newFile.lastIndexOf('.');
+            if (extIndex >= 0) {
+                newFileExt = newFile.substring(extIndex + 1);
+                newFile = newFile.substring(0, extIndex);
+            } else {
+                newFileExt = null;
+            }
+            FileObject fo = fileSystem.findFileObject(oldName);
+            if (fo != null) {
+                fo.rename(fo.lock(), newFile, newFileExt);
+            } else {
+                throw new java.io.IOException(NbBundle.getMessage(VcsVersioningSystem.class, "Exc_FileCanNotRename", oldName));
+            }
+        }
+
+    }
     
     private class VersioningVersions extends Object implements VersioningFileSystem.Versions {
         
