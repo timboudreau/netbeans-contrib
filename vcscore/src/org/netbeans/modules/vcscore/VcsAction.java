@@ -57,7 +57,6 @@ public class VcsAction extends NodeAction implements ActionListener {
 
     private ArrayList switchableList;
     
-    private javax.swing.event.MenuKeyListener ctrlListener;
     
     private Node[] actionCommandsSubTrees = null; // the commands subtrees to construct actions from
 
@@ -746,8 +745,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             menu.setIcon(getIcon());
         }
         JMenu mn = (JMenu)menu;
-        ctrlListener = new CtrlMenuKeyListener();
-        mn.addMenuKeyListener(ctrlListener);
+        mn.addMenuKeyListener(new CtrlMenuKeyListener());
         mn.addMenuListener(new javax.swing.event.MenuListener() {
             public void menuDeselected(javax.swing.event.MenuEvent e) {
 //                deselectedMenu();
