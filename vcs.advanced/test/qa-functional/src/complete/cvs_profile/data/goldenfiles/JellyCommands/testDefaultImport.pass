@@ -1,22 +1,21 @@
-RCS file: 
-Working file: imfile
-head: 1.1
-branch: 1.1.1
-locks: strict
-access list:
-symbolic names:
-	ReleaseTag: 1.1.1.1
-	VendorTag: 1.1.1
-keyword substitution: kv
-total revisions: 2;	selected revisions: 2
-description:
-----------------------------
-revision 1.1
-date: ;  author: ;  state: Exp;
-branches:  1.1.1;
+dumpFile:
+imfile
+strict
+/imdir/imfile,v
+1.1
+1.1.1
+2
+2
+
+
+dumpSymbolicNamesList: 2,2
+1. - ReleaseTag - 1.1.1.1
+2. - VendorTag - 1.1.1
+dumpRevisionList: 2,6
+1. - 1.1 - <FILTERED> - Initial revision - <FILTERED> - Exp - null
+2. - 1.1.1.1 - <FILTERED> - LoggingMessage - <FILTERED> - Exp - +0 -0
+dumpLogMessage: 2
 Initial revision
-----------------------------
-revision 1.1.1.1
-date: ;  author: ;  state: Exp;  lines: +0 -0
+
 LoggingMessage
-=============================================================================
+

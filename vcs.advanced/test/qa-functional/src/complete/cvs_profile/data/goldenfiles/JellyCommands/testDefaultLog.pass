@@ -1,44 +1,42 @@
-RCS file: 
-Working file: StatusDir1/File1
-head: 1.1
-branch:
-locks: strict
-access list:
-symbolic names:
-	BranchTag1: 1.1.0.2
-keyword substitution: kv
-total revisions: 2;	selected revisions: 2
-description:
+dumpAll: 
+Table Rows: 2
+dumpFile:
+File1
+strict
+/StatusDir1/File1,v
+1.1
+
+2
+2
 Init1
-----------------------------
-revision 1.1
-date: ;  author: ;  state: Exp;
-branches:  1.1.2;
+
+dumpSymbolicNamesList: 1,2
+1. - BranchTag1 - 1.1.0.2
+dumpRevisionList: 2,6
+1. - 1.1 - <FILTERED> - HEAD1 - <FILTERED> - Exp - null
+2. - 1.1.2.1 - <FILTERED> - BranchCommit1 - <FILTERED> - Exp - +1 -1
+dumpLogMessage: 2
 HEAD1
-----------------------------
-revision 1.1.2.1
-date: ;  author: ;  state: Exp;  lines: +1 -1
+
 BranchCommit1
-=============================================================================
-RCS file: 
-Working file: StatusDir1/StatusDir2/File2
-head: 1.1
-branch:
-locks: strict
-access list:
-symbolic names:
-	BranchTag2: 1.1.0.2
-keyword substitution: kv
-total revisions: 2;	selected revisions: 2
-description:
+
+dumpFile:
+File2
+strict
+/StatusDir1/StatusDir2/File2,v
+1.1
+
+2
+2
 Init2
-----------------------------
-revision 1.1
-date: ;  author: ;  state: Exp;
-branches:  1.1.2;
+
+dumpSymbolicNamesList: 1,2
+1. - BranchTag2 - 1.1.0.2
+dumpRevisionList: 2,6
+1. - 1.1 - <FILTERED> - HEAD2 - <FILTERED> - Exp - null
+2. - 1.1.2.1 - <FILTERED> - BranchCommit2 - <FILTERED> - Exp - +1 -1
+dumpLogMessage: 2
 HEAD2
-----------------------------
-revision 1.1.2.1
-date: ;  author: ;  state: Exp;  lines: +1 -1
+
 BranchCommit2
-=============================================================================
+
