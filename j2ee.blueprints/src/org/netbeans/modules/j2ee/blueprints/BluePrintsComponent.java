@@ -61,13 +61,8 @@ class BluePrintsComponent extends TopComponent{
         if(panel == null)
             return;
 
-        JScrollPane scroll = new JScrollPane(panel);        
-        // no border, borders are managed by window system
-        scroll.setBorder(BorderFactory.createEmptyBorder());             
-        scroll.setViewportBorder(BorderFactory.createEmptyBorder());
-        add(scroll);
-        scroll.getHorizontalScrollBar().setValue(0);
-        scroll.getVerticalScrollBar().setValue(0);
+        // Removed code that added scrollbars - we do not want them here.
+        add(panel);
         setFocusable(true);
     }
         
