@@ -27,9 +27,10 @@ Microsystems, Inc. All Rights Reserved.
       <attr name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance/vcs-explorer-sep-2[javax-swing-JSeparator].instance" boolvalue="true"/>
       <file name="vcs-explorer-sep-2[javax-swing-JSeparator].instance" />
       <attr name="vcs-explorer-sep-2[javax-swing-JSeparator].instance/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
-      <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" />
+      <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" /> 
       <attr name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance/org-netbeans-modules-vcscore-actions-VcsSettingsAction.instance" boolvalue="true"/>
       <file name="org-netbeans-modules-vcscore-actions-VcsSettingsAction.instance" />
+      <file name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance" /> 
     </folder>
   </folder>
 
@@ -45,14 +46,20 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
   </folder>
 
-   <folder name="vcs">
+  <folder name="vcs">
+    <folder name="Groups">
+        <file name="org-netbeans-modules-vcscore-grouping-MainVcsGroupNode.instance" />      
+    </folder>
    </folder>
-
+   
    <folder name="Services"> 
+     <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance" />
      <folder name = "Hidden">
         <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings" url="GeneralVcsSettings.settings"/>
+        <folder name="VersionControl">
+             <file name="org-netbeans-modules-vcscore-grouping-VcsGroupSettings.settings" url="VcsGroupSettings.settings"/>
+        </folder>
      </folder>
-     <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance" />
      <folder name="SearchType">
        <file name="org-netbeans-modules-vcscore-search-VcsSearchType.settings" url="VcsSearchType.settings"/>
      </folder>

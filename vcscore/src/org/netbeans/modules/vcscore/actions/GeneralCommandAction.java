@@ -33,7 +33,7 @@ import org.openide.util.SharedClassObject;
  *
  * @author  Milos Kleint
  */
-public class GeneralCommandAction extends NodeAction {
+public class GeneralCommandAction extends AbstractCommandAction {
 
     /**
      * Name of a FileObject attribute. Needs to be set on primary file of a node(dataobject)
@@ -41,7 +41,9 @@ public class GeneralCommandAction extends NodeAction {
      * The value of the attribute is the 
      */
     
-    public static final String VCS_ACTION_ATTRIBUTE = "VcsActionAttributeCookie";
+    public static final String VCS_ACTION_ATTRIBUTE = "VcsActionAttributeCookie"; //NOI18N
+    
+    private boolean delegate = false;
     
     private javax.swing.JMenuItem menuPresent;
     private javax.swing.JMenuItem popupPresent;
@@ -62,6 +64,16 @@ public class GeneralCommandAction extends NodeAction {
         }
     }
     
+    
+    public void delegateToAbstractAction(boolean deleg) {
+        if (deleg != delegate) {
+            removeNotify();
+            delegate = deleg;
+            addNotify();
+//            enable(getActivatedNodes());
+        }
+    }
+    
     /**
      * This method doesn't extract the fileobjects from the activated nodes itself, but rather
      * consults the AbstractCommandAction to get a list of supporters.
@@ -69,8 +81,13 @@ public class GeneralCommandAction extends NodeAction {
      */
     protected void performAction (Node[] nodes) {
         if (nodes == null || nodes.length == 0) return;
-        AbstractCommandAction genAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
-        HashMap suppMap = genAction.getSupporterMap();
+        HashMap suppMap;
+        if (delegate) {
+            AbstractCommandAction genAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
+            suppMap = genAction.getSupporterMap();
+        } else {
+            suppMap = this.getSupporterMap();
+        }
         if (suppMap == null) return;
         Iterator it = suppMap.keySet().iterator();
         while (it.hasNext()) {
@@ -99,8 +116,16 @@ public class GeneralCommandAction extends NodeAction {
             resetDisplayNames();
             return false;
         }
-        AbstractCommandAction genAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
-        HashMap suppMap = genAction.getSupporterMap();
+        HashMap suppMap;
+        if (delegate) {
+//            System.out.println("en -delegated");
+            AbstractCommandAction genAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
+            suppMap = genAction.getSupporterMap();
+        } else {
+//            System.out.println("en -non delegated");
+            super.enable(nodes);
+            suppMap = this.getSupporterMap();
+        }
         if (suppMap == null) { 
             resetDisplayNames();
             return false;
@@ -137,15 +162,15 @@ public class GeneralCommandAction extends NodeAction {
             String next = (String)it.next();
             if (!next.equals(getName())) {
                 if (atLeastOne) {
-                    toolBarName = toolBarName + "," + next;
+                    toolBarName = toolBarName + "," + next; //NOI18N
                 } else {
-                    toolBarName = toolBarName + " [" + next;
+                    toolBarName = toolBarName + " [" + next; //NOI18N
                     atLeastOne = true;
                 }
             }
         }
         if (atLeastOne) {
-            toolBarName = toolBarName + "]";
+            toolBarName = toolBarName + "]"; //NOI18N
         }
         if (toolBarPresent != null && toolBarPresent instanceof javax.swing.JComponent) {
             ((javax.swing.JComponent)toolBarPresent).setToolTipText(toolBarName);
@@ -160,7 +185,7 @@ public class GeneralCommandAction extends NodeAction {
     }
     
     public String getName () {
-        return NbBundle.getMessage(GeneralCommandAction.class, "LBL_Action");
+        return NbBundle.getMessage(GeneralCommandAction.class, "LBL_Action"); //NOI18N
     }
     
 
@@ -204,10 +229,14 @@ public class GeneralCommandAction extends NodeAction {
      */
 
     protected void addNotify() {
-        if (abstractAction == null) {
-            abstractAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
+        if (delegate) {
+            if (abstractAction == null) {
+                abstractAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
+            }
+            abstractAction.addDependantAction(this);
+        } else {
+            super.addNotify();
         }
-        abstractAction.addDependantAction(this);
     }
 
     /**
@@ -216,10 +245,14 @@ public class GeneralCommandAction extends NodeAction {
      */
     
     protected void removeNotify() {
-        if (abstractAction == null) {
-            abstractAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
+        if (delegate) {
+            if (abstractAction == null) {
+                abstractAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
+            }
+            abstractAction.removeDependantAction(this);
+        } else {
+            super.removeNotify();
         }
-        abstractAction.removeDependantAction(this);
     }
 
     

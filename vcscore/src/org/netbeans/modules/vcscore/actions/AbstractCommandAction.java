@@ -12,17 +12,16 @@
  */
 package org.netbeans.modules.vcscore.actions;
 
-import org.openide.loaders.DataObject;
+import org.openide.loaders.*;
 import org.openide.util.NbBundle;
 import java.io.File;
 import org.openide.util.HelpCtx;
+import org.openide.*;
 import org.openide.nodes.Node;
 import org.openide.filesystems.FileObject;
 import org.openide.util.actions.NodeAction;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.HashMap;
+import java.util.*;
+import org.netbeans.modules.vcscore.grouping.VcsGroupNode;
 
 /** Action sensitive to the node selection that does something useful.
  *  Keeps a list of vcs supported activated nodes. (splits the nodes to fileobjects)
@@ -40,7 +39,7 @@ public class AbstractCommandAction extends NodeAction {
      * The value of the attribute is the 
      */
     
-    public static final String VCS_ACTION_ATTRIBUTE = "VcsActionAttributeCookie";
+    public static final String VCS_ACTION_ATTRIBUTE = "VcsActionAttributeCookie"; //NOI18N
     
     private HashMap suppMap;
     private HashSet actionSet;
@@ -56,7 +55,9 @@ public class AbstractCommandAction extends NodeAction {
     protected void initialize() {
         super.initialize();
 //        System.out.println("Abstract initialized");
-        addNotify();
+        if (getClass().equals(AbstractCommandAction.class)) {
+            addNotify();
+        }
     }
     
     protected void performAction (Node[] nodes) {
@@ -71,37 +72,84 @@ public class AbstractCommandAction extends NodeAction {
         return suppMap;
     }
     
-    public boolean createSupporterMap(Node[] nodes) {
+    protected boolean createSupporterMap(Node[] nodes) {
         if (nodes == null || nodes.length == 0) {
             suppMap = null;
             return false;
         }
+/*        if (getClass() != AbstractCommandAction.class) {
+            System.out.println("------");
+             System.out.println("creatingSupporter map for" + getClass());
+        }
+ */
         suppMap = new HashMap();
         for (int i = 0; i < nodes.length; i++) {
-            DataObject dataObj = (DataObject)nodes[i].getCookie(DataObject.class);
-            if (dataObj == null) {
-                suppMap = null;
-                return false;
-            }
-            FileObject fileOb = dataObj.getPrimaryFile();
-            if (fileOb == null) {
-                suppMap = null;
-                return false;
-            }
-            CommandActionSupporter supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);
-            if (supp != null) {
-                addToMap(suppMap, supp, dataObj.files());
+            if (nodes[i] instanceof VcsGroupNode) {
+                Enumeration childs = nodes[i].getChildren().nodes();
+//                System.out.println("create supp. map for group..");
+                while (childs.hasMoreElements()) {
+                    Node nd = (Node)childs.nextElement();
+                    DataObject dobj = (DataObject)nd.getCookie(DataObject.class);
+                    if (dobj != null) {
+/*                        if (getClass() != AbstractCommandAction.class) {
+                            System.out.println("checking action on data shadow=" + dobj.getName() + "   " + dobj.getClass());
+                        }
+ */
+                        if (!checkDataObject(dobj)) return false;
+                    }
+                }
             } else {
-                suppMap = null;
-//                System.out.println("no supporter found for" + nodes[i].getName());
-                // one of the files is not under version control..
-                return false;
+                DataObject dataObj;
+                dataObj = (DataObject)nodes[i].getCookie(DataObject.class);
+//                System.out.println("dataobj =" + dataObj);
+                if (!checkDataObject(dataObj)) return false;
             }
         }
         return true;
     }
+    
+    private boolean checkDataObject(DataObject dataObj) {
+        if (dataObj == null) {
+            suppMap = null;
+            return false;
+        }
+        FileObject fileOb = dataObj.getPrimaryFile();
+        if (fileOb == null) {
+            suppMap = null;
+            return false;
+        }
+        CommandActionSupporter supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);
+        if (supp != null) {
+            addToMap(suppMap, supp, dataObj.files());
+        } else {
+            suppMap = null;
+            //                System.out.println("no supporter found for" + nodes[i].getName());
+            // one of the files is not under version control..
+            return false;
+        }
+        return true;
+        
+    }
 
     protected boolean enable (Node[] nodes) {
+        // debug
+/*        if (nodes != null) {
+            System.out.print("nodes1:");
+            for (int i = 0; i < nodes.length; i++) {
+                System.out.print(nodes[i].getDisplayName() + ", ");
+            }
+            System.out.println("");
+        }
+        Node[] newNodes = TopManager.getDefault().getWindowManager().getRegistry().getActivatedNodes();
+        if (newNodes != null) {
+            System.out.print("nodes2:");
+            for (int i = 0; i < newNodes.length; i++) {
+                System.out.print(newNodes[i].getDisplayName() + ", ");
+            }
+            System.out.println("");
+        }
+ */
+        // debug end
         createSupporterMap(nodes);
         if (actionSet != null) {
             Iterator it = actionSet.iterator();
@@ -151,6 +199,7 @@ public class AbstractCommandAction extends NodeAction {
      */
 
     public void removeDependantAction(org.openide.util.actions.SystemAction action) {
+        if (action == null) return;
         if (actionSet == null) {
             actionSet = new HashSet();
         }
@@ -162,6 +211,7 @@ public class AbstractCommandAction extends NodeAction {
      * this method in addNotify() instead of the the default behaviour.
      */
     public void addDependantAction(org.openide.util.actions.SystemAction action) {
+        if (action == null) return;
         if (actionSet == null) {
             actionSet = new HashSet();
         }
