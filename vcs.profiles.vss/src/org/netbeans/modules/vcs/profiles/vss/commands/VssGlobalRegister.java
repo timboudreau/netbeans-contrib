@@ -23,6 +23,7 @@ import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
+import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
 
 /**
@@ -62,10 +63,17 @@ public class VssGlobalRegister extends Object implements VcsAdditionalCommand {
         String username = (String)vars.get("USER_NAME");                        //NOI18N
         if(username != null) addVars.put("USER_NAME",username);         //NOI18N     
         
+        File dir = new File(workPath);
+        FSRegistry registry = FSRegistry.getDefault();               
+        FSInfo[] registeredInfos = registry.getRegistered();
+        for (int i = 0; i < registeredInfos.length; i++) {
+            if (dir.equals(registeredInfos[i].getFSRoot())) {
+                return true; // It's already registered
+            }
+        }
         GlobalExecutionContext globalContext = (GlobalExecutionContext)context;        
         String profileFileName= globalContext.getProfileName();        
-        CommandLineVcsFileSystemInfo info = new CommandLineVcsFileSystemInfo(new File(workPath),profileFileName,addVars);
-        FSRegistry registry = FSRegistry.getDefault();               
+        CommandLineVcsFileSystemInfo info = new CommandLineVcsFileSystemInfo(dir, profileFileName, addVars);
         registry.register(info);                  
         return true;
     }

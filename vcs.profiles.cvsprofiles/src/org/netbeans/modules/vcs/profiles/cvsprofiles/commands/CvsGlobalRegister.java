@@ -25,6 +25,7 @@ import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
+import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
 
 /**
@@ -62,6 +63,14 @@ public class CvsGlobalRegister extends Object implements VcsAdditionalCommand {
         }
         if ((dirName == null) || (dirName.length() ==0))
             return false;
+        File dir = new File(dirName);
+        FSRegistry registry = FSRegistry.getDefault();               
+        FSInfo[] registeredInfos = registry.getRegistered();
+        for (int i = 0; i < registeredInfos.length; i++) {
+            if (dir.equals(registeredInfos[i].getFSRoot())) {
+                return true; // It's already registered
+            }
+        }
         String rootStr = (String) vars.get("CVS_ROOT"); // NOI18N
         if (rootStr == null) {
             rootStr = (String) vars.get("CVSROOT"); // NOI18N
@@ -114,8 +123,7 @@ public class CvsGlobalRegister extends Object implements VcsAdditionalCommand {
         addVars.put("USER_IS_LOGGED_IN","true");                                            // NOI18N 
         GlobalExecutionContext globalContext = (GlobalExecutionContext)context;        
         String profileFileName= globalContext.getProfileName();        
-        CommandLineVcsFileSystemInfo info = new CommandLineVcsFileSystemInfo(new File(dirName),profileFileName,addVars);
-        FSRegistry registry = FSRegistry.getDefault();               
+        CommandLineVcsFileSystemInfo info = new CommandLineVcsFileSystemInfo(dir, profileFileName, addVars);
         registry.register(info);                  
         return true;
     }
