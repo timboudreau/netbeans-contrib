@@ -65,7 +65,7 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     private int exit;
     private Vector vcsTopComponents;
     private boolean opened = false;
-    private String commandName ;
+    protected String commandName ;
     
     private static final long serialVersionUID = -8901790321334731232L;
     

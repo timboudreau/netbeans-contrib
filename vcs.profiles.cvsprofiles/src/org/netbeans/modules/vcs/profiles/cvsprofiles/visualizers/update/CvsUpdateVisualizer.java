@@ -69,8 +69,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     /** The maximum number of characters to keep in the text area */
     private static final int MAX_AREA_SIZE = MAX_BUFFER_SIZE - FAST_APPEND_SIZE;
 
-    private String filePath;
-    private StringBuffer buff;
+    private String filePath;    
     private static Hashtable outputDisplayStuff;
     private static RequestProcessor outputDisplayRequestProcessor;
      
@@ -89,8 +88,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     
     /** Creates new CvsUpdateVisualizer */
     public CvsUpdateVisualizer() {
-        super();
-        buff = new StringBuffer();
+        super();        
         synchronized (CommandOutputVisualizer.class) {
             if (outputDisplayRequestProcessor == null) {
                 outputDisplayRequestProcessor = new RequestProcessor("Output Display Request Processor");
@@ -103,8 +101,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         debug("getOutputPanel");
         output = new HashMap();
         contentPane = new UpdateInfoPanel(this); 
-        contentPane.setVcsTask(getVcsTask());
-        contentPane.setLog(buff);
+        contentPane.setVcsTask(getVcsTask());        
         contentPane.showStartCommand();
         //System.out.println("getOutputPanel("+this.hashCode()+"), exit = "+exit);
         if (exit != Integer.MIN_VALUE) {
@@ -119,7 +116,21 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     public void open(){
         CommandOutputTopComponent out = CommandOutputTopComponent.getInstance();
         getOutputPanels();
-        out.addVisualizer(NbBundle.getMessage(this.getClass(),"CvsUpdateVisualizer.update"),contentPane, true);
+        String title;
+        if (files.size() == 1) {
+            String filePath = (String) files.iterator().next();
+            java.io.File file = new java.io.File(filePath);            
+            title = java.text.MessageFormat.format(
+            NbBundle.getBundle(this.getClass()).getString("CvsUpdateVisualizer.title_one"), // NOI18N
+            new Object[] { commandName,file.getName()});
+        }
+        else if (files.size() > 1) {
+            title = java.text.MessageFormat.format(
+            NbBundle.getBundle(this.getClass()).getString("CvsUpdateVisualizer.title_many"), // NOI18N
+            new Object[] {commandName, Integer.toString(files.size())});
+        }
+        else title = commandName; 
+        out.addVisualizer(title,contentPane, true);
         out.open();        
     }
     
@@ -128,8 +139,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
      * @param line The output line.
      */
     public void stdOutputLine(String line) {        
-        debug("Line:"+line);
-        appendLog(line);
+        debug("Line:"+line);        
         if (line.indexOf(UNKNOWN) >= 0) {
             processUnknownFile(line, line.indexOf(UNKNOWN) + UNKNOWN.length());
         }
@@ -177,19 +187,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         }
     }
 
-    private void appendLog(String line){
-        buff.append(line+"\n");
-        if (buff.length() > 36000) { // just approx. constants, tuneup possible..
-            buff.delete(0, 8000);
-            int index = 0;
-            while (index < buff.length() && buff.charAt(index) != '\n') {
-                index = index + 1;
-            }
-            buff.delete(0, index);
-            buff.insert(0, NbBundle.getBundle(CvsUpdateVisualizer.class).getString("UpdateLogPanel.logCut") + "\n");
-        }
-    }
-    
+       
     private File createFile(String fileName) {
         return new File(localPath, fileName);
     }

@@ -32,12 +32,18 @@ import javax.accessibility.*;
 
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.lang.reflect.Method;
 import javax.swing.BorderFactory;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.api.vcs.commands.CommandTask;
@@ -46,6 +52,8 @@ import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualize
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.GrowingTableInfoModel;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.TypeComparator;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.UpdateInformation;
+import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
+import org.netbeans.modules.vcscore.ui.OutputPanel;
 import org.netbeans.modules.vcscore.util.table.*;
 import org.openide.DialogDisplayer;
 
@@ -61,22 +69,27 @@ public class UpdateInfoPanel extends JPanel{
     int totalCount = 0;
     int lastSelection = -1;
     int lastHBar = 0;
-    private String labelString;
-    private boolean wasSending;
-    private java.io.File sendingDir = null;
-    private org.netbeans.lib.cvsclient.command.Command currentCom;
-    private ActionListener stopActionListener;
+    private String labelString;          
     private CommandTask task;
     private StringBuffer buff;
     private OutputVisualizer visualizer;
     private JTextArea errTextArea;
     private boolean errEnabled = false;
+    private JPopupMenu menu;
+    private JMenuItem kill;
     
     /** Creates new form UpdateInfoPanel */
     public UpdateInfoPanel(OutputVisualizer visualizer) {
         super();
         this.visualizer = visualizer;
-        initComponents();
+        initComponents();   
+        Font font = btnErr.getFont();
+        FontMetrics fm = btnErr.getFontMetrics(font);
+        int height = fm.getHeight();
+        Dimension dim = toolbar.getPreferredSize();
+        toolbar.setPreferredSize(new Dimension(dim.width,height+4));
+        toolbar.setMaximumSize(new Dimension(dim.width,height+4));
+        toolbar.setMinimumSize(new Dimension(dim.width,height+4));
         errTextArea = new JTextArea();
         errTextArea.setEditable(false);
         errTextArea.getDocument().addDocumentListener(new DocumentListener(){
@@ -92,6 +105,7 @@ public class UpdateInfoPanel extends JPanel{
             }
             
         });
+        initPopupMenu();
         initAccessibility();
  
         setPreferredSize(new java.awt.Dimension(450, 200));
@@ -123,10 +137,66 @@ public class UpdateInfoPanel extends JPanel{
     public void setVcsTask(CommandTask task){
         this.task = task;
     }
+   
     
-    public void setLog(StringBuffer buff){
-        this.buff = buff;
+    private void initPopupMenu() {
+        this.menu = new JPopupMenu();
+        JMenuItem discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
+        discardTab.addActionListener( new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent event) {
+                CommandOutputTopComponent.getInstance().discard(UpdateInfoPanel.this);
+            }
+        });
+        JMenuItem discardAll = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardAll"));//NOI18N
+        discardAll.addActionListener( new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent event) {
+                CommandOutputTopComponent.getInstance().discardAll();
+            }
+        });
+        
+        kill = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_Kill"));//NOI18N
+        kill.addActionListener(new UpdateInfoPanel.StopActionListener());
+        
+        this.menu.add(discardTab);
+        this.menu.add(discardAll);
+        this.menu.addSeparator();
+        this.menu.add(kill);
+        
+        this.errTextArea.add(menu);        
+        PopupListener popupListener = new PopupListener();        
+        this.errTextArea.addMouseListener(popupListener);
+        this.tblUpdates.addMouseListener(popupListener);
+        this.addMouseListener(popupListener);
+        toolbar.addMouseListener(popupListener);
+        this.addMouseListener(popupListener);
+        spCentral.addMouseListener(popupListener);        
+        
     }
+    
+    class PopupListener extends java.awt.event.MouseAdapter {
+        public void mousePressed(MouseEvent e) {
+            maybeShowPopup(e);
+        }
+        
+        public void mouseReleased(MouseEvent e) {
+            maybeShowPopup(e);
+        }
+        
+        private void maybeShowPopup(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+                menu.show(e.getComponent(),
+                e.getX(), e.getY());
+            }
+        }
+
+    }
+    /*    public void mousePressed(java.awt.event.MouseEvent event) {
+            if ((event.getModifiers() & java.awt.event.MouseEvent.BUTTON3_MASK) == java.awt.event.MouseEvent.BUTTON3_MASK) {
+                OutputPanel.this.eventSource = event.getSource();
+                OutputPanel.this.menu.show((java.awt.Component)event.getSource(),event.getX(),event.getY());
+            }
+        }
+    }*/
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -164,11 +234,12 @@ public class UpdateInfoPanel extends JPanel{
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 12, 12, 11);
+        gridBagConstraints.insets = new java.awt.Insets(3, 2, 1, 1);
         add(spCentral, gridBagConstraints);
 
         toolbar.setBorder(null);
         toolbar.setRollover(true);
+        toolbar.setPreferredSize(new java.awt.Dimension(205, 24));
         btnStd.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.btnStd_mnc").charAt(0));
         btnStd.setSelected(true);
         btnStd.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.btnStd"));
@@ -193,9 +264,13 @@ public class UpdateInfoPanel extends JPanel{
         toolbar.add(btnErr);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(2, 2, 0, 1);
         add(toolbar, gridBagConstraints);
+        toolbar.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.toolbar"));
+        toolbar.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.toolbar"));
 
     }//GEN-END:initComponents
 
@@ -263,16 +338,25 @@ public class UpdateInfoPanel extends JPanel{
         TableColumn col = tblUpdates.getColumnModel().getColumn(0);
         col.setMaxWidth(40);
         
-        stopActionListener = new StopActionListener();
+       // stopActionListener = new StopActionListener();
         
     }
     
     protected void shutDownCommand() {
         // we can do that because it's running from other thread then command and won't kill itself
-        if(this.task.isRunning())
+        if(this.task.isRunning()){
             this.task.stop();
+            disableKill();
+        }
     }
     
+    private void disableKill(){
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run(){
+                kill.setEnabled(false);
+            }
+        });
+    }
     
     /** Does the actual display - docking into the javacvs Mode,
      *  displaying as single Dialog.. whatever.
@@ -285,20 +369,15 @@ public class UpdateInfoPanel extends JPanel{
     }
     
     
-    public void showExecutionFailed() {
-     /*   if (wasSending) {
-            lblSending.setText(" "); // NOI18N
-            wasSending = false;
-        }*/
+    public void showExecutionFailed() {     
         displayOutputData();
+        disableKill();
+        
     }
     
-    public void showFinishedCommand() {
-     /*   if (wasSending) {
-            lblSending.setText(" "); // NOI18N
-            wasSending = false;
-        }*/
+    public void showFinishedCommand() { 
         displayOutputData();
+        disableKill();
     }
     
     public void showStartCommand() {
@@ -306,10 +385,6 @@ public class UpdateInfoPanel extends JPanel{
     }
     
     public void showFileInfoGenerated(UpdateInformation info) {
-      /*  if (wasSending) {
-            lblSending.setText(" "); // NOI18N
-            wasSending = false;
-        }*/
         if (info instanceof UpdateInformation) {
             model.addElement(info);
             currentTimeStamp = System.currentTimeMillis();
