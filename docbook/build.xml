@@ -56,6 +56,7 @@ Microsystems, Inc. All Rights Reserved.
             <fileset dir="${build.classes.dir}"/>
             <zipfileset prefix="org/netbeans/modules/docbook/lib" dir="build/docbook-libs">
                 <include name="config.properties"/>
+                <include name="slides-${libs.docbook-slides.version}/VERSION"/>
                 <include name="slides-${libs.docbook-slides.version}/schema/dtd/slides.dtd"/>
                 <include name="slides-${libs.docbook-slides.version}/schema/dtd/slides-full.dtd"/>
                 <include name="slides-${libs.docbook-slides.version}/xsl/xhtml/"/>
