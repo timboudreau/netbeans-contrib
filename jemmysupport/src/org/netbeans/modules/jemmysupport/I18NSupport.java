@@ -35,7 +35,7 @@ import org.openide.util.NbBundle;
  */
 public class I18NSupport {
     
-    static boolean i18nActive=Boolean.getBoolean ("org.openide.util.NbBundle.DEBUG"); // NOI18N
+    public static boolean i18nActive=Boolean.getBoolean ("org.openide.util.NbBundle.DEBUG"); // NOI18N
     
     String bundles[]=new String[0];
     ClassLoader loader;
@@ -55,33 +55,46 @@ public class I18NSupport {
         return sb.toString();
     }
     
+    public String getBundle(int index) {
+        if (index>0 && index<=bundles.length) return bundles[index-1];
+        return null;
+    }
+    
+    public String getLine(String bundle, int row) {
+        if (bundle==null) return null;
+        LineNumberReader prop=null;
+        try {
+            prop=new LineNumberReader(new InputStreamReader(loader.getResourceAsStream(bundle)));
+            String key;
+            while (--row>0) prop.readLine();
+            return  prop.readLine();
+        } catch (IOException ioe) {
+        } finally {
+            if (prop!=null) try {
+                prop.close();
+            } catch (IOException ioe2) {}
+        }
+        return null;
+    }        
+    
     public String translate(String text) {
         int i=text.lastIndexOf('(');
         int j=text.lastIndexOf(':');
         int k=text.lastIndexOf(')');
         LineNumberReader prop=null;
         if (i>=0 && j>i+1 && k>j+1) try {
-            int bundle=Integer.parseInt(text.substring(i+1, j));
+            int index=Integer.parseInt(text.substring(i+1, j));
             int row=Integer.parseInt(text.substring(j+1, k));
-            if (--bundle<bundles.length) {
-                prop=new LineNumberReader(new InputStreamReader(loader.getResourceAsStream(bundles[bundle])));
-                String key;
-                while (--row>0) prop.readLine();
-                key=prop.readLine();
-                i=key.indexOf('=');
-                if (i>0) {
-                    String res=translate(text, bundles[bundle].endsWith(".properties")?bundles[bundle].substring(0, bundles[bundle].length()-11):bundles[bundle], key.substring(0, i));
+            String bundle=getBundle(index);
+            if (bundle!=null) {
+                String key=getLine(bundle, row);
+                if (key!=null && (i=key.indexOf('='))>0) {
+                    String res=translate(text, bundle.endsWith(".properties")?bundle.substring(0, bundle.length()-11):bundle, key.substring(0, i));
                     if (res!=null) return res;
                 }
             }
         } catch (NumberFormatException nfe) { 
-        } catch (IOException ioe) {
-        } catch (NullPointerException npe) {
-        } finally {
-            try {
-                if (prop!=null) prop.close();
-            } catch (IOException ioe2) {}
-        }
+        } catch (NullPointerException npe) {}
         return hardcoded(text);
     }
         

@@ -35,6 +35,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import org.netbeans.modules.jemmysupport.I18NSupport;
 import org.openide.ErrorManager;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
@@ -180,6 +181,8 @@ public class BundleLookupPanel extends TopComponent  {
             ErrorManager.getDefault().notify(e);
         }
         initComponents();
+        if (I18NSupport.i18nActive) 
+            SearchTextLabel.setText(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "LBL_SearchedTextPlus"));
         TextRegCheck.setEnabled(enableRegExp);
     }
 

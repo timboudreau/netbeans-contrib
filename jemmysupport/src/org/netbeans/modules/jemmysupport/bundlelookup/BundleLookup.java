@@ -21,12 +21,15 @@ package org.netbeans.modules.jemmysupport.bundlelookup;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.Enumeration;
 import java.util.ArrayList;
 import java.util.MissingResourceException;
+import java.util.StringTokenizer;
 import javax.swing.table.DefaultTableModel;
+import org.netbeans.modules.jemmysupport.I18NSupport;
 import org.openide.ErrorManager;
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.*;
@@ -119,7 +122,32 @@ public class BundleLookup {
                 return new IgnoreCase(s);
         }
     }
-
+    
+    private static boolean tryI18NSearch(DefaultTableModel table, String text) {
+        if (!I18NSupport.i18nActive) return false;
+        StringTokenizer st=new StringTokenizer(text, " ,:;()");
+        if (st.hasMoreTokens()) try {
+            int index=Integer.parseInt(st.nextToken());
+            if (st.hasMoreTokens()) {
+                int row=Integer.parseInt(st.nextToken());
+                if (st.hasMoreTokens()) return false;
+                I18NSupport sup=new I18NSupport();
+                String bundle=sup.getBundle(index);
+                if (bundle!=null) {
+                    String line=sup.getLine(bundle, row);
+                    int i;
+                    if (line!=null && (i=line.indexOf('='))>0) {
+                        if (bundle.endsWith(".properties")) bundle=bundle.substring(0, bundle.length()-11);
+                        bundle=bundle.replace('/', '.');
+                        table.addRow(new String[]{bundle, line.substring(0, i), line.substring(i+1)});
+                        return true;
+                    }
+                }
+            }
+        } catch (NumberFormatException nfe) {}
+        return false;
+    }
+    
     /** Method performing lookup through all .properties files in all mounted filesystems
      * @param regexText boolean true if text is regular expression
      * @param regexBundle boolean true if bundle name is regular expression
@@ -131,6 +159,7 @@ public class BundleLookup {
      * @param caseSensitiveBundle case sensitive filter switch
      * @param substringBundle substring filter switch */    
     public static void lookupText(DefaultTableModel table, String text, boolean caseSensitiveText, boolean substringText, boolean regexText, String bundle, boolean caseSensitiveBundle, boolean substringBundle, boolean regexBundle) {
+        if (tryI18NSearch(table, text)) return;
         run=true;
         Enumeration filesystems=Repository.getDefault().getFileSystems();
         FileObject fo;
