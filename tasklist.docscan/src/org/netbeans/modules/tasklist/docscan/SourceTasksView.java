@@ -189,7 +189,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private JProgressBar progress;
     private JButton stop;
-    private JLabel  status;
     private JComponent refresh;
     private JComponent prev;
     private JComponent next;
@@ -213,13 +212,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             });
         }
         return stop;
-    }
-
-    private JLabel getStatus() {
-        if (status == null) {
-            status = new JLabel();
-        }
-        return status;
     }
 
     private JComponent getRefresh() {
@@ -369,13 +361,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     protected Component createNorthComponent() {
-//        JPanel leftpanel = new JPanel();
-//        leftpanel.setLayout(new FlowLayout(FlowLayout.LEFT, 12, 0));
-//        leftpanel.add(getAllFiles());
-//        leftpanel.add(getCurrentFile());
-//        leftpanel.add(new JSeparator(JSeparator.VERTICAL));
-//        leftpanel.add(getPrev());
-//        leftpanel.add(getNext());
+
+        // toolbars are used to get desired visual rollover effect
 
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -385,25 +372,26 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         toolbar.add(getAllFiles());
         toolbar.add(getCurrentFile());
         toolbar.add(new JSeparator(JSeparator.VERTICAL));
-
         toolbar.add(getGoto());
         toolbar.add(getRefresh());
         toolbar.add(getFilterMenu());
-        toolbar.add(new JSeparator(JSeparator.VERTICAL));
-
-//        leftpanel.add(toolbar);
-//        leftpanel.add(new JSeparator(JSeparator.VERTICAL));
 
         JPanel rightpanel = new JPanel();
+        rightpanel.add(new JSeparator(JSeparator.VERTICAL));
         rightpanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         rightpanel.add(getProgress());
-        rightpanel.add(getStop());
+
+        JToolBar stoptoolbar = new JToolBar();
+        stoptoolbar.setFloatable(false);
+        stoptoolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
+        stoptoolbar.setBorder(null);
+        stoptoolbar.add(getStop());
+        rightpanel.add(stoptoolbar);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-//        panel.add(leftpanel, BorderLayout.WEST);
         panel.add(toolbar, BorderLayout.WEST);
-        panel.add(getStatus(), BorderLayout.CENTER);
+        panel.add(getMiniStatus(), BorderLayout.CENTER);
         panel.add(rightpanel, BorderLayout.EAST);
         return panel;
     }
@@ -445,7 +433,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             realFolders++;
             getProgress().setValue(realFolders);
         }
-        getStatus().setText("Scanning " + folder.getPath());
+        getMiniStatus().setText("Scanning " + folder.getPath());
         handlePendingAWTEvents();
     }
 
@@ -476,7 +464,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (getAllFiles().isSelected()) {
             String text = NbBundle.getMessage(SourceTasksView.class,
                                                    "TodoScanDone", new Integer(todos)); // NOI18N
-            getStatus().setText(text);
+            getMiniStatus().setText(text);
         }
     }
 
@@ -491,6 +479,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
         SuggestionList list = new SourceTasksList();
         showList(list);
+        setFiltered(false);
         SourceTasksAction.scanTasksAsync(this);
         getRefresh().setEnabled(true);
     }
@@ -500,7 +489,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         job = SuggestionsBroker.getDefault().startBroker();
         showList(job.getSuggestionsList());
         getRefresh().setEnabled(false);
-        getStatus().setText("");
+        setFiltered(false);
+        getMiniStatus().setText("");
     }
 
     private void handlePrev() {

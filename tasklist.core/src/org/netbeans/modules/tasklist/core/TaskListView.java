@@ -109,7 +109,7 @@ public abstract class TaskListView extends TopComponent
     transient private JPanel centerPanel;
     transient private Component northCmp;
     transient private boolean northCmpCreated;
-    transient private Component miniStatus;
+    transient private JLabel miniStatus;
 
     private transient ExplorerManager manager;
 
@@ -178,19 +178,18 @@ public abstract class TaskListView extends TopComponent
 
     /**
      * Updates the label showing the number of filtered tasks
-     * @param filtered true means that filter is applied and filter status is required
      */
-    public void updateFilterCount(boolean filtered) {
+    public void updateFilterCount() {
         JLabel filterLabel = (JLabel) getMiniStatus();
-        if (filtered == false) {
+        if (filterEnabled == false) {
             filterLabel.setText("");
+        } else {
+            int all = TLUtils.getChildrenCountRecursively(rootNode);
+            int shown = TLUtils.getChildrenCountRecursively(
+                    getExplorerManager().getExploredContext());
+            filterLabel.setText(NbBundle.getMessage(TaskListView.class,
+                    "FilterCount", new Integer(shown), new Integer(all))); // NOI18N
         }
-
-        int all = TLUtils.getChildrenCountRecursively(rootNode);
-        int shown = TLUtils.getChildrenCountRecursively(
-                getExplorerManager().getExploredContext());
-        filterLabel.setText(NbBundle.getMessage(TaskListView.class,
-                "FilterCount", new Integer(shown), new Integer(all))); // NOI18N
     }
 
     /**
@@ -244,7 +243,10 @@ public abstract class TaskListView extends TopComponent
         return new JLabel();
     }
 
-    protected Component getMiniStatus() {
+    /**
+     * Returns component visualizing view status messages.
+     */
+    protected JLabel getMiniStatus() {
         if (miniStatus == null) {
             miniStatus = createMiniStatus();
         }
@@ -253,6 +255,10 @@ public abstract class TaskListView extends TopComponent
 
     private JLabel createMiniStatus() {
         return new JLabel();
+    }
+
+    protected final void setMiniStatus(String text) {
+        getMiniStatus().setText(text);
     }
 
     /**
@@ -350,7 +356,7 @@ public abstract class TaskListView extends TopComponent
      *
      * @return columns
      */
-    public ColumnProperty[] getColumns() {
+    public final ColumnProperty[] getColumns() {
         if (columns == null)
             columns = createColumns();
         return columns;
@@ -1288,10 +1294,10 @@ for (int i = 0; i < columns.length; i++) {
 
         if (filterEnabled && showStatusBar && filter.hasConstraints()) {
             setRoot();
-            updateFilterCount(true);
+            updateFilterCount();
             //expandAll(); // [PENDING] Make this optional?
         } else {
-            updateFilterCount(false);
+            updateFilterCount();
             setRoot();
         }
     }
@@ -1588,7 +1594,7 @@ for (int i = 0; i < columns.length; i++) {
      *
      * @return visible columns
      */
-    public ColumnProperty[] getVisibleColumns() {
+    public final ColumnProperty[] getVisibleColumns() {
         TableColumnModel tcm = getTable().getColumnModel();
         ColumnProperty[] all = getColumns();
         List ret = new ArrayList();
