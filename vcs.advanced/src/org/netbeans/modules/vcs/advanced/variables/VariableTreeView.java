@@ -22,7 +22,6 @@ import org.openide.explorer.view.*;
 /**
  *
  * @author  Martin Entlicher
- * @version 
  */
 public class VariableTreeView extends BeanTreeView {
 

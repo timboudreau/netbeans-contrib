@@ -19,7 +19,6 @@ import javax.swing.event.*;
 /**
  *
  * @author  Martin Entlicher
- * @version 
  */
 public class VariableList extends TreeSet {
 
