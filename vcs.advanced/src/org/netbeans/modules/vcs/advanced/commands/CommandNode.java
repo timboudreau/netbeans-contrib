@@ -651,11 +651,11 @@ public class CommandNode extends AbstractNode {
          * @param perm the permutation
          */
         public void reorder(int[] perm) {
-            //System.out.println("reorder("+Command.getOrderString(perm)+")");
+            //System.out.println("reorder("+UserCommand.getOrderString(perm)+")");
             Children children = CommandNode.this.getChildren();
-            if (children instanceof Index.ArrayChildren) {
-                Index.ArrayChildren achildren = (Index.ArrayChildren) children;
-                achildren.reorder(perm);
+            if (children instanceof Index) {
+                Index ichildren = (Index) children;
+                ichildren.reorder(perm);
             }
             //if (list != null) {
             //    list.reorder(getSubCommands(), perm);
@@ -798,7 +798,7 @@ public class CommandNode extends AbstractNode {
             VcsCommand cmd = new UserCommand();
             cmd.setName(name);
             cmd.setDisplayName(labelName);
-            CommandNode newCommand = new CommandNode(new Children.Array(), cmd);
+            CommandNode newCommand = new CommandNode(new Index.ArrayChildren(), cmd);
             Children ch;
             if (Children.LEAF.equals(CommandNode.this.getChildren())) {
                 ch = CommandNode.this.getParentNode().getChildren();
