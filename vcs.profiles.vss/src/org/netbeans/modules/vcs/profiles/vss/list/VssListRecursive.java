@@ -308,15 +308,19 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     }
     
     private VcsDirContainer getFilesContainer(String path) {
+        VcsDirContainer filesContainer;
         if (path.length() == 0) {
-            return rootFilesByNameCont;
+            filesContainer = rootFilesByNameCont;
         } else {
-            VcsDirContainer filesContainer = rootFilesByNameCont.getContainerWithPath(path);
+            filesContainer = rootFilesByNameCont.getContainerWithPath(path);
             if (filesContainer == null) {
                 filesContainer = rootFilesByNameCont.addSubdirRecursive(path);
             }
-            return filesContainer;
         }
+        if (filesContainer.getElement() == null) {
+            filesContainer.setElement(new Hashtable());
+        }
+        return filesContainer;
     }
     
     private void readLocalFiles(String path, VcsDirContainer filesCont) {
@@ -390,12 +394,12 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         if (gettingSourceSafeFiles) {
             Hashtable filesByName = (Hashtable) lastFilesCont.getElement();
             String fileName = lastFileName.trim();
-            String[] statuses = new String[3];
+            String[] statuses = (String[]) filesByName.get(fileName);
             if (statuses == null) {
                 statuses = new String[3];
                 statuses[0] = fileName;
-                filesByName.put(fileName, statuses);
             }
+            filesByName.put(fileName, statuses);
             statuses[1] = VssListCommand.STATUS_MISSING;
             lastFileName = "";
         } else if (gettingDifferentFiles) {
@@ -405,8 +409,8 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
             if (statuses == null) {
                 statuses = new String[3];
                 statuses[0] = fileName;
-                filesByName.put(fileName, statuses);
             }
+            filesByName.put(fileName, statuses);
             statuses[1] = VssListCommand.STATUS_LOCALLY_MODIFIED;
             lastFileName = "";
         } else if (gettingLocalFiles) {
@@ -472,8 +476,8 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         } else if (gettingSourceSafeFiles || gettingDifferentFiles) {
             if (line.startsWith("  ")) {
                 flushLastFile();
+                lastFileName += line;
             }
-            lastFileName += line;
         }
     }
     
