@@ -694,7 +694,7 @@ public class FTPClient implements RemoteClient  {
   public synchronized RemoteFileAttributes[] list(String directory) throws IOException {
     StringBuffer sbuffer = new StringBuffer();
     int count = 0;
-    if (!isConnected()) return null;
+    if (!isConnected()) return new RemoteFileAttributes[0];
     while (count++ < 2) {
       try { 
             Socket datasocket = openData(directory==null?"LIST":"LIST "+directory);
