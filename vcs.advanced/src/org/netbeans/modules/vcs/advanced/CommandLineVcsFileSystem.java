@@ -1140,6 +1140,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
     
+    private transient Set nonexistentPropertiesReported = new HashSet();
+    
     private void setFSPropertiesFromVars() {
         Hashtable vars = getVariablesAsHashtable();
         BeanInfo beanInfo;
@@ -1160,13 +1162,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 final String propertyName = name.substring(VAR_FS_PROPERTY_PREFIX.length());
                 PropertyDescriptor pd = (PropertyDescriptor) propertyDescriptorsByNames.get(propertyName);
                 if (pd == null) {
-                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            // Present the dialog asynchronously not to block the current thread.
-                            NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_NoSuchProperty", propertyName));
-                            DialogDisplayer.getDefault().notify(nd);
-                        }
-                    });
+                    if (!nonexistentPropertiesReported.contains(propertyName)) {
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,
+                            new IllegalArgumentException(NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_NoSuchProperty", propertyName)));
+                        nonexistentPropertiesReported.add(propertyName);
+                    }
                     continue;
                 }
                 Class pt = pd.getPropertyType();
@@ -1499,6 +1499,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         in.defaultReadObject();
         setConfigFO();
+        nonexistentPropertiesReported = new HashSet();
         setProfile(ProfilesFactory.getDefault().getProfile(configFileName), false);
         setIgnoreListSupport(new GenericIgnoreListSupport());
         if (!isCreateBackupFilesSet()) setCreateBackupFiles(true);

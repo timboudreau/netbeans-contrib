@@ -50,7 +50,6 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor autoRefresh = null;
         PropertyDescriptor notification = null;
         PropertyDescriptor hideShadowFiles = null;
-        PropertyDescriptor ignoredGarbageFiles = null;
         PropertyDescriptor createBackupFiles = null;
         PropertyDescriptor rememberPassword = null;
         PropertyDescriptor shortStatuses = null;
@@ -108,9 +107,6 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             hideShadowFiles = new PropertyDescriptor
                                (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, CommandLineVcsFileSystem.class, "isHideShadowFiles", "setHideShadowFiles"); // NOI18N
             hideShadowFiles.setExpert(true);
-            ignoredGarbageFiles = new PropertyDescriptor
-                                (VcsFileSystem.PROP_IGNORED_GARBAGE_FILES, CommandLineVcsFileSystem.class, "getIgnoredGarbageFiles", "setIgnoredGarbageFiles"); // NOI18N
-            ignoredGarbageFiles.setExpert(true);
             createBackupFiles = new PropertyDescriptor
                                 ("createBackupFiles", CommandLineVcsFileSystem.class, "isCreateBackupFiles", "setCreateBackupFiles"); // NOI18N
             createBackupFiles.setExpert(true);
@@ -132,7 +128,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                        rootDirectory, debug, variables, commands, cacheId, config,
                        acceptUserParams, runRefreshCommand, processAllFiles,
                        annotationPattern, autoRefresh, notification, hideShadowFiles,
-                       ignoredGarbageFiles, createBackupFiles,
+                       createBackupFiles,
                        rememberPassword, shortStatuses, refreshTime, hidden, readOnly
                    };
 
@@ -169,7 +165,6 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             notification.setShortDescription  (bundle.getString("HINT_commandNotification"));
             hideShadowFiles.setDisplayName    (bundleSettings.getString("PROP_hideShadowFiles"));
             hideShadowFiles.setShortDescription(bundleSettings.getString("HINT_hideShadowFiles"));
-            ignoredGarbageFiles.setHidden(true);
             createBackupFiles.setDisplayName  (bundle.getString("PROP_createBackupFiles"));
             createBackupFiles.setShortDescription(bundle.getString("HINT_createBackupFiles"));
             rememberPassword.setDisplayName   (bundle.getString("PROP_rememberPassword"));
