@@ -50,7 +50,7 @@ public class JNDITest extends org.netbeans.junit.NbTestCase {
 
         /* Get and test JNDI and Providers node */
             Node jndiNode = null, providersNode = null, n = TopManager.getDefault().getPlaces().nodes().environment();
-            jndiNode = Helper.findSubNode (n, "JNDI");
+            jndiNode = Helper.waitSubNode (n, "JNDI");
             assertNotNull("JNDI node does not exists!", jndiNode);
             Node jndiRootNode = jndiNode;
             providersNode = Helper.findSubNode (jndiNode, "Providers");
