@@ -215,7 +215,7 @@ public abstract class NodeImpl implements Node {
 //                    if (s.length() == 1 && s.charAt(0) == '\n')
 //                        s = " ";
                         
-                    result.append(s);
+                    result.append(s.toString());
                 }
             }
             
