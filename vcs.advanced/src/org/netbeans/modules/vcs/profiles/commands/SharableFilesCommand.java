@@ -88,7 +88,11 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
             int sharability = SharabilityQuery.getSharability(file);
             //System.out.println("  collectSharableSubfiles(): name '"+name+"' sharability = "+sharability);
             if (sharability == SharabilityQuery.SHARABLE || file.isFile() && sharability == SharabilityQuery.UNKNOWN) {
-                sharableFileNames.add(name);
+                if (file.isDirectory() && intermediateFolders != null && isEmptyDirectory(file)) {
+                    intermediateFolders.add(name);
+                } else {
+                    sharableFileNames.add(name);
+                }
                 //System.out.println("\t\t\tSHARABLE");
             } else if (sharability == SharabilityQuery.MIXED || file.isDirectory() && sharability == SharabilityQuery.UNKNOWN) {
                 //System.out.println("\t\t\tMIXED; fo = "+file);
@@ -115,7 +119,11 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
             boolean isDirectory = children[i].isDirectory();
             //System.out.println("  addSharableSubfiles(): name '"+children[i]+"' sharability = "+sharability);
             if (sharability == SharabilityQuery.SHARABLE || !isDirectory && sharability == SharabilityQuery.UNKNOWN) {
-                sharableFileNames.add(chName);
+                if (isDirectory && intermediateFolders != null && isEmptyDirectory(children[i])) {
+                    intermediateFolders.add(chName);
+                } else {
+                    sharableFileNames.add(chName);
+                }
             } else if ((sharability == SharabilityQuery.MIXED || isDirectory && sharability == SharabilityQuery.UNKNOWN) && recursive) {
                 if (intermediateFolders != null) {
                     intermediateFolders.add(chName);
@@ -178,6 +186,21 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
             }
             return (FileObject[]) fos.toArray(new FileObject[0]);
         }
+    }
+    
+    private boolean isEmptyDirectory(File directory) {
+        File[] children = directory.listFiles();
+        if (children == null) return true;
+        FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
+        Object locker = new Object();
+        cache.getCacheFile(new File(directory, "testing"), CacheHandler.STRAT_DISK_OR_REFRESH, locker);
+        VcsCacheDir dir = (VcsCacheDir) cache.getCacheFile(directory, CacheHandler.STRAT_DISK, locker);
+        for (int i = 0; i < children.length; i++) {
+            if (!dir.isIgnored(children[i].getName())) {
+                return false;
+            }
+        }
+        return true; // All subfiles are ignored
     }
     
     public boolean exec(Hashtable vars, String[] args,
