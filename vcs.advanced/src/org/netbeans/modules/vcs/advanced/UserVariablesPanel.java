@@ -41,6 +41,8 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
     private UserVariablesEditor editor;
     private ExplorerManager manager = null;
+    private Children.SortedArray basicChildren = null;
+    private Children.SortedArray accessoryChildren = null;
 
     //-------------------------------------------
     static final long serialVersionUID =-4165869264994159492L;
@@ -80,10 +82,10 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         Children.Array varCh = new Children.Array();
         AbstractNode varRoot = new AbstractNode(varCh);
         varRoot.setDisplayName(g("CTL_VariablesNodeName"));
-        Children.SortedArray basicChildren = new Children.SortedArray();
+        basicChildren = new Children.SortedArray();
         //basicCh.add(new Node[] { node });
         AbstractNode basicRoot = new BasicVariableNode(basicChildren);
-        Children.SortedArray accessoryChildren = new Children.SortedArray();
+        accessoryChildren = new Children.SortedArray();
         AbstractNode accessoryRoot = new AccessoryVariableNode(accessoryChildren);
         varCh.add(new Node[] { basicRoot, accessoryRoot });
         Vector variables = (Vector) editor.getValue();
@@ -109,9 +111,28 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         return manager;
     }
     
+    private Vector createVariables() {
+        Vector vars = new Vector();
+        Node[] nodes = basicChildren.getNodes();
+        for (int i = 0; i < nodes.length; i++) {
+            BasicVariableNode varNode = (BasicVariableNode) nodes[i];
+            VcsConfigVariable var = varNode.getVariable();
+            var.setOrder(i);
+            vars.add(var);
+        }
+        nodes = accessoryChildren.getNodes();
+        for (int i = 0; i < nodes.length; i++) {
+            AccessoryVariableNode varNode = (AccessoryVariableNode) nodes[i];
+            VcsConfigVariable var = varNode.getVariable();
+            vars.add(var);
+        }
+        return vars;
+    }
+    
     public Object getPropertyValue() {
         //D.deb("getPropertyValue()");
-        return editor.getValue ();
+        return createVariables();
+        //return editor.getValue ();
     }
 
 
