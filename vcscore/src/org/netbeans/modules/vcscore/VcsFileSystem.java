@@ -616,7 +616,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (ref != null) {
             return ref.isImportant();
         }
-        return false;
+        return true;
     }
 
     /**
