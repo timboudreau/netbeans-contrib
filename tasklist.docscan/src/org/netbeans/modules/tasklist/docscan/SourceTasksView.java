@@ -430,7 +430,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (isFiltered()) {
             msg.append(Util.getString("filter-flag"));
         }
-        if (job == null) {
+        if (job == null && selectedFolder != null) {
             if (msg.length() > 0) prefix = ", "; // NOI18N
             msg.append(prefix + Util.getMessage("ctx-flag", createLabel(selectedFolder)));
         }
@@ -936,6 +936,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (selectedFolder == null) {
             if (recentFolders.size() > 0) {
                 showFolderSelectorPopup();
+                if (selectedFolder == null) {
+                    getCurrentFile().doClick(0);
+                    return;
+                }
             } else {
                 handleSelectFolder();
             }
