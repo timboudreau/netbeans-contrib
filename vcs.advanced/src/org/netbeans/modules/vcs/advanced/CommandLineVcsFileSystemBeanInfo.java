@@ -80,7 +80,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             acceptUserParams = new PropertyDescriptor
                                ("acceptUserParams", CommandLineVcsFileSystem.class, "isAcceptUserParams", "setAcceptUserParams"); // NOI18N
             runRefreshCommand = new PropertyDescriptor
-                               ("doCommandRefresh", CommandLineVcsFileSystem.class, "isDoCommandRefresh", "setDoCommandRefresh"); // NOI18N
+                               ("offLine", CommandLineVcsFileSystem.class, "isOffLine", "setOffLine"); // NOI18N
             annotationPattern = new PropertyDescriptor
                                ("annotationPattern", CommandLineVcsFileSystem.class, "getAnnotationPattern", "setAnnotationPattern"); // NOI18N
 
@@ -110,8 +110,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             lockPrompt.setShortDescription    (bundle.getString("HINT_lockPrompt"));
             acceptUserParams.setDisplayName   (bundle.getString("PROP_acceptUserParams"));
             acceptUserParams.setShortDescription(bundle.getString("HINT_acceptUserParams"));
-            runRefreshCommand.setDisplayName  (bundle.getString("PROP_runRefreshCommand"));
-            runRefreshCommand.setShortDescription(bundle.getString("HINT_runRefreshCommand"));
+            runRefreshCommand.setDisplayName  (bundle.getString("PROP_offLineMode"));
+            runRefreshCommand.setShortDescription(bundle.getString("HINT_offLineMode"));
             annotationPattern.setDisplayName  (bundle.getString("PROP_annotationPattern"));
             annotationPattern.setShortDescription(bundle.getString("HINT_annotationPattern"));
 
