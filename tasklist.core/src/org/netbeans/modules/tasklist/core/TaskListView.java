@@ -402,11 +402,6 @@ public abstract class TaskListView extends TopComponent
 
 
 
-    /**
-     * Returns default configuration for visible columns
-     *
-     * @return default columns configuration
-     */
     protected void loadFilters() {
       FileSystem fs = Repository.getDefault().getDefaultFileSystem();
       FileObject fo = fs.findResource("TaskList/" + category + "/filters.settings"); // NOI18N
@@ -425,6 +420,7 @@ public abstract class TaskListView extends TopComponent
 // 	      }
 // 	    }
 // 	  });     
+	filters.setActive(null);
       
       } catch (ClassNotFoundException e) {
 	ErrorManager.getDefault().notify(e);
