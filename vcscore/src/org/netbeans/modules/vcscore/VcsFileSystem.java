@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.openide.*;
@@ -105,7 +106,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           CommandExecutionContext,
                                                                           FileObjectExistence, VcsOISActivator, Serializable,
                                                                           FileSystem.HtmlStatus,
-                                                                          TurboListener {
+                                                                          TurboListener,
+                                                                          FilesModificationSupport {
 
     /**
      * Profile entry point to plug-in specifics
@@ -2898,6 +2900,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         // fire loader events
         checkExistingVirtuals(name);
 
+        if (name.equals("testAdd/JavaApplication3/src/javaapplication3")) {
+            System.err.println("children("+name+") = "+java.util.Arrays.asList(files));
+        }
         return files;
 
     }
@@ -3147,6 +3152,42 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             String name = fo.getPath();
             //System.out.println("refreshResource("+name+")");
             refreshResource(name, true);
+        }
+        fireFilesStructureModified(getFile(path));
+    }
+    
+    private Collection filesStructureListeners;
+    
+    public final synchronized void addFilesStructureModificationListener(ChangeListener chl) {
+        if (filesStructureListeners == null) {
+            filesStructureListeners = new ArrayList();
+        }
+        filesStructureListeners.add(chl);
+    }
+    
+    public final synchronized void removeFilesStructureModificationListener(ChangeListener chl) {
+        if (filesStructureListeners != null) {
+            filesStructureListeners.remove(chl);
+            if (filesStructureListeners.size() == 0) {
+                filesStructureListeners = null;
+            }
+        }
+    }
+    
+    protected final void fireFilesStructureModified(File file) {
+        java.util.List listeners;
+        ChangeEvent che = null;
+        synchronized (this) {
+            if (filesStructureListeners != null) {
+                che = new ChangeEvent(file);
+                listeners = new ArrayList(filesStructureListeners);
+            } else {
+                listeners = Collections.EMPTY_LIST;
+            }
+        }
+        for (Iterator it = listeners.iterator(); it.hasNext(); ) {
+            ChangeListener l = (ChangeListener) it.next();
+            l.stateChanged(che);
         }
     }
 

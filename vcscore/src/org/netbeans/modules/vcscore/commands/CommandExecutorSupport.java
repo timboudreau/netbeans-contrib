@@ -73,10 +73,12 @@ public class CommandExecutorSupport extends Object {
         } else {
             fileSystem = null;
         }
+        if (VcsCommandExecutor.SUCCEEDED == exit) {
+            checkForModifications(executionContext, vce);
+        }
         if (fileSystem != null) {
             //String name = vce.getCommand().getDisplayName();
             if (VcsCommandExecutor.SUCCEEDED == exit) {
-                checkForModifications(fileSystem, vce);
                 doRefresh(fileSystem, vce);
                 RequestProcessor.getDefault().post(new Runnable() {
                     // do that lazily, revision reload is waiting for the command,
@@ -184,16 +186,20 @@ public class CommandExecutorSupport extends Object {
         }
     }
     
-    private static void checkForModifications(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
+    private static void checkForModifications(CommandExecutionContext executionContext, VcsCommandExecutor vce) {
         if (VcsCommandIO.getBooleanProperty(vce.getCommand(), VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)) {
             Collection files = vce.getFiles();
+            if (files.size() == 0 && !(executionContext instanceof VcsFileSystem)) {
+                // When there are no files, check for ROOTDIR. Necessary for global commands.
+                // TODO Global commands should define the processed files somehow.
+                String root = (String) vce.getVariables().get("ROOTDIR");
+                if (root != null) {
+                    files = Collections.singleton(root);
+                }
+            }
             for (Iterator it = files.iterator(); it.hasNext(); ) {
                 String path = (String) it.next();
-                fileSystem.checkForModifications(path);
-                /*
-                org.openide.filesystems.FileObject fo = fileSystem.findResource(path);
-                System.out.println("fo("+path+") = "+fo);
-                 */
+                executionContext.checkForModifications(path);
             }
         }
     }

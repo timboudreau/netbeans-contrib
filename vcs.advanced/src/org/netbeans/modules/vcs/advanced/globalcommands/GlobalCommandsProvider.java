@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -16,8 +16,15 @@ package org.netbeans.modules.vcs.advanced.globalcommands;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.openide.util.WeakListeners;
 
@@ -26,6 +33,7 @@ import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
+import org.netbeans.modules.vcscore.FilesModificationSupport;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.runtime.RuntimeFolderNode;
 
@@ -38,7 +46,8 @@ import org.netbeans.modules.vcs.advanced.ProfilesFactory;
  * @author  Martin Entlicher
  */
 public class GlobalCommandsProvider extends VcsCommandsProvider implements CommandsTree.Provider,
-                                                                           PropertyChangeListener {
+                                                                           PropertyChangeListener,
+                                                                           FilesModificationSupport {
     
     private static GlobalCommandsProvider instance;
     
@@ -245,4 +254,39 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
         }
     }
     
+    private Collection filesStructureListeners;
+    
+    public final synchronized void addFilesStructureModificationListener(ChangeListener chl) {
+        if (filesStructureListeners == null) {
+            filesStructureListeners = new ArrayList();
+        }
+        filesStructureListeners.add(chl);
+    }
+    
+    public final synchronized void removeFilesStructureModificationListener(ChangeListener chl) {
+        if (filesStructureListeners != null) {
+            filesStructureListeners.remove(chl);
+            if (filesStructureListeners.size() == 0) {
+                filesStructureListeners = null;
+            }
+        }
+    }
+    
+    protected final void fireFilesStructureModified(File file) {
+        java.util.List listeners;
+        ChangeEvent che = null;
+        synchronized (this) {
+            if (filesStructureListeners != null) {
+                che = new ChangeEvent(file);
+                listeners = new ArrayList(filesStructureListeners);
+            } else {
+                listeners = Collections.EMPTY_LIST;
+            }
+        }
+        for (Iterator it = listeners.iterator(); it.hasNext(); ) {
+            ChangeListener l = (ChangeListener) it.next();
+            l.stateChanged(che);
+        }
+    }
+
 }

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -15,6 +15,7 @@ package org.netbeans.modules.vcs.advanced.globalcommands;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
@@ -145,6 +146,8 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
      * and its content should be refreshed.
      */
     public void checkForModifications(String path) {
+        File file = new File(path);
+        GlobalCommandsProvider.getInstance().fireFilesStructureModified(file);
     }
     
     /** Print a debug output. If the debug property is true, the message
