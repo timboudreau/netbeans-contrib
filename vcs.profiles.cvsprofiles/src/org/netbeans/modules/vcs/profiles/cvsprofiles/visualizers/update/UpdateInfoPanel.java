@@ -46,6 +46,8 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
     public UpdateInfoPanel(OutputVisualizer visualizer) {
         super();
         this.visualizer = visualizer;
+        getAccessibleContext().setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACS_UpdateInfoPanel")); // NOI18N
+        getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel")); // NOI18N
     }
     
     protected boolean isViewTextLogEnabled() {
@@ -56,6 +58,8 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
         if(errOutput == null){
             errOutput = new JTextArea();
             errOutput.setEditable(false);
+            errOutput.getAccessibleContext().setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACS_UpdateInfoPanel.errOutput")); // NOI18N
+            errOutput.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.errOutput")); // NOI18N
         }
         return errOutput;
     }
@@ -93,7 +97,9 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
             TableCellRenderer renderer = new ColoringUpdateRenderer(model);
             tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(0), renderer);
             tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(1), renderer);
-            tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(2), renderer);           
+            tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(2), renderer);    
+            tblUpdates.getAccessibleContext().setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACS_UpdateInfoPanel.table")); // NOI18N
+            tblUpdates.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.table")); // NOI18N
         }
         return tblUpdates;
     }

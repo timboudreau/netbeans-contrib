@@ -48,6 +48,8 @@ public class CommitInfoPanel extends AbstractOutputPanel{
     public CommitInfoPanel(OutputVisualizer visualizer) {
         super();
         this.visualizer = visualizer;
+        getAccessibleContext().setAccessibleName(NbBundle.getBundle(CommitInfoPanel.class).getString("ACS_CommitInfoPanel")); //NOI18N
+        getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(CommitInfoPanel.class).getString("ACSD_CommitInfoPanel")); //NOI18N
     }
     
     protected boolean isViewTextLogEnabled() {
@@ -58,6 +60,8 @@ public class CommitInfoPanel extends AbstractOutputPanel{
         if(errOutput == null){
             errOutput = new JTextArea();
             errOutput.setEditable(false);
+            errOutput.getAccessibleContext().setAccessibleName(NbBundle.getBundle(CommitInfoPanel.class).getString("ACS_CommitInfoPanel.errOutput")); //NOI18N
+            errOutput.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(CommitInfoPanel.class).getString("ACSD_CommitInfoPanel.errOutput")); //NOI18N
         }
         return errOutput;
     }
@@ -100,7 +104,8 @@ public class CommitInfoPanel extends AbstractOutputPanel{
             col.setMaxWidth(60);            
             col = tblCommit.getColumnModel().getColumn(0);
             col.setMaxWidth(60);
-        
+            tblCommit.getAccessibleContext().setAccessibleName(NbBundle.getBundle(CommitInfoPanel.class).getString("CommitInfoPanel.table")); //NOI18N
+            tblCommit.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(CommitInfoPanel.class).getString("ACSD_CommitInfoPanel.table")); //NOI18N        
         }
         return tblCommit;
     }
