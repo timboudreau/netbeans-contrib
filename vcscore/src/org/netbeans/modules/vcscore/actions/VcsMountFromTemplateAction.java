@@ -194,7 +194,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     * @return resource name
     */
     protected String iconResource () {
-        return "/org/openide/resources/actions/new.gif"; // NOI18N
+        return "/org/netbeans/modules/vcscore/actions/mountNewVCS.gif"; // NOI18N
     }
     
     /* Creates presenter that invokes the associated presenter.
