@@ -269,6 +269,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     private volatile boolean offLine; // is set in the constructor
     private volatile int autoRefresh; // is set in the constructor
+    private volatile boolean hideShadowFiles; // is set in the constructor
+    
+    private transient PropertyChangeListener settingsChangeListener = null;
     
     private VariableValueAdjustment varValueAdjustment;
     
@@ -440,6 +443,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             int oldAuto = autoRefresh;
             autoRefresh = newAuto;
             firePropertyChange (VcsSettings.PROP_AUTO_REFRESH, new Integer(oldAuto), new Integer(autoRefresh));
+        }
+    }
+    
+    /** Whether to hide files, which does not exist locally. */
+    public boolean isHideShadowFiles() {
+        return hideShadowFiles;
+    }
+    
+    /** Set whether to hide files, which does not exist locally. */
+    public void setHideShadowFiles(boolean hideShadowFiles) {
+        if (hideShadowFiles != this.hideShadowFiles) {
+            this.hideShadowFiles = hideShadowFiles;
+            firePropertyChange (VcsSettings.PROP_HIDE_SHADOW_FILES, new Boolean(!hideShadowFiles), new Boolean(hideShadowFiles));
         }
     }
     
@@ -849,40 +865,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     private void initListeners() {
+        settingsChangeListener = new SettingsPropertyChangeListener();
         VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
-        settings.addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(final PropertyChangeEvent event) { 
-                settingsChanged(event.getPropertyName(), event.getOldValue(), event.getNewValue());
-            }
-        });
-        /*
-        RepositoryListener wl = /*WeakListener.repository (*new RepositoryListener() {
-            public void fileSystemAdded(RepositoryEvent ev) {
-                //System.out.println("fileSystemAdded("+ev.getFileSystem());
-                //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
-                if (ev.getFileSystem().equals(VcsFileSystem.this)
-                    && !isOffLine()
-                    && (getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT_AND_RESTART
-                        || (deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_RESTART)
-                        || (!deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT))) {
-                    CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
-                    //FileCacheProvider cache = getCacheProvider();
-                    //if (cache != null) cache.refreshCacheDirRecursive("");
-                    //System.out.println("refresh called.");
-                }
-            }
-            public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {
-            }
-            public void fileSystemRemoved(RepositoryEvent ev) {
-                if (ev.getFileSystem().equals(VcsFileSystem.this)) {
-                    //System.out.println("FS "+VcsFileSystem.this+" removed");
-                    TopManager.getDefault ().getRepository ().removeRepositoryListener (this);
-                    fsRemoved();
-                }
-            }
-        };//, null);
-        TopManager.getDefault ().getRepository ().addRepositoryListener (wl);
-         */
+        settings.addPropertyChangeListener(WeakListener.propertyChange(settingsChangeListener, settings));
     }
     
     /** Notifies this file system that it has been added to the repository. 
@@ -930,6 +915,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
         setOffLine(settings.isOffLine());
         setAutoRefresh(settings.getAutoRefresh());
+        setHideShadowFiles(settings.isHideShadowFiles());
         init();
         //possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
         D.deb("constructor done.");
@@ -1516,6 +1502,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return the annotation string
      */
     public String annotateName(String name, Set files) {
+        //String filesStr = "";
+        //for (Iterator it = files.iterator(); it.hasNext(); ) filesStr += ((FileObject) it.next()).getNameExt() + ", ";
+        //System.out.println("annotateName("+name+", "+filesStr.substring(0, filesStr.length() - 2)+")");
         String result = name;
         if (result == null)
             return result;  // Null name, ignore it
@@ -1535,7 +1524,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 result = RefreshCommandSupport.getStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
             }
         }
-        //System.out.println("annotateName("+name+") -> result='"+result+"'");
+        //System.out.println("  annotateName("+name+") -> result='"+result+"'");
         //D.deb("annotateName("+name+") -> result='"+result+"'"); // NOI18N
         return result;
     }
@@ -1786,7 +1775,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param name the name of the folder
      */
     public String[] children (String name) {
-        D.deb("children('"+name+"')"); // NOI18N
+        //D.deb("children('"+name+"')"); // NOI18N
         //System.out.println("children('"+name+"'), refresh time = "+getRefreshTime());
         String[] vcsFiles = null;
         String[] files = null;
@@ -1799,6 +1788,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         if (cache != null && cache.isDir(name)) {
             vcsFiles = cache.getFilesAndSubdirs(name);
+            //System.out.println("  getFilesAndSubdirs = "+VcsUtilities.arrayToString(vcsFiles));
             //D.deb("vcsFiles=" + VcsUtilities.arrayToString(vcsFiles)); // NOI18N
             /*
             String p=""; // NOI18N
@@ -1813,7 +1803,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return files;
             */
         }
-        if (vcsFiles == null) files = getLocalFiles(name);
+        if (vcsFiles == null || isHideShadowFiles()) files = getLocalFiles(name);
         else files = addLocalFiles(name, vcsFiles);
         //D.deb("children('"+name+"') = "+VcsUtilities.arrayToString(files));
         if (cache != null) {
@@ -1821,6 +1811,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
         }
         //System.out.println("children = "+files);
+        //System.out.println("  children = "+VcsUtilities.arrayToString(files));
         return files;
     }
 
@@ -2396,12 +2387,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return (VcsCommand) commandsByName.get(name);
     }
 
+    public FilenameFilter getLocalFileFilter() {
+        return null;
+    }
+
     private void settingsChanged(String propName, Object oldVal, Object newVal) {
         VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
         if (VcsSettings.PROP_USE_GLOBAL.equals(propName)) {
             if (((Boolean) newVal).booleanValue() == true) {
                 setOffLine(settings.isOffLine());
                 setAutoRefresh(settings.getAutoRefresh());
+                setHideShadowFiles(settings.isHideShadowFiles());
             }
         } else {
             if (settings.isUseGlobal()) {
@@ -2411,15 +2407,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     setAutoRefresh(settings.getAutoRefresh());
                 } else if (VcsSettings.PROP_HOME.equals(propName)) {
                     updateEnvironmentVars();
+                } else if (VcsSettings.PROP_HIDE_SHADOW_FILES.equals(propName)) {
+                    setHideShadowFiles(settings.isHideShadowFiles());
                 }
             }
         }
     }
     
-    public FilenameFilter getLocalFileFilter() {
-        return null;
+    private class SettingsPropertyChangeListener implements PropertyChangeListener {
+        public void propertyChange(final PropertyChangeEvent event) {
+            settingsChanged(event.getPropertyName(), event.getOldValue(), event.getNewValue());
+        }
     }
-
+    
     public String getBundleProperty(String s) {
         return g(s);
     }
