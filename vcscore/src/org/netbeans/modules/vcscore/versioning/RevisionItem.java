@@ -32,6 +32,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     public static final String PROP_MESSAGE = "message";
     public static final String PROP_DATE = "date";
     public static final String PROP_AUTHOR = "author";
+    public static final String PROP_LOCKER = "locker";
     public static final String PROP_TAGS = "tags";
     public static final String PROP_ADDITIONAL_PROPERTIES = "additionalProperties";
     
@@ -42,6 +43,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     private String message;
     private String date;
     private String author;
+    private String locker;
     private Vector tagNames;
     //private RevisionItem next;
     private boolean current;
@@ -56,6 +58,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         message = null;
         date = null;
         author = null;
+        locker = null;
         tagNames = new Vector();
         //next = null;
         current = false;
@@ -133,6 +136,18 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     
     public String getAuthor() {
         return this.author;
+    }
+
+    public void setLocker(String locker) {
+        if (!locker.equals(this.locker)) {
+            String oldLocker = this.locker;
+            this.locker = locker;
+            firePropertyChange(PROP_LOCKER, oldLocker, locker);
+        }
+    }
+
+    public String getLocker() {
+        return this.locker;
     }
 
     public void addTagName(String tagName) {

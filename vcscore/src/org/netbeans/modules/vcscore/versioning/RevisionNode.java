@@ -53,6 +53,7 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
     private Node.Property propertyMessage;
     private Node.Property propertyDate;
     private Node.Property propertyAuthor;
+    private Node.Property propertyLocker;
     private Node.Property propertyTags;
     
     /** Creates new RevisionNode */
@@ -202,6 +203,15 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
                                 return item.getAuthor();
                             }
                     });
+        if (item.getLocker() != null)
+            set.put(propertyLocker = new PropertySupport.ReadOnly(
+                        "locker", String.class,
+                        NbBundle.getBundle(RevisionNode.class).getString("MSG_Locker"), ""
+                        ) {
+                            public Object getValue() {
+                                return item.getLocker();
+                            }
+                    });
         final String[] tags = item.getTagNames();
         if (tags != null && tags.length > 0)
             set.put(propertyTags = new PropertySupport.ReadOnly(
@@ -299,6 +309,8 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
                 propertiesSet.put(propertyDate);
             } else if (RevisionItem.PROP_AUTHOR.equals(propertyName)) {
                 propertiesSet.put(propertyAuthor);
+            } else if (RevisionItem.PROP_LOCKER.equals(propertyName)) {
+                propertiesSet.put(propertyLocker);
             } else if (RevisionItem.PROP_TAGS.equals(propertyName)) {
                 propertiesSet.put(propertyTags);
             } else if (RevisionItem.PROP_ADDITIONAL_PROPERTIES.equals(propertyName)) {
