@@ -1,6 +1,21 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
 package org.netbeans.modules.tasklist.core;
 
 import org.openide.nodes.PropertySupport;
+
+import java.beans.PropertyEditor;
 
 /** 
  * Class holding column properties.
@@ -17,7 +32,9 @@ public class ColumnProperty extends PropertySupport.ReadOnly {
      * more work and more data). */        
     public int uid; // Used to check equivalence in serialized data,
                     // so I don't have to store whole string names
-    public int width;  
+    public int width;
+
+    private Class propertyEditorClass;
 
     // Used for non-treetable columns
     /** Construct a new property for a "table column" (e.g. not
@@ -77,7 +94,7 @@ public class ColumnProperty extends PropertySupport.ReadOnly {
         this.uid = uid;
         this.width = width;
         setValue( "TreeColumnTTV", Boolean.TRUE );// NOI18N
-//        setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
+        setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
         setValue("canEditAsText", Boolean.FALSE); // NOI18N
         if (sortable) {
             setValue ("ComparableColumnTTV", Boolean.TRUE);// NOI18N
@@ -90,5 +107,19 @@ public class ColumnProperty extends PropertySupport.ReadOnly {
 
     public int getWidth() {
         return width;
+    }
+
+    public final void setPropertyEditorClass(Class peClass) {
+        propertyEditorClass = peClass;
+    }
+
+    public final PropertyEditor getPropertyEditor() {
+        if (propertyEditorClass != null)
+            try {
+                return (PropertyEditor) propertyEditorClass.newInstance ();
+            } catch (InstantiationException ex) {
+            } catch (IllegalAccessException iex) {
+            }
+        return super.getPropertyEditor ();
     }
 }

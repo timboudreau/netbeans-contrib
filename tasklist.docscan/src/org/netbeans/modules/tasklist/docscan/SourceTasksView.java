@@ -38,6 +38,7 @@ import org.openide.nodes.AbstractNode;
 
 
 import org.netbeans.modules.tasklist.core.*;
+import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
@@ -172,8 +173,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return new ColumnProperty(
                 MAIN_COLUMN_UID, // UID -- never change (part of serialization
                 PROP_TASK_SUMMARY,
-                NbBundle.getMessage(SourceTaskNode.class, "SuggestionsRoot"), // NOI18N
-                NbBundle.getMessage(SourceTaskNode.class, "SuggestionsRoot"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "TODO"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "TODOHint"), // NOI18N
                 true,
                 width
         );
@@ -194,7 +195,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private ColumnProperty createFileColumn(boolean visible, int width) {
-        return new ColumnProperty(
+        ColumnProperty file = new ColumnProperty(
                 FILE_COLUMN_UID, // UID -- never change (part of serialization
                 PROP_SUGG_FILE,
                 String.class,
@@ -204,6 +205,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 visible,
                 width
         );
+        // #38190 FIXME instead of renderer we do not have access to
+        file.setPropertyEditorClass(StringPropertyEditor.class);
+        return file;
     }
 
     protected void componentClosed() {

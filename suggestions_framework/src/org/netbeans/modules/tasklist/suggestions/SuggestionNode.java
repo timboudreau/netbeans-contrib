@@ -189,6 +189,9 @@ public class SuggestionNode extends TaskNode {
             p.setName(SuggestionsView.PROP_SUGG_FILE);
             p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "File")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "FileHint")); // NOI18N
+            // HACK #38190
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
+            p.setValue("canEditAsText", Boolean.FALSE); // NOI18N
             ss.put(p);
 
             p = new Reflection(item, Integer.TYPE, "getLineNumber", null /* Don't allow users to edit this! "setLineNumber" */); // NOI18N
