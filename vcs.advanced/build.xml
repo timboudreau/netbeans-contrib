@@ -95,7 +95,7 @@ Microsystems, Inc. All Rights Reserved.
       </fileset>
     </locjar>
     <!-- <for-each locations="${stdprofiles}" startdir="profiles"/> -->
-    <nbmerge dest="netbeans" topdir="profiles" modules="${stdprofiles}"/>
+    <nbmerge dest="netbeans" topdir="profiles" modules="${stdprofiles}" targetprefix="profile-"/>
    <!--
     <patternset id="stdprofilesFolders" includes="${stdprofiles}"/>
     <copy todir="netbeans/modules" flatten="true" includeEmptyDirs="false">
@@ -122,15 +122,15 @@ Microsystems, Inc. All Rights Reserved.
   -->
   </target>
 
-  <target name="all-cvsprofiles">
+  <target name="profile-cvsprofiles">
     <echo message="Building CVS profiles..."/>
     <ant dir="profiles/cvsprofiles" target="netbeans"/>
   </target>
-  <target name="all-pvcs">
+  <target name="profile-pvcs">
     <echo message="Building PVCS profiles..."/>
     <ant dir="profiles/pvcs" target="netbeans"/>
   </target>
-  <target name="all-vss">
+  <target name="profile-vss">
     <echo message="Building VSS profiles..."/>
     <ant dir="profiles/vss" target="netbeans"/>
   </target>
