@@ -34,6 +34,7 @@ import org.netbeans.modules.tasklist.providers.SuggestionProvider;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 import org.netbeans.apihole.tasklist.SPIHole;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
+import org.netbeans.api.queries.VisibilityQuery;
 
 import javax.swing.*;
 import java.util.*;
@@ -370,10 +371,10 @@ public final class SuggestionsScanner implements Cancellable {
                 (EditorCookie) dobj.getCookie(EditorCookie.class);
         if (edit == null) return;
 
-        String extension = dobj.getPrimaryFile().getExt();
-        // TODO replace by VisibilityQuery
-        if (extension.equals("java~") || extension.equals("properties~")) return;  // I didn't understand the logic below behind isPrimed but I definitely don't want backups to be scanned
-        boolean directAccess = "java".equals(extension) || "properties".equals(extension);  // #38476      
+        FileObject fo = dobj.getPrimaryFile();
+        if (VisibilityQuery.getDefault().isVisible(fo) == false) return; // ignore backups etc
+        String extension = fo.getExt();
+        boolean directAccess = "java".equals(extension) || "properties".equals(extension);  // #38476
         boolean isPrimed = edit.getDocument() == null && directAccess == false;
 
         SuggestionContext env = SPIHole.createSuggestionContext(dobj);
