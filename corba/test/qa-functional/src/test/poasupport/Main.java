@@ -323,9 +323,7 @@ public class Main extends JellyTestCase {
         EditorOperator eo = ewo.getEditor (poaFileName);
         ev.waitNoEvent(1000);
         eo.waitModified(true);
-//        eo.save (); // jelly2 bug workaround
-        new SaveAction ().performMenu (eo);
-        eo.close();
+        eo.close(true);
         dumpFile(poaNode, poaFileName);
         ev.waitNoEvent(1000);
 
