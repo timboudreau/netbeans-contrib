@@ -159,7 +159,8 @@ public class EJBProjectGenerator {
     public static void putResourceFolder(AntProjectHelper helper, List/*<String>*/ resources) {
         Element data = helper.getPrimaryConfigurationData(true);
         Document doc = data.getOwnerDocument();
-        putProperty(doc, data, EjbJarProjectProperties.RESOURCE_DIR, (String) resources.get(0));
+        String value = (String)resources.get(0) != null ? (String)resources.get(0) : ""; // NOI18N
+        putProperty(doc, data, EjbJarProjectProperties.RESOURCE_DIR, value);
         helper.putPrimaryConfigurationData(data, true);
     }
     
