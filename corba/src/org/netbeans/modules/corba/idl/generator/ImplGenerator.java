@@ -65,6 +65,7 @@ import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
 import org.openide.util.RequestProcessor;
+import org.openide.util.NbBundle;
 
 import org.netbeans.modules.java.JavaConnections;
 import org.netbeans.modules.java.JavaDataObject;
@@ -1942,6 +1943,44 @@ public class ImplGenerator implements PropertyChangeListener {
 	return __method;
     }
 
+    private void add_attribute (ClassElement __clazz, MemberElement[] __members) throws OperationAlreadyDefinedException {
+        //Preconditions check
+        Assertion.assert (__members.length>0 && __members.length <=2);
+        if (__members[0] instanceof MethodElement) {
+            MethodElement __method = (MethodElement) __members[0];
+            MethodElement[] methods = __clazz.getMethods();
+            for (int i=0; i< methods.length; i++) {
+                if (methods[i].getName().getName().equals(__method.getName().getName())) {
+                    // No valid IDL
+                    // No two operations can have the same name
+                    throw new OperationAlreadyDefinedException (__method.getName().getName());
+                }
+            }
+        }
+        // Action
+        for (int i=0; i<__members.length; i++) {
+            this.add_element (__clazz, __members[i]);
+        }
+        // Postconditions check
+    }
+    
+    private void add_operation (ClassElement __clazz, MemberElement __member) throws OperationAlreadyDefinedException {
+        // Preconditions check 
+        if (__member instanceof MethodElement) {
+            MethodElement __method = (MethodElement) __member;
+            MethodElement[] methods = __clazz.getMethods();
+            for (int i=0; i< methods.length; i++) {
+                if (methods[i].getName().getName().equals(__method.getName().getName())) {
+                    // No valid IDL
+                    // No two operations can have the same name
+                    throw new OperationAlreadyDefinedException (__method.getName().getName());
+                }
+            }
+        }
+        //Action
+        this.add_element (__clazz, __member);
+        //Postconditions check
+    }
 
     private void add_element (ClassElement __clazz, MemberElement __element) {
 	if (DEBUG)
@@ -1954,7 +1993,7 @@ public class ImplGenerator implements PropertyChangeListener {
 		FieldElement __field = (FieldElement)__element;
 		__clazz.addField (__field);
 	    } else if (__element instanceof MethodElement) {
-		MethodElement __method = (MethodElement)__element;;
+		MethodElement __method = (MethodElement)__element;
 		__clazz.addMethod (__method);
 	    } else if (__element instanceof ConstructorElement) {
 		ConstructorElement __constr = (ConstructorElement)__element;
@@ -2284,7 +2323,7 @@ public class ImplGenerator implements PropertyChangeListener {
 					      List __operations, List __methods_map,
 					      List __all_methods_map,
 					      boolean __virtual_delegation) 
-	throws DuplicateExceptionException, SymbolNotFoundException {
+	throws DuplicateExceptionException, SymbolNotFoundException, OperationAlreadyDefinedException {
 	String __direct_parent_variable_name;
 	MethodElement __method;
 	MethodElement[] __methods;
@@ -2365,9 +2404,7 @@ public class ImplGenerator implements PropertyChangeListener {
 			__methods[__j].setBody (__body);
 		    }
 		    //__clazz.addMethods (__methods);
-		    for (int __k=0; __k<__methods.length; __k++) {
-			this.add_element (__clazz, __methods[__k]);
-		    }
+                    this.add_attribute (__clazz, __methods);
 		}
 		if (__operations.get (__i) instanceof OperationElement) {
 		    OperationElement __oper = (OperationElement)__operations.get (__i);
@@ -2386,7 +2423,7 @@ public class ImplGenerator implements PropertyChangeListener {
 		    __body += ");\n";
 		    __method.setBody (__body);
 		    //__clazz.addMethod (__method);
-		    this.add_element (__clazz, __method);
+		    this.add_operation (__clazz, __method);
 		}
 	    }
 	} catch (SourceException __ex) {
@@ -4042,6 +4079,11 @@ public class ImplGenerator implements PropertyChangeListener {
 	if (_M_working_class != null) {
 	    OperationElement __oper = (OperationElement)__element;
 	    MethodElement __method = this.operation2java (__oper);
+            MethodElement[] methods = _M_working_class.getMethods();
+            for (int i=0; i< methods.length; i++) {
+                if (methods[i].getName().getName().equals( __method.getName().getName()))
+                    throw new OperationAlreadyDefinedException (__method.getName().getName());
+            }
 	    _M_working_class.addMethod (__method);
 	}
     }
@@ -4052,6 +4094,11 @@ public class ImplGenerator implements PropertyChangeListener {
 	if (_M_working_class != null) {
 	    AttributeElement __attr = (AttributeElement)__element;
 	    MethodElement[] __methods = this.attribute2java (__attr);
+            MethodElement[] methods = _M_working_class.getMethods();
+            for (int i=0; i< methods.length; i++) {
+                if (methods[i].getName().getName().equals( __methods[0].getName().getName()))
+                    throw new OperationAlreadyDefinedException (__methods[0].getName().getName());
+            }
 	    _M_working_class.addMethods (__methods);
 	}
     }
@@ -4294,6 +4341,9 @@ public class ImplGenerator implements PropertyChangeListener {
 	    }
 	    if (DEBUG_EXCEPT)
 		__ex.printStackTrace ();
+        } catch (OperationAlreadyDefinedException opDef) {
+            opDef.printStackTrace();
+            TopManager.getDefault().notify ( new NotifyDescriptor.Message (MessageFormat.format(NbBundle.getBundle(ImplGenerator.class).getString("TXT_OperationDefined"),new Object[]{opDef.getSymbolName()}),NotifyDescriptor.ERROR_MESSAGE));
 	} catch (AlreadyDefinedSymbolException __ex) {
 	    if (!_M_run_testsuite) {
 		java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
@@ -4309,7 +4359,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    }
 	    if (DEBUG_EXCEPT)
 		__ex.printStackTrace ();
-	} catch (Exception __x) {
+        } catch (Exception __x) {
 	    if (!_M_run_testsuite)
 		TopManager.getDefault ().getErrorManager ().notify (__x);
 	    else
