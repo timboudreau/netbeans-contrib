@@ -34,7 +34,7 @@ public class VcsOutputAction extends CallableSystemAction {
     /** Getter for name
      */
     public String getName () {
-        return org.openide.util.NbBundle.getMessage(VcsSettingsAction.class,"CTL_VcsOutputActionName");
+        return org.openide.util.NbBundle.getMessage(VcsOutputAction.class,"CTL_VcsOutputActionName");
     }
     
     protected String iconResource() {     
