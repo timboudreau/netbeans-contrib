@@ -25,7 +25,11 @@ Microsystems, Inc. All Rights Reserved.
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
 
-    <target name="compile">
+    <target name="init">
+        <ant dir="../external" target="unscramble"/>
+    </target>
+
+    <target name="compile" depends="init">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
@@ -60,7 +64,7 @@ Microsystems, Inc. All Rights Reserved.
         </locjar>
     </target>
 
-    <target name="netbeans" depends="jars">
+    <target name="netbeans" depends="jars,release">
         <genlist targetname="nbm" outputfiledir="netbeans"/>
     </target>
 
@@ -71,7 +75,12 @@ Microsystems, Inc. All Rights Reserved.
                  homepage="http://tasklist.${homepage.base}/"
                  distribution="http://${dist.base}/tasklist-html.nbm"
                  needsrestart="false">
-            <license file="${license.file}"/>
+            <license name="tasklist-html-license.txt">
+                <text>For the HTML Suggestion Provider module itself:</text>
+                <file location="${license.file}"/>
+                <text>For the Java HTML Tidy library:</text>
+                <file location="../external/jtidy-license.txt"/>
+            </license>
             <notification file="module-updates.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
@@ -90,7 +99,7 @@ Microsystems, Inc. All Rights Reserved.
         <delete dir="javadoc"/>
     </target>
 
-    <target name="release">
+    <target name="release" depends="init">
        <mkdir dir="netbeans/modules/ext"/>
        <copy todir="netbeans/modules/ext">
          <fileset dir="../external">
