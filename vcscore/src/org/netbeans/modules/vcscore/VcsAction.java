@@ -285,7 +285,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                                                  CommandOutputListener stdoutListener, CommandOutputListener stderrListener,
                                                  CommandDataOutputListener stdoutDataListener, CommandDataOutputListener stderrDataListener,
                                                  boolean saveProcessingFiles) {
-        //System.out.println("doCommand("+files+", "+cmd+")");
+        //System.out.println("doCommand("+VcsUtilities.arrayToString((String[]) files.keySet().toArray(new String[0]))+", "+cmd+")");
         if (files.size() == 0) return new VcsCommandExecutor[0];
         if (saveProcessingFiles) {
             assureFilesSaved(files.values());
@@ -301,22 +301,23 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
         boolean cmdCanRunOnMultipleFilesInFolder = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER);
         VariableValueAdjustment valueAdjustment = fileSystem.getVarValueAdjustment();
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
-        if (additionalVars != null) vars.putAll(additionalVars);
         Map scheduledFilesMap = extractScheduledFiles(files, cmd);
         String scheduledAttribute = null;
         VcsCommand scheduledCmd = cmd;
         do {
+            Hashtable vars = fileSystem.getVariablesAsHashtable();
+            if (additionalVars != null) vars.putAll(additionalVars);
             if (files.size() > 1) {
                 askForEachFile = new boolean[1];
                 askForEachFile[0] = true;
             }
             Object[] askForEachFileRef = new Object[] { askForEachFile };
+            Object[] varsRef = new Object[] { vars };
             do {
                 if (files.size() == 0) {
                     preprocessStatus = CommandsPool.PREPROCESS_DONE;
                 } else {
-                    preprocessStatus = doCommandExecution(files, vars, additionalVars, 
+                    preprocessStatus = doCommandExecution(files, varsRef, additionalVars, 
                                                           fileSystem, scheduledCmd,
                                                           cmdCanRunOnMultipleFiles,
                                                           cmdCanRunOnMultipleFilesInFolder,
@@ -361,7 +362,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         VcsAction.doCommand(files, cmd, map, fileSystem);
     }
     
-    private static int doCommandExecution(Table files, Hashtable vars, Hashtable additionalVars,
+    private static int doCommandExecution(Table files, Object[] varsRef, Hashtable additionalVars,
                                           VcsFileSystem fileSystem, VcsCommand cmd,
                                           boolean cmdCanRunOnMultipleFiles,
                                           boolean cmdCanRunOnMultipleFilesInFolder,
@@ -370,6 +371,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                                           CommandOutputListener stdoutListener, CommandOutputListener stderrListener,
                                           CommandDataOutputListener stdoutDataListener, CommandDataOutputListener stderrDataListener) {
         boolean[] askForEachFile = (boolean[]) askForEachFileRef[0];
+        Hashtable vars = (Hashtable) varsRef[0];
         setVariables(files, vars, quoting, valueAdjustment);
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         CommandsPool pool = fileSystem.getCommandsPool();
@@ -447,6 +449,8 @@ public class VcsAction extends NodeAction implements ActionListener {
                 preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
             }
         }
+        varsRef[0] = vars;
+        askForEachFileRef[0] = askForEachFile;
         return preprocessStatus;
     }
     
