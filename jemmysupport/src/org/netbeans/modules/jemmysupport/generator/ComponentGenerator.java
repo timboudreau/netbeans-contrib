@@ -194,6 +194,7 @@ public class ComponentGenerator {
         String _identification;
         String _uniqueName;
         int _index;
+        int _absoluteIndex;
         String _componentClass;
         String[] _internalLabels;
         String _shortName;
@@ -213,12 +214,13 @@ public class ComponentGenerator {
          * @param uniqueName generated unique name
          * @param index index used for component search inside container
          * @param componentClass compoennt's real class name */        
-        public ComponentRecord( OperatorRecord operator, String identification, String uniqueName, int index, String componentClass, String[] internalLabels, Icon icon, ComponentOperator componentOperator, ComponentRecord parent ) {
+        public ComponentRecord( OperatorRecord operator, String identification, String uniqueName, int index, int absoluteIndex, String componentClass, String[] internalLabels, Icon icon, ComponentOperator componentOperator, ComponentRecord parent ) {
             _icon = icon;
             _operator = operator;
             setIdentification(identification);
              _uniqueName = uniqueName;
             _index = index;
+            _absoluteIndex = absoluteIndex;
             _componentClass = componentClass;
             _internalLabels = internalLabels;
             if ((this==_container)&&(_index>0)) {
@@ -538,6 +540,13 @@ public class ComponentGenerator {
             _index = index;
         }
         
+        /** returns components absolute search index
+         * @return components absolute search index
+         */        
+        public int getAbsoluteIndex () {
+            return _absoluteIndex;
+        }
+        
         public boolean isDefaultName() {
             return _uniqueName.startsWith(_operator._instancePrefix+_componentClass+_operator._instanceSuffix);
         }
@@ -792,13 +801,21 @@ public class ComponentGenerator {
                 index = searchForIndex( componentOperator, (ContainerOperator)parentComponent.getComponentOperator(), identification );
             }
             if (index>=0) {
-                ComponentRecord record = new ComponentRecord( operatorRecord, identification, uniqueName, index, className, operatorRecord.getInternalRecursion()?getInternalLabels(componentOperator.getSource()):null, icon, componentOperator, parentComponent);
+                int absoluteIndex;
+                if (identification == null) {
+                    absoluteIndex = index;
+                } else if (parentComponent==null) {
+                    absoluteIndex = searchForIndex( componentOperator, containerOperator, null );
+                } else {
+                    absoluteIndex = searchForIndex( componentOperator, (ContainerOperator)parentComponent.getComponentOperator(), null );
+                }
+                ComponentRecord record = new ComponentRecord( operatorRecord, identification, uniqueName, index, absoluteIndex, className, operatorRecord.getInternalRecursion()?getInternalLabels(componentOperator.getSource()):null, icon, componentOperator, parentComponent);
                 componentNames.add(uniqueName);
                 components.add(record);
                 return record;
             }
         } else {
-            _container = new ComponentRecord( operatorRecord, identification, uniqueName, 0, className, null, icon, componentOperator, null );
+            _container = new ComponentRecord( operatorRecord, identification, uniqueName, 0, 0, className, null, icon, componentOperator, null );
         }
         return null;
     }
