@@ -54,6 +54,19 @@ Microsystems, Inc. All Rights Reserved.
    <tocitem text="Completing Server-Side Files" target="completing_server" />
 </tocitem>
 
+<tocitem text="Corba Portable Object Adapter" target="POAintro">
+   <tocitem text="Specifying New Child POAs and Removing POAs" target="newchildpoa" />
+   <tocitem text="Displaying and Changing POA Properties" target="displayprop" />
+   <tocitem text="id Assignment Policy" target="idassign" />
+   <tocitem text="POA Policies" target="policies" />
+   <tocitem text="Changing POA Policies" target="changepol" />
+   <tocitem text="Creating a New Adapter Activator" target="adapteractivator" />
+   <tocitem text="Registering a New POA Activator" target="regpoactivator" />
+   <tocitem text="Creating a New Servant Activator" target="servantactivator" />
+   <tocitem text="Creating a New Servant Locator" target="servantlocator" />
+   <tocitem text="Unregistering POA Hierarchy Elements" target="unregistering" />
+</tocitem>
+
 <tocitem text="The Naming Service Browser" target="nsbrowser_intro">
    <tocitem text="Starting the Naming Service Browser" target="nsbrowser_connecting" />
    <tocitem text="Naming Service Browser Commands" target="nsbrowser_binding" />
