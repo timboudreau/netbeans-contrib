@@ -98,6 +98,52 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         return fileSystem;
     }
     
+    /**
+     * Get the filesystem icon. The default implementation returns the icon
+     * of the file system associated with this Versioning file system.
+     *
+     * @return the icon or null
+     */
+    public java.awt.Image getFSIcon(int type) {//BeanInfo() {
+        FileSystem fs = getFileSystem();
+        if (fs != null) {
+            try {
+                java.beans.BeanInfo bi = org.openide.util.Utilities.getBeanInfo(fs.getClass());
+                if (bi != null) return bi.getIcon(type);
+            } catch (java.beans.IntrospectionException iexc) {}
+        }
+        return null;
+    }
+    
+    /**
+     * Get the filesystem customizer. The default implementation returns the customizer
+     * of the file system associated with this Versioning file system.
+     *
+     * @return the customizer object or null
+     */
+    public Object getFSCustomizer() {
+        FileSystem fs = getFileSystem();
+        if (fs != null) {
+            try {
+                java.beans.BeanInfo bi = org.openide.util.Utilities.getBeanInfo(fs.getClass());
+                if (bi != null) {
+                    Class c = bi.getBeanDescriptor().getCustomizerClass();
+                    if (c == null) return null;
+                    try {
+                        Object i = c.newInstance();
+                        if (i instanceof java.beans.Customizer) {
+                            java.beans.Customizer cust = (java.beans.Customizer)i;
+                            cust.setObject(fs);
+                        }
+                        return i;
+                    } catch (InstantiationException iex) {
+                    } catch (IllegalAccessException iaex) {
+                    }
+                }
+            } catch (java.beans.IntrospectionException iexc) {}
+        }
+        return null;
+    }
     
     /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
      * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)
