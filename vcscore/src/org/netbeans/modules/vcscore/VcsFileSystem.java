@@ -208,6 +208,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String VAR_STATUS_SCHEDULED_ADD = "STATUS_SCHEDULED_ADD";
     public static final String VAR_STATUS_SCHEDULED_REMOVE = "STATUS_SCHEDULED_REMOVE";
     
+    /** The unique type of VCS that is provided. */
+    public static final String VAR_VCS_TYPE = "VCS_TYPE"; // NOI18N
+    
     /** The user name of current user, that locks files.
      *  It's supposed that LOCK command will lock files with that user name.
      *  If empty, System.getProperty("user.name") is used instead. */
@@ -1952,6 +1955,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         setAdjustedSystemName(computeSystemName(rootFile));
         //} catch (PropertyVetoException exc) {}
         displayName = computeDisplayName();
+        String vcsType = (String) getVariablesAsHashtable().get(VAR_VCS_TYPE);
+        ((DefaultVcsCommandsProvider) commandsProvider).setType(vcsType);
         firePropertyChange(PROP_DISPLAY_NAME, null, getDisplayName());
     }
 

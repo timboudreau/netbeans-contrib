@@ -38,6 +38,7 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
     private Map commandSupportsByClasses;
     private String[] commandNames;
     private boolean expertMode;
+    private String type = "Unknown"; // NOI18N
     private PropertyChangeSupport changeSupport;
     
     /** Creates a new instance of DefaultVcsCommandsProvider */
@@ -112,6 +113,17 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
             this.commandSupportsByClasses = commandSupportsByClasses;
         }
         changeSupport.firePropertyChange(CommandsTree.Provider.PROP_COMMANDS, null, commands);
+    }
+    
+    public void setType(String type) {
+        if (type == null) {
+            throw new IllegalArgumentException("The VCS type must not be null!");
+        }
+        this.type = type;
+    }
+    
+    public String getType() {
+        return type;
     }
     
     private void fillCommands(CommandsTree commands, Map commandSupportsByNames,

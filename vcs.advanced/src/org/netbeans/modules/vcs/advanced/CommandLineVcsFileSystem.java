@@ -1111,6 +1111,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * @param variables the vector of <code>VcsConfigVariable</code> objects.
      */
     public void setVariables(Vector variables){
+        assureVcsTypeIsDefined(variables);
         if (profile != null) {
             Condition[] conditions = profile.getConditions();
             if (conditions != null) {
@@ -1169,6 +1170,28 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             } else {
                 setCommands(CommandsTree.EMPTY);
             }
+        }
+    }
+    
+    private void assureVcsTypeIsDefined(Vector variables) {
+        boolean isVcsType = false;
+        for (int i = variables.size() - 1; i >= 0; i--) {
+            if (((VcsConfigVariable) variables.get(i)).getName().equals(VAR_VCS_TYPE)) {
+                isVcsType = true;
+                break;
+            }
+        }
+        if (!isVcsType) {
+            String vcsType;
+            if (profile != null) {
+                vcsType = profile.getType();
+                if (vcsType == null) {
+                    vcsType = profile.getName();
+                }
+            } else {
+                vcsType = "None"; // NOI18N
+            }
+            variables.add(new VcsConfigVariable(VAR_VCS_TYPE, null, vcsType, false, false, false, null));
         }
     }
     
