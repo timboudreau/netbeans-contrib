@@ -136,7 +136,18 @@ public class VariableInputComponent extends Object {
         if (index >= 0 && (index == 0 || value.charAt(index - 1) != '\\')) {
             return false;
         }
-        return true;
+        return !needsPreCommandPerform();
+    }
+    
+    public boolean needsPreCommandPerform() {
+        String value = getDefaultValue();
+        if (value != null &&
+            (value.indexOf(org.netbeans.modules.vcscore.commands.PreCommandPerformer.INSERT_OUTPUT) >= 0 ||
+             value.indexOf(org.netbeans.modules.vcscore.commands.PreCommandPerformer.INSERT_ERROR) >= 0 ||
+             value.indexOf(org.netbeans.modules.vcscore.commands.PreCommandPerformer.FILE_OUTPUT) >= 0)) {
+            return true;
+        }
+        return false;
     }
     
     public void setValuesAsDefault() {
