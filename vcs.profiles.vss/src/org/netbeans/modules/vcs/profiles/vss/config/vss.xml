@@ -920,7 +920,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD_ALL_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNCDF_NMK} ${QUOTE}${VSSCMD}${QUOTE} add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${RECURSIVE} * ${NUR}</value>
+	  <value>${RUNCDF_NMK} ${QUOTE}${VSSCMD}${QUOTE} add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${RECURSIVE} * {INSERT_OUTPUT_OF_DIR_FOLDERS(0)} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -956,6 +956,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
+        <property name="preCommands">
+          <value>$[? CACHED_ISLOCAL] [CREATE_CMD] []</value>
+        </property>
         <property name="notificationSuccessMsg">
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_ADD_ALL_Success)</value>
         </property>
@@ -967,6 +970,49 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="generalCommandActionDisplayName">
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_ADD)</value>
+        </property>
+      </command>
+      <command name="DIR_FOLDERS">
+        <property name="exec">
+	  <value>cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []\" &amp;&amp; dir /AD /B "</value>
+	</property>
+	<property name="onFile">
+	  <value>false</value>
+	</property>
+	<property name="data.regex">
+	  <value>(.*$)</value>
+	</property>
+	<property name="error.regex">
+	  <value>(.*$)</value>
+	</property>
+      </command>
+      <command name="CREATE_CMD">
+	<property name="exec">
+	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} create $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
+	</property>
+	<property name="onFile">
+	  <value>false</value>
+	</property>
+	<property name="data.regex">
+	  <value>(.*$)</value>
+	</property>
+	<property name="error.regex">
+	  <value>(.*$)</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+        <property name="disabledOnStatus">
+          <value>""</value>
+	</property>
+        <property name="refreshParentFolder">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+        <property name="needsHierarchicalOrder">
+	  <value>true</value>
         </property>
       </command>
       <command name="CREATE" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CREATE)">
