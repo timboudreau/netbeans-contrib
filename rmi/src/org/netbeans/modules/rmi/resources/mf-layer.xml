@@ -31,7 +31,7 @@ Microsystems, Inc. All Rights Reserved.
   
 	<!-- Templates -->  
   <folder name="Templates">
-    <attr name="Other/RMI" boolvalue="true"/>
+    <attr name="JSP_Servlet/RMI" boolvalue="true"/>
     <folder name="RMI">
       <attr name="templateWizardDescResource" stringvalue="org/netbeans/modules/rmi/resources/RMI.html"/>
       <attr name="templateWizardURL" urlvalue="nbrescurrloc:/org/netbeans/modules/rmi/resources/RMI.html"/>
