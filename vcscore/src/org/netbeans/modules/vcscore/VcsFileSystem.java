@@ -2759,6 +2759,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
+    
+    private transient boolean isRootReferenced = false;
 
     /* Get children files inside a folder
      * @param name the name of the folder
@@ -2774,10 +2776,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             //System.out.println("children: not ready !!"); // NOI18N
             return new String[0];
         }
+        
+        if (!isRootReferenced) {
+            if (cache != null) {
+                cache.createReference(getRoot());
+            }
+            isRootReferenced = true;
+        }
 
         HashMap removedFilesScheduledForRemove = new HashMap();
         if (cache != null && !isHideShadowFiles()) {// && cache.isDir(name)) {
-            cache.readDirFromDiskCache(name);
+            Object cacheLocker = new Object();
+            cache.readDirFromDiskCache(name/*, cacheLocker*/);
             vcsFiles = cache.getFilesAndSubdirs(name);
             if (!isShowDeadFiles()) {
                 vcsFiles = filterDeadFilesOut(name, vcsFiles);
