@@ -538,7 +538,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     public Collection getFiles() {
         if (processingFilesCollection == null) {
-            processingFilesCollection = createProcessingFiles();
+            processingFilesCollection = createProcessingFiles(fileSystem, vars);
         }
         return processingFilesCollection;
     }
@@ -548,7 +548,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * @return the set of files of type <code>String</code> relative
      * to the file system root.
      */
-    private Collection createProcessingFiles() {
+    public static Collection createProcessingFiles(VcsFileSystem fileSystem, Hashtable vars) {
         VariableValueAdjustment valueAdjustment = fileSystem.getVarValueAdjustment();
         String separator = (String) vars.get("PS");
         char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
