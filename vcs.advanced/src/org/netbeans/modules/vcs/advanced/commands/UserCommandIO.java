@@ -54,7 +54,12 @@ public class UserCommandIO extends Object {
     private static String convertStringArray2String(String[] array) {
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < array.length; i++) {
-            String item = org.openide.util.Utilities.replaceString(array[i], "/", "//");
+            String item;
+            if (array[i] != null) {
+                item = org.openide.util.Utilities.replaceString(array[i], "/", "//");
+            } else {
+                item = "";
+            }
             buf.append(item);
             if (i < array.length - 1) buf.append("/");
         }
