@@ -1258,8 +1258,8 @@ Microsystems, Inc. All Rights Reserved.
       </property>
     </command>
     <command name="GET_ARCHIVE_LOCATION">
-      <property name="exec">
-        <value>$[? CACHED_ATTR] [echo ${CMD_QUOTE}${CACHED_ATTR}${CMD_QUOTE}] [${RUN} pcli GetArchiveLocation ${PRID} /${QUOTE}${PROJECT}/$[? COMMON_PARENT] [${COMMON_PARENT}/] []$[? DIR] [${DIR}/] []${FILE}${QUOTE}]</value>
+      <property name="exec">        
+        <value>$[? CACHED_ATTR] [echo "${CACHED_ATTR}"] [${RUN} pcli GetArchiveLocation ${PRID} /${QUOTE}${PROJECT}/$[? COMMON_PARENT] [${COMMON_PARENT}/] []$[? DIR] [${DIR}/] []${FILE}${QUOTE}]</value>
         <value if="IS_WINNT">$[? CACHED_ATTR] [cmd /X /C "echo "${CACHED_ATTR}""] [${RUN} pcli GetArchiveLocation ${PRID} /${QUOTE}${PROJECT_\/}/$[? COMMON_PARENT] [${COMMON_PARENT_\/}/] []$[? DIR] [${DIR_\/}/] []${FILE}${QUOTE}]</value>
       </property>
       <property name="concurrentExec">
