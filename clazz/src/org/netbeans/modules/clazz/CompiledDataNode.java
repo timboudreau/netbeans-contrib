@@ -57,7 +57,7 @@ public class CompiledDataNode extends ClassDataNode {
         return getCompiledDataObject().isExecutable();
     }
 
-    protected Sheet createPropertySheet() {
+    protected Sheet createSheet () {
         Sheet s = super.createSheet();
         ResourceBundle bundle = NbBundle.getBundle(ClassDataNode.class);
         Sheet.Set ps = s.get(Sheet.PROPERTIES);
