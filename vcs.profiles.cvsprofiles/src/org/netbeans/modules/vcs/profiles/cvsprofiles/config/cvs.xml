@@ -325,7 +325,7 @@ Microsystems, Inc. All Rights Reserved.
                                             ["ResourceMsg(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_false);;MNEMONIC_ResourceMsg(VAR_BuiltIn_false_Mnemonic))",
                  PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_EXE);;MNEMONIC_ResourceMsg(VAR_EXE_Mnemonic)),
-                            SELECTOR_FILE)
+                            VALIDATOR_JAVA  org.netbeans.modules.vcs.profiles.cvsprofiles.commands.Validators.wizardCvsExe, SELECTOR_FILE)
                  PROMPT_FOR(ENVIRONMENT_VAR_CVS_RSH, "ResourceMsg(VAR_CVS_RSH):", "ssh",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_CVS_RSH);;MNEMONIC_ResourceMsg(VAR_CVS_RSH_Mnemonic)))
                  IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "ResourceMsg(Unix_Shell):", "",
@@ -360,7 +360,7 @@ Microsystems, Inc. All Rights Reserved.
                                             ["ResourceMsg(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_false);;MNEMONIC_ResourceMsg(VAR_BuiltIn_false_Mnemonic))",
                  PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_EXE);;MNEMONIC_ResourceMsg(VAR_EXE_Mnemonic)),
-                            SELECTOR_FILE)
+                            VALIDATOR_JAVA  org.netbeans.modules.vcs.profiles.cvsprofiles.commands.Validators.wizardCvsExe, SELECTOR_FILE)
                  PROMPT_FOR(ENVIRONMENT_VAR_CVS_RSH, "ResourceMsg(VAR_CVS_RSH):", "ssh",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_CVS_RSH);;MNEMONIC_ResourceMsg(VAR_CVS_RSH_Mnemonic)))
                  IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "ResourceMsg(Unix_Shell):", "",

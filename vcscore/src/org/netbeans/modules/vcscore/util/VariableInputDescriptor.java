@@ -285,23 +285,32 @@ public class VariableInputDescriptor extends Object {
     }
     
     /**
-     * Check, that the values of all components are valid.
+     * Check, that the values of all nested components are valid.
      * @return the validator object describing the validation
      */
     public VariableInputValidator validate() {
-        //boolean valid = true;
-        VariableInputValidator validator = null;
-        VariableInputComponent[] components = components();
-        for (int i = 0; i < components.length; i++) {
-            validator = components[i].validate();
-            if (!validator.isValid()) break;
-        }
+        VariableInputValidator validator = validateComponents(components());
         if (validator == null) {
             validator = new VariableInputValidator(null, null);
         }
         return validator;
     }
-    
+
+    private VariableInputValidator validateComponents(VariableInputComponent[] components) {
+        for (int i = 0; i < components.length; i++) {
+            VariableInputComponent component = components[i];
+            VariableInputValidator validator = component.validate();
+            if (validator != null && !validator.isValid()) {
+                return validator;
+            }
+            validator = validateComponents(component.subComponents());  // RECURSION
+            if (validator != null) {
+                return validator;
+            }
+        }
+        return null;
+    }
+
     public void addValuesToHistory() {
         VariableInputComponent[] comps = components();
         for (int i = 0; i < comps.length; i++) {

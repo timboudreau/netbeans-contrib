@@ -16,8 +16,12 @@ package org.netbeans.modules.vcscore.util;
 import java.text.MessageFormat;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import org.openide.util.NbBundle;
+import org.openide.util.Lookup;
+import org.openide.ErrorManager;
 
 /**
  * This class validates the variable input components and provides the result
@@ -33,6 +37,7 @@ public class VariableInputValidator extends Object {
     public static final String VALIDATOR_REGEXP_UNMATCH = VALIDATOR + "REGEXP_UNMATCH(";
     public static final String VALIDATOR_FILE = VALIDATOR + "FILE";
     public static final String VALIDATOR_FOLDER = VALIDATOR + "FOLDER";
+    public static final String VALIDATOR_JAVA = VALIDATOR + "JAVA";
 
     private boolean valid;
     private String message = null;
@@ -54,6 +59,9 @@ public class VariableInputValidator extends Object {
                 validateFile(component);
             } else if (VALIDATOR_FOLDER.equals(validator)) {
                 validateFolder(component);
+            } else if (validator.startsWith(VALIDATOR_JAVA)) {
+                String arg = validator.substring(VALIDATOR_JAVA.length());
+                validateByJava(component, arg);
             } else {
                 valid = false;
                 message = g("VariableInputValidator.BadValidator", validator);
@@ -71,7 +79,58 @@ public class VariableInputValidator extends Object {
             valid = true;
         }
     }
-    
+
+    /**
+     * Using reflection executes custom static method that takes one string
+     * and returns string (or null on success).
+     */
+    private void validateByJava(VariableInputComponent component, String classMethod) {
+        String value = component.getValue();
+
+        int index = classMethod.lastIndexOf('.');
+        String methodName = classMethod.substring(index+1, classMethod.length()).trim();
+        String className = classMethod.substring(0, index).trim();
+
+        String result = null;
+        try {
+            Lookup lookup = Lookup.getDefault();
+            ClassLoader loader = (ClassLoader) lookup.lookup(ClassLoader.class);
+            Class validatorClass = Class.forName(className, true, loader);
+            Class[] params = new Class[] {String.class};
+            Method validatorMethod = validatorClass.getMethod(methodName, params);
+            try {
+                result = (String) validatorMethod.invoke(null, new Object[] {value});
+            } catch (ClassCastException ex) {
+                ErrorManager err = ErrorManager.getDefault();
+                err.annotate(ex, "VALIDATOR_JAVA method must be public static String name(String val) "  + classMethod); // NOI18N
+                err.notify(ex);
+            }
+        } catch (ClassNotFoundException e) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.annotate(e, "Invalid VALIDATOR_JAVA class " + classMethod);  // NOI18N
+            err.notify(e);
+        } catch (NoSuchMethodException e) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.annotate(e, "VALIDATOR_JAVA method must be public static String name(String val) "  + classMethod); // NOI18N
+            err.notify(e);
+        } catch (IllegalAccessException e) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.notify(e);
+        } catch (InvocationTargetException e) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.annotate(e, "Exception in VALIDATOR_JAVA method " + classMethod);
+            err.notify(e);
+        }
+
+        if (result != null) {
+            valid = false;
+            message = result;
+            variable = component.getVariable();
+        } else {
+            valid = true;
+        }
+    }
+
     private void validateFile(VariableInputComponent component) {
         String value = component.getValue();
         if (value == null) {
