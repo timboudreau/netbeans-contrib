@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.metrics/1
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.classfile/1 > 1.2, org.netbeans.modules.java/1, org.netbeans.modules.clazz/1
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.classfile/1 > 1.2, org.netbeans.modules.java/1, org.netbeans.modules.clazz/1, org.netbeans.api.java/1
 OpenIDE-Module-Name: Java Metrics Module
 OpenIDE-Module-Short-Description: OO metrics for class files.
 OpenIDE-Module-Display-Category: Java
