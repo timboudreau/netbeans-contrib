@@ -785,6 +785,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                         if (filter == null && isFiltered() == false) {
                             SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
                             updateMiniStatus();
+                            getTable().requestFocusInWindow();
                         } else if (isFiltered() == false) {
                             setFiltered(true);
                             updateMiniStatus();
@@ -804,6 +805,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                         if (isFiltered()) {
                             setFiltered(false);
                             updateMiniStatus();
+                            getTable().requestFocusInWindow();
                         } else {
                             Toolkit.getDefaultToolkit().beep();
                         }
@@ -1095,6 +1097,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         setModel(list);
         loadFilterState(OPENED_FILES_MODE);
         getRefresh().setEnabled(false);
+        getTable().requestFocusInWindow();
 
     }
 
@@ -1163,6 +1166,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         setModel(list);
         loadFilterState(SELECTED_FOLDER_MODE);
         getRefresh().setEnabled(true);
+        getTable().requestFocusInWindow();
 
         if (list != resultsSnapshot) {
             try {
@@ -1186,6 +1190,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             one = (DataObject.Container) DataObject.find(selectedFolder);
             DataObject.Container[] folders = new DataObject.Container[] {one};
             background = SourceTasksScanner.scanTasksAsync(this, folders);
+            getTable().requestFocusInWindow();
         } catch (DataObjectNotFoundException e) {
             getMiniStatus().setText(Util.getMessage("refresh-err",createLabel(selectedFolder)));
         }
@@ -1280,6 +1285,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         } finally {
             // setModel() above triggers IAE in IconManager after gc()
             getRefresh().setEnabled(false);
+            getTable().requestFocusInWindow();
             updateMiniStatus();
         }
     }
