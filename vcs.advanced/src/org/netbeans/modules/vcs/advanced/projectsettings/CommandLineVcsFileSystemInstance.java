@@ -292,7 +292,9 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 //System.out.println("createInstanceDataObject() = "+myXMLDataObject);
                 return myXMLDataObject;
             } catch (DataObjectNotFoundException donfExc) {
-                throw new IOException(donfExc.getLocalizedMessage());
+                IOException ioex = new IOException(donfExc.getLocalizedMessage());
+                ioex.initCause(donfExc);
+                throw ioex;
             }
     }
     

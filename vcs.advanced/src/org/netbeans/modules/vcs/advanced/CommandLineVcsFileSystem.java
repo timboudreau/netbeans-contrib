@@ -1464,15 +1464,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * @param folder the folder in which the DataObject should be created
      * @return the DataObject
      */
-    public DataObject createInstanceDataObject(DataFolder folder) {
+    public DataObject createInstanceDataObject(DataFolder folder) throws IOException {
         FileObject folderFO = folder.getPrimaryFile();
         String settingsName = createNewFSSettingsName(folderFO);
         FileObject fo = null;
-        try {
-            return CommandLineVcsFileSystemInstance.createVcsInstanceDataObject(folderFO, this, settingsName);
-        } catch (IOException ioex) {
-            return null;
-        }
+        return CommandLineVcsFileSystemInstance.createVcsInstanceDataObject(folderFO, this, settingsName);
         /*
         try {
             fo = folderFO.createData(settingsName, SETTINGS_EXT);
