@@ -2977,6 +2977,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) ||
                 (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) && areOnlyHiddenFiles(files)) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
         }
+        checkExistingVirtuals(name);
         //System.out.println("children = "+files);
         //System.out.println("  children = "+VcsUtilities.arrayToString(files));
         return files;
@@ -4221,6 +4222,28 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public FilenameFilter getFileFilter() {
         return localFilenameFilter;
+    }
+    
+    /** Check existing files in the given folder. */
+    private void checkExistingVirtuals(String folderName) {
+        Reference folderRef = findReference(folderName);
+        if (folderRef != null) {
+            FileObject folder = (FileObject) folderRef.get();
+            if (folder != null) {
+                Enumeration existingFOs = existingFileObjects(folder);
+                Set subfiles = new HashSet();
+                while(existingFOs.hasMoreElements()) {
+                    FileObject fo = (FileObject) existingFOs.nextElement();
+                    if (fo == folder) continue;
+                    if (fo.getParent() == folder) {
+                        subfiles.add(fo);
+                    } else {
+                        break;
+                    }
+                }
+                checkVirtualFiles(subfiles);
+            }
+        }
     }
 
     /**
