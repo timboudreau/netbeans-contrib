@@ -2310,9 +2310,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         if (statusProvider != null) {
-            Object[] oo = VcsUtilities.reorderFileObjects(files).toArray();
-            //System.out.println(" file objects reordered = "+oo.length);
-            ArrayList importantFiles = getImportantFiles(oo);
+            ArrayList importantFiles = getImportantFiles(files.toArray());
             len = importantFiles.size();
             //if (print) System.out.println(" length of important = "+len);
             if (len == 1) {
@@ -2320,6 +2318,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 //System.out.println(" fullName = "+fullName);
                 result = RefreshCommandSupport.getStatusAnnotation(name, fullName, annotationPattern, statusProvider);
             } else {
+                importantFiles = VcsUtilities.reorderFileObjects(importantFiles);
                 //if (print) System.out.println(" importantFiles = "+VcsUtilities.arrayToString((String[]) importantFiles.toArray(new String[0])));
                 result = RefreshCommandSupport.getStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
             }
