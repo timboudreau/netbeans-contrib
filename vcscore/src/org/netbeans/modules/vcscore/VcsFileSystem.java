@@ -62,6 +62,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           CacheHandlerListener, Serializable {
     private Debug E=new Debug("VcsFileSystem", false); // NOI18N
     private Debug D=E;
+    
+    private static final int BADGE_ICON_SHIFT_X = 16;
+    private static final int BADGE_ICON_SHIFT_Y = 8;
 
     public static final String PROP_ROOT = "root"; // NOI18N
     public static final String PROP_VARIABLES = "variables"; // NOI18N
@@ -171,6 +174,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Can be used to make localization of file statuses.
      */
     protected HashMap possibleFileStatusesMap = null;
+    
+    /**
+     * The table used to get the icon badge on the objects' data node.
+     * The table contains the original statuses (obtained from the VCS tool)
+     * as keys and the icons of type <code>Image</code> as values.
+     */
+    protected transient HashMap statusIconMap = null;
+    
+    /**
+     * The default icon badge, that is used when no icon can be obtained from {@link statusIconMap}.
+     */
+    protected transient Image statusIconDefault = null;
 
     protected boolean ready=false;
     private boolean askIfDownloadRecursively = true;
@@ -515,7 +530,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
         }
         Set s = Collections.synchronizedSet(hs);
-        fireFileStatusChanged (new FileStatusEvent(this, s, false, true));
+        fireFileStatusChanged (new FileStatusEvent(this, s, true, true));
     }
 
     /**
@@ -526,7 +541,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         FileObject fo = findResource(name);
         //System.out.println("findResource("+name+") = "+fo);
         if (fo == null) return;
-        fireFileStatusChanged (new FileStatusEvent(this, fo, false, true));
+        fireFileStatusChanged (new FileStatusEvent(this, fo, true, true));
         /*
         try {
             DataObject dobj = DataObject.find(fo);
@@ -713,6 +728,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
             } else {
                 possibleFileStatusesMap = new HashMap();
+            }
+        }
+        if (statusIconMap == null) {
+            if (statusProvider != null) {
+                statusIconMap = statusProvider.getStatusIconMap();
+            } else {
+                statusIconMap = new HashMap();
             }
         }
         //errorDialog = new ErrorCommandDialog(null, new JFrame(), false);
@@ -1533,6 +1555,40 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //-------------------------------------------
     public Image annotateIcon(Image icon, int iconType, Set files) {
         //D.deb("annotateIcon()"); // NOI18N
+        Object[] oo = files.toArray();
+        int len = oo.length;
+        if (len == 0/* || name.indexOf(getRootDirectory().toString()) >= 0*/) {
+            return icon;
+        }
+
+        if (statusProvider != null) {
+            String status = null;
+            if (len == 1) {
+                FileObject ff = (FileObject) oo[0];
+                if (ff.isRoot()) return icon; // DO NOT override the root icon !
+                String fullName = ff.getPackageNameExt('/','.');
+                status = statusProvider.getFileStatus(fullName);
+            } else {
+                ArrayList importantFiles = getImportantFiles(oo);
+                for (Iterator it = importantFiles.iterator(); it.hasNext(); ) {
+                    String fullName = (String) it.next();
+                    String fileStatus = statusProvider.getFileStatus(fullName);
+                    if (status == null) status = fileStatus;
+                    if (!status.equals(fileStatus)) {
+                        status = statusProvider.getNotInSynchStatus();
+                        break;
+                    }
+                }
+            }
+            if (status != null) {
+                Image img = (Image) statusIconMap.get(status);
+                //System.out.println("annotateIcon: status = "+status+" => img = "+img);
+                if (img == null) img = statusIconDefault;
+                if (img != null) {
+                    icon = org.openide.util.Utilities.mergeImages(icon, img, BADGE_ICON_SHIFT_X, BADGE_ICON_SHIFT_Y);
+                }
+            }
+        }
         return icon;
     }
 
