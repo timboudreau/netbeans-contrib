@@ -67,7 +67,9 @@ Microsystems, Inc. All Rights Reserved.
          <attr name="template" boolvalue="true"/>
          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.mountcvs.Bundle" />
          <attr name="templateWizardIterator" methodValue="org.netbeans.modules.vcscore.wizard.mountcvs.MountCvsWizard.singleton"/>
+         <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcscore/resources/templatesCVSFS.html"/>
          </file>
+       <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcscore/resources/templatesVCSFS.html"/>
        </folder>
      </folder>
    </folder>
