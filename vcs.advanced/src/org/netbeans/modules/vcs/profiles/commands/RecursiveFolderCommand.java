@@ -67,6 +67,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
     private boolean printDebug;
     
     private String rootDir = "";
+    private Set lockedFileObjects = new HashSet();
 
     /** Creates new RecursiveFolderCommand */
     public RecursiveFolderCommand() {
@@ -538,8 +539,15 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         for (Iterator it = processingFiles.iterator(); it.hasNext() && success; ) {
             String path = (String) it.next();
             if (printDebug) stdoutListener.outputData(new String[] { "Processing in "+path });
+            FileObject fo = fileSystem.findResource(path);
+            if (fo != null) {
+                for (Enumeration enum = fo.getChildren(true); enum.hasMoreElements(); ) {
+                    lockedFileObjects.add(enum.nextElement());
+                }
+            }
             success &= runCommandsRecursively(path, cmdInfos);
         }
+        lockedFileObjects.clear();
         return success;
         /*
         String path = (String) vars.get("PATH");
