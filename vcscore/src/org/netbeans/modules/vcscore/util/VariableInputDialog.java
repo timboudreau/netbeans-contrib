@@ -928,7 +928,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 writeFileContents(area, component.getValue(), promptAreaNum);
                 if (vars != null) {
                     if (area.isEnabled()) {
-                        vars.put(component.getVariable(), component.getValue());
+                        Object value = component.getValue();
+                        if (value != null) {
+                            vars.put(component.getVariable(), value);
+                        } else {
+                            vars.remove(component.getVariable());
+                        }
                     } else {
                         vars.remove(component.getVariable());
                     }
@@ -986,7 +991,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 }
                 component.setValue(subComponents[selected].getValue());
                  */
-                if (vars != null) vars.put(component.getVariable(), component.getValue());
+                if (vars != null) {
+                    Object value = component.getValue();
+                    if (value != null) {
+                        vars.put(component.getVariable(), value);
+                    } else {
+                        vars.remove(component.getVariable());
+                    }
+                }
             }
         });
         addHistoryListener(new VariableInputDialog.HistoryListener() {
@@ -1138,7 +1150,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 component.setValue(subComponents[selected2].getValue());
                 if (vars != null) {
                     if (comboBox.isEnabled()) {
-                        vars.put(component.getVariable(), component.getValue());
+                        Object value = component.getValue();
+                        if (value != null) {
+                            vars.put(component.getVariable(), value);
+                        } else {
+                            vars.remove(component.getVariable());
+                        }
                     } else {
                         vars.remove(component.getVariable());
                     }
