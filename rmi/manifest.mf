@@ -12,6 +12,9 @@ Install-Before: org.netbeans.modules.java.JavaDataObject
 Name: org/netbeans/modules/rmi/registry/RMIRegistryNode.class
 OpenIDE-Module-Class: Node
 
+Name: org/netbeans/modules/rmi/activation/ActivationBrowserNode.class
+OpenIDE-Module-Class: Node
+
 Name: org/netbeans/modules/rmi/settings/RMISettings.class
 OpenIDE-Module-Class: Option
 
