@@ -27,6 +27,7 @@ import org.openide.nodes.Node.Cookie;
  */
 public abstract class RevisionItem extends Object implements Cookie, Comparable, java.io.Serializable {
 
+    static final long serialVersionUID=6021472313331712674L;
     public static final String PROP_REVISION = "revision";
     public static final String PROP_CURRENT_REVISION = "currentRevision";
     public static final String PROP_DISPLAY_NAME = "displayName";

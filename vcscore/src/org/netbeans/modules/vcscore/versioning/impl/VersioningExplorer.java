@@ -117,6 +117,9 @@ public class VersioningExplorer {
             super.open(workspace);
         }
 
+        public int getPersistenceType() {
+            return TopComponent.PERSISTENCE_ALWAYS;
+        }
         /*
          * Override for clean up reasons.
          * Will be moved to the appropriate method when will be made.
