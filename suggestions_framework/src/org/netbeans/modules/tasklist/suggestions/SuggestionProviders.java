@@ -43,11 +43,15 @@ public final class SuggestionProviders {
     // package private so tests can change
     static Lookup lookup = Lookup.getDefault();
 
+    // results must be strongly referenced otherwise it get collected and
+    // will not fire change events
+    private Lookup.Result lookupResult;
+
     private SuggestionProviders() {
         // lazy init
     }
 
-    public static SuggestionProviders getDefault() {
+    public synchronized static SuggestionProviders getDefault() {
         if (instance == null) {
             return createDefault();
         }
@@ -66,21 +70,24 @@ public final class SuggestionProviders {
     }
 
 
-    /** Return a list of the providers registered
+    /**
+     * Return a list of the providers registered
+     *
      * @todo Filter out disabled providers
      */
-    public List getProviders() {
+    public synchronized List getProviders() {
         if (providers == null) {
             providers = new ArrayList(20);
             Lookup.Template template =
                     new Lookup.Template(SuggestionProvider.class);
-            Lookup.Result result = lookup.lookup(template);
-            result.addLookupListener(new LookupListener() {
+            lookupResult = lookup.lookup(template);
+            lookupResult.addLookupListener(new LookupListener() {
                 public void resultChanged(LookupEvent ev) {
                     invalidateCaches();
                 }
             });
-            Iterator it = result.allInstances().iterator();
+
+            Iterator it = lookupResult.allInstances().iterator();
             // Two stage process so we can sort by priority
 
             ArrayList provList = new ArrayList(20);
@@ -89,8 +96,7 @@ public final class SuggestionProviders {
                 provList.add(sp);
             }
             SuggestionProvider[] provA =
-                    (SuggestionProvider[]) provList.toArray(
-                            new SuggestionProvider[provList.size()]);
+                    (SuggestionProvider[]) provList.toArray(new SuggestionProvider[provList.size()]);
             final SuggestionTypes types = SuggestionTypes.getDefault();
             Arrays.sort(provA, new Comparator() {
                 public int compare(Object o1, Object o2) {
@@ -113,7 +119,7 @@ public final class SuggestionProviders {
         return providers;
     }
 
-    public List getDocProviders() {
+    public synchronized List getDocProviders() {
         if (docProviders == null) {
             docProviders = new ArrayList(20);
             Iterator it = getProviders().iterator();
@@ -127,9 +133,11 @@ public final class SuggestionProviders {
         return docProviders;
     }
 
-    /** @return The SuggestionProvider responsible for providing suggestions
-     * of a particular type */
-    public SuggestionProvider getProvider(SuggestionType type) {
+    /**
+     * @return The SuggestionProvider responsible for providing suggestions
+     *         of a particular type
+     */
+    public synchronized SuggestionProvider getProvider(SuggestionType type) {
         if (providersByType == null) {
             SuggestionTypes suggestionTypes = SuggestionTypes.getDefault();
             //Collection types = suggestionTypes.getAllTypes();
@@ -155,7 +163,8 @@ public final class SuggestionProviders {
         return (SuggestionProvider) providersByType.get(type);
     }
 
-    private void invalidateCaches() {
+    // can come from random thread
+    private synchronized void invalidateCaches() {
         providers = null;
         docProviders = null;
         providersByType = null;
