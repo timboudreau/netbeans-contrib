@@ -126,7 +126,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private final TabState[] tabStates = new TabState[MODE_COUNT];
 
+    //#45006 save action key that was registered by WS
+    private Object windowSystemESCActionKey;
 
+    // our private ESC action key
+    private static final Object STOP_ACTION_KEY = new Object();
 
     /**
      * Externalization entry point (readExternal).
@@ -178,9 +182,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        KeyStroke stop = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-        inputMap.put(stop, stop);
-        getActionMap().put(stop, new StopAction());
+        // inputMap.put() see also escKeyStrokeHook()
+        getActionMap().put(STOP_ACTION_KEY, new StopAction());
 
         KeyStroke refresh = KeyStroke.getKeyStroke(KeyEvent.VK_R, 0);
         inputMap.put(refresh, refresh);
@@ -224,6 +227,28 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ONLY_OPENED;
+    }
+
+    /**
+     * Installs/uninstalls hook on ESC keystoke.
+     * Necessary to manage explicitly because ESC is used by sliding windows too.
+     */
+    private void escKeyStrokeHook(boolean install) {
+        InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        KeyStroke stop = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+
+        // System.err.println("escKeyStrokeHook: " + install + " " + windowSystemESCActionKey);
+        if (install) {
+            Object old = inputMap.get(stop);
+            if (old != STOP_ACTION_KEY) {
+                windowSystemESCActionKey = old;
+                inputMap.put(stop, STOP_ACTION_KEY);
+            }
+        } else {
+            if (windowSystemESCActionKey != null) {
+                inputMap.put(stop, windowSystemESCActionKey);
+            }
+        }
     }
 
     protected Node createRootNode() {
@@ -944,6 +969,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 reasonMsg = null;
                 getProgress().setVisible(true);
                 getStop().setVisible(true);
+                escKeyStrokeHook(true);
                 getRefresh().setEnabled(false);
 
                 getMiniStatus().setVisible(false);
@@ -993,6 +1019,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 estimatedFolders = -1;
                 getProgress().setVisible(false);
                 getStop().setVisible(false);
+                escKeyStrokeHook(false);
                 getRefresh().setEnabled(job == null);
                 updateMiniStatus();
             }
