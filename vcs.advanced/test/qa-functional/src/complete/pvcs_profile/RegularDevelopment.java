@@ -166,12 +166,13 @@ public class RegularDevelopment extends NbTestCase {
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         Node A_FileNode = new Node( filesystemNode, "A_File [Current; 1.1] (" + userName + ")");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(workingDirectory + File.separator + "Work" + File.separator + "A_File.java"));
+        writer.write("/** This is testing A_File.java file.\n */\n public class Testing_File {\n     int i;\n }\n");
+        writer.flush();
+        writer.close();
         new OpenAction().perform(A_FileNode);
-        EditorOperator editor = new EditorOperator("A_File [Current; 1.1] (" + userName + ")");
-        editor.insert("A_File.java ", 1, 21);
-        editor.deleteLine(3);
-        editor.insert("     int i;\n", 4, 1);
-        new SaveAction().perform();
+        new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(A_FileNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
         A_FileNode = new Node( filesystemNode, "A_File [Locally Modified; 1.1] (" + userName + ")");
         System.out.println(". done !");
     }
