@@ -23,18 +23,27 @@ import java.rmi.registry.*;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.*;
+//import org.openide.nodes.*;
 import org.openide.actions.*;
-import org.openide.execution.*;
+//import org.openide.execution.*;
 import org.openide.util.datatransfer.*;
 import org.openide.util.actions.*;
 import org.netbeans.modules.jndi.*;
 import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import junit.framework.AssertionFailedError;
+import org.netbeans.jellytools.ExplorerOperator;
+import org.netbeans.jellytools.JellyTestCase;
+import org.netbeans.jellytools.MainWindowOperator;
+import org.netbeans.jellytools.modules.jndi.actions.RefreshAction;
+import org.netbeans.jellytools.modules.jndi.nodes.ContextNode;
+import org.netbeans.jellytools.modules.jndi.nodes.JNDIRootNode;
+import org.netbeans.jellytools.modules.jndi.nodes.ObjectNode;
+import org.netbeans.jellytools.nodes.Node;
 import org.openide.util.Lookup;
 
-public class RegistryTest extends org.netbeans.junit.NbTestCase {
+public class RegistryTest extends JellyTestCase {
     
     public static String name = "RegistryCtx";
     public static String bindname = "RegistryBinding";
@@ -43,19 +52,19 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
         super (name);
     }
     
-    public static Node findSubNode(Node node, String name) {
-        Node[] nodes = node.getChildren().getNodes(true);
+    public static org.openide.nodes.Node findSubNode(org.openide.nodes.Node node, String name) {
+        org.openide.nodes.Node[] nodes = node.getChildren().getNodes(true);
         for (int a = 0; a < nodes.length; a ++)
             if (nodes [a].getName().startsWith(name))
                 return nodes [a];
         return null;
     }
-    
-    public static void performAction(Node node, Class action) {
+/*    
+    public static void performAction(org.openide.nodes.Node node, Class action) {
         SystemAction act = SystemAction.get(action);
         act.actionPerformed(new java.awt.event.ActionEvent(node, 0, ""));
     }
-    
+*/    
     public static String getStringFromClipboard() throws IOException, UnsupportedFlavorException {
         ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         Transferable str = (Transferable) clip.getContents(null);
@@ -85,17 +94,17 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
         return str;
     }
     
-    public Node waitSubNode(Node node, String name) {
+    public org.openide.nodes.Node waitSubNode(org.openide.nodes.Node node, String name) {
         for (int a = 0; a < 30; a ++) {
             try { Thread.sleep(1000); } catch (Exception e) { }
-            Node n = findSubNode(node, name);
+            org.openide.nodes.Node n = findSubNode(node, name);
             if (n != null)
                 return n;
         }
         return null;
     }
-    
-    public boolean waitNoSubNode(Node node, String name) {
+/*    
+    public boolean waitNoSubNode(org.openide.nodes.Node node, String name) {
         for (int a = 0; a < 30; a ++) {
             try { Thread.sleep(1000); } catch (Exception e) { }
             if (findSubNode(node, name) == null)
@@ -104,12 +113,13 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
         return false;
     }
     
-    public boolean waitNoPleaseWait(Node node) {
+    public boolean waitNoPleaseWait(org.openide.nodes.Node node) {
         return waitNoSubNode (node, "Please wait");
     }
-
+*/
     PrintStream ref;
     PrintStream log;
+    ExplorerOperator exp;
     
     public void testAll_Reg () throws Exception {
         name += new SimpleDateFormat ("yyyyMMddHHmmss").format (new Date (System.currentTimeMillis()));
@@ -117,16 +127,17 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
         ref = getRef ();
         log = getLog ();
         
-        Node jndiNode = JndiRootNode.getDefault ();
-        if (jndiNode == null)
-            throw new RuntimeException ("JNDI node does not exists!");
-        Node jndiRootNode = jndiNode;
-        Node providersNode = waitSubNode(jndiNode, "Providers");
+        exp = new ExplorerOperator ();
+        Node jndiRootNode = new JNDIRootNode (exp.runtimeTab().tree ());
+        if (JndiRootNode.getDefault () == null)
+            throw new AssertionFailedError ("JNDI node does not exists!");
+        Node providersNode = new Node (jndiRootNode, "Providers");
+/*        org.openide.nodes.Node providersNode = waitSubNode(jndiNode, "Providers");
         if (providersNode == null)
-            throw new RuntimeException ("Providers node does not exists!");
+            throw new AssertionFailedError ("Providers node does not exists!");*/
 /*
         for (;;) {
-            Node node = findSubNode(jndiRootNode, name);
+            org.openide.nodes.Node node = findSubNode(jndiRootNode, name);
             if (node == null)
                 break;
             if (node.getCookie(DisconnectCtxCookie.class) != null)
@@ -147,7 +158,7 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
                 reg.rebind (bindname, new RegistryBindingImpl ());
             } catch (RemoteException ee) {
                 ee.printStackTrace (ref);
-                throw new RuntimeException ("Cannot rebind into registry");
+                throw new AssertionFailedError ("Cannot rebind into registry");
             }
         }
 
@@ -161,34 +172,51 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
         } catch (javax.naming.NamingException ne) {
             ref.println ("Exception reached while rebinding impl");
             ne.printStackTrace(ref);
-            throw new RuntimeException ("Cannot rebind impl");
+            throw new AssertionFailedError ("Cannot rebind impl");
         }
 
         /* Add new context */
         JndiRootNode.getDefault ().addContext(name, "com.sun.jndi.rmi.registry.RegistryContextFactory", "rmi://localhost:11199", "", "", "", "", new java.util.Vector());
-        Node testNode = findSubNode(jndiRootNode, name);
+        ContextNode JtestNode = new ContextNode (jndiRootNode, name);
+        org.openide.nodes.Node testNode = waitSubNode(JndiRootNode.getDefault(), name);
+/*        org.openide.nodes.Node testNode = findSubNode(jndiRootNode, name);
         if (testNode == null)
-            throw new RuntimeException ("Cannot found context: " + name);
+            throw new AssertionFailedError ("Cannot found context: " + name);*/
 
-        performAction (testNode, RefreshAction.class);
+        new RefreshAction ().perform (JtestNode);
+/*        performAction (testNode, RefreshAction.class);
         if (!waitNoPleaseWait(testNode))
-            throw new RuntimeException ("Under testNode there is \"Please Wait...\" node shown forever. Pass 1");
+            throw new AssertionFailedError ("Under testNode there is \"Please Wait...\" node shown forever. Pass 1");*/
 
         /* Print lookup and binding code */
-        performAction(testNode, LookupCopyAction.class);
+        MainWindowOperator.StatusTextTracer stt = MainWindowOperator.getDefault().getStatusTextTracer();
+        stt.start ();
+        JtestNode.copyLookupCode();
+        stt.waitText("Lookup code generated to clipboard.", true);
+        stt.stop ();
+//        performAction(testNode, LookupCopyAction.class);
         ref.println("Lookup copy code on node: " + "RegistryCtx");
         printClipboardToRef();
 
-        performAction(testNode, BindingCopyAction.class);
+        stt.start ();
+        JtestNode.copyBindingCode();
+        stt.waitText("Binding code generated to clipboard.", true);
+        stt.stop ();
+//        performAction(testNode, BindingCopyAction.class);
         ref.println("Binding copy code on node: " + "RegistryCtx");
         printClipboardToRef();
 
-        Node bindNode = waitSubNode(testNode, bindname);
+        ObjectNode JbindNode = new ObjectNode (JtestNode, bindname);
+        org.openide.nodes.Node bindNode = waitSubNode(testNode, bindname);
         if (bindNode == null)
-            throw new RuntimeException ("Could not find testbinding node");
+            throw new AssertionFailedError ("Could not find testbinding node");
 
         /* Print lookup and binding code */
-        performAction(bindNode, LookupCopyAction.class);
+        stt.start ();
+        JbindNode.copyLookupCode();
+        stt.waitText("Lookup code generated to clipboard.", true);
+        stt.stop ();
+//        performAction(bindNode, LookupCopyAction.class);
         ref.println("Lookup copy code on node: " + bindname);
         printClipboardToRef();
 
@@ -210,9 +238,9 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
         performAction (bindNode, DeleteAction.class);
         performAction (testNode, RefreshAction.class);
         if (!waitNoPleaseWait(testNode))
-            throw new RuntimeException ("Under testNode there is \"Please Wait...\" node shown forever");
+            throw new AssertionFailedError ("Under testNode there is \"Please Wait...\" node shown forever");
         if (!waitNoSubNode(testNode, bindname))
-            throw new RuntimeException ("bindNode is still shown");
+            throw new AssertionFailedError ("bindNode is still shown");
 */
         // do it !!! - check behaviour (add, delete) of strange name of binded directory
 
