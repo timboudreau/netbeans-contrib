@@ -289,7 +289,8 @@ public class RegularDevelopment extends NbTestCase {
         GetCommandOperator getCommand = new GetCommandOperator("C_File.java ...");
         getCommand.ok();
         Thread.sleep(10000);
-        if (!C_FileNode.isPresent()) captureScreen("Error: Unable to find C_File node again.");
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        C_FileNode = new Node( testNode, "C_File [Current]");
         File C_File = new File(workingDirectory + File.separator + "Work" + File.separator + "test" + File.separator + "C_File.java");
         if (C_File.canWrite()) captureScreen("Error: C_File.java remained read-write after check out.");
         System.out.println(". done !");
@@ -371,7 +372,7 @@ public class RegularDevelopment extends NbTestCase {
         filesystemNode.select();
         new ComboBoxProperty(new PropertySheetOperator(), "Advanced Options").setValue("False");
         new Action(VERSIONING_MENU + "|" + LOCK, LOCK).perform(D_FileNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        Thread.sleep(10000);
         D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current; 2.1] (" + userName + ")");
         System.out.println(". done !");
     }
