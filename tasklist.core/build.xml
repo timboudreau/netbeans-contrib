@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -29,8 +29,6 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${core/settings.dir}/${nb.modules/autoload.dir}/core-settings.jar"/>
         <!-- tasklist api -->
         <pathelement location="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
-        <!-- depend on core/output so we can override F12 action -->
-        <pathelement location="${core/output.dir}/${nb.modules/autoload.dir}/core-output.jar"/>
       </path>
     </target>
   
