@@ -87,9 +87,9 @@ public class MyDataNode extends DataNode implements LaTeXSourceFactory.MainFileL
         
         if (isKnownFile(getDataObject().getPrimaryFile())) {
             if (isMainFile(getDataObject().getPrimaryFile())) {
-                return "<html><body><b>" + dName + "</b></body></html>"; //TODO: more efficiently?
+                return "<html><b>" + dName + "</b></html>"; //TODO: more efficiently?
             } else {
-                return "<html><body><b>" + dName + "</b></body></html>"; //TODO: more efficiently?
+                return "<html><b>" + dName + "</b></html>"; //TODO: more efficiently?
             }
         }
         
