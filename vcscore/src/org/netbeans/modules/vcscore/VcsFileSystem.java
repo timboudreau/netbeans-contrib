@@ -119,15 +119,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private boolean debug = false;
 
-    private String config = "Empty"; // NOI18N
-
     /** user variables Vector<String> 'name=value' */
     private Vector variables = new Vector(10);
 
     private transient String password = null;
 
     /** advanced confgiguration */
-    private Object advanced = null;
+    //private Object advanced = null; // Not used any more, use commandsRoot instead
+    private transient Node commandsRoot = null;
 
     protected transient VcsFSCache cache = null;
 
@@ -342,23 +341,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setLastCommandState (boolean lastCommandState) { this.lastCommandState = lastCommandState; }
     public boolean getLastCommandFinished () { return lastCommandFinished; }
     public void setLastCommandFinished (boolean lastCommandFinished) { this.lastCommandFinished = lastCommandFinished; }
-
-    /**
-     * Get the root of the configuration.
-     * Subclases should override this method if needed.
-     */
-    public String getConfigRoot(){
-        return ""; // NOI18N
-    }
-
-    /**
-     * Get the root of the configuration as a FileObject.
-     * Subclases should override this method if needed.
-     */
-    public FileObject getConfigRootFO(){
-        return null; // NOI18N
-    }
-    
     
     /** Return the working directory of the file system. 
      *  To that, relative mountpoints are added later to enable compilation etc.
@@ -503,18 +485,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setZeroRefreshTime() {
         setRefreshTime(0);
     }
-
-    //-------------------------------------------
-    public void setConfig(String label){
-        this.config=label;
-    }
-
-
-    //-------------------------------------------
-    public String getConfig(){
-        return config;
-    }
-
 
     //-------------------------------------------
     public void debugClear(){
@@ -2150,7 +2120,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param root the tree of {@link VcsCommandNode} objects.
      */
     public void setCommands(Node root) {
-        advanced = root;
+        commandsRoot = root;
         commandsByName = new Hashtable();
         addCommandsToHashTable(root);
     }
@@ -2162,7 +2132,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
      */
     public Node getCommands() {
-        return (Node) advanced;
+        return commandsRoot;
     }
 
     /*
@@ -2183,7 +2153,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //-------------------------------------------
     public VcsCommand getCommand(String name){
         if (commandsByName == null) {
-            setCommands ((Node) advanced);
+            setCommands (commandsRoot);
         }
         return (VcsCommand) commandsByName.get(name);
     }
