@@ -1026,6 +1026,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             String fileName = "";
             if (pos < index3) {
                 fileName = exec.substring(pos, index3).trim();
+                fileName = Variables.expand(vars, fileName, true);
                 pos = index3;
             }
             D.deb("needPrompForFileContent(): message = "+message+", fileName = "+fileName);
@@ -1156,7 +1157,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param forEachFile whether to ask for these variables for each file being processed
      * @return true if all variables were entered, false otherways
      */
-    public synchronized boolean promptForVariables(String exec, Hashtable vars, VcsCommand cmd, boolean[] forEachFile) {
+    public boolean promptForVariables(String exec, Hashtable vars, VcsCommand cmd, boolean[] forEachFile) {
+        synchronized (vars) {
         if (needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
             String password = getPassword();
             if (password == null) {
@@ -1199,6 +1201,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (prompt != null && prompt.size() > 0 || ask != null && ask.length > 0 ||
                 promptFile.size() > 0 || userParamsPromptLabels.size() > 0) {
                 VariableInputDialog dlg = new VariableInputDialog(new java.awt.Frame(), true, file);
+                dlg.setVCSFileSystem(this, vars);
                 dlg.setFilePromptLabels(promptFile);
                 dlg.setVarPromptLabels(prompt);
                 dlg.setVarAskLabels(ask);
@@ -1252,6 +1255,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         return true;
+        }
     }
 
     protected void warnDirectoriesDoNotExists() {
