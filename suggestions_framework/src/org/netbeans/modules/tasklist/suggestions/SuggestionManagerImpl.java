@@ -48,12 +48,14 @@ import org.openide.TopManager;
 import org.openide.ErrorManager;
 
 import org.netbeans.api.tasklist.*;
+import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
-import org.netbeans.spi.tasklist.LineSuggestionPerformer;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
+import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -164,94 +166,6 @@ final public class SuggestionManagerImpl extends SuggestionManager {
     }
 
 
-    // register; should also take a "confirmation" panel.
-    /**
-     * Add a suggestion to the list of suggestions. The task will remain
-     * in the list until the IDE is shut down, or until the user performs
-     * the task, or until the task is explicitly removed by you by calling
-     * remove().
-     * <p>
-     * Note: if this suggestion corresponds to a disabled suggestion type,
-     * it will not be added to the list.  To avoid computing Suggestion
-     * objects in the first place, check isEnabled().
-     * <p>
-     *
-     *
-     * @todo Consider adding a "time-to-live" attribute here where you
-     *   can indicate the persistence of the task; some suggestions should
-     *   probably expire if the user doesn't act on it for 5(?) minutes,
-     *   others should perhaps survive even IDE restarts.
-     *
-     * @param suggestion The Suggestion to be added to the list.
-     */
-    public void add(Suggestion suggestion) {
-        add(suggestion, getList());
-    }
-
-    public void add(Suggestion suggestion, SuggestionList tasklist) {
-        // TODO check instanceof Task here, and throw an exception if not?
-        SuggestionImpl s = null;
-        try {
-            s = (
-                 SuggestionImpl)suggestion;
-        } catch (ClassCastException e) {
-            TopManager.getDefault().getErrorManager().notify(
-                                         ErrorManager.ERROR, e);
-            return;
-        }
-
-        SuggestionType type = s.getSType();
-        SuggestionImpl category = tasklist.getCategoryTask(type);
-        s.setParent(category);
-        synchronized(this) {
-            tasklist.add(s, false, false);
-        }
-        updateCategoryCount(category); // TODO: skip this when filtered
-    }
-
-
-    
-    /**
-     * Same as {@link add(Suggestion)}, but register a set of suggestions
-     * in one operation. Useful when you for example want to preserve
-     * a particular order among a set of related suggestions, since registering
-     * them one by one means the Suggestion Manager gets to order them
-     * (so for example, if it prepends each item your suggestions end up
-     * in the reverse order of the order you registered them.)
-     * <p>
-     * NOTE: All Suggestions should have the same SuggestionType.
-     */
-    public void add(List suggestions) {
-        add(suggestions, getList());
-    }
-    
-    public void add(List suggestions, SuggestionList tasklist) {
-        if (suggestions.size() == 0) {
-            return;
-        }
-        // TODO check instanceof Task here, and throw an exception if not?
-
-        // Get the first element, and use its type as the type for all.
-        // This works because all elements in the list must have the same
-        // (meta?) type.
-        SuggestionType type = null;
-        try {
-            SuggestionImpl s = (SuggestionImpl)suggestions.get(0);
-            type = s.getSType();
-        } catch (ClassCastException e) {
-            TopManager.getDefault().getErrorManager().notify(
-                                         ErrorManager.ERROR, e);
-            return;
-        }
-
-        SuggestionImpl category = tasklist.getCategoryTask(type);
-        // XXX Do I need to set the parent field on each item?
-        synchronized(this) {
-            tasklist.addRemove(suggestions, null, false, category);
-        }
-        updateCategoryCount(category); // TODO: skip this when filtered
-    }
-
     private void updateCategoryCount(SuggestionImpl category) {
         SuggestionType type = category.getSType();
         int count = category.hasSubtasks() ?
@@ -260,89 +174,6 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             Integer.toString(count) + ")"; // NOI18N
         category.setSummary(summary);
     }
-
-
-    
-    /**
-     * Remove a suggestion from the list of suggestions.
-     * Suggestions are automatically removed after they have been "performed",
-     * so you don't have to do this explicitly unless you know that the
-     * task has gone "stale" so you want to remove it.
-     * It's okay to remove a task that has already been removed, so
-     * you don't need to check first if the task is still in the list.
-     * <p>
-     *
-     * @param suggestion The Suggestion to be added to the list.
-     */
-    public void remove(Suggestion suggestion) {
-        remove(suggestion, getList());
-    }
-    
-    public void remove(Suggestion suggestion, SuggestionList tasklist) {
-        // TODO check instanceof Task here, and throw an exception if not?
-        //getList().remove((Task)suggestion);
-
-        SuggestionImpl s = null;
-        try {
-            s = (SuggestionImpl)suggestion;
-        } catch (ClassCastException e) {
-            TopManager.getDefault().getErrorManager().notify(
-                                         ErrorManager.ERROR, e);
-            return;
-        }
-
-        synchronized(this) {
-            tasklist.remove(s);
-        }
-
-        
-        // Leave category task around? Or simply make it invisible?
-        // (Need new Task attribute and appropriate handling in filter
-        // and export methods.)    By leaving it around, we don't reorder
-        // the tasks on the user.
-        //tasklist.removeCategory(s);
-
-        SuggestionType type = s.getSType();
-        SuggestionImpl category = tasklist.getCategoryTask(type);
-        updateCategoryCount(category); // TODO: skip this when filtered
-    }
-
-    
-    /**
-     * Same as {@link remove(Suggestion)}, but unregister a set of
-     * suggestions one operation. In addition to being a convenience
-     * and offering symmetry to {@link add(List)}, this offers better
-     * performance than calling {@link remove(Suggestion} on each
-     * suggestion in the List, because the UI will only be updated
-     * once at the end of the removal, instead of after every removal.
-     */
-    public void remove(List suggestions) {
-        remove(suggestions, getList());
-    }
-    
-    public void remove(List suggestions, SuggestionList tasklist) {
-        if (suggestions.size() == 0) {
-            return;
-        }
-
-        // TODO check instanceof Task here, and throw an exception if not?
-        
-        synchronized(this) {
-            tasklist.addRemove(null, suggestions, false, null);
-        }
-
-        // Leave category task around? Or simply make it invisible?
-        // (Need new Task attribute and appropriate handling in filter
-        // and export methods.)    By leaving it around, we don't reorder
-        // the tasks on the user.
-        //tasklist.removeCategory((SuggestionImpl)suggestions.get(0));
-
-        SuggestionType type = ((SuggestionImpl)(suggestions.get(0))).getSType();
-        SuggestionImpl category = tasklist.getCategoryTask(type);
-        updateCategoryCount(category); // TODO: skip this when filtered
-
-    }
-
 
     /** Keep track of our "view state" since we get a few stray
      * messages from the component listener.
@@ -368,7 +199,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
                 SuggestionProvider provider = (SuggestionProvider)it.next();
-                notifyPrepare(provider);
+                provider.notifyPrepare();
             }
             prepared = true;
         }
@@ -390,7 +221,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                 SuggestionProvider provider = (SuggestionProvider)it.next();
                 if ((unfiltered == null) ||
                     (unfiltered == provider)) {
-                    notifyRun(provider);
+                    provider.notifyRun();
                 }
             }
             running = true;
@@ -406,7 +237,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                 SuggestionProvider provider = (SuggestionProvider)it.next();
                 if ((unfiltered == null) ||
                     (unfiltered == provider)) {
-                    notifyStop(provider);
+                    provider.notifyStop();
                 }
             }
             running = false;
@@ -423,7 +254,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
                 SuggestionProvider provider = (SuggestionProvider)it.next();
-                notifyFinish(provider);
+                provider.notifyFinish();
             }
             prepared = false;
         }
@@ -545,8 +376,8 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             SuggestionProvider provider = getProvider(type);
             // XXX This isn't exactly right. Make sure we do the
             // right life cycle for each provider.
-            notifyPrepare(provider);
-            notifyRun(provider);
+            provider.notifyPrepare();
+            provider.notifyRun();
         } else {
             // Remove suggestions of this type
             List tasks = getList().getTasks();
@@ -558,7 +389,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                     removeTasks.add(suggestion);
                 }
             }
-            remove(removeTasks);
+            register(id, null, removeTasks);
         }
 
         writeTypeRegistry();
@@ -664,6 +495,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                 while (it.hasNext()) {
                     SuggestionImpl s = (SuggestionImpl)it.next();
                     if (s.hasSubtasks()) {
+			    // XXX This will break when I do subtypes or common-grouping
                         list.addAll(s.getSubtasks());
                     }
                 }
@@ -677,9 +509,23 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             suggestions.addAll(oldList);
             tasklist.clear();
             Iterator it = suggestions.iterator();
+            List group = null;
+            SuggestionType prevType = null;
             while (it.hasNext()) {
                 SuggestionImpl s = (SuggestionImpl)it.next();
-                add(s);
+                if (s.getSType() != prevType) {
+                    if (group != null) {
+                        register(prevType.getName(), group, null);
+                        group.clear();
+                    } else {
+                        group = new ArrayList(50);
+                    }
+                    prevType = s.getSType();
+                    group.add(s);
+                }
+            }
+            if ((group != null) && (group.size() > 0)) {
+                register(prevType.getName(), group, null);
             }
         }
         
@@ -709,10 +555,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             // XXX TODO Keep track of the previous state of each
             // provider
             if (enabled) {
-                notifyRun(provider);
+                provider.notifyRun();
                 unfiltered = provider;
             } else {
-                notifyStop(provider);
+                provider.notifyStop();
             }
         }
 
@@ -780,7 +626,6 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         public void startElement(String uri, String localName,
                                  String name, Attributes attrs)
             throws SAXException {
-            //System.out.println("startElement(" + name + ")");
             if (name.equals("type")) { // NOI18N
                 if (parsingDisabled) {
                     String type = (String)attrs.getValue("id"); // NOI18N
@@ -868,28 +713,33 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             writer.write("<?xml version=\"1.0\"?>\n"); // NOI18N
             writer.write("<!DOCTYPE suggestionregistry PUBLIC '-//NetBeans//DTD suggestion registry 1.0//EN' 'http://www.netbeans.org/dtds/suggestion-registry-1_0.dtd'>\n"); // NOI18N
             writer.write("<typeregistry>\n"); // NOI18N
-            Iterator it = disabled.iterator();
-            if (it.hasNext()) {
-                writer.write("  <disabled>\n"); // NOI18N
-                while (it.hasNext()) {
-                    String typeName = (String)it.next();
-                    writer.write("    <type id=\""); // NOI18N
-                    writer.write(typeName);
-                    writer.write("\"/>\n"); // NOI18N
+            Iterator it;
+            if (disabled != null) {
+                it = disabled.iterator();
+                if (it.hasNext()) {
+                    writer.write("  <disabled>\n"); // NOI18N
+                    while (it.hasNext()) {
+                        String typeName = (String)it.next();
+                        writer.write("    <type id=\""); // NOI18N
+                        writer.write(typeName);
+                        writer.write("\"/>\n"); // NOI18N
+                    }
+                    writer.write("  </disabled>\n"); // NOI18N
                 }
-                writer.write("  </disabled>\n"); // NOI18N
             }
 
-            it = noconfirm.iterator();
-            if (it.hasNext()) {
-                writer.write("  <noconfirm>\n"); // NOI18N
-                while (it.hasNext()) {
-                    SuggestionType type = (SuggestionType)it.next();
-                    writer.write("    <type id=\""); // NOI18N
-                    writer.write(type.getName());
-                    writer.write("\"/>\n"); // NOI18N
-                }    
-                writer.write("  </noconfirm>\n"); // NOI18N
+            if (noconfirm != null) {
+                it = noconfirm.iterator();
+                if (it.hasNext()) {
+                    writer.write("  <noconfirm>\n"); // NOI18N
+                    while (it.hasNext()) {
+                        SuggestionType type = (SuggestionType)it.next();
+                        writer.write("    <type id=\""); // NOI18N
+                        writer.write(type.getName());
+                        writer.write("\"/>\n"); // NOI18N
+                    }    
+                    writer.write("  </noconfirm>\n"); // NOI18N
+                }
             }
             writer.write("</typeregistry>\n"); // NOI18N
             writer.close();
@@ -981,28 +831,26 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
     }
     
-     void scan(Document doc, SuggestionList list, DataObject f) {
-         List providers = getProviders();
-         ListIterator it = providers.listIterator();
-         while (it.hasNext()) {
-             SuggestionProvider provider = (SuggestionProvider)it.next();
-             if (((unfiltered == null) ||
-                 (unfiltered == provider)) &&
-                 (provider instanceof DocumentSuggestionProvider)) {
-                     List l = DocumentSuggestionProvider.scan((DocumentSuggestionProvider)provider, doc, f);
-                   //  List l = SpringBoard.scan((DocumentSuggestionProvider)provider, doc, f);
-                     if (l != null) {
-                        add(l, list);
-                     }
-             }
-         }
-
-     
-     }
-   
-      List erase = null;
-      List origIcon = null;
-   
+    void scan(Document doc, SuggestionList list, DataObject f) {
+        List providers = getProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            SuggestionProvider provider = (SuggestionProvider)it.next();
+            if (((unfiltered == null) ||
+            (unfiltered == provider)) &&
+            (provider instanceof DocumentSuggestionProvider)) {
+                List l = ((DocumentSuggestionProvider)provider).scan(doc, f);
+                if (l != null) {
+                    // XXX ensure that scan returns a homogeneous list of tasks
+                    register(provider.getTypes()[0], null, l, list);
+                }
+            }
+        }
+    }
+    
+    List erase = null;
+    List origIcon = null;
+    
     /** Set a series of suggestions as highlighted. Or, clear the current
      * selection of highlighted nodes.
      * <p>
@@ -1013,7 +861,47 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      *      null, it applies to all types.
      *
      */
-    public void setHighlighted(List suggestions, String type) {
+    private void highlightNode(SuggestionsView view, Node node, Line line) {
+        SuggestionImpl s = (SuggestionImpl)TaskNode.getTask(node);
+        if (s.getLine() == line) {
+            if (erase == null) {
+                origIcon = new ArrayList(20);
+                erase = new ArrayList(20);
+            }
+            origIcon.add(s.getIcon());
+            s.setHighlighted(true);
+            Image badge = Utilities.loadImage("org/netbeans/modules/tasklist/suggestions/badge.gif"); // NOI18N
+            Image image = Utilities.mergeImages(s.getIcon(), badge,
+            0, 0);
+            s.setIcon(image);
+            erase.add(s);
+        }
+
+        // Recurse?
+        if (s.hasSubtasks() && (view.isExpanded(node))) {
+            Node[] nodes = node.getChildren().getNodes();
+            int n = (nodes != null) ? nodes.length : 0;
+            for (int i = 0; i < n; i++) {
+                highlightNode(view, nodes[i], line);
+            }
+        }
+    }
+
+
+    Line prevLine = null;
+
+    /**
+     * Set the current cursor line to the given line position. 
+     * Suggestions on the given line will be highlighted.
+     *
+     * @param line The current line of the cursor.
+     */
+    public void setCursorLine(Line line) {
+        if (line == prevLine) {
+            return;
+        }
+        prevLine = line;
+
         // Clear out previously highlighted items
         if (erase != null) {
              Iterator it = erase.iterator();
@@ -1027,25 +915,84 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
         erase = null;
         origIcon = null;
-         
-        if (suggestions != null) {
-             Iterator it = suggestions.iterator();
-             while (it.hasNext()) {
-                 SuggestionImpl s = (SuggestionImpl)it.next();
-                     if (erase == null) {
-                         origIcon = new ArrayList(suggestions.size());
-                         erase = new ArrayList(suggestions.size());
-                     }
-                     origIcon.add(s.getIcon());
-                     s.setHighlighted(true);
-                     
-                    // s.setIcon(Utilities.loadImage("org/netbeans/modules/tasklist/suggestions/highlight.gif")); // NOI18N
-                     Image badge = Utilities.loadImage("org/netbeans/modules/tasklist/suggestions/badge.gif"); // NOI18N
-                     Image image = Utilities.mergeImages(s.getIcon(), badge,
-                           0, 0);
-                     s.setIcon(image);
-                     erase.add(s);
-             }
+
+        
+        if (line == null) {
+            // Prevent line==null from highlighting all suggestions
+            // without an associated line position...
+            return;
         }
+
+        SuggestionsView view = (SuggestionsView)TaskListView.getCurrent();
+        Node node = view.getEffectiveRoot();
+        highlightNode(view, node, line);
     }
+    
+    /** Add and remove lists of suggestions from the suggestion
+     * registry.
+     * <p>
+     * The tasks will remain in the list until the IDE is shut down,
+     * or until the user performs the tasks, or until the tasks are explicitly
+     * removed by you.
+     * <p>
+     * Note: if these suggestion corresponds to a disabled suggestion type,
+     * they will not be added to the list.  To avoid computing Suggestion
+     * objects in the first place, check isEnabled().
+     * <p>
+     * Note: only suggestions created by calling {@link createSuggestions}
+     * should be registered here.
+     * <p>
+     * @todo Consider adding a "time-to-live" attribute here where you
+     *   can indicate the persistence of the task; some suggestions should
+     *   probably expire if the user doesn't act on it for 5(?) minutes,
+     *   others should perhaps survive even IDE restarts.
+     *
+     * @param add List of suggestions that should be added
+     * @param remove List of suggestions that should be removed. Note that
+     *    the remove is performed before the add, so if a task appears
+     *    in both list it will not be removed.
+     *
+     */
+    public void register(String type, List add, List remove) {
+        //System.out.println("register(" + type + ", " + add +
+        //  ", " + remove + ")");
+        register(type, add, remove, getList());
+    }
+
+    public void register(String typeName, List add, List remove, SuggestionList tasklist) {
+        // TODO check instanceof Task here, and throw an exception if not?
+
+        // Get the first element, and use its type as the type for all.
+        // This works because all elements in the list must have the same
+        // (meta?) type.
+        SuggestionType type = null;
+        /*
+        try {
+            SuggestionImpl s = (SuggestionImpl)suggestions.get(0);
+            type = s.getSType();
+        } catch (ClassCastException e) {
+            TopManager.getDefault().getErrorManager().notify(
+                                         ErrorManager.ERROR, e);
+            return;
+        }
+         */
+        type = SuggestionTypes.getTypes().getType(typeName);
+        if (type == null) {
+            throw new IllegalArgumentException("No such SuggestionType: " + typeName);
+        }
+        
+        SuggestionImpl category = tasklist.getCategoryTask(type);
+        // XXX Do I need to set the parent field on each item?
+        synchronized(this) {
+            tasklist.addRemove(add, remove, false, category);
+        }
+
+        // Leave category task around? Or simply make it invisible?
+        // (Need new Task attribute and appropriate handling in filter
+        // and export methods.)    By leaving it around, we don't reorder
+        // the tasks on the user.
+        //tasklist.removeCategory((SuggestionImpl)suggestions.get(0));
+
+        updateCategoryCount(category); // TODO: skip this when filtered
+    }    
 }

@@ -48,7 +48,9 @@ as follows:
    </pre>
   <li> Register the suggestion with the SuggestionManager:
    <pre>
-      manager.add(suggestion);
+      List addList = new ArrayList(1);
+      addList.add(suggestion);
+      manager.register(suggestionTypeId, addList, null);
    </pre>
   <li> You also need to register the Suggestion type for this
      suggestion with the system. We used <code>suggestionTypeId</code>

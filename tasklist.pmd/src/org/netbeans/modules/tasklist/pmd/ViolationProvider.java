@@ -58,7 +58,7 @@ import org.openide.util.Utilities;
 
 public class ViolationProvider extends DocumentSuggestionProvider {
 
-    final private static String SUGGESTIONTYPE = "pmd-violations"; // NOI18N
+    final private static String TYPE = "pmd-violations"; // NOI18N
 
     /**
      * Return the typenames of the suggestions that this provider
@@ -68,7 +68,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
      *  be an array with one element.
      */
     public String[] getTypes() {
-        return new String[] { SUGGESTIONTYPE };
+        return new String[] { TYPE };
     }
     
     private boolean scanning = false;
@@ -79,7 +79,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
      * for example because the Suggestions window tab is moved to the front,
      * or the user has moved to a workspace containing a Suggestions Window.)
      */
-    protected void notifyRun() {
+    public void notifyRun() {
         super.notifyRun();
         scanning = true;
     }
@@ -90,7 +90,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
      * for example because a different tab is moved to the front or because
      * the user has moved to another workspace.)
      */
-    protected void notifyStop() {
+    public void notifyStop() {
         super.notifyStop();
         scanning = false;
     }
@@ -105,7 +105,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
      * <p>
      * @param document The document being edited
      */
-    protected void docEditedStable(Document document, DocumentEvent event,
+    public void docEditedStable(Document document, DocumentEvent event,
                                    DataObject dataobject) {
         if (scanning) {
             update(document, dataobject);
@@ -117,7 +117,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
      * <p>
      * @param document The document being shown
      */
-    protected void docShown(Document document, DataObject dataobject) {
+    public void docShown(Document document, DataObject dataobject) {
         if ((document == null) || (dataobject == null)) {
             return;
         }
@@ -129,24 +129,20 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
 
-        // Remove old contents
-        if (showingTasks != null) {
-            manager.remove(showingTasks);
+        if ((newTasks == null) && (showingTasks == null)) {
+            return;
         }
-        
+        manager.register(TYPE, newTasks, showingTasks);
         showingTasks = newTasks;
-        if (showingTasks != null) {
-            manager.add(showingTasks);
-        }      
     }
     
     /** The actual workhorse of this class - scan a document for rule violations */
-    protected List scan(Document doc, DataObject dobj) {
+    public List scan(Document doc, DataObject dobj) {
         List tasks = null;
         try {
             
         SuggestionManager manager = SuggestionManager.getDefault();
-        if (!manager.isEnabled(SUGGESTIONTYPE)) {
+        if (!manager.isEnabled(TYPE)) {
             return null;
         }
 
@@ -249,7 +245,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                     }
                     
                     Suggestion s = manager.createSuggestion(
-                        SUGGESTIONTYPE,
+                        TYPE,
                         rulename + " : " + // NOI18N
                            violation.getDescription(),
                         action);
@@ -462,21 +458,21 @@ public class ViolationProvider extends DocumentSuggestionProvider {
      * <p>
      * @param document The document being hidden
      */
-    protected void docHidden(Document document, DataObject dataobject) {
+    public void docHidden(Document document, DataObject dataobject) {
 	// Remove existing items
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
-            manager.remove(showingTasks);
+            manager.register(TYPE, null, showingTasks);
 	    showingTasks = null;
 	}     
     }
 
 
-    protected void docClosed(Document document, DataObject dataobject) {
+    public void docClosed(Document document, DataObject dataobject) {
     }
-    protected void docOpened(Document document, DataObject dataobject) {
+    public void docOpened(Document document, DataObject dataobject) {
     }
-    protected void docEdited(Document document, DocumentEvent event,
+    public void docEdited(Document document, DocumentEvent event,
                              DataObject dataobject) {
     }
     

@@ -73,7 +73,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      * for example because the Suggestions window tab is moved to the front,
      * or the user has moved to a workspace containing a Suggestions Window.)
      */
-    protected void notifyRun() {
+    public void notifyRun() {
         super.notifyRun();
         scanning = true;
     }
@@ -84,7 +84,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      * for example because a different tab is moved to the front or because
      * the user has moved to another workspace.)
      */
-    protected void notifyStop() {
+    public void notifyStop() {
         super.notifyStop();
         scanning = false;
 
@@ -109,7 +109,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      * <p>
      * @param document The document being edited
      */
-    protected void docEditedStable(Document document, DocumentEvent event,
+    public void docEditedStable(Document document, DocumentEvent event,
                                    DataObject dataobject) {
         //System.out.println("docEditedStable(" + document + ")");
 	if (scanning && scanner != null) {
@@ -122,7 +122,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      * <p>
      * @param document The document being shown
      */
-    protected void docShown(Document document, DataObject dataobject) {
+    public void docShown(Document document, DataObject dataobject) {
         //System.out.println("docShown(" + document + ")");
         skipCode = ((Settings)Settings.
                              findObject(Settings.class, true)).getSkipComments();
@@ -138,18 +138,14 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
         List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
 
-        // Remove old contents
-        if (showingTasks != null) {
-            manager.remove(showingTasks);
+        if ((newTasks == null) && (showingTasks == null)) {
+            return;
         }
-        
+        manager.register(TYPE, newTasks, showingTasks);
         showingTasks = newTasks;
-        if (showingTasks != null) {
-            manager.add(showingTasks);
-        }      
     }
     
-    protected List scan(Document doc, DataObject dobj) {
+    public List scan(Document doc, DataObject dobj) {
         SuggestionManager manager = SuggestionManager.getDefault();
         if (!manager.isEnabled(TYPE)) {
             return null;
@@ -194,7 +190,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      * <p>
      * @param document The document being hidden
      */
-    protected void docHidden(Document document, DataObject dataobject) {
+    public void docHidden(Document document, DataObject dataobject) {
         //System.out.println("docHidden(" + document + ")");
 	if (scanner != null) {
 	    scanner.stop();
@@ -204,18 +200,18 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
 	// Remove existing items
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
-            manager.remove(showingTasks);
+            manager.register(TYPE, null, showingTasks);
 	    showingTasks = null;
 	}     
     }
 
-    protected void docClosed(Document document, DataObject dataobject) {
+    public void docClosed(Document document, DataObject dataobject) {
     }
 
-    protected void docOpened(Document document, DataObject dataobject) {
+    public void docOpened(Document document, DataObject dataobject) {
     }
 
-    protected void docEdited(Document document, DocumentEvent event,
+    public void docEdited(Document document, DocumentEvent event,
                              DataObject dataobject) {
     }
 

@@ -39,8 +39,7 @@ public class RefreshAction extends NodeAction {
             (node.length == 1) &&
             (TaskNode.getTaskNode(node[0]) != null) &&
             (TaskNode.getTaskNode(node[0]) instanceof BugNode)) {
-            BugNode n = (BugNode)TaskNode.getTaskNode(node[0]);
-            final Bug item = (Bug)n.getTodoItem();
+            final Bug item = (Bug)TaskNode.getTask(node[0]);
             list = (BugList)item.getList();
         }
         if (list == null) {

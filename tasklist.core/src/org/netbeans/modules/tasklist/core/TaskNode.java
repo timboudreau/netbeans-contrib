@@ -79,11 +79,11 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
         //TODO getCookieSet().add(new ReorderMe ());
     }
 
-    protected TaskChildren getTodoChildren() {
+    public TaskChildren getTaskChildren() {
         return (TaskChildren) getChildren();
     }
      
-    public Task getTodoItem() {
+    public Task getTask() {
         return item;
     }
 
@@ -410,11 +410,11 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
             return null;
         }
         if (n instanceof TaskNode) {
-            return ((TaskNode)n).getTodoItem();
+            return ((TaskNode)n).getTask();
         } else if (n instanceof FilterTaskNode) {
             n = ((FilterTaskNode)n).getOriginal();
             if (n instanceof TaskNode) {
-                return ((TaskNode)n).getTodoItem();
+                return ((TaskNode)n).getTask();
             }
         }
         return null;

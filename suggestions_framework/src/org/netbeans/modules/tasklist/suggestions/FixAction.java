@@ -14,6 +14,8 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.awt.Dialog;
+import java.util.List;
+import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import org.netbeans.api.tasklist.SuggestionPerformer;
@@ -63,11 +65,11 @@ public class FixAction extends NodeAction {
         boolean skipConfirm = false;
         TaskListView tlv = TaskListView.getCurrent();
         for (int i = 0; i < node.length; i++) {
-            Task item = TaskNode.getTask(node[i]); //safe - see enable check
+            SuggestionImpl item = (SuggestionImpl)TaskNode.getTask(node[i]);
 
             SuggestionPerformer performer = item.getAction();
             Object confirmation = performer.getConfirmation(item);
-            boolean doConfirm = manager.isConfirm(((SuggestionImpl)item).getSType());
+            boolean doConfirm = manager.isConfirm(item.getSType());
             if (doConfirm && !skipConfirm && (confirmation != null)) {
                 // Show in source editor as well, if possible
                 if (tlv != null) {
@@ -132,7 +134,7 @@ public class FixAction extends NodeAction {
                     skipConfirm = true;
                 } else if (pressedButton == skipButton) {
                     // [PENDING] Remove the item, but don't actually perform it
-                    //manager.remove(item);
+                    //manager.register(itemType, null, itemList);
                     
                     continue;
                 } // else: fixButton - go ahead and fix
@@ -148,7 +150,9 @@ public class FixAction extends NodeAction {
             performer.perform(item);
             
             // Remove suggestion when we've performed it
-            manager.remove(item);
+            List itemList = new ArrayList(1);
+            itemList.add(item);
+            manager.register(item.getSType().getName(), null, itemList);
         }
         } finally {
             if (fixingStarted) {

@@ -33,8 +33,7 @@ public class ViewBugAction extends NodeAction {
     }
     
     protected void performAction(Node[] node) {
-	BugNode n = (BugNode)TaskNode.getTaskNode(node[0]);
-	Bug bug = (Bug)n.getTodoItem();
+	Bug bug = (Bug)TaskNode.getTask(node[0]);
 	bug.view();
     }
     
