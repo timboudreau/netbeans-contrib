@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Install: org/netbeans/modules/clazz/ClassModule.class
+OpenIDE-Module-Layer: org/netbeans/modules/clazz/resources/mf-layer.xml
 OpenIDE-Module-Name: Sourceless Java Classes
 OpenIDE-Module-Short-Description: Supports work with Java class files without source.
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
