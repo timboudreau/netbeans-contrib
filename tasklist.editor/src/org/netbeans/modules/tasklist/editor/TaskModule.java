@@ -19,16 +19,15 @@ import org.netbeans.modules.editor.NbLocalizer;
 import org.openide.modules.ModuleInstall;
 
 
-
-
-
 /** Module installation class for the tasklist module
  * I hate having to do this, but I need to add a Localizer
  * to the editor; otherwise my "New Task" action in the
  * editor margin won't get translated. I was hoping I could
  * do it in the constructor for the TextAction, but that's too
  * late; the name getString'ed in the constructor.
- * @author Tor Norbye */
+ * 
+ * @author Tor Norbye
+ */
 public class TaskModule extends ModuleInstall {
 
     static final long serialVersionUID = -3935204626992817943L;

@@ -18,6 +18,8 @@ import java.io.File;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.JTextComponent;
+import javax.swing.*;
+
 import org.netbeans.editor.BaseAction;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.LocaleSupport;
@@ -33,51 +35,58 @@ import org.openide.util.NbBundle;
 import org.openide.text.DataEditorSupport;
 
 
-
-/** Editor action, quite equivalent to NewTaskAction,
+/**
+ * Editor action, quite equivalent to NewTaskAction,
  * but plugs into the editor architecture such that it
  * can be embedded in the editor magin popup menu.
- * @author Tor Norbye */
+ *
+ * @author Tor Norbye
+ */
 public class NewTaskEditorAction extends BaseAction implements Localizer {
 
-    /** Add a new task tied ot the current line */
+    /**
+     * Add a new task tied ot the current line
+     */
     public static final String newTodoItemAction = "new-todo-item"; // NOI18N
 
-    
+
     public NewTaskEditorAction() {
-         super(newTodoItemAction);
-	 LocaleSupport.addLocalizer(this); // XXX is this too late?
+        super(newTodoItemAction);
+        LocaleSupport.addLocalizer(this); // XXX is this too late?
     }
-    
+
     static final long serialVersionUID = 8870696224845563315L;
 
     public void actionPerformed(ActionEvent evt, JTextComponent target) {
-	if (target == null)
-	    return;
+        if (target == null)
+            return;
 
-	BaseDocument doc = (BaseDocument)target.getDocument();
-	Caret caret = target.getCaret();
+        // TODO test shows the componnet far from caret
+        //EditorView.show(new JLabel("HOHOHOHOH"));
 
-	/*
-	// check whether the glyph gutter is visible or not
-	if (Utilities.getEditorUI(target) == null || !Utilities.getEditorUI(target).isGlyphGutterVisible()) {
-	    target.getToolkit().beep();
-	    return;
-	}
-	*/
+        BaseDocument doc = (BaseDocument) target.getDocument();
+        Caret caret = target.getCaret();
 
-	int line = 0;
-	try {
-	    line = Utilities.getLineOffset(doc, caret.getDot());
+        /*
+        // check whether the glyph gutter is visible or not
+        if (Utilities.getEditorUI(target) == null || !Utilities.getEditorUI(target).isGlyphGutterVisible()) {
+            target.getToolkit().beep();
+            return;
+        }
+        */
+
+        int line = 0;
+        try {
+            line = Utilities.getLineOffset(doc, caret.getDot());
             line++; // It seems to be off-by-one (zero based)
-	} catch (BadLocationException e) {
-	    target.getToolkit().beep();
-	    return;
-	}
+        } catch (BadLocationException e) {
+            target.getToolkit().beep();
+            return;
+        }
 
-	Line lineObj = NbEditorUtilities.getLine(doc, caret.getDot(), false);
+        Line lineObj = NbEditorUtilities.getLine(doc, caret.getDot(), false);
         DataObject dob = DataEditorSupport.findDataObject(lineObj);
-	FileObject fo = dob.getPrimaryFile();
+        FileObject fo = dob.getPrimaryFile();
         File file = FileUtil.toFile(fo);
         String filename;
         if (file == null) {
@@ -85,15 +94,15 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
         } else {
             filename = file.getPath();
         }
-        
-	if (!((filename != null) && (filename.length() > 0))) {
-	    line = 0;
-	}
-	NewTaskAction.performAction(null, filename, line, true);
+
+        if (!((filename != null) && (filename.length() > 0))) {
+            line = 0;
+        }
+        NewTaskAction.performAction(null, filename, line, true);
     }
-    
+
     public String getString(String str) {
         return NbBundle.getMessage(NewTaskEditorAction.class, str);
     }
-    
+
 }
