@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.0" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <SyntheticProperties>
+  </SyntheticProperties>
+
+  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="getString(&quot;LBL_ActivationDescCustom.Classname&quot;)" type="code"/>
+        </Property>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection component="jtfClassName" type="bean"/>
+        </Property>
+      </Properties>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jLabel1.setDisplayedMnemonic(getMnemonic(&quot;LBL_ActivationDescCustom.Classname&quot;));&#xa;jLabel1.setLabelFor(jtfClassName);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value=""/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="13" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="0" insetsBottom="0" insetsLeft="12" insetsRight="0" insetsTop="12" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="jtfClassName">
+      <Properties>
+        <Property name="columns" type="int" value="30"/>
+      </Properties>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jtfClassName.getAccessibleContext().setAccessibleDescription(getString(&quot;AD_ActivationDescCustomEditor.ClassName&quot;));"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="0" insetsBottom="0" insetsLeft="11" insetsRight="0" insetsTop="12" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JButton" name="jButtonClass">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="..."/>
+      </Properties>
+
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonClassActionPerformed"/>
+      </Events>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value=""/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jButtonClass.getAccessibleContext().setAccessibleDescription(getString(&quot;AD_ActivationDescCustomEditor.ClassButton&quot;));"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="0" gridX="2" gridY="0" insetsBottom="0" insetsLeft="5" insetsRight="12" insetsTop="12" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel2">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="getString(&quot;LBL_ActivationDescCustom.Location&quot;)" type="code"/>
+        </Property>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection component="jtfLocation" type="bean"/>
+        </Property>
+      </Properties>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jLabel2.setDisplayedMnemonic(getMnemonic(&quot;LBL_ActivationDescCustom.Location&quot;));&#xa;jLabel2.setLabelFor(jtfLocation);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value=""/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="13" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="1" insetsBottom="0" insetsLeft="12" insetsRight="0" insetsTop="11" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="jtfLocation">
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jtfLocation.getAccessibleContext().setAccessibleDescription(getString(&quot;AD_ActivationDescCustomEditor.Location&quot;));"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="1" insetsBottom="0" insetsLeft="11" insetsRight="0" insetsTop="11" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JButton" name="jButtonLocation">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="..."/>
+      </Properties>
+
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonLocationActionPerformed"/>
+      </Events>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value=""/>
+        <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="ActivationDescCustomEditor_jButtonLocation"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jButtonLocation.getAccessibleContext().setAccessibleDescription(getString(&quot;AD_ActivationDescCustomEditor.LocationButton&quot;));"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="0" gridX="2" gridY="1" insetsBottom="0" insetsLeft="5" insetsRight="12" insetsTop="11" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel3">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="getString(&quot;LBL_ActivationDescCustom.Mode&quot;)" type="code"/>
+        </Property>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="13" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="2" insetsBottom="0" insetsLeft="12" insetsRight="0" insetsTop="11" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JRadioButton" name="jRadioButton1">
+      <Properties>
+        <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="getMnemonic(&quot;LBL_ActivationDescCustom.TRUE&quot;)" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value=" True"/>
+      </Properties>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jRadioButton1.getAccessibleContext().setAccessibleDescription(getString(&quot;AD_ActivationDescCustomEditor.true&quot;));"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="0" gridX="1" gridY="2" insetsBottom="0" insetsLeft="11" insetsRight="12" insetsTop="11" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JRadioButton" name="jRadioButton2">
+      <Properties>
+        <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="getMnemonic(&quot;LBL_ActivationDescCustom.FALSE&quot;)" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value=" False"/>
+      </Properties>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jRadioButton2.getAccessibleContext().setAccessibleDescription(getString(&quot;AD_ActivationDescCustomEditor.false&quot;));"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="0" gridX="1" gridY="3" insetsBottom="0" insetsLeft="12" insetsRight="12" insetsTop="5" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel4">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="getString(&quot;LBL_ActivationDescCustom.Data&quot;)" type="code"/>
+        </Property>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection component="jtfData" type="bean"/>
+        </Property>
+      </Properties>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jLabel4.setDisplayedMnemonic(getMnemonic(&quot;LBL_ActivationDescCustom.Data&quot;));&#xa;jLabel4.setLabelFor(jtfData);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value=""/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="13" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="4" insetsBottom="12" insetsLeft="12" insetsRight="0" insetsTop="11" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="jtfData">
+      <Properties>
+        <Property name="editable" type="boolean" value="false"/>
+      </Properties>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jtfData.getAccessibleContext().setAccessibleDescription(getString(&quot;AD_ActivationDescCustomEditor.Data&quot;));"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="4" insetsBottom="12" insetsLeft="11" insetsRight="0" insetsTop="11" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JButton" name="jButtonData">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="..."/>
+      </Properties>
+
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonDataActionPerformed"/>
+      </Events>
+
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="javax.swing.ButtonGroup group = new javax.swing.ButtonGroup();"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="group.add(jRadioButton1);&#xa;group.add(jRadioButton2);&#xa;jButtonData.getAccessibleContext().setAccessibleDescription(getString(&quot;AD_ActivationDescCustomEditor.DataButton&quot;));"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="0" gridX="2" gridY="4" insetsBottom="12" insetsLeft="5" insetsRight="12" insetsTop="11" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+  </SubComponents>
+</Form>
