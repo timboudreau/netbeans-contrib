@@ -59,11 +59,16 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
     private int numberOfFinishedCmdsToCollect = RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
     private boolean runtimeCreated = false;
     private boolean expertMode = false;
+    private boolean initialized = false;
     
     /** Creates a new instance of GlobalCommandsProvider - to be called only by the Lookup system.
      * Do not call directly!
      */
     public GlobalCommandsProvider() {
+        instance = this;
+    }
+    
+    private synchronized void initialize() {
         ProfilesFactory factory = ProfilesFactory.getDefault();
         String names[] = factory.getProfilesNames();
         for (int i = 0; i < names.length; i++) {
@@ -75,7 +80,7 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
             profile.addPropertyChangeListener(this);
         }
         factory.addPropertyChangeListener(WeakListeners.propertyChange(this, factory));
-        instance = this;
+        initialized = true;
     }
     
     /**
@@ -141,6 +146,11 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
     }
     
     private void collectCommands() {
+        synchronized (this) {
+            if (!initialized) {
+                initialize();
+            }
+        }
         Profile[] profiles = (Profile[]) profilesByNames.values().toArray(new Profile[0]);
         commands = createCommandsFromProfiles(profiles);
         fillCommands(commands);
