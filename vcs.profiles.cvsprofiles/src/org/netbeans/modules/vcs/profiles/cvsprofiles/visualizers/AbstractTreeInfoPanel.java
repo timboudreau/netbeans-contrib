@@ -115,8 +115,6 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
         jTabbedPane1.setTabPlacement(javax.swing.SwingConstants.BOTTOM);
         jTabbedPane1.setPreferredSize(new java.awt.Dimension(500, 400));
         jScrollPane1.setMinimumSize(new java.awt.Dimension(100, 70));
-        jScrollPane1.setVerticalScrollBar(new JScrollBar(Adjustable.VERTICAL));
-        jScrollPane1.setHorizontalScrollBar(new JScrollBar(Adjustable.HORIZONTAL));
         trDirStructure.setShowsRootHandles(true);
         trDirStructure.setMinimumSize(new java.awt.Dimension(80, 60));
         trDirStructure.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
