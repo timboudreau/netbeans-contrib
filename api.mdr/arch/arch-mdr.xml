@@ -737,7 +737,7 @@ Not really. The module removes only lookup entries added by the standalone jars 
 -->
 <answer id="perf-exit">
 Shuts down all the repositories (stops event dispatching thread, releases locks on all storage
-    files).
+    files, flushes caches). Time necessary to perform these operations is not significant.
 </answer>
 
 
@@ -761,7 +761,8 @@ No.
         </question>
 -->
 <answer id="perf-limit">
-Number of JMI object the MDR can handle is limited by 2^64.
+Number of JMI object the MDR can handle is limited by 2^56 and the available disk space. Footprint of a repository containing just the MOF metamodel is about 250KB.
+After loading metamodel of UML 1.4, which contains about 900 objects and 1700 association links between them it grows to 400KB.
 </answer>
 
 
@@ -774,7 +775,8 @@ Number of JMI object the MDR can handle is limited by 2^64.
 -->
 <answer id="perf-mem">
 In case of the default storage implementation (b-tree) this is fully configurable by
-    setting the memory cache threshold, b-tree page size, etc.
+    setting the memory cache threshold, b-tree page size, etc. By default the cache size is set to 2048 objects, which should be optimal for typical usage.
+Explanation of cache size values and their impact on performance can be found in javadoc for MDRCache class.
 </answer>
 
 
@@ -808,9 +810,9 @@ No.
         </question>
 -->
 <answer id="perf-progress">
-Potentially long running task is a repository boot. This is done only once, when the repository
+Potentially long running task is a repository boot (may take up to 10 seconds on slow machines - i.e. slower than 800MHz). This is done only once, when the repository
     is accessed for the first time (in its life, not in a single IDE session)
-    or if the storage files are deleted externaly.
+    or if the storage files are deleted externaly. When upgrading the higher version of MDR, the storages may be rebooted in case the storage format has changed between the revisions.
 </answer>
 
 
@@ -832,7 +834,9 @@ The module's performance is affected by the amount of data in a single storage f
     support storage partitioning and federation. Computational complexity of the searches in
     the default implementation of the storage (b-tree) is logarithmic, so the code should scale.
     Another thing that influences the performance of the repository is a number of listeners
-    registered on various repository objects.
+    registered on various repository objects.<br/>
+We should note however that currently there is a know bug in the b-tree storage which causes that
+complexity of linking objects to a single object in an ordered association is quadratic.
 </answer>
 
 
@@ -859,7 +863,9 @@ By documenting the sensitive areas.
         </question>
 -->
 <answer id="perf-startup">
-No.
+No. However the first call to MDR made by any of its clients may potentially take a long time, since MDR is initialized lazily. During the first call to it the MDR checks whether the
+storages are present or whether they need to be rebooted. If everything is OK, the first call takes about a second (caches are populated), otherwise it may take more time necessary for
+rebooting the storage. Subsequent calls should be fast.
 </answer>
 
 
