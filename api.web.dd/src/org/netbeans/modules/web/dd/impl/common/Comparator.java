@@ -29,9 +29,19 @@ public class Comparator extends org.netbeans.modules.schema2beans.BeanComparator
 				BaseBean 	newBean) {
         if (curBean!=null && newBean!= null) {
             if (curBean instanceof KeyBean) {
-                Object key1 = ((KeyBean)curBean).getKeyValue();
-                Object key2 = ((KeyBean)newBean).getKeyValue();
-                if (key1!=null && key1.equals(key2)) return curBean;
+                String prop = ((KeyBean)curBean).getKeyProperty();
+                Object key1 = curBean.getValue(prop);
+                Object key2 = newBean.getValue(prop);
+                if (key1!=null) {
+                    if (key1.equals(key2)) return curBean;
+                    else {
+                        BaseBean clonnedNewBean = (BaseBean)newBean.clone();
+                        clonnedNewBean.setValue(prop,key1);
+                        if (curBean.equals(super.compareBean(beanName, curBean, clonnedNewBean))) {
+                            return curBean;
+                        }
+                    }
+                }
             } else {
                 if (beanName.equals("SessionConfig")) { //NOI18N
                     return curBean;

@@ -20,5 +20,5 @@ package org.netbeans.modules.web.dd.impl.common;
  */
 public interface KeyBean
 {
-    public Object getKeyValue();
+    public String getKeyProperty();
 }

@@ -106,7 +106,7 @@
                 org.netbeans.api.web.dd.InitParam, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getParamName(); }
+                public String getKeyProperty() { return "ParamName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -119,7 +119,7 @@
                 org.netbeans.api.web.dd.Filter, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getFilterName(); }
+                public String getKeyProperty() { return "FilterName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -149,7 +149,7 @@
                 org.netbeans.api.web.dd.Servlet, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getServletName(); }
+                public String getKeyProperty() { return "ServletName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -160,7 +160,7 @@
                 org.netbeans.api.web.dd.ServletMapping, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getUrlPattern(); }
+                public String getKeyProperty() { return "UrlPattern"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -180,7 +180,7 @@
                 org.netbeans.api.web.dd.MimeMapping, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getExtension(); }
+                public String getKeyProperty() { return "Extension"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -200,11 +200,7 @@
                 org.netbeans.api.web.dd.ErrorPage, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() {
-                    Object code = getErrorCode();
-                    String exceptionType = getExceptionType();
-                    return (code==null?"":code.toString())+":"+(exceptionType==null?"":exceptionType);
-                }
+                public String getKeyProperty() { return "ErrorCode"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -246,7 +242,7 @@
                 org.netbeans.api.web.dd.SecurityRole, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getRoleName(); }
+                public String getKeyProperty() { return "RoleName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -258,7 +254,7 @@
                 org.netbeans.api.web.dd.MessageDestination, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getMessageDestinationName(); }
+                public String getKeyProperty() { return "MessageDestinationName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -279,7 +275,7 @@
                 org.netbeans.api.web.dd.LocaleEncodingMapping, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getLocale(); }
+                public String getKeyProperty() { return "Locale"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -335,7 +331,7 @@
                 org.netbeans.api.web.dd.EnvEntry, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getEnvEntryName(); }
+                public String getKeyProperty() { return "EnvEntryName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -347,7 +343,7 @@
                 org.netbeans.api.web.dd.EjbRef, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getEjbRefName(); }
+                public String getKeyProperty() { return "EjbRefName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -359,7 +355,7 @@
                 org.netbeans.api.web.dd.EjbLocalRef, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getEjbRefName(); }
+                public String getKeyProperty() { return "EjbRefName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -371,7 +367,7 @@
                 org.netbeans.api.web.dd.ResourceRef, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getResRefName(); }
+                public String getKeyProperty() { return "ResRefName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -383,7 +379,7 @@
                 org.netbeans.api.web.dd.ResourceEnvRef, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getResourceEnvRefName(); }
+                public String getKeyProperty() { return "ResourceEnvRefName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -395,7 +391,7 @@
                 org.netbeans.api.web.dd.MessageDestinationRef, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getMessageDestinationRefName(); }
+                public String getKeyProperty() { return "MessageDestinationRefName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -450,7 +446,7 @@
                 org.netbeans.api.web.dd.ServiceRef, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getServiceRefName(); }
+                public String getKeyProperty() { return "ServiceRefName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -483,7 +479,7 @@
                 org.netbeans.api.web.dd.ServiceRefHandler, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getHandlerName(); }
+                public String getKeyProperty() { return "HandlerName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -575,7 +571,7 @@
                 org.netbeans.api.web.dd.WebResourceCollection, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getWebResourceName(); }
+                public String getKeyProperty() { return "WebResourceName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -622,7 +618,7 @@
                 org.netbeans.api.web.dd.Taglib, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getTaglibUri(); }
+                public String getKeyProperty() { return "TaglibUri"; }
             </user-code>
 	</meta-element>
 	<meta-element>
@@ -682,7 +678,7 @@
                 org.netbeans.api.web.dd.SecurityRoleRef, org.netbeans.modules.web.dd.impl.common.KeyBean
             </implements>
             <user-code>
-                public Object getKeyValue() { return getRoleName(); }
+                public String getKeyProperty() { return "RoleName"; }
             </user-code>
 	</meta-element>
 	<meta-element>
