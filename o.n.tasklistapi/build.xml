@@ -75,9 +75,7 @@ Microsystems, Inc. All Rights Reserved.
   
     <target name="clean">
         <delete>
-            <fileset dir="src">
-                <include name="**/*.class"/>
-            </fileset>
+            <fileset dir="." includes="**/*.class"/>
         </delete>
         <delete file="manifest-subst.mf"/>
         <delete file="../tasklist-api.nbm"/>
