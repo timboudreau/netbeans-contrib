@@ -27,6 +27,7 @@ public interface IDLNodeCookie extends Node.Cookie {
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         5/28/99  Karel Gardas    
  *  2    Gandalf   1.1         5/28/99  Karel Gardas    
  *  1    Gandalf   1.0         5/22/99  Karel Gardas    
  * $

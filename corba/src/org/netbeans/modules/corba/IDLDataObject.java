@@ -101,6 +101,7 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         5/28/99  Karel Gardas    
  *  8    Gandalf   1.7         5/28/99  Karel Gardas    
  *  7    Gandalf   1.6         5/28/99  Karel Gardas    
  *  6    Gandalf   1.5         5/22/99  Karel Gardas    
