@@ -372,14 +372,14 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		    //we found impl file for this setting
 		    //_M_implementations.add (__orb_settings);
 		    // loadImpl postcondition
-		    if (__orb_settings.getORBTag()!= null && __orb_settings.getOrbName()!=null)
+		    if (__orb_settings.isValid())
 		    	__context.add (__orb_settings);
 		    else {
 		    	TopManager tm = TopManager.getDefault();
 			if (tm != null) {
 				ErrorManager errMgr = tm.getErrorManager();
 				if (errMgr != null) {
-					errMgr.log ("org::netbeans:modules::corba::settings::CORBASupportSettings::loadImpl postcondition failed\n"+  // No I18N
+					errMgr.log (ErrorManager.ERROR, "org::netbeans:modules::corba::settings::CORBASupportSettings::loadImpl postcondition failed\n"+  // No I18N
 					            "Can not process XML file:"+__files[__i]);	// No I18N
 				}
 			}
@@ -431,16 +431,26 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	String __orb_class = System.getProperty ("org.omg.CORBA.ORBClass");
 	String __orb_singleton = System.getProperty ("org.omg.CORBA.ORBSingletonClass");
 	boolean __set_property = false;
+	String __config_url = null;
+	String __userHome = System.getProperty("netbeans.user");
 	String __home = System.getProperty ("netbeans.home");
-	String __config_url = "";
-	if (__home != null && (!(__home.equals ("")))) {
-	    __config_url = "file://";
-	    if (Utilities.isWindows ())
-		__config_url += "/";
-	    __config_url += __home + File.separatorChar + "bin" + File.separatorChar;
-	    __config_url += "openorb.xml";
+	if (__userHome != null && (!__userHome.equals(""))) {
+	    String __fileName = __userHome + File.separatorChar + "bin" + File.separatorChar + "openorb.xml";
+	    File __file = new File (__fileName);
+	    if (__file.exists() && __file.isFile() && __file.canRead())
+                try {
+                    __config_url = __file.toURL().toString();
+                }catch (java.net.MalformedURLException mfue) {}
+	}	    
+	if (__config_url==null && __home != null && (!__home.equals (""))) {
+	    String __fileName = __home + File.separatorChar + "bin" + File.separatorChar + "openorb.xml";
+            File __file = new File (__fileName);
+	    if (__file.exists() && __file.isFile() && __file.canRead())
+                try {
+                    __config_url = __file.toURL().toString();
+                }catch (java.net.MalformedURLException mfue){}
 	}
-	else {
+	else if (__config_url == null){
 	    __config_url = "openorb.xml";
 	}
 	if (__orb_class == null && __orb_singleton == null) {
@@ -466,16 +476,13 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    }
 	}
 	Properties __props = System.getProperties ();
-	System.out.println ("Initializing ORB");
 	if (__set_property) {
 	    __props.put ("org.omg.CORBA.ORBClass", "org.openorb.CORBA.ORB");
 	    __props.put ("org.omg.CORBA.ORBSingletonClass",
 			 "org.openorb.CORBA.ORBSingleton");
-	    System.out.println ("openorb.config=" + __config_url);
 	    __props.put ("openorb.config", __config_url);
 	}
         _M_orb = ORB.init (new String[] {""}, __props); // NOI18N
-	System.out.println ("ORB class: " + _M_orb.getClass ().getName ());
     }
 
 
@@ -927,7 +934,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    if (tm != null) {
 	    	ErrorManager errManager = tm.getErrorManager();
 		if (errManager != null) {
-			errManager.log ("org::netbeans::modules::corba::settings::CORBASupportSettings::setORBTag precondition failed!\n"+  // No I18N
+			errManager.log (ErrorManager.ERROR,"org::netbeans::modules::corba::settings::CORBASupportSettings::setORBTag precondition failed!\n"+  // No I18N
 					"__value == null");  // No I18N
 		}
 	    }
