@@ -35,7 +35,7 @@ Microsystems, Inc. All Rights Reserved.
         <center><h1>NetBeans Architecture Documents List</h1></center>
         
         
-        <h3>Major Changes</h3>
+        <h3>Major changes in Core Platform</h3>
 
         <UL>
             <li>(Nov 12 '03) New Window System implementation (<a href="OpenAPIs/apichanges.html#issue-29836">4.13</a>) </li>
@@ -44,7 +44,20 @@ Microsystems, Inc. All Rights Reserved.
             <li>(May 14 '03) J2SE 1.4 required (<a href="OpenAPIs/apichanges.html#jdk1.4">4.6</a>) </li>
             <li>(Apr 2 '03) DataSystems separated into own JAR file (<a href="LoadersAPI/apichanges.html#issue-32937">4.3</a>)</li>
         </UL>
-        
+
+        <h3>Major changes in Core IDE</h3>
+
+        <UL>
+            <li><a href="EditorAPI/architecture-summary.html">Editor</a> module -- new
+                significant feature implemnted: Code Folding; no exposed API for public use.</li>
+            <li>Task list module -- new module taken from contribution on netbeans.org. The
+                following task list submodules are put to standard distribution: <code>core</code>,
+                <code>api</code>, <code>editor</code>, <code>suggestions</code>, <code>docscan</code>.</li>
+            <li>VCS modules -- the <code>javacvs</code> module functionality merged with the
+                <code>cvs</code> profile of the generic VCS support (now allowing to use also the buil-in CVS
+                client library). The <code>javacvs</code> module itself is dropped.</li>
+        </UL>
+
         <h3>List of all components</h3>
         <!--
         This document provides a simple list of <em>NetBeans Architecture Documents</em>. 
