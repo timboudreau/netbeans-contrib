@@ -282,7 +282,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUNR} pcli Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${QUOTE}${LOCK_DESCRIPTION}${QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${QUOTE}${ASSIGN_VERSION}${QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -ym ${QFILES} ${NUR}</value>
+	  <value>${RUNR} pcli Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${QUOTE}${LOCK_DESCRIPTION}${QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${QUOTE}${ASSIGN_VERSION}${QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-m${QUOTE}${message}${QUOTE}] -ym ${QFILES} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKIN)))
@@ -410,7 +410,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="exec">
-          <value>${RUNR} pcli AddFiles ${PRIDPP} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${QMPATHS} ${NUR}</value>
+          <value>${RUNR} pcli AddFiles ${PRIDPP} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${QMPATHS} ${NUR}</value>
         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
@@ -454,6 +454,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_ADD)</value>
         </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.AddCommand</value>
+        </property>
       </command>
       <command name="ADD_FILES_IN_DIR" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD_ALL)">
         <property name="labelMnemonic">
@@ -463,7 +466,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="exec">
-          <value>$[? RECURSIVE] [org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class -o ADD_IN_FOLDER_CMD] [${RUN} pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${RECURSIVE} @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD(0)} ${NUR}]</value>
+          <value>$[? RECURSIVE] [org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class -o ADD_IN_FOLDER_CMD] [${RUN} pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${RECURSIVE} @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD(0)} ${NUR}]</value>
         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
@@ -520,8 +523,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="exec">
-          <value>${RUN} pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [; pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
-          <value if="IS_WINNT">${RUN} (pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} || echo.>nul) $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [&amp;&amp; pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
+          <value>${RUN} pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [; pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
+          <value if="IS_WINNT">${RUN} (pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} || echo.>nul) $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [&amp;&amp; pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
         </property>
 	<property name="onFile">
 	  <value>false</value>
@@ -828,8 +831,8 @@ Microsystems, Inc. All Rights Reserved.
         <run dir="${WORKDIR}">
           <executable value="$[? GEN_DELTA] [vdiff] [org.netbeans.modules.vcs.profiles.commands.Diff.class]"/>
           <arg value="$[? GEN_DELTA] [-dl] []"/>
-          <arg value="$[? REV_VER1] [$[? GEN_DELTA] [-r][]${REVISION1}] [$[? GEN_DELTA] [-v][${BACKSLASH}]${VERSION1}]"/>
-          <arg value="$[? REV_VER2] [$[? GEN_DELTA] [$[? REVISION2] [-r${REVISION2}] []] [${REVISION2}]] [$[? GEN_DELTA] [$[? VERSION2] [-v${VERSION2}] []] [${BACKSLASH}${VERSION2}]]"/>
+          <arg value="$[? REV_VER1] [$[? GEN_DELTA] [-r][]${REVISION1}] [$[? GEN_DELTA] [-v][$[? VERSION1] [${BACKSLASH}] []]${VERSION1}]"/>
+          <arg value="$[? REV_VER2] [$[? GEN_DELTA] [$[? REVISION2] [-r${REVISION2}] []] [${REVISION2}]] [$[? GEN_DELTA] [$[? VERSION2] [-v${VERSION2}] []] [$[? VERSION2] [${BACKSLASH}${VERSION2}] []]]"/>
           <arg line="$[? GEN_DELTA] [${IGNORE_WHITE} -d] [3 CHECKOUT_CMD DIFF_CA_CMD]"/>
           <arg value="$[? GEN_DELTA] [$[? DELTA_FILE] [-xo${DELTA_FILE}] []] []"/>
           <arg value="$[? GEN_DELTA] [{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})] []"/>
@@ -1000,7 +1003,7 @@ Microsystems, Inc. All Rights Reserved.
         <run dir="${WORKDIR}">
           <executable value="vdiff"/>
           <arg value="-dl"/>
-          <arg value="$[? REV_VER1] [-r${REVISION1}] [-v${VERSION1}]"/>
+          <arg value="$[? REV_VER1] [-r${REVISION1}] [$[? VERSION1] [-v${VERSION1}] [-r]]"/>
           <arg value="$[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${VERSION2}] []]"/>
           <arg value="${IGNORE_WHITE}"/>
           <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})"/>
