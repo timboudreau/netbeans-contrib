@@ -259,7 +259,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
                 while (enum.hasMoreElements()){
                     Attribute attr = (Attribute) enum.nextElement();
                     String attrId = attr.getID();
-                    sheet.get(JndiObjectNode.JNDI_PROPERTIES).put ( new JndiProperty (attrId,String.class,attrId,null,attr.get().toString(),this,true));
+                    sheet.get(JndiObjectNode.JNDI_PROPERTIES).put ( new JndiProperty (attrId,String.class,attrId,null,attrToString(attr),this,true));
                 }
             }catch (NamingException ne){}
         }

@@ -90,6 +90,18 @@ public class SimpleListModel extends javax.swing.AbstractListModel {
     public Object getElementAt(int index){
         return this.data.elementAt(index);
     }
+    
+    /** Changes object on given index
+     *  @param int index
+     *  @param Object new value
+     *  @return Object old value
+     */
+    public Object changeElementAt (int index, Object obj) {
+        Object result = this.data.remove (index);
+        this.data.add (index, obj);
+        this.fireContentsChanged (this,index,index);
+        return result;
+    }
 
     /**  Returns number of elements in Data Model
      *   

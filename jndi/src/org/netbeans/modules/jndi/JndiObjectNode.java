@@ -22,6 +22,7 @@ import javax.naming.directory.BasicAttribute;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.StringSelection;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 import java.io.IOException;
 import java.awt.datatransfer.*;
 import javax.naming.Context;
@@ -206,8 +207,14 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
     public boolean changeJndiPropertyValue(String name,Object value) {
         try{
             BasicAttributes attrs = new BasicAttributes();
-            BasicAttribute attr = new BasicAttribute(name, value);
-            attrs.put(attr);
+            BasicAttribute attr = new BasicAttribute(name);
+            if (value instanceof String) {
+                attrs.put (stringToAttr (attr, (String)value));
+            }
+            else {
+                attr.add (value);
+                attrs.put (attr);
+            }
             this.handleChangeJndiPropertyValue (attrs);
         }catch (NamingException ne){
             JndiRootNode.notifyForeignException(ne);
@@ -216,6 +223,24 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
         return true;
     }
     
+    protected String attrToString (Attribute attr) throws NamingException {
+        String result = new String ();
+        for (int i=0; i< attr.size(); i++) {
+            if (i != 0)
+                result = result + JndiRootNode.getLocalizedString ("TXT_ValueSeparator");
+            result = result + attr.get (i).toString ();
+        }
+        return result;
+    }
+    
+    protected Attribute stringToAttr (Attribute attr, String str) {
+        StringTokenizer tk = new StringTokenizer (str, JndiRootNode.getLocalizedString ("TXT_ValueSeparator").trim ());
+        while (tk.hasMoreTokens ()) {
+            String element = tk.nextToken ().trim ();
+            attr.add (element);
+        }
+        return attr;
+    }
     
     protected abstract void handleChangeJndiPropertyValue (Attributes attrs) throws NamingException;
 }
