@@ -28,7 +28,7 @@ import org.openide.src.*;
 *
 * @author Dafe Simonek
 */
-final class ClassElementImpl extends MemberElementImpl
+public final class ClassElementImpl extends MemberElementImpl
     implements ClassElement.Impl {
     /** Empty array of initializers - constant to return from getInitializers() */
     private static final InitializerElement[] EMPTY_INITIALIZERS =
