@@ -52,6 +52,10 @@ Microsystems, Inc. All Rights Reserved.
        <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.java"/>
        <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.form"/>
        <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.properties"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/vss/commands/*_ja.properties"/>
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-commands_ja.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/vss/commands/*_ja.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-config.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/vss/config/*.*"/>
@@ -62,16 +66,23 @@ Microsystems, Inc. All Rights Reserved.
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-configRB.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/vss/config/Bundle.properties"/>
-       <include name="org/netbeans/modules/vcs/profiles/vss/config/Bundle_*.properties"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/vss/config/Bundle_*.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-config_ja.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/vss/config/*_ja.*"/>
        <exclude name="org/netbeans/modules/vcs/profiles/vss/config/Bundle_ja.properties"/>
-    </makelayer>  
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-configRB_ja.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/vss/config/Bundle_*.properties"/>
+    </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-list.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/vss/list/*.class"/>
        <include name="org/netbeans/modules/vcs/profiles/vss/list/*.java"/>
        <include name="org/netbeans/modules/vcs/profiles/vss/list/*.properties"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/vss/list/*_ja.properties"/>
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-list_ja.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/vss/list/*_ja.properties"/>
     </makelayer>
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>

@@ -50,6 +50,10 @@ Microsystems, Inc. All Rights Reserved.
        <include name="org/netbeans/modules/vcs/profiles/pvcs/commands/*.java"/>
        <include name="org/netbeans/modules/vcs/profiles/pvcs/commands/*.form"/>
        <include name="org/netbeans/modules/vcs/profiles/pvcs/commands/*.properties"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/pvcs/commands/*_ja.properties"/>
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/pvcs/layer-includes-commands_ja.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/pvcs/commands/*_ja.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/pvcs/layer-includes-config.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/pvcs/config/*.*"/>
@@ -60,12 +64,14 @@ Microsystems, Inc. All Rights Reserved.
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/pvcs/layer-includes-configRB.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/pvcs/config/Bundle.properties"/>
-       <include name="org/netbeans/modules/vcs/profiles/pvcs/config/Bundle_*.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/pvcs/layer-includes-config_ja.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/pvcs/config/*_ja.*"/>
        <exclude name="org/netbeans/modules/vcs/profiles/pvcs/config/Bundle_ja.properties"/>
-    </makelayer>  
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/pvcs/layer-includes-configRB_ja.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/pvcs/config/Bundle_*.properties"/>
+    </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/pvcs/layer-includes-list.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/pvcs/list/*.class"/>
        <include name="org/netbeans/modules/vcs/profiles/pvcs/list/*.java"/>
