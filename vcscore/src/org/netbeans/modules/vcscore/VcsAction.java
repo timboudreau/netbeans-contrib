@@ -853,14 +853,8 @@ public class VcsAction extends NodeAction implements ActionListener {
                 continue;
             }
             //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
-            if (cmd.getDisplayName() == null
-                || onDir && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR)
-                || onFile && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE)
-                || onRoot && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT)
-                || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)) {
-
-                continue;
-            }
+            JMenuItem cmdMenu = getCommandMenuItem(cmd, onFile, onDir, onRoot);
+            if (cmdMenu == null) continue;
             boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
 		(String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
             //System.out.println("VcsAction: isSetContainedInQuotedStrings("+(String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS)+
@@ -880,7 +874,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 parent.add(submenu);
                 item = submenu;
             } else {
-                item = createItem(cmd.getName());
+                item = cmdMenu;
 //                item.addMenuKeyListener(ctrlListener);
                 parent.add(item);
             }
@@ -967,14 +961,8 @@ public class VcsAction extends NodeAction implements ActionListener {
             if (cmd == null) {
                 //menu = new JPopupMenu.Separator();
             } else {
-                if (cmd.getDisplayName() == null
-                    || onDir && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR)
-                    || onFile && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE)
-                    || onRoot && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT)
-                    || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)) {
-                        menu = null;
-                } else {
-                    menu = createItem(cmd.getName());
+                menu = getCommandMenuItem(cmd, onFile, onDir, onRoot);
+                if (menu != null) {
                     if (inMenu) {
                         menu.setIcon(getIcon());
                     }
@@ -983,6 +971,33 @@ public class VcsAction extends NodeAction implements ActionListener {
                     (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
                 if (disabled && REMOVE_DISABLED) menu = null;
                 else if (menu != null) menu.setEnabled(!disabled);
+            }
+        }
+        return menu;
+    }
+    
+    private JMenuItem getCommandMenuItem(VcsCommand cmd, boolean onFile,
+                                         boolean onDir, boolean onRoot) {
+        JMenuItem menu;
+        if (cmd.getDisplayName() == null
+            || onDir && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR)
+            || onFile && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE)
+            || onRoot && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT)
+            || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)) {
+            menu = null;
+        } else {
+            VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+            boolean isOffLine = fileSystem.isOffLine();
+            if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) && isOffLine && fileSystem.getCommand(VcsCommand.NAME_REFRESH_OFFLINE) != null) {
+                menu = null;
+            } else if (VcsCommand.NAME_REFRESH_OFFLINE.equals(cmd.getName()) && !isOffLine && fileSystem.getCommand(VcsCommand.NAME_REFRESH) != null) {
+                menu = null;
+            } else if (VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName()) && isOffLine) {
+                menu = null;
+            } else if (VcsCommand.NAME_REFRESH_RECURSIVELY_OFFLINE.equals(cmd.getName()) && !isOffLine && fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY) != null) {
+                menu = null;
+            } else {
+                menu = createItem(cmd.getName());
             }
         }
         return menu;
@@ -1213,7 +1228,8 @@ public class VcsAction extends NodeAction implements ActionListener {
         //boolean refreshDone = false;
         addImportantFiles(fileObjects, files, processAll, fileSystem, true);
         files = removeDisabled(fileSystem.getStatusProvider(), files, cmd);
-        if (VcsCommand.NAME_REFRESH.equals(cmd.getName())) {
+        if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
+            VcsCommand.NAME_REFRESH_OFFLINE.equals(cmd.getName())) {
             ArrayList paths = new ArrayList();
             for (Iterator it = files.values().iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
@@ -1224,7 +1240,8 @@ public class VcsAction extends NodeAction implements ActionListener {
                     paths.add(path);
                 }
             }
-        } else if (VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName())) {
+        } else if (VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName()) ||
+                   VcsCommand.NAME_REFRESH_RECURSIVELY_OFFLINE.equals(cmd.getName())) {
             ArrayList paths = new ArrayList();
             for (Iterator it = files.values().iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
