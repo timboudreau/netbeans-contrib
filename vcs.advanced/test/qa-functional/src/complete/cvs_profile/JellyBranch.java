@@ -23,6 +23,7 @@ import org.netbeans.jellytools.ExplorerOperator;
 import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.NbFrameOperator;
+import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.modules.vcscore.VersioningFrameOperator;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.VCSGenericMountAction;
 import org.netbeans.jellytools.modules.vcsgeneric.nodes.CVSFileNode;
@@ -298,6 +299,12 @@ public class JellyBranch extends JellyTestCase {
         co.checkPruneEmptyFolders(false);
         co.oK();
         history.waitCommand("Check Out", hRoot);
+        
+        // workaround - probably jelly issue - if not used, popup menu does not work in versioning frame
+        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("CHECKOUT_COMMAND");
+        voo.close(); 
+        voo.waitClosed();
+        
         waitStatus(null, nInitDir);
         new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
         assertTrue("Refresh recursively folder command failed", history.waitCommand("Refresh Recursively", hRoot));
@@ -497,7 +504,7 @@ public class JellyBranch extends JellyTestCase {
         }
         new CVSFileNode (exp.repositoryTab().tree (), nFile).cVSRefresh();
         assertTrue ("Refresh file command failed", history.waitCommand("Refresh", hFile));
-        waitStatus ("Locally modified; 1.1", nFile, true);
+        waitStatus ("Locally Modified; 1.1", nFile, true);
         waitVersion (null, nFile);
         
         new CVSFileNode (exp.repositoryTab().tree (), nFile).cVSCommit();
