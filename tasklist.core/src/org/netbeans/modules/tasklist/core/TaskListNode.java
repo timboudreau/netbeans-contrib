@@ -19,6 +19,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.RequestProcessor;
 
+import javax.swing.*;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -53,6 +54,10 @@ public class TaskListNode extends AbstractNode {
       super(new TaskListChildren(tasklist));
       TaskListChildren list = (TaskListChildren) getChildren();
       list.setNodeFactory(nodeFactory);
+    }
+
+    public Action[] getActions(boolean context) {
+        return new Action[0];
     }
 
 
