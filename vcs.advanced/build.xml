@@ -70,6 +70,12 @@ Microsystems, Inc. All Rights Reserved.
        <include name="vcs/commands/*.form"/>
        <include name="vcs/commands/*.properties"/>
     </makelayer>
+    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-commands-passwd.xml">
+       <include name="vcs/commands/passwd/*.class"/>
+       <include name="vcs/commands/passwd/*.java"/>
+       <include name="vcs/commands/passwd/*.form"/>
+       <include name="vcs/commands/passwd/*.properties"/>
+    </makelayer>
     <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config.xml">
        <include name="vcs/config/*.*"/>
     </makelayer>

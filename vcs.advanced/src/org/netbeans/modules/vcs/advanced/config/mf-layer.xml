@@ -14,6 +14,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd" [
   <!ENTITY includefiles_commands SYSTEM "layer-includes-commands.xml">
+  <!ENTITY includefiles_commands_passwd SYSTEM "layer-includes-commands-passwd.xml">
   <!ENTITY includefiles_config SYSTEM "layer-includes-config.xml">
   <!ENTITY includefiles_list SYSTEM "layer-includes-list.xml">
 ]>
@@ -21,6 +22,9 @@ Microsystems, Inc. All Rights Reserved.
   <folder name="vcs">
     <folder name="commands">
       &includefiles_commands;
+      <folder name="passwd">
+        &includefiles_commands_passwd;
+      </folder>
     </folder>
     <folder name="config">
       &includefiles_config;
