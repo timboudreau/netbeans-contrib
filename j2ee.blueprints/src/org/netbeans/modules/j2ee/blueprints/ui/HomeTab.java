@@ -69,6 +69,8 @@ public class HomeTab
             BpcatalogLocalizedResource htmlrsc =
                     new BpcatalogLocalizedResource(articleURLString, "html");
             URL articleURL = htmlrsc.getResourceURL();
+            if (articleURL!=null){
             ((HtmlBrowserWithScrollPosition)homeBrowser).setURL(articleURL);
+            }
     }
 }
