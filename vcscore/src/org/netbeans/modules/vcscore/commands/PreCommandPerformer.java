@@ -42,6 +42,10 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
      */
     public static final String INSERT_OUTPUT = "{INSERT_OUTPUT_OF_";
     /**
+     * Insert the error output of the command instead of this keyword.
+     */
+    public static final String INSERT_ERROR = "{INSERT_ERROR_OF_";
+    /**
      * Write the output of the command to a temporary file and insert the file path
      * instead of this keyword.
      */
@@ -54,6 +58,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     private Hashtable vars;
 
     private volatile Vector[] preCommandOutput;
+    private volatile Vector[] preCommandError;
     //private volatile int preCommandExecuting = 0;
 
     /** Creates new CommandPerformer */
@@ -88,32 +93,22 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     private ArrayList findPreCommands(String exec) {
         //D.deb("findPreCommands("+exec+")");
         ArrayList commands = new ArrayList();
-        int index = 0;
-        do {
-            int i = exec.indexOf(INSERT_OUTPUT, index);
-            if (i >= 0) {
-                i += INSERT_OUTPUT.length();
-                int end = exec.indexOf('(', i);
-                if (end > 0) {
-                    String name = exec.substring(i, end);
-                    commands.add(name);
+        String[] outputs = { INSERT_OUTPUT, INSERT_ERROR, FILE_OUTPUT };
+        for (int out = 0; out < outputs.length; out++) {
+            int index = 0;
+            do {
+                int i = exec.indexOf(outputs[out], index);
+                if (i >= 0) {
+                    i += outputs[out].length();
+                    int end = exec.indexOf('(', i);
+                    if (end > 0) {
+                        String name = exec.substring(i, end);
+                        commands.add(name);
+                    }
                 }
-            }
-            index = i;
-        } while (index >= 0);
-        index = 0;
-        do {
-            int i = exec.indexOf(FILE_OUTPUT, index);
-            if (i >= 0) {
-                i += FILE_OUTPUT.length();
-                int end = exec.indexOf('(', i);
-                if (end > 0) {
-                    String name = exec.substring(i, end);
-                    commands.add(name);
-                }
-            }
-            index = i;
-        } while (index >= 0);
+                index = i;
+            } while (index >= 0);
+        }
         return commands;
     }
 
@@ -132,6 +127,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     
     private String processPreCommands(String[] preCommands, String exec) {
         preCommandOutput = new Vector[preCommands.length];
+        preCommandError = new Vector[preCommands.length];
         CommandsPool pool = fileSystem.getCommandsPool();
         ArrayList runningExecutors = new ArrayList();
         for (int i = 0; i < preCommands.length; i++) {
@@ -139,10 +135,12 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             VcsCommand cmd = fileSystem.getCommand(cmdName);
             if (cmd == null) continue; // Nothing to run
             preCommandOutput[i] = new Vector();
+            preCommandError[i] = new Vector();
             VcsCommandExecutor executor = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
             int status = pool.preprocessCommand(executor, vars);
             if (CommandsPool.PREPROCESS_DONE != status) continue; // Something bad has happened
             executor.addDataOutputListener(new DataOutputContainer(i));
+            executor.addDataErrorOutputListener(new DataErrorOutputContainer(i));
             pool.startExecutor(executor);
             runningExecutors.add(executor);
         }
@@ -197,7 +195,25 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
                     int where = Arrays.binarySearch(commands, name);
                     int endOfInsert = exec.indexOf(")}", end);
                     if (endOfInsert > 0) {
-                        exec = insertOutput(exec, begin, endOfInsert + ")}".length(), exec.substring(end + 1, endOfInsert), where);
+                        exec = insertOutput(exec, begin, endOfInsert + ")}".length(), exec.substring(end + 1, endOfInsert), where, preCommandOutput);
+                    }
+                }
+            }
+            index = i;
+        } while (index >= 0);
+        index = 0;
+        do {
+            int i = exec.indexOf(INSERT_ERROR, index);
+            if (i >= 0) {
+                int begin = i;
+                i += INSERT_ERROR.length();
+                int end = exec.indexOf('(', i);
+                if (end > 0) {
+                    String name = exec.substring(i, end);
+                    int where = Arrays.binarySearch(commands, name);
+                    int endOfInsert = exec.indexOf(")}", end);
+                    if (endOfInsert > 0) {
+                        exec = insertOutput(exec, begin, endOfInsert + ")}".length(), exec.substring(end + 1, endOfInsert), where, preCommandError);
                     }
                 }
             }
@@ -224,7 +240,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
         return exec;
     }
 
-    private String insertOutput(String exec, int begin, int end, String whichElement, int whichOutput) {
+    private String insertOutput(String exec, int begin, int end, String whichElement, int whichOutput, Vector[] preCommandOutput) {
         StringBuffer insertion = new StringBuffer(exec.substring(0, begin));
         try {
             int index = Integer.parseInt(whichElement);
@@ -332,5 +348,19 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             preCommandOutput[index].add(elements);
         }
     }
+    
+    private final class DataErrorOutputContainer extends Object implements CommandDataOutputListener {
+
+        private int index;
+        
+        public DataErrorOutputContainer(int index) {
+            this.index = index;
+        }
+
+        public void outputData(String[] elements) {
+            preCommandError[index].add(elements);
+        }
+    }
+    
 
 }
