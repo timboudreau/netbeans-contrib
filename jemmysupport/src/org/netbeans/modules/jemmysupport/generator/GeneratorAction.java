@@ -67,5 +67,9 @@ public class GeneratorAction extends NodeAction {
         return new HelpCtx(GeneratorAction.class);
     }
     
+    /** Always return false - no need to run asynchronously. */
+    protected boolean asynchronous() {
+        return false;
+    }
 }
 

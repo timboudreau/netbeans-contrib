@@ -81,5 +81,9 @@ public class BundleLookupAction extends NodeAction {
         return new HelpCtx(BundleLookupAction.class);
     }
     
+    /** Always return false - no need to run asynchronously. */
+    protected boolean asynchronous() {
+        return false;
+    }
 }
 
