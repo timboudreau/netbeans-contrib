@@ -40,6 +40,8 @@ import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.openide.DialogDisplayer;
 
+import javax.swing.*;
+
 /**
  * The abstract diff command, that use a VCS diff command to get the differences.
  *
@@ -224,21 +226,38 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
                 revision2 = args[1];
             }
         }
+
+        // shows conputing diff presenter
+        DiffPresenter presenter = new DiffPresenter();
+        final DefaultDiff.DiffTopComponent diffComponent = new DefaultDiff.DiffTopComponent(presenter);
+        javax.swing.SwingUtilities.invokeLater(new Runnable () {
+            public void run () {
+                String name = NbBundle.getMessage(AbstractDiffCommand.class, "Diff.titleComponent", file);
+                diffComponent.setName(name);
+                diffComponent.open();
+            }
+        });
+
         boolean diffStatus;
         try {
             diffStatus = performDiff(revision1, revision2);
         } catch (InterruptedException iexc) {
+            closeDiffComponent(diffComponent);
             return false;
         }
         if (differences.size() == 0) {
             if (diffStatus == true) {
                 DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message(
                     NbBundle.getMessage(AbstractDiffCommand.class, "NoDifferenceInFile", file)));
+                closeDiffComponent(diffComponent);
                 return true;
             } else {
+                closeDiffComponent(diffComponent);
                 return false;
             }
         }
+
+
         if (diffOutRev1 != null) revision1 = diffOutRev1;
         if (diffOutRev2 != null) revision2 = diffOutRev2;
         //System.out.println("revision1 = "+revision1+", revision2 = "+revision2);
@@ -273,15 +292,9 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
                                                    mimeType, false, true,
                                                    new File(file1), new File(file2),
                                                    tmpDir, tmpDir2);
-        DiffPresenter presenter = new DiffPresenter(diffInfo);
-        final DefaultDiff.DiffTopComponent diffComponent = new DefaultDiff.DiffTopComponent(presenter);
+        presenter.initWithDiffInfo(diffInfo);
         diffInfo.setPresentingComponent(diffComponent);
         presenter.setVisualizer((DiffVisualizer) Lookup.getDefault().lookup(DiffVisualizer.class));
-        javax.swing.SwingUtilities.invokeLater(new Runnable () {
-            public void run () {
-                diffComponent.open();
-            }
-        });
         /*
         javax.swing.SwingUtilities.invokeLater(new Runnable () {
                                                    public void run () {
@@ -304,6 +317,14 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
                                                });
          */
         return status;
+    }
+
+    private void closeDiffComponent(final DefaultDiff.DiffTopComponent diffComponent) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                diffComponent.close();
+            }
+        });
     }
 
     /*
