@@ -851,6 +851,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     dir.setIgnoreList (ignorelist);
                 }
                 else {
+                    /*
                     FileObject parent = fo.getParent();
                     if (parent != null) {
                         CacheDir dir = cache.getDir (parent.getPackageNameExt('/','.'));
@@ -861,6 +862,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             }
                         }
                     }
+                     */
                 }
             }
 	    return ref;
@@ -1651,8 +1653,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return the annotation string
      */
     public String annotateName(String name, Set files) {
-        String filesStr = "";
-        for (Iterator it = files.iterator(); it.hasNext(); ) filesStr += ((FileObject) it.next()).getNameExt() + ", ";
+        //String filesStr = "";
+        //for (Iterator it = files.iterator(); it.hasNext(); ) filesStr += ((FileObject) it.next()).getNameExt() + ", ";
         //System.out.println("annotateName("+name+", "+filesStr.substring(0, filesStr.length() - 2)+")");
         String result = name;
         if (result == null)
@@ -1665,19 +1667,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         if (statusProvider != null) {
             Object[] oo = VcsUtilities.reorderFileObjects(files).toArray();
+            //System.out.println(" file objects reordered = "+oo.length);
             ArrayList importantFiles = getImportantFiles(oo);
             len = importantFiles.size();
+            //System.out.println(" length of important = "+len);
             if (len == 1) {
                 FileObject ff = (FileObject) oo[0];
                 String fullName = ff.getPackageNameExt('/','.');
                 result = RefreshCommandSupport.getStatusAnnotation(name, fullName, annotationPattern, statusProvider);
+                /*
                 FileObject parent = ff.getParent();
                 if (parent != null && cache!=null) {
                     CacheDir dir = this.cache.getDir (parent.getPackageNameExt('/','.'));
                     if (dir != null && dir.isIgnored (ff.getNameExt())) {
-                        return RefreshCommandSupport.getStatusAnnotation(name,fullName, annotationPattern);
+                        result = RefreshCommandSupport.getStatusAnnotation(name,fullName, annotationPattern);
                     }
                 }
+                 */
             } else {
                 //oo = VcsUtilities.reorderFileObjects(files).toArray();
                 //ArrayList importantFiles = getImportantFiles(oo);
@@ -1702,14 +1708,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         boolean processAll = isProcessUnimportantFiles();
         for(int i = 0; i < len; i++) {
             FileObject ff = (FileObject) oo[i];
+            //System.out.println(" getImportantFiles("+ff+")");
             boolean isFromThisFs = true;
             try {
                 isFromThisFs = ff.getFileSystem().equals(this);
             } catch (org.openide.filesystems.FileStateInvalidException exc) {
                 isFromThisFs = true;
             }
+            //System.out.println(" isFromThisFs = "+isFromThisFs);
             if (isFromThisFs) {            
                 String fullName = ff.getPackageNameExt('/','.');
+                //System.out.println(" fullName = "+fullName+", isImportant = "+isImportant(fullName));
                 if (processAll || isImportant(fullName)) {
                     result.add(fullName);
                 }
@@ -1971,7 +1980,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             D.deb("files="+VcsUtilities.arrayToString(files)); // NOI18N
             return files;
             */
-            vcsFiles = filterScheduledSecondaryFiles(name, vcsFiles);
+            if (vcsFiles != null) {
+                vcsFiles = filterScheduledSecondaryFiles(name, vcsFiles);
+            }
         }
         if (vcsFiles == null || isHideShadowFiles()) files = getLocalFiles(name);
         else files = addLocalFiles(name, vcsFiles);
