@@ -1349,8 +1349,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
         } else i = 0;
         if (i >= 0) comboBox.setSelectedIndex(i);
         else comboBox.setSelectedItem(selected);
-        enableComponents(varsEnabled[i], true);
-        enableComponents(varsDisabled[i], false);
+        if (i >= 0) {
+            enableComponents(varsEnabled[i], true);
+            enableComponents(varsDisabled[i], false);
+        }
         comboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 String currentValue;
