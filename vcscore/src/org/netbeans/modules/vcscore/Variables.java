@@ -97,6 +97,19 @@ public class Variables {
      */
     public static final String MSG_PROMPT_FOR_AUTO_LOCK = "MSG_PROMPT_FOR_AUTO_LOCK";
     
+    /** 
+     * Variable, that contains the description of a group (if any). Defined only
+     * if the command is run on a group. Can be used by check in commands for
+     * check in messages.
+     */
+    public static final String GROUP_DESCRIPTION = "GROUP_DESCRIPTION"; //NOI18N
+    /** 
+     * Variable, that contains the name of a group (if any). Defined only
+     * if the command is run on a group. Can be used by check in commands for
+     * check in messages.
+     */
+    public static final String GROUP_NAME = "GROUP_NAME"; //NOI18N
+    
     //private boolean warnUndefVars = true;
 
     private static final String SUBSTRACT = "-"; // NOI18N
@@ -107,11 +120,9 @@ public class Variables {
     private Variables() {
     }
     
-    public static Collection getContextVariablesNames() {
+    public static synchronized Collection getContextVariablesNames() {
         if (contextVariablesNames == null) {
-            synchronized (Variables.class) {
-                contextVariablesNames = createContextVariablesNames();
-            }
+            contextVariablesNames = createContextVariablesNames();
         }
         return contextVariablesNames;
     }
