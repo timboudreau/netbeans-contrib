@@ -38,7 +38,6 @@ public class MountWizardData {
             if (fileSystem.getConfig() == null) {
                 GeneralVcsSettings gvs = (GeneralVcsSettings) GeneralVcsSettings.findObject(GeneralVcsSettings.class, true);
                 String profile = gvs.getDefaultProfile();
-                System.out.println("Default profile = "+profile);
                 if (profile != null) {
                     if (fileSystem.readConfiguration(profile)) {
                         fileSystem.setConfigFileName(profile);
