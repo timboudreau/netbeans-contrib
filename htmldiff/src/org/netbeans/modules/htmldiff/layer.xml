@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xml" href="http://openide.netbeans.org/fs/filesystem.xsl"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Services" >
+        <folder name="DiffVisualizers" >
+            <file name="HtmlDiff.instance" >
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.htmldiff.Bundle" />
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.htmldiff.Visualizer" />
+            </file>
+            <attr name="org-netbeans-modules-diff-builtin-visualizer-TextDiffVisualizer.settings/HtmlDiff.instance" boolvalue="true" />
+        </folder>
+    </folder>
+</filesystem>

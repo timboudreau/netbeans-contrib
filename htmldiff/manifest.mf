@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.aspects/1
+OpenIDE-Module: org.netbeans.modules.htmldiff/1
 OpenIDE-Module-Specification-Version: 0.1
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.17
-OpenIDE-Module-Module-Dependencies: org.openide.io > 3.17
-_OpenIDE-Module-Layer: org/netbeans/modules/archiver/layer.xml
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/aspects/Bundle.properties
-OpenIDE-Module-Public-Packages: org.netbeans.api.aspects
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.diff/1 > 1.7	
+OpenIDE-Module-Layer: org/netbeans/modules/htmldiff/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/htmldiff/Bundle.properties
+OpenIDE-Module-Public-Packages: -
 
 

@@ -69,6 +69,8 @@ Microsystems, Inc. All Rights Reserved.
                                     <xsl:value-of select="substring-before(@target, '/')" /><xsl:text>/list.html</xsl:text>
                                 </xsl:attribute>
                                 list of changed pages</a>)
+                                
+                            <xsl:apply-templates select="description" />
                         </li>
                     </xsl:when>
                     <xsl:otherwise>
