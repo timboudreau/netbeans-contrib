@@ -13,49 +13,50 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="loaderswitcher" default="netbeans" basedir=".">
-  <property name="src.root" value="../.."/>
+  <import file="../../nbbuild/default.xml"/>
+  
+  <target name="init" depends="default.init">
+    <patternset id="utilities/loaderswitcher.files">
+      <include name="${nb.modules.dir}/loaderswitcher.jar"/>
+    </patternset>
 
-  <property name="nbm_alias" value="nb_ide"/>
-  <property name="homepage.base" value="netbeans.org"/>
-  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="${src.root}/nbbuild/standard-nbm-license.txt"/>
+    <path id="cp">
+      <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+      <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+      <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+    </path>
+  </target>
 
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${src.root}/nbbuild/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${src.root}/nbbuild/nbantext.jar"/>
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${src.root}/nbbuild/nbantext.jar"/>
-
-  <target name="compile">
+  <target name="compile" depends="init" >
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
-      <classpath>
-	<pathelement location="${src.root}/openide/openide-13javac-workaround.jar"/>
-        <fileset dir="${src.root}/openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
-      </classpath>
+      <classpath refID="cp"/>
     </javac>
   </target>
 
   <target name="jars" depends="compile">
-    <mkdir dir="netbeans/modules"/>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="netbeans/modules/loaderswitcher.jar"
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/loaderswitcher.jar"
             manifest="manifest-subst.mf"
             basedir="src"
-	    excludesfile="${src.root}/nbbuild/standard-jar-excludes.txt"
+	    excludesfile="../../nbbuild/standard-jar-excludes.txt"
 	    compress="false">
-      <locale name="ja"/>
-    </locjar>
+    </jar>
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="netbeans"/>
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/loaderswitcher.jar">
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="utilities/loaderswitcher.files"/>
+      </fileset>
+    </genlist>
   </target>
 
   <target name="nbm" depends="netbeans">
     <makenbm file="loaderswitcher.nbm"
-             topdir="."
-             module="netbeans/modules/loaderswitcher.jar"
+             productdir="${netbeans.dest.dir}/${cluster.dir}"
+             module="${nb.modules.dir}/loaderswitcher.jar"
 	     homepage="http://utilities.${homepage.base}/loaderswitcher/"
 	     distribution="http://${dist.base}/loaderswitcher.nbm">
       <license file="${license.file}"/>
@@ -63,11 +64,14 @@ Microsystems, Inc. All Rights Reserved.
     </makenbm>
   </target>
 
-  <target name="clean">
+  <target name="clean" depends="init">
     <delete>
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
+      </fileset>
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="utilities/loaderswitcher.files"/>
       </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
@@ -96,12 +100,7 @@ Microsystems, Inc. All Rights Reserved.
       <sourcepath>
         <pathelement location="src"/>
       </sourcepath>
-      <classpath>
-	<pathelement location="${src.root}/openide/openide-13javac-workaround.jar"/>
-        <fileset dir="${src.root}/openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
-      </classpath>
+      <classpath refID="cp"/>
     </javadoc>    
   </target>
 
