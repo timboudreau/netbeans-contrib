@@ -166,7 +166,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * Create a new command-line VCS FileSystem.
      */
     public CommandLineVcsFileSystem () {
-        this(false);
+        this(false, null);
     }
     
     /**
@@ -175,15 +175,34 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      *        to be read from a settings file rather than created a brand new one.
      */
     public CommandLineVcsFileSystem (boolean treatAsDeserialized) {
+        this(treatAsDeserialized, null);
+    }
+    
+    /**
+     * Create a new command-line VCS FileSystem.
+     * @param cap The capabilities of the filesystem.
+     */
+    public CommandLineVcsFileSystem(FileSystemCapability cap) {
+        this(false, cap);
+    }
+    
+    /**
+     * Create a new command-line VCS FileSystem with a deserialized flag.
+     * @param treatAsDeserialized If true, the filesystem is considered
+     *        to be read from a settings file rather than created a brand new one.
+     * @param cap The capabilities of the filesystem.
+     */
+    public CommandLineVcsFileSystem (boolean treatAsDeserialized, FileSystemCapability cap) {
         //D.deb("CommandLineVcsFileSystem()"); // NOI18N
         super ();
+        if (cap != null) setCapability(cap);
         deserialized = treatAsDeserialized;
         /*
         if (attr instanceof VcsAttributes) {
             ((VcsAttributes) attr).setCommandsProvider(new CommandLineCommandsProvider(this));
         }
          */
-        //System.out.println("\nNEW CommandLineVcsFileSystem()\n");
+        //System.out.println("\nNEW CommandLineVcsFileSystem()"+this+"\n");
         setConfigFO();
         //boolean status = readConfiguration (DEFAULT_CONFIG_NAME);
         //if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
