@@ -122,7 +122,7 @@ public class VersioningExplorer {
         }
         
         protected String preferredID(){
-            return "VersioningExplorer_Panel";
+            return "VersioningExplorer_Panel";// NOI18N
         }
         /*
          * Override for clean up reasons.

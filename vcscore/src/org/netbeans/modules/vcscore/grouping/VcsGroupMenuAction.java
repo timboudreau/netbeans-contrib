@@ -123,7 +123,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         }
        
         protected String preferredID(){
-            return "VcsGroupMenuAction_GroupExplorerPanel";
+            return "VcsGroupMenuAction_GroupExplorerPanel"; // NOI18N
         }
         
         private void initComponent() {
