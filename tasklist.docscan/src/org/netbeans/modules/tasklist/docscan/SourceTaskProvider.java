@@ -30,7 +30,7 @@ import java.util.ListIterator;
 import java.util.regex.*;
 
 import org.openide.ErrorManager;
-import org.openide.nodes.*;
+import org.openide.text.Line;
 import org.openide.loaders.DataObject;
 
 // I was tempted to use BaseDocument here, since it has various
@@ -67,7 +67,10 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     implements PropertyChangeListener {
 
     final private static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
-    
+
+    // navigate to suggestion line
+    private static final SuggestionPerformer GOTO_PERFORMER = new GotoLineSuggestionPerformer();
+
     /**
      * Return the typenames of the suggestions that this provider
      * will create.
@@ -256,6 +259,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                     if (matchTag != null) {
                         item.setPriority(matchTag.getPriority());
                     }
+                    item.setAction(GOTO_PERFORMER);
 
                     newTasks.add(item);
                 }
@@ -342,6 +346,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                 if (matchTag != null) {
                     item.setPriority(matchTag.getPriority());
                 }
+                item.setAction(GOTO_PERFORMER);
 
                 newTasks.add(item);
             }
@@ -360,7 +365,25 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     private void rescan() {
         rescan(document, dataobject, request);
     }
-    
+
+
+    private static class GotoLineSuggestionPerformer implements SuggestionPerformer {
+        public void perform(Suggestion suggestion) {
+            Line line = suggestion.getLine();
+            if (line != null) {
+                line.show(Line.SHOW_GOTO);
+            }
+        }
+
+        public Object getConfirmation(Suggestion suggestion) {
+            return null;
+        }
+
+        public boolean hasConfirmation() {
+            return false;
+        }
+    }
+
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
 
