@@ -14,6 +14,7 @@
 package org.netbeans.modules.vcscore;
 
 import java.util.Collection;
+
 /**
  * Listener, that is called to update the file attributes.
  *
