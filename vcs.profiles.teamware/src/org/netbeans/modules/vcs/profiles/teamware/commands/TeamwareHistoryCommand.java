@@ -30,9 +30,15 @@ import org.netbeans.modules.vcscore.versioning.RevisionList;
 public class TeamwareHistoryCommand implements VcsAdditionalCommand {
 
     private static void append(StringBuffer sb, String s, int width) {
-        sb.append(s);
-        for (int i = width - s.length(); i > 0; i--) {
-            sb.append(" ");
+        if (s == null) {
+            for (int i = 0; i < width; i++) {
+                sb.append(" ");
+            }
+        } else {
+            sb.append(s);
+            for (int i = width - s.length(); i > 0; i--) {
+                sb.append(" ");
+            }
         }
     }
     
@@ -50,9 +56,18 @@ public class TeamwareHistoryCommand implements VcsAdditionalCommand {
         int whoWidth = 0;
         for (Iterator i = revisionList.iterator(); i.hasNext();) {
             SRevisionItem item = (SRevisionItem) i.next();
-            revWidth = Math.max(revWidth, item.getRevision().length());
-            dateWidth = Math.max(dateWidth, item.getDate().length());
-            whoWidth = Math.max(whoWidth, item.getAuthor().length());
+            String rev = item.getRevision();
+            String date = item.getDate();
+            String who = item.getAuthor();
+            if (rev != null) {
+                revWidth = Math.max(revWidth, rev.length());
+            }
+            if (date != null) {
+                dateWidth = Math.max(dateWidth, date.length());
+            }
+            if (who != null) {
+                whoWidth = Math.max(whoWidth, who.length());
+            }
         }
         StringBuffer indent = new StringBuffer("\n      ");
         for (int i = 0; i  < revWidth + dateWidth + whoWidth; i++) {
@@ -68,7 +83,9 @@ public class TeamwareHistoryCommand implements VcsAdditionalCommand {
             append(sb, item.getAuthor(), whoWidth);
             sb.append("  ");
             String message = item.getMessage();
-            sb.append(message.replaceAll("\n", indent.toString()));
+            if (message != null) {
+                sb.append(message.replaceAll("\n", indent.toString()));
+            }
             stdout.outputLine(sb.toString());
         }
         return true;
