@@ -83,23 +83,23 @@ Microsystems, Inc. All Rights Reserved.
         <delete dir="netbeans"/>
         <delete dir="Info"/>
         <delete dir="javadoc"/>
-        <delete dir="TasklistAPIs"/>
-        <delete file="TasklistAPIs.zip"/>
+        <delete dir="TasklistAPI"/>
+        <delete file="TasklistAPI.zip"/>
     </target>
 
 
  <target name="javadoc" depends="tasklist-apis">
     <copy todir="javadoc">
       <fileset dir=".">
-        <include name="TasklistAPIs/**"/>
-        <include name="TasklistAPIs.zip"/>
+        <include name="TasklistAPI/**"/>
+        <include name="TasklistAPI.zip"/>
       </fileset>
     </copy>
   </target>
 
   <target name="tasklist-apis" description="Create Tasklist API documentation.">
-   <delete dir="TasklistAPIs"/>
-   <mkdir dir="TasklistAPIs"/>
+   <delete dir="TasklistAPI"/>
+   <mkdir dir="TasklistAPI"/>
    <property name="jdk-docs-location" value="http://java.sun.com/j2se/1.4/docs/api"/>
 
     <tstamp/>
@@ -112,7 +112,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <mkdir dir="javadoc"/>
 
-    <javadoc destdir="TasklistAPIs"
+    <javadoc destdir="TasklistAPI"
              packagenames="org.netbeans.api.tasklist.*,org.netbeans.spi.tasklist.*"
              doctitle="NetBeans Tasklist APIs"
              windowtitle="Tasklist APIs"
@@ -153,43 +153,43 @@ Microsystems, Inc. All Rights Reserved.
     </javadoc>
 
     <!-- copy stylesheet -->
-    <copy file="../../openide/api/doc/open-apis.css" tofile="TasklistAPIs/open-apis.css"/>
-    <copy file="../../openide/api/doc/nb-docs.css" tofile="TasklistAPIs/nb-docs.css"/>
+    <copy file="../../openide/api/doc/open-apis.css" tofile="TasklistAPI/open-apis.css"/>
+    <copy file="../../openide/api/doc/nb-docs.css" tofile="TasklistAPI/nb-docs.css"/>
 
     <!-- replace tokens -->
-    <replace dir="TasklistAPIs" token="@JDK@" value="${jdk-docs-location}">
+    <replace dir="TasklistAPI" token="@JDK@" value="${jdk-docs-location}">
       <include name="**/doc-files/*.html"/>
       <include name="**/package-summary.html"/>
     </replace>
-    <replace dir="TasklistAPIs" token="@HEADER@" value="${tasklist-apis-header}">
+    <replace dir="TasklistAPI" token="@HEADER@" value="${tasklist-apis-header}">
       <include name="**/*.html"/>
       <exclude name="overview-frame.html"/>
     </replace>
-    <replace dir="TasklistAPIs" token="@HEADER@" value="">
+    <replace dir="TasklistAPI" token="@HEADER@" value="">
       <include name="overview-frame.html"/>
     </replace>
-    <replace dir="TasklistAPIs" token="@FOOTER@" value="${tasklist-apis-footer}">
+    <replace dir="TasklistAPI" token="@FOOTER@" value="${tasklist-apis-footer}">
       <include name="**/doc-files/*.html"/>
     </replace>
-    <replace file="TasklistAPIs/overview-summary.html" token="@DATE@" value="${TODAY}"/>
+    <replace file="TasklistAPI/overview-summary.html" token="@DATE@" value="${TODAY}"/>
 
     <!-- reference to local copy of OpenAPIs javadoc (should work also on website) -->
 <!--
-    <replace dir="TasklistAPIs" token="@OPENAPI@" value="../../OpenAPIs">
+    <replace dir="TasklistAPI" token="@OPENAPI@" value="../../OpenAPIs">
       <include name="**/*.html"/>
     </replace>
 -->
 
     <!-- [PENDING] fuller check mode too, checking on-line links and more HTML files? -->
 
-    <checklinks basedir="TasklistAPIs" checkexternal="false">
+    <checklinks basedir="TasklistAPI" checkexternal="false">
       <include name="overview-summary.html"/>
       <include name="**/package-summary.html"/>
       <include name="**/doc-files/**/*.html"/>
       <include name="**/package.html"/>
     </checklinks>
 
-    <zip zipfile="TasklistAPIs.zip" basedir="TasklistAPIs"/>
+    <zip zipfile="TasklistAPI.zip" basedir="TasklistAPI"/>
   </target>
 
     <target name="release">
