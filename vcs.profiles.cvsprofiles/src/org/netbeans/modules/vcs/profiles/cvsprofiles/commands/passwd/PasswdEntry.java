@@ -44,7 +44,7 @@ import org.netbeans.lib.cvsclient.CVSRoot;
             format1 = true;
             entry = entry.substring("/1 ".length());
         }
-        int spacePos = entry.lastIndexOf(' ');
+        int spacePos = entry.indexOf(" A");
         if (spacePos < 0) {
             return false; // corrupted line.
         }
