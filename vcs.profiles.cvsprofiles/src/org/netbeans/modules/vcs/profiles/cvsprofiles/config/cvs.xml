@@ -128,7 +128,10 @@ Microsystems, Inc. All Rights Reserved.
       <value>"org/netbeans/modules/vcs/profiles/resources/badgeUpToDate.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocRemoved.gif", "org/netbeans/modules/vcs/profiles/resources/badgeNeedsCheckout.gif", "org/netbeans/modules/vcs/profiles/resources/badgeNeedsCheckout.gif", "org/netbeans/modules/vcs/profiles/resources/badgeNeedsCheckout.gif", "org/netbeans/modules/vcs/profiles/resources/badgeMergeConflict.gif", ""</value>
     </variable>
     <variable name="NOT_MODIFIABLE_FILE_STATUSES" basic="false">
-      <value>"Locally Added", "Needs Merge", "Local"</value>
+      <value>"Locally Added", "Needs Merge", "Local", "File had conflicts on merge"</value>
+    </variable>
+    <variable name="FILE_CHANGE_HANDLERS" basic="false">
+      <value>"File had conflicts on merge", org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsConflictedFileChanged</value>
     </variable>
     <variable name="VCS_FILE_STATUS_MISSING" basic="false">
       <value>Needs Checkout</value>
