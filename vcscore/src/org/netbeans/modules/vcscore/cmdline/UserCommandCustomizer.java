@@ -41,10 +41,16 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
     private VcsFileSystem fileSystem;
     private List actionListeners = new ArrayList();
     private VariableInputDialog dlg;
+    private java.awt.GridBagConstraints gridBagConstraints;
     private String title;
     
     /** Creates a new instance of UserCommandCustomizer */
     public UserCommandCustomizer() {
+        setLayout(new java.awt.GridBagLayout());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
     }
     
     public void setCommand(VcsDescribedCommand cmd, VariableInputDialog dlg,
@@ -56,7 +62,7 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
         this.dlg = dlg;
         if (!isVisible()) {
             removeAll();
-            add(dlg);
+            add(dlg, gridBagConstraints);
         } else {
             javax.swing.SwingUtilities.invokeLater(this);
         }
@@ -119,7 +125,7 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
      */
     public void run() {
         removeAll();
-        add(dlg);
+        add(dlg, gridBagConstraints);
         revalidate();
         for (java.awt.Container parent = getParent(); parent != null; parent = parent.getParent()) {
             if (parent instanceof java.awt.Window) {
