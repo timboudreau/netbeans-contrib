@@ -891,6 +891,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 //D.deb("I have root = "+fo.getName()); // NOI18N
                 //Enumeration enum = fo.getChildren(recursively);
                 HashSet hs = new HashSet();
+                if (enum.hasMoreElements()) {
+                    // First add the root FileObject
+                    hs.add(enum.nextElement());
+                }
                 while(enum.hasMoreElements()) {
                     //fo = (FileObject) enum.nextElement();
                     //hs.add(fo);
