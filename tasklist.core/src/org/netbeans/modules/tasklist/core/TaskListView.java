@@ -382,6 +382,24 @@ public abstract class TaskListView extends ExplorerPanel
         );
     }
 
+    /**
+     * Returns tree used to draw the first column in this view.
+     *
+     * @return tree
+     */
+    public JTree getTree() {
+        return treeTable.getTree();
+    }
+
+    /**
+     * Returns table with tasks.
+     *
+     * @return table
+     */
+    public JTable getTable() {
+        return treeTable.getTable();
+    }
+        
     // Workaround - is this no longer necessary?
     protected static class MyTreeTable extends TreeTableView {
         MyTreeTable() {
@@ -473,6 +491,9 @@ public abstract class TaskListView extends ExplorerPanel
         /** Construct a column object for the treecolumn (leftmost
          * column).
          * @param uid UID of the column
+         * @param name Property name
+         * @param displayName Name shown in the display
+         * @param hint Tooltip for the property
          * @param sortable Whether or not this column is sortable
          * @param width Default width for the column
          */
@@ -480,10 +501,11 @@ public abstract class TaskListView extends ExplorerPanel
 	    int uid,
             String name,
             String displayName,
+            String hint,
             boolean sortable,
             int width
         ) {     
-            super(name, String.class, displayName, displayName);
+            super(name, String.class, displayName, hint);
 	    this.uid = uid;
             this.width = width;
             setValue( "TreeColumnTTV", Boolean.TRUE );// NOI18N
@@ -758,13 +780,6 @@ public abstract class TaskListView extends ExplorerPanel
 	objectOutput.write(persistent ? 1 : 0);
     }
     
-    /** Return the name of this window ("task list"), as
-     * shown in IDE tabs etc.
-     * @return Name of window */    
-    /*public String getName() {
-	return title;
-    }*/
-
     /** Create the list of columns to be used in the view.
         NOTE: The first column SHOULD be a tree column.
     */
@@ -776,6 +791,7 @@ public abstract class TaskListView extends ExplorerPanel
         return new ColumnProperty(
 	    0, // UID -- never change (part of serialization
             PROP_TASK_SUMMARY,
+            NbBundle.getMessage(TaskListView.class, "Description"), // NOI18N
             NbBundle.getMessage(TaskListView.class, "Description"), // NOI18N
 	    true,
             width
@@ -1398,7 +1414,7 @@ public abstract class TaskListView extends ExplorerPanel
             if (next.getLine() != null) {
                 Annotation anno = getAnnotation(next);
                 if (anno != null) {
-                    show(next, anno);
+                    showTask(next, anno);
                 }
             }
             select(next);

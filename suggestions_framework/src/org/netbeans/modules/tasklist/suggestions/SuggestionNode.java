@@ -145,6 +145,8 @@ class SuggestionNode extends TaskNode {
      */
     protected Sheet createSheet() {
         Sheet s = Sheet.createDefault();
+        if (item.getParent() == null)
+            return s;
         Set ss = s.get(Sheet.PROPERTIES);
         
         Set sse = Sheet.createExpertSet();
@@ -236,25 +238,28 @@ class SuggestionNode extends TaskNode {
     }
 
 
-    /** Get a cookie. Call super first, but if null, also 
+    /** Get a cookie. Call super first, but if null, also
      * check the data object associated with the line number
      * if any.
      * @todo Should this be done in TaskNode (for all tasklist
      * tasks) or just here?
      */
-     public Node.Cookie getCookie(Class cl) {
-         Node.Cookie c = super.getCookie(cl);
-         if (c != null) {
-             return c;
-         }
-         if (cl.isAssignableFrom(Suggestion.class)) {
-             return (SuggestionImpl)item;
-         }
-         Line l = item.getLine();
-         if (l != null) {
-             return l.getDataObject().getCookie(cl);
-         }
-         return null;
-     }
+    public Node.Cookie getCookie(Class cl) {
+        Node.Cookie c = super.getCookie(cl);
+        if (c != null) {
+            return c;
+        }
+        if (cl.isAssignableFrom(Suggestion.class)) {
+            return (SuggestionImpl)item;
+        }
+        Line l = item.getLine();
+        if (l != null) {
+            if (l.getDataObject() != null)
+                return l.getDataObject().getCookie(cl);
+            else
+                return null;
+        }
+        return null;
+    }
 }
 

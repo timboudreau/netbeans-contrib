@@ -77,6 +77,7 @@ public class BugsView extends TaskListView implements TaskListener {
 	    0, // UID -- never change (part of serialization
             PROP_TASK_SUMMARY,
             NbBundle.getMessage(BugsView.class, "Summary"), // NOI18N
+            NbBundle.getMessage(BugsView.class, "Summary"), // NOI18N
 	    true,
             width
 	    );
