@@ -16,11 +16,12 @@ Microsystems, Inc. All Rights Reserved.
                 xmlns:p="http://www.netbeans.org/ns/project/1"
                 xmlns:xalan="http://xml.apache.org/xslt"
                 xmlns:projdeps="http://www.netbeans.org/ns/ant-project-references/1"
-                exclude-result-prefixes="xalan p projdeps">
+                xmlns:packagerproject="http://www.netbeans.org/ns/packager-project/1"
+                exclude-result-prefixes="xalan p projdeps packagerproject">
     <xsl:output method="xml" indent="yes" encoding="UTF-8" xalan:indent-amount="4"/>
     <xsl:template match="/">
 
-        <xsl:variable name="name" select="/p:project/p:name"/>
+        <xsl:variable name="name" select="/p:project/p:configuration/packagerproject:data/packagerproject:name"/>
         <project name="{$name}-impl">
             <xsl:attribute name="default">build</xsl:attribute>
             <xsl:attribute name="basedir">..</xsl:attribute>
@@ -167,7 +168,7 @@ Microsystems, Inc. All Rights Reserved.
         <xsl:param name="type"/>
         <xsl:param name="copyfiles"/>
         
-        <xsl:variable name="projname" select="/p:project/p:name"/>
+        <xsl:variable name="name" select="/p:project/p:configuration/packagerproject:data/packagerproject:name"/>
         <target name="{$targetname}">
             <xsl:attribute name="depends">init</xsl:attribute>
             <xsl:attribute name="unless">${no.dependencies}</xsl:attribute>

@@ -18,15 +18,13 @@ Microsystems, Inc. All Rights Reserved.
                 exclude-result-prefixes="xalan project">
     <xsl:output method="xml" indent="yes" encoding="UTF-8" xalan:indent-amount="4"/>
     <xsl:template match="/">
-<xsl:text disable-output-escaping="yes">
-&lt;!--
+<xsl:comment>
   Tags in this JNLP file are substituted by the build script.  You may 
   edit this file freely;  if it has been edited, it will not be replaced by
   the Packager module if you upgrade.  If you have made changes in this file
   and want to replace it with a pristine generated copy, simply rename or delete
   it and reopen the project in NetBeans.
-  
---&gt;</xsl:text>
+</xsl:comment>
 <jnlp spec="1.0+"
   codebase="@CODEBASE@"
 >

@@ -174,6 +174,13 @@ public class PackagerProject implements Project {
         try {
             ProjectManager.mutex().writeAccess( new Mutex.ExceptionAction () {
                 public Object run() throws Exception {
+                    Element el = h.getPrimaryConfigurationData(true);
+                    Document doc = el.getOwnerDocument();
+                    Element nameEl = doc.createElementNS(PackagerProjectType.PROJECT_CONFIGURATION_NAMESPACE, "name"); // NOI18N
+                    nameEl.appendChild(doc.createTextNode(name));
+                    el.appendChild(nameEl);
+                    h.putPrimaryConfigurationData(el, true);
+                    
                     //Write out all of the properties that were set in the wizard
                     EditableProperties ep = h.getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
                     for (Iterator i=data.keySet().iterator(); i.hasNext();) {

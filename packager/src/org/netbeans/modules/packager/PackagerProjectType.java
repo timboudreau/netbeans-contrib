@@ -25,8 +25,11 @@ import org.netbeans.spi.project.support.ant.AntProjectHelper;
 public final class PackagerProjectType implements AntBasedProjectType {
     
     public static final String TYPE = "org.netbeans.modules.packager.PackagerProjectType";
-    private static final String PROJECT_CONFIGURATION_NAME = "data";
-    public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/packager-project/1";
+    private static final String PROJECT_CONFIGURATION_NAME = "data"; // NOI18N
+    public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/packager-project/1"; // NOI18N
+    private static final String PRIVATE_CONFIGURATION_NAME = "data"; // NOI18N
+    private static final String PRIVATE_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/packager-project-private/1"; // NOI18N
+    
     
     /** Do nothing, just a service. */
     public PackagerProjectType() {}
@@ -40,11 +43,13 @@ public final class PackagerProjectType implements AntBasedProjectType {
     }
 
     public String getPrimaryConfigurationDataElementName(boolean shared) {
-        return PROJECT_CONFIGURATION_NAME;
+        return shared ? PROJECT_CONFIGURATION_NAME : 
+            PRIVATE_CONFIGURATION_NAME;
     }
     
     public String getPrimaryConfigurationDataElementNamespace(boolean shared) {
-        return PROJECT_CONFIGURATION_NAMESPACE;
+        return shared ? PROJECT_CONFIGURATION_NAMESPACE : 
+            PRIVATE_CONFIGURATION_NAMESPACE;
     }
     
 }

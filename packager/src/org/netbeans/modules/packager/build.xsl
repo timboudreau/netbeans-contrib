@@ -15,11 +15,12 @@ Microsystems, Inc. All Rights Reserved.
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:project="http://www.netbeans.org/ns/project/1"
                 xmlns:xalan="http://xml.apache.org/xslt"
-                exclude-result-prefixes="xalan project">
+                xmlns:packagerproject="http://www.netbeans.org/ns/packager-project/1"
+                exclude-result-prefixes="xalan project packagerproject">
     <xsl:output method="xml" indent="yes" encoding="UTF-8" xalan:indent-amount="4"/>
     <xsl:template match="/">
     
-        <xsl:variable name="name" select="/project:project/project:name"/>
+        <xsl:variable name="name" select="/project:project/project:configuration/packagerproject:data/packagerproject:name"/>
         <project name="{$name}">
             <xsl:attribute name="default">default</xsl:attribute>
             <xsl:attribute name="basedir">.</xsl:attribute>
