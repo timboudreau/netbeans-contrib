@@ -1567,8 +1567,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="MOVE_AND_CHECKOUT_IMPORTED">
 	<property name="exec">
-          <value>${RUNCDW} $[? FILE] [] [${CD} ..&amp;&amp;] mv ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_copy${QUOTE} ${NUR}</value>
-          <value if="IS_WINNT">${RUNCDW} $[? FILE] [] [${CD} ..&amp;&amp;] rename ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_copy${QUOTE} ${NUR}</value>
+          <value>${RUNCDW} $[? FILE] [] [${CD} ..&amp;&amp;] mv ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_orig${QUOTE} ${NUR}</value>
+          <value if="IS_WINNT">${RUNCDW} $[? FILE] [] [${CD} ..&amp;&amp;] rename ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_orig${QUOTE} ${NUR}</value>
         </property>
         <property name="notificationFailMsg">
           <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_MOVE_IMPORTED_Fail, ${FILE})</value>
