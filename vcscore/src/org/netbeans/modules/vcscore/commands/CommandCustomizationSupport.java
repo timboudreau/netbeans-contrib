@@ -857,8 +857,7 @@ public class CommandCustomizationSupport extends Object {
                     throw new UserCancelException();
                 }
                 String type = executionContext.getCommandsProvider().getType();
-                inputDescriptor.loadDefaults("common-command-options", type);  // NOI18N
-                inputDescriptor.loadDefaults(dcmd.getName(), type);
+                inputDescriptor.loadDefaults(dcmd.getName(), type, executionContext.isExpertMode());
                 inputDescriptor.setValuesAsDefault();
                 cmd.setProperty(INPUT_DESCRIPTOR_PARSED, inputDescriptor);
             }
@@ -921,6 +920,8 @@ public class CommandCustomizationSupport extends Object {
                             }
                             globalInputStrs.put(executionContext, globalInputStr);
                             globalInputDescrs.put(executionContext, globalInputDescriptor);
+                            String type = executionContext.getCommandsProvider().getType();
+                            globalInputDescriptor.loadDefaults("common-command-options", type, executionContext.isExpertMode());  // NOI18N
                             globalInputDescriptor.setValuesAsDefault();
                         } else {
                             globalInputDescriptor = (VariableInputDescriptor) globalInputDescrs.get(executionContext);

@@ -459,7 +459,24 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * Takes currently edited values and store them as new defaults.
      */
     public final void storeDefaults() {
-        asDefaultButtonActionPerformed(null);
+        if (hasDefaults()) {
+            asDefaultButtonActionPerformed(null);
+        }
+    }
+
+    /**
+     * Tests currently edited values for being usable as defaults.
+     */
+    public final boolean hasDefaults() {
+        VcsCommandsProvider provider = executionContext.getCommandsProvider();
+        String type = provider.getType();
+        if (inputDescriptor.hasDefaults(command.getName(), type, expert)) {
+            return true;
+        }
+        if (expert && globalDescriptor != null) {
+            return globalDescriptor.hasDefaults("common-command-options", type, expert);
+        }
+        return false;
     }
 
     // Code for dispatching events from components to event handlers.

@@ -57,9 +57,16 @@ public class VariableInputDescriptor extends Object {
     /**
      * The name of statement that contains list of variables which
      * recent value can be stored as profile command default for next time. e.g.
-     * <code>PROFILE_DEFAULTS_VARS("PRUNE_EMPTY, CREATE_DIRS")</code>
+     * <code>VARIABLE_DEFAULTS(PRUNE_EMPTY USER, CREATE_DIRS USER)</code>.
+     * There are couples: viable name and handling type: <ul>
+     * <li>USER stores default as user's for both modes
+     * <li>EXPERT_USER stores default as user's for expert mode only
+     * </ul>
      */
-    public static final String INPUT_STR_PROFILE_DEFAULTS = "PROFILE_DEFAULTS_VARS";
+    public static final String INPUT_STR_PROFILE_DEFAULTS = "VARIABLE_DEFAULTS";
+
+    public static final String DEFAULTS_MODE_USER = "USER"; // NOI18N
+    public static final String DEFAULTS_MODE_EXPERT_USER = "EXPERT_USER"; // NOI18N
 
     public static final String INPUT_STR_HELP_ID = "HELP_ID";
     public static final String INPUT_STR_PROMPT_FIELD = "PROMPT_FOR";
@@ -112,8 +119,10 @@ public class VariableInputDescriptor extends Object {
     private String a11yDescription = null;
     private String helpID;
     private String autoFillVars;
-    /** Keeps names of vars that support profile defaults. Need to be tokenized. */
-    private String profileDefaults;
+    /** Keeps names of vars => type that support profile defaults or null if not defined. */
+    private Map profileDefaults;
+    /** Last known defaults loaded from disk (regardless there were used in current mode)*/
+    private Map reloadedDefaults;
     private ArrayList components = new ArrayList();
 
 
@@ -192,7 +201,16 @@ public class VariableInputDescriptor extends Object {
             } else if(inputId == INPUT_AUTOFILL && inputArgs.length >0){
                 descriptor.autoFillVars = inputArgs[0];
             } else if(inputId == INPUT_PROFILE_DEFAULTS && inputArgs.length >0){
-                descriptor.profileDefaults = inputArgs[0];
+                Map defaults = new HashMap(inputArgs.length);
+                for (int i = 0; i<inputArgs.length; i++) {
+                    StringTokenizer tokenizer = new StringTokenizer(inputArgs[i], " \t\",;");
+                    int tokens = tokenizer.countTokens();
+                    if (tokens != 2) throw new VariableInputFormatException("Defaults syntax error : " + inputArgs[0]);  // NOi18N
+                    String var = tokenizer.nextToken();
+                    String type = tokenizer.nextToken();
+                    defaults.put(var, type.intern());
+                }
+                descriptor.profileDefaults = defaults;
             } else if (inputId == INPUT_ACCESSIBILITY && inputArgs.length > 0) {
                 VariableInputComponent testComponent = new VariableInputComponent(0, "", "");
                 setA11y(VcsUtilities.getBundleString(resourceBundles, inputArg), testComponent);
@@ -665,11 +683,14 @@ public class VariableInputDescriptor extends Object {
      * Loads default values from disk into component values.
      * @param commandName identifies command in provider namespace or <code>null</code>
      * @param commandProvider identifies provider
+     * @param expertMode true false is in simple mode then {@link #DEFAULTS_MODE_EXPERT_USER} stays unloaded
      */
-    public final void loadDefaults(String commandName, String commandProvider) {
+    public final void loadDefaults(String commandName, String commandProvider, boolean expertMode) {
+        reloadedDefaults = null;
         Properties map = new Properties();
         try {
             loadDefaultsFromDisk(map, commandName, commandProvider);
+            reloadedDefaults = new HashMap(map);
         } catch (IOException ex) {
             ErrorManager.getDefault().annotate(ex, g("EXC_read"));  // NOI18N
             ErrorManager.getDefault().notify(ex);
@@ -679,7 +700,7 @@ public class VariableInputDescriptor extends Object {
         Set parentVariables = new HashSet();
         for (int i = 0; i < comps.length; i++) {
             VariableInputComponent comp = comps[i];
-            fillCurrentValuesFromMap(map, comp, parentVariables);
+            fillCurrentValuesFromMap(map, comp, parentVariables, expertMode);
         }
     }
 
@@ -691,12 +712,11 @@ public class VariableInputDescriptor extends Object {
      */
     public final void storeDefaults(String commandName, String commandProvider) {
         Properties defaults = new Properties();
-        VariableInputComponent[] comps = components();
-        for (int i = 0; i < comps.length; i++) {
-            VariableInputComponent comp = comps[i];
-            fillMapFromCurrentValues(defaults, comp);
+        if (reloadedDefaults != null) {
+            defaults.putAll(reloadedDefaults);
         }
 
+        grabDefaultsToMap(defaults);
         if (defaults.size() == 0) return;  // do not create empty files
 
         try {
@@ -708,10 +728,45 @@ public class VariableInputDescriptor extends Object {
     }
 
     /**
+     * Tests whether is make ssense to supprot writing dowm default for this descriptor.
+     * @param commandName identifies command in provider namespace or <code>null</code>
+     * @param commandProvider identifies provider
+     * @param expertMode true false is in simple mode then {@link #DEFAULTS_MODE_EXPERT_USER} stays unloaded
+     */
+    public final boolean hasDefaults(String commandName, String commandProvider, boolean expertMode) {
+        if (profileDefaults == null) return false;
+
+        // do not enable if in trivial mode and there are only defaults for expert mode
+        Iterator it = profileDefaults.values().iterator();
+        boolean atLeastOneSuitable = !expertMode;
+        while (atLeastOneSuitable == false && it.hasNext()) {
+            String mode = (String) it.next();
+            atLeastOneSuitable = DEFAULTS_MODE_USER == mode;
+        }
+        if (atLeastOneSuitable == false) return false;
+
+        // live test
+        Map map = new HashMap();
+        grabDefaultsToMap(map);
+        return map.size() > 0;
+    }
+
+    private void grabDefaultsToMap(Map defaults) {
+        VariableInputComponent[] comps = components();
+        for (int i = 0; i < comps.length; i++) {
+            VariableInputComponent comp = comps[i];
+            fillMapFromCurrentValues(defaults, comp);
+        }
+    }
+
+    /**
      * Traverses components hiearchy and puts
      * associated values into given map.
      */
     private void fillMapFromCurrentValues(Map map, VariableInputComponent vic) {
+
+        if (profileDefaults == null) return;
+
         VariableInputComponent[] subs = vic.subComponents();
         for (int i = 0; i < subs.length; i++) {
             VariableInputComponent component = subs[i];
@@ -720,6 +775,8 @@ public class VariableInputDescriptor extends Object {
 
         String name = vic.getVariable();
         if (name == null) return;
+        String mode = (String) profileDefaults.get(name);
+        if (mode == null) return;
         if (vic.needsPreCommandPerform()) return;
         String value = vic.getValue();
         if (value == null) return;
@@ -730,17 +787,22 @@ public class VariableInputDescriptor extends Object {
      * Traverses components hiearchy and sets map values
      * into associated (by variable name) component values.
      */
-    private void fillCurrentValuesFromMap(Map map, VariableInputComponent vic, Set parentVariables) {
+    private void fillCurrentValuesFromMap(Map map, VariableInputComponent vic, Set parentVariables, boolean expertMode) {
+
+        if (profileDefaults == null) return;
 
         String name = vic.getVariable();
         if (name != null) {
-            // do not set variable value if it was already set for parent
-            if (parentVariables.contains(name) == false) {
-                parentVariables.add(name);
-                if (vic.needsPreCommandPerform() == false) {
-                    String value = (String) map.get(name);
-                    if (value != null) {
-                        vic.setValue(value);
+            String mode = (String) profileDefaults.get(name);
+            if (mode != null && (expertMode == false || DEFAULTS_MODE_EXPERT_USER == mode)) {
+                // do not set variable value if it was already set for parent
+                if (parentVariables.contains(name) == false) {
+                    parentVariables.add(name);
+                    if (vic.needsPreCommandPerform() == false) {
+                        String value = (String) map.get(name);
+                        if (value != null) {
+                            vic.setValue(value);
+                        }
                     }
                 }
             }
@@ -749,7 +811,7 @@ public class VariableInputDescriptor extends Object {
         VariableInputComponent[] subs = vic.subComponents();
         for (int i = 0; i < subs.length; i++) {
             VariableInputComponent component = subs[i];
-            fillCurrentValuesFromMap(map, component, parentVariables);   // RECURSION
+            fillCurrentValuesFromMap(map, component, parentVariables, expertMode);   // RECURSION
         }
     }
 

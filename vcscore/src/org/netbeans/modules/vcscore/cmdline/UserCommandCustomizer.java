@@ -171,4 +171,12 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
     public void storeDefaults() {
         if (dlg != null) dlg.storeDefaults();
     }
+
+    public boolean hasDefaults() {
+        if (dlg != null) {
+            return dlg.hasDefaults();
+        } else {
+            return false;
+        }
+    }
 }

@@ -377,14 +377,16 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
             if (customizer instanceof UserCommandCustomizer) {
                 final UserCommandCustomizer vid = (UserCommandCustomizer) customizer;
-                btnStoreAsDefault = new JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.text"));
-                btnStoreAsDefault.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.mnemonic").charAt(0));
-                btnStoreAsDefault.setToolTipText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.tooltip"));
-                btnStoreAsDefault.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        vid.storeDefaults();
-                    }
-                });
+                if (vid.hasDefaults()) {
+                    btnStoreAsDefault = new JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.text"));
+                    btnStoreAsDefault.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.mnemonic").charAt(0));
+                    btnStoreAsDefault.setToolTipText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.tooltip"));
+                    btnStoreAsDefault.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            vid.storeDefaults();
+                        }
+                    });
+                }
                 cust = (Component) customizer;
             } else if (customizer instanceof Component) {
                 cust = (Component) customizer;

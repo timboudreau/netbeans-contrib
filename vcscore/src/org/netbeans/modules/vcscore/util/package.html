@@ -119,10 +119,17 @@ merging is permit-able behavior.
 <p>
 Scope point of view probably reduces stored variables
 even further, storing and reloading globally just variables
-listed in a predefined list.
+listed in a predefined list. This solution is used.
 
 <p>
-As of Jan 21 2005 the visibility is ignored and merging is not 
-used and it <b>must be fixed</b>!
+<small>
+VARIABLE_DEFAULTS statement allows to define defaults handling.
+It defines a list of pairs: variable name and its storage mode.
+There are two storage modes USER that reloads variable value
+regardless of mode (propagating from advanced to simple) and
+EXPERT_USER that reloads expert variable in expert mode only.
+<p>
+E.g. CVS DIFF defines <code>VARIABLE_DEFAULTS(IGNORE_WHITE USER, IGNORE_SPACE USER, IGNORE_CASE USER, ADDITIONAL_OPTIONS EXPERT_USER)</code>
+</small>
 
 </body>

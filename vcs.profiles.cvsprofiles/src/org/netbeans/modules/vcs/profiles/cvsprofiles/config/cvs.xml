@@ -266,6 +266,7 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="GLOBAL_INPUT_DESCRIPTOR" basic="false">
       <value>LABEL(ResourceMsg(CVS_OPTIONS_GLOBAL_Label),
                 ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_Label)))
+             VARIABLE_DEFAULTS(COMPRESSION USER)
              ASK_FOR(DISK_CHANGE, "ResourceMsg(CVS_OPTIONS_GLOBAL_PREVIEW)","",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_PREVIEW);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_PREVIEW_mnc)))
              ASK_FOR(CHECKOUT_RO_RW, "ResourceMsg(CVS_OPTIONS_GLOBAL_RO)", "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_RO);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_RO_mnc)) ,"-r", "")
              SELECT_COMBO(COMPRESSION, "ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Label)", "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_COMPRESSION_Label);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_COMPRESSION_Label_mnc)),
@@ -889,7 +890,8 @@ Microsystems, Inc. All Rights Reserved.
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg1(COMMAND_UPDATE_Label),
                     ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_Label)))
-                 ASK_FOR_EXPERT(PRUNE_EMPTY, ResourceMsg1(COMMAND_UPDATE_PruneEmpty), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_PruneEmpty);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_PruneEmpty_mnc)),"-P", "")                   
+                 VARIABLE_DEFAULTS(PRUNE_EMPTY USER, CREATE_DIRS USER)
+                 ASK_FOR_EXPERT(PRUNE_EMPTY, ResourceMsg1(COMMAND_UPDATE_PruneEmpty), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_PruneEmpty);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_PruneEmpty_mnc)),"-P", "")
                  ASK_FOR_EXPERT(CREATE_DIRS, ResourceMsg1(COMMAND_UPDATE_CreateDirs), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_CreateDirs);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_CreateDirs_mnc)), "-d", "")
                  ASK_FOR_EXPERT(RESET_STICKY, ResourceMsg1(COMMAND_UPDATE_RemoveSticky), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_RemoveSticky);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_RemoveSticky_mnc)), "-A", "", DISABLE(TAG, DATE))
                  ASK_FOR_EXPERT(GET_CLEAN_COPY, ResourceMsg1(COMMAND_UPDATE_GetCleanCopy), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_GetCleanCopy);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_GetCleanCopy_mnc)), "-C", "")
@@ -989,6 +991,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_ADD_Label),
                     ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Label)))
+                 VARIABLE_DEFAULTS(FOLDER_CONTENTS USER, RUN_RECURSIVELY USER, DO_COMMIT USER)
                  SELECT_RADIO(FOLDER_CONTENTS, "", "", [ResourceMsg1(COMMAND_ADD_JustFolder), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_JustFolder);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_JustFolder_mnc))],
                                                        [ResourceMsg1(COMMAND_ADD_FolderContents), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_FolderContents);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_FolderContents_mnc)),
                                                         PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_ADD_Description), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc)))
@@ -1062,7 +1065,7 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="inputDescriptor">
 	  <value>
             LABEL(ResourceMsg1(COMMAND_ADD_Label),
-                ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Label))) 
+                ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Label)))
             PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_ADD_Description), "${message}",
                 ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc))) 
             ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))
@@ -1260,7 +1263,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} remove -f  ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
-	  <value>LABEL(ResourceMsg1(COMMAND_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_REMOVE_Label)))
+	  <value>
+                VARIABLE_DEFAULTS(DO_COMMIT USER)
+                LABEL(ResourceMsg1(COMMAND_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_REMOVE_Label)))
                  ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_REMOVE_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_REMOVE_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_REMOVE_DoCommit_mnc)))
                  IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg1(COMMAND_Recursive), "$[? recursionBanned] [-l] [-R]",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)), "-R", "-l")
           </value>
@@ -1998,6 +2003,7 @@ Microsystems, Inc. All Rights Reserved.
 	  </property>
   	  <property name="inputDescriptor">
  	    <value>LABEL(ResourceMsg1(COMMAND_WATCH_SET_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_Label)))
+                VARIABLE_DEFAULTS(IS_EDIT USER, IS_UNEDIT USER, IS_COMMIT USER)
                    ASK_FOR(IS_EDIT, ResourceMsg1(COMMAND_WATCH_SET_edit), {INSERT_OUTPUT_OF_WATCH_ACTION_STATUS(0)},ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_edit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_WATCH_SET_edit_mnc)))
                    ASK_FOR(IS_UNEDIT, ResourceMsg1(COMMAND_WATCH_SET_unedit), {INSERT_OUTPUT_OF_WATCH_ACTION_STATUS(1)},ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_unedit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_WATCH_SET_unedit_mnc)))
                    ASK_FOR(IS_COMMIT, ResourceMsg1(COMMAND_WATCH_SET_commit), {INSERT_OUTPUT_OF_WATCH_ACTION_STATUS(2)},ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_commit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_WATCH_SET_commit_mnc)))</value>
@@ -2033,7 +2039,8 @@ Microsystems, Inc. All Rights Reserved.
 	  </property>
   	  <property name="inputDescriptor">
  	    <value>LABEL(ResourceMsg1(COMMAND_WATCH_SET_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_Label)))
-                    ASK_FOR(IS_EDIT, ResourceMsg1(COMMAND_WATCH_SET_edit), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_edit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_WATCH_SET_edit_mnc))) 
+             VARIABLE_DEFAULTS(IS_EDIT USER, IS_UNEDIT USER, IS_COMMIT USER)
+                    ASK_FOR(IS_EDIT, ResourceMsg1(COMMAND_WATCH_SET_edit), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_edit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_WATCH_SET_edit_mnc)))
                     ASK_FOR(IS_UNEDIT, ResourceMsg1(COMMAND_WATCH_SET_unedit), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_unedit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_WATCH_SET_unedit_mnc)))
                     ASK_FOR(IS_COMMIT, ResourceMsg1(COMMAND_WATCH_SET_commit), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_commit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_WATCH_SET_commit_mnc)))
                     IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSION, ResourceMsg1(COMMAND_Recursive), "$[? recursionBanned] [-l] [-R]", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)), "-R", "-l")
@@ -2306,6 +2313,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Label)))
+                VARIABLE_DEFAULTS(IGNORE_WHITE USER, IGNORE_SPACE USER, IGNORE_CASE USER, ADDITIONAL_OPTIONS EXPERT_USER)
                  PROMPT_FOR_EXPERT(TAG1, ResourceMsg1(COMMAND_DIFF_Tag1), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Tag1);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Tag1_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(TAG2, ResourceMsg1(COMMAND_DIFF_Tag2), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Tag2);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Tag2_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(DATE1, ResourceMsg1(COMMAND_DIFF_Date1), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Date1);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Date1_mnc)), SELECTOR_DATE_CVS)
@@ -2348,6 +2356,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Label)))
+                VARIABLE_DEFAULTS(IGNORE_WHITE USER, IGNORE_SPACE USER, IGNORE_CASE USER, OUTPUT_FORMAT USER, ADDITIONAL_OPTIONS EXPERT_USER)
                  PROMPT_FOR_EXPERT(TAG1, ResourceMsg1(COMMAND_DIFF_Tag1), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Tag1);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Tag1_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(TAG2, ResourceMsg1(COMMAND_DIFF_Tag2), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Tag2);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Tag2_mnc)),IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(DATE1, ResourceMsg1(COMMAND_DIFF_Date1), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Date1);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Date1_mnc)) ,SELECTOR_DATE_CVS)
@@ -2396,6 +2405,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Label)))
+                VARIABLE_DEFAULTS(IGNORE_WHITE USER, IGNORE_SPACE USER, IGNORE_CASE USER, OUTPUT_FORMAT USER, ADDITIONAL_OPTIONS EXPERT_USER)
                  PROMPT_FOR_EXPERT(TAG1, ResourceMsg1(COMMAND_DIFF_Tag1), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Tag1);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Tag1_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(TAG2, ResourceMsg1(COMMAND_DIFF_Tag2), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Tag2);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Tag2_mnc)),IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(DATE1, ResourceMsg1(COMMAND_DIFF_Date1), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Date1);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Date1_mnc)) ,SELECTOR_DATE_CVS)
@@ -2449,6 +2459,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_PATCH_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_PATCH_Label)))
+                VARIABLE_DEFAULTS(OUTPUT_FORMAT USER)
                  SELECT_RADIO(OUTPUT_FORMAT, ResourceMsg1(COMMAND_PATCH_Output_Format), "-c",
                   [ResourceMsg1(COMMAND_PATCH_Context), "-c",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_PATCH_Context);;MNEMONIC_ResourceMsg1(ACS_COMMAND_PATCH_Context_mnc))],
                   [ResourceMsg1(COMMAND_PATCH_Unidiff), "-u",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_PATCH_Unidiff);;MNEMONIC_ResourceMsg1(ACS_COMMAND_PATCH_Unidiff_mnc))],
