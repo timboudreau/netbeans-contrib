@@ -17,7 +17,6 @@ Microsystems, Inc. All Rights Reserved.
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
 
-    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
 
     <target name="compile">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
@@ -47,6 +46,7 @@ Microsystems, Inc. All Rights Reserved.
     </target>
  
     <target name="nbm" depends="netbeans">
+        <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
         <makenbm file="${project}.nbm"
                  topdir="."
                  homepage="http://contrib.netbeans.org/htmldiff/"

@@ -94,7 +94,7 @@ Microsystems, Inc. All Rights Reserved.
             <property name="modules" value="diff" />
           </ant>
           <ant dir="${new-nb}/diff" />
-    	  <ant dir="." />
+          <ant dir="../../nbbuild" target="all-contrib/htmldiff"/>
     </target>
 
     <target name="api-list"  >
