@@ -15,6 +15,8 @@ package org.netbeans.modules.tasklist.bugs.issuezilla;
 
 import java.io.*;
 import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
 import java.util.*;
 import java.text.MessageFormat;
 
@@ -354,5 +356,48 @@ public final class Issuezilla extends java.lang.Object {
         System.out.println();
     }
 /**/
-    
+
+    /**
+     * Retrieves component names
+     * @param base service URL e.g. <code>http://tasklist.netbeans.org/issues/</code>
+     */
+    public static String[] getComponents(URL base) {
+        List components = new ArrayList(23);
+        try {
+            URL list = new URL(base, "enter_bug.cgi");
+            URLConnection io = list.openConnection();
+            io.connect();
+            InputStream in = new BufferedInputStream(io.getInputStream());
+            int next = in.read();
+            StringBuffer sb = new StringBuffer();
+            while (next != -1) {
+                sb.append((char) next);
+                next = in.read();
+            }
+
+            // parse output looking for componet names by MAGIC
+
+            String sample = sb.toString();
+            String MAGIC =  "enter_bug.cgi?component=";  // NOi18N
+
+            int entry = 0;
+            int end = -1;
+            while (true) {
+                entry = sample.indexOf(MAGIC, entry);
+                if (entry == -1) break;
+                end = sample.indexOf("\"", entry);
+                if (entry == -1) break;
+                String component = sample.substring(entry + MAGIC.length(), end);
+                entry = end;
+                components.add(component);
+            }
+            return (String[]) components.toArray(new String[components.size()]);
+
+        } catch (MalformedURLException e) {
+            return new String[0];
+        } catch (IOException e) {
+            return new String[0];
+        }
+    }
+
 }

@@ -27,6 +27,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
@@ -37,6 +39,8 @@ import javax.swing.JTextField;
 
 import org.netbeans.modules.tasklist.bugs.BugQuery;
 import org.netbeans.modules.tasklist.bugs.QueryPanelIF;
+import org.netbeans.modules.tasklist.bugs.issuezilla.IZBugEngine;
+import org.netbeans.modules.tasklist.bugs.issuezilla.Issuezilla;
 
 import org.openide.DialogDescriptor;
 import org.openide.ErrorManager;
@@ -93,7 +97,10 @@ public class BugzillaQueryPanel extends JPanel implements QueryPanelIF {
     private BugQuery mQuery;
     /** a flag to tell if we are editing this query or not */
     private boolean mEditing;
-    
+
+    private JComboBox components;
+    private JLabel status;
+
     /** Creates a new instance of BugzillaQueryPanel */
     public BugzillaQueryPanel(BugQuery query, boolean editing) {
         mEditing = editing;
@@ -114,10 +121,29 @@ public class BugzillaQueryPanel extends JPanel implements QueryPanelIF {
         mQueryLabel = new JLabel();
         mQueryExampleLabel = new JLabel();
         mQueryExamplePanel = new JPanel();
+        components = new JComboBox();
+        status = new JLabel("Choose server and Enter");
         setLayout(new BorderLayout());
-        
+
+
         mBaseUrlLabel.setText(NbBundle.getMessage(BugzillaQueryPanel.class, "BaseUrl_Label")); // NOI18N
         mBaseUrlField.setPreferredSize(new Dimension(300, 20));
+        mBaseUrlField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                URL url = null;
+                try {
+                    status.setText("probing...");
+                    url = new URL(mBaseUrlField.getText());
+                    String [] comps = Issuezilla.getComponents(url);
+                    DefaultComboBoxModel model = new DefaultComboBoxModel(comps);
+                    components.setModel(model);
+                    status.setText("Server OK");
+                    mQuery.setBaseUrl(mBaseUrlField.getText());
+                } catch (MalformedURLException e1) {
+                    status.setText("Invalid server URL ");
+                }
+            }
+        });
         mBaseUrlExampleLabel.setText(NbBundle.getMessage(BugzillaQueryPanel.class, "BaseUrlExample_Label")); // NOI18N
         mBaseUrlExampleLabel.setForeground(new Color(153, 153, 153));
         
@@ -125,6 +151,7 @@ public class BugzillaQueryPanel extends JPanel implements QueryPanelIF {
         mBaseUrlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         mBaseUrlPanel.add(mBaseUrlLabel);
         mBaseUrlPanel.add(mBaseUrlField);
+        mBaseUrlPanel.add(status);
         mTopPanel.add(mBaseUrlPanel, BorderLayout.CENTER);
         mBaseUrlExamplePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         mBaseUrlExamplePanel.add(mBaseUrlExampleLabel);
@@ -140,9 +167,11 @@ public class BugzillaQueryPanel extends JPanel implements QueryPanelIF {
         mQueryStringPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         mQueryStringPanel.add(mQueryLabel);
         mQueryStringPanel.add(mQueryField);
-        mQueryPanel.add(mQueryStringPanel, BorderLayout.CENTER);
+
         mQueryExamplePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         mQueryExamplePanel.add(mQueryExampleLabel);
+
+        mQueryPanel.add(mQueryStringPanel, BorderLayout.CENTER);
         mQueryPanel.add(mQueryExamplePanel, BorderLayout.SOUTH);
         
         add(mTopPanel, BorderLayout.NORTH);

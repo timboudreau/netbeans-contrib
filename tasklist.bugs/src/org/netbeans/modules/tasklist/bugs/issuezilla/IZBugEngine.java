@@ -26,8 +26,12 @@ import org.openide.util.Utilities;
 import org.netbeans.modules.tasklist.core.TaskListView;
 
 import org.netbeans.modules.tasklist.bugs.*;
+import org.netbeans.modules.tasklist.bugs.bugzilla.BugzillaQueryPanel;
+import org.netbeans.modules.tasklist.bugs.bugzilla.SourcePanel;
 import org.openide.awt.HtmlBrowser;
 import org.openide.awt.StatusDisplayer;
+
+import javax.swing.*;
 
 /**
  * Bridge which provides Issuezilla data to the BugList
@@ -36,10 +40,7 @@ import org.openide.awt.StatusDisplayer;
  */
 public final class IZBugEngine implements BugEngine { // XXX remove the publicness
 
-    private BugList list = null;
-
-    public IZBugEngine(BugList list) {
-        this.list = list;
+    public IZBugEngine() {
     }
 
     /**
@@ -49,16 +50,20 @@ public final class IZBugEngine implements BugEngine { // XXX remove the publicne
         return (NbBundle.getMessage(IZBugEngine.class, "IssueZilla")); // NOI18N;
     }
 
-    public void refresh(final BugQuery query) {
+    public void refresh(final BugQuery query, final BugList list) {
         // Do in the background
         RequestProcessor.postRequest(new Runnable() {
             public void run() {
-                doRefresh(query);
+                doRefresh(query, list);
             }
         });
     }
 
-    public void doRefresh(BugQuery inQuery) {
+    public JComponent getQueryCustomizer(BugQuery query, boolean edit) {
+        return new SourcePanel();
+    }
+
+    public void doRefresh(BugQuery inQuery, BugList list) {
         TaskListView v = TaskListView.getCurrent();
         BugsView view = null;
         if (v instanceof BugsView) {

@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.tasklist.bugs;
 
+import javax.swing.*;
+
 
 /** Interface which represents a bug engine which can be queried.
  *  @author Tor Norbye
@@ -22,7 +24,7 @@ package org.netbeans.modules.tasklist.bugs;
 public interface BugEngine {
     /** Fetch the buglist, then call BugList.setList() with the
 	results (preferably asynchronously) */
-    void refresh(BugQuery query);
+    void refresh(BugQuery query, BugList list);
 
     /** View a particular bug. */
     void viewBug(Bug bug, String serverURL);
@@ -31,5 +33,6 @@ public interface BugEngine {
     String getName();
 
     /** Return a query customizer */
-    
+    JComponent getQueryCustomizer(BugQuery query, boolean edit);
+
 }

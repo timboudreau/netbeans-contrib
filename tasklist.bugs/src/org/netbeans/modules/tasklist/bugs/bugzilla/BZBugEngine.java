@@ -28,6 +28,8 @@ import org.netbeans.modules.tasklist.bugs.*;
 import org.openide.awt.HtmlBrowser;
 import org.openide.awt.StatusDisplayer;
 
+import javax.swing.*;
+
 /**
  * Bridge which provides Bugzilla data to the BugList
  * This class is almost exactally the same as IZBugEngine.
@@ -36,10 +38,7 @@ import org.openide.awt.StatusDisplayer;
  */
 public class BZBugEngine implements BugEngine { // XXX remove the publicness
 
-    private BugList list = null;
-
-    public BZBugEngine(BugList list) {
-        this.list = list;
+    public BZBugEngine() {
     }
 
     /**
@@ -49,11 +48,15 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
         return (NbBundle.getMessage(BZBugEngine.class, "BugZilla")); // NOI18N;
     }
 
-    public void refresh(final BugQuery query) {
+    public JComponent getQueryCustomizer(BugQuery query, boolean edit) {
+        return new BugzillaQueryPanel(query, edit);
+    }
+
+    public void refresh(final BugQuery query, final BugList list) {
         // Do in the background
         RequestProcessor.postRequest(new Runnable() {
             public void run() {
-                doRefresh(query);
+                doRefresh(query, list);
             }
         });
     }
@@ -61,7 +64,7 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
     /**
      * TODO Change this so it adds pugs to the model one at a time.  I hate waiting...
      */
-    public void doRefresh(BugQuery inQuery) {
+    public void doRefresh(BugQuery inQuery, BugList list) {
         TaskListView v = TaskListView.getCurrent();
         BugsView view = null;
         if (v instanceof BugsView) {

@@ -34,6 +34,7 @@ import javax.swing.JTextField;
 
 import org.netbeans.modules.tasklist.bugs.BugQuery;
 import org.netbeans.modules.tasklist.bugs.bugzilla.BugzillaQueryPanel;
+import org.netbeans.modules.tasklist.bugs.bugzilla.SourcePanel;
 
 import org.openide.DialogDescriptor;
 import org.openide.ErrorManager;
@@ -108,7 +109,7 @@ public class EditQueryPanel extends JPanel {
         mBugEngines.addItem("Issuezilla");
         mBugEngines.addItem("Bugzilla");
         mBugEngines.setSelectedItem("Issuezilla");
-        
+
         mTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         mTopPanel.add(mEngineLabel);
         mTopPanel.add(mBugEngines);
@@ -139,7 +140,7 @@ public class EditQueryPanel extends JPanel {
      */
     public JPanel getQueryPanel(String engineName) {
         //FIXME
-        return new BugzillaQueryPanel(mQuery, mEditing);
+        return new SourcePanel();
     }
     
     private void defaultButtonActionPerformed(java.awt.event.ActionEvent evt) {

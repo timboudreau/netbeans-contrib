@@ -42,10 +42,10 @@ public class BugList extends TaskList { // XXX remove the publicness
     /** Creates a new instance of TaskList */
     public BugList(BugQuery inQuery) {
         mQuery = inQuery;
-	IZBugEngine issuezilla = new IZBugEngine(this);
-        BZBugEngine bugzilla = new BZBugEngine(this);
-	// Later, allow these puppies to be registered via Lookup
-	engines = new BugEngine[] { issuezilla, bugzilla };
+        IZBugEngine issuezilla = new IZBugEngine();
+        BZBugEngine bugzilla = new BZBugEngine();
+        // Later, allow these puppies to be registered via Lookup
+        engines = new BugEngine[] { issuezilla, bugzilla };
     }
 
     private static BugList tasklist = null;
@@ -71,7 +71,7 @@ public class BugList extends TaskList { // XXX remove the publicness
         if (mQuery != null) {
             for (int i = 0; i < engines.length; i++) {
                 if (engines[i].getName().equals("NetBeans " + mQuery.getBugEngine())) {
-                    engines[i].refresh(mQuery);
+                    engines[i].refresh(mQuery, this);
                 }
             }
         }
