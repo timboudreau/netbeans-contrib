@@ -57,9 +57,18 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
      */
     public static final String VAR_AUTO_FILL = "AUTO_FILL_VARS";
     
+    /**
+     * The name of a variable, that contains the string representation of variable
+     * input descriptor, that is used to construct the panel with configuration
+     * input components. If this variable is defined, the "basic" property of
+     * variables has no effect.
+     */
+    public static final String VAR_CONFIG_INPUT_DESCRIPTOR = "CONFIG_INPUT_DESCRIPTOR";
+    
     public static final String PROP_PROFILE_SELECTION_CHANGED = "profileSelectionChanged";
 
     private HashMap autoFillVars = new HashMap();
+    private Map fsVarsByName = null;
     
     //private HashMap cache = new HashMap ();
     
@@ -1435,6 +1444,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private Vector varTextFields = new Vector ();
     private Vector varButtons = new Vector();
     private Vector varVariables = new Vector ();
+    private VariableInputDialog configInputPanel = null;
     private CommandLineVcsFileSystem fileSystem = null;
     private PropertyChangeSupport changeSupport = null;
     private Vector configLabels;
@@ -1689,6 +1699,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             varTextFields.remove (0);
             varButtons.remove(0);
         }
+        if (configInputPanel != null) {
+            propsPanel.remove(configInputPanel.getVariableInputPanel());
+            configInputPanel = null;
+        }
         for (int i = envTableModel.getRowCount(); i > 0; ) {
             ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).removeRow(--i);
         }
@@ -1700,9 +1714,58 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         envVariables.clear();
         envVariablesRemoved.clear();
         Enumeration vars = fileSystem.getVariables ().elements ();
+        final Hashtable fsVars = fileSystem.getVariablesAsHashtable();
+        String autoFillVarsStr = (String) fsVars.get(VAR_AUTO_FILL);
+        if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
+        else autoFillVars.clear();
+        String configInputDescriptorStr = (String) fsVars.get(VAR_CONFIG_INPUT_DESCRIPTOR);
+        VariableInputDescriptor configInputDescriptor = null;
+        if (configInputDescriptorStr != null) {
+            try {
+                configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr);
+            } catch (VariableInputFormatException vifex) {}
+        }
+        if (configInputDescriptor != null) {
+            //Hashtable dlgVars = new Hashtable(fsVars);
+            VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptor, false, fsVars);
+            dlg.setVCSFileSystem(fileSystem, fsVars);
+            dlg.setGlobalInput(null);
+            dlg.showPromptEach(false);
+            java.awt.GridBagConstraints gridBagConstraints;
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridy = 4;
+            gridBagConstraints.gridwidth = 3;
+            gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+            //gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints.weightx = 1;
+            gridBagConstraints.weighty = 1;
+            propsPanel.add(dlg.getVariableInputPanel(), gridBagConstraints);
+            configInputPanel = dlg;
+            dlg.addPropertyChangeListener(new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {
+                    String name = evt.getPropertyName();
+                    if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
+                        String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());
+                        variableChanged(varName, (String) evt.getOldValue(), (String) evt.getNewValue(), fsVars);
+                    }
+                }
+            });
+        }
+        jLabel2.setVisible(configInputDescriptor == null);
+        rootDirTextField.setVisible(configInputDescriptor == null);
+        browseButton.setVisible(configInputDescriptor == null);
+        relMountLabel.setVisible(configInputDescriptor == null);
+        relMountTextField.setVisible(configInputDescriptor == null);
+        relMountButton.setVisible(configInputDescriptor == null);
+        jLabel4.setVisible(configInputDescriptor == null);
+        refreshTextField.setVisible(configInputDescriptor == null);
+        fsVarsByName = new HashMap();
         while (vars.hasMoreElements ()) {
             VcsConfigVariable var = (VcsConfigVariable) vars.nextElement ();
-            if(var.isBasic ()) {
+            fsVarsByName.put(var.getName(), var);
+            if(configInputPanel == null && var.isBasic ()) {
                 JLabel lb;
                 JTextField tf;
                 JButton button = null;
@@ -1821,7 +1884,35 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             String cmd = (String) it.next();
             autoFillVariables(cmd);
         }
+        if (configInputPanel != null) {
+            configInputPanel.updateVariableValues(fsVars);
+        }
         updateAdvancedConfig();
+    }
+    
+    private void variableChanged (String varName, String oldValue, String newValue, Hashtable fsVars) {
+        VcsConfigVariable var = (VcsConfigVariable) fsVarsByName.get(varName);
+        Vector vars = fileSystem.getVariables();
+        //System.out.println("variable changed: "+varName+" = '"+newValue+"'");
+        if (var == null) {
+            //var = new VcsConfigVariable(varName, null, newValue, false, false, false, null);
+            //vars.add(var);
+        } else {
+            var.setValue(newValue);
+        }
+        fsVars.put(varName, newValue);
+        fileSystem.setVariables(vars);
+        if ("ROOTDIR".equals(varName)) {
+            rootDirTextField.setText(newValue);
+            changeRootDir(newValue);
+            fsVars.put("MODULE", relMountTextField.getText());
+        } else if ("MODULE".equals(varName)) {
+            relMountTextField.setText(newValue);
+            rootDirChanged();
+        } else {
+            String cmd = (String) autoFillVars.get(varName);
+            if (cmd != null) autoFillVariables(cmd);
+        }
     }
 
     private void variableChanged (java.awt.AWTEvent evt) {
@@ -1871,6 +1962,15 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             if (value != null) {
                 JTextField field = (JTextField) varTextFields.get(i);
                 field.setText(value);
+                var.setValue(value);
+            }
+        }
+        if (configInputPanel != null) {
+            configInputPanel.updateVariableValues(vars);
+            Vector variables = fileSystem.getVariables();
+            for (Iterator it = variables.iterator(); it.hasNext(); ) {
+                VcsConfigVariable var = (VcsConfigVariable) it.next();
+                String value = (String) vars.get(var.getName());
                 var.setValue(value);
             }
         }
@@ -2172,50 +2272,54 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         RequestProcessor.postRequest(new Runnable() {
             public void run() {
-                File root = new File(selected);
-                try{
-                    fileSystem.setRootDirectory(root);
-                    //rootDirTextField.setText(selected);
-                    String cmd = (String) autoFillVars.get("ROOTDIR");
-                    if (cmd != null) autoFillVariables(cmd);
-                    if (lastRootDir != null && !selected.equals(lastRootDir)) {
-                        lastRootDir = selected;
-                        if (!(new File(selected, relMountTextField.getText()).exists())) {
-                            relMountTextField.setText("");
-                            relMountPointChanged();
-                        }
-                    }
-                } catch (PropertyVetoException veto){
-                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            if (isRootNotSetDlg) {
-                                isRootNotSetDlg = false;
-                                TopManager.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
-                                isRootNotSetDlg = true;
-                            }
-                        }
-                    });
-                    //fileSystem.debug(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD"));
-                    //E.err(veto,"setRootDirectory() failed"); // NOI18N
-                    rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint()));
-                    lastRootDir = rootDirTextField.getText();
-                } catch (IOException e){
-                    //E.err(e,"setRootDirectory() failed");
-                    final String badDir = root.toString();
-                    javax.swing.SwingUtilities.invokeLater(new Runnable () {
-                                                               public void run () {
-                                                                   if (isRootNotSetDlg) {
-                                                                       isRootNotSetDlg = false;
-                                                                       TopManager.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.cannotSetDirectory"), new Object[] { badDir } )));
-                                                                       isRootNotSetDlg = true;
-                                                                   }
-                                                               }
-                                                           });
-                    rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint()));
-                    lastRootDir = rootDirTextField.getText();
-                }
+                changeRootDir(selected);
             }
         });
+    }
+    
+    private void changeRootDir(String selected) {
+        File root = new File(selected);
+        try{
+            fileSystem.setRootDirectory(root);
+            //rootDirTextField.setText(selected);
+            String cmd = (String) autoFillVars.get("ROOTDIR");
+            if (cmd != null) autoFillVariables(cmd);
+            if (lastRootDir != null && !selected.equals(lastRootDir)) {
+                lastRootDir = selected;
+                if (!(new File(selected, relMountTextField.getText()).exists())) {
+                    relMountTextField.setText("");
+                    relMountPointChanged();
+                }
+            }
+        } catch (PropertyVetoException veto){
+            javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    if (isRootNotSetDlg) {
+                        isRootNotSetDlg = false;
+                        TopManager.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
+                        isRootNotSetDlg = true;
+                    }
+                }
+            });
+            //fileSystem.debug(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD"));
+            //E.err(veto,"setRootDirectory() failed"); // NOI18N
+            rootDirTextField.setText(VcsFileSystem.substractRootDir(fileSystem.getRootDirectory().toString(), fileSystem.getRelativeMountPoint()));
+            lastRootDir = rootDirTextField.getText();
+        } catch (IOException e){
+            //E.err(e,"setRootDirectory() failed");
+            final String badDir = root.toString();
+            javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    if (isRootNotSetDlg) {
+                        isRootNotSetDlg = false;
+                        TopManager.getDefault().notify(new NotifyDescriptor.Message(MessageFormat.format(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.cannotSetDirectory"), new Object[] { badDir } )));
+                        isRootNotSetDlg = true;
+                    }
+                }
+            });
+            rootDirTextField.setText(VcsFileSystem.substractRootDir(fileSystem.getRootDirectory().toString(), fileSystem.getRelativeMountPoint()));
+            lastRootDir = rootDirTextField.getText();
+        }
     }
 
     private void refreshChanged () {
