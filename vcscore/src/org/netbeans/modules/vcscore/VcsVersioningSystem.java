@@ -132,6 +132,36 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         addPropertyChangeListener(new FSPropertyChangeListener());
     }
 
+    /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
+     * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)
+     * This method does a similar stuff to VcsFileSystem.createReference()
+     * @param fo is FileObject. It`s reference you require to get.
+     * @return Reference to FileObject
+     */
+    protected java.lang.ref.Reference createReference(final FileObject fo) {
+        java.lang.ref.Reference ref = super.createReference(fo); // It's crucial to call the super!
+        FileCacheProvider cache = fileSystem.getCacheProvider();
+	if (cache != null) {
+            ref = cache.createReference(fo);
+            final VcsFileSystem.IgnoreListSupport ignSupport = fileSystem.getIgnoreListSupport();
+            if (ignSupport != null) {
+                final String path = fo.getPackageNameExt('/','.');
+                if (cache.isDir (path)) {
+                    fileSystem.addCreateIgnoreList(fo);
+                }
+            }
+	}
+	return ref;
+    }
+    
+    /**
+     * Get the delegated file system.
+     * Just to be able to access this method in this package.
+     */
+    protected FileSystem getFileSystem() {
+        return fileSystem;
+    }
+    
     /*
     public AbstractFileSystem.List getList() {
         return fileSystem.getVcsList();

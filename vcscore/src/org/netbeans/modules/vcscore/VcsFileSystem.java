@@ -1146,7 +1146,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static ArrayList createIgnoreListQueue = new ArrayList();
     private static Thread ignoreListCreationThread = null;
     
-    private static void addCreateIgnoreList(FileObject fo) {
+    static void addCreateIgnoreList(FileObject fo) {
         synchronized (createIgnoreListQueue) {
             if (createIgnoreListQueue == null) createIgnoreListQueue = new ArrayList();
             createIgnoreListQueue.add(fo);
@@ -1180,8 +1180,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         try {
                             fs = fo.getFileSystem();
                         } catch (FileStateInvalidException fsiexc) {}
-                        if (fs == null || !(fs instanceof VcsFileSystem)) continue;
-                        VcsFileSystem vfs = (VcsFileSystem) fs;
+                        VcsFileSystem vfs = null;
+                        if (fs == null || !(fs instanceof VcsFileSystem)) {
+                            if (fs instanceof VcsVersioningSystem) {
+                                vfs = (VcsFileSystem) ((VcsVersioningSystem) fs).getFileSystem();
+                            } else {
+                                continue;
+                            }
+                        } else {
+                            vfs = (VcsFileSystem) fs;
+                        }
                         IgnoreListSupport ignSupport = vfs.getIgnoreListSupport();
                         String path = fo.getPackageNameExt('/','.');
                         //System.out.println(" creating ignore list: "+fo);
