@@ -49,6 +49,7 @@ public class CommandNode extends AbstractNode {
     
     static {
         propertyClassTypes.put(VcsCommand.PROPERTY_ADVANCED_NAME, String.class);
+        propertyClassTypes.put(VcsCommand.PROPERTY_SUPPORTS_ADVANCED_MODE, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_CONFIRMATION_MSG, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG, String.class);
