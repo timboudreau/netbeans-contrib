@@ -39,7 +39,7 @@ import com.netbeans.enterprise.modules.corba.settings.*;
 *
 * @author Karel Gardas
 */
-public class IDLModule implements ModuleInstall {
+public class IDLModule extends ModuleInstall {
 
    private static final boolean DEBUG = false;
    //private static final boolean DEBUG = true;
@@ -265,15 +265,6 @@ public class IDLModule implements ModuleInstall {
       return null;
    }
 
-   /** Module was uninstalled. */
-   public void uninstalled() {
-   }
-   
-   /** Module is being closed. */
-   public boolean closing () {
-      return true; // agree to close
-   }
-
 
 // -----------------------------------------------------------------------------
 // Private methods
@@ -303,6 +294,8 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  18   Gandalf   1.17        10/1/99  Petr Hrebejk    org.openide.modules.ModuleInstall
+ *        changed to class + some methods added
  *  17   Gandalf   1.16        10/1/99  Karel Gardas    updates from CVS
  *  16   Gandalf   1.15        9/13/99  Jaroslav Tulach 
  *  15   Gandalf   1.14        8/7/99   Karel Gardas    changes in code which 
