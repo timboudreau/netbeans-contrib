@@ -77,10 +77,10 @@ public class CommandExecutorSupport extends Object {
     /**
      * Postprocess the command after it's execution.
      */
-    public static void postprocessCommand(CommandExecutionContext executionContext, VcsCommandExecutor vce) {
+    public static void postprocessCommand(CommandExecutionContext executionContext, final VcsCommandExecutor vce) {
         int exit = vce.getExitStatus();
-        VcsCommand cmd = vce.getCommand();
-        VcsFileSystem fileSystem;
+        final VcsCommand cmd = vce.getCommand();
+        final VcsFileSystem fileSystem;
         if (executionContext instanceof VcsFileSystem) {
             fileSystem = (VcsFileSystem) executionContext;
         } else {
@@ -91,10 +91,16 @@ public class CommandExecutorSupport extends Object {
             if (VcsCommandExecutor.SUCCEEDED == exit) {
                 checkForModifications(fileSystem, vce);
                 doRefresh(fileSystem, vce);
-                checkRevisionChanges(fileSystem, vce);
-                if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CLEAN_UNIMPORTANT_FILES_ON_SUCCESS)) {
-                    deleteUnimportantFiles(fileSystem, vce.getFiles());
-                }
+                RequestProcessor.getDefault().post(new Runnable() {
+                    // do that lazily, revision reload is waiting for the command,
+                    // this can cause deadlock if the command can not run in parallel with this one.
+                    public void run() {
+                        checkRevisionChanges(fileSystem, vce);
+                        if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CLEAN_UNIMPORTANT_FILES_ON_SUCCESS)) {
+                            deleteUnimportantFiles(fileSystem, vce.getFiles());
+                        }
+                    }
+                });
             } else {
                 Object refresh = cmd.getProperty(VcsCommand.PROPERTY_REFRESH_ON_FAIL);
                 if (VcsCommand.REFRESH_ON_FAIL_TRUE.equals(refresh)) {
