@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JEditorPane;
 import javax.swing.table.TableColumnModel;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
@@ -51,6 +54,7 @@ import org.openide.windows.WindowManager;
  * @author Tor Norbye 
  */
 public final class TLUtils {
+    private static Logger TASKLIST_LOGGER = null;
 
     /** Return the Line object for a particular line in a file
      */
@@ -759,5 +763,21 @@ public final class TLUtils {
         }
         
         return null;
+    }
+    
+    /**
+     * Creates a simple logger for the specified class. 
+     * Category of the logger will be equals to the class name.
+     *
+     * @param clazz the name of the class will be used for the logger's category
+     * @return logger
+     */
+    public static Logger getLogger(Class clazz) {
+        Logger logger = Logger.getLogger(clazz.getName());
+        ConsoleHandler ch = new ConsoleHandler();
+        ch.setLevel(Level.FINE);
+        logger.addHandler(ch);
+        logger.setLevel(Level.FINE);
+        return logger;
     }
 }

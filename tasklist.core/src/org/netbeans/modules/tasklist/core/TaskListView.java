@@ -426,10 +426,11 @@ public abstract class TaskListView extends TopComponent
 
         setLayout(new BorderLayout());
 
+        loadColumnsConfiguration();
+        
         centerPanel = new JPanel();
         centerPanel.setLayout(new BorderLayout());
         centerCmp = createCenterComponent();
-        loadColumnsConfiguration();
         
         centerPanel.add(centerCmp, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
@@ -1218,14 +1219,8 @@ for (int i = 0; i < columns.length; i++) {
         } catch (PropertyVetoException e) {
         }
 
-        if (filterEnabled && showStatusBar && filter.hasConstraints()) {
-            setRoot();
-            updateFilterCount();
-            //expandAll(); // [PENDING] Make this optional?
-        } else {
-            updateFilterCount();
-            setRoot();
-        }
+        setRoot();
+        updateFilterCount();
     }
 
     /**

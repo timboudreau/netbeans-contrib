@@ -43,7 +43,13 @@ public class PriorityPropertyEditor extends PropertyEditorSupport {
     }
 
     public String getAsText() {
-        return TAGS[getIntValue() - 1];
+        Object v = getValue();
+        if (v instanceof SuggestionPriority) {
+            int value = ((SuggestionPriority) v).intValue();
+            return TAGS[value - 1];
+        } else {
+            return "";
+        }
     }
 
     public void setAsText(String text) throws java.lang.IllegalArgumentException {
@@ -64,27 +70,18 @@ public class PriorityPropertyEditor extends PropertyEditorSupport {
     }
 
     public void paintValue(java.awt.Graphics gfx, java.awt.Rectangle box) {
-        gfx.translate(box.x, box.y);
-        LABEL.setForeground(PriorityListCellRenderer.COLORS[getIntValue() - 1]);
-        LABEL.setText(getAsText());
-        LABEL.setSize(box.width, box.height);
-        LABEL.paint(gfx);
-        gfx.translate(-box.x, -box.y);
+        Object v = getValue();
+        if (v instanceof SuggestionPriority) {
+            gfx.translate(box.x, box.y);
+            int value = ((SuggestionPriority) v).intValue();
+            LABEL.setForeground(PriorityListCellRenderer.COLORS[value - 1]);
+            LABEL.setText(getAsText());
+            LABEL.setSize(box.width, box.height);
+            LABEL.paint(gfx);
+            gfx.translate(-box.x, -box.y);
+        }
     }
 
-    /**
-     * Returns value as integer
-     *
-     * @return value
-     */
-    private int getIntValue() {
-        Object v = getValue();
-        if (v instanceof SuggestionPriority)
-            return ((SuggestionPriority) v).intValue();
-        else
-            return SuggestionPriority.LOW.intValue();
-    }
-    
     public String[] getTags() {
         return TAGS;
     }
