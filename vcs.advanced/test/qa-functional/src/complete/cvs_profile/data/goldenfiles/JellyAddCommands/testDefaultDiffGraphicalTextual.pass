@@ -1,0 +1,12 @@
+!!!! ==== Comparing revisions: 1.1 and 1.2 ==== !!!!
+1c1
+< Line 1
+---
+> Line 2
+2a3
+> Line 4
+
+!!!! ==== Comparing revisions: 1.2 and 1.3 ==== !!!!
+0a1
+> Line 1
+

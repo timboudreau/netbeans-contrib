@@ -1,0 +1,12 @@
+==== Patch between: 1.2 and 1.3 ====
+Index: diffdir/difffile
+diff -c diffdir/difffile:1.2 diffdir/difffile:1.3
+*** diffdir/difffile:1.2
+--- diffdir/difffile
+***************
+*** 1,3 ****
+--- 1,4 ----
++ Line 1
+  Line 2
+  Line 3
+  Line 4
