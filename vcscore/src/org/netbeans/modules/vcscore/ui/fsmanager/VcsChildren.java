@@ -20,6 +20,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.Collection;
 import java.util.ResourceBundle;
+import javax.swing.Action;
 import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.netbeans.modules.vcscore.registry.FSRegistryEvent;
@@ -176,6 +177,10 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
             return info;
         }
         
+        public Action getPreferredAction() {
+            return VcsManager.getInstance().getCustomizeAction();
+        }
+    
         /** This method gets called when an info property is changed.
          * @param evt A PropertyChangeEvent object describing the event source
          *   	and the property that has changed.

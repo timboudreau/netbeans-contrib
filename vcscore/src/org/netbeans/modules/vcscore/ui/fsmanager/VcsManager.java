@@ -58,16 +58,18 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
     /** generated Serialized Version UID */
     static final long serialVersionUID = -3249241888704331940L;
     
+    private static VcsManager instance;
+    
     private Node node = null;
     private ExplorerManager manager = null;
     private Node.Property[] properties;
     
     /** Creates new VcsManager */
-    public VcsManager() {
+    private VcsManager() {
         initComponents();
         treeTableView1.setPopupAllowed(false);
         treeTableView1.setRootVisible(false);
-        treeTableView1.setDefaultActionAllowed(false);
+        treeTableView1.setDefaultActionAllowed(true);
         treeTableView1.setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         properties = new Node.Property[]{
             new PropertySupport.ReadOnly(
@@ -102,6 +104,14 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         initActions();
         getExplorerManager().addPropertyChangeListener(this);
         initAccessibility();
+    }
+    
+    /** Get the instance of VcsManager */
+    public static synchronized VcsManager getInstance() {
+        if (instance == null) {
+            instance = new VcsManager();
+        }
+        return instance;
     }
     
     /** This method is called from within the constructor to
@@ -241,12 +251,18 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         if(node == null)
             node = new VcsNode();
         return node;
-    }        
+    }
+    
+    private CustomizeAction customizeAction;
             
     private void initActions(){
         newButton.setAction(new RecognizeAction());
         removeButton.setAction(new UnrecognizeAction());
-        editButton.setAction(new CustomizeAction());
+        editButton.setAction(customizeAction = new CustomizeAction());
+    }
+    
+    public Action getCustomizeAction() {
+        return customizeAction;
     }
     
     public void propertyChange(PropertyChangeEvent e) {

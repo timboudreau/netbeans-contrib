@@ -31,7 +31,6 @@ public class VcsManagerAction extends CallableSystemAction {
     /** generated Serialized Version UID */
     static final long serialVersionUID = -3240759228704433330L;
     
-    private VcsManager manager = null;
     private Dialog dlg;
 
     /** Human presentable name of the action. This should be
@@ -84,9 +83,7 @@ public class VcsManagerAction extends CallableSystemAction {
     }
     
     private VcsManager getVcsManager(){
-        if(manager == null)
-            manager = new VcsManager();
-        return manager;
+        return VcsManager.getInstance();
     }
     
     protected boolean asynchronous(){
