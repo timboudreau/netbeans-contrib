@@ -14,7 +14,19 @@ Microsystems, Inc. All Rights Reserved.
 
 <mconfig name="qa-functional tests config">
 
-    <testbag testattribs="validation, full" name="cvs_profile_2">
+    <testbag testattribs="validation" name="validation_test">
+        <testset dir="qa-functional/src">
+            <patternset>
+    		<include name="complete/common/Availability.class"/>
+    		<include name="complete/common/FilesystemSettings.class"/>
+                <include name="complete/cvs_profile/JellyOverall.class"/>
+    		<include name="complete/pvcs_profile/MountPVCSFilesystem.class"/>
+    		<include name="complete/vss_profile/MountVSSFilesystem.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+
+    <testbag testattribs="full" name="cvs_profile">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyBranch.class"/>
@@ -23,17 +35,8 @@ Microsystems, Inc. All Rights Reserved.
             </patternset>
         </testset>
     </testbag>
-<!--    
-    <testbag testattribs="validation, full" name="cvs_profile">
-        <testset dir="qa-functional/src">
-            <patternset>
-		<include name="complete/cvs_profile/Overall.class"/>
-		<include name="complete/cvs_profile/Branch.class"/>
-            </patternset>
-        </testset>
-    </testbag>
--->
-    <testbag testattribs="validation, full" name="common_functionality">
+
+        <testbag testattribs="full" name="common_functionality">
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/common/Availability.class"/>
@@ -42,7 +45,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
     
-    <testbag testattribs="validation, full" name="pvcs_profile">
+    <testbag testattribs="full" name="pvcs_profile">
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/pvcs_profile/MountPVCSFilesystem.class"/>
@@ -51,7 +54,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
     
-    <testbag testattribs="validation, full" name="vss_profile">
+    <testbag testattribs="full" name="vss_profile">
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/vss_profile/MountVSSFilesystem.class"/>
