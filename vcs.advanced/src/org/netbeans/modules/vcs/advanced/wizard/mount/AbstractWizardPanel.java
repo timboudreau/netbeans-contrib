@@ -19,26 +19,13 @@ import org.openide.loaders.TemplateWizard;
  *
  * @author  Tomas Zezula
  */
-public abstract class AbstractWizardPanel extends javax.swing.JPanel implements org.openide.WizardDescriptor.FinishPanel {
+public abstract class AbstractWizardPanel implements org.openide.WizardDescriptor.FinishPanel {
 
     private java.util.ArrayList listeners_;
     
     /** Creates new AbstractWizardPanel */
     public AbstractWizardPanel() {
         this.listeners_ = new java.util.ArrayList ();
-    }
-    
-    
-    public void addNotify() {
-        super.addNotify();
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                java.awt.Container c = getTopLevelAncestor();
-                if (c instanceof java.awt.Window) {
-                    ((java.awt.Window) c).pack();
-                }
-            }
-        });
     }
     
     public synchronized void addChangeListener(javax.swing.event.ChangeListener listener) {
@@ -64,11 +51,7 @@ public abstract class AbstractWizardPanel extends javax.swing.JPanel implements 
         wizIter = (MountWizardIterator) wizard.getIterator(wizard.getTemplate());
         MountWizardData mountData = wizIter.getData();
         storeWizardSettings (mountData);
-    }
-    
-    public java.awt.Component getComponent() {
-        return this;
-    }    
+    }        
     
     protected abstract void storeWizardSettings (MountWizardData data);
     
