@@ -126,6 +126,12 @@ public class GeneralVcsSettings extends ContextSystemOption {
                 home = homeDrive + homeDir;
             }
         }
+        if (home == null) {
+            home = System.getProperty("user.home");
+            File fhome = new File(home);
+            setHome(fhome);
+            return fhome;
+        }
         return new File(home);
     }
     
