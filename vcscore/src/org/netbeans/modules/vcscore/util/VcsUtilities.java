@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -21,10 +21,12 @@ import java.awt.*;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.io.NbObjectInputStream;
+import org.openide.util.io.NbObjectOutputStream;
 
 /** Miscelaneous stuff.
  * 
- * @author Michal Fadljevic
+ * @author Michal Fadljevic, Martin Entlicher
  */
 //-------------------------------------------
 public class VcsUtilities {
@@ -661,6 +663,63 @@ public class VcsUtilities {
             tmpDir.mkdirs();
         }
         return tmpDir;
+    }
+    
+    /**
+     * Encodes Object into String encoded in HEX format
+     * @param value Object, which will be encoded
+     * @return  serialized Object in String encoded in HEX format
+     * @throws IOException
+     */                
+    public static String encodeValue(Object value) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream oos = new NbObjectOutputStream(bos);
+            oos.writeObject(value);
+            oos.close();
+        } catch (SecurityException se) {
+            throw (IOException) org.openide.TopManager.getDefault().getErrorManager().annotate(new IOException (), se);
+        }
+        byte bArray[] = bos.toByteArray();
+        StringBuffer strBuff = new StringBuffer(bArray.length*2);
+        for(int i = 0; i < bArray.length;i++) {
+            if (bArray[i] < 16 && bArray[i] >= 0) strBuff.append("0");// NOI18N
+            strBuff.append(Integer.toHexString((bArray[i] < 0) ? (bArray[i]+256) : bArray[i]));
+        }
+        return strBuff.toString();
+    }
+
+    /**
+     * Creates serialized object, which was encoded in HEX format
+     * @param value Encoded serialized object in HEX format
+     * @return Created object from encoded HEX format
+     * @throws IOException
+     */            
+    public static Object decodeValue(String value) throws IOException {
+        if ((value == null) || (value.length() == 0)) return null;
+
+        byte[] bytes = new byte[value.length()/2];
+        int tempI;
+        int count = 0;
+        for (int i = 0; i < value.length(); i += 2) {
+            try {
+                tempI = Integer.parseInt(value.substring(i,i+2),16);
+                if (tempI > 127) tempI -=256;
+                bytes[count++] = (byte) tempI;
+            } catch (NumberFormatException ne) {
+                throw (IOException) org.openide.TopManager.getDefault().getErrorManager().annotate(new IOException (), ne);
+            }
+        }
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes, 0, count);
+        try {
+            ObjectInputStream ois = new NbObjectInputStream(bis);
+            Object ret = ois.readObject();
+            return ret;
+        } catch (OptionalDataException ode) {
+            throw (IOException) org.openide.TopManager.getDefault().getErrorManager().annotate(new IOException (), ode);
+        } catch (ClassNotFoundException cnfe) {
+            throw (IOException) org.openide.TopManager.getDefault().getErrorManager().annotate(new IOException (), cnfe);
+        }
     }
 
 }
