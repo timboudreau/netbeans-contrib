@@ -21,6 +21,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.openide.ErrorManager;
 
+import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.cmdline.exec.ExternalCommand;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -64,19 +65,21 @@ public class PCLICommand implements VcsAdditionalCommand, VcsAdditionalCommand.I
         this.stderrListener = stderrListener;
         this.stdoutDataListener = stdoutDataListener;
         this.stderrDataListener = stderrDataListener;
-        if (dataRegex != null) {
-            try {
-                this.dataRegex = Pattern.compile(dataRegex);
-            } catch (PatternSyntaxException psex) {
-                ErrorManager.getDefault().notify(psex);
-            }
+        if (dataRegex == null) {
+            dataRegex = ExecuteCommand.DEFAULT_REGEX;
         }
-        if (errorRegex != null) {
-            try {
-                this.errorRegex = Pattern.compile(errorRegex);
-            } catch (PatternSyntaxException psex) {
-                ErrorManager.getDefault().notify(psex);
-            }
+        if (errorRegex == null) {
+            errorRegex = ExecuteCommand.DEFAULT_REGEX;
+        }
+        try {
+            this.dataRegex = Pattern.compile(dataRegex);
+        } catch (PatternSyntaxException psex) {
+            ErrorManager.getDefault().notify(psex);
+        }
+        try {
+            this.errorRegex = Pattern.compile(errorRegex);
+        } catch (PatternSyntaxException psex) {
+            ErrorManager.getDefault().notify(psex);
         }
         try {
             return executor.runCommand(this);
