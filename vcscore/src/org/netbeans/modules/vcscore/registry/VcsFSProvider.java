@@ -84,6 +84,10 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
         for (int i = 0; i < infos.length; i++) {
             FSInfo fsInfo = infos[i];
             FileSystem fs = fsInfo.getFileSystem();
+            if (fs == null) {
+                FSRegistry.getDefault().unregister(fsInfo); // remove invalid FS Infos
+                continue;
+            }
             try {
                 mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fs);
                 fsInfo.addPropertyChangeListener(VcsFSProvider.this);
@@ -223,7 +227,10 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
                     try {
                         if (fsInfo.isControl()) {
                             //System.out.println("Unmounting "+fsInfo.getFileSystem());
-                            mountSupport.unmount(fsInfo.getFileSystem());
+                            FileSystem fs = fsInfo.getFileSystem();
+                            if (fs != null) {
+                                mountSupport.unmount(fs);
+                            }
                         }
                     } catch (IOException ioex) {
                         ErrorManager.getDefault().notify(ioex);
@@ -241,10 +248,13 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
                 FSInfo fsInfo = (FSInfo) source;
                 if (mountSupport != null) {
                     try {
-                        if (!fsInfo.isControl()) {
-                            mountSupport.unmount(fsInfo.getFileSystem());
-                        } else {
-                            mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fsInfo.getFileSystem());
+                        FileSystem fs = fsInfo.getFileSystem();
+                        if (fs != null) {
+                            if (!fsInfo.isControl()) {
+                                mountSupport.unmount(fs);
+                            } else {
+                                mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fs);
+                            }
                         }
                     } catch (IOException ioex) {
                         ErrorManager.getDefault().notify(ioex);
@@ -260,7 +270,10 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
                     try {
                         if (fsInfo.isControl()) {
                             //System.out.println("new info path is "+fsInfo.getFSRoot()+", FS path is "+org.openide.filesystems.FileUtil.toFile(fsInfo.getFileSystem().getRoot()).getAbsolutePath());
-                            mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fsInfo.getFileSystem());
+                            FileSystem fs = fsInfo.getFileSystem();
+                            if (fs != null) {
+                                mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fs);
+                            }
                         }
                     } catch (IOException ioex) {
                         ErrorManager.getDefault().notify(ioex);
@@ -275,10 +288,12 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
         FSInfo fsInfo = ev.getInfo();
         try {
             FileSystem fs = fsInfo.getFileSystem();
-            mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fs);
-            fsInfo.addPropertyChangeListener(VcsFSProvider.this);
-            fsInfo.addVetoableChangeListener(VcsFSProvider.this);
-            mountedFSNotify(fs);
+            if (fs != null) {
+                mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fs);
+                fsInfo.addPropertyChangeListener(VcsFSProvider.this);
+                fsInfo.addVetoableChangeListener(VcsFSProvider.this);
+                mountedFSNotify(fs);
+            }
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
         }
@@ -289,10 +304,12 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
         FSInfo fsInfo = ev.getInfo();
         try {
             FileSystem fs = fsInfo.getFileSystem();
-            mountSupport.unmount(fs);
-            fsInfo.removePropertyChangeListener(VcsFSProvider.this);
-            fsInfo.removeVetoableChangeListener(VcsFSProvider.this);
-            unmountedFSNotify(fs);
+            if (fs != null) {
+                mountSupport.unmount(fs);
+                fsInfo.removePropertyChangeListener(VcsFSProvider.this);
+                fsInfo.removeVetoableChangeListener(VcsFSProvider.this);
+                unmountedFSNotify(fs);
+            }
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
         }

@@ -62,6 +62,9 @@ public interface FSInfo extends Serializable {
     /**
      * Get the filesystem instance. This method should create the filesystem
      * if necessary. If the filesystem is still in use, return the same instance.
+     * When null is returned, this FS info is discarded.
+     * @return The filesystem instance or <code>null</code>, when the filesystem
+     *         can not be retrieved or is no longer valid (e.g. it's setting was lost).
      */
     public FileSystem getFileSystem();
     

@@ -352,7 +352,10 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
             FSInfo info = (FSInfo)((FSInfoBeanNode) selectedNodes[0]).getInfo();
             if(info == null)
                 return;
-            FileSystem vcsFs = info.getFileSystem();            
+            FileSystem vcsFs = info.getFileSystem();  
+            if (vcsFs == null) {
+                return ;
+            }
             try {
                 BeanNode bn = new BeanNode(vcsFs);
                 Component cust = bn.getCustomizer();
