@@ -1230,59 +1230,57 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void saveAsButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsButtonActionPerformed
         // Add your handling code here:
-        FileObject dir = fileSystem.getConfigRootFO();
+        final FileObject dir = fileSystem.getConfigRootFO();
         ConfigSaveAsDialog chooseFile = new ConfigSaveAsDialog(new JFrame(), true, dir);
         VcsUtilities.centerWindow (chooseFile);
         chooseFile.show();
-        String selected=chooseFile.getSelectedFile ();
+        final String selected=chooseFile.getSelectedFile ();
         if (selected == null) return;
-        String configLabel = chooseFile.getSelectedConfigLabel();
-        FileObject file = dir.getFileObject(selected, VariableIO.CONFIG_FILE_EXT);
-        boolean configExists = false;
-        //String profileName = selected + "." + VariableIO.CONFIG_FILE_EXT;
-        if (file == null) {
-            try {
-                file = dir.createData(selected, VariableIO.CONFIG_FILE_EXT);
-            } catch(IOException e) {
-                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(g("MSG_CanNotCreateFile", selected+"."+VariableIO.CONFIG_FILE_EXT)));
-                //E.err("Can not create file '"+selected+"'");
-                return;
-            }
-        } else {
-            if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
-                DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Confirmation (g("DLG_OverwriteSettings", file.getName()),
-                                                 NotifyDescriptor.Confirmation.YES_NO_OPTION)))
-            ) {
-                return;
-            }
-            configExists = true;
-        }
-        Vector variables = fileSystem.getVariables ();
-        CommandsTree commands = fileSystem.getCommands();
-        if (configLabel == null || configLabel.length() == 0) configLabel = selected;
-        ProfilesFactory profilesFactory = ProfilesFactory.getDefault();
-        try {
-            profilesFactory.addProfile(selected, configLabel,
-                                       fileSystem.getCompatibleOSs(), fileSystem.getUncompatibleOSs(),
-                                       new ConditionedVariables(variables, Collections.EMPTY_MAP, Collections.EMPTY_MAP),
-                                       new ConditionedCommandsBuilder(commands).getConditionedCommands());
-        } catch (IOException ioex) {
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(g("MSG_CanNotCreateFile", selected+"."+VariableIO.CONFIG_FILE_EXT)));
-            return ;
-        }
-        //cache.addProfile(selected, configLabel, variables, commands,
-        //                 fileSystem.getCompatibleOSs(), fileSystem.getUncompatibleOSs(), true);
-        fileSystem.setConfig (configLabel);
-        fileSystem.setConfigFileName(file.getNameExt());
-        if (!configExists) {
-            promptForConfigComboChange = false;
-            updateConfigurations ();
-            javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    promptForConfigComboChange = true;
+        String selectedLabel = chooseFile.getSelectedConfigLabel();
+        if (selectedLabel == null || selectedLabel.length() == 0) selectedLabel = selected;
+        final String configLabel = selectedLabel;
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                FileObject file = dir.getFileObject(selected, VariableIO.CONFIG_FILE_EXT);
+                boolean configExists = false;
+                //String profileName = selected + "." + VariableIO.CONFIG_FILE_EXT;
+                if (file != null) {
+                    if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
+                        DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Confirmation (g("DLG_OverwriteSettings", file.getName()),
+                                                         NotifyDescriptor.Confirmation.YES_NO_OPTION)))
+                    ) {
+                        return;
+                    }
+                    configExists = true;
                 }
-            });
-        }
+                Vector variables = fileSystem.getVariables ();
+                CommandsTree commands = fileSystem.getCommands();
+                ProfilesFactory profilesFactory = ProfilesFactory.getDefault();
+                Profile profile;
+                try {
+                    profile = profilesFactory.addProfile(selected, configLabel,
+                        fileSystem.getCompatibleOSs(), fileSystem.getUncompatibleOSs(),
+                        new ConditionedVariables(variables, Collections.EMPTY_MAP, Collections.EMPTY_MAP),
+                        new ConditionedCommandsBuilder(commands).getConditionedCommands());
+                } catch (IOException ioex) {
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(g("MSG_CanNotCreateFile", selected+"."+VariableIO.CONFIG_FILE_EXT)));
+                    return ;
+                }
+                //cache.addProfile(selected, configLabel, variables, commands,
+                //                 fileSystem.getCompatibleOSs(), fileSystem.getUncompatibleOSs(), true);
+                fileSystem.setConfig (configLabel);
+                fileSystem.setConfigFileName(profile.getName());
+                if (!configExists) {
+                    promptForConfigComboChange = false;
+                    updateConfigurations ();
+                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            promptForConfigComboChange = true;
+                        }
+                    });
+                }
+            }
+        });
     }//GEN-LAST:event_saveAsButtonActionPerformed
 
     private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-FIRST:event_configComboItemStateChanged

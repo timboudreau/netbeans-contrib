@@ -128,6 +128,10 @@ public final class ProfilesFactory extends Object {
             //StringBuffer compatibleOSs = new StringBuffer();
             //StringBuffer uncompatibleOSs = new StringBuffer();
             String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name);
+            if (labelAndOSs == null) {
+                profileNames.remove(i--);
+                continue;
+            }
             String label = labelAndOSs[0];
             profileLabels.add(label);
             profileLabelsByName.put(name, label);
@@ -186,7 +190,7 @@ public final class ProfilesFactory extends Object {
         String osName = System.getProperty ("os.name"); // NOI18N
         Set compatible = (Set) compatibleOSsByName.get(profileName);
         Set uncompatible = (Set) uncompatibleOSsByName.get(profileName);
-        if (compatible == null || uncompatible == null) return false;
+        if (compatible == null || uncompatible == null) return true;
         if (compatible.contains(osName)) return true;
         if (uncompatible.contains(osName)) return false;
         if (org.openide.util.Utilities.isUnix() && compatible.contains("Unix") ||
@@ -227,14 +231,15 @@ public final class ProfilesFactory extends Object {
                                            Set compatibleOSs, Set uncompatibleOSs,
                                            ConditionedVariables variables,
                                            ConditionedCommands commands) throws IOException {
-        FileObject profileFile = profileRoot.createData(name);
+        FileObject profileFile = profileRoot.createData(name, VariableIO.CONFIG_FILE_EXT);
+        name = profileFile.getNameExt();
+        profileNames.add(name);
         profileLabels.add(displayName);
         profileLabelsByName.put(name, displayName);
         compatibleOSsByName.put(name, compatibleOSs);
         uncompatibleOSsByName.put(name, uncompatibleOSs);
-        Profile profile = new ProfilesFactory.ProfileImpl(profileFile);
-        profile.setVariables(variables);
-        profile.setCommands(commands);
+        Profile profile = new ProfilesFactory.ProfileImpl(profileFile, variables, commands);
+        profilesByName.put(name, new WeakReference(profile));
         return profile;
     }
     
@@ -242,15 +247,27 @@ public final class ProfilesFactory extends Object {
     public class ProfileImpl extends Profile implements FileChangeListener {
         
         private String profileName;
-        private String fileName; // profile name without the extension
         private Condition[] conditions;
         private ConditionedVariables variables;
         private ConditionedCommands commands;
         private ConditionedCommands globalCommands;
         
+        public ProfileImpl(FileObject profileFile, ConditionedVariables variables,
+                           ConditionedCommands commands) {
+            this(profileFile);
+            this.variables = variables;
+            this.commands = commands;
+            try {
+                saveConfig();
+            } catch (org.w3c.dom.DOMException exc) {
+                ErrorManager.getDefault().notify(exc);
+            } catch (java.io.IOException ioexc) {
+                ErrorManager.getDefault().notify(ioexc);
+            }
+        }
+        
         public ProfileImpl(FileObject profileFile) {
             this.profileName = profileFile.getNameExt();
-            this.fileName = profileFile.getName();
             profileFile.addFileChangeListener(WeakListener.fileChange(this, profileFile));
         }
         
@@ -418,13 +435,17 @@ public final class ProfilesFactory extends Object {
         private void saveConfig() throws org.w3c.dom.DOMException, java.io.IOException {
             org.w3c.dom.Document doc = org.openide.xml.XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, null, null);
             String profileDisplayName = (String) profileLabelsByName.get(profileName);
-            ConditionIO.writeConditions(doc, conditions);
+            if (conditions != null) {
+                ConditionIO.writeConditions(doc, conditions);
+            }
             VariableIO.writeVariables(doc, profileDisplayName, variables,
                                       (Set) compatibleOSsByName.get(profileName),
                                       (Set) uncompatibleOSsByName.get(profileName));
             UserCommandIO.writeCommands(doc, commands);
-            UserCommandIO.writeGlobalCommands(doc, globalCommands);
-            FileObject file = profileRoot.getFileObject(fileName, VariableIO.CONFIG_FILE_EXT);
+            if (globalCommands != null) {
+                UserCommandIO.writeGlobalCommands(doc, globalCommands);
+            }
+            FileObject file = profileRoot.getFileObject(profileName);//, VariableIO.CONFIG_FILE_EXT);
             if (file != null) {
                 org.openide.filesystems.FileLock lock = null;
                 try {
@@ -541,8 +562,12 @@ public final class ProfilesFactory extends Object {
          */
         public void fileDataCreated(FileEvent fileEvent) {
             FileObject newData = fileEvent.getFile();
+            if (newData.getSize() == 0L) return ; // Ignore an empty file
             String name = newData.getNameExt();
             String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name);
+            if (labelAndOSs == null) {
+                return ;
+            }
             String label = labelAndOSs[0];
             synchronized (ProfilesFactory.this) {
                 profileNames.add(name);

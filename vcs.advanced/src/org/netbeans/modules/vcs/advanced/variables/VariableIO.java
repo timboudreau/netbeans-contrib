@@ -284,6 +284,9 @@ public class VariableIO extends Object {
         } catch (java.io.IOException ioExc) {
         }
         //System.out.println("  --> label = "+labelContentHandler.getLabel());
+        if (labelContentHandler.getLabel() == null) {
+            return null;
+        }
         String[] labelAndOS = new String[3];
         labelAndOS[0] = VcsUtilities.getBundleString(labelContentHandler.getLabel());
         labelAndOS[1] = labelContentHandler.getCompatibleOSs();
