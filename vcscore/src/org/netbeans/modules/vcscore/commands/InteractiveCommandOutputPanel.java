@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import org.netbeans.modules.vcscore.ui.OutputPanel;
 import org.openide.util.NbBundle;
 
 /**
@@ -20,7 +21,8 @@ import org.openide.util.NbBundle;
  *
  * @author  Martin Entlicher
  */
-class InteractiveCommandOutputPanel extends CommandOutputPanel {
+//class InteractiveCommandOutputPanel extends CommandOutputPanel {
+class InteractiveCommandOutputPanel extends OutputPanel{
     
     private javax.swing.JLabel inputStringLabel;
     private javax.swing.JTextField inputStringTextField;
@@ -94,7 +96,7 @@ class InteractiveCommandOutputPanel extends CommandOutputPanel {
     }
     
     public void commandFinished(boolean isFinished) {
-        super.commandFinished(isFinished);
+    //    super.commandFinished(isFinished);
         if (isFinished) {
             inputStringLabel.setEnabled(false);
             inputStringTextField.setEnabled(false);

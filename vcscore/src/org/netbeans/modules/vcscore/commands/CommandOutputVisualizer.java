@@ -17,6 +17,8 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
+
+
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -30,9 +32,11 @@ import org.openide.windows.WindowManager;
 import org.openide.windows.Workspace;
 
 import org.netbeans.api.vcs.commands.CommandTask;
+import org.netbeans.modules.vcscore.ui.OutputPanel;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
+import org.openide.windows.Mode;
 
 /**
  * The default visualizer of command output.
@@ -52,11 +56,13 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     private static RequestProcessor outputDisplayRequestProcessor;
     private static Hashtable outputDisplayStuff;
 
-    private CommandOutputPanel outputPanel;
+    //private CommandOutputPanel outputPanel;
+    private OutputPanel outputPanel;
     private ArrayList closeListeners = new ArrayList();
     private CommandTask task;
     private VcsCommandExecutor vce;
     private java.awt.event.ActionListener killListener = null;
+       
     private java.awt.event.ActionListener closeWrapperListener = null;
     
     private static final long serialVersionUID = -8901790341334731237L;
@@ -79,13 +85,16 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         this();
         this.killListener = killListener;
         outputPanel.addKillActionListener(this.killListener);
-        outputPanel.setExec(execString);
+     //   outputPanel.setExec(execString);      
         setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
                 new Object[] { name }));
+       
     }
     
-    protected CommandOutputPanel createOutputPanel() {
-        return new CommandOutputPanel();
+   // protected CommandOutputPanel createOutputPanel() {
+    protected OutputPanel createOutputPanel(){
+        //return new CommandOutputPanel();
+        return new OutputPanel();
     }
     
     private void initComponents() {
@@ -96,7 +105,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(outputPanel, gridBagConstraints);
-        outputPanel.setStatus(org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandExitStatus.running"));
+      //  outputPanel.setStatus(org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandExitStatus.running"));
         getAccessibleContext().setAccessibleName(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSN_CommandOutputVisualizer"));
         getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSD_CommandOutputVisualizer"));
     }
@@ -106,7 +115,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         this.vce = task.getExecutor();
         killListener = new CommandKillListener(this.task);
         outputPanel.addKillActionListener(killListener);
-        outputPanel.setExec(vce.getExec());
+    //    outputPanel.setExec(vce.getExec());
         String title;
         String commandName = vce.getCommand().getDisplayName();
         if (commandName == null || commandName.length() == 0)
@@ -164,24 +173,26 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
                 outputPanel.addKillActionListener(killListener);
             }
         }
+	
     }
 
     /**
      * Open the component on the given workspace.
      */
-    public void open(Workspace workspace) {
-        super.open(workspace);
-        requestFocus();
+    public void open() {
+        CommandOutputTopComponent out = CommandOutputTopComponent.getInstance();
+        out.addVisualizer(getDisplayName(),this, true);
+        out.open();
     }
 
     protected void componentActivated() {
         super.componentActivated();
-        outputPanel.componentActivated();
+   //     outputPanel.componentActivated();
     }
     
     protected void componentDeactivated() {
         super.componentDeactivated();
-        outputPanel.componentDeactivated();
+  //      outputPanel.componentDeactivated();
     }
     
     /**
@@ -238,7 +249,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
      */
     public void stdOutputData(final String[] data) {
         // to prevent deadlocks, append output in the AWT thread
-        appendLineToArea(outputPanel.getStdDataOutputArea(), VcsUtilities.arrayToString(data));
+ //       appendLineToArea(outputPanel.getStdDataOutputArea(), VcsUtilities.arrayToString(data));
     }
     
     /**
@@ -246,11 +257,11 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
      */
     public void errOutputData(final String[] data) {
         // to prevent deadlocks, append output in the AWT thread
-        appendLineToArea(outputPanel.getErrDataOutputArea(), VcsUtilities.arrayToString(data));
+  //      appendLineToArea(outputPanel.getErrDataOutputArea(), VcsUtilities.arrayToString(data));
     }
     
     public void setExitStatus(int exit) {
-        outputPanel.setStatus(CommandProcessor.getExitStatusString(exit));
+   //     outputPanel.setStatus(CommandProcessor.getExitStatusString(exit));
         outputPanel.commandFinished(true);
         if (closeWrapperListener != null) {
             outputPanel.addKillActionListener(closeWrapperListener);

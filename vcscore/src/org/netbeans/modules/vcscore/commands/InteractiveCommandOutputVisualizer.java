@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import org.netbeans.modules.vcscore.ui.OutputPanel;
+
 /**
  * The interactive visualizer of command output with an ability to provide input.
  *
@@ -31,7 +33,8 @@ public class InteractiveCommandOutputVisualizer extends CommandOutputVisualizer 
         this.immediateErr = new ImmediateError();
     }
     
-    protected CommandOutputPanel createOutputPanel() {
+   // protected CommandOutputPanel createOutputPanel() {
+    protected OutputPanel createOutputpanel(){
         this.interactivePanel = new InteractiveCommandOutputPanel();
         return interactivePanel;
     }
