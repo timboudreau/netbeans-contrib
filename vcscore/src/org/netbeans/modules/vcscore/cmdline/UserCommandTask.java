@@ -143,6 +143,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                 dir = diskFiles[0];
             }
         }
+        if (dir.isFile()) dir = dir.getParentFile();
         return dir;
     }
     
@@ -155,13 +156,15 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         if (dirListener != null) {
             String file = (String) vars.get("FILE");
             String dir = (String) vars.get("DIR");
+            String path = dir;
             if (dir.length() > 0) {
-                dir += Variables.expand(vars, "${PS}", false) + file;
+                path += Variables.expand(vars, "${PS}", false) + file;
             } else {
-                dir = file;
+                path = file;
             }
+            if (fileSystem.getFile(path).isFile()) path = dir;
             vars.put("FILE", "");
-            vars.put("DIR", dir);
+            vars.put("DIR", path);
             this.cmd.setAdditionalVariables(vars);
             //System.out.println("\n\ncreateRefresh(), MODULE = "+vars.get("MODULE")+", DIR = "+vars.get("DIR"));
             return new CommandLineVcsDirReader(dirListener, fileSystem, uCmd, vars);
