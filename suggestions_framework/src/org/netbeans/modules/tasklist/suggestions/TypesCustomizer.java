@@ -98,6 +98,7 @@ public class TypesCustomizer extends javax.swing.JPanel
         activeLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "ActiveTypes")); // NOI18N();
         */
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 2, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(activeLabel, gridBagConstraints);
 
@@ -108,8 +109,8 @@ public class TypesCustomizer extends javax.swing.JPanel
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 2, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
         add(typeDescLabel, gridBagConstraints);
 
         descTextArea.setEditable(false);
@@ -150,8 +151,10 @@ public class TypesCustomizer extends javax.swing.JPanel
           I can see them when visually editing the GUI.
         */
 
-        Mnemonics.setLocalizedText(activeLabel, activeLabel.getText());
-        Mnemonics.setLocalizedText(typeDescLabel, typeDescLabel.getText());
+        Mnemonics.setLocalizedText(activeLabel, 
+          NbBundle.getMessage(TypesCustomizer.class, "ActiveTypes")); // NOI18N
+        Mnemonics.setLocalizedText(typeDescLabel, 
+          NbBundle.getMessage(TypesCustomizer.class, "TypeDesc")); // NOI18N
         
         this.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(TypesCustomizer.class, "ACSD_TypesCustomizer")); // NOI18N
