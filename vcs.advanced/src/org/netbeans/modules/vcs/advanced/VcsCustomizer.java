@@ -22,7 +22,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.text.*;
-import javax.swing.filechooser.*;
 
 import org.openide.*;
 import org.openide.util.*;
@@ -1108,26 +1107,18 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         {
             try
             {
+                File defDir = new File(System.getProperty("user.home"));  // NOI18N
                 if (Utilities.isUnix())
-                    rootDirFile = new File(System.getProperty("user.home"));
+                    rootDirFile = defDir;
                 else if (Utilities.isWindows())
                 {
-                    FileSystemView fsView = FileSystemView.getFileSystemView();
-                    rootDirFile = fsView.getRoots()[0].listFiles()[0];
-/*                    for (int i = 0; i < desktopFiles.length; i++)
-                        if (fsView.isComputerNode(desktopFiles[i]))
-                        {
-                            File[] files = desktopFiles[i].listFiles();
-                            for (int j = 0; j < files.length; j++)
-                            {
-                                if (fsView.isDrive(files[j]) && fsView.isFloppyDrive(files[j]) == false)
-                                {
-                                    rootDirFile = files[j];
-                                    break;
-                                }
-                            }
-                            break;
-                        }*/
+                    do
+                    {
+                        defDir = defDir.getParentFile();
+                    }
+                    while (defDir != null && defDir.getParentFile() != null);
+                    if (defDir != null)
+                        rootDirFile = defDir;
                 }
             }
             catch (Exception ex)
