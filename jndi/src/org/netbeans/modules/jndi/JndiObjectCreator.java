@@ -124,6 +124,7 @@ final class JndiObjectCreator {
                 strName = enum.nextElement().toString();
             else
                 strName = strName+"/"+enum.nextElement().toString(); // No I18N    
+            System.out.println(strName);
         }
         if (strName == null)
             strName = "";	// No I18N

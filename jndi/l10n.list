@@ -1,1 +1,13 @@
 jndi/src/org/netbeans/modules/jndi/Bundle.properties
+jndi/javahelp/org/netbeans/modules/jndi/docs/credits.html
+jndi/javahelp/org/netbeans/modules/jndi/docs/jndi_intro.html
+jndi/javahelp/org/netbeans/modules/jndi/docs/concepts/jndi_concepts_basics.html
+jndi/javahelp/org/netbeans/modules/jndi/docs/concepts/jndi_concepts_procs.html
+jndi/javahelp/org/netbeans/modules/jndi/docs/jndibrowser/jndi_jndibrowser_addprovider.html
+jndi/javahelp/org/netbeans/modules/jndi/docs/jndibrowser/jndi_jndibrowser_commands.html
+jndi/javahelp/org/netbeans/modules/jndi/docs/jndibrowser/jndi_jndibrowser_connect.html
+jndi/javahelp/org/netbeans/modules/jndi/docs/jndibrowser/jndi_jndibrowser_generating.html
+jndi/javahelp/org/netbeans/modules/jndi/docs/settings/jndi_settings.html
+jndi/javahelp/org/netbeans/modules/jndi/docs/jndi-idx.xml
+jndi/javahelp/org/netbeans/modules/jndi/docs/jndi-toc.xml
+jndi/javahelp/org/netbeans/modules/jndi/docs/jndi.hs
