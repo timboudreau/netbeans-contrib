@@ -41,8 +41,11 @@ public class RefreshModePropertyEditor extends PropertyEditorSupport {
     /** localized string*/
     private final static String RESTART = bundle.getString("RefreshModePropertyEditor.recursOnRestart");
 
+    /** localized string*/
+    private final static String MOUNT_AND_RESTART = bundle.getString("RefreshModePropertyEditor.recursOnMountAndRestart");
+
     /** array of hosts */
-    private static final String[] modes = {NO_REFRESH, DIR_BASED, MOUNT, RESTART};
+    private static final String[] modes = {NO_REFRESH, DIR_BASED, MOUNT, RESTART, MOUNT_AND_RESTART};
 
     /** @return names of the supported LookAndFeels */
     public String[] getTags() {
@@ -53,7 +56,7 @@ public class RefreshModePropertyEditor extends PropertyEditorSupport {
     public String getAsText () {
         Integer mode = (Integer) getValue();
         int index = mode.intValue();
-        if (index < 0 || index > 3) {
+        if (index < 0 || index > 4) {
             return NO_REFRESH;
         }
         return modes[index];
@@ -75,6 +78,10 @@ public class RefreshModePropertyEditor extends PropertyEditorSupport {
         }
         if (text.equals(RESTART)) {
             setValue(new Integer(3));
+            return;
+        }
+        if (text.equals(MOUNT_AND_RESTART)) {
+            setValue(new Integer(4));
             return;
         }
         throw new IllegalArgumentException ();
