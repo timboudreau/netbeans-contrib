@@ -26,24 +26,23 @@ import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
 import org.openide.cookies.OpenCookie;
 
+import org.netbeans.modules.vcscore.actions.VSRevisionAction;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.netbeans.modules.vcscore.VcsFileSystem;
+//import org.netbeans.modules.vcscore.VcsFileSystem;
 
 /**
  *
  * @author  Martin Entlicher
  */
-public class RevisionNode extends AbstractNode implements OpenCookie, java.io.Serializable {
+public class RevisionNode extends AbstractNode implements OpenCookie {
 
     private static final String ICON_BRANCH = "/org/netbeans/modules/vcscore/revision/branchIcon";
     //private static final String ICON_OPEN_BRANCH = "/org/openide/resources/defaultFolderOpen.gif";
     private static final String ICON_REVISION = "/org/netbeans/modules/vcscore/revision/revisionIcon";
     private static final String ICON_REVISION_CURRENT = "/org/netbeans/modules/vcscore/revision/revisionCurrentIcon";
 
-    private String fileName = "Class.java";
     private RevisionItem item = null;
     private RevisionList list = null;
-    private boolean fileNode = false;
     
     /** Creates new RevisionNode */
     public RevisionNode(RevisionList list, RevisionChildren ch) {
@@ -61,6 +60,7 @@ public class RevisionNode extends AbstractNode implements OpenCookie, java.io.Se
     public RevisionNode(RevisionList list, RevisionItem item) {
         super(Children.LEAF);
         setName(item.getRevisionVCS());
+        setDisplayName(item.getDisplayName());
         init(list, item);
     }
     
@@ -71,42 +71,24 @@ public class RevisionNode extends AbstractNode implements OpenCookie, java.io.Se
         setIcon();
     }
     
-    /*
-    public static RevisionNode createInstance(RevisionList list, RevisionItem item) {
-        return new RevisionNode(list, item);
-    }
-
-    public static RevisionNode createInstance(RevisionChildren children) {
-        return new RevisionNode(children);
-    }
-     */
-    
     private void addCookies() {
-        if (!isFileNode()) {
-            if (item != null && !item.isBranch()) {
-                getCookieSet().add(this);
-            }
+        if (item != null && !item.isBranch()) {
+            getCookieSet().add(this);
         }
     }
     
     private void setIcon() {
-        if (!isFileNode()) {
-            if (item != null && !item.isBranch()) {
-                //System.out.println("setIconBase("+getName()+", "+getDisplayName()+") = "+ICON_REVISION);
-                if (item.isCurrent()) {
-                    setIconBase(ICON_REVISION_CURRENT);
-                } else {
-                    setIconBase(ICON_REVISION);
-                }
+        if (item != null && !item.isBranch()) {
+            //System.out.println("setIconBase("+getName()+", "+getDisplayName()+") = "+ICON_REVISION);
+            if (item.isCurrent()) {
+                setIconBase(ICON_REVISION_CURRENT);
             } else {
-                //System.out.println("setIconBase("+getName()+", "+getDisplayName()+") = "+ICON_BRANCH);
-                setIconBase(ICON_BRANCH);
+                setIconBase(ICON_REVISION);
             }
         } else {
             //System.out.println("setIconBase("+getName()+", "+getDisplayName()+") = "+ICON_BRANCH);
             setIconBase(ICON_BRANCH);
         }
-        //return super.getIcon(type);
     }
     
     public void refreshIcons() {
@@ -121,6 +103,8 @@ public class RevisionNode extends AbstractNode implements OpenCookie, java.io.Se
     
     public void setItem(RevisionItem item) {
         this.item = item;
+        setName(item.getRevisionVCS());
+        setDisplayName(item.getDisplayName());
         addCookies();
         setIcon();
     }
@@ -129,15 +113,6 @@ public class RevisionNode extends AbstractNode implements OpenCookie, java.io.Se
         return item;
     }
     
-    public void setFileNode(boolean fileNode) {
-        this.fileNode = fileNode;
-        setIcon();
-    }
-    
-    protected boolean isFileNode() {
-        //return (getParentNode() == null);
-        return fileNode;//(item == null);
-    }
     /*
     public String getFileName() {
         return this.fileName;
@@ -172,7 +147,7 @@ public class RevisionNode extends AbstractNode implements OpenCookie, java.io.Se
     public Sheet createSheet() {
         Sheet sheet = Sheet.createDefault();
         Sheet.Set set = sheet.get(Sheet.PROPERTIES);
-        if (item == null || isFileNode()) set.put(new PropertySupport.Name(this));
+        if (item == null) set.put(new PropertySupport.Name(this));
         if (item != null) createProperties(item, set);
         return sheet;
     }
@@ -252,33 +227,37 @@ public class RevisionNode extends AbstractNode implements OpenCookie, java.io.Se
     public SystemAction [] getActions() {
         ArrayList actions = new ArrayList();
         VersioningSystem vs = getVersioningSystem();
-        if (isFileNode()) {
-            SystemAction[] foActions = vs.getActions(list.getFileObject());
-            if (foActions != null) {
-                for(int i = 0; i < foActions.length; i++) actions.add(foActions[i]);
-            }
-            actions.add(null);
-            actions.add(SystemAction.get(PropertiesAction.class));
-        } else {
-            SystemAction[] revActions = vs.getRevisionActions(list.getFileObject());
+        //SystemAction[] revActions = vs.getRevisionActions(list.getFileObject());
+        if (getCookie(OpenCookie.class) != null) {
             actions.add(SystemAction.get(OpenAction.class));
-            if (revActions != null && revActions.length > 0) {
-                actions.add(null);
-                actions.addAll(Arrays.asList(revActions));
-            }
-            //actions.add(SystemAction.get(org.netbeans.modules.vcscore.revision.RevisionAction.class)); //new RevisionAction(fs, list.getFileObject()));
-            actions.add(null);
-            actions.add(SystemAction.get(PropertiesAction.class));
         }
+        actions.add(SystemAction.get(VSRevisionAction.class));
+        /*
+        if (revActions != null && revActions.length > 0) {
+            actions.add(null);
+            actions.addAll(Arrays.asList(revActions));
+        }
+         */
+        //actions.add(SystemAction.get(org.netbeans.modules.vcscore.revision.RevisionAction.class)); //new RevisionAction(fs, list.getFileObject()));
+        //actions.add(null);
+        actions.add(SystemAction.get(PropertiesAction.class));
         SystemAction[] array = new SystemAction [actions.size()];
         actions.toArray(array);
         return array;
     }
-        
+    
     public void open() {
         VersioningSystem vs = getVersioningSystem();
         //RevisionAction action = new RevisionAction(fs, getFileObject());
         //RevisionAction.openAction(item.getRevisionVCS(), vs, getFileObject());
+        VcsFileObject vfo = getFileObject();
+        final VersioningEditorSupport.VersioningEnvironment env = new VersioningEditorSupport.VersioningEnvironment(vfo, item.getRevisionVCS());
+        final VersioningEditorSupport editor = new VersioningEditorSupport(env);
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                editor.open();
+            }
+        });
     }
     
     private String g(String resource) {

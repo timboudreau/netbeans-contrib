@@ -30,7 +30,6 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     private String acceptField = "";
     private int numAcceptDots = 1;
     private RevisionList list = null;
-    private RevisionNode parentNode = null;
     private ChangeListener changeListenerToList;
     private Runnable initProcess = null;
     
@@ -71,16 +70,6 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
         super.addNotify();
     }
     
-    /*
-    public void setNode(RevisionNode node) {
-        parentNode = node;
-    }
-     */
-    
-    public RevisionNode getParentNode() {
-        return parentNode;
-    }
-    
     private void setAcceptField(String acceptField) {
         this.acceptField = acceptField;
     }
@@ -104,24 +93,22 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
         if (WAIT_KEY.equals(key)) {
             return new Node[] { createWaitingNode() };
         }
-        Node[] nodes = new Node[0]; //new Node[] { Node.EMPTY };
+        Node[] nodes; //new Node[] { Node.EMPTY };
         RevisionItem item = (RevisionItem) key;
         //System.out.println("createNodes("+item.getRevision()+")");
         if (accept(item)) {
             //System.out.println("isRevision = "+(item.isRevision() && !item.isBranch()));
             //if (item.isRevision() && !item.isBranch()) {
+            Node newNode;
             if (!list.containsSubRevisions(item.getRevision()) && !item.isBranch()) {
-                RevisionNode newNode = new RevisionNode(list, item);
-                nodes = new Node[] { newNode };
+                newNode = list.getNodeDelegate(item, null);
             } else {
                 RevisionChildren children = getChildrenFor(item);
-                RevisionNode node = new RevisionNode(children);
-                node.setName(item.getDisplayName());
-                node.setItem(item);
-                nodes = new Node[1]; // { node };
-                nodes[0] = node;
-                //list.fireChange();
+                newNode = list.getNodeDelegate(item, children);
             }
+            nodes = new Node[] { newNode };
+        } else {
+            nodes = new Node[0];
         }
         //if (nodes.length > 0) System.out.println("return node = "+nodes[0]);
         return nodes;

@@ -16,6 +16,8 @@ package org.netbeans.modules.vcscore.versioning;
 import java.util.*;
 import javax.swing.event.*;
 
+import org.openide.nodes.Node;
+
 /**
  *
  * @author  Martin Entlicher
@@ -25,12 +27,14 @@ public abstract class RevisionList extends TreeSet {
 
     private transient VcsFileObject fo = null; // The current File Object
     private transient Vector listeners;
+    private transient WeakHashMap nodeDelegates;
 
     static final long serialVersionUID = -8578787400541124223L;
     
     /** Creates new RevisionList */
     public RevisionList() {
         listeners = new Vector();
+        nodeDelegates = new WeakHashMap();
     }
     
     public void setFileObject(VcsFileObject fo) {
@@ -100,9 +104,31 @@ public abstract class RevisionList extends TreeSet {
         return listeners.remove(listener);
     }
     
+    public Node getNodeDelegate(RevisionItem item, RevisionChildren children) {
+        Node node = (Node) nodeDelegates.get(item);
+        if (node == null) {
+            node = createNodeDelegate(item, children);
+            nodeDelegates.put(item, node);
+        }
+        return node;
+    }
+    
+    protected Node createNodeDelegate(RevisionItem item, RevisionChildren children) {
+        RevisionNode node;
+        if (children == null || org.openide.nodes.Children.LEAF.equals(children)) {
+            node = new RevisionNode(this, item);
+        } else {
+            node = new RevisionNode(children);
+            node.setItem(item);
+        }
+        node.setDisplayName(item.getDisplayName());
+        return node;
+    }
+    
     private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, java.io.IOException, java.io.NotActiveException {
         in.defaultReadObject();
         listeners = new Vector();
+        nodeDelegates = new WeakHashMap();
     }
     
     /*
