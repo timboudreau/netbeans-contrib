@@ -17,6 +17,9 @@ import java.util.*;
 
 import org.openide.TopManager;
 import org.openide.nodes.Node;
+import org.openide.filesystems.RepositoryListener;
+import org.openide.filesystems.RepositoryEvent;
+import org.openide.filesystems.RepositoryReorderedEvent;
 //import org.openide.nodes.AbstractNode;
 //import org.openide.nodes.Children;
 
@@ -92,6 +95,20 @@ public class CommandsPool extends Object /*implements CommandListener */{
         fileSystem.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 RuntimeSupport.updateRuntime(runtimeNode, fileSystem.getDisplayName());
+            }
+        });
+        org.openide.TopManager.getDefault().getRepository().addRepositoryListener(new RepositoryListener() {
+            public void fileSystemAdded(RepositoryEvent ev) {}
+            public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {}
+            public void fileSystemRemoved(RepositoryEvent ev) {
+                if (ev.getFileSystem().equals(fileSystem)) {
+                    try {
+                        runtimeNode.destroy();
+                    } catch (java.io.IOException exc) {
+                        TopManager.getDefault().notifyException(exc);
+                    }
+                    ev.getRepository().removeRepositoryListener(this);
+                }
             }
         });
     }
@@ -170,7 +187,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         VcsCommand cmd = vce.getCommand();
         String name = cmd.getDisplayName();
-        if (name == null) name = cmd.getName();
+        if (name == null || name.length() == 0) name = cmd.getName();
         String exec = vce.getExec();
         fileSystem.debug(g("MSG_Command_preprocessing", name, exec));
         RuntimeSupport.addWaiting(runtimeNode, vce, this);
@@ -192,7 +209,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         VcsCommand cmd = vce.getCommand();
         waitToRun(cmd, vce.getFiles());
         String name = cmd.getDisplayName();
-        if (name == null) name = cmd.getName();
+        if (name == null || name.length() == 0) name = cmd.getName();
         TopManager.getDefault().setStatusText(g("MSG_Command_name_running", name));
         fileSystem.debug(g("MSG_Command_started", name, vce.getExec()));
         RuntimeSupport.addRunning(runtimeNode, vce, this);
@@ -225,7 +242,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         //System.out.println("command "+vce.getCommand()+" DONE.");
         VcsCommand cmd = vce.getCommand();
         String name = cmd.getDisplayName();
-        if (name == null) name = cmd.getName();
+        if (name == null || name.length() == 0) name = cmd.getName();
         synchronized (this) {
             commands.remove(vce);
             commandsFinished.add(vce);
@@ -352,6 +369,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 outputVisualizers.remove(vce);
             }
         });
+        if (isRunning(vce)) outputVisualizer.setCommandsPool(this);
         outputVisualizer.open();
         outputVisualizers.put(vce, outputVisualizer);
         outputCollector.addOutputListener(new CommandOutputListener() {
