@@ -22,16 +22,21 @@ import java.awt.Dialog;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.WeakHashMap;
 
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
 import org.openide.util.RequestProcessor;
 import org.openide.util.UserCancelException;
 
+import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 //import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.Variables;
@@ -399,34 +404,76 @@ public class CommandExecutorSupport extends Object {
     /**
      * Performs an automatic refresh after the command finishes.
      */
-    public static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
+    private static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
         doRefresh(fileSystem, vce, false);
     }
+    
+    /** The map of filesystems weakly referenced and correponding map of
+     * folders which are to be refreshed later. */
+    private static final Map foldersToRefreshByFilesystems = new WeakHashMap();
     
     /**
      * Performs an automatic refresh after the command finishes.
      */
-    public static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce, boolean foldersOnly) {
-        VcsCommand cmd = vce.getCommand();
-        //String dir = vce.getPath();
-        //String file = "";
-        boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
-        boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
-        /*
-        boolean doRefreshFiles = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PROCESSED_FILES);
-        if (doRefreshFiles) {
-            doRefreshFiles(fileSystem, vce.getFiles());
-        }
-         */
-        if (doRefreshCurrent || doRefreshParent) {
-            Collection files = vce.getFiles();
-            for(Iterator it = files.iterator(); it.hasNext(); ) {
-                String fullPath = (String) it.next();
-                String dir = VcsUtilities.getDirNamePart(fullPath);
-                String file = VcsUtilities.getFileNamePart(fullPath);
-                doRefresh(fileSystem, vce.getExec(), cmd, dir, file, foldersOnly,
-                          doRefreshCurrent, doRefreshParent);
+    private static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce, boolean foldersOnly) {
+        //System.out.println("doRefresh("+vce+", "+foldersOnly+")");
+        Map foldersToRefresh = getFoldersToRefresh(fileSystem, vce, foldersOnly);
+        //System.out.println("  have folders = "+foldersToRefresh);
+        synchronized (foldersToRefreshByFilesystems) {
+            boolean refreshLater = false;
+            CommandTask[] tasks = CommandProcessor.getInstance().getRunningCommandTasks();
+            for (int i = 0; i < tasks.length; i++) {
+                if (tasks[i] instanceof VcsDescribedTask) {
+                    if (vce.equals(((VcsDescribedTask) tasks[i]).getExecutor())) {
+                        //System.out.println("    detected myself, skipping...");
+                        continue;
+                    }
+                    VcsCommand cmd = ((VcsDescribedTask) tasks[i]).getVcsCommand();
+                    boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
+                    boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
+                    if (doRefreshCurrent || doRefreshParent) {
+                        //System.out.println("  Command "+cmd+" running, will refresh later...");
+                        refreshLater = true;
+                        break;
+                    }
+                }
             }
+            if (refreshLater) {
+                Map fsFoldresMap = (Map) foldersToRefreshByFilesystems.get(fileSystem);
+                if (fsFoldresMap == null) {
+                    fsFoldresMap = new TreeMap();
+                    foldersToRefreshByFilesystems.put(fileSystem, fsFoldresMap);
+                }
+                copyFoldersToRefresh(foldersToRefresh, fsFoldresMap);
+                foldersToRefresh = Collections.EMPTY_MAP;
+            } else {
+                Map fsFoldresMap = (Map) foldersToRefreshByFilesystems.remove(fileSystem);
+                if (fsFoldresMap != null) {
+                    copyFoldersToRefresh(fsFoldresMap, foldersToRefresh);
+                }
+            }
+        }
+        doRefresh(fileSystem, foldersToRefresh);
+    }
+    
+    private static void copyFoldersToRefresh(Map src, Map dest) {
+        for (Iterator it = src.keySet().iterator(); it.hasNext(); ) {
+            String folderName = (String) it.next();
+            Boolean srcRec = (Boolean) src.get(folderName);
+            Boolean destRec = (Boolean) dest.get(folderName);
+            if (!Boolean.TRUE.equals(destRec)) {
+                dest.put(folderName, srcRec);
+            }
+        }
+    }
+    
+    private static void doRefresh(VcsFileSystem fileSystem, Map foldersToRefresh) {
+        //System.out.println("doRefresh("+foldersToRefresh+")");
+        for (Iterator it = foldersToRefresh.keySet().iterator(); it.hasNext(); ) {
+            String folderName = (String) it.next();
+            Boolean rec = (Boolean) foldersToRefresh.get(folderName);
+            //System.out.println("Calling doRefresh("+folderName+", "+rec.booleanValue()+")");
+            doRefresh(fileSystem, folderName, rec.booleanValue());
         }
     }
     
@@ -462,15 +509,50 @@ public class CommandExecutorSupport extends Object {
         }
     }
     
-    private static void doRefresh(VcsFileSystem fileSystem, String exec, VcsCommand cmd,
-                                  String dir, String file, boolean foldersOnly,
-                                  boolean doRefreshCurrent, boolean doRefreshParent) {
+    /**
+     * Get the map of names of folders, that need to be refreshed as keys and
+     * a Boolean value of whether the refresh should be recursive or not as values.
+     */
+    private static Map getFoldersToRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce, boolean foldersOnly) {
+        Map foldersToRefresh = new TreeMap();
+        VcsCommand cmd = vce.getCommand();
+        boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
+        boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
+        //System.out.println("getFoldersToRefresh("+fileSystem+", "+vce+", "+foldersOnly+"), current = "+doRefreshCurrent+", parent = "+doRefreshParent);
+        if (doRefreshCurrent || doRefreshParent) {
+            Collection files = vce.getFiles();
+            //System.out.println("  files = "+files);
+            for(Iterator it = files.iterator(); it.hasNext(); ) {
+                String fullPath = (String) it.next();
+                String dir = VcsUtilities.getDirNamePart(fullPath);
+                String file = VcsUtilities.getFileNamePart(fullPath);
+                //System.out.println("  fullPath = "+fullPath+", dir = "+dir+", file = "+file);
+                Boolean recursively[] = { Boolean.FALSE };
+                String folderName = getFolderToRefresh(fileSystem, vce.getExec(),
+                                                       cmd, dir, file, foldersOnly,
+                                                       doRefreshCurrent, doRefreshParent,
+                                                       recursively);
+                if (folderName != null) {
+                    Boolean rec = (Boolean) foldersToRefresh.get(folderName);
+                    if (!Boolean.TRUE.equals(rec)) {
+                        foldersToRefresh.put(folderName, recursively[0]);
+                    }
+                }
+            }
+        }
+        return foldersToRefresh;
+    }
+    
+    private static String getFolderToRefresh(VcsFileSystem fileSystem, String exec,
+                                             VcsCommand cmd, String dir, String file,
+                                             boolean foldersOnly, boolean doRefreshCurrent,
+                                             boolean doRefreshParent, Boolean[] recursively) {
         FileCacheProvider cache = fileSystem.getCacheProvider();
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        if (statusProvider == null) return; // No refresh without a status provider
-        if((doRefreshCurrent || doRefreshParent) && fileSystem.getDoAutoRefresh(dir/*(String) vars.get("DIR")*/)) { // NOI18N
+        if (statusProvider == null) return null; // No refresh without a status provider
+        if (doRefreshCurrent || doRefreshParent) { // NOI18N
             //D.deb("Now refresh folder after CheckIn,CheckOut,Lock,Unlock... commands for convenience"); // NOI18N
-            fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
+            //fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
             String refreshPath = dir;//(String) vars.get("DIR");
             refreshPath.replace(java.io.File.separatorChar, '/');
             String refreshPathFile = refreshPath + ((refreshPath.length() > 0) ? "/" : "") + file; //(String) vars.get("FILE");
@@ -482,11 +564,17 @@ public class CommandExecutorSupport extends Object {
                                        || (!cache.isDir(refreshPathFile) && !fileSystem.folder(refreshPathFile))))
                 && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
                     || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
+            recursively[0] = (rec) ? Boolean.TRUE : Boolean.FALSE;
+            //System.out.println("  !foldersOnly = "+(!foldersOnly)+", cache.isDir("+refreshPath+") = "+cache.isDir(refreshPath));
             if (!foldersOnly || cache.isDir(refreshPath)) {
-                doRefresh(fileSystem, refreshPath, rec);
+                //System.out.println("  CALLING REFRESH!");
+                return refreshPath;
+            } else {
+                return null;
             }
+        } else {
+            return null;
         }
-        if (!(doRefreshCurrent || doRefreshParent)) fileSystem.removeNumDoAutoRefresh(dir); //(String)vars.get("DIR")); // NOI18N
     }
     
     public static void checkRevisionChanges(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
