@@ -403,20 +403,24 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     private boolean gettingSourceSafeFiles = false;
     private boolean gettingDifferentFiles = false;
     private String lastFileName = "";
+    private String diffingFolder;
     private VcsDirContainer lastFilesCont = null;
     
     private void removeLocalFiles() {
+        //System.out.println("REMOVE LOCAL FILES: lastFileName = '"+lastFileName+"', lastFilesCont = "+lastFilesCont);
         if (lastFileName == null || lastFilesCont == null) return ;
         Hashtable filesByName = (Hashtable) lastFilesCont.getElement();
         Collection currentFiles = filesByName.keySet();
         while (lastFileName.length() > 0) {
             String fileName = VssListCommand.getFileFromRow(currentFiles, lastFileName);
             currentFiles.remove(fileName.trim());
+            //System.out.println("  removed: '"+fileName.trim()+"'");
             lastFileName = lastFileName.substring(fileName.length());
         }
     }
     
     private void flushLastFile() {
+        //System.out.println("FLUSING LAST FILE: lastFileName = '"+lastFileName+"', lastFilesCont = "+lastFilesCont);
         if (lastFileName == null || lastFileName.length() == 0 || lastFilesCont == null) return ;
         if (gettingSourceSafeFiles) {
             Hashtable filesByName = (Hashtable) lastFilesCont.getElement();
@@ -428,6 +432,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
             }
             filesByName.put(fileName, statuses);
             statuses[1] = VssListCommand.STATUS_MISSING;
+            //System.out.println("FLUSHING FILE: "+java.util.Arrays.asList(statuses));
             lastFileName = "";
         } else if (gettingDifferentFiles) {
             Hashtable filesByName = (Hashtable) lastFilesCont.getElement();
@@ -439,6 +444,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
             }
             filesByName.put(fileName, statuses);
             statuses[1] = VssListCommand.STATUS_LOCALLY_MODIFIED;
+            //System.out.println("FLUSHING FILE: "+java.util.Arrays.asList(statuses));
             lastFileName = "";
         } else if (gettingLocalFiles) {
             removeLocalFiles();
@@ -471,54 +477,63 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
             folder = (lastFilesCont.getPath().length() > 0) ? (lastFilesCont.getPath() + '/' + folder) : folder;
             VcsDirContainer subDir = lastFilesCont.addSubdir(folder);
             readLocalFiles(folder, subDir);
+        } else if (file.startsWith(AGAINST) && diffingPathFollows) {
+            diffingFolder = diffingFolder.trim();
+            diffingFolder = diffingFolder.substring(PROJECT_PATH.length()); // remove "/$"
+            diffingFolder = diffingFolder.replace(File.separatorChar, '/');
+            if (diffingFolder.startsWith(relDir)) {
+                diffingFolder = diffingFolder.substring(relDir.length());
+                if (diffingFolder.startsWith("/")) diffingFolder = diffingFolder.substring(1);
+            }
+            lastFilesCont = getFilesContainer(diffingFolder);
+            //System.out.println("AGAINST, end diffing folder '"+diffingFolder+"'");
+            diffingPathFollows = false;
+            gettingLocalFiles = false;
+            gettingSourceSafeFiles = false;
+            gettingDifferentFiles = false;
         } else if (file.startsWith(DIFFING) || diffingPathFollows) {
+            //System.out.print("DIFFING: '");
             flushLastFile();
             gettingFolders = false;
-            String folder;
+            // The folder might be divided !!! Like: Diffing: $/Java Project '\n'1/src/...
             if (diffingPathFollows) {
-                folder = file;
-                diffingPathFollows = false;
+                diffingFolder += file;
             } else {
-                folder = file.substring(DIFFING.length());
+                diffingFolder = file.substring(DIFFING.length()) + " ";
+                // If the name contains a space, the line is broken at that space
+                // If not, it's trimmed
             }
-            if (folder.length() == 0) {
-                diffingPathFollows = true;
-            } else {
-                folder = folder.trim();
-                folder = folder.substring(PROJECT_PATH.length()); // remove "/$"
-                folder = folder.replace(File.separatorChar, '/');
-                if (folder.startsWith(relDir)) {
-                    folder = folder.substring(relDir.length());
-                    if (folder.startsWith("/")) folder = folder.substring(1);
-                }
-                lastFilesCont = getFilesContainer(folder);
+            //System.out.println(""+diffingFolder+"");
+            diffingPathFollows = true;
+        } else if (LOCAL_FILES.equals(file)) {
+            //System.out.println("getting local files...");
+            gettingLocalFiles = true;
+        } else if (SOURCE_SAFE_FILES.equals(file)) {
+            //System.out.println("getting source safe files...");
+            flushLastFile();
+            gettingLocalFiles = false;
+            gettingDifferentFiles = false;
+            gettingSourceSafeFiles = true;
+        } else if (DIFFERENT_FILES.equals(file)) {
+            //System.out.println("getting different files...");
+            flushLastFile();
+            gettingLocalFiles = false;
+            gettingSourceSafeFiles = false;
+            gettingDifferentFiles = true;
+        } else if (line.trim().length() == 0) {
+            if (lastFileName.length() > 0) {
+                flushLastFile();
                 gettingLocalFiles = false;
                 gettingSourceSafeFiles = false;
                 gettingDifferentFiles = false;
             }
-        } else if (LOCAL_FILES.equals(file)) {
-            gettingLocalFiles = true;
-        } else if (SOURCE_SAFE_FILES.equals(file)) {
-            if (gettingLocalFiles) {
-                removeLocalFiles();
-                gettingLocalFiles = false;
-            }
-            gettingSourceSafeFiles = true;
-        } else if (DIFFERENT_FILES.equals(file)) {
-            if (gettingLocalFiles) {
-                removeLocalFiles();
-                gettingLocalFiles = false;
-            }
-            flushLastFile();
-            gettingSourceSafeFiles = false;
-            gettingDifferentFiles = true;
         } else if (gettingLocalFiles) {
             lastFileName += line;
         } else if (gettingSourceSafeFiles || gettingDifferentFiles) {
             if (line.startsWith("  ")) {
                 flushLastFile();
-                lastFileName += line;
             }
+            lastFileName += line;
         }
     }
     
