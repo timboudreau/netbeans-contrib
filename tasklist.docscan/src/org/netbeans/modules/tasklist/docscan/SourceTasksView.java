@@ -57,7 +57,6 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
-import org.netbeans.spi.project.ui.support.LogicalViews;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.SourceGroup;
