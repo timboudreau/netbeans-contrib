@@ -2630,7 +2630,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="SELECTOR_REVISIONS">
         <property name="exec">
-          <value>vcs.commands.CvsRevisionSelector.class "ResourceMsg1(TITLE_CVS_SELECTOR_REVISION)" LOG_INFO_CMD</value>
+          <value>vcs.commands.CvsRevisionSelector.class "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(TITLE_CVS_SELECTOR_REVISION)" LOG_INFO_CMD</value>
 	</property>
         <property name="executionPriority">
           <value>1</value> <!-- HIGH PRIORITY -->
@@ -2638,7 +2638,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="SELECTOR_BRANCHES">
         <property name="exec">
-          <value>vcs.commands.CvsRevisionSelector.class -b "ResourceMsg1(TITLE_CVS_SELECTOR_BRANCH)" LOG_INFO_CMD</value>
+          <value>vcs.commands.CvsRevisionSelector.class -b "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(TITLE_CVS_SELECTOR_BRANCH)" LOG_INFO_CMD</value>
 	</property>
         <property name="executionPriority">
           <value>1</value> <!-- HIGH PRIORITY -->
