@@ -84,6 +84,7 @@ public class VcsGroupNode extends AbstractNode {
     protected SystemAction[] createActions() {
         Node[] childs = getChildren().getNodes();
         Set actions = new HashSet();
+        HashMap map = new HashMap();
         List actionsList = new LinkedList();
         if (childs != null) {
             for (int i = 0; i < childs.length; i++) {
@@ -97,25 +98,34 @@ public class VcsGroupNode extends AbstractNode {
                             if (!acts[m].getClass().equals(org.netbeans.modules.vcscore.actions.AddToGroupAction.class)) {
                                 actions.add(acts[m]);
                                 actionsList.add(acts[m]);
+                                LinkedList lst = (LinkedList)map.get(acts[m]);
+                                if (lst == null) {
+                                    lst = new LinkedList();
+                                    map.put(acts[m], lst);
+                                }
+                                lst.add(childs[i]);
                             }
                         }
                         
                     }
                 } catch (FileStateInvalidException exc) {
-                    System.out.println("fileystateinvalid..");
+//                    System.out.println("fileystateinvalid..");
                 }
+            }
+        }
+        // now check if the actions are enabled on all the nodes... if not.. remove them
+        Iterator actIt = map.keySet().iterator();
+        while (actIt.hasNext()) {
+            Object act = actIt.next();
+            LinkedList list = (LinkedList)map.get(act);
+            if (list != null) {
+                if (list.size() != childs.length) {
+                    actions.remove(act);
+                }
+            } else {
+                actions.remove(act);
             }
             
-/*                SystemAction[] acts = childs[i].getActions();
-                for (int m =0; m < acts.length; m++) {
-                    System.out.println("group action class=" + acts[m]);
-                    if (acts[m] instanceof FileSystemAction) {
-                        System.out.println("adding filesystem action");
-                        actions.add(acts[m]);
-                    }
-                }
-            }
- */
         }
         SystemAction[] toReturn;
 /*        if (actions.size() > 1) {
