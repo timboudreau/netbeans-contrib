@@ -13,7 +13,11 @@
 
 package org.netbeans.modules.clazz;
 
+import org.netbeans.jmi.javamodel.CallableFeature;
 import org.openide.src.*;
+import org.netbeans.jmi.javamodel.Constructor;
+import org.netbeans.jmi.javamodel.JavaClass;
+import org.netbeans.jmi.javamodel.Parameter;
 
 /** Implementation of the constructor element for class objects.
 * It's simple bridge to the java reflection Constructor, delegates
@@ -32,18 +36,26 @@ class ConstructorElementImpl extends MemberElementImpl
     private static final ClassJavaDocImpl.Method METHOD_JAVADOC_IMPL = new ClassJavaDocImpl.Method();
     
     static final long serialVersionUID =5714347955571851240L;
-    /** Default constructor, asocitates this object
-    * with java reflection Constructor instance.
-    */
-    public ConstructorElementImpl (final org.netbeans.modules.classfile.Method data) {
+    
+    ConstructorElementImpl (final CallableFeature data ) {
         super(data);
     }
-
+    
+    CallableFeature getBehavioral() {
+        return (CallableFeature)data;
+    }
+    
     /** @return the array specifying the parameters
     */
     public MethodParameter[] getParameters () {
         if (parameters == null) {
-            parameters = new Util.SignatureToType(((org.netbeans.modules.classfile.Method)data).getDescriptor()).getMethodParameters();
+            Parameter[] pars = (Parameter[])getBehavioral().getParameters().toArray(new Parameter[0]);
+            MethodParameter[] mp = new MethodParameter[pars.length];
+            for (int i = 0; i < pars.length; i++) {
+                Parameter p=pars[i];
+                mp[i] = new MethodParameter(p.getName(), Util.createType(p.getType()), p.isFinal());
+            }
+            parameters = mp;
         }
         return parameters;
     }
@@ -51,9 +63,8 @@ class ConstructorElementImpl extends MemberElementImpl
     protected Identifier createName(Object data) {
 	if (this instanceof MethodElementImpl) {
 	    return super.createName(data);
-	}
-	String n = ((ConstructorElement)element).getDeclaringClass().getName().getSourceName();
-	return Identifier.create(n);
+	}    
+        return Identifier.create(((JavaClass)(getBehavioral().getDeclaringClass())).getName());
     }
 
     /** Unsupported, throws SourceException
@@ -66,17 +77,11 @@ class ConstructorElementImpl extends MemberElementImpl
     */
     public Identifier[] getExceptions () {
         if (exceptions == null) {
-            org.netbeans.modules.classfile.CPClassInfo[] reflEx = ((org.netbeans.modules.classfile.Method)data).getExceptionClasses();
-            // obtain via reflection
-            //if (data instanceof org.netbeans.modules.classfile.Method)
-            //reflEx = ((org.netbeans.modules.classfile.Method)data).getExceptionClasses();
-            //XXX
-            //else
-            //    reflEx = ((Constructor)data).getExceptionTypes();
+            JavaClass[] reflEx = (JavaClass[])getBehavioral().getExceptions().toArray(new JavaClass[0]);
             exceptions = new Identifier[reflEx.length];
             // build our exception types
             for (int i = 0; i < reflEx.length; i++) {
-                exceptions[i] = Identifier.create(reflEx[i].getClassName().getExternalName());
+                exceptions[i] = Identifier.create(Util.createClassName(reflEx[i].getName()));
             }
         }
         return exceptions;
@@ -110,23 +115,4 @@ class ConstructorElementImpl extends MemberElementImpl
     public Object readResolve() {
         return new ConstructorElement(this, null);
     }
-
 }
-
-/*
-* Log
-*  10   src-jtulach1.9         1/13/00  David Simonek   i18n
-*  9    src-jtulach1.8         11/27/99 Patrik Knakal   
-*  8    src-jtulach1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
-*       Microsystems Copyright in File Comment
-*  7    src-jtulach1.6         6/9/99   Petr Hrebejk    Empty JavaDoc 
-*       implementation added.
-*  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  5    src-jtulach1.4         3/15/99  Petr Hamernik   
-*  4    src-jtulach1.3         2/17/99  Petr Hamernik   serialization changed.
-*  3    src-jtulach1.2         2/10/99  David Simonek   
-*  2    src-jtulach1.1         2/3/99   David Simonek   
-*  1    src-jtulach1.0         1/22/99  David Simonek   
-* $
-*/

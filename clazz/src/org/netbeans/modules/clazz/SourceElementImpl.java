@@ -13,19 +13,22 @@
 
 package org.netbeans.modules.clazz;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
 import java.lang.ref.SoftReference;
-
-import org.openide.util.Task;
-import org.openide.nodes.Node;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import org.netbeans.jmi.javamodel.JavaClass;
+import org.netbeans.jmi.javamodel.JavaPackage;
+import org.netbeans.jmi.javamodel.Resource;
+import org.netbeans.modules.classfile.ClassFile;
+import org.netbeans.modules.javacore.api.JavaMetamodel;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
+import org.openide.nodes.Node;
 import org.openide.src.*;
-
-import org.netbeans.modules.classfile.ClassFile;
+import org.openide.util.Task;
+import org.openide.util.TaskListener;
 
 /** The implementation of source element for class objects.
 * This class is final only for performance reasons,
@@ -34,7 +37,7 @@ import org.netbeans.modules.classfile.ClassFile;
 * @author Dafe Simonek, Jan Jancura
 */
 final class SourceElementImpl extends MemberElementImpl
-    implements SourceElement.Impl, ElementProperties, Node.Cookie {
+    implements SourceElement.Impl, ElementProperties, Node.Cookie, TaskListener {
 
     private static final Map EMPTY_MAP = Collections.unmodifiableMap(new HashMap(0));
     
@@ -52,26 +55,27 @@ final class SourceElementImpl extends MemberElementImpl
     private ClassDataObject cdo;
 
     private ClassLoader loader;
-
+    
+    Task    loadingTask;
+    
+    int     status = -1;
+    
+    private transient boolean attached;
+    
     static final long serialVersionUID =-4870331896218546842L;
-
-    /** Creates object with asociated class and no class data object.
-     *  This SourceElements contain always only one top-level class,
-     *  specified by the `data' parameter.
-     */
-    SourceElementImpl (ClassLoader loader, ClassFile data) {
-        this(data, null);
-        this.loader = loader;
+    
+    SourceElementImpl (ClassDataObject cdo) {
+        this((Resource)null, cdo);
     }
-
+        
     /** Creates object with asociated class and with asociated
     * class data object which created this source element (can be null).
     */
-    public SourceElementImpl (ClassFile data, ClassDataObject cdo) {
-        super(data);
+    public SourceElementImpl (Resource res, ClassDataObject cdo) {
+        super(res);
         this.cdo = cdo;
     }
-    
+        
     public void setClassObject(ClassFile data) {
         ClassFile oldData = (ClassFile)this.data;
         int oldStatus;
@@ -83,8 +87,9 @@ final class SourceElementImpl extends MemberElementImpl
             topClass = null;
             allClasses = null;
             newStatus = getStatus();
+            loadingTask = null;
         }
-        if (oldData != null || data != null) {
+        if (oldStatus != SourceElement.STATUS_NOT) {
             firePropertyChange(PROP_CLASSES, null, null);
             firePropertyChange(PROP_ALL_CLASSES, null, null);
         }
@@ -96,17 +101,23 @@ final class SourceElementImpl extends MemberElementImpl
     public void setPackage (Identifier id) throws SourceException {
         throwReadOnlyException();
     }
+    
+    Resource getResource() {
+        checkData();
+        return (Resource)data;
+    }
 
     /** @return The package of class which we are representing.
     */
     public Identifier getPackage () {
-        if (data == null)
+        if (getResource() == null)
             return null;
-        
-        if (packg == null) {
-            packg = Identifier.create(((ClassFile)data).getName().getPackage());
-        }
-        return packg;
+        if (packg != null)
+            return packg;
+        JavaPackage p = (JavaPackage) getResource().refImmediateComposite();
+        if (p == null)
+            return null;
+        return packg = Identifier.create(p.getName());
     }
 
     /** @return always returns empty array
@@ -131,6 +142,7 @@ final class SourceElementImpl extends MemberElementImpl
     * class data we were given in constructor.
     */
     public ClassElement[] getClasses () {
+        checkData();
         if (data == null)
             return NO_CLASSES;
         return new ClassElement[] { getClassElement() };
@@ -169,12 +181,55 @@ final class SourceElementImpl extends MemberElementImpl
     /** @return Always returns STATUS_OK, 'cause we always have the class...
     */
     public int getStatus () {
-        return data == null ? SourceElement.STATUS_ERROR : SourceElement.STATUS_OK;
+        if (status != -1) {
+            return status;
+        }
+        int s;
+        if (data != null) {
+            s = SourceElement.STATUS_OK;
+        } else {
+            Task t = prepare();
+            if (t.isFinished()) {
+                checkData();
+                s = data == null ? SourceElement.STATUS_ERROR : SourceElement.STATUS_OK;
+            } else {
+                synchronized (this) {
+                    if (!attached) {
+                        attached = true;
+                        t.addTaskListener(this);
+                    }
+                }
+                s = SourceElement.STATUS_NOT;
+            }
+        }
+        setStatus(s);
+        return s;
+    }
+    
+    void setStatus(int newStatus) {
+        int old;
+        
+        synchronized (this) {
+            if (status == newStatus)
+                return;
+            old = status;
+            status = newStatus;
+        }
+        if (old != -1)
+            firePropertyChange(ElementProperties.PROP_STATUS, new Integer(old), new Integer(newStatus));
+    }
+    
+    void checkData() {
+        if (data == null) {
+            FileObject fo=cdo.getPrimaryFile();
+
+            data=JavaMetamodel.getManager().getResource(fo);
+        }
     }
 
     /** Returns empty task, because we don't need any preparation.
     */
-    public Task prepare () {
+    public Task prepare() {
         return Task.EMPTY;
     }
     
@@ -185,29 +240,6 @@ final class SourceElementImpl extends MemberElementImpl
     }
 
     /************* utility methods *********/
-    java.io.InputStream findStreamForClass(String n) throws java.io.IOException {
-        if (this.cdo != null) {
-            java.util.Set files = cdo.files();
-            n = n + ".class"; // NOI18N
-            for (java.util.Iterator iter = files.iterator(); iter.hasNext();){
-                FileObject fo = ((FileObject)iter.next());
-                if( fo.getNameExt().equals(n) ){
-                    return fo.getInputStream();
-                }
-            } 
-            return null;
-        } else {
-            // assume we have a valid classloader
-            ClassFile cf = (ClassFile)data;
-            StringBuffer sb = new StringBuffer();
-            sb.append(cf.getName().getPackage().replace('.', '/'));
-            sb.append('/');
-            sb.append(n);
-            sb.append(".class"); // NOI18N
-            String s = sb.toString();
-            return loader.getResourceAsStream(s);
-        }
-    }
 
     /** Returns class element for asociated class data.
     * Care must be taken, 'cause we are playing with soft reference.
@@ -216,10 +248,12 @@ final class SourceElementImpl extends MemberElementImpl
         ClassElement result =
             (topClass == null) ? null : (ClassElement)topClass.get();
         if (result == null) {
-            if (data == null)
+            if (getResource() == null)
                 return null;
-            result = new ClassElement(
-                     new ClassElementImpl((ClassFile)data), (SourceElement)element);
+            JavaClass[] c = (JavaClass[])getResource().getClassifiers().toArray(new JavaClass[0]);
+            if (c.length != 1)
+                return null;
+            result = new ClassElement(new ClassElementImpl(c[0]), (SourceElement)element);
             topClass = new SoftReference(result);
         }
         return result;
@@ -231,6 +265,7 @@ final class SourceElementImpl extends MemberElementImpl
     private Map getAllClassesMap () {
         Map allClassesMap = (allClasses == null) ? null : (Map)allClasses.get();
         if (allClassesMap == null) {
+            checkData();
             if (data != null) {
                 // soft ref null, we must recreate
                 allClassesMap = createClassesMap();
@@ -308,5 +343,24 @@ final class SourceElementImpl extends MemberElementImpl
 
     public Object readResolve() {
         return new SourceElement(this);
+    }
+
+    /**
+     * Tries to acquire data file from the owning DataObject, and parse
+     * it using Classfile library.
+     */
+    public void run() {
+        if (cdo == null) {
+            throw new IllegalStateException("Cannot load classfile without "
+                + "the DataObject");
+        }
+        setClassObject(cdo.getClassFile());
+    }
+    
+    public void taskFinished(Task task) {
+        checkData();
+        attached = false;
+        task.removeTaskListener(this);
+        setStatus(data == null ? SourceElement.STATUS_ERROR : SourceElement.STATUS_OK);
     }
 }

@@ -14,6 +14,7 @@
 package org.netbeans.modules.clazz;
 
 import org.openide.src.*;
+import org.netbeans.jmi.javamodel.Method;
 
 /** Implementation of method element for class objects.
 *
@@ -25,18 +26,20 @@ final class MethodElementImpl extends ConstructorElementImpl
     private Type returnType;
 
     static final long serialVersionUID =7928961724192084484L;
-    /** Default constructor, asociates with given
-    * java reflection Method element.
-    */
-    public MethodElementImpl(final org.netbeans.modules.classfile.Method data) {
+
+    MethodElementImpl(final Method data) {
         super(data);
+    }
+    
+    Method getMethod() {
+        return (Method)data;
     }
 
     /** @return returns teh Type representing return type of this method.
     */
     public Type getReturn () {
         if (returnType == null)
-            returnType = Util.getReturnType(((org.netbeans.modules.classfile.Method)data).getDescriptor());
+            returnType = Util.createType(getMethod().getType());
         return returnType;
     }
 
@@ -50,16 +53,3 @@ final class MethodElementImpl extends ConstructorElementImpl
     }
 
 }
-
-/*
-* Log
-*  5    src-jtulach1.4         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
-*       Microsystems Copyright in File Comment
-*  4    src-jtulach1.3         8/9/99   Ian Formanek    Generated Serial Version 
-*       UID
-*  3    src-jtulach1.2         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  2    src-jtulach1.1         2/17/99  Petr Hamernik   serialization changed.
-*  1    src-jtulach1.0         1/22/99  David Simonek   
-* $
-*/

@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.clazz;
 
+import org.netbeans.jmi.javamodel.Field;
 import org.openide.src.*;
 
 /** The implementation of the field element for class objects.
@@ -34,15 +35,23 @@ final class FieldElementImpl extends MemberElementImpl
     public FieldElementImpl (final org.netbeans.modules.classfile.Field data) {
         super(data);
     }
+    
+    FieldElementImpl(final Field data) {
+        super(data);
+    }
+    
+    private Field getField() {
+        return (Field)data;
+    }
 
     /** Type of the variable.
     * @return the type
     */
     public Type getType () {
-        if (type == null)
+        if (type == null) 
+            type = Util.createType(getField().getType());
             //XXX
             //type = Type.createFromClass(((org.netbeans.modules.classfile.Field)data).getType());            
-            type = new Util.SignatureToType(((org.netbeans.modules.classfile.Field)data).getDescriptor()).getReturnType();
         return type;
     }
 

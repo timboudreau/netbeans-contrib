@@ -15,9 +15,26 @@ package org.netbeans.modules.clazz;
 
 import java.util.ResourceBundle;
 import java.util.*;
+import org.netbeans.jmi.javamodel.Array;
+import org.netbeans.jmi.javamodel.JavaClass;
+import org.netbeans.jmi.javamodel.PrimitiveType;
+import org.netbeans.jmi.javamodel.PrimitiveTypeKind;
+import org.netbeans.jmi.javamodel.PrimitiveTypeKindEnum;
+import org.netbeans.jmi.javamodel.Resource;
 
+import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileSystemCapability;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
+
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.netbeans.modules.classfile.Method;
 import org.openide.src.Type;
 import org.openide.src.MethodParameter;
@@ -28,7 +45,7 @@ import org.openide.src.Identifier;
  * @author  sdedic
  * @version 
  */
-final class Util extends Object {
+final class Util {
     private static ResourceBundle bundle;
     private static RequestProcessor classProcessor;
     
@@ -168,6 +185,136 @@ final class Util extends Object {
             return t;
         }
     }    
+    
+    /**
+     * Tries to find root of the classpath subtree, which contains the given
+     * data object. The function may return null, if the DataObject does not
+     * lie beneath a configured classpath subtree.
+     * @return root of classpath containing the given DataObject.
+     */
+    static DataFolder  findClasspathRoot(DataObject source, Lookup context) 
+        throws FileStateInvalidException {
+        // HACK: the filesystem must be mounted so that its root is a root
+        // for of the classpath subtree. The filesystem either possesses or
+        // lacks the COMPILE capability
+        FileSystem fs = source.getPrimaryFile().getFileSystem();
+        if (!fs.getCapability().capableOf(FileSystemCapability.COMPILE))
+            return null;
+        
+        DataFolder fld = null;
+        try {
+            DataObject d = DataObject.find(fs.getRoot());
+            fld = (DataFolder)d.getCookie(DataFolder.class);
+        } catch (DataObjectNotFoundException ex) {
+            System.err.println("Root not found for filesystem " + fs.getSystemName());
+            ex.printStackTrace();
+        }
+        if (fld == null) {
+            System.err.println("Root file of filesystem is not a folder: " + fs.getSystemName());
+        }
+        return fld;
+        
+        /*
+        Repository rep = (Repository)context.lookup(Repository.class);
+        FileSystem []fs = (FileSystem[])rep.toArray();
+        for (int i = 0; i < fs.length; i++) {
+            DataFolder fld;
+            try {
+                DataObject d = DataObject.find(fs.getRoot());
+                fld = (DataFolder)d.getCookie(DataFolder.class);
+            } catch (DataObjectNotFoundException ex) {
+                System.err.println("Root not found for filesystem " + fs.getSystemName());
+                ex.printStackTrace();
+                continue;
+            }
+            if (fld == null) {
+                System.err.println("Root file of filesystem is not a folder: " + fs.getSystemName());
+                continue;
+            }
+        }
+         */
+    }
+    
+    /**
+     * Returns resource name, in the format used by ClassLoaders, which identifies
+     * the fileobject given the classpath root.
+     * @param f FileObject to convert to a resource name.
+     * @param root root of ClassPath.
+     * @return resource name
+     */
+    static String findResourceName(FileObject f, DataFolder root) {
+        FileObject rootFile = root.getPrimaryFile();
+        if (f == rootFile)
+            return "";
+        StringBuffer sb = new StringBuffer(30);
+        do {
+            sb.append('/');
+            sb.append(f.getNameExt());
+        } while (f != rootFile);
+        return sb.toString();
+    }
+    
+    /**
+     * Finds a codebase, which holds/should hold data for the
+     * specified resource.
+     * @param resource the DataObject resource, which holds metadata source
+     * @param context project-local Lookup for retrieving configuration info
+     */
+//    static Codebase findCodebase(DataObject resource, Lookup context) {
+//        ProjectModel model = ProjectModel.getProjectModel(context);
+//        try {
+//            return model.findCodebase((DataFolder)resource);
+//        } catch (java.io.IOException ex) {
+//            ex.printStackTrace();
+//            return null;
+//        }
+//    }
+    
+    static String createClassName(String signature) {
+        return signature.replace('/', '.').replace('$', '.');
+    }
+
+    static Type createType(org.netbeans.jmi.javamodel.Type t) {
+        if (t == null)
+            return null;
+        if (t instanceof Array) {
+            return Type.createArray(createType(((Array)t).getType()));
+        } else if (t instanceof JavaClass) {
+            JavaClass ct=(JavaClass)t;
+                return Type.createClass(
+                    Identifier.create(createClassName(ct.getName())));
+        } else if (t instanceof PrimitiveType) {
+            PrimitiveTypeKind tag = ((PrimitiveType)t).getKind();
+            if (tag == PrimitiveTypeKindEnum.BOOLEAN) {
+                return Type.BOOLEAN;
+            } else if (tag == PrimitiveTypeKindEnum.BYTE) {
+                return Type.BYTE;
+            } else if (tag == PrimitiveTypeKindEnum.CHAR) {
+                return Type.CHAR;
+            } else if (tag == PrimitiveTypeKindEnum.DOUBLE) {
+                return Type.DOUBLE;
+            } else if (tag == PrimitiveTypeKindEnum.FLOAT) {
+                return Type.FLOAT;
+            } else if (tag == PrimitiveTypeKindEnum.INT) {
+                return Type.INT;
+            } else if (tag == PrimitiveTypeKindEnum.LONG) {
+                return Type.LONG;
+            } else if (tag == PrimitiveTypeKindEnum.SHORT) {
+                return Type.SHORT;
+            } else if (tag == PrimitiveTypeKindEnum.VOID) {
+                return Type.VOID;
+            }
+        }
+        throw new IllegalArgumentException("Invalid TypeDescriptor: " + t);
+    }
+    
+    /**
+     * Finds a DataObject for the specified ClassResource given the project
+     * context
+     */
+    static DataObject findDataObject(Lookup context, Resource resource) {
+        return null;
+    }
 
     static RequestProcessor getClassProcessor() {
         if (classProcessor==null)

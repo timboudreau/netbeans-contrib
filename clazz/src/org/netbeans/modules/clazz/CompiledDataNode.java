@@ -12,10 +12,13 @@
  */
 package org.netbeans.modules.clazz;
 
+import org.openide.util.Task;
+import org.openide.util.TaskListener;
 import java.lang.reflect.InvocationTargetException;
 import java.io.*;
 import java.util.*;
 
+import org.openide.cookies.SourceCookie;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.NbBundle;
@@ -30,7 +33,7 @@ import org.netbeans.api.java.classpath.ClassPath;
  * @author  sdedic
  * @version 
  */
-public class CompiledDataNode extends ClassDataNode {
+public class CompiledDataNode extends ClassDataNode implements TaskListener {
     private final static String PROP_IS_EXECUTABLE = "isExecutable"; // NOI18N
     private final static String PROP_FILE_PARAMS = "fileParams"; // NOI18N
     private final static String PROP_EXECUTION = "execution"; // NOI18N
@@ -55,7 +58,7 @@ public class CompiledDataNode extends ClassDataNode {
     }
     
     private CompiledDataObject getCompiledDataObject() {
-    return (CompiledDataObject)getDataObject();
+	return (CompiledDataObject)getDataObject();
     }
 
     boolean isExecutable() {
@@ -83,9 +86,25 @@ public class CompiledDataNode extends ClassDataNode {
     protected String initialIconBase() {
         return CLASS_BASE;
     }
-
+    
     /** Find right icon for this node. */
-    protected void resolveIcons () {
+    protected void resolveIcons () {      
+        iconResolved = true;
+    }
+
+    /**
+     * Requests construction / retrieval of metadata
+     */
+    protected void requestResolveIcon() {
+        SourceCookie ck = (SourceCookie)getCookie(SourceCookie.class);
+        ck.getSource().prepare().addTaskListener(this);
+    }
+
+    /**
+     * The SourceElement finished its initialization -- 
+     * it should be safe to access the metadata.
+     */
+    public void taskFinished(Task task) {
         CompiledDataObject dataObj = getCompiledDataObject();
         FileObject fo=dataObj.getPrimaryFile();
         ClassPath libs = ClassPath.getClassPath (fo, ClassPath.COMPILE);
@@ -105,5 +124,4 @@ public class CompiledDataNode extends ClassDataNode {
             setIconBase(CLASS_BASE);
         iconResolved = true;
     }
-
 }

@@ -13,9 +13,12 @@
 
 package org.netbeans.modules.clazz;
 
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.*;
+import java.util.Vector;
 import java.util.ResourceBundle;
 import java.io.*;
 import java.text.MessageFormat;
@@ -24,8 +27,10 @@ import javax.swing.SwingUtilities;
 
 import org.openide.nodes.*;
 import org.openide.loaders.DataNode;
+import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.util.WeakListener;
 import org.openide.src.*;
 import org.openide.src.nodes.SourceChildren;
@@ -37,7 +42,8 @@ import org.openide.ErrorManager;
 * and SerDataNode (.ser and other serialized extensions)
 * @author Ales Novak, Ian Formanek, Jan Jancura, Dafe Simonek
 */
-abstract class ClassDataNode extends DataNode implements Runnable, PropertyChangeListener {
+abstract class ClassDataNode extends DataNode 
+    implements Runnable, PropertyChangeListener {
     /** generated Serialized Version UID */
     static final long serialVersionUID = -1543899241509520203L;
 
@@ -58,7 +64,7 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
     transient String errorMsg;
     
     transient boolean initialized;
-
+    
     // -----------------------------------------------------------------------
     // constructor
 
@@ -87,14 +93,40 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
     protected abstract String initialIconBase ();
     
     protected abstract void resolveIcons();
+    
+    protected abstract void requestResolveIcon();
 
     private void initialize () {
         SourceCookie sc =
             (SourceCookie)getDataObject().getCookie(SourceCookie.class);
         getSourceChildren().setElement(sc.getSource());
         setIconBase(initialIconBase());
+        /* Disable the icon resolution - for now.
+         *
         // icons...
-        Util.getClassProcessor().post(this, 200);
+        RequestProcessor.postRequest(this, 200);
+         */
+    }
+    
+    /**
+     * If the image is not known, returns the basic (classfile) one and
+     * requests image resolution. After the image is known, it returns the
+     * cached image.
+     */
+    public Image getIcon(int type) {
+        ensureIconResolved();
+        return super.getIcon(type);
+    }
+    
+    public Image getOpenedIcon(int type) {
+        ensureIconResolved();
+        return super.getOpenedIcon(type);
+    }
+    
+    private void ensureIconResolved() {
+        if (iconResolved)
+            return;
+        requestResolveIcon();
     }
 
     /** Creates property set for this node */

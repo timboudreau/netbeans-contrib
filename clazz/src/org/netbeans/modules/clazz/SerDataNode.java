@@ -57,8 +57,11 @@ final class SerDataNode extends ClassDataNode {
     protected String initialIconBase () {
         return SER_BASE;
     }
-
+    
     protected void resolveIcons () {
+    }
+
+    protected void requestResolveIcon() {
         try {
             ClassDataObject dataObj = (ClassDataObject)getDataObject();
             dataObj.getBeanClass(); // check exception

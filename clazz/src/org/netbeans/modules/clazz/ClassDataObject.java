@@ -67,8 +67,6 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 
 
-
-
 /** This DataObject loads sourceless classes and provides a common framework
  * for presenting them in the IDE.
  * The descendants define specific behaviour, restrictions and operations.<P>
@@ -150,7 +148,9 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     }
     
     protected void initCookies() {
-        getCookieSet().add(SourceCookie.class, this);
+        getCookieSet().add(new Class[] {
+            SourceCookie.class, 
+        }, this);
     }
 
     /**
@@ -183,7 +183,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             if (s != null)
                 return s;
             sourceCreated = true;
-            s = new SourceElement(new SourceElementImpl(getClassFile(), this));
+            s = new SourceElement(new SourceElementImpl(this));
             srcEl = new WeakReference(s);
         }
         return s;
@@ -319,7 +319,8 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
         
         if (ce==null)
             return "";
-        return ce.getSuperclass().getFullName();
+        Identifier id = ce.getSuperclass();
+        return id == null ? "" : id.getFullName();
     }
 
     public String getModifiers () throws IOException, ClassNotFoundException {

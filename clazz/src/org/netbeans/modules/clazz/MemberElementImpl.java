@@ -16,6 +16,7 @@ package org.netbeans.modules.clazz;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 
 import org.openide.src.MemberElement;
 import org.openide.src.SourceException;
@@ -25,13 +26,16 @@ import org.openide.src.SourceElement;
 import org.openide.nodes.Node;
 import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.modules.classfile.Access;
+import org.openide.util.Task;
+
+import javax.jmi.reflect.RefObject;
+import org.netbeans.jmi.javamodel.Feature;
 
 /** Implementation of the MemberElement.Impl for the class objects.
 *
 * @author Dafe Simonek
 */
-public abstract class MemberElementImpl extends ElementImpl
-    implements MemberElement.Impl {
+public abstract class MemberElementImpl extends ElementImpl implements MemberElement.Impl {
     /** Asociated java reflection data */
     protected Object data;
     /** Cached name identifier */
@@ -45,11 +49,16 @@ public abstract class MemberElementImpl extends ElementImpl
         super();
         this.data = data;
     }
+    
+    Feature getClassFeature() {
+        return (Feature)data;
+    }
 
     /** @return Modifiers for this element.
     */
     public int getModifiers () {
-        return ((org.netbeans.modules.classfile.Field)data).getAccess();
+        Feature f = getClassFeature();
+        return f.getModifiers();
     }
 
     /** Unsupported. Throws SourceException
@@ -69,7 +78,7 @@ public abstract class MemberElementImpl extends ElementImpl
     }
     
     protected Identifier createName(Object data) {
-	String name = ((org.netbeans.modules.classfile.Field)data).getName();
+	String name = getClassFeature().getName();
 	return Identifier.create(name);
     }
 
@@ -103,28 +112,15 @@ public abstract class MemberElementImpl extends ElementImpl
     public void readExternal (ObjectInput oi) throws IOException, ClassNotFoundException {
         data = oi.readObject();
     }
-}
 
-/*
-* Log
-*  13   src-jtulach1.12        1/20/00  David Simonek   #2119 bugfix
-*  12   src-jtulach1.11        1/13/00  David Simonek   i18n
-*  11   src-jtulach1.10        1/13/00  David Simonek   i18n
-*  10   src-jtulach1.9         1/10/00  Petr Hamernik   Identifier creating 
-*       improved.
-*  9    src-jtulach1.8         1/5/00   David Simonek   #2564
-*  8    src-jtulach1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
-*       Microsystems Copyright in File Comment
-*  7    src-jtulach1.6         8/9/99   Ian Formanek    Generated Serial Version 
-*       UID
-*  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  5    src-jtulach1.4         5/12/99  Petr Hamernik   ide.src.Identifier 
-*       updated
-*  4    src-jtulach1.3         3/26/99  David Simonek   properties, actions 
-*       completed, more robust now
-*  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
-*  2    src-jtulach1.1         2/3/99   David Simonek   
-*  1    src-jtulach1.0         1/22/99  David Simonek   
-* $
-*/
+    
+    public RefObject getRefObject() {
+        if (data instanceof RefObject)
+            return (RefObject)data;
+        return null;
+    }
+    
+    public Task refresh() {
+        return Task.EMPTY;
+    }
+}

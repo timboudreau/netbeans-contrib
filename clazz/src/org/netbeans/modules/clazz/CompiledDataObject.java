@@ -157,6 +157,5 @@ public class CompiledDataObject extends ClassDataObject {
         }
         return destName;
     }
-
 }
 

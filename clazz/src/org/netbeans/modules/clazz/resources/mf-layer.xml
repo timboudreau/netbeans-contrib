@@ -1,4 +1,5 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
 <!--
                 Sun Public License Notice
 
@@ -11,8 +12,6 @@ The Original Code is NetBeans. The Initial Developer of the Original
 Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
-
 <filesystem>
   <folder name="NodeFactories">
     <folder name="clazz">
@@ -20,4 +19,13 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="objectbrowser"/>
     </folder>
   </folder>
+    <!--folder name="Services">
+        <file name="ProjectModel.settings" url="../../classmodel/resources/ProjectModel.settings">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.classmodel.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/classmodel/resources/projectModelSettings.gif"/>
+
+            <attr name="instanceOf" stringvalue="org.netbeans.modules.classmodel.ProjectModel"/>
+            <attr name="instanceClass" stringvalue="org.netbeans.modules.classmodel.ProjectModel"/>
+        </file>
+    </folder-->
 </filesystem>

@@ -14,13 +14,21 @@
 package org.netbeans.modules.clazz;
 
 import org.openide.ErrorManager;
+import org.openide.util.Lookup;
 import org.openide.loaders.DataObject;
-import org.netbeans.modules.classfile.*;
+import org.netbeans.modules.classfile.ClassFile;
+import org.netbeans.modules.classfile.InnerClass;
 import org.openide.filesystems.FileObject;
 import org.openide.src.*;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.*;
+import org.netbeans.jmi.javamodel.Constructor;
+import org.netbeans.jmi.javamodel.Feature;
+import org.netbeans.jmi.javamodel.Field;
+import org.netbeans.jmi.javamodel.JavaClass;
+import org.netbeans.jmi.javamodel.Method;
+import org.netbeans.jmi.javamodel.NamedElement;
 
 /** The implementation of the class element for
 * class objects. Presents data about the class -
@@ -48,12 +56,14 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     private SoftReference constructors;
     /** Methods of this class element */
     private SoftReference methods;
-
+    
     /* InnerClass attribute of a associeted with this classfile */ 
     private InnerClass innerclass;
     
     /** One JavaDoc empty implementation for all objects */
     private static final ClassJavaDocImpl.Class CLASS_JAVADOC_IMPL = new ClassJavaDocImpl.Class ();
+    
+    private static final Identifier NO_SUPERCLASS = Identifier.create(""); // NOI18N
 
     static final long serialVersionUID =-8717988834353784544L;
     /** Default constructor.
@@ -61,64 +71,49 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     public ClassElementImpl (final ClassFile data) {
         super(data);
     }
-
+    
+    ClassElementImpl(JavaClass data) {
+        super(data);
+    }
+    
     private ClassElementImpl (final ClassFile data,InnerClass inner) {
         this(data);
         innerclass=inner;
-    }
-    
+    }    
     /** Not supported. Throws source exception */
     public void setSuperclass(Identifier superClass) throws SourceException {
         throwReadOnlyException();
     }
-
-    public int getModifiers () {
-        int access;
-        
-        if (innerclass!=null)
-            access=innerclass.getAccess();
-        else
-            access=((ClassFile)data).getAccess();
-        return access & (~Access.INTERFACE & ~Access.SYNCHRONIZED);
+    
+    JavaClass getClazz() {
+        return (JavaClass)data;
     }
-        
+
     public Identifier getSuperclass() {
         if (superClass == null) {
-            ClassName cn = ((ClassFile)data).getSuperClass();
-            String sc;
-            
-            if (cn  == null)
-                sc = "";
+            JavaClass c = getClazz();
+            JavaClass tid = c.getSuperClass();
+            if (tid == null)
+                superClass = NO_SUPERCLASS;
             else
-                sc = cn.getExternalName();
-            superClass = Identifier.create(sc); // NOI18N
+                superClass = Identifier.create(Util.createClassName(tid.getName()));
         }
-        return superClass;
+        if (superClass == NO_SUPERCLASS)
+            return null;
+        else
+            return superClass;
     }
     
     protected Identifier createName(Object data) {
+        String fqn=getClazz().getName();
         String simpleName;
-        String outerName;
-        int len;
+        int lastDot=fqn.indexOf('.');
         
-        if (innerclass!=null) {
-            simpleName=innerclass.getSimpleName();
-            outerName=((ClassElement)element).getDeclaringClass().getName().getFullName();
-            len=outerName.length();
-        } else {
-            ClassName cname=((ClassFile)data).getName();
-            String iname=cname.getInternalName();
-            
-            outerName=cname.getPackage();
-            len=outerName.length();
-            if (len==0)
-                simpleName=iname;
-            else
-                simpleName=iname.substring(len+1);
-        }
-	return len==0 ? 
-	    Identifier.create(simpleName) :
-	    Identifier.create(outerName+"."+simpleName, simpleName);
+        if (lastDot!=-1)
+            simpleName=fqn.substring(lastDot+1);
+        else
+            simpleName=fqn;
+        return Identifier.create(fqn, simpleName);
     }
 
     /** Not supported. Throws Source Exception */
@@ -127,7 +122,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     }
 
     public boolean isClassOrInterface() {
-        return (((ClassFile)data).getAccess() & Access.INTERFACE) == 0;        
+        return !getClazz().isInterface();
     }
 
     /** Not supported. Throws SourceException.
@@ -294,13 +289,10 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     */
     public Identifier[] getInterfaces () {
         if (interfaces == null) {
-            // create identifier array for interfaces
-            Collection reflIntfs = ((ClassFile)data).getInterfaces();            
-            interfaces = new Identifier[reflIntfs.size()];
-            Iterator it = reflIntfs.iterator();
-            for (int i = 0; it.hasNext(); i++) {
-                ClassName cn = (ClassName)it.next();
-                interfaces[i] = Identifier.create(cn.getExternalName());
+            JavaClass[] reflIntfs = (JavaClass[])getClazz().getInterfaces().toArray(new JavaClass[0]);
+            interfaces = new Identifier[reflIntfs.length];
+            for (int i = 0; i < reflIntfs.length; i++) {
+                interfaces[i] = Identifier.create(Util.createClassName(reflIntfs[i].getName()));
             }
         }
         return interfaces;
@@ -316,25 +308,19 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
 
     /** Creates map for fields consisting of identifier - field entries */
     private Map createFieldsMap () {
-        // obtain field array
-        org.netbeans.modules.classfile.Field[] reflFields = null;
-        try {
-            reflFields = (org.netbeans.modules.classfile.Field[])((ClassFile)data).getVariables().toArray(new org.netbeans.modules.classfile.Field[0]);
-        } catch (Throwable exc) {
-            // rethrow only ThreadDeath, ignore otherwise
-            if (exc instanceof ThreadDeath)
-                throw (ThreadDeath)exc;
-            reflFields = new org.netbeans.modules.classfile.Field[0];
-        }
-        // create map
-        FieldElement curFE = null;
+        Feature[] reflFields = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
         Map result = new HashMap(reflFields.length);
         for (int i = 0; i < reflFields.length; i++) {
-            // filter out methods added by compiler
-            if (!addedByCompiler(reflFields[i])) {
-                curFE = new FieldElement(new FieldElementImpl(reflFields[i]),
-                                         (ClassElement)element);
-                result.put(curFE.getName(), curFE);
+            Feature f=reflFields[i];
+            
+            if (f instanceof Field) {
+                Field field=(Field)f;
+                // filter out methods added by compiler
+                if (!addedByCompiler(field)) {
+                    FieldElement curFE = new FieldElement(new FieldElementImpl(field),
+                                             (ClassElement)element);
+                    result.put(curFE.getName(), curFE);
+                }
             }
         }
         return result;
@@ -343,56 +329,20 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     /** Creates map for inner classes of this class,
     * consisting of identifier - class element entries */
     private Map createInnersMap () {
-        // obtain array of interfaces and inner classes
-        InnerClass[] reflInners = null;
-        String name = null;
-        try {
-            reflInners = (InnerClass[])((ClassFile)data).getInnerClasses().toArray(new InnerClass[0]);
-            name = ((ClassFile)data).getName().getSimpleName();
-        } catch (Throwable exc) {
-            // rethrow only ThreadDeath, ignore otherwise
-            if (exc instanceof ThreadDeath)
-                throw (ThreadDeath)exc;
-            reflInners = new InnerClass[0];
-        }
+        Feature[] reflInners = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
+
         // create map
         ClassElement curCE = null;
         Map result = new HashMap(reflInners.length);
         for (int i = 0; i < reflInners.length; i++) {
-            InnerClass reflInner=reflInners[i];
-            String iname = reflInner.getSimpleName();
-            if (iname != null) {
-                java.io.InputStream istm = null;
-                StringBuffer sb = new StringBuffer(name.length() + iname.length() + 7);
-                
-                sb.append(name); sb.append('$'); sb.append(iname);
-                try {
-                    istm = findSourceImpl().findStreamForClass(sb.toString());
-                    if (istm != null) {
-                            curCE = new ClassElement(new ClassElementImpl(new ClassFile(istm),reflInner),
-                                                     (ClassElement)element);
-                            result.put(iname, curCE);
-                    }
-                } catch (IOException ex) {
-                    ErrorManager.getDefault().
-                        annotate(ex, ErrorManager.INFORMATIONAL, "Invalid class file", null, // NOI18N
-                        null, null);
-                } catch (RuntimeException ex) {
-                    ex.printStackTrace();
-                    ErrorManager.getDefault().
-                        annotate(ex, ErrorManager.INFORMATIONAL, "Invalid class file", null, // NOI18N
-                        null, null);
-                } finally {
-                    if (istm!=null) {
-                        try {
-                            istm.close();
-                        } catch (IOException ex) {
-                            ErrorManager.getDefault().
-                            annotate(ex, ErrorManager.INFORMATIONAL, "Cannot close stream", null, // NOI18N
-                            null, null);
-                        }
-                    }
-                }
+            Feature f=reflInners[i];
+            
+            if (f instanceof JavaClass) {
+                JavaClass jcls=(JavaClass)f;
+                String iname = jcls.getName();
+                curCE = new ClassElement(new ClassElementImpl(jcls),
+                                         (ClassElement)element);
+                result.put(iname, curCE);
             }
         }
         return result;
@@ -405,22 +355,14 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     /** Creates map for constructors of this class,
     * consisting of constructor key - constructor element entries */
     private Map createConstructorsMap () {
-        // obtain constructors array
-        org.netbeans.modules.classfile.Method[] reflCons = null;
-        try {
-            reflCons = (org.netbeans.modules.classfile.Method[])((ClassFile)data).getMethods().toArray(new org.netbeans.modules.classfile.Method[0]);
-        } catch (Throwable exc) {
-            // rethrow only ThreadDeath, ignore otherwise
-            if (exc instanceof ThreadDeath)
-                throw (ThreadDeath)exc;
-            reflCons = new org.netbeans.modules.classfile.Method[0];
-        }
-        // create map
-        ConstructorElement curCE = null;
+        Feature[] reflCons = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
         Map result = new HashMap(reflCons.length);
+
         for (int i = 0; i < reflCons.length; i++) {
-            if( isConstructor(reflCons[i]) ){
-                curCE = new ConstructorElement(new ConstructorElementImpl(reflCons[i]),
+            Feature f=reflCons[i];
+            
+            if (f instanceof Constructor) {
+                ConstructorElement curCE = new ConstructorElement(new ConstructorElementImpl((Constructor)f),
                                                (ClassElement)element);
                 result.put(new ConstructorElement.Key(curCE), curCE);
             }
@@ -431,26 +373,20 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     /** Creates map for methods of this class,
     * consisting of method key - method element entries */
     private Map createMethodsMap () {
-        // obtain methods array
-        org.netbeans.modules.classfile.Method[] reflMethods = null;
-        try {
-            reflMethods = (org.netbeans.modules.classfile.Method[])((ClassFile)data).getMethods().toArray(new org.netbeans.modules.classfile.Method[0]);
-        } catch (Throwable exc) {
-            // rethrow only ThreadDeath, ignore otherwise
-            if (exc instanceof ThreadDeath)
-                throw (ThreadDeath)exc;
-            reflMethods = new org.netbeans.modules.classfile.Method[0];
-        }
-        // create map
-        MethodElement curME = null;
+        Feature[] reflMethods = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
         Map result = new HashMap(reflMethods.length);
+
         for (int i = 0; i < reflMethods.length; i++) {
-            // filter out methods added by compiler
-            org.netbeans.modules.classfile.Method m = reflMethods[i];
-            if (!addedByCompiler(m) && !isStaticInicializer(m) && !isConstructor(m)) {
-                curME = new MethodElement(new MethodElementImpl(reflMethods[i]),
-                                          (ClassElement)element);
-                result.put(new MethodElement.Key(curME, true), curME);
+            Feature f=reflMethods[i];
+            
+            if (f instanceof Method) {                
+                // filter out methods added by compiler
+                Method m = (Method)f;
+                if (!addedByCompiler(m)) {
+                    MethodElement curME = new MethodElement(new MethodElementImpl(m),
+                                              (ClassElement)element);
+                    result.put(new MethodElement.Key(curME, true), curME);
+                }
             }
         }
         return result;
@@ -463,27 +399,8 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     /** @return true if given member was generated automatically by compiler,
     * false otherwise. Decision is made by inspecting the name of the member.
     */
-    private static boolean addedByCompiler(Field field) {
+    private static boolean addedByCompiler(NamedElement field) {
         String name = field.getName();
         return name.indexOf('$') >= 0;
-    }
-    
-    /** Determines whether the class is an anonymous one.
-     */
-    private static boolean isAnonymousClass (String name) {        
-        int last = name.lastIndexOf('$');
-        return !(last == -1 || name.length() == last + 1 || Character.isJavaIdentifierStart(name.charAt(last + 1)));
-    }
-
-    /** Determines whether the method is static inicializer.
-     */
-    private static boolean isStaticInicializer(org.netbeans.modules.classfile.Method method) {                
-        return ( method.getName().indexOf("<clinit>") != -1 ); // NOI18N
-    }
-    
-    /** Determines whether the method is constructor.
-     */
-    private static boolean isConstructor(org.netbeans.modules.classfile.Method method) {                
-        return ( method.getName().indexOf("<init>") != -1 ); // NOI18N
-    }    
+    }   
 }
