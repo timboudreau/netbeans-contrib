@@ -8,36 +8,40 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
 
 <project name="jemmysupport" default="netbeans" basedir=".">
-
-  <property name="nbroot" value=".."/>
-  <property name="binroot" location="../../nbextra"/>
-  <property name="nbext" value="${nbroot}/nbbuild"/>
+  <import file="../nbbuild/default.xml"/> 
+  
+  <property name="nbext" value="../nbbuild"/>
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="${nbext}/standard-nbm-license.txt"/>
 
-  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
 
-  <target name="compile" depends="timestamp">
-  <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+    <target name="init" depends="default.init">
+      <patternset id="jemmysupport.files">
+        <!-- All files created for NBM -->
+        <include name="${nb.modules.dir}/jemmysupport.jar"/>
+        <include name="${nb.modules/docs.dir}/jemmysupport.jar"/>
+      </patternset>
+    </target>
+    
+  <target name="compile" depends="init,timestamp">
+    <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath>
-        <pathelement location="${nbroot}/jemmy/jemmy.jar"/>
-        <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
-        <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar" />
-        <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar" />
-        <pathelement location="${nbroot}/openide/execution/netbeans/modules/autoload/openide-execution.jar" />
-        <pathelement location="${nbroot}/core/netbeans/lib/core.jar" />
-        <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar" />
+        <pathelement location="../jemmy/jemmy.jar"/>
+        <pathelement location="../openide/openide-13javac-workaround.jar"/>
+        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar" />
+        <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar" />
+        <pathelement location="${openide/execution.dir}/${nb.modules/autoload.dir}/openide-execution.jar" />
+        <pathelement location="${core.dir}/${nb.lib.dir}/core.jar" />
+        <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar" />
         <!-- Hopefully set up by nbbuild/build.xml: -->
         <pathelement location="${jdkhome}/lib/tools.jar"/>
       </classpath>
@@ -51,44 +55,47 @@ Microsystems, Inc. All Rights Reserved.
   </target>
     
   <target name="jars" depends="compile">
-    <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="netbeans/modules/jemmysupport.jar"
+    <locjar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/jemmysupport.jar"
          manifest="manifest-subst.mf"
          basedir="src"
-	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+	 excludesfile="../nbbuild/standard-jar-excludes.txt"
 	 compress="false">
     </locjar>
   </target>
 
   <target name="netbeans" depends="jars,javahelp">
-    <genlist targetname="nbm" outputfiledir="netbeans"/>
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/jemmysupport.jar">
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="jemmysupport.files"/>
+      </fileset>
+    </genlist>
   </target>
 
-  <target name="nbm" depends="jars,javahelp">
+  <target name="nbm" depends="netbeans">
     <makenbm file="jemmysupport.nbm"
-             topdir="."
-             module="netbeans/modules/jemmysupport.jar"
-	         homepage="http://jemmysupport.${homepage.base}"
-	         distribution="http://${dist.base}/jemmysupport.nbm">
+             productdir="${netbeans.dest.dir}/${cluster.dir}"
+             module="${nb.modules.dir}/jemmysupport.jar"
+	     homepage="http://jemmysupport.${homepage.base}"
+	     distribution="http://${dist.base}/jemmysupport.nbm">
       <license file="${license.file}"/>
 <!--      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/> -->
     </makenbm>
-  </target>
-
-  <target name="clean">
+  </target> 
+  
+  <target name="clean" depends="init">
     <delete>
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
-      </fileset>	
+      </fileset>
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+          <patternset refID="jemmysupport.files"/>
+      </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="jemmysupport.nbm"/>
-    <delete dir="netbeans/update_tracking"/>
-    <delete dir="netbeans/modules"/>
-    <delete dir="Info"/>
     <delete dir="javahelp/org/netbeans/modules/jemmysupport/docs/JavaHelpSearch2"/>
     <delete dir="javahelp/org/netbeans/modules/usersguide"/>
   </target>
@@ -107,9 +114,8 @@ Microsystems, Inc. All Rights Reserved.
       <exclude name="credits.html"/>
     </jhindexer>
     <mkdir dir="javahelp/org/netbeans/modules/usersguide"/>
-    <copy file="${nbroot}/usersguide/javahelp/org/netbeans/modules/usersguide/ide.css" tofile="javahelp/org/netbeans/modules/usersguide/ide.css"/>
-    <mkdir dir="netbeans/modules/docs"/>
-    <locjar jarfile="netbeans/modules/docs/jemmysupport.jar" compress="true">
+    <copy file="../usersguide/javahelp/org/netbeans/modules/usersguide/ide.css" tofile="javahelp/org/netbeans/modules/usersguide/ide.css"/>
+    <locjar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/docs.dir}/jemmysupport.jar" compress="true">
         <fileset dir="javahelp" excludesfile="${nbext}/standard-jar-excludes.txt" excludes="org/netbeans/modules/usersguide/"/>
     </locjar>
   </target>
