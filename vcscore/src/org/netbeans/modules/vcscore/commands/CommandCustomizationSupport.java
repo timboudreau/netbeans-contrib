@@ -185,7 +185,7 @@ public class CommandCustomizationSupport extends Object {
             for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
                 String name = (String) enum.nextElement();
                 FileObject fo = fileSystem.findResource(name);
-                FileProperties fprops = Turbo.getCachedMeta(fo);
+                FileProperties fprops = Turbo.getMeta(fo);
                 String status = FileProperties.getStatus(fprops);
                 boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
                     disabledStatus, Collections.singleton(status));
