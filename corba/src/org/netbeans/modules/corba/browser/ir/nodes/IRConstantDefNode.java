@@ -107,6 +107,15 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
                 return new Integer(value.extract_long()).toString();
             case TCKind._tk_ulonglong:
                 return new Long (value.extract_longlong()).toString();
+	    case TCKind._tk_enum:
+		try{
+		    org.omg.CORBA.portable.InputStream in = value.create_input_stream();
+		    int val = in.read_long();
+		    String name = value.type().member_name(val);
+		    return name;
+	    }catch(Exception e){
+		return "";
+	    }
             default:
                 return "";
             }

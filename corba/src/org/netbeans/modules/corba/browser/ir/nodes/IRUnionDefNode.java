@@ -60,9 +60,13 @@ public class IRUnionDefNode extends IRContainerNode {
                 TypeCode tc = members[i].label.type();
                 switch (tc.kind().value()){
                 case TCKind._tk_boolean:
-                    code = code +"case " +new Boolean (members[i].label.extract_boolean()).toString();
-                    break;
-                case TCKind._tk_char:
+            	    code = code +"case ";
+		    if (members[i].label.extract_boolean())
+			code = code + "TRUE";
+                    else
+	                code = code + "FALSE";
+		    break;
+		case TCKind._tk_char:
                     code = code +"case "+ "\'" + new Character (members[i].label.extract_char()).toString() + "\'";
                     break;
                 case TCKind._tk_short:
