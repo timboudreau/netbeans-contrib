@@ -28,24 +28,19 @@ Microsystems, Inc. All Rights Reserved.
 <h2>resolve() Code Example</h2>
 
 <pre>
-org.omg.CORBA.Object obj = null;
-        try {
-            //
-            // Resolve names with the Naming Service
-            //
-            // paste here code from Copy Client Code on Object Node in Naming 
-Service Browser
+org.omg.CORBA.Object ns = orb.resolve_initial_references("NamingService");
+...
 
-    String[] client_name_hierarchy = new String [] {"Forte4J", "Demo", 
-  "HelloWorldImpl", "Demo"};
-            NameComponent[] aName = new 
-NameComponent[client_name_hierarchy.length / 2];
-            for (int i=0; i&lt;(client_name_hierarchy.length / 2); i++) {
-                aName[i] = new NameComponent();
-                aName[i].id = client_name_hierarchy[i*2];
-                aName[i].kind = client_name_hierarchy[i*2+1];
-            }
-            obj = nc.resolve (aName);
+String[] client_name_hierarchy = new String [] {"JDK", "Naming"};
+NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+}
+org.omg.CORBA.Object obj = nc.resolve (aName);
+CORBA.Hello srv = corba.HelloHelper.narrow(obj);
+...
 </pre>
 
 <hr>

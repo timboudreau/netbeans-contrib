@@ -45,22 +45,25 @@ CORBA Wizard to open the CORBA wizard.</li>
 
 <li>
 Select the IDL file on which your client program will be based and
-click Next.</li>
+click Next.
+<p>The Select Source IDL File pane displays the Filesystem
+hierarchy in your current session of the IDE. Expand the package you want and
+select the desired IDL.</p></li>
 
 <li>Indicate which files the wizard should generate and click Next.
 <ul>
 <li>
 If you are writing a server based on an existing IDL interface, select
-Create Implementation and Create Server.</li>
+Create Server.</li>
 
 <li>
-If you are writing both the IDL interface and the server program, select
-Create Implementation, Create IDL, and Create Server.</li>
+If you are generating an implementation skeleton and writing a server
+program, select Create Implementation and Create Server.</li>
 
 <li>
-If you are writing the IDL interface, a server program that uses it,
-and a client program, select the Create Implementation, Create IDL,
-Create Client, and Create Server.</li> 
+If you are generating an implementation skeleton and writing a server program
+and a client program, select the Create Implementation, Create Client,
+and Create Server.</li>  
 </ul>
 </li>
 
@@ -92,11 +95,11 @@ required.</li>
 
 <li>Click Finish to begin code generation. 
 <p>
-A local copy of the IDL you specified and Java source files named
-<tt>IDL_interface_</tt><em>name</em>Server</tt> is generated. For
-example, if you specified <tt>hello.idl</tt>, the wizard creates a
-local copy of <tt>hello.idl</tt> and two <tt>.java</tt> files named
-<tt>helloServer.java</tt> and <tt>helloImpl.java</tt>.</p></li>
+Java source files named
+<tt>IDL_interface_</tt><em>name</em>Server</tt> are generated. For
+example, if you specified <tt>hello.idl</tt> as your IDL file, the
+wizard creates two <tt>.java</tt> files named <tt>helloServer.java</tt> and
+<tt>helloImpl.java</tt>.</p></li>
 </ol>
 </p>
 

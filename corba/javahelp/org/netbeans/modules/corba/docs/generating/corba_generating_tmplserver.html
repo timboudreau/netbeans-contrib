@@ -32,10 +32,26 @@ Microsystems, Inc. All Rights Reserved.
 <h2>Generating Server-Side Files Using the CORBA Template</h2>
 
 <p>
-You can generate server-side files with the CORBA wizard or the
-CORBA templates. Before generating any code, make sure the IDE is set up
-for the ORB product you want your CORBA programs to work with.
+You can generate server-side files with the CORBA template,
+ServerMain. Before creating the file, make sure the IDE is set up for
+the ORB product you want your CORBA programs to work with. You should
+set the Server Binding property for the ORB you are using so that the
+template generates the correct code templates in the server file. 
 </p>
+
+<p>
+<b>To set the binding method:</b>
+<ol>
+<li>Select Project <img SRC="../images/arrow.gif"> Settings.</li>
+<li>Expand the CORBA Settings node and select the node you are using.</li>
+<li>Double-click the value for the Server Binding property and select
+the binding method of choice.
+<p>
+While the property sheet is open, set the binding method for the
+Server by changing the Client Binding property in the same way.</p></li>
+</ol>
+</p>
+
 
 <p>
 <b>To create a server file using the CORBA template:</b>
@@ -68,9 +84,7 @@ package.</p></li>
 <td width="23"></td>
 <td><a href="corba_generating_server.html">Generating Server-Side Files With the CORBA Wizard</a> 
 <br>
-<a href="../irbrowser/corba_irbrowser.html">The Interface Repository Browser</a>
-<br>
-<a href="../completing/corba_completing.html">Completing Generated CORBA
+<a href="../completing/corba_completing_server.html">Completing Server-Side Files</a>
 </td>
 </tr>
 </table>

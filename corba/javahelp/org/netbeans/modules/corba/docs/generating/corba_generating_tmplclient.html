@@ -33,10 +33,24 @@ Microsystems, Inc. All Rights Reserved.
 <h2>Generating Client-Side Files Using the CORBA Template</h2>
 
 <p>
-You can generate client-side files with the CORBA template. You can
-also use the CORBA wizard to add some basic information to
-expedite the process. Before generating any code, make sure the IDE is
-set up for the ORB product you want your CORBA programs to work with.
+You can generate client-side files with the CORBA template,
+ClientMain. Before creating the file, make sure the IDE is set up for
+the ORB product you want your CORBA programs to work with. You should
+set the Client Binding property for the ORB you are using so that the
+template generates the correct code templates in the client file. 
+</p>
+
+<p>
+<b>To set the binding method:</b>
+<ol>
+<li>Select Project <img SRC="../images/arrow.gif"> Settings.</li>
+<li>Expand the CORBA Settings node and select the node you are using.</li>
+<li>Double-click the value for the Client Binding property and select
+the binding method of choice.
+<p>
+While the property sheet is open, set the binding method for the
+Server by changing the Server Binding property in the same way.</p></li>
+</ol>
 </p>
 
 <p>
@@ -54,13 +68,13 @@ it should be generated. Click Next.</li>
 <li>Click the Finish button.
 <p>
 The CORBA module creates a CORBA client source file, named
-<em>Filename</em><tt>.java</tt>.</p>
-<p>
-In addition to generating client source code with the
-template, you need to copy the IDL on which your client is based to
-the client program's package.</p></li>
+<em>Filename</em><tt>.java</tt>.</p></li>
 </ol>
 </p>
+
+<p>
+Once the file is created, you will need to add some
+basic information to complete the file.
 
 <table>
 <tr valign="top">
@@ -71,9 +85,7 @@ the client program's package.</p></li>
 <td><a href="corba_generating_client.html">Generating Client-Side
 Files Using the CORBA Wizard</a> 
 <br>
-<a href="../irbrowser/corba_irbrowser.html">The Interface Repository Browser</a> 
-<br>
-<a href="../completing/corba_completing.html">Completing Generated Files</a>
+<a href="../completing/corba_completing_client.html">Completing Client-Side Files</a>
 </td>
 </tr>
 </table>

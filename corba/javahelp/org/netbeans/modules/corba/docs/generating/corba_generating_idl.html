@@ -26,32 +26,34 @@ Microsystems, Inc. All Rights Reserved.
 
 <h2>Generating an IDL File</h2>
 <p>
-You can create an IDL file by:
+You can obtain an IDL file by:
 <ul>
-<li>Selecting the Empty template, which takes you through the New From
-Template wizard to create the IDL file.</li> 
-<li>Importing an IDL file from the interface repository.</li> 
-<li>Selecting the Simple template, which creates an IDL file
-containing an interface declaration using the name that you supplied
-for the IDL file. You must add the rest of the file's content manually
-in the Source Editor. </li> 
+<li>Using the CORBA Simple IDL template  in the New From
+Template wizard to create an IDL file containing an interface
+declaration using the name that you supplied for the IDL file. You
+must add the rest of the file's content manually in the Source
+Editor. </li> 
+<li>Using the CORBA Empty IDL template in the New From
+Template wizard to create a new IDL file. You then have the option of
+going through the IDL wizard (from within the New From
+Template wizard) to add content to the file  or
+importing an IDL file from the interface repository.</li>
 </ul>
 </p>
 
 <p>
 <a name="idl-wiz"></a>
-<b>To generate an IDL file through the wizard:</b>
+<b>To generate an IDL file from the New From Template wizard:</b>
 <ol>
 <li>Choose File <img SRC="../images/arrow.gif"> New to open the New From
 Template wizard.</li>  
-
 <li>Expand the CORBA node and select Empty. Click Next to proceed.</li>
 <li>Type the name of your IDL file in the Name text field and a
 destination package name in the Package text field. Click Next.</li>
-<li>Select IDL Wizard as the means by which you want to generate an
+<li>Select IDL wizard as the means by which you want to generate an
 IDL file.
 <p>
-Selecting IDL Wizard creates a new IDL file with an IDL editor. Selecting
+Selecting IDL wizard creates a new IDL file with an IDL editor. Selecting
 Interface Repository imports an existing IDL from the interface
 repository (IR).</p></li>
 <li>Define the contents of your IDL file.
@@ -73,6 +75,12 @@ application or click Finish to create the IDL file.</li>
 <a name="idl-ir"></a>
 <b>To import an IDL from the interface repository:</b>
 <ol>
+<li>Choose File <img SRC="../images/arrow.gif"> New to open the New From
+Template wizard.</li>  
+<li>Expand the CORBA node and select Empty. Click Next to proceed.</li>
+<li>Type the name of your IDL file in the Name text field and a
+destination package name in the Package text field. Click Next.</li>
+<li>Select Interface Repository and click Next.</li>
 <li>Click Add IR.</li>
 <li>Provide the name of the interface repository from which you are
 importing the IDL file from, and type either the URL of the
@@ -80,7 +88,7 @@ repository or the IOR string. The string information must be provided
 as one continuous string.</li> 
 <li>Click OK in the CORBA Panel dialog box.</li>
 <li>Click Refresh to redisplay the repository hierarchy in the display
-pane. >Click Next.
+pane. Click Next.</li>
 <li>Click Continue with CORBA Wizard to continue developing the CORBA
 application or click Finish to create the IDL file.</li>
 </ol>

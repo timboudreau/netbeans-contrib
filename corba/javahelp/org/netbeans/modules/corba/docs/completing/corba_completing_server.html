@@ -31,30 +31,10 @@ Microsystems, Inc. All Rights Reserved.
 <h2>Completing Server-Side Files</h2>
 
 <p>
-After you generate the server-side CORBA program files, you must do
-some coding to complete the implementation class and the server
-class.</p>
-
-<a name="completing_impl"></a>
-<h3>Completing the Implementation Class</h3>
-
-<p>
-If you generated your implementation class with the CORBA wizard, you
-must add method bodies to the implementation class's business methods
-(the methods declared in the IDL).</p>
-
-<p>
-Implementation classes can also have private methods (not declared in
-the IDL) that are called by the business methods. If you generated
-your server program with the CORBA templates, you must code your
-implementation class by hand.</p>
-
-<a name="completing_server"></a>
-<h3>Completing the Server Class</h3>
-
-<p>
-The code you must add to your server class depends on the 
-binding method it uses:
+If you created a server file with the CORBA template instead of
+generating one through the CORBA wizard, you must do some coding to
+complete the implementation class and the server class.  The code you
+must add to your server class depends on the binding method it uses:
 <ul>
 <li>
 For all binding methods, you must add code that 
@@ -72,36 +52,38 @@ service operation.</li>
 </ul>
 </p>
 
+<a name="completing_impl"></a>
+<h3>Completing the Implementation Class</h3>
+
 <p>
-<b>To add code that instantiates the implementation class and connects it to the ORB:</b>
+If you generated your implementation class with the CORBA template,
+ServerMain, you must add method bodies to the implementation class's
+business methods (the methods declared in the IDL). Note that implementation
+classes can also have private methods (not declared in the IDL) that
+are called by the business methods. </p>
+
+<p>
+<b>To add code that instantiates the implementation class and connects
+it to the ORB:</b> 
 <ol>
 <li>
-Look for the following comment near the top of your generated server class:
+Look for the following comment and code line near the top of your
+generated server class: 
 <pre>
- // add code to instantiate your object implementation here
+         // add your creating of object implementation here
+ /*servant_class*/ /*servant_variable*/ = new /*servant_class*/();
+ orb.connect(/*servant_variable*/);
 </pre>
 </li>
 
 <li> 
-Below that comment, add a line of code like the following example,
-which instantiates an implementation class to create a servant
-instance: 
+Below the comment, replace the placeholder code with a line of code
+like the following example, which instantiates an implementation class
+to create a servant instance and below that a name you used for the servant
+instance, for example: 
 <pre>
- HelloImpl helloServant = new HelloImpl();
-</pre>
-
-<li> 
-Look for the following line in your generated server class:
-<pre>
- orb.connect (/* add your object implementation here */);
-</pre>
-</li>
-
-<li> 
-Replace the comment with the name you used for the servant
-instance. For example:
-<pre>
- orb.connect (helloServant);
+ helloworld.HelloApp.HelloImpl servant = new helloworld.HelloApp.HelloImpl();
+ orb.connect(servant);
 </pre>
 </li>
 </ol>
@@ -113,15 +95,14 @@ instance. For example:
 <li> 
 Look for the following line in your generated server class:
 <pre>
- System.out.println (orb.object_to_string (/* place your object 
- implementation here */));
+ System.out.println(orb.object_to_string (/*servant_variable*/));
 </pre></li>
 
 <li> 
 Replace the commented parameter with your servant instance, as in the
 following example:
 <pre>
- System.out.println (orb.object_to_string (helloServant));
+ System.out.println(orb.object_to_string (servant));
 </pre></li>
 </ol>
 </p>
@@ -132,11 +113,9 @@ following example:
 <li>
 Look for the following lines in your generated server class:
 <pre>
- String ior = orb.object_to_string (/* place your object
- implementation here */);
- try { 
-      FileWriter file = new java.io.FileWriter("<file_name>");
-      ...
+ String ior = orb.object_to_string (/*servant_variable*/);
+ FileWriter file = new java.io.FileWriter("<file_name>");
+ ...
 </pre>
 </li>
 <li>
@@ -144,10 +123,8 @@ Replace the commented parameters with your servant instance and the
 name of the file to which you want to write the IOR, as in the
 following example:
 <pre>
- String ior = orb.object_to_string (helloServant);
- try {
-      FileWriter file = 
-           new java.io.FileWriter("helloServant.ior");
+ String ior = orb.object_to_string (servant);
+ FileWriter file = new java.io.FileWriter("HelloIOR");
       ...
 </pre>
 </li>
@@ -155,18 +132,18 @@ following example:
 </p>
 
 <p>
-<b>To add code that specifies the binding name:</b>
+<b>To add code that specifies the binding name:</b> 
 <ol> 
 <li> 
-Start the naming service with which you plan to register your server.</li>
+Start the naming service with which you plan to register your
+server.</li>
 <li> 
-In the IDE, go to the Explorer's Runtime tab.</li>
+In the IDE, go to the Explorer's Runtime tab.</li> 
 <li> 
-Start the CORBA module's Naming Service browser, specifying the
-naming service you started in the previous step.</li> 
-<li> 
-You can register your server in an existing naming context or
-create a new context for it.  
+Start the CORBA module's Naming Service browser, specifying the naming
+service.  You can register your server in an existing naming context
+or create a new context for it.
+
 <p>To create a new naming context: 
 <ol type="a">
 <li>
@@ -191,8 +168,8 @@ are registering the server, and choose Copy Server Binding Code.</li>
 Switch back to the editing window, and look for the following comment
 in your generated server class: 
 <pre>
- // paste code retrieved using the Copy Server Code action (on a context node in 
- the Naming Service Browser)
+ // paste code retrieved using the Copy Client/Server Code action 
+ // (on the corresponding node in the Naming Service Browser) here
 </pre></li>
 <li>
 Click to place the insertion point under this line, and press Ctrl-V.
@@ -205,32 +182,33 @@ servant instance, as follows:
 <ol type="a">
 <li>
 Look for the <code>&lt;name of server&gt;</code> variable. Replace it
-with <tt>" "</tt> for the servant name.</li>  
+with the server name, for example, Hello.</li>  
 <li>
 Look for the <code>&lt;kind of server&gt;</code> variable. Replace it with
-<code>demo</code>. 
-<p>
-(These names are arbitrary and are chosen to be descriptive of the
-application.)</li>
-</ol></li> 
+a server type, for example, <code>demo</code>.</li>
+</ol>
+Reminder: the names you supply for <tt>name_of_server</tt> and
+<tt>kind_of_server</tt> are arbitrary--the examples are chosen to be
+descriptive.</li> 
 <li>
 Locate the following comment:
 <pre>
- nc.bind (aName, /* place here name of servant variable */);
+ nc.bind (aName, /*servant_variable*/);
 </pre></li> 
 <li> 
-Replace the commented parameter with <code>hImpl</code> so that the
-line looks like this:
+Replace the commented parameter with the servant name (for
+example, <code>servant</code>) so that the line looks like this:
 <pre>
- nc.bind (aName, hImpl);
+ nc.bind (aName, servant);
 </pre>
 </li>
 </ol> 
 </p>
 
 <p>
-The last step in completing the server class is to compile all the classes
-related to the server, including the IDL file:
+Save the changes to the file. The last step in completing the server
+class is to compile all the classes related to the server, including
+the IDL file:
 
 <p>
 <b>To compile your server:</b> 
