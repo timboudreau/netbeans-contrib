@@ -17,6 +17,7 @@ import org.openide.filesystems.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.RequestProcessor;
 
+import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.versioning.*;
 
 import javax.swing.*;
@@ -78,12 +79,8 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
     
     private RevisionList getRevisionList(boolean refresh) {
         VersioningFileSystem vfs;
-        try {
-            vfs = VersioningFileSystem.findFor(getFile().getFileSystem());
-            return vfs.getVersions().getRevisions(getFile().getPath(), refresh);
-        } catch (FileStateInvalidException exc) {
-            return null;
-        }
+        vfs = VersioningFileSystem.findFor((FileSystem) getFile().getAttribute(VcsAttributes.VCS_NATIVE_FS));
+        return vfs.getVersions().getRevisions((String) getFile().getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT), refresh);
     }
 
     private final Object childrenRefreshingLock = new Object();

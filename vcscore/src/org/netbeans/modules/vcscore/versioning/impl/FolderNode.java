@@ -38,6 +38,7 @@ import java.beans.BeanInfo;
 import java.util.Set;
 import java.util.Collections;
 
+import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 
@@ -135,15 +136,9 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     }
 
     private void init(FileObject file) {
-        try {
-            FileSystem fs = file.getFileSystem();
-            vcsFileStatusListener = new VCSFileStatusListener();
-            fs.addFileStatusListener((FileStatusListener) WeakListeners.create(FileStatusListener.class, vcsFileStatusListener, fs));
-        } catch (FileStateInvalidException exc) {
-            ErrorManager err = ErrorManager.getDefault();
-            err.notify(ErrorManager.INFORMATIONAL, exc);
-            return;
-        }
+        FileSystem fs = (FileSystem) file.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+        vcsFileStatusListener = new VCSFileStatusListener();
+        fs.addFileStatusListener((FileStatusListener) WeakListeners.create(FileStatusListener.class, vcsFileStatusListener, fs));
     }
 
     public String getName() {
@@ -318,12 +313,8 @@ class FolderNode extends AbstractNode implements Node.Cookie {
 
     private FileStatusProvider getFileStatusProvider() {
         VersioningFileSystem vfs;
-        try {
-            vfs = VersioningFileSystem.findFor(file.getFileSystem());
-            return vfs.getFileStatusProvider();
-        } catch (FileStateInvalidException exc) {
-            return null;
-        }
+        vfs = VersioningFileSystem.findFor((FileSystem) file.getAttribute(VcsAttributes.VCS_NATIVE_FS));
+        return vfs.getFileStatusProvider();
     }
 
     /**
@@ -335,7 +326,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         if (status == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
-            status = statusProvider.getFileStatus(file.getPath());
+            status = statusProvider.getFileStatus((String) file.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT));
         }
         return status;
     }
@@ -349,7 +340,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         if (locker == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
-            locker = statusProvider.getFileLocker(file.getPath());
+            locker = statusProvider.getFileLocker((String) file.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT));
         }
         return locker;
     }
@@ -363,7 +354,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         if (revision == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
-            revision = statusProvider.getFileRevision(file.getPath());
+            revision = statusProvider.getFileRevision((String) file.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT));
         }
         return revision;
     }
@@ -377,7 +368,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         if (sticky == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
-            sticky = statusProvider.getFileSticky(file.getPath());
+            sticky = statusProvider.getFileSticky((String) file.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT));
         }
         return sticky;
     }
@@ -386,7 +377,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     private class VCSFileStatusListener implements FileStatusListener {
         public void annotationChanged(FileStatusEvent ev) {
             if (ev.hasChanged(file)) {
-                String name = file.getPath();
+                String name = (String) file.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
                 String newState;
                 String oldState;
                 FileStatusProvider statusProvider = null;

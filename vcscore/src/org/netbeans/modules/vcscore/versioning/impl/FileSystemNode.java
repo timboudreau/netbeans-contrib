@@ -53,18 +53,33 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
     * @param root folder to work on
     */
     public FileSystemNode(FileObject root) {
-        // TODO I'm hiding here a bug in FS, it wrongly works over deleted roots and shows random files!
-        // visible after deserialization of old setting that used already deleted folders
-        super(FileUtil.toFile(root).exists() ? new FolderChildren(root) : Children.LEAF);
+        super(getRootChildren(root));
         this.root = root;
         init();
+    }
+    
+    private static final Children getRootChildren(FileObject root) {
+        FileObject masterRoot = FileUtil.toFileObject(FileUtil.toFile(root));
+        if (masterRoot != null) root = masterRoot;
+        // TODO I'm hiding here a bug in FS, it wrongly works over deleted roots and shows random files!
+        // visible after deserialization of old setting that used already deleted folders
+        if (FileUtil.toFile(root).exists()) {
+            return new FolderChildren(root);
+        } else {
+            return Children.LEAF;
+        }
     }
 
     public Cookie getCookie(Class type) {
         // mimics DataNode because some actions heavily depends on DataObject cookie existence
         if (type.isAssignableFrom(DataObject.class) || type.isAssignableFrom(DataFolder.class)) {
             try {
-                return DataObject.find(root);
+                FileObject masterRoot = FileUtil.toFileObject(FileUtil.toFile(root));
+                if (masterRoot != null) {
+                    return DataObject.find(masterRoot);
+                } else {
+                    return DataObject.find(root);
+                }
             } catch (DataObjectNotFoundException e) {
                 // ignore, call super later on
             }
@@ -262,7 +277,7 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
         }
         if (org.openide.filesystems.FileSystem.PROP_ROOT.equals(ev.getPropertyName())) {
             this.root = fileSystem().getRoot();
-            setChildren(new FolderChildren(root));
+            setChildren(getRootChildren(root));
         }
     }
 
