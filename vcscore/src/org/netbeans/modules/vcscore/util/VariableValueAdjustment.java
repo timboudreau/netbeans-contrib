@@ -43,6 +43,7 @@ public class VariableValueAdjustment implements Serializable {
     private char adjustingChar;
     private HashSet adjustedChars = null;
     private HashSet adjustedVars = null;
+    private String quoting = null;
     
     static final long serialVersionUID = 2773459026157834845L;
     /** Creates new VariableValueAdjustment */
@@ -61,6 +62,7 @@ public class VariableValueAdjustment implements Serializable {
         if (adjustVarsStr == null) return ;
         String[] adjustVars = VcsUtilities.getQuotedStrings(adjustVarsStr);
         this.adjustedVars = new HashSet(Arrays.asList(adjustVars));
+        quoting = (String) vars.get(org.netbeans.modules.vcscore.VcsFileSystem.VAR_QUOTING);
     }
     
     /**
@@ -84,6 +86,20 @@ public class VariableValueAdjustment implements Serializable {
      * @return the adjusted value
      */
     public String adjustVarValue(String value) {
+        value = adjustCharsInValue(value);
+        if (quoting != null && value != null) {
+            int index = 0;
+            String adjustedQuoting = null;
+            while ((index = value.indexOf(quoting, index)) >= 0) {
+                if (adjustedQuoting == null) adjustedQuoting = adjustCharsInValue(quoting);
+                value = value.substring(0, index) + adjustedQuoting + value.substring(index + quoting.length());
+                index += adjustedQuoting.length();
+            }
+        }
+        return value;
+    }
+    
+    private String adjustCharsInValue(String value) {
         if (adjustedChars == null) return value;
         if (value == null) return value;
         for (int i = 0; i < value.length(); i++) {
@@ -102,6 +118,20 @@ public class VariableValueAdjustment implements Serializable {
      * @return the reverted value
      */
     public String revertAdjustedVarValue(String value) {
+        value = revertAdjustedCharsInValue(value);
+        if (quoting != null && value != null) {
+            int index = 0;
+            String revertedQuoting = null;
+            while ((index = value.indexOf(quoting, index)) >= 0) {
+                if (revertedQuoting == null) revertedQuoting = revertAdjustedCharsInValue(quoting);
+                value = value.substring(0, index) + revertedQuoting + value.substring(index + quoting.length());
+                index += revertedQuoting.length();
+            }
+        }
+        return value;
+    }
+    
+    private String revertAdjustedCharsInValue(String value) {
         if (adjustedChars == null) return value;
         if (value == null) return value;
         int index = value.indexOf(adjustingChar);
