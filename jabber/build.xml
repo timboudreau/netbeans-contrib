@@ -21,7 +21,7 @@ Contributor(s): Petr Nejedly
         <patternset id="module.files">
             <include name="${module.jar}"/>
             <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
-            <include name="${nb.modules.dir}/ext/smack-all*.jar"/>
+            <include name="${nb.modules.dir}/ext/smack*.jar"/>
         </patternset>
     </target>
 
@@ -42,7 +42,7 @@ Contributor(s): Petr Nejedly
     <target name="release" depends="init">
         <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
             <fileset dir="external">
-                <include name="smack-all*.jar"/>
+                <include name="smack*.jar"/>
             </fileset>
         </copy>
     </target>
