@@ -50,6 +50,9 @@ final class ClassElementImpl extends MemberElementImpl
   /** Methods of this class element */
   private SoftReference methods;
 
+  /** One JavaDoc empty implementation for all objects */
+  private static final ClassJavaDocImpl.Class CLASS_JAVADOC_IMPL = new ClassJavaDocImpl.Class ();
+
   /** Default constructor.
   */
   public ClassElementImpl (final Class data) {
@@ -248,7 +251,7 @@ final class ClassElementImpl extends MemberElementImpl
   /** @return class documentation.
   */
   public JavaDoc.Class getJavaDoc() {
-    throw new UnsupportedOperationException();
+    return CLASS_JAVADOC_IMPL;
   }
 
   /******** non public methods ***********/
@@ -356,6 +359,8 @@ final class ClassElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  10   src-jtulach1.9         6/9/99   Petr Hrebejk    Empty JavaDoc 
+*       implementation added.
 *  9    src-jtulach1.8         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  8    src-jtulach1.7         5/12/99  Petr Hamernik   ide.src.Identifier 

@@ -26,6 +26,9 @@ final class FieldElementImpl extends MemberElementImpl
   /** Cached type of this field */
   private Type type;
 
+  /** One JavaDoc empty implementation for all objects */
+  private static final ClassJavaDocImpl.Field FIELD_JAVADOC_IMPL = new ClassJavaDocImpl.Field(); 
+
   /** Default constructor. Asociates with given
   * reflection Field data.
   */
@@ -63,7 +66,7 @@ final class FieldElementImpl extends MemberElementImpl
   /** @return java doc for the field
   */
   public JavaDoc.Field getJavaDoc () {
-    throw new UnsupportedOperationException();
+    return FIELD_JAVADOC_IMPL;
   }
 
   public Object readResolve() {
@@ -74,6 +77,8 @@ final class FieldElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  4    src-jtulach1.3         6/9/99   Petr Hrebejk    Empty JavaDoc 
+*       implementation added.
 *  3    src-jtulach1.2         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  2    src-jtulach1.1         2/17/99  Petr Hamernik   serialization changed.

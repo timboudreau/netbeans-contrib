@@ -33,6 +33,8 @@ class ConstructorElementImpl extends MemberElementImpl
   private MethodParameter[] parameters;
   /** The array of exceptions which can be thrown */
   private Identifier[] exceptions;
+  /** One JavaDoc empty implementation for all objects */
+  private static final ClassJavaDocImpl.Method METHOD_JAVADOC_IMPL = new ClassJavaDocImpl.Method(); 
 
   /** Default constructor, asocitates this object
   * with java reflection Constructor instance.
@@ -111,10 +113,11 @@ class ConstructorElementImpl extends MemberElementImpl
     return "";
   }
 
-  /** PENDING - ???
+  /** Empty implementation
+  * @return Empty JavaDoc implementation.
   */
   public JavaDoc.Method getJavaDoc () {
-    throw new UnsupportedOperationException();
+    return METHOD_JAVADOC_IMPL;
   }
 
   public Object readResolve() {
@@ -125,6 +128,8 @@ class ConstructorElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  7    src-jtulach1.6         6/9/99   Petr Hrebejk    Empty JavaDoc 
+*       implementation added.
 *  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  5    src-jtulach1.4         3/15/99  Petr Hamernik   
