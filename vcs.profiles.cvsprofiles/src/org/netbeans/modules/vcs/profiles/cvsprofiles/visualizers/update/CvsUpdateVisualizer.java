@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -59,6 +59,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     public static final String SERVER = "server: "; //NOI18N
     public static final String PERTINENT = "is not (any longer) pertinent"; //NOI18N
     public static final String MERGING = "Merging differences between "; //NOI18N
+    private static final String MERGING_INTO = "into"; // NOI18N
     public static final String CONFLICTS = "rcsmerge: warning: conflicts during merge"; //NOI18N
     public static final String NOT_IN_REPOSITORY = "is no longer in the repository"; //NOI18N;
      
@@ -66,10 +67,6 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
 
     private UpdateInformation fileInfoContainer;
 
-    /**
-     * The local path the command run in.
-     */
-    private String localPath;
     private UpdateInfoPanel contentPane = null;
     private HashMap output;
     private int exit = Integer.MIN_VALUE; // unset exit status
@@ -150,7 +147,15 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
             return;
         }
         else if (line.startsWith(MERGING)) {
-            outputDone();
+            int fileIndex = line.indexOf(MERGING_INTO, MERGING.length());
+            //System.out.println("   file index = "+fileIndex);
+            if (fileIndex > 0) {
+                String fileName = line.substring(fileIndex + MERGING_INTO.length()).trim();
+                //System.out.println("  file = "+createFile(fileName));
+                if (fileInfoContainer != null && (fileInfoContainer.getFile() != null && !createFile(fileName).equals(fileInfoContainer.getFile()))) {
+                    outputDone();
+                }
+            }
             if (fileInfoContainer == null) {
                 fileInfoContainer = new UpdateInformation();
             }
@@ -189,7 +194,68 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
 
        
     private File createFile(String fileName) {
-        return new File(localPath, fileName);
+        Iterator it = files.iterator();
+        while(it.hasNext()){
+            File file = new  File((String)it.next());
+            if(file.getName().equals(fileName))
+                return file;
+        }
+        //directory name
+        String name = fileName.replace('\\', '/');        
+        //System.out.println("  createFile("+fileName+"), name = "+name);
+        int maxLevel = name.length();
+        File bestMatch = null;
+        String[] paths = new String[files.size()];
+        it = files.iterator();
+        int i = 0;
+        while(it.hasNext()){
+            paths[i++] = ((String)it.next()).replace('\\', '/');            
+        }
+        int start = name.lastIndexOf('/');
+        String part = null;
+        if (start < 0) {
+            part = name;
+        } else {
+            part = name.substring(start + 1);
+        }
+        int end = name.length() - 1;
+        while (start >= 0 || part != null) {
+            boolean wasMatch = false;
+            for (int index = 0; index < paths.length; index++) {
+                //System.out.println("     '"+paths[index]+"' ends with '"+part+"' = "+paths[index].endsWith(part));
+                if (paths[index].endsWith(part)) {
+                    String path = paths[index] + name.substring(end);
+                    if (path.startsWith("/")) path = path.substring(1);
+                    bestMatch = new File(path);
+                    wasMatch = true;
+                }
+            }
+            if (wasMatch) {
+                break;
+            }
+            end = start;
+            if (start > 0) {
+                start = name.substring(0, end).lastIndexOf('/');
+                if (start < 0) start = -1; // slash is "virtually" at -1 position.
+            } else {
+                break;
+            }
+            //System.out.println("   start = "+start+", end = "+end);
+            part = name.substring(start + 1, end);
+        }
+        //System.out.println("  return '"+bestMatch+"'");
+        if (bestMatch == null) {
+            if (fileInfoContainer != null) {
+                File lastFile = fileInfoContainer.getFile();
+                if (lastFile != null) {
+                    bestMatch = new File(lastFile.getParentFile(), name);
+                }
+            }
+            if (bestMatch == null) {
+                bestMatch = new File(paths[0] + File.separator + fileName);
+            }
+        }
+        return bestMatch;
     }
 
     private void ensureExistingFileInfoContainer() {
@@ -228,9 +294,9 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
                 // file is assigned the merged file..
                 fileInfoContainer.setFile(file);
             }
-            if (file.equals(fileInfoContainer.getFile())) {
+            if (!file.equals(fileInfoContainer.getFile())) {
                 outputDone();
-                return;
+                //return;
             }
         }
 
@@ -240,7 +306,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
 
         fileInfoContainer.setType(line.substring(0, 1));
         fileInfoContainer.setFile(file);
-        outputDone();
+        //outputDone();
     }
 
     private void processLog(String line) {
@@ -313,6 +379,9 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
                 outputDone(); // show cached infos
             }
             contentPane.showFinishedCommand(exit);
+        }
+        if (fileInfoContainer != null) {
+            outputDone();
         }
     }
     
