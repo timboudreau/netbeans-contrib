@@ -18,13 +18,22 @@ import java.util.ArrayList;
 public class Filter {
 
     ArrayList filterAfter;
+    ArrayList replaceFrom;
+    ArrayList replaceTo;
     
     public Filter () {
         filterAfter = new ArrayList ();
+        replaceFrom = new ArrayList ();
+        replaceTo = new ArrayList ();
     }
     
     public void addFilterAfter (String str) {
         filterAfter.add (str);
+    }
+    
+    public void addReplace (String from, String to) {
+        replaceFrom.add (from);
+        replaceTo.add (to);
     }
     
     public String filter (String str) {
@@ -34,6 +43,8 @@ public class Filter {
             if (i >= 0)
                 str = str.substring(0, i + f.length());
         }
+        for (int a = 0; a < replaceFrom.size (); a ++)
+            str = Helper.replaceAll(str, (String) replaceFrom.get (a), (String) replaceTo.get (a));
         return str;
     }
     

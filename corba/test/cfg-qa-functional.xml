@@ -80,6 +80,14 @@ Microsystems, Inc. All Rights Reserved.
 		</testset>
 	</testbag>
 -->
+	<testbag testattribs="stable,full,cwfunc" executor="ide" name="testbag_CORBAWizard_Func" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/cwfunc/Main.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
 	<testbag testattribs="stable,local,ir" executor="ide" name="testbag_IR" resultsprocessor="qa-functional">
 		<testset dir="qa-functional/src">
 			<patternset>

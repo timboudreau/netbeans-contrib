@@ -1,0 +1,238 @@
+=========================================
+---- AppCallBackClient
+/*
+ * AppCallBackClient.java  --  call-back client implementation
+ *
+ * Created on
+ * with IOR from file binding.
+ */
+package data.cwfunc.jdk14;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.ThreadPolicyValue;
+import java.util.Properties;
+import java.io.FileReader;
+import java.io.BufferedReader;
+/**
+ *
+ * @author
+ * @version
+ */
+public class AppCallBackClient implements Runnable {
+    
+    private ORB orb;
+    
+    public void init(ORB _orb) {
+        orb = _orb;
+    }
+    public void run() {
+        try {
+            orb.run();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        
+        try {
+            
+            ORB orb = ORB.init(args, null);
+            // create call-back object
+            POA poa = (POA)orb.resolve_initial_references("RootPOA");
+            
+            Policy[] _policies;
+            
+            _policies = new Policy[] {
+            };
+            POA myPOA = poa.create_POA("MyPOA", poa.the_POAManager(), _policies);
+            // add your creating of object implementation here
+            data.cwfunc.jdk14.HelloImpl myServant = new data.cwfunc.jdk14.HelloImpl();
+            byte[] myServantID1 = myPOA.activate_object(myServant);
+            poa.the_POAManager().activate();
+            // run CORBA request handling asynchronously
+            AppCallBackClient handler = new AppCallBackClient();
+            handler.init(orb);
+            new Thread(handler).start();
+            
+            // bind to server object
+            
+            // IOR will be read from file
+            FileReader file = new java.io.FileReader("<FILE>");
+            BufferedReader input = new java.io.BufferedReader(file);
+            String ior = input.readLine();
+            input.close();
+            
+            org.omg.CORBA.Object obj = orb.string_to_object(ior);
+            if (obj == null)
+                throw new RuntimeException();
+            data.cwfunc.jdk14.Hello srv = data.cwfunc.jdk14.HelloHelper.narrow(obj);
+            if (srv == null)
+                throw new RuntimeException();
+            
+            // add your client code here
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+-----------------------------------------
+=========================================
+---- AppClient
+/*
+ * AppClient.java  --  client side implementation
+ *
+ * Created on
+ * with IOR from file binding.
+ */
+package data.cwfunc.jdk14;
+import org.omg.CORBA.ORB;
+import java.util.Properties;
+import java.io.FileReader;
+import java.io.BufferedReader;
+/**
+ *
+ * @author
+ * @version
+ */
+public class AppClient {
+    
+    /** Creates new AppClient */
+    public AppClient() {
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        
+        try {
+            
+            ORB orb = ORB.init(args, null);
+            // IOR will be read from file
+            FileReader file = new java.io.FileReader("<FILE>");
+            BufferedReader input = new java.io.BufferedReader(file);
+            String ior = input.readLine();
+            input.close();
+            
+            org.omg.CORBA.Object obj = orb.string_to_object(ior);
+            if (obj == null)
+                throw new RuntimeException();
+            data.cwfunc.jdk14.Hello srv = data.cwfunc.jdk14.HelloHelper.narrow(obj);
+            if (srv == null)
+                throw new RuntimeException();
+            
+            // add your client code here
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+-----------------------------------------
+=========================================
+---- AppServer
+/*
+ * AppServer.java  --  server side implementation
+ *
+ * Created on
+ * with IOR to file binding.
+ */
+package data.cwfunc.jdk14;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.ThreadPolicyValue;
+import java.util.Properties;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+/**
+ *
+ * @author
+ * @version
+ */
+public class AppServer {
+    
+    /** Creates new AppServer */
+    public AppServer() {
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        
+        try {
+            
+            ORB orb = ORB.init(args, null);
+            POA poa = (POA)orb.resolve_initial_references("RootPOA");
+            
+            Policy[] _policies;
+            
+            _policies = new Policy[] {
+                poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
+                poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT),
+                poa.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION)
+            };
+            POA myPOA = poa.create_POA("MyPOA", poa.the_POAManager(), _policies);
+            // add your creating of object implementation here
+            data.cwfunc.jdk14.HelloImpl myServant = new data.cwfunc.jdk14.HelloImpl();
+            myPOA.activate_object_with_id("MyServant".getBytes(), myServant);
+            // IOR will be written to file
+            String ior = orb.object_to_string(myPOA.servant_to_reference(myServant));
+            FileWriter file = new java.io.FileWriter("<FILE>");
+            PrintWriter pfile = new java.io.PrintWriter(file);
+            pfile.println(ior);
+            pfile.flush();
+            pfile.close();
+            poa.the_POAManager().activate();
+            orb.run();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+-----------------------------------------
+=========================================
+---- HelloImpl
+//
+// This file was generated from App.idl
+//
+package data.cwfunc.jdk14;
+//
+// IDL:Hello:1.0
+//
+public class HelloImpl extends data.cwfunc.jdk14.HelloPOA {
+    public HelloImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public String hello(String name) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    
+}
+-----------------------------------------
+Finished AppCallBackClient.
+Finished AppClient.
+Finished AppServer.

@@ -108,6 +108,18 @@ public class Helper {
 		return (Node[]) al.toArray (new Node[count]);
     }
     
+    public static String replaceAll(String str, String from, String to) {
+        if ("".equals (from)  ||  to.startsWith(from))
+            return str;
+        for (;;) {
+            int index = str.indexOf(from);
+            if (index < 0)
+                break;
+            str = str.substring(0, index) + to + str.substring(index + from.length());
+        }
+        return str;
+    }
+    
 /*
     public static Node getOriginalNode (Node node) {
         Method m;
