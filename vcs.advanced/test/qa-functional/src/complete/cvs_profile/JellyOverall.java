@@ -18,8 +18,12 @@ import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.netbeans.jellytools.actions.Action;
+import org.netbeans.jellytools.actions.ActionNoBlock;
+import org.netbeans.jellytools.actions.CustomizeAction;
 import org.netbeans.jellytools.actions.DeleteAction;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
+import org.netbeans.jellytools.modules.vcsgeneric.VCSFilesystemCustomizerDialog;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSAddAction;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSCommitAction;
 import org.netbeans.jellytools.nodes.FilesystemNode;
@@ -84,6 +88,12 @@ public class JellyOverall extends CVSStub {
     
     public void configure () {
         super.configure();
+        // advanced mode
+        new ActionNoBlock (null, "Customize").performPopup (root.genericNode());
+        VCSFilesystemCustomizerDialog dia = new VCSFilesystemCustomizerDialog ();
+        dia.checkAdvancedMode(true);
+        dia.close ();
+        dia.waitClosed ();
     }
 
     public void testUnmount() {
@@ -107,7 +117,7 @@ public class JellyOverall extends CVSStub {
         root.waitHistory("Check Out");
         
         // stabilization
-        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator("Check Out");
+//        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator("Check Out");
         closeAllVCSWindows();
         
         refresh (root);

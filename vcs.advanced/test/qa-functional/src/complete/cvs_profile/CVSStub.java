@@ -17,11 +17,20 @@ import complete.GenericStub;
 import complete.GenericStub.GenericNode;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import javax.swing.JTabbedPane;
+import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.actions.Action;
+import org.netbeans.jellytools.actions.CustomizeAction;
+import org.netbeans.jellytools.actions.PropertiesAction;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
+import org.netbeans.jellytools.modules.vcsgeneric.VCSFilesystemCustomizerDialog;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.VCSGenericMountAction;
+import org.netbeans.jellytools.modules.vcsgeneric.wizard.GenericVCSMountCVSProfileWizard;
+import org.netbeans.jellytools.modules.vcsgeneric.wizard.GenericVCSMountWizard;
 import org.netbeans.jellytools.modules.vcsgeneric.wizard.VCSWizardAdvanced;
 import org.netbeans.jellytools.modules.vcsgeneric.wizard.VCSWizardProfile;
+import org.netbeans.jemmy.operators.JCheckBoxOperator;
+import org.netbeans.jemmy.operators.JTabbedPaneOperator;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardData;
 import org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator;
@@ -59,10 +68,12 @@ public abstract class CVSStub extends GenericStub {
         new Action ("Versioning|Mount Version Control", null).performMenu (); // workaround for issue #31026
         new Action ("Tools", null).performMenu (); // workaround for issue #31026*/
         new VCSGenericMountAction().perform();
-        VCSWizardProfile wizard = new VCSWizardProfile();
-        wizard.verify("");
-        wizard.setWorkingDirectory(clientDirectory);
-        String profile = "CVS";//Utilities.isUnix() ? VCSWizardProfile.CVS_UNIX : VCSWizardProfile.CVS_WIN_NT;
+        GenericVCSMountWizard genericwizard = new GenericVCSMountWizard();
+        genericwizard.verify();
+        genericwizard.setWorkingDirectory("");
+        genericwizard.txtWorkingDirectory().typeText (clientDirectory);
+
+        String profile = "CVS";
 
         MountWizardIterator mwi = MountWizardIterator.singleton();
         MountWizardData mwd = mwi.getData();
@@ -85,21 +96,38 @@ public abstract class CVSStub extends GenericStub {
         history = new History (fs, info);
         history.breakpoint();
 
-        wizard.setProfile(profile);
+        genericwizard.cboProfileComboBox().setVerification(false);
+        genericwizard.selectProfileComboBox(profile);
+        genericwizard.cboProfileComboBox().setVerification(true);
         history.waitCommand("AUTO_FILL_CONFIG", "");
         sleep (5000);
 
+        GenericVCSMountCVSProfileWizard wizard = new GenericVCSMountCVSProfileWizard ();
+        wizard.verify ();
+
+        // stabilization
+        wizard.setWorkingDirectory("");
+        wizard.txtWorkingDirectory().typeText (clientDirectory);
+        
         wizard.setCVSServerName(""); // workaround for issue #37380
-        wizard.setCVSUserName(""); // workaround for issue #37380
-        wizard.setCVSServerType("local");
-        wizard.setCVSRepository(serverDirectory);
-        wizard.next();
-        VCSWizardAdvanced wizard2 = new VCSWizardAdvanced();
-        wizard2.checkAdvancedMode(true);
-        wizard2.finish();
+        wizard.setUserName(""); // workaround for issue #37380
+        wizard.selectCVSServerType("local");
+        wizard.setRepositoryPath ("");
+        wizard.txtRepositoryPath ().typeText (serverDirectory);
+        wizard.useCommandLineCVSClient(); // workaround for issue #
+        wizard.finish();
+        
+        closeAllProperties();
     }
         
     protected void prepareClient () {
+        // advanced mode
+        new CustomizeAction ().performPopup (root.cvsNode ());
+        VCSFilesystemCustomizerDialog dia = new VCSFilesystemCustomizerDialog ();
+        dia.checkAdvancedMode(true);
+        dia.close ();
+        dia.waitClosed ();
+
         // init
         root.cvsNode ().cVSInit ();
         history.getWaitCommand("Init", root.history ());
