@@ -3677,7 +3677,6 @@ public class ImplGenerator implements PropertyChangeListener {
 		this.generate_from_element (__element.getMember (0));
 	    }
 	    Vector __t_members = __element.getMembers ();
-	    int __last = __t_members.size () - 1;
 	    for (int __i=1; __i<__t_members.size (); __i++) {
 		IDLElement __t_element = (IDLElement)__t_members.get (__i);
 		List __t_name = this.element2list_name (__t_element);
@@ -3708,6 +3707,18 @@ public class ImplGenerator implements PropertyChangeListener {
 		throw new AlreadyDefinedSymbolException
 		    (ImplGenerator.list2absolute_scope_name (__name));
 	    this.generate_from_element (__element);
+	    Vector __t_members = __element.getMembers ();
+	    for (int __i=1; __i<__t_members.size (); __i++) {
+		IDLElement __t_element = (IDLElement)__t_members.get (__i);
+                if (ImplGenerator.is_declarator (__t_element)) {
+  		    List __t_name = this.element2list_name (__t_element);
+		    Collections.reverse (__t_name);
+		    if (_S_symbol_table.add_element (__t_name, __t_element) != null)
+		        throw new AlreadyDefinedSymbolException
+			    (ImplGenerator.list2absolute_scope_name (__t_name));
+                }
+	    }
+	    return;
 	}
 	/*
 	  if (ImplGenerator.is_declarator (__element)) {
@@ -3719,26 +3730,36 @@ public class ImplGenerator implements PropertyChangeListener {
 	  (ImplGenerator.list2absolute_scope_name (__name));
 	  }
 	*/
-	IDLElement __last_element = __element.getMember
-	    (__element.getMembers ().size () - 1);
-	if ((__element.getMembers ().size () > 1) 
-	    && (ImplGenerator.is_declarator (__last_element))) {
+	if (__element.getMembers ().size () > 1) {
 	    if (DEBUG)
 		System.out.println ("ld");
 	    // last declarator	    
 	    // typedef x y;
 	    // test if x is defined
-	    TypeElement __p_element = (TypeElement)__last_element.getParent ();
+            if (!ImplGenerator.is_declarator (__element.getMember (0))) {
+	        TypeElement __p_element = (TypeElement)__element.getMember(0).getParent ();
 	    /*
 	      List __p_name = this.element2list_name (__p_element);
 	      Collections.reverse (__p_name);
 	      IDLElement __found = _S_symbol_table.get_element (__p_name);
 	    */
-	    IDLElement __found = ImplGenerator.find_element_by_type
-		(__p_element.getType (), __p_element);
-	    if (__found == null)
-		throw new SymbolNotFoundException (__p_element.getName ());
-	    List __name = this.element2list_name (__last_element);
+	        IDLElement __found = ImplGenerator.find_element_by_type
+		    (__p_element.getType (), __p_element);
+	        if (__found == null)
+		    throw new SymbolNotFoundException (__p_element.getName ());
+            }
+	    Vector __t_members = __element.getMembers ();
+	    for (int __i=1; __i<__t_members.size (); __i++) {
+		IDLElement __t_element = (IDLElement)__t_members.get (__i);
+                if (ImplGenerator.is_declarator (__t_element)) {
+		    List __t_name = this.element2list_name (__t_element);
+		    Collections.reverse (__t_name);
+		    if (_S_symbol_table.add_element (__t_name, __t_element) != null)
+		        throw new AlreadyDefinedSymbolException
+			    (ImplGenerator.list2absolute_scope_name (__t_name));
+                }
+	    }
+/*	    List __name = this.element2list_name (__last_element);
 	    Collections.reverse (__name);
 //  	    System.out.println ("_S_symbol_table: " + _S_symbol_table);
 //  	    System.out.println ("__name: " + __name);
@@ -3747,6 +3768,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    if (_S_symbol_table.add_element (__name, __last_element) != null)
 		throw new AlreadyDefinedSymbolException
 		    (ImplGenerator.list2absolute_scope_name (__name));
+ */
 	}
     }
 
