@@ -143,7 +143,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
             s.setLine(subtask.getLine());
             s.setPriority(SuggestionPriority.NORMAL);
             if (tasks == null) {
-                tasks = new ArrayList(tasklist.getTasks().size()+1); // room for copyright
+                tasks = new ArrayList(tasklist.getTasks().size());
             }
             tasks.add(s);
         }

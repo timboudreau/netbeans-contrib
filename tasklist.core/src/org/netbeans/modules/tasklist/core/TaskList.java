@@ -43,6 +43,7 @@ public class TaskList { // XXX remove the publicness
     /** Creates a new instance of TaskList with a specified root */
     public TaskList(Task root) { // Must this be public?
         this.root = root;
+        root.setList(this);
     }
 
    /** Has the options set changed such that we need to save */
@@ -354,6 +355,10 @@ public class TaskList { // XXX remove the publicness
     }
     
     private void recursivePrint(Task node, int depth) {
+        if (depth > 20) { // probably invalid list
+            Thread.dumpStack();
+            return;
+        }
         for (int i = 0; i < depth; i++) {
             System.err.print("   ");
         }

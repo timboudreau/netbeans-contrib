@@ -441,6 +441,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // of the same type, and when enabling, trigger a recompute in case
         // we have pending suggestions
         SuggestionProvider provider = getProvider(type);
+        if (provider == null) {
+            // This seems to happen when modules are uninstalled for example
+            return;
+        }
         // XXX Note - there could be multiple providers for a type!
         // You really should iterate here!!!
         toggleProvider(provider, type, enable, false);
@@ -1319,6 +1323,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         SuggestionImpl category = tasklist.getCategoryTask(type, false);
 
+
         // XXX [PERFORMANCE] Later I can compute the type more quickly
         // than this - instead of counting each time, keep a count,
         // stored in a hashmap (I already have a type registry. Just watch
@@ -1342,7 +1347,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
         int remnum = (removeList != null) ? removeList.size() : 0;
         // Assume no stupidity like overlaps in tasks between the lists
         int newSize = currnum + addnum - remnum;
-
         if ((newSize > MAX_INLINE) && (unfilteredType == null)) {
             // TODO - show the first two "inlined" ? Or hide all below
             // the category node
@@ -1355,19 +1359,20 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     List leftover = null;
                     if (removeList != null) {
                         tasklist.addRemove(null, removeList, true, null);
-                        if (currnum-remnum > 0) {
-                            leftover = new ArrayList(currnum);
-                            leftover = category.getSubtasks();
-                            Iterator it = tasklist.getTasks().iterator();
-                            while (it.hasNext()) {
-                                SuggestionImpl s = (SuggestionImpl)it.next();
-                                if (s.getSType() == type) {
-                                    leftover.add(s);
-                                }
+                    }
+                    if (currnum-remnum > 0) {
+                        leftover = new ArrayList(currnum);
+                        Iterator it = tasklist.getTasks().iterator();
+                        while (it.hasNext()) {
+                            SuggestionImpl s = (SuggestionImpl)it.next();
+                            if ((s.getSType() == type) &&
+                                (s != category)) {
+                                leftover.add(s);
                             }
                         }
                     }
                     if ((leftover != null) && (leftover.size() > 0)) {
+                        tasklist.addRemove(null, leftover, false, null);
                         tasklist.addRemove(leftover, null, true, category);
                     }
                     tasklist.addRemove(adds, null, true, category);
@@ -1382,7 +1387,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
             // and export methods.)    By leaving it around, we don't reorder
             // the tasks on the user.
             //tasklist.removeCategory((SuggestionImpl)suggestions.get(0).getParent(), false);
-            
             updateCategoryCount(category, sizeKnown); // TODO: skip this when filtered
         } else {
             if (category == null) {
@@ -1393,11 +1397,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 // Had category nodes before but don't need them anymore...
                 // remove the tasks from the top list
                 synchronized(this) {
-                    List leftover = null;
                     if (removeList != null) {
                         tasklist.addRemove(null, removeList, false, category);
-                        leftover = category.getSubtasks();
                     }
+                    List leftover = category.getSubtasks();
                     if ((leftover != null) && (leftover.size() > 0)) {
                         tasklist.addRemove(leftover, null, true, null);
                     }
@@ -1674,13 +1677,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public void insertUpdate(DocumentEvent e) {
         //docEdited(document, e, dataobject);
         haveEdited = true;
-	scheduleRescan(e, false, editScanDelay);
+        scheduleRescan(e, false, editScanDelay);
     }
 
     public void removeUpdate(DocumentEvent e) {
         //docEdited(document, e, dataobject);
         haveEdited = true;
-	scheduleRescan(e, false, editScanDelay);
+        scheduleRescan(e, false, editScanDelay);
     }
 
     /** Plan a rescan (meaning: start timer)
@@ -1705,8 +1708,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
             return;
         }
         
-	// Stop our current timer; the previous node has not
-	// yet been scanned; too brief an interval
+        // Stop our current timer; the previous node has not
+        // yet been scanned; too brief an interval
 	if (runTimer != null) {
 	    runTimer.stop();
 	    runTimer = null;
@@ -2176,6 +2179,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     /** Stop scanning for source items */
     public void docStop() {
+	if (runTimer != null) {
+	    runTimer.stop();
+	    runTimer = null;
+	}
+
 	org.openide.windows.TopComponent.getRegistry().
 	    removePropertyChangeListener(this);
 

@@ -28,7 +28,7 @@ import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
-
+import org.netbeans.spi.tasklist.LineSuggestionPerformer;
 import org.netbeans.modules.tasklist.core.*;
 
 /**
@@ -47,11 +47,11 @@ public class FixAction extends NodeAction {
         if ((node == null) || (node.length < 1)) {
             return false;
         }
-        boolean enabled = true;
+        boolean enabled = false;
         for (int i = 0; i < node.length; i++) {
             Task task = TaskNode.getTask(node[i]);
-            if ((task == null) || (task.getAction() == null)) {
-                enabled = false;
+            if ((task != null) && (task.getAction() != null)) {
+                enabled = true;
             }
         }
         return enabled;
@@ -66,8 +66,16 @@ public class FixAction extends NodeAction {
         TaskListView tlv = TaskListView.getCurrent();
         for (int i = 0; i < node.length; i++) {
             SuggestionImpl item = (SuggestionImpl)TaskNode.getTask(node[i]);
+            if (item == null) {
+                continue;
+            }
 
             SuggestionPerformer performer = item.getAction();
+            if ((performer == null) 
+                || ((performer instanceof LineSuggestionPerformer) && 
+                    node.length > 1)) {
+                continue;
+            }
             Object confirmation = performer.getConfirmation(item);
             boolean doConfirm = manager.isConfirm(item.getSType());
             if (doConfirm && !skipConfirm && (confirmation != null)) {
@@ -157,7 +165,9 @@ public class FixAction extends NodeAction {
             // Remove suggestion when we've performed it
             List itemList = new ArrayList(1);
             itemList.add(item);
-            manager.register(item.getSType().getName(), null, itemList);
+            SuggestionList sList = (SuggestionList)item.getList();
+            manager.register(item.getSType().getName(), null, itemList,
+                             sList, true);
         }
         } finally {
             if (fixingStarted) {
