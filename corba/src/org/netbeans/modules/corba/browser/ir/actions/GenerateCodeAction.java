@@ -25,16 +25,25 @@ import org.netbeans.modules.corba.browser.ir.util.Generatable;
 
 
 public class GenerateCodeAction extends NodeAction {
+    
+    private static final boolean DEBUG = true;
+    //private static final boolean DEBUG = false;
 
-    protected void performAction (Node[] nodes) {
+    protected void performAction (final Node[] nodes) {
         if ( enable ( nodes) ){
             TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateWait"));
-            try {
-                ((Generatable)nodes[0].getCookie(Generatable.class)).generateCode();
-                TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateDone"));
-            }catch (Exception e){
-                TopManager.getDefault().notify ( new NotifyDescriptor.Message (e.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
-            }
+            org.openide.util.RequestProcessor.postRequest (new Runnable () {
+                public void run () {
+                    try {
+                        ((Generatable)nodes[0].getCookie(Generatable.class)).generateCode();
+                        TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateDone"));
+                    }catch (Exception e){
+                        if (DEBUG)
+                            e.printStackTrace();
+                            TopManager.getDefault().notify ( new NotifyDescriptor.Message (e.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
+                    }
+                }
+            });
         }
     }
 
