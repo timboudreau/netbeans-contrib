@@ -65,7 +65,6 @@ public class BasicVariableNode extends AbstractNode {
     
     public BasicVariableNode(VcsConfigVariable var) {
         super(Children.LEAF);
-        setName(var.getLabel());
         setShortDescription(NbBundle.getMessage(BasicVariableNode.class, "CTL_BasicVarDescription", var.getLabel()));
         init(null, var);
         //list.add(new BasicVariableNode[] { this });
@@ -84,6 +83,27 @@ public class BasicVariableNode extends AbstractNode {
         this.list = list;
         getCookieSet().add(new VariablesIndex());
         setIconBase("org/netbeans/modules/vcs/advanced/variables/BasicVariables"); // NOI18N
+    }
+    
+    public void setName(String name) {
+        if (var != null && !name.equals(var.getLabel())) {
+            var.setLabel(name);
+            setDisplayName(name);
+            // Necessary to refresh the "Name" property
+            firePropertyChange(Node.PROP_NAME, null, name);
+            // Necessary to refresh the name of the Node
+            fireNameChange(null, name);
+        } else {
+            super.setName(name);
+        }
+    }
+    
+    public String getName() {
+        if (var != null) {
+            return var.getLabel();
+        } else {
+            return super.getName();
+        }
     }
     
     public VcsConfigVariable getVariable() {
@@ -228,7 +248,7 @@ public class BasicVariableNode extends AbstractNode {
     }
     
     private void createProperties(final VcsConfigVariable var, final Sheet.Set set) {
-        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
+        set.put(new PropertySupport.ReadWrite("vname", String.class, g("CTL_Name"), g("HINT_Name")) {
             public Object getValue() {
                 return var.getName();
             }
@@ -238,14 +258,14 @@ public class BasicVariableNode extends AbstractNode {
                 //cmd.fireChanged();
             }
         });
-        set.put(new PropertySupport.ReadWrite("label", String.class, g("CTL_Label"), g("HINT_Label")) {
+        set.put(new PropertySupport.ReadWrite(Node.PROP_NAME, String.class, g("CTL_Label"), g("HINT_Label")) {
                         public Object getValue() {
                             return var.getLabel();
                         }
                         
                         public void setValue(Object value) {
                             var.setLabel((String) value);
-                            BasicVariableNode.this.setName((String) value);
+                            BasicVariableNode.this.fireNameChange(null, (String) value);
                             //cmd.fireChanged();
                         }
                 });
@@ -269,7 +289,7 @@ public class BasicVariableNode extends AbstractNode {
                     
                         public void restoreDefaultValue() {
                             var.setLabelMnemonic(null);
-                            firePropertyChange(getName(), null, null);
+                            firePropertyChange(this.getName(), null, null);
                         }
                 });
         set.put(new PropertySupport.ReadWrite("a11yName", String.class, g("CTL_A11yName"), g("HINT_A11yName")) {
@@ -288,7 +308,7 @@ public class BasicVariableNode extends AbstractNode {
                     
                         public void restoreDefaultValue() {
                             var.setA11yName(null);
-                            firePropertyChange(getName(), null, null);
+                            firePropertyChange(this.getName(), null, null);
                         }
                 });
         set.put(new PropertySupport.ReadWrite("a11yDescription", String.class, g("CTL_A11yDescription"), g("HINT_A11yDescription")) {
@@ -307,7 +327,7 @@ public class BasicVariableNode extends AbstractNode {
                     
                         public void restoreDefaultValue() {
                             var.setA11yDescription(null);
-                            firePropertyChange(getName(), null, null);
+                            firePropertyChange(this.getName(), null, null);
                         }
                 });
         set.put(new PropertySupport.ReadOnly("order", String.class, g("CTL_Order"), g("HINT_Order")) {

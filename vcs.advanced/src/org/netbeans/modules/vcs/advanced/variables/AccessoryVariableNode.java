@@ -61,7 +61,6 @@ public class AccessoryVariableNode extends AbstractNode {
 
     public AccessoryVariableNode(VcsConfigVariable var) {
         super(Children.LEAF);
-        setName(var.getName());
         setShortDescription(NbBundle.getMessage(AccessoryVariableNode.class, "CTL_AccessoryVarDescription", var.getName()));
         init(null, var);
         //list.add(new AccessoryVariableNode[] { this });
@@ -79,6 +78,27 @@ public class AccessoryVariableNode extends AbstractNode {
         this.var = var;
         this.list = list;
         setIconBase("org/netbeans/modules/vcs/advanced/variables/AccessoryVariables"); // NOI18N
+    }
+    
+    public void setName(String name) {
+        if (var != null && !name.equals(var.getName())) {
+            var.setName(name);
+            setDisplayName(name);
+            // Necessary to refresh the "Name" property
+            firePropertyChange(Node.PROP_NAME, null, name);
+            // Necessary to refresh the name of the Node
+            fireNameChange(null, name);
+        } else {
+            super.setName(name);
+        }
+    }
+    
+    public String getName() {
+        if (var != null) {
+            return var.getName();
+        } else {
+            return super.getName();
+        }
     }
 
     public VcsConfigVariable getVariable() {
@@ -194,13 +214,14 @@ public class AccessoryVariableNode extends AbstractNode {
     }
     
     private void createProperties(final VcsConfigVariable var, final Sheet.Set set) {
-        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
+        set.put(new PropertySupport.ReadWrite(Node.PROP_NAME, String.class, g("CTL_Name"), g("HINT_Name")) {
             public Object getValue() {
                 return var.getName();
             }
             
             public void setValue(Object value) {
                 var.setName((String) value);
+                AccessoryVariableNode.this.fireNameChange(null, var.getName());
                 //cmd.fireChanged();
             }
         });
