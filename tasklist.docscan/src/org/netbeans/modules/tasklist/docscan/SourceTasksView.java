@@ -108,7 +108,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     public SourceTasksView(SourceTasksList list) {
         super(
                 CATEGORY,
-                "To Do",
+                Util.getString("win-title"),
                 Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"), // NOI18N
                 true,
                 list
@@ -124,7 +124,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     SourceTasksView(SuggestionsBroker.Job job) {
         super(
                 CATEGORY,
-                "To Do",
+                Util.getString("win-title"),
                 Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"), // NOI18N
                 true,
                 createFilteredList(job.getSuggestionsList())
@@ -347,8 +347,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
 
         super.category = CATEGORY;
-        super.setName("To Do");
-        super.setIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"));
+        super.setName(Util.getString("win-title"));
+        super.setIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"));  // NOI18N
 
         int version = objectInput.readInt();
         if (version == 1) {
@@ -421,16 +421,16 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         getMiniStatus().setHorizontalAlignment(SwingConstants.LEFT);
         StringBuffer msg = new StringBuffer(80);
         if (isFiltered()) {
-            msg.append("Filtered View");
+            msg.append(Util.getString("filter-flag"));
         }
         if (job == null) {
-            if (msg.length() > 0) prefix = ", ";
-            msg.append(prefix + "Folder: " + createLabel(selectedFolder));
+            if (msg.length() > 0) prefix = ", "; // NOI18N
+            msg.append(prefix + Util.getMessage("ctx-flag", createLabel(selectedFolder)));
         }
 
         if (reasonMsg != null) {
-            if (msg.length() > 0) prefix = ", ";
-            msg.append(prefix + "Showing first " + getList().getRoot().getSubtaskCountRecursively() + " tasks only");
+            if (msg.length() > 0) prefix = ", "; // NOI18N
+            msg.append(prefix + Util.getMessage("usa-flag", "" + getList().getRoot().getSubtaskCountRecursively()));
             getMiniStatus().setToolTipText(reasonMsg);
         } else {
             getMiniStatus().setToolTipText("");
@@ -440,8 +440,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private JButton getStop() {
         if (stop == null) {
-            stop = new JButton("Stop");
-            stop.setToolTipText("Interrupts background search. (ESC)");
+            stop = new JButton(Util.getString("stop"));
+            stop.setToolTipText(Util.getString("stop_hint") + " (ESC)");  // NOI18N
             stop.setVisible(job == null);
             stop.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -455,9 +455,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private AbstractButton getRefresh() {
         if (refresh == null) {
-            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/refresh.gif");
+            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/refresh.gif");  // NOI18N
             JButton button = new JButton(new ImageIcon(image));
-            button.setToolTipText("Rescans tasks for selected folder. (r)");
+            button.setToolTipText(Util.getString("rescan_hint") + " (r)");  // NOI18N
             button.setEnabled(job == null);
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -504,12 +504,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private AbstractButton getAllFiles() {
         if (allFilesButton == null) {
-            JToggleButton button = new JToggleButton("Selected Folder");
+            JToggleButton button = new JToggleButton(Util.getString("see-folder"));
             if (selectedFolder == null) {
-                button.setToolTipText("Switches to tasks for selected folder. (s)");
+                button.setToolTipText(Util.getString("see-folder_hint1") + " (s)");  // NOI18N
             } else {
                 // restored from settings
-                button.setToolTipText("Switches to tasks for " + selectedFolder.getPath() + " (s)");
+                button.setToolTipText(Util.getMessage("see-folder_hint2", selectedFolder.getPath()) + " (s)");  // NOI18N
             }
             group.add(button);
             button.setSelected(job == null);
@@ -537,7 +537,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private AbstractButton getFolderSelector() {
         if (folderSelector == null) {
             JButton button = new DropDown();
-            button.setToolTipText("Selects folder to be scanned. (S)");
+            button.setToolTipText(Util.getString("selector_hint") + " (S)"); // NOI18N
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (recentFolders.size() > 0) {
@@ -557,7 +557,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     class DropDown extends JButton {
 
         DropDown() {
-            super(new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/dropdown.gif")));
+            super(new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/dropdown.gif")));  // NOI18N
             setMargin(new Insets(10, 0, 9, 0));
         }
 
@@ -569,8 +569,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void showFolderSelectorPopup() {
         JPopupMenu popup = new JPopupMenu();
-        JMenuItem choose = new JMenuItem("Choose folder...");
-        choose.setMnemonic('c');
+        JMenuItem choose = new JMenuItem(Util.getString("select-folder"));
+        choose.setMnemonic(Util.getChar("select-folder_mne"));
         choose.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 handleSelectFolder();
@@ -615,8 +615,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private AbstractButton getCurrentFile() {
         if (currentFile == null) {
-            JToggleButton button = new JToggleButton("Current File");
-            button.setToolTipText("Switches to tasks for edited document. (c)");
+            JToggleButton button = new JToggleButton(Util.getString("see-file"));
+            button.setToolTipText(Util.getString("see-file_hint") + " (c)");  // NOI18N
             group.add(button);
             button.setSelected(job != null);
             button.addActionListener(new ActionListener() {
@@ -634,9 +634,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private AbstractButton getGoto() {
         if (gotoPresenter == null) {
-            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/gotosource.gif");
+            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/gotosource.gif"); // NOI18N
             JButton button = new JButton(new ImageIcon(image));
-            button.setToolTipText("Shows selected TODO in editor. (e)");
+            button.setToolTipText(Util.getString("goto_hint") + " (e)");  // NOI18N
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     GoToTaskAction gotoAction = (GoToTaskAction) SystemAction.get(GoToTaskAction.class);
@@ -657,16 +657,17 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private JButton getFilterMenu() {
         if (filterButton == null) {
-            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filterOperations.gif"));
+            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filterOperations.gif")); // NOI18N
             filterButton = new JButton(icon);
-            filterButton.setToolTipText("Allows to filter found tasks. (f)");
+            filterButton.setToolTipText(Util.getString("filter_hint") + " (f)");  // NOI18N
             adjustHeight(filterButton);
             filterButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JPopupMenu popup = new JPopupMenu();
                     ButtonGroup group = new ButtonGroup();
 
-                    JRadioButtonMenuItem activate = new JRadioButtonMenuItem("Activate Filter");
+                    JRadioButtonMenuItem activate = new JRadioButtonMenuItem(Util.getString("activate"));
+                    activate.setMnemonic(Util.getChar("activate_mne"));
                     activate.setSelected(isFiltered());
                     activate.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
@@ -684,7 +685,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     group.add(activate);
                     popup.add(activate);
 
-                    JRadioButtonMenuItem deactivate = new JRadioButtonMenuItem("Deactivate Filter");
+                    JRadioButtonMenuItem deactivate = new JRadioButtonMenuItem(Util.getString("deactivate"));
+                    deactivate.setMnemonic(Util.getChar("deactivate_mne"));
                     deactivate.setSelected(isFiltered() == false);
                     deactivate.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
@@ -701,7 +703,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
                     popup.add(new JSeparator());
 
-                    JMenuItem editFilter = new JMenuItem("Edit Filter");
+                    JMenuItem editFilter = new JMenuItem(Util.getString("edit"));
+                    editFilter.setMnemonic(Util.getChar("edit_mne"));
                     editFilter.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
@@ -789,7 +792,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     getProgress().setIndeterminate(true);
 
                     getMiniStatus().setVisible(false);
-                    getMiniStatus().setText("Estimating media search complexity:");
+                    getMiniStatus().setText(Util.getString("estimating"));
                     getMiniStatus().setHorizontalAlignment(SwingConstants.RIGHT);
                     getMiniStatus().setVisible(true);
 
@@ -812,7 +815,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 getRefresh().setEnabled(false);
 
                 getMiniStatus().setVisible(false);
-                getMiniStatus().setText("Searching for tasks:");
+                getMiniStatus().setText(Util.getString("searching"));
                 getMiniStatus().setHorizontalAlignment(SwingConstants.RIGHT);
                 getMiniStatus().setVisible(true);
             }
@@ -844,11 +847,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public void scanTerminated(final int reason) {
         if (reason == -1) {
-            reasonMsg = "Task search was interrupted by low memory condition.";
+            reasonMsg = Util.getString("mem_ter");
         } else if (reason == -2) {
-            reasonMsg = "Task search was interrupted by user.";
+            reasonMsg = Util.getString("usr-ter");
         } else if (reason == -3) {
-            reasonMsg = "You can change limit of tasks displayed in Options window under To Do Settings.";
+            reasonMsg = Util.getString("usa-ter");
         }
     }
 
@@ -876,7 +879,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void handleStop() {
         background.interrupt();
-        getMiniStatus().setText("Stopping...");
+        getMiniStatus().setText(Util.getString("stopping"));
     }
 
     private class StopAction extends AbstractAction {
@@ -936,7 +939,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             }
         }
 
-        allFilesButton.setToolTipText("Switches to tasks for " + createLabel(selectedFolder) + " (s)");
+        allFilesButton.setToolTipText(Util.getMessage("see-folder-hint2", createLabel(selectedFolder)) + " (s)"); // NOI18N
         ((JToggleButton)allFilesButton).setSelected(true);
 
         putClientProperty("PersistenceType", "Never"); // NOI18N
@@ -964,7 +967,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 selectedFolder = null;  // invalid folder
             }
         } else {
-            getMiniStatus().setText("Folder: " + createLabel(selectedFolder) + ", Restored from cache");
+            getMiniStatus().setText(Util.getMessage("restored", createLabel(selectedFolder)));
         }
     }
 
@@ -976,7 +979,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             DataObject.Container[] folders = new DataObject.Container[] {one};
             background = SourceTasksScanner.scanTasksAsync(this, folders);
         } catch (DataObjectNotFoundException e) {
-            getMiniStatus().setText("Error refreshing " + createLabel(selectedFolder));
+            getMiniStatus().setText(Util.getMessage("refresh-err",createLabel(selectedFolder)));
         }
     }
 
@@ -1048,10 +1051,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             }
         }
         final Node content = new AbstractNode(kids);
-        content.setName("Filesystems");
+        content.setName(Util.getString("fs"));
 
         try {
-            Node[] selected = op.select("Select folder", "Folders:", content, new NodeAcceptor() {
+            Node[] selected = op.select(Util.getString("sel_title"), Util.getString("sel-head"), content, new NodeAcceptor() {
                 public boolean acceptNodes(Node[] nodes) {
                     return nodes.length == 1 && nodes[0] != content;
                 }
