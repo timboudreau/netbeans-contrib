@@ -31,6 +31,43 @@ public class Variables {
     private static final Debug E=new Debug("Variables", true); // NOI18N
     private static final Debug D=E;
 
+    /**
+     * Automatically set context-specific variables.
+     */
+    
+    /** The name of a variable, whose value is set to the selected file name.
+     * When more than one file is selected, the first one is taken.
+     */
+    public static final String FILE = "FILE";
+
+    /** The name of a variable, whose value is set to the selected file name quoted
+     * by the value of the QUOTING variable.
+     * When more than one file is selected, the first one is taken.
+     */
+    public static final String QFILE = "QFILE";
+
+    /** The name of a variable, whose value is set to the selected file names.
+     * They are delimeted by the path separator.
+     */
+    public static final String FILES = "FILES";
+
+    /** The name of a variable, whose value is set to the selected file names each
+     * quoted by the value of the QUOTING variable and delimeted by spaces.
+     */
+    public static final String QFILES = "QFILES";
+    
+    public static final String NUM_IMPORTANT_FILES = "NUM_IMPORTANT_FILES";
+
+    /**
+     * Variables with special functionality.
+     */
+    
+    /**
+     * When non-empty, the directory reader should read also files, which were deleted
+     * from the version control system, but their old revisions exist.
+     */
+    public static final String SHOW_DEAD_FILES = "SHOW_DEAD_FILES";
+    
     //private boolean warnUndefVars = true;
 
     private static final String SUBSTRACT = "-"; // NOI18N
