@@ -39,7 +39,6 @@ public final class PopupStatusDisplayer extends StatusDisplayer {
     static PopupStatusDisplayer instance = null;
     /** Creates a new instance of PopupStatusDisplayer */
     public PopupStatusDisplayer() {
-        System.err.println("Creating an instance of status displayer");
         instance = this;
         attachToMainWindow();
     }
@@ -94,7 +93,6 @@ public final class PopupStatusDisplayer extends StatusDisplayer {
     }
     
     void detachFromMainWindow() {
-        System.err.println(" Detaching from main window");
         if (lbl != null && lbl.getParent() != null) {
             lbl.getParent().remove(lbl);
             instance = null;
@@ -144,24 +142,26 @@ public final class PopupStatusDisplayer extends StatusDisplayer {
     }
     
     public void setStatusText(String text) {
-        System.err.println("Status text set to " + text);
         if (lbl != null) {
             final String txt = text;
             if (!SwingUtilities.isEventDispatchThread()) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         lbl.setText(txt);
-                        System.err.println("Label parent is " + lbl.getParent());
+/*                        System.err.println("Label parent is " + lbl.getParent());
                         System.err.println("Label ancestor " + lbl.getTopLevelAncestor());
                         System.err.println("Label visible " + lbl.isShowing() + " bounds: " + lbl.getBounds());
+ **/
                         fire();
                     }
                 });
             } else {
                 lbl.setText(text);
+                /*
                 System.err.println("Label parent is " + lbl.getParent());
                 System.err.println("Label ancestor " + lbl.getTopLevelAncestor());
                 System.err.println("Label visible " + lbl.isShowing() + " bounds: " + lbl.getBounds());
+                */
                 fire();
             }
         }
