@@ -80,6 +80,7 @@ public final class SuggestionsBroker {
 
     private static final Logger LOGGER = TLUtils.getLogger(SuggestionsBroker.class);
 
+    // It's list as it need to support duplicates, see overlayed add/remove in start/stop methods
     private List acceptors = new ArrayList(5);
 
     private final ProviderAcceptor compound = new ProviderAcceptor() {
@@ -163,8 +164,7 @@ public final class SuggestionsBroker {
         allOpenedClientsCount++;
         if (allOpenedClientsCount == 1) {
             openedFilesSuggestionsMap = new HashMap();
-            allOpenedJob = startBroker(acceptor);
-
+            acceptors.add(acceptor);
             TopComponent[] documents = SuggestionsScanner.openedTopComponents();
             SuggestionsScanner scanner = SuggestionsScanner.getDefault();
             List allSuggestions = new LinkedList();
@@ -177,6 +177,8 @@ public final class SuggestionsBroker {
                 allSuggestions.addAll(suggestions);
             }
             getAllOpenedSuggestionList().addRemove(allSuggestions, null, true, null, null);
+
+            allOpenedJob = startBroker(acceptor);
         }
         return new AllOpenedJob(acceptor);
     }
