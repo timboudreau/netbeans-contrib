@@ -13,6 +13,7 @@
 package org.netbeans.modules.zeroadmin.actions;
 
 import java.io.IOException;
+import javax.swing.SwingUtilities;
 
 import org.openide.filesystems.*;
 import org.openide.util.actions.CallableSystemAction;
@@ -35,7 +36,7 @@ public class RefreshConfigAction extends CallableSystemAction {
         if (z == null || z.writableLayer == null) {
             throw new IllegalStateException("ZeroAdminProjectManager not initialized");
         }
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        Runnable r = new Runnable() {
             public void run() {
                 try {
                     // force the core to save pending stuff:
@@ -56,7 +57,12 @@ public class RefreshConfigAction extends CallableSystemAction {
                     ErrorManager.getDefault().notify(re);
                 }
             }
-        });
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            r.run();
+        } else {
+            SwingUtilities.invokeLater(r);
+        }
     }
     
     public String getName() {

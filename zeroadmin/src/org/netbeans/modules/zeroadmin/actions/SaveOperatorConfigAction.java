@@ -12,6 +12,8 @@
  */
 package org.netbeans.modules.zeroadmin.actions;
 
+import javax.swing.SwingUtilities;
+
 import org.openide.filesystems.*;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
@@ -40,7 +42,7 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
             if ((z == null) || (z.writableLayer == null) || (z.storage == null)) {
                 throw new IllegalStateException("ZeroAdminProjectManager not initialized");
             }
-            java.awt.EventQueue.invokeLater(new Runnable() {
+            Runnable r = new Runnable() {
                 public void run() {
                     try {
             
@@ -56,7 +58,12 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
                         ErrorManager.getDefault().notify(re);
                     }
                 }
-            });
+            };
+            if (SwingUtilities.isEventDispatchThread()) {
+                r.run();
+            } else {
+                SwingUtilities.invokeLater(r);
+            }
         } catch (Exception re) {
             ErrorManager.getDefault().notify(re);
         }

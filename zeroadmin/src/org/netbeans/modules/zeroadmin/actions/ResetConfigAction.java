@@ -13,6 +13,7 @@
 package org.netbeans.modules.zeroadmin.actions;
 
 import java.io.IOException;
+import javax.swing.SwingUtilities;
 
 import org.openide.filesystems.*;
 import org.openide.util.actions.CallableSystemAction;
@@ -44,7 +45,7 @@ public class ResetConfigAction extends CallableSystemAction {
         if (z == null || z.writableLayer == null) {
             throw new IllegalStateException("ZeroAdminProjectManager not initialized");
         }
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        Runnable r = new Runnable() {
             public void run() {
                 try {
                     // force the core to save pending stuff:
@@ -60,7 +61,24 @@ public class ResetConfigAction extends CallableSystemAction {
                                     // don't touch modules directory!
                                     continue;
                                 }
-                                ch[i].delete();
+                                Exception x = null;
+                                for (int j = 0; j < 15; j++) {
+                                    try {
+                                        ch[i].delete();
+                                        break;
+                                    } catch (FileAlreadyLockedException fale) {
+                                        x = fale;
+                                    } catch (IOException ioe) {
+                                        x = ioe;
+                                    }
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException ie) {
+                                    }
+                                }
+                                if (x != null) {
+                                    ErrorManager.getDefault().notify(x);
+                                }
                             }
                             try {
                                 z.installOperatorData();
@@ -74,7 +92,13 @@ public class ResetConfigAction extends CallableSystemAction {
                     ErrorManager.getDefault().notify(re);
                 }
             }
-        });
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            r.run();
+        } else {
+            SwingUtilities.invokeLater(r);
+        }
+
     }
     
     public String getName() {
@@ -100,6 +124,12 @@ public class ResetConfigAction extends CallableSystemAction {
         // whole hierarchy of loaded winsys objects
         DataObject ch [] = d.getChildren();
         try {
+            for (int i = 0; i < ch.length; i++) {
+                try {
+                    ch[i].setValid(false);
+                } catch (Exception x) {}
+            }
+            ch = d.getChildren();
             d.setOrder(ch);
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);

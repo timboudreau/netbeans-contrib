@@ -13,18 +13,23 @@
 
 package org.netbeans.modules.zeroadmin;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.*;
+import javax.swing.SwingUtilities;
 
 import org.openide.windows.*;
 import org.openide.util.SharedClassObject;
 import org.openide.util.Lookup;
-import org.openide.filesystems.FileObject;
+import org.openide.filesystems.*;
 import org.netbeans.core.projects.TrivialProjectManager;
 import org.netbeans.modules.zeroadmin.actions.*;
 import junit.textui.TestRunner;
 
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
+
+import org.netbeans.core.projects.*;
 
 /** 
  * This test suite should test whether the data
@@ -34,6 +39,8 @@ import org.netbeans.junit.NbTestSuite;
  */
 public class RemoteStorageTest extends NbTestCase {
 
+    private FileSystem originalFS;
+    
     public RemoteStorageTest(String name) {
         super(name);
     }
@@ -66,10 +73,28 @@ public class RemoteStorageTest extends NbTestCase {
      */
     public void testConfigReset() throws Exception {
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CREATE_WORKSPACE));
-        Thread.sleep(5000);
-        ResetConfigAction action = (ResetConfigAction)SharedClassObject.findObject(ResetConfigAction.class, true);
-        action.performAction();
-        Thread.sleep(5000);
+        
+        TestRunnable test = new TestRunnable(TestRunnable.WAIT_FOR_WORKSPACE_EVENT);
+        java.awt.EventQueue.invokeAndWait(test);
+        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CALL_RESET_CONFIG_ACTION));
+        
+        // wait for the window system to update itself
+        int round = 0;
+        boolean done = false;
+        while (! done) {
+            Thread.sleep(1000);
+            round++;
+            System.out.println("testConfigReset round " + round);
+            if (round > 60) {
+                fail("Waiting too long for a change!");
+            }
+            done = test.changeEvent != null && "workspaces".equals(test.changeEvent.getPropertyName());
+            if (WindowManager.getDefault().findWorkspace("testWrkSpc") == null) {
+                // done even without the notification
+                break;
+            }
+        }
+        
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NULL));
     }
 
@@ -87,22 +112,34 @@ public class RemoteStorageTest extends NbTestCase {
      */
     public void testConfigRefresh() throws Exception {
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CREATE_WORKSPACE));
-        Thread.sleep(5000);
-        SaveOperatorConfigAction action1 = (SaveOperatorConfigAction)SharedClassObject.findObject(SaveOperatorConfigAction.class, true);
-        action1.performAction();
-        Thread.sleep(5000);
+        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CALL_SAVE_OPERATOR_CONFIG_ACTION));
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.DELETE_WORKSPACE));
-        Thread.sleep(5000);
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NULL));
-        Thread.sleep(5000);
-        RefreshConfigAction action2 = (RefreshConfigAction)SharedClassObject.findObject(RefreshConfigAction.class, true);
-        action2.performAction();
-        Thread.sleep(5000);
+        
+        TestRunnable test = new TestRunnable(TestRunnable.WAIT_FOR_WORKSPACE_EVENT);
+        java.awt.EventQueue.invokeAndWait(test);
+        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CALL_REFRESH_CONFIG_ACTION));
+
+        // wait for the window system to update itself
+        int round = 0;
+        boolean done = false;
+        while (! done) {
+            Thread.sleep(1000);
+            round++;
+            System.out.println("testConfigRefresh round " + round);
+            if (round > 60) {
+                fail("Waiting too long for a change!");
+            }
+            done = test.changeEvent != null && "workspaces".equals(test.changeEvent.getPropertyName());
+            if (WindowManager.getDefault().findWorkspace("testWrkSpc") != null) {
+                // done even without the notification
+                break;
+            }
+        }
+        
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NOT_NULL));
-        Thread.sleep(5000);
         // just cleanup at the very end:
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.DELETE_WORKSPACE));
-        Thread.sleep(5000);
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NULL));
     }
     
@@ -146,14 +183,30 @@ public class RemoteStorageTest extends NbTestCase {
         assertNotNull(z.storage);
         assertNotNull(z.writableLayer);
         z.saver.waitFinished();
-        
+
+        // test saving to the server
+        XMLBufferFileSystem bufFs = new XMLBufferFileSystem();
+        ZeroAdminProjectManager.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
+
+        bufFs.waitFinished();
+        char[] origData = bufFs.getBuffer();
+        z.storage.saveUserData(origData);
+
         char[] dataFromServer = z.storage.getUserData();
+        assertEquals("Data from the server should have the same length", origData.length, dataFromServer.length);
+        for (int i = 0; i < origData.length; i++) {
+            if (origData[i] != dataFromServer[i]) {
+                fail("Data from the server are not the same - offset " + i);
+            }
+        }
+        
+        // test construction of the filesystem from the server data
         XMLBufferFileSystem xbfs = new XMLBufferFileSystem(new ParseRegen(dataFromServer));
         xbfs.waitFinished();
         
         // compare the children of the root:
         FileObject r1 = xbfs.getRoot();
-        FileObject r2 = z.writableLayer.getRoot();
+        FileObject r2 = bufFs.getRoot();
         FileObject ch[] = r1.getChildren();
         for (int i = 0; i < ch.length; i++) {
             FileObject other = r2.getFileObject(ch[i].getNameExt());
@@ -224,7 +277,7 @@ public class RemoteStorageTest extends NbTestCase {
      * Since all window system API has to be called from the AWT event queue
      * this class is the Runnable for scheduling into the evert queue.
      */
-    private static class TestRunnable implements Runnable {
+    private static class TestRunnable implements Runnable, PropertyChangeListener {
         /** possible value for what */
         public static final int CREATE_WORKSPACE = 1;
         /** possible value for what */
@@ -233,9 +286,20 @@ public class RemoteStorageTest extends NbTestCase {
         public static final int CHECK_NOT_NULL = 3;
         /** possible value for what */
         public static final int DELETE_WORKSPACE = 4;
+        /** possible value for what */
+        public static final int WAIT_FOR_WORKSPACE_EVENT = 5;
+        /** possible value for what */
+        public static final int CALL_RESET_CONFIG_ACTION = 6;
+        /** possible value for what */
+        public static final int CALL_REFRESH_CONFIG_ACTION = 7;
+        /** possible value for what */
+        public static final int CALL_SAVE_OPERATOR_CONFIG_ACTION = 8;
+        
         
         /** what to do */
         private int what;
+        
+        public PropertyChangeEvent changeEvent;
         
         /** just remember what */
         public TestRunnable(int what) {
@@ -270,6 +334,29 @@ public class RemoteStorageTest extends NbTestCase {
                 Workspace[] newWorkspaces = (Workspace[])temp.toArray(new Workspace[temp.size()]);
                 wm.setWorkspaces(newWorkspaces);
             }
+            
+            if (what == WAIT_FOR_WORKSPACE_EVENT) {
+                wm.addPropertyChangeListener(this);
+            }
+            
+            if (what == CALL_RESET_CONFIG_ACTION) {
+                ResetConfigAction action = (ResetConfigAction)SharedClassObject.findObject(ResetConfigAction.class, true);
+                action.performAction();
+            }
+            
+            if (what == CALL_REFRESH_CONFIG_ACTION) {
+                RefreshConfigAction action2 = (RefreshConfigAction)SharedClassObject.findObject(RefreshConfigAction.class, true);
+                action2.performAction();
+            }
+            
+            if (what == CALL_SAVE_OPERATOR_CONFIG_ACTION) {
+                SaveOperatorConfigAction action1 = (SaveOperatorConfigAction)SharedClassObject.findObject(SaveOperatorConfigAction.class, true);
+                action1.performAction();
+            }
+        }
+        
+        public void propertyChange(PropertyChangeEvent pce) {
+            changeEvent = pce;
         }
     }
 }

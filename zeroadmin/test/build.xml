@@ -14,6 +14,8 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="zeroadmin tests" basedir="." default="all">
 
+    <property name="xtest.userdata|testMemoryFileSystem" value="true"/>
+
     <property name="build.sysclasspath" value="ignore"/>
 
     <property name="netbeans.home" location="../../../nbbuild/netact"/>
