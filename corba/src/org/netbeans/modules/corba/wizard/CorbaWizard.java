@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
@@ -53,7 +54,7 @@ import org.netbeans.modules.corba.settings.ORBSettingsBundle;
  */
 public class CorbaWizard extends Object implements PropertyChangeListener, WizardDescriptor.Iterator {
   
-    private static final int panelsCount = 5;
+    private static final int panelsCount = 7;
     // private static final boolean DEBUG = true;
     private static final boolean DEBUG = false;
   
@@ -66,6 +67,8 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
     private ORBPanel orbPanel = new ORBPanel ();
     private IDLPanel idlPanel = new IDLPanel ();
     private IDLWizardPanel idlWizardPanel = new IDLWizardPanel ();
+    private RootInterface rootInterfacePanel;
+    private AbstractWizardPanel bindingMethodDetailsPanel;
     private FinishPanel finishPanel = new FinishPanel ();
     private ArrayList listeners = new ArrayList ();
   
@@ -94,6 +97,8 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                 FileObject destination = pkg.getPrimaryFile().createData (name,"idl");  // No I18N
                 lock = destination.lock();
                 out = new PrintWriter ( new OutputStreamWriter ( destination.getOutputStream (lock)));
+                DateFormat format = DateFormat.getDateTimeInstance (DateFormat.LONG, DateFormat.MEDIUM);
+                out.println ("//\n// "+name+".idl\n//\n// Created on "+ format.format(new java.util.Date()) +"\n// by "+System.getProperty("user.name")+"\n//\n");
 
                 //Create IDL file
                 if ((mode & CorbaWizardData.IDL) == CorbaWizardData.IDL) {
@@ -244,6 +249,10 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                 return idlPanel;
             }
         case 4:
+            return getRootInterfacePanel();
+        case 5:
+            return getBindingDetailsPanel();
+        case 6:
             return finishPanel;
         default:
             return null;
@@ -382,5 +391,36 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
     }
 
   
+    private WizardDescriptor.Panel getBindingDetailsPanel () {
+        if (this.data.getBindMethod().equals(ORBSettingsBundle.SERVER_NS)) {
+            if (this.bindingMethodDetailsPanel == null || ! (this.bindingMethodDetailsPanel instanceof NSPanel)) {
+                this.bindingMethodDetailsPanel = new NSPanel();
+            }
+        }
+        else if (this.data.getBindMethod().equals(ORBSettingsBundle.SERVER_IOR_TO_FILE)) {
+            if (this.bindingMethodDetailsPanel == null || ! (this.bindingMethodDetailsPanel instanceof FilePanel)) {
+                this.bindingMethodDetailsPanel = new FilePanel();
+            }
+        }
+        else if (this.data.getBindMethod().equals(ORBSettingsBundle.SERVER_IOR_TO_OUTPUT)) {
+            if (this.bindingMethodDetailsPanel == null || ! (this.bindingMethodDetailsPanel instanceof StdIOPanel)) {
+                this.bindingMethodDetailsPanel = new StdIOPanel();
+            }
+        }
+        else {
+            if (this.bindingMethodDetailsPanel == null || ! (this.bindingMethodDetailsPanel instanceof ProprietalPanel)) {
+                this.bindingMethodDetailsPanel = new ProprietalPanel(); 
+            }
+        }
+        return  this.bindingMethodDetailsPanel;
+    }
+    
+    
+    private WizardDescriptor.Panel getRootInterfacePanel() {
+        if (this.rootInterfacePanel == null) {
+            this.rootInterfacePanel = new RootInterface();
+        }
+        return this.rootInterfacePanel;
+    }
   
 }

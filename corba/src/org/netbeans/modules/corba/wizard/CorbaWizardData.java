@@ -30,17 +30,20 @@ public class CorbaWizardData extends Object {
     public static final int IDL=1;
   
     private CORBASupportSettings ccs;
-    private int generate;
-    private String impl;
-    private String bindMethod;
-    private Object idlSource;
-    private DataFolder destinationPackage;
-    private String name;
-    private boolean tie;
+    private int generate;                       // What to generate
+    private String impl;                        // Name of CORBA Implementation
+    private String bindMethod;                  // Selected binding method
+    private Object idlSource;                   // Source of IDL either File Name or IRNode or WizardNode
+    private DataFolder destinationPackage;      // Destination folder
+    private String name;                        // Name of IDL
+    private boolean tie;                        // Should generate tie based impls
+    private Object bindingDetails;              // Details about binding either ContextNode or File Name
+    private String rootInterface;               // The root interface that should be bounded.
     private String defaultOrb;
     private String defaultClientBinding;
     private String defaultServerBinding;
-    private boolean defaultTie;
+    private boolean defaultTie;         
+    
 
     /** Creates new CorbaWizardData */
     public CorbaWizardData() {
@@ -51,6 +54,10 @@ public class CorbaWizardData extends Object {
     public CORBASupportSettings getSettings() {
         return ccs;
     }
+    
+    public void setBindingDetails (Object bindingDetails) {
+        this.bindingDetails = bindingDetails;
+    }
   
     public void setCORBAImpl (String impl) {
         this.impl = impl;
@@ -59,6 +66,10 @@ public class CorbaWizardData extends Object {
     public void setBindMethod (String bindMethod) {
         this.bindMethod = bindMethod;
     }
+    
+    public void setRootInterface (String rootInterface) {
+        this.rootInterface = rootInterface;
+    }
   
     public void setGenerate (int mask) {
         this.generate = mask;
@@ -66,6 +77,14 @@ public class CorbaWizardData extends Object {
   
     public void setSource (Object source) {
         this.idlSource = source;
+    }
+    
+    public Object getBindingDetails () {
+        return this.bindingDetails;
+    }
+    
+    public String getRootInterface() {
+        return this.rootInterface;
     }
   
     public String getCORBAImpl() {
@@ -139,5 +158,6 @@ public class CorbaWizardData extends Object {
     public boolean getDefaultTie () {
         return this.defaultTie;
     }
+    
   
 }
