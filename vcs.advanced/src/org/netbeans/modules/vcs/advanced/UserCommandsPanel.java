@@ -18,9 +18,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
+import java.text.*;
 
 import com.netbeans.enterprise.modules.vcs.util.*;
 import com.netbeans.ide.explorer.propertysheet.*;
+import com.netbeans.ide.util.*;
 
 /** User commands panel.
  * 
@@ -87,9 +89,9 @@ public class UserCommandsPanel extends JPanel
 
   //-------------------------------------------
   private JPanel createCommands(){
-    editButton=createButton("Edit");
-    addButton=createButton("Add");
-    removeButton=createButton("Remove");
+    editButton=createButton(g("CTL_Edit"));
+    addButton=createButton(g("CTL_Add"));
+    removeButton=createButton(g("CTL_Remove"));
 
     GridLayout panel2Layout=new GridLayout(5,1);
     panel2Layout.setVgap(5);
@@ -190,12 +192,14 @@ public class UserCommandsPanel extends JPanel
     });
   }
 
+
   //-------------------------------------------
   private void deselectAll(){
     list.clearSelection(); 
     removeButton.setEnabled(false);
     editButton.setEnabled(false);
   }
+
 
   //-------------------------------------------
   private void updateButtons(){
@@ -208,6 +212,7 @@ public class UserCommandsPanel extends JPanel
       list.requestFocus();
     }
   }
+
 
   //-------------------------------------------
   private void editCommand(){
@@ -229,6 +234,7 @@ public class UserCommandsPanel extends JPanel
     editor.setValue( getPropertyValue() );
   }
 
+
   //-------------------------------------------
   private void addCommand(){
     UserCommand uc=new UserCommand();
@@ -245,6 +251,7 @@ public class UserCommandsPanel extends JPanel
     editor.setValue( getPropertyValue() );
   }
 
+
   //-------------------------------------------
   private void removeCommand(){
     int index=list.getSelectedIndex();
@@ -258,16 +265,36 @@ public class UserCommandsPanel extends JPanel
     editor.setValue( getPropertyValue() );
   }
 
+
   //-------------------------------------------
   public Object getPropertyValue() {
     //D.deb("getPropertyValue() -->"+commands);
     return commands;
   }
+
+
+  //-------------------------------------------
+  String g(String s) {
+    return NbBundle.getBundle
+      ("com.netbeans.enterprise.modules.vcs.cmdline.Bundle").getString (s);
+  }
+  String  g(String s, Object obj) {
+    return MessageFormat.format (g(s), new Object[] { obj });
+  }
+  String g(String s, Object obj1, Object obj2) {
+    return MessageFormat.format (g(s), new Object[] { obj1, obj2 });
+  }
+  String g(String s, Object obj1, Object obj2, Object obj3) {
+    return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
+  }
+  //-------------------------------------------
+
   
 }
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         5/27/99  Michal Fadljevic 
  *  5    Gandalf   1.4         5/4/99   Michal Fadljevic 
  *  4    Gandalf   1.3         5/4/99   Michal Fadljevic 
  *  3    Gandalf   1.2         4/26/99  Michal Fadljevic 

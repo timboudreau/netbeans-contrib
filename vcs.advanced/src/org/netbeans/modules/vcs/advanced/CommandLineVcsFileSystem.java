@@ -341,7 +341,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 
   //-------------------------------------------
-  public  Vector getAdditionalCommands(){
+  public Vector getAdditionalCommands(){
     Vector commands=getCommands();
     int len=commands.size();
     Vector additionalCommands=new Vector(5);
@@ -466,9 +466,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   public String getDisplayName() {
     //D.deb("getDisplayName() isValid="+isValid());
     if(!isValid())
-      return getString("LAB_FileSystemInvalid", rootFile.toString ());
+      return g("LAB_FileSystemInvalid", rootFile.toString ());
     else
-      return getString("LAB_FileSystemValid", rootFile.toString ());
+      return g("LAB_FileSystemValid", rootFile.toString ());
   }
 
   //-------------------------------------------
@@ -481,7 +481,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   public synchronized void setRootDirectory (File r) throws PropertyVetoException, IOException {
     D.deb("setRootDirectory("+r+")");
     if (!r.exists() || r.isFile ()) {
-      throw new IOException(getString("EXC_RootNotExist", r.toString ()));
+      throw new IOException(g("EXC_RootNotExist", r.toString ()));
     }
 
     setSystemName(computeSystemName (r));
@@ -610,16 +610,16 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     };
     
     if (name.equals ("")) {
-      throw new IOException(MessageFormat.format (getString("EXC_CannotCreateF"), errorParams));
+      throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"), errorParams));
     }
     
     if (f.exists()) {
-      throw new IOException(MessageFormat.format (getString("EXC_FolderAlreadyExist"), errorParams));
+      throw new IOException(MessageFormat.format (g("EXC_FolderAlreadyExist"), errorParams));
     }
     
     boolean b = f.mkdir();
     if (!b) {
-      throw new IOException(MessageFormat.format (getString("EXC_CannotCreateF"), errorParams));
+      throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"), errorParams));
     }
   }
 
@@ -641,7 +641,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     };
 
     if (!f.createNewFile ()) {
-      throw new IOException(MessageFormat.format (getString("EXC_DataAlreadyExist"), errorParams));
+      throw new IOException(MessageFormat.format (g("EXC_DataAlreadyExist"), errorParams));
     }
     cache.addFile(name);
   }
@@ -658,7 +658,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     File nf = getFile (newName);
 
     if (!of.renameTo (nf)) {
-      throw new IOException(getString("EXC_CannotRename", oldName, getDisplayName (), newName));
+      throw new IOException(g("EXC_CannotRename", oldName, getDisplayName (), newName));
     }
   }
 
@@ -672,7 +672,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     D.deb("delete('"+name+"')");
     File file = getFile (name);
     if (!file.delete()) {
-      throw new IOException (getString("EXC_CannotDelete", name, getDisplayName (), file.toString ()));
+      throw new IOException (g("EXC_CannotDelete", name, getDisplayName (), file.toString ()));
     }
     cache.removeFile(name);
   }
@@ -799,53 +799,28 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     //      file.setImportant(false);
   }
 
+
   //-------------------------------------------
-  /** Getter for the resource string
-   * @param s the resource name
-   * @return the resource
-   */
-  static String getString(String s) {
+  String g(String s) {
     return NbBundle.getBundle
       ("com.netbeans.enterprise.modules.vcs.cmdline.Bundle").getString (s);
   }
-
-  //-------------------------------------------
-  /** Creates message for given string property with one parameter.
-   * @param s resource name
-   * @param obj the parameter to the message
-   * @return the string for that text
-   */
-  static String getString (String s, Object obj) {
-    return MessageFormat.format (getString (s), new Object[] { obj });
+  String  g(String s, Object obj) {
+    return MessageFormat.format (g(s), new Object[] { obj });
   }
-
-  //-------------------------------------------
-  /** Creates message for given string property with two parameters.
-   * @param s resource name
-   * @param obj1 the parameter to the message
-   * @param obj2 the parameter to the message
-   * @return the string for that text
-   */
-  static String getString (String s, Object obj1, Object obj2) {
-    return MessageFormat.format (getString (s), new Object[] { obj1, obj2 });
+  String g(String s, Object obj1, Object obj2) {
+    return MessageFormat.format (g(s), new Object[] { obj1, obj2 });
   }
-
-  //-------------------------------------------
-  /** Creates message for given string property with three parameters.
-   * @param s resource name
-   * @param obj1 the parameter to the message
-   * @param obj2 the parameter to the message
-   * @param obj3 the parameter to the message
-   * @return the string for that text
-   */
-  static String getString (String s, Object obj1, Object obj2, Object obj3) {
-    return MessageFormat.format (getString (s), new Object[] { obj1, obj2, obj3 });
+  String g(String s, Object obj1, Object obj2, Object obj3) {
+    return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
   }
+  //-------------------------------------------
 
 }
 
 /*
  * <<Log>>
+ *  27   Gandalf   1.26        5/27/99  Michal Fadljevic 
  *  26   Gandalf   1.25        5/27/99  Michal Fadljevic 
  *  25   Gandalf   1.24        5/25/99  Michal Fadljevic 
  *  24   Gandalf   1.23        5/25/99  Michal Fadljevic 
