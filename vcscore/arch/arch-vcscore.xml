@@ -150,8 +150,8 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="dep-nb">
-    <api name="Open APIs" type="import" category="official" url="http://openide.netbeans.org"/> 
-    <api name="Open APIs Extensions" type="import" category="devel" url="http://openidex.netbeans.org"/>
+    <api name="OpenAPIs" type="import" category="official" url="http://openide.netbeans.org/"/> 
+    <api name="OpenAPIsExtensions" type="import" category="devel" url="http://openidex.netbeans.org/"/>
 </answer>
 
 
@@ -170,8 +170,9 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="dep-non-nb">
-    <api name="Jakarta-Regexp 1.2 API" type="import" category="standard" url="http://jakarta.apache.org/regexp/apidocs/"/> 
+    <api name="Jakarta-Regexp-1.2" type="import" category="deprecated" url="http://jakarta.apache.org/regexp/apidocs/">
     Regular expressions API - distributed with the IDE (in lib/ext/regexp-1.2.jar).
+    </api>
 </answer>
 
 
@@ -251,8 +252,8 @@ for more information.<p>List of the main features:</p>
 -->
 <answer id="deploy-packages">
     All public packages are accessible, no restriction applied. Vcscore module contains
-    <api name="VcsCore API" type="export" category="official" url="http://www.netbeans.org/download/dev/javadoc/VCSAPI/index.html" />.
-    VcsGeneric module can use semi-private API <api name="VcsCore Implementation API" type="export" category="friend" url=""/>.
+    <api name="VCSAPI" type="export" category="official" url="http://www.netbeans.org/download/dev/javadoc/VCSAPI/index.html"/>.
+    VcsGeneric module can use semi-private API <api name="VcsCoreImplementationAPI" type="export" category="friend"/>.
 </answer>
 
 
@@ -350,52 +351,52 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="exec-property">
-    <property name="user.home" category="private">
+    <api type="import" group="property" name="user.home" category="private">
         To get the default initial directory in file choosers and the default
         mount point of VcsFileSystem.
-    </property>
-    <property name="netbeans.user" category="private">
+    </api>
+    <api type="import" group="property" name="netbeans.user" category="private">
         To determine the location of status cache persistent storage and storage
         of output of VCS commands to prevent OutOfMemoryErrors when commands
         produce a huge amount of output.
-    </property>
-    <property name="user.name" category="private">
+    </api>
+    <api type="import" group="property" name="user.name" category="private">
         To be able to compare the user name with a file locker name to determine
         whether the file was locked by the current user or not.
-    </property>
-    <property name="Env-HOME" category="friend">
+    </api>
+    <api type="import" group="property" name="Env-HOME" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the user's home directory for
         the purpose of location of .cvspass file and other CVS configuartion files.
-    </property>
-    <property name="Env-HOMEPATH" category="friend">
+    </api>
+    <api type="import" group="property" name="Env-HOMEPATH" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the user's home directory for
         the purpose of location of .cvspass file and other CVS configuartion files
         on Windows operating system. It's used in conjunction with Env-HOMEDRIVE
         property.
-    </property>
-    <property name="Env-HOMEDRIVE" category="friend">
+    </api>
+    <api type="import" group="property" name="Env-HOMEDRIVE" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the user's home directory for
         the purpose of location of .cvspass file and other CVS configuartion files
         on Windows operating system. It's used in conjunction with Env-HOMEPATH
         property.
-    </property>
-    <property name="env-cvs_rsh" category="friend">
+    </api>
+    <api type="import" group="property" name="env-cvs_rsh" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the default value of CVS_RSH
         environment variable for :ext: cvs connection method.
-    </property>
-    <property name="env-cvsroot" category="friend">
+    </api>
+    <api type="import" group="property" name="env-cvsroot" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the default value of CVSROOT
         environment variable to be able to preset the CVS configuration.
-    </property>
-    <property name="netbeans.vcsdebug" category="private">
+    </api>
+    <api type="export" group="property" name="netbeans.vcsdebug" category="private">
         If this is true, some internal debug messages are printed.
         For testing purposes only.
-    </property>
+    </api>
 </answer>
 
 
