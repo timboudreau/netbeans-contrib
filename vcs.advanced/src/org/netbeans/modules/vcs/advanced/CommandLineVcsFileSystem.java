@@ -121,30 +121,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
     }
     return additionalCommands;
   }
-  
-
-
-
-  //-------------------------------------------
-  String g(String s) {
-    return NbBundle.getBundle
-      ("com.netbeans.enterprise.modules.vcs.cmdline.Bundle").getString (s);
-  }
-  String  g(String s, Object obj) {
-    return MessageFormat.format (g(s), new Object[] { obj });
-  }
-  String g(String s, Object obj1, Object obj2) {
-    return MessageFormat.format (g(s), new Object[] { obj1, obj2 });
-  }
-  String g(String s, Object obj1, Object obj2, Object obj3) {
-    return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
-  }
-  //-------------------------------------------
-
 }
 
 /*
  * <<Log>>
+ *  40   Gandalf   1.39        9/13/99  Pavel Buzek     
  *  39   Gandalf   1.38        9/10/99  Martin Entlicher removed import regexp
  *  38   Gandalf   1.37        9/8/99   Pavel Buzek     
  *  37   Gandalf   1.36        9/8/99   Pavel Buzek     class model changed, 
