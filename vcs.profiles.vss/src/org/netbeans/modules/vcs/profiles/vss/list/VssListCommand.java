@@ -22,14 +22,25 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import org.openide.ErrorManager;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.*;
 
 import org.netbeans.modules.vcs.profiles.list.AbstractListCommand;
+
+import org.netbeans.modules.vcs.profiles.vss.commands.GetAdjustedRelevantMasks;
+import org.netbeans.modules.vcs.profiles.vss.commands.GetInitializationVariable;
 
 /**
  * List command for VSS.
@@ -62,6 +73,7 @@ public class VssListCommand extends AbstractListCommand {
     private HashSet currentFiles = null;
     private HashSet missingFiles = null;
     private HashSet differentFiles = null;
+    private HashSet ignoredFiles = null;
     
     private String PROJECT_BEGIN, LOCAL_FILES, SOURCE_SAFE_FILES, DIFFERENT_FILES;
 
@@ -202,7 +214,18 @@ public class VssListCommand extends AbstractListCommand {
         DIFFERENT_FILES = (localized) ? DIFFERENT_FILES_LOC : DIFFERENT_FILES_ENG;
         initVars(this.vars);
         initDir(this.vars);
-        readLocalFiles(dir);
+        String ssDir = (String) vars.get("ENVIRONMENT_VAR_SSDIR"); // NOI18N
+        String userName = (String) vars.get("USER_NAME"); // NOI18N
+        if (userName == null || userName.length() == 0) {
+            userName = System.getProperty("user.name");
+        }
+        String relevantMasks;
+        try {
+            relevantMasks = GetInitializationVariable.getVariable(ssDir, userName, GetAdjustedRelevantMasks.RELEVANT_MASKS);
+        } catch (IOException ioex) {
+            relevantMasks = null;
+        }
+        readLocalFiles(dir, relevantMasks);
         missingFiles = new HashSet();
         differentFiles = new HashSet();
         //parseCommands();
@@ -401,16 +424,69 @@ public class VssListCommand extends AbstractListCommand {
         return lockerStatus + ", " + locker;
     }
     
-    private void readLocalFiles(String dir) {
+    static void createMaskRegularExpressions(String relevantMasks,
+                                             Pattern[] regExpPositivePtr,
+                                             Pattern[] regExpNegativePtr) {
+        if (relevantMasks != null) {
+            List ignoreListPositive = new ArrayList();
+            List ignoreListNegative = new ArrayList();
+            String[] masks = VcsUtilities.getQuotedStrings(relevantMasks);
+            //System.out.println("mask = "+relevantMasks);
+            for (int i = 0; i < masks.length; i++) {
+                //System.out.println("  mask["+i+"] = "+masks[i]);
+                if (masks[i].startsWith("!")) {
+                    ignoreListNegative.add(masks[i].substring(1));
+                } else {
+                    ignoreListPositive.add(masks[i]);
+                }
+            }
+            if (ignoreListPositive.size() > 0) {
+                String unionExp = CacheDir.computeRegularExpressionFromIgnoreList(ignoreListPositive);
+                try {
+                    regExpPositivePtr[0] = Pattern.compile(unionExp);
+                    //System.out.println(" **** GOT positive reg EXP: '"+regExpPositivePtr[0]+"' *********");
+                } catch (PatternSyntaxException malformedRE) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, malformedRE);
+                }
+            }
+            if (ignoreListNegative.size() > 0) {
+                String unionExp = CacheDir.computeRegularExpressionFromIgnoreList(ignoreListNegative);
+                try {
+                    regExpNegativePtr[0] = Pattern.compile(unionExp);
+                    //System.out.println(" **** GOT negative reg EXP: '"+regExpNegativePtr[0]+"' *********");
+                } catch (PatternSyntaxException malformedRE) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, malformedRE);
+                }
+            }
+        }
+    }
+    
+    private void readLocalFiles(String dir, String relevantMasks) {
+        Pattern[] regExpPositivePtr = new Pattern[] { null };
+        Pattern[] regExpNegativePtr = new Pattern[] { null };
+        createMaskRegularExpressions(relevantMasks, regExpPositivePtr, regExpNegativePtr);
+        Pattern regExpPositive = regExpPositivePtr[0];
+        Pattern regExpNegative = regExpNegativePtr[0];
+        //System.out.println("regExpPositive = "+regExpPositive);
+        //System.out.println("regExpNegative = "+regExpNegative);
         File fileDir = new File(dir);
         currentFiles = new HashSet();
+        ignoredFiles = new HashSet();
         String[] subFiles = fileDir.list();
         if (subFiles == null) return ;
-        File ignoredFile = new File(dir, IGNORED_FILE);
         for (int i = 0; i < subFiles.length; i++) {
-            File file = new File(dir, subFiles[i]);
-            if (file.isFile() && file.compareTo(ignoredFile) != 0) {
-                currentFiles.add(subFiles[i]);
+            String fileName = subFiles[i];
+            File file = new File(dir, fileName);
+            if (file.isFile()) {
+                if (!IGNORED_FILE.equalsIgnoreCase(fileName) &&
+                    (regExpPositive == null || regExpPositive.matcher(fileName).matches()) &&
+                    (regExpNegative == null || !regExpNegative.matcher(fileName).matches())) {
+                    currentFiles.add(fileName);
+                    //System.out.println("current = "+fileName);
+                } else {
+                    ignoredFiles.add(fileName);
+                    //System.out.println("ignored = "+fileName);
+                }
             }
         }
     }
@@ -495,7 +571,12 @@ public class VssListCommand extends AbstractListCommand {
     private void flushLastFile() {
         if (lastFileName == null || lastFileName.length() == 0) return ;
         if (gettingSourceSafeFiles) {
-            missingFiles.add(lastFileName.trim());
+            String fileName = lastFileName.trim();
+            if (ignoredFiles.contains(fileName)) {
+                currentFiles.add(fileName);
+            } else {
+                missingFiles.add(fileName);
+            }
             lastFileName = "";
         } else if (gettingDifferentFiles) {
             differentFiles.add(lastFileName.trim());

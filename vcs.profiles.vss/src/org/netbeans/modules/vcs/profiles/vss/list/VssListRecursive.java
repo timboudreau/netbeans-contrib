@@ -14,12 +14,14 @@
 package org.netbeans.modules.vcs.profiles.vss.list;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsDirContainer;
@@ -30,6 +32,9 @@ import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+
+import org.netbeans.modules.vcs.profiles.vss.commands.GetAdjustedRelevantMasks;
+import org.netbeans.modules.vcs.profiles.vss.commands.GetInitializationVariable;
 
 /**
  * The recursive refresh command.
@@ -55,6 +60,8 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     private VcsFileSystem fileSystem;
     private VcsDirContainer rootFilesByNameCont;
     private List undistiguishable = new ArrayList();
+    private Pattern maskRegExpPositive;
+    private Pattern maskRegExpNegative;
     
     private String PROJECT_BEGIN, LOCAL_FILES, SOURCE_SAFE_FILES, DIFFERENT_FILES;
     private String DIFFING, AGAINST;
@@ -196,6 +203,22 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         DIFFING = (localized) ? DIFFING_LOC : DIFFING_ENG;
         AGAINST = (localized) ? AGAINST_LOC : AGAINST_ENG;
         initDir(vars);
+        String ssDir = (String) vars.get("ENVIRONMENT_VAR_SSDIR"); // NOI18N
+        String userName = (String) vars.get("USER_NAME"); // NOI18N
+        if (userName == null || userName.length() == 0) {
+            userName = System.getProperty("user.name");
+        }
+        String relevantMasks;
+        try {
+            relevantMasks = GetInitializationVariable.getVariable(ssDir, userName, GetAdjustedRelevantMasks.RELEVANT_MASKS);
+        } catch (IOException ioex) {
+            relevantMasks = null;
+        }
+        Pattern[] regExpPositivePtr = new Pattern[] { null };
+        Pattern[] regExpNegativePtr = new Pattern[] { null };
+        VssListCommand.createMaskRegularExpressions(relevantMasks, regExpPositivePtr, regExpNegativePtr);
+        this.maskRegExpPositive = regExpPositivePtr[0];
+        this.maskRegExpNegative = regExpNegativePtr[0];
         readLocalFiles(rootFilesByNameCont.getPath(), rootFilesByNameCont);
         boolean[] errMatch = new boolean[1];
         try {
@@ -334,15 +357,21 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         if (subFiles == null) return ;
         //File ignoredFile = new File(dir, VssListCommand.IGNORED_FILE);
         for (int i = 0; i < subFiles.length; i++) {
-            File file = new File(fileDir, subFiles[i]);
-            if (file.isFile() && file.getName().compareTo(VssListCommand.IGNORED_FILE) != 0) {
-                String[] statuses = (String[]) filesByName.get(subFiles[i]);
-                if (statuses == null) {
-                    statuses = new String[3];
+            String fileName = subFiles[i];
+            File file = new File(fileDir, fileName);
+            if (file.isFile()) {
+                if (!VssListCommand.IGNORED_FILE.equalsIgnoreCase(fileName) &&
+                    (maskRegExpPositive == null || maskRegExpPositive.matcher(fileName).matches()) &&
+                    (maskRegExpNegative == null || !maskRegExpNegative.matcher(fileName).matches())) {
+                        
+                    String[] statuses = (String[]) filesByName.get(fileName);
+                    if (statuses == null) {
+                        statuses = new String[3];
+                    }
+                    statuses[0] = fileName;
+                    statuses[1] = VssListCommand.STATUS_CURRENT;
+                    filesByName.put(fileName, statuses);
                 }
-                statuses[0] = subFiles[i];
-                statuses[1] = VssListCommand.STATUS_CURRENT;
-                filesByName.put(subFiles[i], statuses);
             }
         }
         String cpath = filesCont.getPath();

@@ -644,7 +644,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 addActionToProcess(new ActionListener() {
                     public void actionPerformed(ActionEvent ev) {
                         if (vars != null) {
-                            vars.put(component.getVariable(), component.getDefaultValue());
+                            String value = component.getDefaultValue();
+                            if (value != null) {
+                                value = Variables.expand(vars, value, false);
+                            }
+                            if (!component.needsPreCommandPerform()) {
+                                vars.put(component.getVariable(), value);
+                            }
                         }
                     }
                 });

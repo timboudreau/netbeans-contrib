@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.netbeans.api.queries.SharabilityQuery;
 import org.netbeans.api.vcs.VcsManager;
@@ -26,16 +27,22 @@ import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.cache.CacheHandler;
+import org.netbeans.modules.vcscore.cache.FileSystemCache;
+import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 
 import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.netbeans.modules.vcscore.commands.RegexOutputListener;
 import org.netbeans.modules.vcscore.commands.TextErrorListener;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
+import org.openide.ErrorManager;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -117,7 +124,8 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
         }
     }
     
-    private FileObject[] getFiles(Collection fileNames, Collection diskFiles) {
+    private FileObject[] getFiles(Collection fileNames, Collection diskFiles,
+                                  Pattern ignoreList, Pattern relevantList) {
         if (fileSystem == null) {
             for (Iterator it = fileNames.iterator(); it.hasNext(); ) {
                 String name = (String) it.next();
@@ -126,13 +134,45 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
             return new FileObject[0];
         } else {
             ArrayList fos = new ArrayList();
+            //FileCacheProvider cacheProvider = fileSystem.getCacheProvider();
+            FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
+            Object locker = new Object();
+            /*
+            if (cache != null) {
+                //System.out.println("getting cache file ("+path+") = "+fileSystem.getFile(path));
+                cache.getCacheFile(new File(fileSystem.getFile(path), "testing"), CacheHandler.STRAT_DISK_OR_REFRESH_RECURS, locker);
+                VcsCacheDir cacheDir = (VcsCacheDir) cache.getCacheFile(fileSystem.getFile(path), CacheHandler.STRAT_DISK, locker);
+            }
+             */
             for (Iterator it = fileNames.iterator(); it.hasNext(); ) {
-                String name = (String) it.next();
-                FileObject fo = fileSystem.findResource(name);
+                String path = (String) it.next();
+                String name = VcsUtilities.getFileNamePart(path);
+                if (fileSystem != null) {
+                    String folder = VcsUtilities.getDirNamePart(path);
+                    cache.getCacheFile(new File(fileSystem.getFile(folder), "testing"), CacheHandler.STRAT_DISK_OR_REFRESH, locker);
+                    VcsCacheDir dir = (VcsCacheDir) cache.getCacheFile(fileSystem.getFile(folder), CacheHandler.STRAT_DISK, locker);
+                    if (!dir.isIgnoreListSet() && fileSystem.getIgnoreListSupport() != null) {
+                        dir.setIgnoreList(VcsUtilities.createIgnoreList(dir, dir.getFSPath(), fileSystem.getIgnoreListSupport()));
+                    }
+                    //Filter out files, that are ignored!!
+                    if (dir.isIgnored(name)) continue;
+                }
+                if ((fileSystem != null && fileSystem.getFile(path).isFile()) ||
+                    (fileSystem == null && new File(path).isFile())) {
+                    
+                    if (ignoreList != null && ignoreList.matcher(name).matches()) {
+                        continue;
+                    }
+                    if (relevantList != null && !relevantList.matcher(name).matches()) {
+                        continue;
+                    }
+                }
+                
+                FileObject fo = fileSystem.findResource(path);
                 if (fo != null) {
                     fos.add(fo);
                 } else {
-                    diskFiles.add(fileSystem.getFile(name));
+                    diskFiles.add(fileSystem.getFile(path));
                 }
             }
             return (FileObject[]) fos.toArray(new FileObject[0]);
@@ -149,14 +189,22 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
         //System.out.println("DIFF: args = "+VcsUtilities.arrayToString(args));
         if (arglen < 1) {
             stderrListener.outputLine("Too few arguments, expecting a name of a command "+
-                                      "and an optional name of the command that will handle intermediate mixed folders.");
+                                      "and an optional name of the command that will handle intermediate mixed folders.\n"+
+                                      "Possible options: -ic <name of command, that provides ignore names regular expression on data output>\n"+
+                                      "                  -l To process only files in current directory (not recursively)");
             return false;
         }
         boolean localOnly = false;
         String cmdName;
         String cmdFolderName;
+        String cmdIgnoreListName;
         int index = 0;
-        if (LOCAL_DIR_ONLY.equals(args[0])) {
+        if ("-ic".equals(args[index])) {
+            cmdIgnoreListName = args[++index];
+        } else {
+            cmdIgnoreListName = null;
+        }
+        if (LOCAL_DIR_ONLY.equals(args[++index])) {
             localOnly = true;
             cmdName = args[++index];
         } else {
@@ -187,12 +235,45 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
             intermediateFolders = null;
         }
         
+        final Pattern[] ignoreListPtr = new Pattern[] { null };
+        final Pattern[] relevantListPtr = new Pattern[] { null };
+        if (cmdIgnoreListName != null) {
+            CommandSupport cmdIgnoreListSupp = execContext.getCommandSupport(cmdIgnoreListName);
+            if (cmdIgnoreListSupp != null) {
+                VcsDescribedCommand cmdIgnoreList = (VcsDescribedCommand) cmdIgnoreListSupp.createCommand();
+                cmdIgnoreList.addRegexOutputListener(new RegexOutputListener() {
+                    public void outputMatchedGroups(String[] data) {
+                        if (data.length >= 1) {
+                            try {
+                                if (data[0] != null) ignoreListPtr[0] = Pattern.compile(data[0]);
+                                if (data.length >= 2) {
+                                    if (data[1] != null) relevantListPtr[0] = Pattern.compile(data[1]);
+                                }
+                            } catch (PatternSyntaxException psex) {
+                                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,  psex);
+                            }
+                        }
+                    }
+                });
+                CommandTask task = cmdIgnoreList.execute();
+                try {
+                    task.waitFinished(0);
+                } catch (InterruptedException iex) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
+            }
+        }
+        Pattern ignoreList = ignoreListPtr[0];
+        Pattern relevantList = relevantListPtr[0];
+        
         Collection sharableFiles = collectSharableSubfiles(processingFiles, intermediateFolders, !localOnly);
         
         if (intermediateFolders != null && intermediateFolders.size() > 0) {
             Command cmd = cmdFolderSupp.createCommand();
             Collection diskFiles = new ArrayList();
-            FileObject[] fileObjects = getFiles(intermediateFolders, diskFiles);
+            FileObject[] fileObjects = getFiles(intermediateFolders, diskFiles, ignoreList, relevantList);
+            fileObjects = cmd.getApplicableFiles(fileObjects);
             if (cmd instanceof VcsDescribedCommand) {
                 ((VcsDescribedCommand) cmd).setAdditionalVariables(vars);
                 ((VcsDescribedCommand) cmd).setDiskFiles((File[]) diskFiles.toArray(new File[0]));
@@ -207,26 +288,31 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
                                 VcsCommand.PROPERTY_ON_FILE);
                  */
             }
-            cmd.setFiles(fileObjects);
+            if (fileObjects != null) {
+                cmd.setFiles(fileObjects);
+            }
 
             //System.out.println("  assigned Folder FileObjects = "+java.util.Arrays.asList(cmd.getFiles()));
             //System.out.println("  assigned Folder Files       = "+java.util.Arrays.asList(((VcsDescribedCommand) cmd).getDiskFiles()));
 
-            VcsManager.getDefault().showCustomizer(cmd);
-            CommandTask task = cmd.execute();
-            try {
-                task.waitFinished(0);
-            } catch (InterruptedException iex) {
-                Thread.currentThread().interrupt();
-            }
-            if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
-                return false;
+            if (fileObjects != null || diskFiles.size() > 0) {
+                VcsManager.getDefault().showCustomizer(cmd);
+                CommandTask task = cmd.execute();
+                try {
+                    task.waitFinished(0);
+                } catch (InterruptedException iex) {
+                    Thread.currentThread().interrupt();
+                }
+                if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
+                    return false;
+                }
             }
         }
         
         Command cmd = cmdSupp.createCommand();
         Collection diskFiles = new ArrayList();
-        FileObject[] fileObjects = getFiles(sharableFiles, diskFiles);
+        FileObject[] fileObjects = getFiles(sharableFiles, diskFiles, ignoreList, relevantList);
+        fileObjects = cmd.getApplicableFiles(fileObjects);
         if (cmd instanceof VcsDescribedCommand) {
             ((VcsDescribedCommand) cmd).setAdditionalVariables(vars);
             ((VcsDescribedCommand) cmd).setDiskFiles((File[]) diskFiles.toArray(new File[0]));
@@ -235,25 +321,26 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
                     stderrListener.outputLine(line);
                 }
             });
-            /*
-            runsOnFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(
-                            ((VcsDescribedCommand) cmd).getVcsCommand(),
-                            VcsCommand.PROPERTY_ON_FILE);
-             */
         }
-        cmd.setFiles(fileObjects);
+        if (fileObjects != null) {
+            cmd.setFiles(fileObjects);
+        }
         
         //System.out.println("  assigned FileObjects = "+java.util.Arrays.asList(cmd.getFiles()));
         //System.out.println("  assigned Files       = "+java.util.Arrays.asList(((VcsDescribedCommand) cmd).getDiskFiles()));
         
-        VcsManager.getDefault().showCustomizer(cmd);
-        CommandTask task = cmd.execute();
-        try {
-            task.waitFinished(0);
-        } catch (InterruptedException iex) {
-            Thread.currentThread().interrupt();
+        if (fileObjects != null || diskFiles.size() > 0) {
+            VcsManager.getDefault().showCustomizer(cmd);
+            CommandTask task = cmd.execute();
+            try {
+                task.waitFinished(0);
+            } catch (InterruptedException iex) {
+                Thread.currentThread().interrupt();
+            }
+            return task.getExitStatus() == task.STATUS_SUCCEEDED;
+        } else {
+            return true;
         }
-        return task.getExitStatus() == task.STATUS_SUCCEEDED;
     }
     
 }

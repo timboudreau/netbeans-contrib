@@ -939,12 +939,36 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
+      <command name="GET_ADJUSTED_RELEVANT_MASKS">
+	<property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.GetAdjustedRelevantMasks.class</value>
+	</property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
+      <command name="SET_RELEVANT_MASKS">
+	<property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.SetInitializationVariable.class Relevant_Masks "${RELEVANT_MASK}"</value>
+	</property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
+      <command name="IGNORE_AND_RELEVANT_LIST_EXPRESSIONS">
+	<property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.IgnoreAndRelevantListExpressions.class</value>
+	</property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
       <command name="ADD_ALL" displayName="ResourceMsg(VSS_ADD_ALL)">
         <property name="labelMnemonic">
           <value>ResourceMsg(VSS_ADD_ALL_Mnemonic)</value>
         </property>
 	<property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.commands.SharableFilesCommand.class $[? IS_RECURSIVE] [] [-l] ADD_ALL_CMD CREATE_CMD</value>
+          <value>org.netbeans.modules.vcs.profiles.commands.SharableFilesCommand.class -ic IGNORE_AND_RELEVANT_LIST_EXPRESSIONS $[? IS_RECURSIVE] [] [-l] ADD_ALL_CMD CREATE_CMD</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -953,6 +977,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>LABEL(ResourceMsg(VSS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_ADD)))
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Reason_mnc)))
                  ASK_FOR(IS_RECURSIVE, ResourceMsg(COMMAND_VSS_ADD_ALL_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_Rec_mnc)), "true", "")
+                 PROMPT_FOR_EXPERT(RELEVANT_MASK, ResourceMsg(COMMAND_VSS_ADD_ALL_RelevantMask), "{INSERT_OUTPUT_OF_GET_ADJUSTED_RELEVANT_MASKS(0)}", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_RelevantMask_mnc)))
                  PROMPT_FOR_EXPERT(ADD_OPTIONS, ResourceMsg(COMMAND_VSS_ADD_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Options_mnc)))
           </value>
 	</property>
@@ -970,6 +995,9 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="error.regex">
 	  <value>(.*$)</value>
+	</property>
+        <property name="preCommands">
+          <value>SET_RELEVANT_MASKS</value>
 	</property>
         <property name="refreshCurrentFolder">
           <value>true</value>
@@ -995,7 +1023,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIR_FOLDERS">
         <property name="exec">
-	  <value>cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []\" &amp;&amp; dir /AD /B "</value>
+	  <value>$[? FILES_IS_FOLDER] [cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []\" &amp;&amp; dir /AD /B "] []</value>
 	</property>
 	<property name="onFile">
 	  <value>false</value>
@@ -1024,7 +1052,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>false</value>
 	</property>
         <property name="disabledOnStatus">
-          <value>""</value>
+          <value>"", "Current"</value>
 	</property>
         <property name="refreshParentFolder">
           <value>true</value>
