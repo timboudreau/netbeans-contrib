@@ -20,7 +20,7 @@ import java.text.MessageFormat;
 
 /**
  *
- * @author  tzezula
+ * @author  Tomas Zezula
  * @version
  */
 public class FinishPanel extends  AbstractCORBAWizardPanel {
@@ -83,7 +83,9 @@ public class FinishPanel extends  AbstractCORBAWizardPanel {
             msgs[idx] = bundle.getString("TXT_CommaSeparator") + " " + bundle.getString("TXT_AndSeparator") + " ";
 
         }
-        jTextArea1.setText(MessageFormat.format (bundle.getString("TXT_Generate"),msgs));
+        String message = MessageFormat.format (bundle.getString("TXT_Generate"),msgs);
+        this.jTextArea1.setText(message);
+        this.getAccessibleContext().setAccessibleDescription (this.getAccessibleContext().getAccessibleDescription() + message);
     }
     
     public void storeCorbaSettings (CorbaWizardData data) {
@@ -92,6 +94,8 @@ public class FinishPanel extends  AbstractCORBAWizardPanel {
     private void postInitComponents () {
         this.jTextArea1.setBackground ( this.getBackground ());
         this.jTextArea1.setEditable (false);
+        this.jTextArea1.setEnabled (false);
+        this.jTextArea1.setDisabledTextColor ((java.awt.Color)javax.swing.UIManager.getDefaults().get ("Label.foreground"));
         this.jTextArea1.setLineWrap (true);
         this.jTextArea1.setWrapStyleWord (true);
         this.jTextArea1.setEditable (false);
@@ -108,44 +112,43 @@ public class FinishPanel extends  AbstractCORBAWizardPanel {
      */
     
     private void initComponents() {//GEN-BEGIN:initComponents
+        java.awt.GridBagConstraints gridBagConstraints;
+
         jTextArea1 = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
+
         setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints1;
+
         setPreferredSize(new java.awt.Dimension(500, 340));
-        
         jTextArea1.setText(bundle.getString("TXT_Generate"));
         jTextArea1.setPreferredSize(new java.awt.Dimension(400, 50));
         jTextArea1.setMinimumSize(new java.awt.Dimension(400, 50));
-        
-        gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 0;
-        gridBagConstraints1.gridwidth = 0;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets(12, 12, 6, 12);
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.weightx = 1.0;
-        add(jTextArea1, gridBagConstraints1);
-        
-        
-        
-        gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 1;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints1.insets = new java.awt.Insets(6, 12, 12, 12);
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.weightx = 1.0;
-        gridBagConstraints1.weighty = 1.0;
-        add(jPanel1, gridBagConstraints1);
-        
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 12);
+        add(jTextArea1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
+        add(jPanel1, gridBagConstraints);
+
     }//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
     
     private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle");

@@ -12,13 +12,9 @@
  */
 
 /*
-
  * BindingContextPanel.java
-
  *
-
  * Created on July 22, 1999, 9:31 PM
-
  */
 
 
@@ -32,13 +28,9 @@ import org.openide.util.NbBundle;
 
 
 /**
-
  *
-
  * @author  jformanek
-
  * @version 
-
  */
 
 public class BindingContextPanel extends javax.swing.JPanel {
@@ -57,9 +49,11 @@ public class BindingContextPanel extends javax.swing.JPanel {
         urlLabel.setDisplayedMnemonic(b.getString("CTL_LabelURL_MNE").charAt(0));      //NOI18N
         kindLabel.setDisplayedMnemonic(b.getString("CTL_LabelKind_MNE").charAt(0));    //NOI18N
         iorLabel.setDisplayedMnemonic(b.getString("CTL_LabelIOR_MNE").charAt(0));      //NOI18N
-
+        nameField.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelName"));
+        iorField.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelURL"));
+        kindField.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelKind"));
+        urlField.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelIOR"));
     }
-
 
 
     /** This method is called from within the constructor to

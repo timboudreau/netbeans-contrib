@@ -152,15 +152,19 @@ public class BindingDetailsPanel extends AbstractCORBAWizardPanel implements jav
     }
     
     private void displayMessage() {
+        String theMessage = bundle.getString("TXT_NoBindingDetails");
+        this.getAccessibleContext().setAccessibleDescription (this.getAccessibleContext().getAccessibleDescription()+theMessage);
         javax.swing.JTextArea text = new javax.swing.JTextArea();
-        text.setText(bundle.getString("TXT_NoBindingDetails"));
+        text.setText(theMessage);
         text.setPreferredSize(new java.awt.Dimension(400, 50));
         text.setMinimumSize(new java.awt.Dimension(400, 50));
         text.setBackground ( this.getBackground ());
         text.setEditable (false);
+        text.setEnabled (false);
         text.setLineWrap (true);
         text.setWrapStyleWord (true);
         text.setEditable (false);
+        text.setDisabledTextColor ((java.awt.Color) javax.swing.UIManager.getDefaults().get("Label.foreground"));
         java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;

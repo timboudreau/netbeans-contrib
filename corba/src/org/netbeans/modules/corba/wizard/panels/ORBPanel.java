@@ -51,6 +51,10 @@ public class ORBPanel extends AbstractCORBAWizardPanel {
         initComponents ();
         putClientProperty(CorbaWizard.PROP_CONTENT_SELECTED_INDEX, new Integer(2));
         this.setName (org.openide.util.NbBundle.getBundle(PackagePanel.class).getString("TXT_ImplementationsBindings"));
+        this.jLabel1.setDisplayedMnemonic (this.bundle.getString("TXT_OrbImplementations_MNE").charAt(0));
+        this.jLabel2.setDisplayedMnemonic (this.bundle.getString("TXT_BindingMethod_MNE").charAt(0));
+        this.orbs.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_OrbImplementations"));
+        this.bindings.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_BindingMethod"));
     }
     
     
@@ -145,81 +149,76 @@ public class ORBPanel extends AbstractCORBAWizardPanel {
      */
     
     private void initComponents() {//GEN-BEGIN:initComponents
+        java.awt.GridBagConstraints gridBagConstraints;
+
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         orbs = new javax.swing.JComboBox();
         bindings = new javax.swing.JComboBox();
         jPanel3 = new javax.swing.JPanel();
+
         setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints1;
+
         setPreferredSize(new java.awt.Dimension(500, 340));
-        
         jPanel1.setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints2;
-        
+
         jLabel1.setText(bundle.getString("TXT_OrbImplementations"));
         jLabel1.setLabelFor(orbs);
-        gridBagConstraints2 = new java.awt.GridBagConstraints();
-        gridBagConstraints2.gridx = 0;
-        gridBagConstraints2.gridy = 0;
-        gridBagConstraints2.insets = new java.awt.Insets(12, 12, 6, 6);
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        jPanel1.add(jLabel1, gridBagConstraints2);
-        
-        
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 6);
+        jPanel1.add(jLabel1, gridBagConstraints);
+
         jLabel2.setText(bundle.getString("TXT_BindingMethod"));
         jLabel2.setLabelFor(bindings);
-        gridBagConstraints2 = new java.awt.GridBagConstraints();
-        gridBagConstraints2.gridx = 0;
-        gridBagConstraints2.gridy = 1;
-        gridBagConstraints2.insets = new java.awt.Insets(6, 12, 12, 6);
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        jPanel1.add(jLabel2, gridBagConstraints2);
-        
-        
-        gridBagConstraints2 = new java.awt.GridBagConstraints();
-        gridBagConstraints2.gridx = 1;
-        gridBagConstraints2.gridy = 0;
-        gridBagConstraints2.gridwidth = 0;
-        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints2.insets = new java.awt.Insets(12, 6, 6, 12);
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints2.weightx = 1.0;
-        gridBagConstraints2.weighty = 1.0;
-        jPanel1.add(orbs, gridBagConstraints2);
-        
-        
-        gridBagConstraints2 = new java.awt.GridBagConstraints();
-        gridBagConstraints2.gridx = 1;
-        gridBagConstraints2.gridy = 1;
-        gridBagConstraints2.gridwidth = 0;
-        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints2.insets = new java.awt.Insets(6, 6, 12, 12);
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        jPanel1.add(bindings, gridBagConstraints2);
-        
-        
-        gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 0;
-        gridBagConstraints1.gridwidth = 0;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints1.weightx = 1.0;
-        add(jPanel1, gridBagConstraints1);
-        
-        
-        
-        gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.gridwidth = 0;
-        gridBagConstraints1.gridheight = 0;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints1.weightx = 1.0;
-        gridBagConstraints1.weighty = 1.0;
-        add(jPanel3, gridBagConstraints1);
-        
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 6);
+        jPanel1.add(jLabel2, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 6, 6, 12);
+        jPanel1.add(orbs, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 12, 12);
+        jPanel1.add(bindings, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        add(jPanel1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(jPanel3, gridBagConstraints);
+
     }//GEN-END:initComponents
       
   
@@ -268,12 +267,12 @@ public class ORBPanel extends AbstractCORBAWizardPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JComboBox orbs;
     private javax.swing.JComboBox bindings;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JComboBox orbs;
     // End of variables declaration//GEN-END:variables
 
     private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle");    

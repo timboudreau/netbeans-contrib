@@ -36,6 +36,8 @@ public class CreateNewContextPanel extends javax.swing.JPanel {
         java.util.ResourceBundle b = org.openide.util.NbBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle"); //NOI18N
         nameLabel.setDisplayedMnemonic(b.getString("CTL_LabelName_MNE").charAt(0));    //NOI18N
         kindLabel.setDisplayedMnemonic(b.getString("CTL_LabelKind_MNE").charAt(0));    //NOI18N
+        this.nameField.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelName"));
+        this.kindField.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelKind"));
     }
 
     /** This method is called from within the constructor to

@@ -14,7 +14,10 @@
 package org.netbeans.modules.corba.browser.ns;
 
 import java.util.ResourceBundle;
+import java.util.Stack;
 import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NameComponent;
+import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
@@ -46,6 +49,43 @@ public abstract class NamingServiceNode extends AbstractNode {
 
     public String getName () {
         return this.name;
+    }
+    
+    public String getAbsoluteNameAsString () {
+        Stack stack = this.getHierarchy ();
+        StringBuffer result = new StringBuffer ();
+        while (stack.size() > 0) {
+            NamingServiceNode node = (NamingServiceNode) stack.pop();
+            result.append ("/"+node.getName());
+            String kind = node.getKind ();
+            if (kind != null && kind.length()>0) {
+                result.append ("."+node.getKind());
+            }
+        }
+        return result.toString();
+    }
+    
+    public String[][] getAbsoluteNameAsArray () {
+        Stack stack = this.getHierarchy ();
+        String[][] result = new String[2][stack.size()];
+        for (int i=0; stack.size() > 0; i++) {
+            NamingServiceNode node = (NamingServiceNode) stack.pop();
+            result[0][i] = node.getName();
+            result[1][i] = node.getKind();
+        }
+        return result;
+    }
+    
+    public NameComponent[] getAbsoluteNameAsCosNamingName () {
+        Stack stack = this.getHierarchy ();
+        NameComponent[] result = new NameComponent [stack.size()];
+        for (int i=0; stack.size()>0; i++) {
+            NamingServiceNode node = (NamingServiceNode) stack.pop();
+            result[i] = new NameComponent ();
+            result[i].id = node.getName();
+            result[i].kind = node.getKind();
+        }
+        return result;
     }
 
     public void setKind (String n) {
@@ -110,6 +150,18 @@ public abstract class NamingServiceNode extends AbstractNode {
     protected void lazyInit () {
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
         this.orb = css.getORB ();
+    }
+    
+    private Stack getHierarchy () {
+        Stack stack = new Stack ();
+        Node node = this;
+        Node rootNSNode = ContextNode.getDefault();
+        while ((node instanceof NamingServiceNode) && (node != rootNSNode)) {
+            stack.push (node);
+            node = node.getParentNode ();
+        }
+        stack.pop (); // The mount point should go out
+        return stack;
     }
 
 }

@@ -21,7 +21,7 @@ package org.netbeans.modules.corba.browser.ns;
 
 /**
  *
- * @author  root
+ * @author  Tomas Zezula
  * @version 
  */
 public class StartPanel extends javax.swing.JPanel {
@@ -35,6 +35,9 @@ public class StartPanel extends javax.swing.JPanel {
         jLabel1.setDisplayedMnemonic(b.getString("CTL_Port_MNE").charAt(0)); //NOI18N
         jLabel2.setDisplayedMnemonic(b.getString("CTL_LabelName_MNE").charAt(0)); //NOI18N
         jLabel3.setDisplayedMnemonic(b.getString("CTL_LabelKind_MNE").charAt(0)); //NOI18N
+        this.port.getAccessibleContext().setAccessibleDescription (b.getString("AD_Port"));
+        this.name.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelName"));
+        this.kind.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelKind"));
     }
     
     private void postInitComponents () {

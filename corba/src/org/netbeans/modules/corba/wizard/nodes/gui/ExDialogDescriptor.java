@@ -14,11 +14,12 @@
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
 import org.openide.DialogDescriptor;
-import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
+import java.util.ResourceBundle;
 /**
  *
  * @author  tzezula
@@ -31,14 +32,19 @@ public class ExDialogDescriptor extends DialogDescriptor implements PropertyChan
     
     public final static String OK = "OK"; // No I18N
     public final static String CANCEL = "CANCEL"; // No I18N
+    
+    private ResourceBundle bundle;
 
     /** Creates new ExDialogDescriptor */
     public ExDialogDescriptor(ExPanel panel, String title, boolean isModal, ActionListener listener) {
         super (panel,title,isModal,listener);
-        this.okButton = new JButton (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("CTL_Ok")); 
+        this.bundle = NbBundle.getBundle (ExDialogDescriptor.class);
+        this.okButton = new JButton (this.bundle.getString("CTL_Ok")); 
         this.okButton.setActionCommand (OK);  
-        this.cancelButton = new JButton (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("CTL_Cancel"));
+        this.okButton.getAccessibleContext().setAccessibleDescription (this.bundle.getString ("AD_Ok"));
+        this.cancelButton = new JButton (this.bundle.getString("CTL_Cancel"));
         this.cancelButton.setActionCommand (CANCEL); 
+        this.cancelButton.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_Cancel"));
         this.setOptions ( new Object[] {okButton, cancelButton});
         this.setOptionsAlign (DialogDescriptor.BOTTOM_ALIGN);
         panel.addPropertyChangeListener (this);
