@@ -26,7 +26,7 @@ import java.util.*;
  * by response handlers.
  * @author  Robert Greig
  */
-public class StatusInformation extends FileInfoContainer {
+public final class StatusInformation extends FileInfoContainer {
     // Fields =================================================================
 
     private File file;

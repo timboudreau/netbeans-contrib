@@ -125,9 +125,7 @@ public class CommandMenu extends JMenuPlus {
     }
 
     private void createPopup() {
-        boolean wasSeparator = false;
-        boolean wasNullCommand = false;
-        //Hashtable variables = fileSystem.getVariablesAsHashtable();
+        boolean wasSeparator = false;       
         CommandsTree[] children = commandRoot.children();
         FileObject[] allFiles;
         if (filesWithMessages.size() == 1) {
@@ -142,24 +140,22 @@ public class CommandMenu extends JMenuPlus {
         Map multiCommandsByDisplayName = getMultiCommandsByDisplayName(children, allFiles);
         Set addedDisplayNames = new HashSet();
         for (int i = 0; i < children.length; i++) {
-            CommandSupport cmd = (CommandSupport) children[i].getCommandSupport();
+            CommandSupport cmd = (CommandSupport) children[i].getCommandSupport();                                  
             if (cmd == null) {
-                // an extra check to not allow more separators, than appropriate
-                if (!wasSeparator || wasNullCommand) {
+                // an extra check to not allow more separators, than appropriate     
+                if(!wasSeparator){
                     addSeparator();
+                    wasSeparator=true;                  
                 }
-                wasSeparator = true;
-                wasNullCommand = true;
                 continue;
-            }
-            wasNullCommand = false;
+            }                                 
             String displayName = cmd.getDisplayName();
             //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
-            if (displayName == null) continue;
+            if (displayName == null) continue;            
             if (removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
                 continue;
             }
-            wasSeparator = false;
+            wasSeparator = false;           
             JMenuItem item;
             if (children[i].hasChildren()) {
                 JMenu submenu;
@@ -427,7 +423,7 @@ public class CommandMenu extends JMenuPlus {
         }
         public void menuKeyPressed(javax.swing.event.MenuKeyEvent p1) {
             boolean CTRL_IsDown = p1.getKeyCode() == javax.swing.event.MenuKeyEvent.VK_CONTROL;
-//            System.out.println("CTRL key pressed = "+CTRL_IsDown);
+//            System.out.println("key pressed=" + newCTRL_Down);
 //            System.out.println("is down=" + p1.isControlDown());
             if (CTRL_IsDown) {
                 changeCtrlSigns(CTRL_IsDown);

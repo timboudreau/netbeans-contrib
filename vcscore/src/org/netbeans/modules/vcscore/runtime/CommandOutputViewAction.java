@@ -36,14 +36,14 @@ public class CommandOutputViewAction extends NodeAction {
     }
 
     public String getName() {
-        return g("CTL_Command_Output_View_Action"); // NOI18N
+        return g("CTL_Command_Output_GUI_View_Action"); // NOI18N
     }
 
     public void performAction(Node[] nodes) {
         for (int i = 0; i < nodes.length; i++) {
             RuntimeCommand comm = (RuntimeCommand) nodes[i].getCookie(RuntimeCommand.class);
             if (comm != null) {
-                comm.openCommandOutputDisplay();
+                comm.openCommandOutputDisplay(true);
             }
         }
     }

@@ -35,6 +35,7 @@ import org.netbeans.modules.vcscore.util.Debug;
 import org.netbeans.modules.vcs.advanced.commands.*;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
@@ -58,15 +59,13 @@ public class UserCommandsPanel extends JPanel
     
     private ExplorerManager manager = null;
     
-    private transient VcsFileSystem fileSystem;
+    private transient CommandExecutionContext executionContext;
 
     static final long serialVersionUID =-5546375234297504708L;
 
     /**
      * The panel of user commands.
      * @param editor The editor of UserCommand instances passed through CommandNodes
-     * @param fileSystem The VCS filesystem instance, that is used for
-     *        UserCommandSupport creation, that wrapps UserCommand.
      */
     public UserCommandsPanel(UserCommandsEditor editor) {
         this.editor = editor;
@@ -75,7 +74,7 @@ public class UserCommandsPanel extends JPanel
         UserCommand oldcmd = null;
         if (supp != null && supp instanceof UserCommandSupport) {
             oldcmd = ((UserCommandSupport) supp).getVcsCommand();
-            fileSystem = ((UserCommandSupport) supp).getVcsFileSystem();
+            executionContext = ((UserCommandSupport) supp).getExecutionContext();
         }
         //VcsCommand oldcmd = (VcsCommand) commands.getCookie(VcsCommand.class);
         UserCommand newcmd = null;
@@ -134,9 +133,9 @@ public class UserCommandsPanel extends JPanel
         return newCommands;
     }
     
-    private CommandsTree createCommands(CommandNode oldCommands, UserCommand cmd, VcsFileSystem fileSystem) {
+    private CommandsTree createCommands(CommandNode oldCommands, UserCommand cmd, CommandExecutionContext executionContext) {
         Children oldChildren = oldCommands.getChildren();
-        CommandsTree newCommands = new CommandsTree(new UserCommandSupport(cmd, fileSystem));
+        CommandsTree newCommands = new CommandsTree(new UserCommandSupport(cmd, executionContext));
         
         Node[] oldNodes = oldChildren.getNodes();
         for(int i = 0; i < oldNodes.length; i++) {
@@ -152,9 +151,9 @@ public class UserCommandsPanel extends JPanel
                 newNode = CommandsTree.EMPTY;
             } else {
                 if (Children.LEAF.equals(subChildren)) {
-                    newNode = new CommandsTree(new UserCommandSupport(newcmd, fileSystem));
+                    newNode = new CommandsTree(new UserCommandSupport(newcmd, executionContext));
                 } else {
-                    newNode = createCommands((CommandNode) oldNodes[i], newcmd, fileSystem);
+                    newNode = createCommands((CommandNode) oldNodes[i], newcmd, executionContext);
                 }
             }
             newCommands.add(newNode);
@@ -205,7 +204,7 @@ public class UserCommandsPanel extends JPanel
     
     //-------------------------------------------
     public Object getPropertyValue() {
-        return createCommands(commandsNode, (UserCommand) commandsNode.getCommand(), fileSystem);
+        return createCommands(commandsNode, (UserCommand) commandsNode.getCommand(), executionContext);
     }
 
 

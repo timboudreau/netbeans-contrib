@@ -37,8 +37,7 @@ public class LogTreeInfoPanel extends AbstractTreeInfoPanel {
     private String filterString = null;
     private int totalCount = 0;
     private int selectedCount = 0;
-    private javax.swing.JLabel lblCount;
-    private ResourceBundle bundle;
+    private javax.swing.JLabel lblCount;    
 
     /** 
      * Creates new LogTreeInfoPanel
@@ -46,8 +45,7 @@ public class LogTreeInfoPanel extends AbstractTreeInfoPanel {
      *@param topDir The root directory
      */
     public LogTreeInfoPanel(File topDir) {
-        super(topDir);
-        bundle = ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle");
+        super(topDir);        
         initPanelComponents();
         postInit();
     }
@@ -61,7 +59,7 @@ public class LogTreeInfoPanel extends AbstractTreeInfoPanel {
         panel.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
         
-        lblTitle.setText(bundle.getString("LogTreeInfoPanel.lblTitle.text")); // NOI18N
+        lblTitle.setText(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.lblTitle.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints1.weightx = 1.0;
@@ -69,8 +67,8 @@ public class LogTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (12, 12, 0, 11);
         panel.add(lblTitle, gridBagConstraints1);
         
-        lblFilter.setText(bundle.getString("LogTreeInfoPanel.filterLog")); // NOI18N
-        lblFilter.setDisplayedMnemonic(bundle.getString("LogTreeInfoPanel.filterLog.mnemonic").charAt(0)); // NOI18N
+        lblFilter.setText(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.filterLog")); // NOI18N
+        lblFilter.setDisplayedMnemonic(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.filterLog.mnemonic").charAt(0)); // NOI18N
         lblFilter.setLabelFor(txFilter);
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
@@ -89,7 +87,7 @@ public class LogTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets(5, 12, 11, 11);
         panel.add(txFilter, gridBagConstraints1);
         
-        lblCount.setText(bundle.getString("LogTreeInfoPanel.lblCount")); // NOI18N
+        lblCount.setText(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.lblCount")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints1.gridx = 0;

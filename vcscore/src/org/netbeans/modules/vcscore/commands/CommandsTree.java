@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +60,7 @@ public final class CommandsTree extends Object {
      * @param child The new child to be added.
      */
     public final void add(CommandsTree child) {
+        if (this == EMPTY) throw new IllegalArgumentException("No children can be added to CommandsTree.EMPTY");
         synchronized (CHANGE_LOCK) {
             children.add(child);
         }
@@ -90,6 +92,12 @@ public final class CommandsTree extends Object {
     public static interface Provider {
         
         /**
+         * The name of the property, that is fired to the listeners when the
+         * provided commands change.
+         */
+        public static final String PROP_COMMANDS = "commandsTree"; // NOI18N
+        
+        /**
          * Get the commands.
          * @return The root of the commands tree.
          */
@@ -98,8 +106,20 @@ public final class CommandsTree extends Object {
         /**
          * Set the commands.
          * @param commands The root of the commands tree.
-         */
+         *
         public void setCommands(CommandsTree commands);
+         */
+        
+        /**
+         * Add a property change listener to this provider.
+         * The listener is called whenever the provided commands change.
+         */
+        public void addPropertyChangeListener(PropertyChangeListener l);
+        
+        /**
+         * Remove the property change listener, that is attached to this provider.
+         */
+        public void removePropertyChangeListener(PropertyChangeListener l);
         
         /**
          * Get the expert mode of this commands provider. If it's true, all commands

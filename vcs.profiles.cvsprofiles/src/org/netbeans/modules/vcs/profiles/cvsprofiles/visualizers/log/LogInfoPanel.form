@@ -33,7 +33,7 @@
               <Connection component="txRepository" type="bean"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblRepository.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblRepository.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Constraints>
@@ -55,13 +55,13 @@
         <Component class="javax.swing.JLabel" name="lblHeadRev">
           <Properties>
             <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblHeadRevision_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblHeadRevision_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
             <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="txHeadRev" type="bean"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblHeadRev.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblHeadRev.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Constraints>
@@ -73,13 +73,13 @@
         <Component class="javax.swing.JLabel" name="lblBranch">
           <Properties>
             <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblBranch_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblBranch_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
             <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="txBranch" type="bean"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblBranch.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblBranch.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Constraints>
@@ -91,13 +91,13 @@
         <Component class="javax.swing.JLabel" name="lblSelRev">
           <Properties>
             <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblSelectedRevisions_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblSelectedRevisions_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
             <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="txSelRev" type="bean"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblSelRev.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblSelRev.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Constraints>
@@ -109,13 +109,13 @@
         <Component class="javax.swing.JLabel" name="lblTotalRev">
           <Properties>
             <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblTotalRev_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblTotalRev_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
             <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="txTotalRev" type="bean"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblTotalRev.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblTotalRev.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Constraints>
@@ -127,13 +127,13 @@
         <Component class="javax.swing.JLabel" name="lblDescription">
           <Properties>
             <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblDescription_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblDescription_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
             <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="txDescription" type="bean"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblDescription.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblDescription.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Constraints>
@@ -189,13 +189,13 @@
         <Component class="javax.swing.JLabel" name="lblWorkFile">
           <Properties>
             <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblFileName_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblFileName_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
             <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="txWorkFile" type="bean"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblWorkFile.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblWorkFile.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Constraints>
@@ -218,13 +218,13 @@
         <Component class="javax.swing.JLabel" name="lblLocks">
           <Properties>
             <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblLocks_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="ACS_LogInfoPanel.lblLocks_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
             <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="txLocks" type="bean"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblLocks.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblLocks.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Constraints>
@@ -291,7 +291,7 @@
           <Connection component="taRevLog" type="bean"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblLogMessage.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle.properties" key="LogInfoPanel.lblLogMessage.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>

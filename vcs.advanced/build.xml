@@ -39,11 +39,12 @@ Microsystems, Inc. All Rights Reserved.
         destdir="src"
         excludes="org/netbeans/modules/vcs/advanced/config/">
       <classpath>        
-	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
+	      <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
         <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
-	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
+        <pathelement location="${nbroot}/openide/io/netbeans/modules/autoload/openide-io.jar"/>
+	      <pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
+	      <pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
         <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
       </classpath>
     </javac>
@@ -190,6 +191,7 @@ Microsystems, Inc. All Rights Reserved.
       <classpath>
 	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
+        <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>

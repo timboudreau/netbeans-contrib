@@ -15,10 +15,10 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.list;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.openide.util.RequestProcessor;
-
-import org.apache.regexp.*;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
@@ -75,9 +75,19 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
     private ArrayList lastWorkingPaths = null;
     private HashMap unknownPathFiles = new HashMap();
     private VcsFileSystem fileSystem = null;
+    private Pattern[] absoluteRepositoryRegexs;
     
     /** Creates new CvsListRecursiveCommand */
     public CvsListRecursiveCommand() {
+        absoluteRepositoryRegexs = new Pattern[ABSOLUTE_REPOSITORY_REGEXS.length];
+        try {
+            for (int i = 0; i < absoluteRepositoryRegexs.length; i++) {
+                absoluteRepositoryRegexs[i] = Pattern.compile(ABSOLUTE_REPOSITORY_REGEXS[i]);
+            }
+        } catch (PatternSyntaxException exc) {
+            org.openide.ErrorManager.getDefault().notify(exc);
+            absoluteRepositoryRegexs = new Pattern[0];
+        }
     }
 
     private void initVars(Hashtable vars/*, String[] args*/) {
@@ -159,13 +169,10 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
     }
     
     private boolean isAbsoluteRepository(String line) {
-        try {
-            for (int i = 0; i < ABSOLUTE_REPOSITORY_REGEXS.length; i++) {
-                RE pattern = new RE(ABSOLUTE_REPOSITORY_REGEXS[i]);
-                if (pattern.match(line)) return true;
+        for (int i = 0; i < absoluteRepositoryRegexs.length; i++) {
+            if (absoluteRepositoryRegexs[i].matcher(line).matches()) {
+                return true;
             }
-        } catch (RESyntaxException exc) {
-            org.openide.ErrorManager.getDefault().notify(exc);
         }
         return false;
     }

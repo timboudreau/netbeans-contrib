@@ -65,6 +65,7 @@ import org.netbeans.modules.vcscore.cache.FileSystemCache;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.commands.ActionCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.TextErrorListener;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
@@ -94,7 +95,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     
     private UserCommand cmd;
     private VcsFileSystem fileSystem;
+    private CommandExecutionContext executionContext;
+    //private Hashtable variableMap;
     private String displayName;
+    private boolean displayNameDefined;
     private Class implementedCommandClass = null;
     
     /** A flag of whether the command associated with this clon of
@@ -103,11 +107,26 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     //private boolean isCommandCustomized = false;
     
     /** Creates a new instance of UserCommandSupport */
-    public UserCommandSupport(UserCommand cmd, VcsFileSystem fileSystem) {
+    public UserCommandSupport(UserCommand cmd, CommandExecutionContext executionContext) {
         super(getClassesForCommand(cmd));
         this.cmd = cmd;
-        this.fileSystem = fileSystem;
-        this.displayName = getDisplayName(cmd, fileSystem);
+        this.executionContext = executionContext;
+        if (executionContext instanceof VcsFileSystem) {
+            this.fileSystem = (VcsFileSystem) executionContext;
+        } else {
+            this.fileSystem = null;
+        }
+        if (executionContext != null) {
+            String label = cmd.getDisplayName();
+            if (label != null && label.indexOf('$') >= 0) {
+                this.displayNameDefined = false; // must be dynamically resolved
+            } else {
+                this.displayName = getDisplayName(cmd, executionContext.getVariablesAsHashtable());
+                this.displayNameDefined = true;
+            }
+        } else {
+            this.displayNameDefined = false; // must be dynamically resolved
+        }
         this.implementedCommandClass = findImplementedCommandClass(cmd);
     }
     
@@ -138,10 +157,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return cmdClass;
     }
     
-    private static String getDisplayName(UserCommand cmd, VcsFileSystem fileSystem) {
+    private static String getDisplayName(UserCommand cmd, Hashtable variableMap) {
         String label = cmd.getDisplayName();
         if (label != null) {
-            label = Variables.expand(fileSystem.getVariablesAsHashtable(), label, false);
+            label = Variables.expand(variableMap, label, false);
             String mnemonic = (String) cmd.getProperty(VcsCommand.PROPERTY_LABEL_MNEMONIC);
             if (mnemonic != null && mnemonic.length() > 0) {
                 char mnemonicChar = mnemonic.charAt(0);
@@ -163,9 +182,17 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     
     /**
      * Get the VCS filesystem, that is associated with this support.
-     */
+     *
     public VcsFileSystem getVcsFileSystem() {
         return fileSystem;
+    }
+     */
+    
+    /**
+     * Get the execution context, that is associated with this support.
+     */
+    public CommandExecutionContext getExecutionContext() {
+        return executionContext;
     }
     
     /**
@@ -180,7 +207,12 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      * When <code>null</code>, the command will not be visible on the popup menu.
      */
     public String getDisplayName() {
-        return displayName;
+        if (displayNameDefined) {
+            return displayName;
+        } else {
+            if (executionContext == null) return null;
+            return getDisplayName(cmd, executionContext.getVariablesAsHashtable());
+        }
     }
     
     public Class getImplementedCommandClass() {
@@ -211,10 +243,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      */
     public boolean hasExpertMode() {
         return VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_SUPPORTS_ADVANCED_MODE);
-    }
-    
-    VcsFileSystem getFileSystem() {
-        return fileSystem;
     }
     
     protected CommandTaskSupport createTask(Command command) {
@@ -256,7 +284,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (!(task instanceof UserCommandTask)) return task.STATUS_FAILED;
         UserCommandTask userTask = (UserCommandTask) task;
         if (userTask.willSpawnRefresh()) {
-            userTask.spawnRefresh();
+            userTask.spawnRefresh(fileSystem);
             return task.STATUS_SUCCEEDED;
         }
         VcsDescribedCommand dCommand = (VcsDescribedCommand) command;
@@ -300,21 +328,25 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             vars.putAll(additionalVariables);
         }
         ec.preprocessCommand(cmd, vars, dCommand.getPreferredExec());
-        VcsCommandVisualizer visualizer = ec.getVisualizer();
+        VcsCommandVisualizer visualizer = userTask.getVisualizerGUI(false, false);
         if (visualizer != null) {
             if (!visualizer.openAfterCommandFinish()) visualizer.open();
-        }
-        if (VcsCommandIO.getBooleanProperty(ec.getCommand(), VcsCommand.PROPERTY_DISPLAY_INTERACTIVE_OUTPUT)) {
-            visualizer = userTask.getVisualizer(true, true);
-            if (visualizer != null) visualizer.open();
-        } else if (VcsCommandIO.getBooleanProperty(ec.getCommand(), VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT)) {
-            visualizer = userTask.getVisualizer(true, false);
-            if (visualizer != null) visualizer.open();
+        } else {
+            if (VcsCommandIO.getBooleanProperty(ec.getCommand(), VcsCommand.PROPERTY_DISPLAY_INTERACTIVE_OUTPUT)) {
+                visualizer = userTask.getVisualizerGUI(true, true);
+                if (visualizer != null && !visualizer.openAfterCommandFinish()) {
+                    visualizer.open();
+                }
+            } else if (VcsCommandIO.getBooleanProperty(ec.getCommand(), VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT)) {
+                visualizer = userTask.getVisualizerGUI(true, false);
+                if (visualizer != null && !visualizer.openAfterCommandFinish()) {
+                    visualizer.open();
+                }
+            }
         }
         try {
             ec.run();
         } finally {
-            visualizer = ec.getVisualizer();
             if (visualizer != null) {
                 visualizer.setExitStatus(ec.getExitStatus());
                 if (visualizer.openAfterCommandFinish()) visualizer.open();
@@ -332,9 +364,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     public FileObject[] getApplicableFiles(FileObject[] files) {
         // If the FS is offline, the command must end with _OFFLINE
         // If the FS is not offline, search for the corresponding offline command
+        if (executionContext == null) return null; // I can not execute without a context
         boolean offLine;
-        if ((offLine = fileSystem.isOffLine()) != getName().endsWith(VcsCommand.NAME_SUFFIX_OFFLINE)) {
-            if (offLine && fileSystem.getCommand(getName() + VcsCommand.NAME_SUFFIX_OFFLINE) != null) {
+        if ((offLine = executionContext.isOffLine()) != getName().endsWith(VcsCommand.NAME_SUFFIX_OFFLINE)) {
+            if (offLine && executionContext.getCommand(getName() + VcsCommand.NAME_SUFFIX_OFFLINE) != null) {
                 return null;
             }
             if (!offLine) return null;
@@ -352,8 +385,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 return null;
             }
         }
-        files = VcsUtilities.convertFileObjects(files);
-        FileObject[] appFiles = CommandCustomizationSupport.getApplicableFiles(fileSystem, cmd, files);
+        if (fileSystem != null) {
+            files = VcsUtilities.convertFileObjects(files);
+        }
+        FileObject[] appFiles = CommandCustomizationSupport.getApplicableFiles(executionContext, cmd, files);
         //System.out.println("getApplicableFiles("+cmd+", "+new ArrayList(Arrays.asList(files))+") = "+
         //                   ((appFiles == null) ? null : new ArrayList(Arrays.asList(appFiles))));
         //Thread.dumpStack();
@@ -362,7 +397,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     }
     
     protected Object clone() throws CloneNotSupportedException {
-        UserCommandSupport clone = new UserCommandSupport(cmd, fileSystem);
+        UserCommandSupport clone = new UserCommandSupport(cmd, executionContext);
         return clone;
     }
     
@@ -377,11 +412,13 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         super.initializeCommand(cmd);
         VcsDescribedCommand vcmd = (VcsDescribedCommand) cmd;
         vcmd.setVcsCommand(this.cmd);
-        FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
-        if (cache instanceof FileReaderListener) {
-            vcmd.addFileReaderListener((FileReaderListener) cache);
+        if (fileSystem != null) {
+            FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
+            if (cache instanceof FileReaderListener) {
+                vcmd.addFileReaderListener((FileReaderListener) cache);
+            }
         }
-        cmd.setExpertMode(fileSystem.isExpertMode());
+        cmd.setExpertMode(executionContext.isExpertMode());
     }
     
     /**
@@ -414,7 +451,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             // fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
             files = null;
         }
-        if ("LIST".equals(cmd.getName()) && fileSystem.isOffLine() &&
+        if ("LIST".equals(cmd.getName()) && fileSystem != null && fileSystem.isOffLine() &&
             fileSystem.getCommand(org.netbeans.modules.vcscore.commands.VcsCommand.NAME_REFRESH +
                                   org.netbeans.modules.vcscore.commands.VcsCommand.NAME_SUFFIX_OFFLINE) == null) {
             if (NotifyDescriptor.Confirmation.YES_OPTION.equals (
@@ -431,8 +468,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         }
         boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(this.cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
         boolean cmdCanRunOnMultipleFilesInFolder = VcsCommandIO.getBooleanPropertyAssumeDefault(this.cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER);
-        VariableValueAdjustment valueAdjustment = fileSystem.getVarValueAdjustment();
-        FileCacheProvider cacheProvider = fileSystem.getCacheProvider();
+        VariableValueAdjustment valueAdjustment = executionContext.getVarValueAdjustment();
+        FileCacheProvider cacheProvider = (fileSystem != null) ? fileSystem.getCacheProvider() : null;
         Object obj = doCustomization(doCreateCustomizer, null, cmd, files, cacheProvider,
                                      valueAdjustment, cmdCanRunOnMultipleFiles,
                                      cmdCanRunOnMultipleFilesInFolder);
@@ -449,7 +486,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                    boolean cmdCanRunOnMultipleFilesInFolder) {
         //System.out.println("\ndoCustomization("+doCreateCustomizer+", "+customizer+", "+cmd+", "+files+", "+cmdCanRunOnMultipleFiles+", "+cmdCanRunOnMultipleFilesInFolder+")");
         boolean forEachFile[] = null;
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
+        Hashtable vars = executionContext.getVariablesAsHashtable();
         Map additionalVars = cmd.getAdditionalVariables();
         if (additionalVars != null) vars.putAll(additionalVars);
         setVariablesFromCommandInterfaces(cmd, vars);
@@ -479,7 +516,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (files != null) {
             subFiles = setupRestrictedFileMap(files, vars, vcsCmd);
             setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
-                         fileSystem.getRelativeMountPoint(), true);
+                         (fileSystem != null) ? fileSystem.getRelativeMountPoint() : "",
+                         true);
         } else {
             subFiles = null;
         }
@@ -487,7 +525,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //Hashtable vars = fileSystem.getVariablesAsHashtable();
         //System.out.println("\nVARS for cmd = "+cmd+" ARE:"+vars+"\n");
         String commandExec = (String) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC);
-        String newExec = CommandCustomizationSupport.preCustomize(fileSystem, vcsCmd, vars);
+        String newExec = CommandCustomizationSupport.preCustomize(executionContext, vcsCmd, vars);
         if (commandExec != null && newExec == null) return new UserCancelException();
         Object finalCustomizer = null;
         if (commandExec == null || newExec != null) {
@@ -501,7 +539,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 } else customizer = null;
             } else {
                 try {
-                    CommandCustomizationSupport.setupUncustomizedCommand(fileSystem, newExec, vars, vcsCmd);
+                    CommandCustomizationSupport.setupUncustomizedCommand(executionContext, newExec, vars, vcsCmd);
                 } catch (UserCancelException ucex) {
                     return ucex;
                 }
@@ -546,7 +584,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         Table subFiles = setupRestrictedFileMap(files, cmdCanRunOnMultipleFiles,
                                                 cmdCanRunOnMultipleFilesInFolder);
         setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
-                     fileSystem.getRelativeMountPoint(), true);
+                     (fileSystem != null) ? fileSystem.getRelativeMountPoint() : "",
+                     true);
         cmd.setAdditionalVariables(vars);
         // Suppose, that the command is already preprocessed.
         //System.out.println("RestrictedFileMap = "+subFiles+", files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
@@ -566,7 +605,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                                valueAdjustment, newVars,
                                                cmdCanRunOnMultipleFiles,
                                                cmdCanRunOnMultipleFilesInFolder);
-            String newExec = CommandCustomizationSupport.preCustomize(fileSystem, nextCmd.getVcsCommand(), newVars);
+            String newExec = CommandCustomizationSupport.preCustomize(executionContext, nextCmd.getVcsCommand(), newVars);
             if (newExec != null) nextCmd.setPreferredExec(newExec);
             else return null;
             nextCmd.setAdditionalVariables(newVars);
@@ -582,15 +621,13 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      * for the old one.
      */
     private VcsDescribedCommand createNextCommand(Table files, VcsDescribedCommand oldCommand) {
-        Command command = (VcsDescribedCommand) oldCommand.clone();//createCommand();
-        if (!(command instanceof VcsDescribedCommand)) {
-            throw new IllegalArgumentException("Command "+command+" is not an instance of VcsDescribedCommand!");
-        }
+        VcsDescribedCommand command = (VcsDescribedCommand) oldCommand.clone();//createCommand();
         setCommandFilesFromTable(command, files, fileSystem);
         command.setExpertMode(oldCommand.isExpertMode());
         command.setGUIMode(oldCommand.isGUIMode());
+        //command.setAdditionalVariables(null); // re-set the map of additional variables
         oldCommand.setNextCommand(command);
-        return (VcsDescribedCommand) command;
+        return command;
     }
     
     /** Return the table of file names relative to filesystem and associated
@@ -600,21 +637,37 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         Table files = new Table();
         FileObject[] fos = cmd.getFiles();
         if (fos != null) {
-            for (int i = 0; i < fos.length; i++) {
-                files.put(fos[i].getPath(), fos[i]);
+            if (fileSystem != null) {
+                for (int i = 0; i < fos.length; i++) {
+                    files.put(fos[i].getPath(), fos[i]);
+                }
+            } else {
+                for (int i = 0; i < fos.length; i++) {
+                    java.io.File diskFile = FileUtil.toFile(fos[i]);
+                    if (diskFile != null) {
+                        files.put(diskFile.getAbsolutePath(), fos[i]);
+                    }
+                }
             }
         }
         if (cmd instanceof VcsDescribedCommand) {
             java.io.File[] diskFiles = ((VcsDescribedCommand) cmd).getDiskFiles();
             if (diskFiles != null) {
-                String root = fileSystem.getFile("").getAbsolutePath();
-                for (int i = 0; i < diskFiles.length; i++) {
-                    String path = diskFiles[0].getAbsolutePath();
-                    if (path.indexOf(root) == 0) {
-                        path = path.substring(root.length());
-                        while (path.startsWith(java.io.File.separator)) path = path.substring(1);
+                if (fileSystem != null) {
+                    String root = fileSystem.getFile("").getAbsolutePath();
+                    for (int i = 0; i < diskFiles.length; i++) {
+                        String path = diskFiles[0].getAbsolutePath();
+                        if (path.indexOf(root) == 0) {
+                            path = path.substring(root.length());
+                            while (path.startsWith(java.io.File.separator)) path = path.substring(1);
+                        }
+                        files.put(path.replace(java.io.File.separatorChar, '/'), null);
                     }
-                    files.put(path.replace(java.io.File.separatorChar, '/'), null);
+                } else {
+                    for (int i = 0; i < diskFiles.length; i++) {
+                        String path = diskFiles[0].getAbsolutePath();
+                        files.put(path, null);
+                    }
                 }
             }
         }
@@ -633,7 +686,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         StringBuffer title = new StringBuffer();
         final VariableInputDialog dlg;
         try {
-            dlg = CommandCustomizationSupport.createInputDialog(fileSystem, newExec, vars, cmd, forEachFile, title);
+            dlg = CommandCustomizationSupport.createInputDialog(executionContext, newExec, vars, cmd, forEachFile, title);
         } catch (UserCancelException ucex) {
             return ucex;
         }
@@ -641,13 +694,13 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (dlg == null) return null;
         if (customizer == null) customizer = new UserCommandCustomizer();
         final UserCommandCustomizer finalCustomizer = customizer;
-        customizer.setCommand(command, dlg, fileSystem, title.toString());
+        customizer.setCommand(command, dlg, title.toString());
         dlg.addCloseListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 boolean isPromptForEachFile = dlg.getPromptForEachFile();
                 if (dlg.isValidInput() && forEachFile != null) {
                     forEachFile[0] = isPromptForEachFile;
-                    fileSystem.setPromptForVarsForEachFile(forEachFile[0]);
+                    executionContext.setPromptForVarsForEachFile(forEachFile[0]);
                 }
                 //System.out.println("\n!!close listener: isPromptForEachFile = "+isPromptForEachFile);
                 if (files == null) return ;
@@ -656,7 +709,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     Table subFiles = new Table();
                     subFiles.put(singleFile, files.get(singleFile));
                     setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
-                                 fileSystem.getRelativeMountPoint(), true);
+                                 (fileSystem != null) ? fileSystem.getRelativeMountPoint() : "",
+                                 true);
                     command.setAdditionalVariables(vars);
                     //System.out.println("RestrictedFileMap = "+subFiles+", files = "+files+", MODULE = "+command.getAdditionalVariables().get("MODULE")+", DIR = "+command.getAdditionalVariables().get("DIR"));
                     //System.out.println("\nVARS for cmd = "+command+" ARE:"+vars+"\n");
@@ -735,6 +789,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      * @param command The command to set the files on.
      * @param files The table of file names and associated FileObjects.
      * @param fileSystem The filesystem to get the java.io.Files from.
+     *        Can be <code>null</code>, in which case java.io.Files are created
+     *        directly from the file name.
      */
     public static void setCommandFilesFromTable(Command command, Table files, VcsFileSystem fileSystem) {
         ArrayList diskFiles = new ArrayList();
@@ -745,7 +801,11 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             if (fo != null) {
                 foFiles.add(fo);
             } else {
-                diskFiles.add(fileSystem.getFile(name));
+                if (fileSystem != null) {
+                    diskFiles.add(fileSystem.getFile(name));
+                } else {
+                    diskFiles.add(new java.io.File(name));
+                }
             }
         }
         FileObject[] fos = (FileObject[]) foFiles.toArray(new FileObject[foFiles.size()]);
@@ -1042,19 +1102,21 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             String mime = FileUtil.getMIMEType(ext);
             if (mime != null) vars.put("MIMETYPE", mime); // NOI18N
         }
-        if (isFileFolder) {
-            CacheDir cDir = cacheProvider.getDir(origFullName);
-            if (cDir != null) {
-                vars.put("CACHED_ATTR", cDir.getAttr());
+        if (cacheProvider != null) {
+            if (isFileFolder) {
+                CacheDir cDir = cacheProvider.getDir(origFullName);
+                if (cDir != null) {
+                    vars.put("CACHED_ATTR", cDir.getAttr());
+                } else {
+                    vars.remove("CACHED_ATTR");
+                }
             } else {
-                vars.remove("CACHED_ATTR");
-            }
-        } else {
-            CacheFile cFile = cacheProvider.getFile(origFullName);
-            if (cFile != null) {
-                vars.put("CACHED_ATTR", cFile.getAttr());
-            } else {
-                vars.remove("CACHED_ATTR");
+                CacheFile cFile = cacheProvider.getFile(origFullName);
+                if (cFile != null) {
+                    vars.put("CACHED_ATTR", cFile.getAttr());
+                } else {
+                    vars.remove("CACHED_ATTR");
+                }
             }
         }
         vars.put("FILE_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// the FILE is a folder // NOI18N

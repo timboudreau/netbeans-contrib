@@ -12,6 +12,7 @@
  */
 
 package org.netbeans.modules.vcs.advanced;
+
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -19,8 +20,6 @@ import java.beans.*;
 import java.text.*;
 import javax.swing.*;
 
-import org.openide.util.actions.*;
-import org.openide.util.NbBundle;
 import org.openide.*;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -37,6 +36,9 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
+import org.openide.util.actions.*;
+import org.openide.util.NbBundle;
+import org.openide.util.WeakListener;
 
 import org.netbeans.api.vcs.FileStatusInfo;
 
@@ -55,10 +57,13 @@ import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 //import org.netbeans.modules.vcscore.commands.VcsCommandNode;
 import org.netbeans.modules.vcscore.util.*;
 
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommands;
+import org.netbeans.modules.vcs.advanced.commands.UserCommandIOCompat;
+import org.netbeans.modules.vcs.advanced.projectsettings.CommandLineVcsFileSystemInstance;
+import org.netbeans.modules.vcs.advanced.variables.Condition;
+import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
-import org.netbeans.modules.vcs.advanced.projectsettings.CommandLineVcsFileSystemInstance;
-import org.openide.DialogDisplayer;
 
 /** Generic command line VCS filesystem.
  * 
@@ -128,6 +133,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_PASSWORD_SHARE = "SHARE_PASSWORD_WHEN_CONFIG_IS_SAME"; // NOI18N
     
     /**
+     * The name of a variable, which contains the description of the password,
+     * typically the name of the service that requests the password.
+     */
+    public static final String VAR_PASSWORD_DESCRIPTION = "PASSWORD_DESCRIPTION_STRING"; // NOI18N
+    
+    /**
      * This command is executed to get the initial ignore list.
      * It's supposed to return the ignored files on its data output.
      */
@@ -144,8 +155,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     //private static final String DEFAULT_CONFIG_NAME = "empty.xml";
     //private static final String DEFAULT_CONFIG_NAME_COMPAT = "empty.properties";
     
-    private static ResourceBundle resourceBundle = null;
-
     public static final String TEMPORARY_CONFIG_FILE_NAME = "tmp"; // NOI18N
     
     /** Ugly, but I can not do this in the constuctor, because it can cause deadlock.
@@ -160,6 +169,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
     private FileObject CONFIG_ROOT_FO;
     private String configFileName = null;
+    private transient Profile profile = null;
+    private transient PropertyChangeListener profileChangeListener = null;
     private HashMap additionalPossibleFileStatusesMap = null;
     private transient HashMap additionalStatusIconMap = null;
     private Vector localFilesFilteredOut = null;
@@ -174,10 +185,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private boolean shortFileStatuses = false;
     private Set compatibleOSs = null;
     private Set uncompatibleOSs = null;
+    private boolean profilesOriginalCommands = false; // whether the set of commands is the original from the profile
     private transient boolean doInitialCheckout = false; // whether to do an initial checkout after the FS is mounted
     private transient boolean isFSAdded = false; // Whether the filesystem is added into the repository
     private transient PropertyChangeListener sharedPasswordChangeListener;
     private Object sharedPasswordKey = null;
+    private transient String passwordDescription = null;
 
     static final long serialVersionUID =-1017235664394970926L;
     /**
@@ -315,13 +328,136 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return config;
     }
 
+    /**
+     * Set the profile configuration, that this filesystem uses. This method also
+     * sets the commands and variables, that are defined by the profile
+     * to this filesystem.
+     */
     public void setConfigFileName(String configFileName) {
         this.configFileName = configFileName;
+        ProfilesFactory profilesFactory = ProfilesFactory.getDefault();
+        //this.config = profilesFactory.getProfileDisplayName(configFileName);
+        this.profile = profilesFactory.getProfile(configFileName);
         firePropertyChange(PROP_CONFIG_FILE_NAME, null, configFileName);
+        //setVariables(new Vector(profile.getVariables()));
+        //setCommands(profile.getCommands());
     }
     
     public String getConfigFileName() {
         return configFileName;
+    }
+    
+    public boolean isProfilesOriginalCommands() {
+        return profilesOriginalCommands;
+    }
+    
+    public void setProfilesOriginalCommands(boolean profilesOriginalCommands) {
+        this.profilesOriginalCommands = profilesOriginalCommands;
+    }
+    
+    /**
+     * Set the profile configuration, that this filesystem uses. This method also
+     * sets the commands and variables, that are defined by the profile
+     * to this filesystem.
+     * @param profile The profile to set the data from.
+     */
+    public void setProfile(Profile profile) {
+        setProfile(profile, true);
+    }
+    
+    /**
+     * Set the profile configuration, that this filesystem uses. This method also
+     * sets the commands and variables, that are defined by the profile
+     * to this filesystem.
+     * @param profile The profile to set the data from.
+     * @param setVars Whether to set FS variables from the profile or not.
+     */
+    private void setProfile(Profile profile, boolean setVars) {
+        Profile oldProfile = this.profile;
+        this.profile = profile;
+        /* TODO - conditionally set the commands and variables if they were not
+                  modified explicitely by the user
+         */
+        if (profile == null) {
+            this.configFileName = null;
+            this.config = null;
+            if (setVars) setVariables(new Vector());
+            setCommands(CommandsTree.EMPTY);
+            if (oldProfile != null && profileChangeListener != null) {
+                oldProfile.removePropertyChangeListener(profileChangeListener);
+            }
+        } else {
+            this.configFileName = profile.getName();
+            this.config = profile.getDisplayName();
+            if (setVars) {
+                ConditionedVariables cvariables = profile.getVariables();
+                Condition[] conditions = profile.getConditions();
+                profilesOriginalCommands = true;
+                // setVariables will also set commands iff profilesOriginalCommands == true
+                if (cvariables != null) {
+                    Collection variables = cvariables.getSelfConditionedVariables(conditions, Variables.getDefaultVariablesMap());
+                    setVariables(copySharedVariables(variables));
+                } else{
+                    setVariables(new Vector());
+                }
+            } else { // In case variables are set, the commands are set automatically in setVariables()
+                ConditionedCommands ccommands = profile.getCommands();
+                if (ccommands != null) {
+                    CommandsTree commands = ccommands.getCommands(getVariablesAsHashtable());
+                    setCommands(copySharedCommands(commands), true);
+                } else {
+                    setCommands(CommandsTree.EMPTY, true);
+                }
+            }
+            if (profileChangeListener == null) {
+                profileChangeListener = new ProfilePropertyChangeListener();
+            } else if (oldProfile != null) {
+                oldProfile.removePropertyChangeListener(profileChangeListener);
+            }
+            profile.addPropertyChangeListener(profileChangeListener);
+        }
+        firePropertyChange(PROP_CONFIG_FILE_NAME, null, configFileName);
+    }
+    
+    /**
+     * Get the profile, that the filesystem uses. This might be <code>null</code>
+     * when the filesystem is not initialized yet.
+     */
+    public Profile getProfile() {
+        return this.profile;
+    }
+    
+    private final CommandsTree copySharedCommands(CommandsTree sharedCommands) {
+        CommandsTree commands = new CommandsTree(copySharedCommandSupport(sharedCommands.getCommandSupport()));
+        if (sharedCommands.hasChildren()) {
+            CommandsTree sharedSubCommands[] = sharedCommands.children();
+            for (int i = 0; i < sharedSubCommands.length; i++) {
+                CommandsTree subCommand;
+                if (sharedSubCommands[i].hasChildren()) {
+                    subCommand = copySharedCommands(sharedSubCommands[i]);
+                } else {
+                    subCommand = new CommandsTree(copySharedCommandSupport(sharedSubCommands[i].getCommandSupport()));
+                }
+                commands.add(subCommand);
+            }
+        }
+        return commands;
+    }
+    
+    private final CommandSupport copySharedCommandSupport(CommandSupport sharedCmd) {
+        if (!(sharedCmd instanceof UserCommandSupport)) return sharedCmd;
+        CommandSupport cmd = new UserCommandSupport(((UserCommandSupport) sharedCmd).getVcsCommand(), this);
+        return cmd;
+    }
+    
+    private final Vector copySharedVariables(Collection sharedVars) {
+        Vector vars = new Vector(sharedVars.size());
+        for (Iterator it = sharedVars.iterator(); it.hasNext(); ) {
+            VcsConfigVariable sharedVar = (VcsConfigVariable) it.next();
+            VcsConfigVariable var = (VcsConfigVariable) sharedVar.clone();
+            vars.add(var);
+        }
+        return vars;
     }
     
     public String getConfigFileModificationTimeStr() {
@@ -487,7 +623,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setVariables (VariableIOCompat.readVariables(props));
         D.deb("setVariables DONE."); // NOI18N
         
-        setCommands ((CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (props, this));
+        setCommands (UserCommandIOCompat.readCommands(props, this));
         D.deb("readConfigurationCompat() done"); // NOI18N
         setConfig(label);
         return true;
@@ -499,21 +635,50 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         //            "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
         //CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
         //setConfigFO();
-        if (CONFIG_ROOT_FO == null) return false;
+        //if (CONFIG_ROOT_FO == null) return false;
         //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
-        org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName); // NOI18N
-        if (doc == null) return false;
-        String label = VariableIO.getConfigurationLabel(doc);
-        setVariables (VariableIO.readVariables(doc));
-        D.deb("setVariables DONE."); // NOI18N
+        //org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName); // NOI18N
+        //if (doc == null) return false;
+        //String label = VariableIO.getConfigurationLabel(doc);
+
+        ProfilesFactory profilesFactory = ProfilesFactory.getDefault();
+        this.profile = profilesFactory.getProfile(configFileName);
+        if (profile == null) {
+            setVariables(new Vector());
+            setCommands(CommandsTree.EMPTY);
+        } else {
+            String label = profile.getDisplayName();
+            ConditionedVariables cvariables = profile.getVariables();
+            Condition[] conditions = profile.getConditions();
+            profilesOriginalCommands = true;
+            if (cvariables != null) {
+                Collection variables = cvariables.getSelfConditionedVariables(conditions, Variables.getDefaultVariablesMap());
+                setVariables(copySharedVariables(variables));
+            } else{
+                setVariables(new Vector());
+            }
+            setConfig(label);
+        }
+        //setVariables (VariableIO.readVariables(doc));
+        //D.deb("setVariables DONE."); // NOI18N
         
-        setCommands ((CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (doc, this));
-        D.deb("readConfiguration() done"); // NOI18N
-        setConfig(label);
-        return true;
+        //setCommands ((CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (doc, this));
+        //D.deb("readConfiguration() done"); // NOI18N
+        return profile != null;
     }
     
     public void setCommands(CommandsTree root) {
+        setCommands(root, false);
+    }
+    
+    /**
+     * Set the commands.
+     * @param profileCommands True, when the caller is setting the commands
+     *        stored in the profile.
+     *        False, if the caller is setting commands from other source
+     *        (like user customization).
+     */
+    private void setCommands(CommandsTree root, boolean profileCommands) {
         boolean isCreateVFS = isCreateVersioningSystem();
         boolean isExistsVFS = getVersioningFileSystem() != null;
         super.setCommands(root);
@@ -937,7 +1102,25 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setDocumentCleanupFromVars();
         setAdditionalParamsLabels();
         setSharedPassword();
+        VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(VAR_PASSWORD_DESCRIPTION);
+        if (var != null) {
+            passwordDescription = Variables.expand(getVariablesAsHashtable(), var.getValue(), false);
+            if (passwordDescription.trim().length() == 0) passwordDescription = null;
+        } else {
+            passwordDescription = null;
+        }
+        //System.out.println("setVariables(): Passwd Description = "+passwordDescription+", var = "+var);
         setCacheFile();
+        // Conditionally set the commands if not explicitely set by user
+        if (profilesOriginalCommands && profile != null) {
+            ConditionedCommands ccommands = profile.getCommands();
+            if (ccommands != null) {
+                CommandsTree commands = ccommands.getCommands(getVariablesAsHashtable());
+                setCommands(copySharedCommands(commands), true);
+            } else {
+                setCommands(CommandsTree.EMPTY, true);
+            }
+        }
     }
     
     private void setSharedPassword() {
@@ -985,6 +1168,15 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         } else {
             return null;
         }
+    }
+    
+    /**
+     * Get the description of the password, typically the name of the service
+     * that requests the password.
+     * @return The description or <code>null</code> when no description is available.
+     */
+    public String getPasswordDescription() {
+        return passwordDescription;
     }
     
     private void setCacheFile() {
@@ -1046,29 +1238,54 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     
     private CommandsTree tryToFindDefaultCommands() {
         if (config == null) return null;
-        ProfilesCache cache = new ProfilesCache(CONFIG_ROOT_FO, this);
-        return (CommandsTree) cache.getProfileCommands(config);
+        //ProfilesCache cache = new ProfilesCache(CONFIG_ROOT_FO, this);
+        ProfilesFactory factory = ProfilesFactory.getDefault();
+        String[] displayNames = factory.getProfilesDisplayNames();
+        int i;
+        for (i = 0; i < displayNames.length; i++) {
+            if (config.equals(displayNames[i])) {
+                break;
+            }
+        }
+        if (i < displayNames.length) {
+            String profileName = factory.getProfilesNames()[i];
+            Profile profile = factory.getProfile(profileName);
+            ConditionedCommands ccommands = profile.getCommands();
+            return ccommands.getCommands(getVariablesAsHashtable());
+            //return (CommandsTree) cache.getProfileCommands(config);
+        } else {
+            return null;
+        }
     }
     
     private void loadCurrentConfig() {
         //System.out.println("loadCurrentConfig() configFileName = "+configFileName);
         CommandsTree commands = null;
         if (configFileName != null) {
-            org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName);
-            if (doc == null) return ;
-            try {
-                commands = (CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (doc, this);
-            } catch (org.w3c.dom.DOMException exc) {
-                org.openide.ErrorManager.getDefault().notify(exc);
+            ProfilesFactory factory = ProfilesFactory.getDefault();
+            Profile profile = factory.getProfile(configFileName);
+            if (profile != null) {
+                ConditionedCommands ccommands = profile.getCommands();
+                if (ccommands != null) {
+                    commands = ccommands.getCommands(getVariablesAsHashtable());
+                }
             }
+            //org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName);
+            //if (doc == null) return ;
+            //try {
+            //    commands = (CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (doc, this);
+            //} catch (org.w3c.dom.DOMException exc) {
+            //    org.openide.ErrorManager.getDefault().notify(exc);
+            //}
             if (commands == null) {
                 commands = tryToFindDefaultCommands();
             }
             if (commands == null) return ;
-            this.setCommands(commands);
+            this.setCommands(copySharedCommands(commands));
         }
     }
     
+    /*
     private void saveCurrentConfig() {
         configFileName = TEMPORARY_CONFIG_FILE_NAME + cacheId + "." + VariableIO.CONFIG_FILE_EXT;
         FileObject file = CONFIG_ROOT_FO.getFileObject(TEMPORARY_CONFIG_FILE_NAME + cacheId, VariableIO.CONFIG_FILE_EXT);
@@ -1091,7 +1308,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         if (dobj != null && dobj instanceof org.openide.loaders.XMLDataObject) {
             doc = ((org.openide.loaders.XMLDataObject) dobj).createDocument();
         }
-         */
+         *
         doc = org.openide.xml.XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, null, null);
         Vector variables = this.getVariables ();
         //org.openide.nodes.Node commands = this.getCommands();
@@ -1114,6 +1331,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             }
         }
     }
+     */
 
     /** Get the commands. Overide this method of VcsFileSystem to setup
      * the commands if necessary.
@@ -1284,6 +1502,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         in.defaultReadObject();
         setConfigFO();
+        setProfile(ProfilesFactory.getDefault().getProfile(configFileName), false);
         setIgnoreListSupport(new GenericIgnoreListSupport());
         if (!isCreateBackupFilesSet()) setCreateBackupFiles(true);
         if (!isFilterBackupFilesSet()) setFilterBackupFiles(true);
@@ -1294,7 +1513,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     private void writeObject(ObjectOutputStream out) throws IOException {
-        /*if (configFileName == null) */saveCurrentConfig();
+        /*if (configFileName == null) *///saveCurrentConfig();
         out.defaultWriteObject();
     }
     
@@ -1325,6 +1544,25 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             }
             var.setValue(value);
         }
+    }
+    
+    private class ProfilePropertyChangeListener extends Object implements PropertyChangeListener {
+        
+        /**
+         * This method gets called when a bound property is changed.
+         * @param evt A PropertyChangeEvent object describing the event source
+         *   	and the property that has changed.
+         */
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (Profile.PROP_COMMANDS.equals(evt.getPropertyName()) && profilesOriginalCommands) {
+                ConditionedCommands ccommands = profile.getCommands();
+                CommandsTree commands = ccommands.getCommands(getVariablesAsHashtable());
+                setCommands(copySharedCommands(commands), true);
+            } else if (Profile.PROP_VARIABLES.equals(evt.getPropertyName())) {
+                //setVariables(profile.getVariables())); TODO - copy only *some*
+            }
+        }
+        
     }
 
     private class DocCleanupRemoveItem implements Serializable {
@@ -1504,20 +1742,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
 
-    private String clg(String s) {
+    private static String clg(String s) {
         //D.deb("getting "+s);
-        if (resourceBundle == null) {
-            synchronized (this) {
-                if (resourceBundle == null) {
-                    resourceBundle = NbBundle.getBundle(CommandLineVcsFileSystem.class);
-                }
-            }
-        }
-        return resourceBundle.getString (s);
+        return NbBundle.getMessage(CommandLineVcsFileSystem.class, s);
     }
     
-    private String clg(String s, Object obj) {
-        return MessageFormat.format (clg(s), new Object[] { obj });
+    private static String clg(String s, Object obj) {
+        return NbBundle.getMessage(CommandLineVcsFileSystem.class, s, obj);
     }
     
 }

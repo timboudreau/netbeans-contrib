@@ -13,7 +13,7 @@
 
 package org.netbeans.modules.vcscore.cmdline.exec;
 
-import org.apache.regexp.*;
+import java.util.regex.PatternSyntaxException;
 
 import org.netbeans.modules.vcscore.util.*;
 
@@ -23,9 +23,8 @@ import org.netbeans.modules.vcscore.util.*;
  */
 //-------------------------------------------
 public class BadRegexException extends Exception {
-    private Debug D=new Debug("BadRegexException", false); // NOI18N
 
-    private RESyntaxException e=null;
+    private PatternSyntaxException e = null;
 
     //-------------------------------------------
     static final long serialVersionUID =7191929174721239680L;
@@ -39,7 +38,7 @@ public class BadRegexException extends Exception {
     }
 
     //-------------------------------------------
-    public BadRegexException(String msg, RESyntaxException e){
+    public BadRegexException(String msg, PatternSyntaxException e){
         super(msg);
         this.e=e;
     }

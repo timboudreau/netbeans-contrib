@@ -32,11 +32,13 @@ import org.openide.util.NbBundle;
 import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
+import org.netbeans.modules.vcscore.commands.ProvidedCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.VcsCommandVisualizer;
 import org.netbeans.modules.vcscore.commands.VcsDescribedTask;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
+import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.openide.DialogDisplayer;
 import org.openide.awt.Actions;
 import org.openide.windows.WindowManager;
@@ -49,14 +51,15 @@ public abstract class OutputVisualizer extends VcsCommandVisualizer {
     
     public static final String MODE_NAME = "GUI VCS Command Output";
      
-    private static RequestProcessor outputDisplayRequestProcessor;        
-    protected JComponent outputPanel;
+    //private static RequestProcessor outputDisplayRequestProcessor;        
+    private JComponent outputPanel;
     private ArrayList closeListeners = new ArrayList();
     private CommandTask task;
-    private VcsCommandExecutor vce;
+    private VcsCommandsProvider cmdProvider;
+    //private VcsCommandExecutor vce;
     protected Collection files;
     protected File rootDir;
-    protected String actFilePath;
+    //protected String actFilePath;
     private java.awt.event.ActionListener killListener = null;
     private int exit;
     
@@ -90,13 +93,14 @@ public abstract class OutputVisualizer extends VcsCommandVisualizer {
     }
     
     public void setVcsTask(VcsDescribedTask task) {
-        this.task = (CommandTask) task;        
-        this.vce = task.getExecutor();
+        this.task = (CommandTask) task;
+        cmdProvider = ((ProvidedCommand) task).getProvider();
+        VcsCommandExecutor vce = task.getExecutor();
         this.files = vce.getFiles();
         Hashtable vars = vce.getVariables();        
         this.rootDir = new File((String)vars.get("ROOTDIR"));
-        actFilePath = ""+vars.get("WORKDIR")+vars.get("FILE");
-        actFilePath = Variables.expand(vars, actFilePath, false);                                
+        //actFilePath = ""+vars.get("WORKDIR")+vars.get("FILE");
+        //actFilePath = Variables.expand(vars, actFilePath, false);                                
         setName(java.text.MessageFormat.format(NbBundle.getBundle(OutputVisualizer.class).getString("CommandOutputVisualizer.name"),
         new Object[] { findDisplayName(this.task) }));
     }
@@ -114,8 +118,12 @@ public abstract class OutputVisualizer extends VcsCommandVisualizer {
         return Actions.cutAmpersand(dispName);
     }
         
-    protected CommandTask getVcsTask(){
+    protected final CommandTask getVcsTask(){
         return task;
+    }
+    
+    protected final VcsCommandsProvider getCommandsProvider() {
+        return cmdProvider;
     }
     
     /** @return false to open immediatelly.

@@ -30,7 +30,6 @@ import org.netbeans.lib.cvsclient.event.EnhancedMessageEvent;
 import org.openide.DialogDescriptor;
 import javax.accessibility.*;
 
-import java.util.ResourceBundle;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.io.File;
@@ -75,20 +74,20 @@ public class UpdateInfoPanel extends JPanel{
         this.visualizer = visualizer;
         initComponents();
         initAccessibility();
-        btnStop.setMnemonic(bundle.getString("UpdateInfoPanel.stopButton.mnemonic").charAt(0)); //NOI18N
-        btnViewLog.setMnemonic(bundle.getString("UpdateInfoPanel.logButton.mnemonic").charAt(0)); // NOI18N
+        btnStop.setMnemonic(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.stopButton.mnemonic").charAt(0)); //NOI18N
+        btnViewLog.setMnemonic(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.logButton.mnemonic").charAt(0)); // NOI18N
         btnViewLog.addActionListener(new ViewLogActionListener());
         btnStop.setDefaultCapable(true);
         
         setPreferredSize(new java.awt.Dimension(450, 200));
         setMinimumSize(new java.awt.Dimension(450, 200));
-        labelString = bundle.getString("UpdateInfoPanel.lblSending.text"); // NOI18N
+        labelString = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.lblSending.text"); // NOI18N
         // setting the model....
         model = new GrowingTableInfoModel();
         Class classa = UpdateInformation.class;
-        String  column1 = bundle.getString("UpdateTableInfoModel.type"); // NOI18N
-        String  column2 = bundle.getString("UpdateTableInfoModel.fileName"); // NOI18N
-        String  column3 = bundle.getString("UpdateTableInfoModel.path"); // NOI18N
+        String  column1 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.type"); // NOI18N
+        String  column2 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.fileName"); // NOI18N
+        String  column3 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.path"); // NOI18N
         try {
             Method method1 = classa.getMethod("getType", null);     // NOI18N
             Method method2 = classa.getMethod("getFile", null);     // NOI18N
@@ -205,22 +204,21 @@ public class UpdateInfoPanel extends JPanel{
     private javax.swing.JPanel pnlButtons;
     // End of variables declaration//GEN-END:variables
     
-    private static final ResourceBundle bundle = NbBundle.getBundle(UpdateInfoPanel.class);   // NOI18N
     
     private void initAccessibility() {
         
         AccessibleContext context = this.getAccessibleContext();
-        context.setAccessibleName(bundle.getString("ACSD_UpdateInfoPanel"));
+        context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel"));
         
         context = btnViewLog.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_UpdateInfoPanel.btnViewLog"));
+        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.btnViewLog"));
         
         context = btnStop.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_UpdateInfoPanel.btnStop"));
+        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.btnStop"));
         
         context = tblUpdates.getAccessibleContext();
-        context.setAccessibleName(bundle.getString("ACSN_UpdateInfoPanel.tblUpdates"));
-        context.setAccessibleDescription(bundle.getString("ACSD_UpdateInfoPanel.tblUpdates"));
+        context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSN_UpdateInfoPanel.tblUpdates"));
+        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.tblUpdates"));
         
         
     }
@@ -258,10 +256,10 @@ public class UpdateInfoPanel extends JPanel{
      */
     private void displayOutputData() {
         
-        btnStop.setText(bundle.getString("UpdateInfoPanel.closeButton")); // NOI18N
-        btnStop.setMnemonic(bundle.getString("UpdateInfoPanel.closeButton.mnemonic").charAt(0)); //NOI18N
+        btnStop.setText(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.closeButton")); // NOI18N
+        btnStop.setMnemonic(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.closeButton.mnemonic").charAt(0)); //NOI18N
         AccessibleContext context = btnStop.getAccessibleContext();
-        context.setAccessibleName(bundle.getString("ACSD_UpdateInfoPanel.btnClose"));
+        context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.btnClose"));
         btnStop.setEnabled(true);
         btnStop.removeActionListener(stopActionListener);
         btnStop.addActionListener(new CloseActionListener());        
@@ -325,12 +323,11 @@ public class UpdateInfoPanel extends JPanel{
         pane.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
         JTextArea area = new JTextArea();
         //accessibility stuff..
-        ResourceBundle bundle = NbBundle.getBundle(UpdateInfoPanel.class); //NOI18N
         AccessibleContext context = toReturn.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_ShowComandLog"));
+        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_ShowComandLog"));
         
         context = area.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_ShowCommandLog.area"));
+        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_ShowCommandLog.area"));
         
         area.setLineWrap(false);
         if (buff != null) {
@@ -350,8 +347,8 @@ public class UpdateInfoPanel extends JPanel{
         toReturn.setMinimumSize(new Dimension(250, 100));
         DialogDescriptor dd = new DialogDescriptor(toReturn, title);
         JButton btClose = new JButton();
-        btClose.setText(org.openide.util.NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.closeButton")); // NOI18N
-        btClose.setMnemonic(org.openide.util.NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdatetInfoPanel.closeButton.mnemonic").charAt(0)); // NOI18N
+        btClose.setText(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.closeButton")); // NOI18N
+        btClose.setMnemonic(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdatetInfoPanel.closeButton.mnemonic").charAt(0)); // NOI18N
         btClose.setDefaultCapable(true);
         dd.setValue(btClose);
         Object[] options = { btClose };

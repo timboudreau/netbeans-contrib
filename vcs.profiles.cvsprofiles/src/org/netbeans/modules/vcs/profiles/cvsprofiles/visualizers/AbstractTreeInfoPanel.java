@@ -293,7 +293,7 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
       boolean hasChild = false;
       File[] list = parentFile.listFiles();
       for (int index = 0; index < list.length; index++) {
-          if (list[index].isDirectory() && list[index].exists()) {
+          if (list[index].isDirectory()) {
               childFile = list[index];
               if (!childFile.getName().equals("CVS")) { //CVS dirs go out..  // NOI18N
                   hasChild = true;

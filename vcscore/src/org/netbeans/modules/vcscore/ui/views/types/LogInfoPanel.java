@@ -488,15 +488,13 @@ public class LogInfoPanel extends SingleNodeView {
     private javax.swing.JLabel lblWorkFile;
     // End of variables declaration//GEN-END:variables
     
-    private static final java.util.ResourceBundle bundle = NbBundle.getBundle(LogInfoPanel.class);   // NOI18N
-    
     private void initAccessibility() {
         
         AccessibleContext context = this.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_LogInfoPanel")); //NOI18N
+        context.setAccessibleDescription(NbBundle.getMessage(LogInfoPanel.class, "ACSD_LogInfoPanel")); //NOI18N
         
         context = txRepository.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_LogInfoPanel.txRepository")); //NOI18N
+        context.setAccessibleDescription(NbBundle.getMessage(LogInfoPanel.class, "ACSD_LogInfoPanel.txRepository")); //NOI18N
 
     }
     

@@ -361,22 +361,20 @@ public class StatusInfoPanel extends SingleNodeView  {
     private javax.swing.JScrollPane spExistingTags;
     // End of variables declaration//GEN-END:variables
 
-  private static final ResourceBundle bundle = NbBundle.getBundle(StatusInfoPanel.class);   // NOI18N
-  
   private void initAccessibility() {
         
         AccessibleContext context = this.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_StatusInfoPanel")); //NOI18N
+        context.setAccessibleDescription(NbBundle.getMessage(StatusInfoPanel.class, "ACSD_StatusInfoPanel")); //NOI18N
 
         
 /*        context = btnDiff.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_StatusInfoPanel.btnDiff"));
+        context.setAccessibleDescription(NbBundle.getMessage(StatusInfoPanel.class, "ACSD_StatusInfoPanel.btnDiff"));
         
         context = btnAdvanced.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_StatusInfoPanel.btnAdvanced"));
+        context.setAccessibleDescription(NbBundle.getMessage(StatusInfoPanel.class, "ACSD_StatusInfoPanel.btnAdvanced"));
   */      
         context = txRepFile.getAccessibleContext();
-        context.setAccessibleDescription(bundle.getString("ACSD_StatusInfoPanel.txRepFile")); //NOI18N
+        context.setAccessibleDescription(NbBundle.getMessage(StatusInfoPanel.class, "ACSD_StatusInfoPanel.txRepFile")); //NOI18N
         
   }
 

@@ -41,6 +41,8 @@ import org.netbeans.modules.vcscore.cache.FileSystemCache;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReader;
+import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
 import org.netbeans.modules.vcscore.commands.CommandOutputVisualizer;
@@ -74,7 +76,8 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     private VcsCommandExecutor executor;
     private CommandOutputCollector outputCollector;
     private VcsRuntimeCommand runtimeCommand;
-    private VcsCommandVisualizer visualizer;
+    private VcsCommandVisualizer visualizerGUI;
+    private VcsCommandVisualizer visualizerText;
     private File spawnRefreshFile;
     private boolean spawnRefreshRecursively;
     
@@ -100,25 +103,31 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         if (this.executor instanceof ExecuteCommand) {
             ((ExecuteCommand) this.executor).setTask(this);
         }
-        outputCollector = new CommandOutputCollector(this, cmdSupport.getVcsFileSystem().getCommandsProvider());
+        outputCollector = new CommandOutputCollector(this, cmdSupport.getExecutionContext().getCommandsProvider());
     }
     
     private VcsCommandExecutor createExecutor() {
-        VcsFileSystem fileSystem = cmdSupport.getFileSystem();
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
+        VcsFileSystem fileSystem;
+        CommandExecutionContext executionContext = cmdSupport.getExecutionContext();
+        if (executionContext instanceof VcsFileSystem) {
+            fileSystem = (VcsFileSystem) executionContext;
+        } else {
+            fileSystem = null;
+        }
+        Hashtable vars = executionContext.getVariablesAsHashtable();
         Map additionalVariables = cmd.getAdditionalVariables();
         if (additionalVariables != null) vars.putAll(additionalVariables);
         UserCommand uCmd = (UserCommand) cmd.getVcsCommand();
         VcsCommandExecutor vce;
-        if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
-            (VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName())) {
+        if (fileSystem != null && (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
+                                   (VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName()))) {
                 
             vce = createRefresh(fileSystem, vars, uCmd);
-        } else if (VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName()) ||
-                   (VcsCommand.NAME_REFRESH_RECURSIVELY + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName())) {
+        } else if (fileSystem != null && (VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName()) ||
+                                          (VcsCommand.NAME_REFRESH_RECURSIVELY + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName()))) {
             vce = createRecursiveRefresh(fileSystem, vars, uCmd);
         } else {
-            vce = new ExecuteCommand(fileSystem, uCmd, vars, cmd.getPreferredExec());
+            vce = new ExecuteCommand(executionContext, uCmd, vars, cmd.getPreferredExec());
         }
         return vce;
     }
@@ -218,8 +227,8 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     }
     
     /** Spawn the refresh task. */
-    void spawnRefresh() {
-        FileSystemCache cache = CacheHandler.getInstance().getCache(cmdSupport.getFileSystem().getCacheIdStr());
+    void spawnRefresh(VcsFileSystem fileSystem) {
+        FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
         Object locker = new Object();
         cache.getCacheFile(spawnRefreshFile,
                            (spawnRefreshRecursively) ? CacheHandler.STRAT_REFRESH_RECURS
@@ -235,6 +244,10 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     
     public VcsCommandExecutor getExecutor() {
         return executor;
+    }
+    
+    public int getPriority() {
+        return VcsCommandIO.getIntegerPropertyAssumeZero(cmd.getVcsCommand(), VcsCommand.PROPERTY_EXEC_PRIORITY);
     }
     
     /** Get variables that are used for the task execution.
@@ -269,9 +282,10 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         return runtimeCommand;
     }
     
-    private VcsCommandVisualizer createVisualizer(boolean interactive) {
-        final CommandOutputVisualizer outputVisualizer = (interactive) ? new InteractiveCommandOutputVisualizer() : new CommandOutputVisualizer();
+    private void initVisualizer(final VcsCommandVisualizer outputVisualizer) {
+        //final CommandOutputVisualizer outputVisualizer = new CommandOutputVisualizer(this);
         outputVisualizer.setVcsTask(this);
+        outputVisualizer.setPossibleFileStatusInfoMap(cmdSupport.getExecutionContext().getPossibleFileStatusInfoMap());
         outputCollector.addTextOutputListener(new TextOutputListener() {
             public void outputLine(String line) {
                 outputVisualizer.stdOutputLine(line);
@@ -292,22 +306,63 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                 outputVisualizer.errOutputData(data);
             }
         });
-        return outputVisualizer;
     }
     
-    public VcsCommandVisualizer getVisualizer() {
-        return getVisualizer(true, false);
-    }
-    
-    synchronized VcsCommandVisualizer getVisualizer(boolean showPlainOutput, boolean interactive) {
-        if (visualizer == null) {
-            visualizer = executor.getVisualizer();
-            if (visualizer == null && showPlainOutput) {
-                visualizer = createVisualizer(interactive);
+    public VcsCommandVisualizer getVisualizer(boolean gui) {
+        VcsCommandVisualizer visualizer = null;
+        if (gui) {
+            visualizer = getVisualizerGUI(false, false);
+        } else {
+            visualizer = getVisualizerText(false);
+            if (isFinished() && visualizer != null) {
+                visualizer.setExitStatus(executor.getExitStatus());
             }
         }
-        if (isFinished()) visualizer.setExitStatus(executor.getExitStatus());
         return visualizer;
+    }
+    
+    /**
+     * Get the GUI visualizer (if defined).
+     * @param showPlainOutput When true, text output visualizer can be returned
+     *        if GUI visualizer is not defined.
+     * @param interactive When true, an interactive output visualizer can be
+     *        returned if GUI visualizer is not defined.
+     * @return The GUI visualizer or <code>null</code> when not defined. If
+     *         showPlainOutput is true, text output visualizer will be returned
+     *         in case that GUI visualizer is not defined.
+     */
+    synchronized VcsCommandVisualizer getVisualizerGUI(boolean showPlainOutput,
+                                                       boolean interactive) {
+        VcsCommandVisualizer visualizer = getVisualizerGUI();
+        if (visualizer == null && (showPlainOutput || interactive)) {
+            visualizer = getVisualizerText(interactive);
+        }
+        if (isFinished() && visualizer != null) {
+            visualizer.setExitStatus(executor.getExitStatus());
+        }
+        return visualizer;
+    }
+    
+    private synchronized VcsCommandVisualizer getVisualizerGUI() {
+        if (visualizerGUI == null) {
+            visualizerGUI = executor.getVisualizer();
+            if (visualizerGUI != null) {
+                initVisualizer(visualizerGUI);
+            }
+        }
+        return visualizerGUI;
+    }
+    
+    private synchronized VcsCommandVisualizer getVisualizerText(boolean interactive) {
+        if (visualizerText == null) {
+            visualizerText = (interactive) ? new InteractiveCommandOutputVisualizer() : new CommandOutputVisualizer();
+            initVisualizer(visualizerText);
+        }
+        return visualizerText;
+    }
+    
+    public boolean hasGUIVisualizer() {
+        return visualizerGUI != null || executor.getVisualizer() != null;
     }
     
     /**
@@ -337,9 +392,6 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                 runningTasks.remove(this);
                 //System.out.println("RUNNING TASK REMOVED: "+this);
             }
-            if (visualizer != null) {
-                visualizer.setExitStatus(executor.getExitStatus());
-            }
         }
         if (executor != null) doPostprocessing();
         return status;
@@ -347,7 +399,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     
     private void doPostprocessing() {
         VcsCommand cmd = executor.getCommand();
-        VcsFileSystem fileSystem = cmdSupport.getFileSystem();
+        CommandExecutionContext executionContext = cmdSupport.getExecutionContext();
         String message = null;
         String name = cmd.getDisplayName();
         // In case the utility command does not have a parent, report the message as well.
@@ -379,38 +431,38 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
             
             if (message != null) {
-                fileSystem.debugErr(message);
-                printErrorOutput(fileSystem);
+                executionContext.debugErr(message);
+                printErrorOutput(executionContext);
             }
-            if (fileSystem.isCommandNotification()) {
+            if (executionContext.isCommandNotification()) {
                 notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG);
             }
         } else {
-            if (message != null && fileSystem != null) fileSystem.debug(message);
-            if (fileSystem.isCommandNotification()) {
+            if (message != null && executionContext != null) executionContext.debug(message);
+            if (executionContext.isCommandNotification()) {
                 notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG);
             }
         }
         if (notification != null) {
-            CommandExecutorSupport.commandNotification(executor, notification, fileSystem);
+            CommandCustomizationSupport.commandNotification(executor, notification, executionContext);
         }
-        CommandExecutorSupport.postprocessCommand(fileSystem, executor);
+        CommandExecutorSupport.postprocessCommand(executionContext, executor);
     }
     
-    private void printErrorOutput(final VcsFileSystem fileSystem) {
+    private void printErrorOutput(final CommandExecutionContext executionContext) {
         //final VcsFileSystem fileSystem = getVcsFileSystem();
-        if (fileSystem == null) return ;
-        fileSystem.debugErr(g("MSG_Check_whole_output"));
+        if (executionContext == null) return ;
+        executionContext.debugErr(g("MSG_Check_whole_output"));
         //CommandOutputCollector collector = (CommandOutputCollector) outputContainers.get(vce);
         final boolean isErrorOutput[] = { false };
         outputCollector.addTextErrorListener(new TextOutputListener() {
             public void outputLine(String line) {
                 isErrorOutput[0] = true;
-                fileSystem.debugErr(line);
+                executionContext.debugErr(line);
             }
         });
         if (!isErrorOutput[0]) {
-            fileSystem.debugErr(g("MSG_No_error_output"));
+            executionContext.debugErr(g("MSG_No_error_output"));
         }
     }
     
@@ -418,7 +470,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
      *
      */
     public VcsCommandsProvider getProvider() {
-        return cmdSupport.getVcsFileSystem().getCommandsProvider();
+        return cmdSupport.getExecutionContext().getCommandsProvider();
     }
     
     /** Set the VCS commands provider, that provided this Command or CommandTask.

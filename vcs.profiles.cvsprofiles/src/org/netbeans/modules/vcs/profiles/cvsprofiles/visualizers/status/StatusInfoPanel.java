@@ -13,61 +13,68 @@
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.status;
 
-import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.status.StatusInfoPanel.ExtendedRevisionComparator;
-import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.*;
-import org.netbeans.spi.vcs.VcsCommandsProvider;
-import org.netbeans.modules.vcscore.util.table.*;
-import org.netbeans.modules.vcscore.util.Debug;
-import org.openide.util.NbBundle;
-import org.netbeans.api.vcs.commands.Command;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import javax.swing.JPanel;
-import javax.swing.JComponent;
-import java.io.File;
-import java.lang.reflect.Method;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Color;
-import java.util.Enumeration;
+import java.io.File;
+import java.lang.reflect.Method;
 import javax.accessibility.*;
-import java.util.ResourceBundle;
-import javax.accessibility.AccessibleContext;
-import org.netbeans.api.vcs.VcsManager;
-import org.netbeans.api.vcs.commands.CommandTask;
-import org.netbeans.modules.vcscore.commands.TextOutputCommand;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+//import java.util.ResourceBundle;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+import org.netbeans.spi.vcs.VcsCommandsProvider;
+
+import org.netbeans.modules.vcscore.commands.TextOutputCommand;
+import org.netbeans.modules.vcscore.util.table.*;
+import org.netbeans.modules.vcscore.util.Debug;
+
+import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.status.StatusInfoPanel.ExtendedRevisionComparator;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.*;
+import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
+//import org.openide.filesystems.FileStateInvalidException;
 
 /**
  *
  * @author  Richard Gregor
  */
-public class StatusInfoPanel extends JPanel {
+final class StatusInfoPanel extends JPanel {
     
-    Color oldColor;
+    private static final String COMMAND_GET_TAGS = "STATUS_GET_TAGS"; // NOI18N
+    private static final String COMMAND_DIFF = "DIFF"; // NOI18N
+    
+    private Color oldColor;
     private StatusInformation statusInfo;   
     private GridBagConstraints spExistingTagsConstraints;
     private GridBagConstraints lblExistingTagsConstraints;
     private GridBagLayout gridBag;
     private TableInfoModel model;
-    private VcsCommandsProvider provider;
-    private ResourceBundle bundle;
+    private VcsCommandsProvider cmdProvider;
     
     /** 
      * Creates new form StatusInfoPanel 
      */
-    public StatusInfoPanel(){
-        bundle = NbBundle.getBundle(StatusInfoPanel.class);
+    public StatusInfoPanel(VcsCommandsProvider cmdProvider) {
+        this.cmdProvider = cmdProvider;
         initComponents ();
         initAccessibility();
-        lblRepFile.setDisplayedMnemonic (bundle.getString("StatusInfoPanel.lblRepFile.mnemonic").charAt(0)); // NOI18N
+        lblRepFile.setDisplayedMnemonic (NbBundle.getBundle(StatusInfoPanel.class).getString("StatusInfoPanel.lblRepFile.mnemonic").charAt(0)); // NOI18N
         lblRepFile.setLabelFor (txRepFile);
-        btnDiff.setMnemonic (bundle.getString("StatusInfoPanel.btnDiff.mnemonic").charAt(0)); // NOI18N
-        btnAdvanced.setMnemonic (bundle.getString("StatusInfoPanel.btnAdvanced.mnemonic").charAt(0)); // NOI18N
-        lblExistingTags.setDisplayedMnemonic (bundle.getString("StatusInfoPanel.lblExistingTags.mnemonic").charAt(0)); // NOI18N
+        btnDiff.setMnemonic (NbBundle.getBundle(StatusInfoPanel.class).getString("StatusInfoPanel.btnDiff.mnemonic").charAt(0)); // NOI18N
+        btnAdvanced.setMnemonic (NbBundle.getBundle(StatusInfoPanel.class).getString("StatusInfoPanel.btnAdvanced.mnemonic").charAt(0)); // NOI18N
+        lblExistingTags.setDisplayedMnemonic (NbBundle.getBundle(StatusInfoPanel.class).getString("StatusInfoPanel.lblExistingTags.mnemonic").charAt(0)); // NOI18N
         lblExistingTags.setLabelFor (tblExistingTags);
 
         oldColor = txRepRev.getForeground();       
@@ -84,8 +91,8 @@ public class StatusInfoPanel extends JPanel {
       
       model = new TableInfoModel();
       Class classa = StatusInformation.SymName.class;
-      String  column1 = bundle.getString("StatusInfoPanel.SymNamesColumn"); // NOI18N
-      String  column2 = bundle.getString("StatusInfoPanel.Rev2Column"); // NOI18N
+      String  column1 = NbBundle.getBundle(StatusInfoPanel.class).getString("StatusInfoPanel.SymNamesColumn"); // NOI18N
+      String  column2 = NbBundle.getBundle(StatusInfoPanel.class).getString("StatusInfoPanel.Rev2Column"); // NOI18N
       try {
           Method method1 = classa.getMethod("getTag", null); // NOI18N
           Method method2 = classa.getMethod("getRevision", null); // NOI18N
@@ -133,17 +140,17 @@ public class StatusInfoPanel extends JPanel {
         setLayout(new java.awt.GridBagLayout());
 
         setMaximumSize(new java.awt.Dimension(354, 203));
-        lblFileName.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblFilename_mnc").charAt(0));
+        lblFileName.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblFilename_mnc").charAt(0));
         lblFileName.setLabelFor(txFileName);
-        lblFileName.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblFileName.text"));
+        lblFileName.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblFileName.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(lblFileName, gridBagConstraints);
 
-        lblStatus.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblStatus_mnc").charAt(0));
+        lblStatus.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblStatus_mnc").charAt(0));
         lblStatus.setLabelFor(txStatus);
-        lblStatus.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblStatus.text"));
+        lblStatus.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblStatus.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -152,7 +159,7 @@ public class StatusInfoPanel extends JPanel {
         add(lblStatus, gridBagConstraints);
 
         lblRepFile.setLabelFor(txRepFile);
-        lblRepFile.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblRepFile.text"));
+        lblRepFile.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblRepFile.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -182,9 +189,9 @@ public class StatusInfoPanel extends JPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         add(txRepFile, gridBagConstraints);
 
-        lblWorkRev.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblWorkingRevision").charAt(0));
+        lblWorkRev.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblWorkingRevision").charAt(0));
         lblWorkRev.setLabelFor(txWorkRev);
-        lblWorkRev.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblWorkRev.text"));
+        lblWorkRev.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblWorkRev.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -192,9 +199,9 @@ public class StatusInfoPanel extends JPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         add(lblWorkRev, gridBagConstraints);
 
-        lblRepRev.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblRepositoryRevision_mnc").charAt(0));
+        lblRepRev.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblRepositoryRevision_mnc").charAt(0));
         lblRepRev.setLabelFor(txRepRev);
-        lblRepRev.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblRepRev.text"));
+        lblRepRev.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblRepRev.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
@@ -202,7 +209,7 @@ public class StatusInfoPanel extends JPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 17, 0, 0);
         add(lblRepRev, gridBagConstraints);
 
-        btnDiff.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.btnDiff.text"));
+        btnDiff.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.btnDiff.text"));
         btnDiff.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDiffActionPerformed(evt);
@@ -218,9 +225,9 @@ public class StatusInfoPanel extends JPanel {
         gridBagConstraints.insets = new java.awt.Insets(4, 12, 0, 11);
         add(btnDiff, gridBagConstraints);
 
-        lblTag.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblStickyTag_mnc").charAt(0));
+        lblTag.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblStickyTag_mnc").charAt(0));
         lblTag.setLabelFor(txTag);
-        lblTag.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblTag.text"));
+        lblTag.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblTag.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -228,9 +235,9 @@ public class StatusInfoPanel extends JPanel {
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(lblTag, gridBagConstraints);
 
-        lblOptions.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblStickyOptions").charAt(0));
+        lblOptions.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblStickyOptions").charAt(0));
         lblOptions.setLabelFor(txOptions);
-        lblOptions.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblOptions.text"));
+        lblOptions.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblOptions.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
@@ -238,8 +245,8 @@ public class StatusInfoPanel extends JPanel {
         gridBagConstraints.insets = new java.awt.Insets(12, 17, 0, 0);
         add(lblOptions, gridBagConstraints);
 
-        lblDate.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblStickyDate_mnc").charAt(0));
-        lblDate.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblDate.text"));
+        lblDate.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblStickyDate_mnc").charAt(0));
+        lblDate.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblDate.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -263,7 +270,7 @@ public class StatusInfoPanel extends JPanel {
         add(spExistingTags, gridBagConstraints);
 
         lblExistingTags.setLabelFor(tblExistingTags);
-        lblExistingTags.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblExistingTags.text"));
+        lblExistingTags.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblExistingTags.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -271,7 +278,7 @@ public class StatusInfoPanel extends JPanel {
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(lblExistingTags, gridBagConstraints);
 
-        btnAdvanced.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.btnAdvanced.text"));
+        btnAdvanced.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.btnAdvanced.text"));
         btnAdvanced.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAdvancedActionPerformed(evt);
@@ -292,8 +299,9 @@ public class StatusInfoPanel extends JPanel {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.2;
         add(txFileName, gridBagConstraints);
 
         txStatus.setEditable(false);
@@ -304,8 +312,9 @@ public class StatusInfoPanel extends JPanel {
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 11, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.2;
         add(txStatus, gridBagConstraints);
 
         txWorkRev.setEditable(false);
@@ -374,55 +383,70 @@ public class StatusInfoPanel extends JPanel {
     
   private void btnAdvancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdvancedActionPerformed
       
-      File file = statusInfo.getFile();     
-      if(!file.exists())
-          return;
-      Repository repository  = Repository.getDefault();          
-      FileObject fo[] = new FileObject[1];
-      fo[0] = repository.findResource(file.getAbsolutePath()); 
-      Command cmd = VcsManager.getDefault().createCommand("STATUS_GET_TAGS", fo);            
+      RequestProcessor.getDefault().post(new Runnable() {
+          public void run() {
+              File file = statusInfo.getFile();
+              Command cmd = cmdProvider.createCommand(COMMAND_GET_TAGS);
+              FileObject fo[] = FileUtil.fromFile(file);
+              if (fo.length == 1) {
+                  cmd.setFiles(fo);
+              } else { // there're more then one, or none FileObject. Set simply the file.
+                  ((VcsDescribedCommand) cmd).setDiskFiles(new File[] { file });
+              }
       
-      TextOutputCommand txtCmd = (TextOutputCommand) cmd;      
-      CvsStatusVisualizer statVis = new CvsStatusVisualizer();       
-      statVis.setFileFromInfo(file);
-      txtCmd.addTextOutputListener(statVis);
-      txtCmd.addTextErrorListener(statVis);
-      
-      CommandTask cmdTask = cmd.execute();
-      cmdTask.waitFinished();
-      int status = cmdTask.getExitStatus();
-      NotifyDescriptor nd = new NotifyDescriptor.Message(bundle.getString("StatusInfoPanel.getTagsFailed"),NotifyDescriptor.ERROR_MESSAGE);
-      if(status != 0) 
-          DialogDisplayer.getDefault().notify(nd); 
-      StatusInformation sInfo = statVis.getStatusInfo();
-      statusInfo.setFile(sInfo.getFile());
-      statusInfo.setRepositoryFileName(sInfo.getRepositoryFileName());
-      statusInfo.setRepositoryRevision(sInfo.getRepositoryRevision());
-     // statusInfo.setStatus(sInfo.getStatus());
-      statusInfo.setStickyDate(sInfo.getStickyDate());
-      statusInfo.setStickyOptions(sInfo.getStickyOptions());
-      statusInfo.setStickyTag(sInfo.getStickyTag());
-      statusInfo.setWorkingRevision(sInfo.getWorkingRevision());
-      statusInfo.setAllExistingTags(sInfo.getAllExistingTags());
-      setData(statusInfo);      
-      
+              TextOutputCommand txtCmd = (TextOutputCommand) cmd;      
+              CvsStatusVisualizer statVis = new CvsStatusVisualizer();       
+              statVis.setFileFromInfo(file);
+              txtCmd.addTextOutputListener(statVis);
+              txtCmd.addTextErrorListener(statVis);
+
+              CommandTask cmdTask = cmd.execute();
+              cmdTask.waitFinished();
+              int status = cmdTask.getExitStatus();
+              if(status != 0){
+                  NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(StatusInfoPanel.class, "StatusInfoPanel.getTagsFailed"),NotifyDescriptor.ERROR_MESSAGE);
+                  DialogDisplayer.getDefault().notify(nd);
+              }
+              final StatusInformation sInfo = statVis.getStatusInfo();
+              statusInfo.setFile(sInfo.getFile());
+              statusInfo.setRepositoryFileName(sInfo.getRepositoryFileName());
+              statusInfo.setRepositoryRevision(sInfo.getRepositoryRevision());
+             // statusInfo.setStatus(sInfo.getStatus());
+              statusInfo.setStickyDate(sInfo.getStickyDate());
+              statusInfo.setStickyOptions(sInfo.getStickyOptions());
+              statusInfo.setStickyTag(sInfo.getStickyTag());
+              statusInfo.setWorkingRevision(sInfo.getWorkingRevision());
+              statusInfo.setAllExistingTags(sInfo.getAllExistingTags());
+              javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                  public void run() {
+                      setData(statusInfo);
+                  }
+              });
+          }
+      });
   }//GEN-LAST:event_btnAdvancedActionPerformed
   
   private void btnDiffActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDiffActionPerformed
-      File file = statusInfo.getFile();     
-      Repository repository  = Repository.getDefault();          
-      FileObject fo[] = new FileObject[1];
-      fo[0] = repository.findResource(file.getAbsolutePath());      
-      String[] commandNames = VcsManager.getDefault().findCommands(fo);
+      RequestProcessor.getDefault().post(new Runnable() {
+          public void run() {
+              File file = statusInfo.getFile();     
       
-      Command cmd = VcsManager.getDefault().createCommand("DIFF", fo);
-      CommandTask cmdTask = cmd.execute();
-      cmdTask.waitFinished();
-      int status = cmdTask.getExitStatus();
-      NotifyDescriptor nd = new NotifyDescriptor.Message(bundle.getString("StatusInfoPanel.diffFailed"),NotifyDescriptor.ERROR_MESSAGE);
-      if(status != 0) 
-          DialogDisplayer.getDefault().notify(nd);  
-   
+              Command cmd = cmdProvider.createCommand(COMMAND_DIFF);
+              FileObject fo[] = FileUtil.fromFile(file);
+              if (fo.length == 1) {
+                  cmd.setFiles(fo);
+              } else { // there're more then one, or none FileObject. Set simply the file.
+                  ((VcsDescribedCommand) cmd).setDiskFiles(new File[] { file });
+              }
+              CommandTask cmdTask = cmd.execute();
+              cmdTask.waitFinished();
+              int status = cmdTask.getExitStatus();
+              if (status != 0) {
+                  NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getBundle(StatusInfoPanel.class).getString("StatusInfoPanel.diffFailed"),NotifyDescriptor.ERROR_MESSAGE);
+                  DialogDisplayer.getDefault().notify(nd);               
+              }
+          }
+      });
   }//GEN-LAST:event_btnDiffActionPerformed
   
   
@@ -547,7 +571,6 @@ public class StatusInfoPanel extends JPanel {
   public void closeNotify() {
       
   }
-
   
   class ExtendedRevisionComparator extends RevisionComparator {
       public int compare(java.lang.Object obj, java.lang.Object obj1) {

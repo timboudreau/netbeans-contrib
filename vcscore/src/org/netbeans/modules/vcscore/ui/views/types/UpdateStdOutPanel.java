@@ -168,15 +168,13 @@ public class UpdateStdOutPanel extends SingleNodeView  {
     private javax.swing.JEditorPane epFile;
     // End of variables declaration//GEN-END:variables
 
-    private static final java.util.ResourceBundle bundle = NbBundle.getBundle(UpdateStdOutPanel.class);     // NOI18N
-    
     private void initAccessibility() {
         
         AccessibleContext context = this.getAccessibleContext();
-        context.setAccessibleName(bundle.getString("ACSD_UpdateStdOutPanel")); //NOI18N
+        context.setAccessibleName(NbBundle.getMessage(UpdateStdOutPanel.class, "ACSD_UpdateStdOutPanel")); //NOI18N
         
         context = epFile.getAccessibleContext();
-        context.setAccessibleName(bundle.getString("ACSD_UpdateStdOutPanel.epFile")); //NOI18N
+        context.setAccessibleName(NbBundle.getMessage(UpdateStdOutPanel.class, "ACSD_UpdateStdOutPanel.epFile")); //NOI18N
         
     }       
     

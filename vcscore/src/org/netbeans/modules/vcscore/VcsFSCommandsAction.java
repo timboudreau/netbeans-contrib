@@ -73,7 +73,6 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     // The latest map of providers and associated map of files with the message
     private Map filesByCommandProviders;
 
-    private static final String advancedOptionsSign = org.openide.util.NbBundle.getMessage(VcsFSCommandsAction.class, "CTL_AdvancedOptionsSign");
     // List of commands, that can switch the expert mode on/off
     private List switchableList;
     boolean CTRL_Down = false;

@@ -59,6 +59,8 @@ public class VariableIO extends Object {
     public static final String VARIABLE_LOCAL_DIR_ATTR = "localDir";             // NOI18N
     public static final String VARIABLE_EXECUTABLE_ATTR = "executable";          // NOI18N
     public static final String VARIABLE_ORDER_ATTR = "order";                    // NOI18N
+    public static final String VARIABLE_IF_ATTR = "if";                          // NOI18N
+    public static final String VARIABLE_UNLESS_ATTR = "unless";                  // NOI18N
     public static final String VARIABLE_VALUE_TAG = "value";                     // NOI18N
     
     public static final String BOOLEAN_VARIABLE_TRUE = "true";                   // NOI18N
@@ -290,34 +292,49 @@ public class VariableIO extends Object {
     }
 
     /** Read list of VCS variables from the document.
-     * If there is only value specified, label is empty string and basic, localFile
-     * and localDir are false.
+     * If there is only value specified, label is an empty string and basic,
+     * localFile and localDir are false.
      */
-    public static Vector readVariables(Document doc) throws DOMException {
+    public static ConditionedVariables readVariables(Document doc) throws DOMException {
         Element rootElem = doc.getDocumentElement();
         if (!CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) throw new DOMException((short) 0, "Wrong root element: "+rootElem.getNodeName());
-        Vector vars;
+        ConditionedVariables vars;
         NodeList varList = rootElem.getElementsByTagName(VARIABLES_TAG);
         if (varList.getLength() > 0) {
             Node varsNode = varList.item(0);
             vars = getVariables(varsNode.getChildNodes());
-        } else return new Vector(); // an empty vector of variables
+        } else {
+            vars = new ConditionedVariables(Collections.EMPTY_LIST,
+                                            Collections.EMPTY_MAP,
+                                            Collections.EMPTY_MAP);
+        }
         return vars;
     }
     
-    public static Vector getVariables(NodeList varList) throws DOMException {
-        Vector vars = new Vector();
+    public static ConditionedVariables getVariables(NodeList varList) throws DOMException {
+        List vars = new ArrayList();
+        Map conditionsByVariables = new TreeMap();
+        Map varsByConditions = new HashMap();
         int n = varList.getLength();
         for (int i = 0; i < n; i++) {
             Node varNode = varList.item(i);
             if (VARIABLE_TAG.equals(varNode.getNodeName())) {
                 String name = "";
+                String if_attr = "";
+                String unless_attr = "";
                 //boolean isBasic = false;
                 String value = "";
                 NamedNodeMap varAttrs = varNode.getAttributes();
                 Node nameAttr = varAttrs.getNamedItem(VARIABLE_NAME_ATTR);
                 if (nameAttr == null) continue;
                 name = nameAttr.getNodeValue();
+                Node ifAttr = varAttrs.getNamedItem(VARIABLE_IF_ATTR);
+                if (ifAttr != null) if_attr = ifAttr.getNodeValue();
+                Node unlessAttr = varAttrs.getNamedItem(VARIABLE_UNLESS_ATTR);
+                if (unlessAttr != null) unless_attr = unlessAttr.getNodeValue();
+                Map valuesByConditions = new HashMap();
+                Condition cond = createCondition(name, if_attr, unless_attr);
+                
                 NodeList valueList = varNode.getChildNodes();
                 //System.out.println("valueList.length = "+valueList.getLength());
                 int m = valueList.getLength();
@@ -359,21 +376,115 @@ public class VariableIO extends Object {
                             }
                         }
                          */
+                        String value_if_attr = "";
+                        String value_unless_attr = "";
+                        NamedNodeMap valueAttrs = valueNode.getAttributes();
+                        if (valueAttrs != null) {
+                            Node valueIfAttr = valueAttrs.getNamedItem(VARIABLE_IF_ATTR);
+                            if (valueIfAttr != null) value_if_attr = valueIfAttr.getNodeValue();
+                            Node valueUnlessAttr = valueAttrs.getNamedItem(VARIABLE_UNLESS_ATTR);
+                            if (valueUnlessAttr != null) value_unless_attr = valueUnlessAttr.getNodeValue();
+                        }
+                        Condition vc = createCondition(name, value_if_attr, value_unless_attr);
+                        valuesByConditions.put(vc, value);
+                        value = "";
                     }
                 }
-                VcsConfigVariable var;
-                Node basicAttr = varAttrs.getNamedItem(VARIABLE_BASIC_ATTR);
-                value = VcsUtilities.getBundleString(value);
-                value = translateVariableValue(name, value);
-                if (basicAttr != null && BOOLEAN_VARIABLE_TRUE.equalsIgnoreCase(basicAttr.getNodeValue())) {
-                    var = getBasicVariable(name, value, varNode, varAttrs);
-                } else {
-                    var = new VcsConfigVariable(name, "", value, false, false, false, "");
+                Condition[] conditions = new Condition[valuesByConditions.size()];
+                int ci = 0;
+                for (Iterator it = valuesByConditions.keySet().iterator(); it.hasNext(); ) {
+                    Condition vc = (Condition) it.next();
+                    if (vc == null) continue;
+                    String cvalue = (String) valuesByConditions.get(vc);
+                    VcsConfigVariable var = readVariable(name, cvalue, varNode, varAttrs);
+                    if (cond != null) vc.addCondition(cond, true);
+                    conditions[ci] = vc;
+                    varsByConditions.put(vc, var);
+                    ci++;
                 }
-                vars.add(var);
+                value = (String) valuesByConditions.get(null);
+                if (value != null) {
+                    VcsConfigVariable var = readVariable(name, value, varNode, varAttrs);
+                    //System.out.println("  var = "+var);
+                    if (valuesByConditions.size() > 1) {
+                        cond = createComplementaryCondition(name, cond, valuesByConditions.keySet());
+                    }
+                    if (cond != null) {
+                        varsByConditions.put(cond, var);
+                        conditions[conditions.length - 1] = cond;
+                    } else {
+                        vars.add(var);
+                        conditions = null;
+                    }
+                }
+                if (conditions != null) {
+                    Condition[] oldConditions = (Condition[]) conditionsByVariables.get(name);
+                    if (oldConditions != null) {
+                        Condition[] newConditions = new Condition[oldConditions.length + conditions.length];
+                        System.arraycopy(oldConditions, 0, newConditions, 0, oldConditions.length);
+                        System.arraycopy(conditions, 0, newConditions, oldConditions.length, conditions.length);
+                        conditions = newConditions;
+                    }
+                    conditionsByVariables.put(name, conditions);
+                }
             }
         }
-        return vars;
+        return new ConditionedVariables(vars, conditionsByVariables, varsByConditions);
+    }
+    
+    private static VcsConfigVariable readVariable(String name, String value,
+                                                  Node varNode, NamedNodeMap varAttrs) {
+        VcsConfigVariable var;
+        Node basicAttr = varAttrs.getNamedItem(VARIABLE_BASIC_ATTR);
+        value = VcsUtilities.getBundleString(value);
+        value = translateVariableValue(name, value);
+        if (basicAttr != null && BOOLEAN_VARIABLE_TRUE.equalsIgnoreCase(basicAttr.getNodeValue())) {
+            var = getBasicVariable(name, value, varNode, varAttrs);
+        } else {
+            var = new VcsConfigVariable(name, "", value, false, false, false, "");
+        }
+        return var;
+    }
+    
+    /**
+     * Create a condition of given name, that is true when varaible <code>if_attr</code>
+     * is non-empty and variable <code>unless_attr</code> is empty.
+     * @return The condition or <code>null</code> if no condition is created
+     *         (when both if_attr and unless_attr are empty).
+     */
+    public static Condition createCondition(String name, String if_attr, String unless_attr) {
+        Condition c = null;
+        if (if_attr.length() > 0) {
+            c = new Condition(name);
+            c.addVar(if_attr, "", Condition.COMPARE_VALUE_EQUALS, false);
+        }
+        if (unless_attr.length() > 0) {
+            if (c == null) c = new Condition(name);
+            c.addVar(unless_attr, "", Condition.COMPARE_VALUE_EQUALS, true);
+        }
+        return c;
+    }
+    
+    /**
+     * Create a condition, that is complementary to a collection of other conditions
+     * @param name The name of the created condition
+     * @param mainCondition The main condition that is to be satisfied;
+     *                      can be <code>null</code>
+     * @param subConditions The collection of conditions for which the complementary
+     *                      condition is to be created.
+     */
+    public static Condition createComplementaryCondition(String name,
+                                                         Condition mainCondition,
+                                                         Collection subConditions) {
+        Condition c = new Condition(name);
+        if (mainCondition != null) {
+            c.addCondition(mainCondition, true);
+        }
+        for (Iterator it = subConditions.iterator(); it.hasNext(); ) {
+            Condition subC = (Condition) it.next();
+            if (subC != null) c.addCondition(subC, false);
+        }
+        return c;
     }
     
     private static boolean getBooleanAttrVariable(String attrName, NamedNodeMap varAttrs) throws DOMException {
@@ -459,7 +570,7 @@ public class VariableIO extends Object {
      * If there is only value specified, label is empty string and basic, localFile
      * and localDir are false.
      */
-    public static void writeVariables(Document doc, String label, Vector vars) throws DOMException {
+    public static void writeVariables(Document doc, String label, ConditionedVariables vars) throws DOMException {
         writeVariables(doc, label, vars, null, null);
     }
     
@@ -467,7 +578,7 @@ public class VariableIO extends Object {
      * If there is only value specified, label is empty string and basic, localFile
      * and localDir are false.
      */
-    public static void writeVariables(Document doc, String label, Vector vars,
+    public static void writeVariables(Document doc, String label, ConditionedVariables vars,
                                       Set compatibleOSs, Set uncompatibleOSs) throws DOMException {
         Element rootElem = doc.getDocumentElement(); //doc.createElement(CONFIG_ROOT_ELEM);
         //doc.appendChild(rootElem);
@@ -504,43 +615,114 @@ public class VariableIO extends Object {
         }
     }
     
-    private static void putVariables(Document doc, Node varsNode, Vector vars) throws DOMException {
+    private static void putVariables(Document doc, Node varsNode, ConditionedVariables cvars) throws DOMException {
+        Collection uncVars = cvars.getUnconditionedVariables();
+        List vars = new ArrayList(new TreeSet(uncVars));
         int n = vars.size();
         for (int i = 0; i < n; i++) {
             VcsConfigVariable var = (VcsConfigVariable) vars.get(i);
-            Element varElem = doc.createElement(VARIABLE_TAG);
-            varElem.setAttribute(VARIABLE_NAME_ATTR, var.getName());
-            Element valueElem = doc.createElement(VARIABLE_VALUE_TAG);
-            Text valueNode = doc.createTextNode(var.getValue());
-            valueElem.appendChild(valueNode);
-            valueElem.setAttribute("xml:space","preserve"); // To preserve new lines (see issue #14163)
-            varElem.appendChild(valueElem);
-            //varElem.setNodeValue(var.getValue());
-            varElem.setAttribute(VARIABLE_BASIC_ATTR, (var.isBasic()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
-            if (var.isBasic()) {
-                varElem.setAttribute(VARIABLE_LABEL_ATTR, var.getLabel());
-                if (var.getLabelMnemonic() != null) {
-                    varElem.setAttribute(VARIABLE_LABEL_MNEMONIC_ATTR, var.getLabelMnemonic().toString());
-                }
-                if (var.getA11yName() != null) {
-                    varElem.setAttribute(VARIABLE_A11Y_NAME_ATTR, var.getA11yName());
-                }
-                if (var.getA11yDescription() != null) {
-                    varElem.setAttribute(VARIABLE_A11Y_NAME_ATTR, var.getA11yDescription());
-                }
-                varElem.setAttribute(VARIABLE_LOCAL_FILE_ATTR, (var.isLocalFile()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
-                varElem.setAttribute(VARIABLE_LOCAL_DIR_ATTR, (var.isLocalDir()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
-                varElem.setAttribute(VARIABLE_EXECUTABLE_ATTR, (var.isLocalDir()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
-                varElem.setAttribute(VARIABLE_ORDER_ATTR, ""+var.getOrder());
-            }
-            String selector = var.getCustomSelector();
-            if (selector != null && selector.length() > 0) {
-                Element selectorElem = doc.createElement(VARIABLE_SELECTOR_TAG);
-                selectorElem.setNodeValue(selector);
-                varElem.appendChild(selectorElem);
-            }
-            varsNode.appendChild(varElem);
+            writeVariable(var, doc, varsNode, null, null);
         }
+        Map conditionsByVariables = cvars.getConditionsByVariables();
+        Map varsByConditions = cvars.getVariablesByConditions();
+        for (Iterator it = conditionsByVariables.keySet().iterator(); it.hasNext(); ) {
+            String name = (String) it.next();
+            Condition[] conditions = (Condition[]) conditionsByVariables.get(name);
+            Condition[] subConditions = conditions[0].getConditions();
+            Condition c = null;
+            for (int i = 0; i < subConditions.length; i++) {
+                if (conditions[0].isPositiveTest(subConditions[i])) {
+                    c = subConditions[i];
+                    break;
+                }
+            }
+            Map valuesByConditions = new HashMap();
+            VcsConfigVariable var = null;
+            for (int i = 0; i < conditions.length; i++) {
+                var = (VcsConfigVariable) varsByConditions.get(conditions[i]);
+                String value = var.getValue();
+                if (conditions[i].getVars().length == 0) {
+                //if (subConditions.length > 0 && !conditions[i].isPositiveTest(subConditions[subConditions.length - 1])) {
+                    // No condition is applied to the <value>
+                    valuesByConditions.put(null, value);
+                } else {
+                    valuesByConditions.put(conditions[i], value);
+                }
+            }
+            if (c == null && valuesByConditions.size() == 1) {
+                c = (Condition) valuesByConditions.keySet().iterator().next();
+                var.setValue((String) valuesByConditions.get(c));
+                valuesByConditions = null;
+            }
+            writeVariable(var, doc, varsNode, c, valuesByConditions);
+        }
+    }
+    
+    private static Element writeVariable(VcsConfigVariable var, Document doc,
+                                         Node varsNode, Condition c,
+                                         Map valuesByConditions) {
+        Element varElem = doc.createElement(VARIABLE_TAG);
+        varElem.setAttribute(VARIABLE_NAME_ATTR, var.getName());
+        if (valuesByConditions != null) {
+            for (Iterator it = valuesByConditions.keySet().iterator(); it.hasNext(); ) {
+                Condition vc = (Condition) it.next();
+                String value = (String) valuesByConditions.get(vc);
+                Element valueElem = addValue(doc, varElem, value);
+                if (vc != null) setConditionAttributes(valueElem, vc);
+            }
+        } else {
+            addValue(doc, varElem, var.getValue());
+        }
+        varElem.setAttribute(VARIABLE_BASIC_ATTR, (var.isBasic()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
+        if (var.isBasic()) {
+            varElem.setAttribute(VARIABLE_LABEL_ATTR, var.getLabel());
+            if (var.getLabelMnemonic() != null) {
+                varElem.setAttribute(VARIABLE_LABEL_MNEMONIC_ATTR, var.getLabelMnemonic().toString());
+            }
+            if (var.getA11yName() != null) {
+                varElem.setAttribute(VARIABLE_A11Y_NAME_ATTR, var.getA11yName());
+            }
+            if (var.getA11yDescription() != null) {
+                varElem.setAttribute(VARIABLE_A11Y_NAME_ATTR, var.getA11yDescription());
+            }
+            varElem.setAttribute(VARIABLE_LOCAL_FILE_ATTR, (var.isLocalFile()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
+            varElem.setAttribute(VARIABLE_LOCAL_DIR_ATTR, (var.isLocalDir()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
+            varElem.setAttribute(VARIABLE_EXECUTABLE_ATTR, (var.isLocalDir()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
+            varElem.setAttribute(VARIABLE_ORDER_ATTR, ""+var.getOrder());
+        }
+        if (c != null) setConditionAttributes(varElem, c);
+        String selector = var.getCustomSelector();
+        if (selector != null && selector.length() > 0) {
+            Element selectorElem = doc.createElement(VARIABLE_SELECTOR_TAG);
+            selectorElem.setNodeValue(selector);
+            varElem.appendChild(selectorElem);
+        }
+        varsNode.appendChild(varElem);
+        return varElem;
+    }
+    
+    /**
+     * Set the conditional attributes to an element according to a condition.
+     */
+    public static void setConditionAttributes(Element element, Condition c) {
+        Condition.Var[] cvars = c.getVars();
+        for (int i = 0; i < cvars.length; i++) {
+            if (c.isPositiveTest(cvars[i])) {
+                element.setAttribute(VARIABLE_UNLESS_ATTR, cvars[i].getName());
+            } else {
+                element.setAttribute(VARIABLE_IF_ATTR, cvars[i].getName());
+            }
+        }
+    }
+    
+    private static Element addValue(Document doc, Element varElem, String value) {
+        Element valueElem = doc.createElement(VARIABLE_VALUE_TAG);
+        Text valueNode = doc.createTextNode(value);
+        valueElem.appendChild(valueNode);
+        valueElem.setAttribute("xml:space","preserve"); // To preserve new lines (see issue #14163)
+        varElem.appendChild(valueElem);
+        //varElem.setNodeValue(var.getValue());
+        return valueElem;
     }
     
     private static class LabelContentHandler extends Object implements ContentHandler, EntityResolver {

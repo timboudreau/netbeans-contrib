@@ -28,7 +28,7 @@ import org.netbeans.modules.vcscore.util.*;
  * @author  Pavel Buzek, Martin Entlicher
  */
 
-public class VcsConfigVariable extends Object implements Cloneable, Serializable {
+public class VcsConfigVariable extends Object implements Cloneable, Serializable, Comparable {
     private static Debug E=new Debug("VcsConfigVariable", true); // NOI18N
     private static Debug D=E;
 
@@ -210,5 +210,20 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
         return sorted;
     }
 
+    /**
+     * Compares this object with the specified object for order.
+     * Returns a negative integer, zero, or a positive integer as this object is
+     * less than, equal to, or greater than the specified object.
+     * <p>
+     * This implementation makes basic variables smaller than non-basic,
+     * otherwise variables are compared by their names.
+     */
+    public int compareTo(Object o) {
+        VcsConfigVariable var = (VcsConfigVariable) o;
+        if (isBasic() && !var.isBasic()) return -1;
+        if (!isBasic() && var.isBasic()) return +1;
+        return getName().compareTo(var.getName());
+    }
+    
 }
 

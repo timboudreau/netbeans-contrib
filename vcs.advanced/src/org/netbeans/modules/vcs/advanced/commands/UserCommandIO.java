@@ -20,27 +20,37 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.*;
 
 import org.openide.ErrorManager;
-//import org.openide.nodes.Children;
 
-import org.netbeans.modules.vcscore.commands.CommandsTree;
+import org.netbeans.spi.vcs.commands.CommandSupport;
 
-//import org.netbeans.modules.vcscore.commands.VcsCommandNode;
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
+import org.netbeans.modules.vcscore.commands.VcsCommand;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
+import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
+import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedCommand;
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedPropertiesCommand;
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedProperty;
+import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
-import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
-import org.netbeans.spi.vcs.commands.CommandSupport;
 
 /**
  * This class provides input/output of commands from/to xml file.
@@ -50,16 +60,19 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 public class UserCommandIO extends Object {
     
     //public static final String LABEL_TAG = "label";
-    public static final String COMMANDS_TAG = "commands";
-    public static final String COMMAND_TAG = "command";
-    public static final String COMMAND_NAME_ATTR = "name";
-    public static final String COMMAND_DISPLAY_NAME_ATTR = "displayName";
-    public static final String SEPARATOR_TAG = "separator";
-    public static final String PROPERTY_TAG = "property";
-    public static final String PROPERTY_NAME_ATTR = "name";
-    public static final String PROPERTY_VALUE_TAG = "value";
+    public static final String COMMANDS_TAG = "commands";                   // NOI18N
+    public static final String GLOBAL_COMMANDS_TAG = "globalCommands";      // NOI18N
+    public static final String COMMAND_TAG = "command";                     // NOI18N
+    public static final String COMMAND_NAME_ATTR = "name";                  // NOI18N
+    public static final String COMMAND_DISPLAY_NAME_ATTR = "displayName";   // NOI18N
+    public static final String SEPARATOR_TAG = "separator";                 // NOI18N
+    public static final String PROPERTY_TAG = "property";                   // NOI18N
+    public static final String PROPERTY_NAME_ATTR = "name";                 // NOI18N
+    public static final String PROPERTY_VALUE_TAG = "value";                // NOI18N
+    public static final String IF_ATTR = "if";                              // NOI18N
+    public static final String UNLESS_ATTR = "unless";                      // NOI18N
         
-    private static final String ROOT_CMD_NAME = "ROOT_CMD";
+    private static final String ROOT_CMD_NAME = "ROOT_CMD";                 // NOI18N
 
     /** Creates new UserCommandIO, since it contains only static methods,
      * the class should never be instantiated. */
@@ -137,7 +150,7 @@ public class UserCommandIO extends Object {
     /**
      * Read the commands definitions from the document and create the tree of commands.
      */
-    public static CommandsTree readCommands(Document doc, VcsFileSystem fileSystem) throws DOMException {
+    public static ConditionedCommands readCommands(Document doc, VcsFileSystem fileSystem) throws DOMException {
         Element rootElem = doc.getDocumentElement();
         if (!VariableIO.CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) return null;
         NodeList labelList = rootElem.getElementsByTagName(VariableIO.LABEL_TAG);
@@ -154,8 +167,28 @@ public class UserCommandIO extends Object {
         return readCommands(labelNode, commandsList, fileSystem);
     }
     
-    public static CommandsTree readCommands(Node labelNode, NodeList commandsList,
-                                            VcsFileSystem fileSystem) throws DOMException {
+    /**
+     * Read the global commands definitions from the document and create the tree of commands.
+     */
+    public static ConditionedCommands readGlobalCommands(Document doc) throws DOMException {
+        Element rootElem = doc.getDocumentElement();
+        if (!VariableIO.CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) return null;
+        NodeList labelList = rootElem.getElementsByTagName(VariableIO.LABEL_TAG);
+        Node labelNode = null;
+        if (labelList.getLength() > 0) {
+            labelNode = labelList.item(0);
+        }
+        NodeList commandsList = rootElem.getElementsByTagName(GLOBAL_COMMANDS_TAG);
+        if (commandsList.getLength() > 0) {
+            Node commands = commandsList.item(0);
+            commandsList = commands.getChildNodes();
+            //getCommands(children, commandsList);
+        } else commandsList = null;
+        return readCommands(labelNode, commandsList, null);
+    }
+    
+    public static ConditionedCommands readCommands(Node labelNode, NodeList commandsList,
+                                                     CommandExecutionContext execContext) throws DOMException {
         CommandsTree rootCommandNode = null;
         String label = "";
         if (labelNode != null) {
@@ -171,13 +204,15 @@ public class UserCommandIO extends Object {
         UserCommand rootCmd = new UserCommand();
         rootCmd.setName(ROOT_CMD_NAME);
         rootCmd.setDisplayName(label);
-        rootCommandNode = new CommandsTree(new UserCommandSupport(rootCmd, fileSystem));//new VcsCommandNode(children, rootCmd);
-        if (commandsList != null) getCommands(rootCommandNode, commandsList, fileSystem);
-        return rootCommandNode;
+        rootCommandNode = new CommandsTree(new UserCommandSupport(rootCmd, execContext));
+        ConditionedCommandsBuilder ccb = new ConditionedCommandsBuilder(rootCommandNode);
+        if (commandsList != null) getCommands(rootCommandNode, ccb, commandsList,
+                                              execContext);
+        return ccb.getConditionedCommands();
     }
     
-    private static void getCommands(CommandsTree cmdTree, NodeList commandsList,
-                                    VcsFileSystem fileSystem) throws DOMException {
+    private static void getCommands(CommandsTree cmdTree, ConditionedCommandsBuilder ccb,
+                                    NodeList commandsList, CommandExecutionContext execContext) throws DOMException {
         int n = commandsList.getLength();
         for (int i = 0; i < n; i++) {
             Node commandNode = commandsList.item(i);
@@ -192,112 +227,194 @@ public class UserCommandIO extends Object {
             Node nameNode = attrs.getNamedItem(COMMAND_NAME_ATTR);
             if (nameNode == null) continue;
             UserCommand cmd = new UserCommand();
-            cmd.setName(nameNode.getNodeValue());
+            String name = nameNode.getNodeValue();
+            cmd.setName(name);
             //cmd.setName(nameNode.getNodeValue());
             nameNode = attrs.getNamedItem(COMMAND_DISPLAY_NAME_ATTR);
             if (nameNode != null) {
                 String displayName = VcsUtilities.getBundleString(nameNode.getNodeValue());
                 cmd.setDisplayName(displayName);
             } else cmd.setDisplayName(null);
+            String ifAttr = "";
+            String unlessAttr = "";
+            Node ifNode = attrs.getNamedItem(IF_ATTR);
+            if (ifNode != null) ifAttr = ifNode.getNodeValue();
+            Node unlessNode = attrs.getNamedItem(UNLESS_ATTR);
+            if (unlessNode != null) unlessAttr = unlessNode.getNodeValue();
+            Condition c = VariableIO.createCondition(name, ifAttr, unlessAttr);
+            
             NodeList propertiesAndSubCommands = commandNode.getChildNodes();
-            int m = propertiesAndSubCommands.getLength();
-            boolean subcommandsExist = false;
-            for (int j = 0; j < m; j++) {
-                Node propertyNode = propertiesAndSubCommands.item(j);
-                String name = propertyNode.getNodeName();
-                if (PROPERTY_TAG.equals(name)) {
-                    String propertyName = null;
-                    NamedNodeMap propAttrs = propertyNode.getAttributes();
-                    if (propAttrs.getLength() > 0) {
-                        Node nameAttr = propAttrs.getNamedItem(PROPERTY_NAME_ATTR);
-                        if (nameAttr != null) {
-                            propertyName = nameAttr.getNodeValue();
-                        }
-                    }
-                    if (propertyName == null) continue;
-                    String propertyValue = "";
-                    NodeList valueList = propertyNode.getChildNodes();
-                    int vln = valueList.getLength();
-                    for (int k = 0; k < vln; k++) {
-                        Node valueNode = valueList.item(k);
-                        if (PROPERTY_VALUE_TAG.equals(valueNode.getNodeName())) {
-                            NodeList textList = valueNode.getChildNodes();
-                            //System.out.println("property = "+propertyName+", textList.getLength() = "+textList.getLength());
-                            for (int itl = 0; itl < textList.getLength(); itl++) {
-                                Node subNode = textList.item(itl);
-                                //System.out.println("    subNode = "+subNode);
-                                if (subNode instanceof Text) {
-                                    Text textNode = (Text) subNode;
-                                    propertyValue += textNode.getData();
-                                }
-                                if (subNode instanceof EntityReference) {
-                                    EntityReference entityNode = (EntityReference) subNode;
-                                    //System.out.println("Have EntityReference = "+entityNode+", value = "+entityNode.getNodeValue());
-                                    NodeList entityList = entityNode.getChildNodes();
-                                    for (int iel = 0; iel < entityList.getLength(); iel++) {
-                                        Node entitySubNode = entityList.item(iel);
-                                        //System.out.println("    entitySubNode = "+entitySubNode);
-                                        if (entitySubNode instanceof Text) {
-                                            Text textEntityNode = (Text) entitySubNode;
-                                            propertyValue += textEntityNode.getData();
-                                        }
-                                    }
-                                }
-                                //System.out.println("    propertyValue = "+propertyValue);
-                            }
-                            /*
-                            if (textList.getLength() > 0) {
-                                Node subNode = textList.item(0);
-                                if (subNode instanceof Text) {
-                                    Text textNode = (Text) subNode;
-                                    propertyValue = textNode.getData();
-                                }
-                            }
-                             */
-                        }
-                    }
-                    propertyValue = translateCommandProperty(propertyName, propertyValue);
-                    cmd.setProperty(propertyName, getPropertyValue(propertyName, propertyValue));
-                } else if (COMMAND_TAG.equals(name)) {
-                    subcommandsExist = true;
+            List conditionedProperties = new ArrayList();
+            boolean subcommandsExist = getProperties(cmd, propertiesAndSubCommands,
+                                                     conditionedProperties);
+            UserCommandSupport cmdSupp = new UserCommandSupport(cmd, execContext);
+            if (subcommandsExist) {
+                CommandsTree subTree = new CommandsTree(cmdSupp);
+                cmdTree.add(subTree);
+                getCommands(subTree, ccb,
+                            propertiesAndSubCommands, execContext);
+            } else {
+                cmdTree.add(new CommandsTree(cmdSupp));
+            }
+            if (c != null) ccb.addConditionedCommand(cmdSupp, c);
+            if (conditionedProperties.size() > 0) {
+                for (Iterator it = conditionedProperties.iterator(); it.hasNext(); ) {
+                    ConditionedCommandsBuilder.ConditionedProperty property =
+                        (ConditionedCommandsBuilder.ConditionedProperty) it.next();
+                    ccb.addPropertyToCommand(name, c, property);
                 }
             }
-            if (subcommandsExist) {
-                //Children subChildren = new Children.Array();
-                CommandsTree subTree = new CommandsTree(new UserCommandSupport(cmd, fileSystem));
-                cmdTree.add(subTree);
-                getCommands(subTree, propertiesAndSubCommands, fileSystem);
-                //children.add(new org.openide.nodes.Node[] { new VcsCommandNode(subChildren, cmd) });
-            } else {
-                cmdTree.add(new CommandsTree(new UserCommandSupport(cmd, fileSystem)));
-                //children.add(new org.openide.nodes.Node[] { new VcsCommandNode(Children.LEAF, cmd) });
+        }
+    }
+    
+    private static boolean getProperties(UserCommand cmd, NodeList propertiesAndSubCommands,
+                                         Collection conditionedProperties) {
+        int m = propertiesAndSubCommands.getLength();
+        boolean subcommandsExist = false;
+        for (int j = 0; j < m; j++) {
+            Node propertyNode = propertiesAndSubCommands.item(j);
+            String name = propertyNode.getNodeName();
+            if (PROPERTY_TAG.equals(name)) {
+                String propertyName = null;
+                NamedNodeMap propAttrs = propertyNode.getAttributes();
+                if (propAttrs.getLength() > 0) {
+                    Node nameAttr = propAttrs.getNamedItem(PROPERTY_NAME_ATTR);
+                    if (nameAttr != null) {
+                        propertyName = nameAttr.getNodeValue();
+                    }
+                }
+                if (propertyName == null) continue;
+                String ifAttr = "";
+                String unlessAttr = "";
+                Node ifNode = propAttrs.getNamedItem(IF_ATTR);
+                if (ifNode != null) ifAttr = ifNode.getNodeValue();
+                Node unlessNode = propAttrs.getNamedItem(UNLESS_ATTR);
+                if (unlessNode != null) unlessAttr = unlessNode.getNodeValue();
+                Map valuesByConditions = new IdentityHashMap();
+                Condition c = VariableIO.createCondition(cmd.getName() + "/" + propertyName, ifAttr, unlessAttr);
+            
+                String propertyValue = "";
+                NodeList valueList = propertyNode.getChildNodes();
+                int vln = valueList.getLength();
+                for (int k = 0; k < vln; k++) {
+                    Node valueNode = valueList.item(k);
+                    if (PROPERTY_VALUE_TAG.equals(valueNode.getNodeName())) {
+                        NodeList textList = valueNode.getChildNodes();
+                        //System.out.println("property = "+propertyName+", textList.getLength() = "+textList.getLength());
+                        for (int itl = 0; itl < textList.getLength(); itl++) {
+                            Node subNode = textList.item(itl);
+                            //System.out.println("    subNode = "+subNode);
+                            if (subNode instanceof Text) {
+                                Text textNode = (Text) subNode;
+                                propertyValue += textNode.getData();
+                            }
+                            if (subNode instanceof EntityReference) {
+                                EntityReference entityNode = (EntityReference) subNode;
+                                //System.out.println("Have EntityReference = "+entityNode+", value = "+entityNode.getNodeValue());
+                                NodeList entityList = entityNode.getChildNodes();
+                                for (int iel = 0; iel < entityList.getLength(); iel++) {
+                                    Node entitySubNode = entityList.item(iel);
+                                    //System.out.println("    entitySubNode = "+entitySubNode);
+                                    if (entitySubNode instanceof Text) {
+                                        Text textEntityNode = (Text) entitySubNode;
+                                        propertyValue += textEntityNode.getData();
+                                    }
+                                }
+                            }
+                            //System.out.println("    propertyValue = "+propertyValue);
+                        }
+                        String valueIfAttr = "";
+                        String valueUnlessAttr = "";
+                        NamedNodeMap valueAttrs = valueNode.getAttributes();
+                        if (valueAttrs != null) {
+                            Node valueIfNode = valueAttrs.getNamedItem(IF_ATTR);
+                            if (valueIfNode != null) valueIfAttr = valueIfNode.getNodeValue();
+                            Node valueUnlessNode = valueAttrs.getNamedItem(UNLESS_ATTR);
+                            if (valueUnlessNode != null) valueUnlessAttr = valueUnlessNode.getNodeValue();
+                        }
+                        Condition vc = VariableIO.createCondition(cmd.getName() + "/" + propertyName, valueIfAttr, valueUnlessAttr);
+                        propertyValue = translateCommandProperty(propertyName, propertyValue);
+                        valuesByConditions.put(vc, getPropertyValue(propertyName, propertyValue));
+                        propertyValue = "";
+                    }
+                }
+                Object value = valuesByConditions.get(null);
+                if (value != null) {
+                    Condition cond = c;
+                    if (valuesByConditions.size() > 1) {
+                        cond = VariableIO.createComplementaryCondition(cmd.getName() + "/" + propertyName, c, valuesByConditions.keySet());
+                    }
+                    if (cond != null) {
+                        valuesByConditions.put(cond, value);
+                        valuesByConditions.remove(null);
+                    } else {
+                        valuesByConditions = null;
+                    }
+                }
+                if (valuesByConditions == null) {
+                    cmd.setProperty(propertyName, value);
+                } else {
+                    if (c != null) {
+                        for (Iterator it = valuesByConditions.keySet().iterator(); it.hasNext(); ) {
+                            Condition vc = (Condition) it.next();
+                            if (!vc.equals(c)) {
+                                vc.addCondition(c, true);
+                            }
+                        }
+                    }
+                    conditionedProperties.add(
+                        new ConditionedCommandsBuilder.ConditionedProperty(propertyName,
+                                                                           c,
+                                                                           valuesByConditions));
+                }
+            } else if (COMMAND_TAG.equals(name)) {
+                subcommandsExist = true;
             }
         }
+        return subcommandsExist;
     }
 
     /**
      * Write the commands definitions to the document from the tree of commands.
      */
-    public static boolean writeCommands(Document doc, CommandsTree rootCommandNode) throws DOMException {
+    public static boolean writeCommands(Document doc, CommandsTree commands) throws DOMException {
+        return writeCommands(doc, null, commands);
+    }
+    
+    /**
+     * Write the commands definitions to the document from the tree of commands.
+     */
+    public static boolean writeCommands(Document doc, ConditionedCommands commands) throws DOMException {
+        return writeCommands(doc, commands, commands.getCommands());
+    }
+    
+    private static boolean writeCommands(Document doc, ConditionedCommands commands,
+                                         CommandsTree tree) throws DOMException {
         Element rootElem = doc.getDocumentElement();
         if (!VariableIO.CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) return false;
-        /*
-        VcsCommand cmd = (VcsCommand) rootCommandNode.getCookie(VcsCommand.class);
-        if (cmd != null) {
-            Element labelElm = doc.createElement(LABEL_TAG);
-            labelElm.setNodeValue(cmd.getDisplayName());
-            doc.appendChild(labelElm);
-        }
-         */
         Element commandsElm = doc.createElement(COMMANDS_TAG);
-        putCommands(doc, commandsElm, rootCommandNode);
+        putCommands(doc, commandsElm, commands, tree, null);
         rootElem.appendChild(commandsElm);
         return true;
     }
     
-    private static void putCommands(Document doc, org.w3c.dom.Node commands, CommandsTree commandsNode) {
-        //Children children = commandsNode.getChildren();
-        //org.openide.nodes.Node[] commandNodes = children.getNodes();
+    /**
+     * Write the global commands definitions to the document from the tree of commands.
+     */
+    public static boolean writeGlobalCommands(Document doc, ConditionedCommands commands) throws DOMException {
+        Element rootElem = doc.getDocumentElement();
+        if (!VariableIO.CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) return false;
+        Element commandsElm = doc.createElement(GLOBAL_COMMANDS_TAG);
+        putCommands(doc, commandsElm, commands,
+                    commands.getCommands(), null);
+        rootElem.appendChild(commandsElm);
+        return true;
+    }
+    
+    private static void putCommands(Document doc, org.w3c.dom.Node commands,
+                                    ConditionedCommands cc, CommandsTree commandsNode,
+                                    Collection notFoundConditions) {
+        if (notFoundConditions == null) notFoundConditions = new HashSet();
         CommandsTree[] commandChildren = commandsNode.children();
         for (int i = 0; i < commandChildren.length; i++) {
             CommandsTree commandNode = commandChildren[i];
@@ -310,28 +427,172 @@ public class UserCommandIO extends Object {
             }
             UserCommandSupport uSupport = (UserCommandSupport) supp;
             VcsCommand cmd = uSupport.getVcsCommand();
+            //Map commandsByConditions = new IdentityHashMap();
+            //Map conditionedPropertiesByConditions;
+            ConditionedCommand ccmd = null;
+            if (cc != null) {
+                ccmd = cc.getConditionedCommand(cmd.getName());
+                //conditionedPropertiesByConditions = cc.getConditionedProperties(cmd.getName(), commandsByConditions);
+            } else {
+                //conditionedPropertiesByConditions = Collections.EMPTY_MAP;
+            }
+            /*
+            Condition c = null;
+            boolean conditionFound = false;
+            for (Iterator it = commandsByConditions.keySet().iterator(); it.hasNext(); ) {
+                c = (Condition) it.next();
+                UserCommandSupport testSupp = (UserCommandSupport) commandsByConditions.get(c);
+                if (uSupport.equals(testSupp)) {
+                    conditionFound = true;
+                    break;
+                }
+            }
+            if (!conditionFound) {
+                for (Iterator it = commandsByConditions.keySet().iterator(); it.hasNext(); ) {
+                    c = (Condition) it.next();
+                    if (!notFoundConditions.contains(c)) {
+                        notFoundConditions.add(c);
+                        uSupport = (UserCommandSupport) commandsByConditions.get(c);
+                        cmd = uSupport.getVcsCommand();
+                        conditionFound = true;
+                        break;
+                    }
+                }
+                if (!conditionFound) {
+                    c = null;
+                }
+            }
+             */
+            if (ccmd != null) {
+                Condition[] conditions = ccmd.getConditions();
+                for (int ic = 0; ic < conditions.length; ic++) {
+                    ConditionedPropertiesCommand cpcmd = ccmd.getCommandFor(conditions[ic]);
+                    // Test the command so that we find the right one!
+                    if (!uSupport.equals(cpcmd.getCommand())) continue;
+                    
+                    Element commandElm = doc.createElement(COMMAND_TAG);
+                    commandElm.setAttribute(COMMAND_NAME_ATTR, cmd.getName());
+                    String displayName = cmd.getDisplayName();
+                    if (displayName != null) commandElm.setAttribute(COMMAND_DISPLAY_NAME_ATTR, displayName);
+                    if (conditions[ic] != null) VariableIO.setConditionAttributes(commandElm, conditions[ic]);
+                    putProperties(doc, commandElm, cpcmd);
+                    if (commandNode.hasChildren()) putCommands(doc, commandElm, cc, commandNode, notFoundConditions);
+                    commands.appendChild(commandElm);
+                }
+            } else {
+                Element commandElm = doc.createElement(COMMAND_TAG);
+                commandElm.setAttribute(COMMAND_NAME_ATTR, cmd.getName());
+                String displayName = cmd.getDisplayName();
+                if (displayName != null) commandElm.setAttribute(COMMAND_DISPLAY_NAME_ATTR, displayName);
+                putProperties(doc, commandElm, cmd);
+                if (commandNode.hasChildren()) putCommands(doc, commandElm, cc, commandNode, notFoundConditions);
+                commands.appendChild(commandElm);
+            }
+            /*
+            Collection conditionedProperties = (Collection) conditionedPropertiesByConditions.get(c);
             Element commandElm = doc.createElement(COMMAND_TAG);
             commandElm.setAttribute(COMMAND_NAME_ATTR, cmd.getName());
             String displayName = cmd.getDisplayName();
             if (displayName != null) commandElm.setAttribute(COMMAND_DISPLAY_NAME_ATTR, displayName);
-            String[] properties = cmd.getPropertyNames();
-            for (int j = 0; j < properties.length; j++) {
-                Object value = cmd.getProperty(properties[j]);
-                if (value == null) continue;
-                String valueStr = getPropertyValueStr(properties[j], value);
-                if (valueStr == null) continue;
-                Element propertiesElm = doc.createElement(PROPERTY_TAG);
-                propertiesElm.setAttribute(PROPERTY_NAME_ATTR, properties[j]);
-                Element propValueElem = doc.createElement(PROPERTY_VALUE_TAG);
-                Text valueText = doc.createTextNode(valueStr);
-                propValueElem.appendChild(valueText);
-                propValueElem.setAttribute("xml:space","preserve"); // To preserve new lines (see issue #14163)
-                propertiesElm.appendChild(propValueElem);
-                commandElm.appendChild(propertiesElm);
-            }
-            if (commandNode.hasChildren()) putCommands(doc, commandElm, commandNode);
+            if (c != null) VariableIO.setConditionAttributes(commandElm, c);
+            putProperties(doc, commandElm, cmd, conditionedProperties);
+            if (commandNode.hasChildren()) putCommands(doc, commandElm, ucc, commandNode, notFoundConditions);
             commands.appendChild(commandElm);
+             */
         }
+    }
+    
+    private static void putProperties(Document doc, Element commandElm, VcsCommand cmd) throws DOMException {
+        String[] properties = cmd.getPropertyNames();
+        Arrays.sort(properties);
+        for (int j = 0; j < properties.length; j++) {
+            Object value = cmd.getProperty(properties[j]);
+            if (value == null) continue;
+            String valueStr = getPropertyValueStr(properties[j], value);
+            if (valueStr == null) continue;
+            Element propertiesElm = doc.createElement(PROPERTY_TAG);
+            propertiesElm.setAttribute(PROPERTY_NAME_ATTR, properties[j]);
+            Element propValueElem = doc.createElement(PROPERTY_VALUE_TAG);
+            Text valueText = doc.createTextNode(valueStr);
+            propValueElem.appendChild(valueText);
+            propValueElem.setAttribute("xml:space","preserve"); // To preserve new lines (see issue #14163)
+            propertiesElm.appendChild(propValueElem);
+            commandElm.appendChild(propertiesElm);
+        }
+    }
+    
+    private static void putProperties(Document doc, Element commandElm,
+                                      ConditionedPropertiesCommand cpcmd) throws DOMException {
+        VcsCommand cmd = cpcmd.getCommand().getVcsCommand();
+        String[] allProperties;
+        ConditionedProperty[] cproperties = cpcmd.getConditionedProperties();
+        Map conditionedPropertiesByNames;
+        if (cproperties != null) {
+            List properties = new ArrayList(Arrays.asList(cmd.getPropertyNames()));
+            conditionedPropertiesByNames = new HashMap();
+            for (int i = 0; i < cproperties.length; i++) {
+                String name = cproperties[i].getName();
+                if (!properties.contains(name)) properties.add(name);
+                conditionedPropertiesByNames.put(name, cproperties[i]);
+            }
+            allProperties = (String[]) properties.toArray(new String[properties.size()]);
+        } else {
+            conditionedPropertiesByNames = Collections.EMPTY_MAP;
+            allProperties = cmd.getPropertyNames();
+        }
+        Arrays.sort(allProperties);
+        for (int i = 0; i < allProperties.length; i++) {
+            ConditionedProperty property =
+                (ConditionedProperty) conditionedPropertiesByNames.get(allProperties[i]);
+            if (property != null) {
+                Condition c = property.getCondition();
+                Element propertyElm = putProperty(doc, commandElm, allProperties[i], c,
+                                                  property.getValuesByConditions());
+                if (c != null) {
+                    VariableIO.setConditionAttributes(propertyElm, c);
+                }
+            } else {
+                Object value = cmd.getProperty(allProperties[i]);
+                if (value == null) continue;
+                String valueStr = getPropertyValueStr(allProperties[i], value);
+                if (valueStr == null) continue;
+                putProperty(doc, commandElm, allProperties[i], valueStr);
+            }
+        }
+    }
+    
+    private static Element putProperty(Document doc, Element commandElm,
+                                       String name, String value) throws DOMException {
+        Element propertyElm = doc.createElement(PROPERTY_TAG);
+        propertyElm.setAttribute(PROPERTY_NAME_ATTR, name);
+        addPropertyValue(doc, propertyElm, value);
+        commandElm.appendChild(propertyElm);
+        return propertyElm;
+    }
+    
+    private static Element putProperty(Document doc, Element commandElm, String name,
+                                       Condition c, Map valuesByConditions) throws DOMException {
+        Element propertyElm = doc.createElement(PROPERTY_TAG);
+        propertyElm.setAttribute(PROPERTY_NAME_ATTR, name);
+        for (Iterator it = valuesByConditions.keySet().iterator(); it.hasNext(); ) {
+            Condition vc = (Condition) it.next();
+            Object value = valuesByConditions.get(vc);
+            String valueStr = getPropertyValueStr(name, value);
+            if (valueStr == null) continue;
+            Element valueElem = addPropertyValue(doc, propertyElm, valueStr);
+            if (vc != null && !vc.equals(c)) VariableIO.setConditionAttributes(valueElem, vc);
+        }
+        commandElm.appendChild(propertyElm);
+        return propertyElm;
+    }
+    
+    private static Element addPropertyValue(Document doc, Element propertyElm, String value) {
+        Element propValueElem = doc.createElement(PROPERTY_VALUE_TAG);
+        Text valueNode = doc.createTextNode(value);
+        propValueElem.appendChild(valueNode);
+        propValueElem.setAttribute("xml:space","preserve"); // To preserve new lines (see issue #14163)
+        propertyElm.appendChild(propValueElem);
+        return propValueElem;
     }
     
     /**

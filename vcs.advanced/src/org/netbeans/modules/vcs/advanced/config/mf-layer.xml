@@ -125,6 +125,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="entities">
             <folder name="NetBeans">
                 <file name="DTD_VCS_Configuration_1_0" url="nbres:/org/netbeans/modules/vcs/profiles/config/configuration-1_0.dtd" />
+                <file name="DTD_VCS_Configuration_1_1" url="nbres:/org/netbeans/modules/vcs/profiles/config/vcs-configuration-1_1.dtd" />
                 <file name="DTD_VCS_Advanced_FSSettings_1_0" url="nbres:/org/netbeans/modules/vcs/advanced/projectsettings/fssettings-1_0.dtd" />
             </folder>
         </folder>
@@ -138,5 +139,20 @@ Microsystems, Inc. All Rights Reserved.
             </folder>
         </folder>
     </folder>
+
+    <folder name="Services"> 
+        <folder name="Hidden">
+            <file name="GlobalCommandsProvider.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.vcs.advanced.globalcommands.GlobalCommandsProvider.getInstance" />
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.vcs.advanced.globalcommands.GlobalCommandsProvider" />
+            </file>
+            <folder name="VersionControl">
+                <file name="org-netbeans-modules-vcs-advanced-profilesSettings-VcsSettingsNode.instance">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.profilesSettings.Bundle" />
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/profilesSettings/vcsSettings.gif" />
+                </file>
+            </folder>    
+        </folder>            
+    </folder>      
 
 </filesystem>

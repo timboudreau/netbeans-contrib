@@ -1,0 +1,548 @@
+<?xml version="1.0"?>
+<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd'>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<configuration>
+
+<!-- Basic Configuration -->
+    <label>getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_Label)</label>
+  
+    <os>
+        <compatible>"Unix", "Windows"</compatible>
+        <uncompatible>"Windows 95", "Windows 98", "Windows Me"</uncompatible>
+    </os>
+  
+    <condition var="IS_WINDOWS">
+        <var name="os.name" valueContainsIgnoreCase="WINDOWS"/>
+    </condition>
+  
+    <variables>
+
+        <!-- This ensures that quoted characters work -->
+        <variable name="ADJUST_CHARS" basic="false" unless="IS_WINDOWS">
+          <value>\$`"\</value>
+        </variable>
+
+        <variable name="ADJUST_VARS" basic="false" unless="IS_WINDOWS">
+          <value>"REASON","DIRNAME"</value>
+        </variable>
+
+        <!-- Overrides the display name of the filesystem -->
+        <variable name="FS_DISPLAY_NAME" basic="false">
+         <value xml:space="preserve">ClearCase</value>
+        </variable>
+
+        <!-- Execute command begin.. -->
+        <variable basic="false" name="RUN">
+            <value>sh -c &quot;cd \&quot;${ROOTDIR}$[? MODULE][${PS}${MODULE}][]$[? DIR][${PS}${DIR}][]\&quot; &amp;&amp; </value>
+            <value if="IS_WINDOWS">cmd /X /C &quot;cd /D \&quot;${ROOTDIR}$[? MODULE][${PS}${MODULE}][]$[? DIR][${PS}${DIR}][]\&quot; &amp;&amp; </value>
+        </variable>
+
+        <!-- Execute module-relative command begin.. -->
+        <variable basic="false" name="RUNM">
+            <value>sh -c &quot;cd \&quot;${ROOTDIR}$[? MODULE][${PS}${MODULE}][]\&quot; &amp;&amp; </value>
+            <value if="IS_WINDOWS">cmd /X /C &quot;cd /D \&quot;${ROOTDIR}$[? MODULE][${PS}${MODULE}][]\&quot; &amp;&amp; </value>
+        </variable>
+
+        <!-- ..end -->
+        <variable basic="false" name="NUR">
+            <value>&quot;</value>
+        </variable>
+
+        <variable basic="false" name="ClearCaseCMD">
+            <value>cleartool</value>
+        </variable>
+        <variable basic="false" name="PS">
+            <value>${path.separator}</value>
+        </variable>
+        <variable basic="false" name="MODULE">
+            <value></value>
+        </variable>
+        <variable name="QUOTE" basic="false">
+            <value>\"</value>
+        </variable>
+    </variables>
+
+
+    <!-- Commands -->
+    <commands>
+
+    <!-- Refresh/List directory contents command -->
+        <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_ROOT)" name="ROOT">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Refresh)" name="LIST">
+                <property name="data.size.index">
+                    <value>-1</value>
+                </property>
+                <property name="data.locker.index">
+                    <value>-1</value>
+                </property>
+                <property name="labelMnemonic">
+                  <value>getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(LIST_Mnemonic)</value>
+                </property>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.clearcase.list.ClearCaseListCommand.class LIST_CMD</value>
+                </property>
+                <property name="data.date.index">
+                    <value>-1</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="data.attr.index">
+                    <value>-1</value>
+                </property>
+                <property name="data.time.index">
+                    <value>-1</value>
+                </property>
+                <property name="data.status.index">
+                    <value>1</value>
+                </property>
+                <property name="data.fileName.index">
+                    <value>0</value>
+                </property>
+                <property name="data.regex">
+                    <value>(.*$)</value>
+                </property>
+                <property name="error.regex">
+                    <value>(.*$)</value>
+                </property>
+            </command>
+            <command name="LIST_CMD">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} ls ${NUR}</value>
+                </property>
+            </command>
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Refresh_Recursively)" name="LIST_SUB">
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+
+            <!-- Access for the version explorer -->
+            <!-- Commented out since the command doesn't work
+            <command name="REVISION_LIST">
+              <property name="exec">
+                <value>org.netbeans.modules.vcs.profiles.clearcase.list.ClearCaseRevisionListGetter.class ${ROOTDIR}${PS}${MODULE}${PS}${DIR}${FILE}</value>
+              </property>
+              <property name="ignoreFail">
+                <value>true</value>
+              </property>
+              <property name="concurrentExec">
+                <value>-1</value>
+              </property>
+            </command>
+            -->
+<separator/>
+
+            <!-- Check in command -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_In)" name="CHECKIN">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} checkin -ptime -identical -c ${QUOTE}${REASON}${QUOTE} $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_In)) PROMPT_FOR(REASON, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON_MNEMONIC))) </value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="refreshParentFolder">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+                <property name="associatedCommandInterfaceName">
+                    <value>org.netbeans.api.vcs.commands.CheckInCommand</value>
+                </property>
+            </command>
+
+            <!-- Check out (reserved) command -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_Out_Reserved)" name="CHECKOUT RESERVED">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} checkout -ptime -reserved -c ${QUOTE}${REASON}${QUOTE} $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_Out_Reserved)) PROMPT_FOR(REASON, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON_MNEMONIC))) </value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="refreshParentFolder">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+            <!-- Check out (unreserved) command -->
+            <command
+            displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_Out_Unreserved)" name="CHECKOUT UNRESERVED">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} checkout -ptime -c ${QUOTE}${REASON}${QUOTE} -unreserved $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_Out_Unreserved)) PROMPT_FOR(REASON, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON_MNEMONIC))) </value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="refreshParentFolder">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+            <!-- Implicit edit command -->
+            <command name="EDIT">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} checkout -ptime -nc $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="refreshParentFolder">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+            <!-- Post-facto reserve command -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Reserve)" name="LOCK">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} reserve $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+<separator/>
+
+            <!-- Undo checkout command -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Undo_Checkout)" name="UNDO CHECKOUT">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} unco -keep $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="refreshParentFolder">
+                    <value>true</value>
+                </property>
+ 	        <property name="checkForModifications">
+	            <value>true</value>
+	        </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+            <!-- Unreserve command -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Unreserve)" name="UNRESERVE">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} unreserve $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+            <!-- Add to source control command -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Add_To_Source_Control)" name="ADD">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} mkelem -c ${QUOTE}${REASON}${QUOTE} $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Add_To_Source_Control)) PROMPT_FOR(REASON, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON_MNEMONIC))) </value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+                <property name="associatedCommandInterfaceName">
+                    <value>org.netbeans.api.vcs.commands.AddCommand</value>
+                </property>
+        </command>
+
+            <!-- Make directory command -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Mkdir)" name="MKDIR">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} mkdir -nc ${QUOTE}$[? FILE][${FILE}${PS}][]${DIRNAME}${QUOTE} ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Mkdir)) PROMPT_FOR(DIRNAME, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(DIRNAME), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(DIRNAME_MNEMONIC))) </value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+
+            <!-- Make directory command for automatic tools (Web module) -->
+            <command name="MKDIR_CMD">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} mkdir -nc ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+
+            <!-- Remove command -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Remove)" name="RMNAME">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} rmname -c ${QUOTE}${REASON}${QUOTE} $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Remove)) PROMPT_FOR(REASON, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON_MNEMONIC))) </value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+            </command>
+
+            <!-- Remove directory command -->
+            <command
+            displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_RemoveDirectory)" name="RMNAME DIR">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} rmname -c ${QUOTE}${REASON}${QUOTE} $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="onDir">
+                    <value>true</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_RemoveDirectory)) PROMPT_FOR(REASON, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON_MNEMONIC))) </value>
+                </property>
+                <property name="refreshParentFolder">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+            </command>
+
+<separator/>
+
+            <!-- Find checkouts - recurse -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Find_Checkouts_Recursively)" name="FIND CHECKOUTS">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} lscheckout -recurse $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+            </command>
+
+            <!-- Find checkouts - all -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Find_Checkouts_All)"
+            name="FIND CHECKOUTS ALL">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} lscheckout -all $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+            </command>
+
+            <!-- Management of updating -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Update)" name="UPDATE">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} update -graphical ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+
+            <!-- Show history as text -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_History)" name="HISTORY">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} lshistory $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+            <!-- Show history graphically -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_History_Graphical)" name="GRAPHICAL_HISTORY">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} lshistory -graphical $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+            <!-- Show the graphical version tree -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Version_Tree)" name="VERSION TREE">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} lsvtree -graphical $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+<separator/>
+
+            <!-- Properties of element -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Properties_Of_Version)" name="PROPERTIES OF VERSION">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} describe -graphical $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                  <value>true</value>
+                </property>
+            </command>
+
+            <!-- Diff graphically -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Compare_With_Previous_Version)" name="COMPARE WITH PREVIOUS">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} diff -graphical -predecessor $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="ignoreFail">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+        </command>
+
+        <!-- Start a merge graphically. This doesn't take
+             file arguments if you use the -g option, but the vcs
+             generic module doesn't seem to have an equivelent to
+             the Tools menu for actions that are not node-sensitive.
+          -->
+        <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Findmerge_Graphical)" name="GRAPHICAL_HISTORY">
+            <property name="exec">
+                <value>${RUN} ${ClearCaseCMD} findmerge -graphical ${NUR}</value>
+            </property>
+            <property name="onRoot">
+                <value>true</value>
+            </property>
+            <property name="onDir">
+                <value>true</value>
+            </property>
+            <property name="onFiles">
+                <value>true</value>
+            </property>
+            <property name="runOnMultipleFiles">
+                <value>true</value>
+            </property>
+        </command>
+
+      </command>
+
+    </commands>
+</configuration>

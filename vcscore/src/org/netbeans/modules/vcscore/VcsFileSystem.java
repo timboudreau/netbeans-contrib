@@ -14,11 +14,13 @@
 package org.netbeans.modules.vcscore;
 
 import java.awt.*;
+import java.beans.*;
 import java.io.*;
 import java.lang.ref.Reference;
-import java.util.*;
-import java.beans.*;
 import java.text.*;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.swing.*;
 
 import org.openide.*;
@@ -50,9 +52,6 @@ import org.openide.util.SharedClassObject;
 import org.openide.util.UserQuestionException;
 import org.openide.util.WeakListener;
 import org.openide.windows.InputOutput;
-
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
 
 import org.netbeans.api.vcs.FileStatusInfo;
 import org.netbeans.api.vcs.VcsManager;
@@ -102,8 +101,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           VcsSearchTypeFileSystem, VirtualsRefreshing,
                                                                           AbstractFileSystem.List, AbstractFileSystem.Info,
                                                                           AbstractFileSystem.Change, FileSystem.Status,
-                                                                          CacheHandlerListener, FileObjectImportantness,
-                                                                          FileObjectExistence, VcsOISActivator, Serializable {
+                                                                          CommandExecutionContext, CacheHandlerListener,
+                                                                          FileObjectImportantness, FileObjectExistence,
+                                                                          VcsOISActivator, Serializable {
 
     public static interface IgnoreListSupport {
 
@@ -407,7 +407,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private String ignoredGarbageFiles = ""; // NOI18N
 
     /** regexp matcher for ignoredFiles, null if not needed */
-    private transient RE ignoredGarbageRE = null;
+    private transient Pattern ignoredGarbageRE = null;
     private Boolean createBackupFiles = null;
     private Boolean filterBackupFiles = null;
 
@@ -623,8 +623,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (! nue.equals (ignoredGarbageFiles)) {
             if (nue.length () > 0) {
                 try {
-                    ignoredGarbageRE = new RE (nue);
-                } catch (RESyntaxException rese) {
+                    ignoredGarbageRE = Pattern.compile(nue);
+                } catch (PatternSyntaxException rese) {
                     IllegalArgumentException iae = new IllegalArgumentException (rese.getMessage());
                     ErrorManager.getDefault ().annotate (
                         iae, 
@@ -1904,8 +1904,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             ignoredGarbageFiles = "";
         } else if (ignoredGarbageFiles.length () > 0) {
             try {
-                ignoredGarbageRE = new RE (ignoredGarbageFiles);
-            } catch (RESyntaxException rese) {
+                ignoredGarbageRE = Pattern.compile(ignoredGarbageFiles);
+            } catch (PatternSyntaxException rese) {
                 ErrorManager.getDefault ().notify(rese);
             }
         }
@@ -2113,6 +2113,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         setAdjustedSystemName(computeSystemName(rootFile));
         //} catch (PropertyVetoException exc) {}
         displayName = computeDisplayName();
+        firePropertyChange(PROP_DISPLAY_NAME, null, getDisplayName());
     }
 
     public static String substractRootDir(String rDir, String module) {
@@ -2154,22 +2155,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             vars = getVariables();
             rootDir = getRootDirectory().toString();
             int len = vars.size();
-            result = new Hashtable(len+10);
+            Map defVars = Variables.getDefaultVariablesMap();
+            result = new Hashtable(len + defVars.size() + 5);
+            result.putAll(defVars);
             for(int i = 0; i < len; i++) {
                 VcsConfigVariable var = (VcsConfigVariable) vars.elementAt (i);
                 String value = var.getValue();
                 if (value != null) result.put(var.getName (), value);
             }
         }
-
-        result.put("netbeans.home", System.getProperty("netbeans.home"));
-        result.put("netbeans.user", System.getProperty("netbeans.user"));
-        result.put("java.home", System.getProperty("java.home"));
-        String osName=System.getProperty("os.name");
-        result.put("classpath.separator", File.pathSeparator); // NOI18N
-        result.put("path.separator", ""+File.separator); // NOI18N
-        if(result.get("PS")==null) { // NOI18N
-            result.put("PS", ""+File.separator); // NOI18N
+        
+        if (result.get("PS") == null) { // NOI18N
+            result.put("PS", File.separator); // NOI18N
         }
 
         String module = (String) result.get("MODULE"); // NOI18N
@@ -2214,6 +2211,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     public boolean isRememberPassword() {
         return rememberPassword;
+    }
+    
+    /**
+     * Get the description of the password, typically the name of the service
+     * that requests the password. <p>
+     * This method returns <code>null</code> by default, subclasses are expected
+     * to override this method and return meaningful value.
+     * @return The description or <code>null</code> when no description is available.
+     */
+    public String getPasswordDescription() {
+        return null;
     }
 
     private void createTempPromptFiles(Hashtable promptFile) {
@@ -3200,7 +3208,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         for (int i = 0; i < files.length; i++) {
             if (isFilterBackupFiles() && files[i].endsWith(getBackupExtension()) ||
-                ignoredGarbageRE != null && ignoredGarbageRE.match (files[i])) {
+                ignoredGarbageRE != null && ignoredGarbageRE.matcher(files[i]).matches()) {
 
                 files[i] = null;
             }

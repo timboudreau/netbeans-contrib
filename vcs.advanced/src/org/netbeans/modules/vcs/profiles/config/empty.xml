@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd'>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<configuration>
+  <label>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(Empty_Label)</label>
+  
+  <os>
+    <compatible>"Windows", "Unix"</compatible>
+    <uncompatible>"Windows 95", "Windows 98", "Windows Me"</uncompatible>
+  </os>
+  
+  <condition var="IS_WINDOWS">
+    <var name="os.name" valueContainsIgnoreCase="WINDOWS"/>
+  </condition>
+  
+  <condition var="IS_WIN9X">
+    <or>
+      <var name="os.name" value="Windows 95"/>
+      <var name="os.name" value="Windows 98"/>
+      <var name="os.name" value="Windows Me"/>
+    </or>
+  </condition>
+  
+  <condition var="IS_WINNT">
+    <var name="IS_WINDOWS" value="true"/>
+    <not>
+      <var name="IS_WIN9X" value="true"/>
+    </not>
+  </condition>
+  
+  <variables>
+    <variable name="FS_DISPLAY_NAME" basic="false">
+      <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(Empty_FS_DISPLAY_NAME)</value>
+    </variable>
+    <variable name="NAME3" basic="false">
+      <value>value3</value>
+    </variable>
+    <variable name="NAME2" basic="false">
+      <value>value2</value>
+    </variable>
+    <variable name="NAME1" basic="false">
+      <value>value1</value>
+    </variable>
+    <variable name="CD" basic="false">
+      <value>cd</value>
+    </variable>
+    <variable name="MAX_CMD_LENGTH" basic="false" if="IS_WINDOWS">
+      <value>1000</value>
+    </variable>
+  </variables>
+  
+  <commands>
+    <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(Empty)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(Empty_Mnemonic)</value>
+      </property>
+    <command name="LIST" displayName="getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(LIST)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(LIST_Mnemonic)</value>
+      </property>
+      <property name="exec">
+	<value unless="IS_WINDOWS">sh -c "cd ${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []; ls -lF"</value>
+	<value>cmd /X /C &quot;cd /D ${ROOTDIR}${PS}${MODULE}${PS}${DIR}${PS}.&amp;&amp; dir /AA&quot;</value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+      <property name="data.regex">
+	<value>^([a-z\-]+) +([0-9]+) +([0-9A-z]+) +([0-9A-z]+) +([0-9]+) +(.*) +(.*$)</value>
+        <value if="IS_WINDOWS">^([0-9]+/[0-9]+/[0-9]+) +([0-z]+) +(.*) +(.*$)</value>
+      </property>
+      <property name="data.fileName.index">
+	<value>6</value>
+        <value if="IS_WINDOWS">3</value>
+      </property>
+      <property name="data.status.index" unless="IS_WINDOWS">
+	<value>0</value>
+      </property>
+      <property name="data.locker.index" unless="IS_WINDOWS">
+	<value>2</value>
+      </property>
+      <property name="data.revision.index" unless="IS_WINDOWS">
+	<value>1</value>
+      </property>
+      <property name="data.sticky.index" unless="IS_WINDOWS">
+	<value>3</value>
+      </property>
+      <property name="data.size.index">
+	<value>4</value>
+        <value if="IS_WINDOWS">2</value>
+      </property>
+      <property name="data.attr.index" unless="IS_WINDOWS">
+	<value>-1</value>
+      </property>
+      <property name="data.time.index">
+	<value>-1</value>
+        <value if="IS_WINDOWS">1</value>
+      </property>
+      <property name="data.date.index">
+	<value>5</value>
+        <value if="IS_WINDOWS">0</value>
+      </property>
+    </command>
+    <command name="LIST_SUB" displayName="getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(LIST_SUB)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(LIST_SUB_Mnemonic)</value>
+      </property>
+      <property name="exec">
+        <!-- echo If this exec is empty, the command uses LIST to recursively obtain the directory structure -->
+	<value></value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+    </command>
+    <separator />
+    <command name="CHECKIN" displayName="getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(CHECKIN)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(CHECKIN_Mnemonic)</value>
+      </property>
+      <property name="exec">
+	<value if="IS_WINDOWS">cmd /X /C &quot;echo put your CHECKIN command here&quot;</value>
+	<value>echo put your CHECKIN command here</value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+    </command>
+    <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(CHECKOUT)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(CHECKOUT_Mnemonic)</value>
+      </property>
+      <property name="exec">
+	<value if="IS_WINDOWS">cmd /X /C &quot;echo put your CHECKOUT command here&quot;</value>
+	<value>echo put your CHECKOUT command here</value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+    </command>
+    <separator />
+    <command name="LOCK" displayName="getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(LOCK)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(LOCK_Mnemonic)</value>
+      </property>
+      <property name="exec">
+	<value if="IS_WINDOWS">cmd /X /C &quot;echo put your LOCK command here&quot;</value>
+	<value>echo put your LOCK command here</value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+    </command>
+    <command name="UNLOCK" displayName="getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(UNLOCK)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(UNLOCK_Mnemonic)</value>
+      </property>
+      <property name="exec">
+	<value if="IS_WINDOWS">cmd /X /C &quot;echo put your UNLOCK command here&quot;</value>
+	<value>echo put your UNLOCK command here</value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+    </command>
+    <separator />
+    <command name="ADD" displayName="getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(ADD)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(ADD_Mnemonic)</value>
+      </property>
+      <property name="exec">
+	<value if="IS_WINDOWS">cmd /X /C &quot;echo put your ADD command here&quot;</value>
+	<value>echo put your ADD command here</value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+    </command>
+    <command name="REMOVE" displayName="getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(REMOVE)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/config/Bundle).getString(REMOVE_Mnemonic)</value>
+      </property>
+      <property name="exec">
+	<value if="IS_WINDOWS">cmd /X /C &quot;echo put your REMOVE command here&quot;</value>
+	<value>echo put your REMOVE command here</value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+    </command>
+    </command>
+  </commands>
+</configuration>
+

@@ -26,7 +26,6 @@ import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.commands.*;
 import org.openide.DialogDisplayer;
@@ -69,7 +68,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private VariableInputDialog.FilePromptDocumentListener docListener = null;
     private Object docIdentif = null;
     
-    private VcsFileSystem fileSystem = null;
+    private CommandExecutionContext executionContext = null;
     private Hashtable vars = null;
     private boolean expert = false;
     private String exec = null;
@@ -273,9 +272,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         
         gridBagConstraints4 = new java.awt.GridBagConstraints();
         gridBagConstraints4.gridy = 100;
-        gridBagConstraints4.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints4.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints4.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints4.weightx = 1.0;
+        gridBagConstraints4.weightx = 0.0;
         gridBagConstraints4.weighty = 1.0;
         variablePanel.add(pushPanel1, gridBagConstraints4);
         
@@ -300,9 +299,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridy = 100;
-        gridBagConstraints6.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints6.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints6.weightx = 1.0;
+        gridBagConstraints6.weightx = 0.0;
         gridBagConstraints6.weighty = 1.0;
         globalInputPanel.add(pushPanel2, gridBagConstraints6);
         
@@ -523,7 +522,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     private void freeReferences() {
-        fileSystem = null;
+        executionContext = null;
         docIdentif = null;
         docListener = null;
     }
@@ -563,8 +562,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * Set the VCS file system, that is needed to execute the selector command
      * and the variables table.
      */
-    public void setVCSFileSystem(VcsFileSystem fileSystem, Hashtable vars) {
-        this.fileSystem = fileSystem;
+    public void setExecutionContext(CommandExecutionContext executionContext, Hashtable vars) {
+        this.executionContext = executionContext;
         this.vars = vars;
     }
     
@@ -976,13 +975,26 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     private String getSelectorText(String commandName, String oldText) {
-        CommandSupport cmdSupp = fileSystem.getCommandSupport(commandName);
+        CommandSupport cmdSupp = executionContext.getCommandSupport(commandName);
         //OutputContainer container = new OutputContainer(cmd);
         Command command = cmdSupp.createCommand();
         if (!(command instanceof VcsDescribedCommand)) return null;
         VcsDescribedCommand cmd = (VcsDescribedCommand) command;
-        Hashtable varsCopy = new Hashtable(vars);
-        cmd.setAdditionalVariables(varsCopy);
+        // Remember the original variables for a while
+        Hashtable origVars = vars;
+        try {
+            vars = new Hashtable(origVars);
+            // Apply all actions to the copy of the original variables
+            for (Iterator it = actionList.iterator(); it.hasNext(); ) {
+                ActionListener listener = (ActionListener) it.next();
+                listener.actionPerformed(null);
+            }
+            //Hashtable varsCopy = new Hashtable(vars);
+            cmd.setAdditionalVariables(vars);
+        } finally {
+            // We have to reset the variables back!
+            vars = origVars;
+        }
         if (!VcsManager.getDefault().showCustomizer(cmd)) return null;
         //VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCopy);
         //if (ec == null) return null;
@@ -1159,14 +1171,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
             fileName = component.getDefaultValue();
         }
         //System.out.println("default file name = "+fileName);
+        if (fileName != null && fileName.length() > 0) {
+            fileName = Variables.expand(vars, fileName, false);
+        }
         if (fileName == null || fileName.length() == 0) {
             try {
                 fileName = java.io.File.createTempFile("tempVcsCmd", "input").getAbsolutePath();
             } catch (IOException exc) {
                 ErrorManager.getDefault().notify(exc);
             }
-        } else {
-            fileName = Variables.expand(vars, fileName, false);
         }
         //System.out.println("setting file name value = "+fileName);
         component.setValue(fileName);
@@ -1312,7 +1325,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         enableComponents(componentVars, false);
         final String[] varsEnabled = (String[]) component.getEnable().toArray(new String[0]);
         final String[] varsDisabled = (String[]) component.getDisable().toArray(new String[0]);
-        boolean enabled = defValue.equals(component.getValue());
+        boolean enabled = defValue != null && defValue.equals(component.getValue()) || defValue == component.getValue();
         if (componentVars.length > 0) {
             varsToEnableDisable.put(componentVars, enabled ? Boolean.TRUE : Boolean.FALSE);
         }

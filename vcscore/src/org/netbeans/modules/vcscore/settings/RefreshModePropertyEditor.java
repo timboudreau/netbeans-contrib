@@ -27,22 +27,20 @@ import org.openide.util.NbBundle;
 */
 public class RefreshModePropertyEditor extends PropertyEditorSupport {
 
-    private static final java.util.ResourceBundle bundle = NbBundle.getBundle(RefreshModePropertyEditor.class);
+    /** localized string*/
+    private final static String NO_REFRESH = NbBundle.getMessage(RefreshModePropertyEditor.class, "RefreshModePropertyEditor.noRefresh");
 
     /** localized string*/
-    private final static String NO_REFRESH = bundle.getString("RefreshModePropertyEditor.noRefresh");
+    private final static String DIR_BASED = NbBundle.getMessage(RefreshModePropertyEditor.class, "RefreshModePropertyEditor.dirOnOpen");
 
     /** localized string*/
-    private final static String DIR_BASED = bundle.getString("RefreshModePropertyEditor.dirOnOpen");
+    private final static String MOUNT = NbBundle.getMessage(RefreshModePropertyEditor.class, "RefreshModePropertyEditor.recursOnMount");
 
     /** localized string*/
-    private final static String MOUNT = bundle.getString("RefreshModePropertyEditor.recursOnMount");
+    private final static String RESTART = NbBundle.getMessage(RefreshModePropertyEditor.class, "RefreshModePropertyEditor.recursOnRestart");
 
     /** localized string*/
-    private final static String RESTART = bundle.getString("RefreshModePropertyEditor.recursOnRestart");
-
-    /** localized string*/
-    private final static String MOUNT_AND_RESTART = bundle.getString("RefreshModePropertyEditor.recursOnMountAndRestart");
+    private final static String MOUNT_AND_RESTART = NbBundle.getMessage(RefreshModePropertyEditor.class, "RefreshModePropertyEditor.recursOnMountAndRestart");
 
     /** array of hosts */
     private static final String[] modes = {NO_REFRESH, DIR_BASED, MOUNT, RESTART, MOUNT_AND_RESTART};

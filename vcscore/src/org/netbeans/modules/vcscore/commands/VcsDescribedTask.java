@@ -37,8 +37,24 @@ public interface VcsDescribedTask {
      */
     public Map getVariables();
     
+    /**
+     * Get the executor of the command.
+     */
     public VcsCommandExecutor getExecutor();
     
-    public VcsCommandVisualizer getVisualizer();
+    /**
+     * Get the visualizer of the command.
+     * @param gui Whether a GUI visualizer or plain text is requested.
+     * @return The visualizer. If GUI visualizer is not defined for this task
+     *         a plain text visualizer can be returned even when GUI is requested.
+     *         Whether GUI visualizer is defined can be tested by method
+     *         {@link #hasGUIVisualizer()}.
+     */
+    public VcsCommandVisualizer getVisualizer(boolean gui);
+    
+    /**
+     * Test whether this task has a GUI visualizer.
+     */
+    public boolean hasGUIVisualizer();
     
 }

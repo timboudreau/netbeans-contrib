@@ -12,16 +12,9 @@
  */
 package org.netbeans.modules.vcscore.actions;
 
-import org.openide.loaders.*;
-import org.openide.util.NbBundle;
-import java.io.File;
-import org.openide.util.HelpCtx;
-import org.openide.*;
 import org.openide.nodes.Node;
-import org.openide.filesystems.FileObject;
+import org.openide.util.HelpCtx;
 import org.openide.util.actions.NodeAction;
-import java.util.*;
-import org.netbeans.modules.vcscore.grouping.VcsGroupNode;
 
 /** Action that keeps a list of vcs supported activated nodes, subclasses can delegate the recognition of such 
  * nodes to this class to achieve performance improvement.

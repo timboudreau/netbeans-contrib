@@ -64,9 +64,13 @@ public class Stcmd40ListCommand extends AbstractListCommand {
         this.dataRegex = dataRegex;
         this.errorRegex = errorRegex;
         this.filesByName = filesByName;
+        if (args.length < 1) {
+            stderrNRListener.outputLine("Expecting a command name as an argument!"); //NOI18N
+            return false;
+        }
         initVars(vars);
         try {
-            runCommand(vars, args, false);
+            runCommand(vars, args[0], false);
         } catch (InterruptedException iexc) {
             return false;
         }

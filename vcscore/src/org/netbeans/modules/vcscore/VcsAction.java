@@ -390,6 +390,12 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
             if (stdoutDataListener != null) dcmd.addRegexOutputListener(new RegexDataListenerBridge(stdoutDataListener));
             if (stderrDataListener != null) dcmd.addRegexErrorListener(new RegexDataListenerBridge(stderrDataListener));
         }
+        if (additionalVars != null) {
+            String ctrlInAction = (String) additionalVars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
+            if (ctrlInAction != null && ctrlInAction.length() > 0) {
+                command.setExpertMode(true);
+            }
+        }
         UserCommandSupport.setCommandFilesFromTable(command, files, fileSystem);
         if (!VcsManager.getDefault().showCustomizer(command)) return new VcsCommandExecutor[0];
         CommandTask task = command.execute();

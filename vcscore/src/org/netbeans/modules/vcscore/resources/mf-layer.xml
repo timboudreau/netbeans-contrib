@@ -20,7 +20,13 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Versioning">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
       <file name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance" />
-      <attr name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
+      <attr name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance/GlobalCommands" boolvalue="true"/>
+      <folder name="GlobalCommands">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
+        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/runtime/commandIcon.gif" />
+        <file name="org-netbeans-modules-vcscore-actions-VcsGlobalCommandsAction.instance" />
+      </folder>
+      <attr name="GlobalCommands/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
       <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" /> 
     </folder>
     <folder name="Window">

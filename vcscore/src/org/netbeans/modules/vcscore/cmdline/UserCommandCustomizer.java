@@ -25,7 +25,6 @@ import javax.swing.JPanel;
 
 import org.openide.NotifyDescriptor;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
 import org.netbeans.modules.vcscore.util.VariableInputDialog;
@@ -38,7 +37,6 @@ import org.netbeans.modules.vcscore.util.VariableInputDialog;
 public class UserCommandCustomizer extends JPanel implements ActionListener, Runnable {
     
     private VcsDescribedCommand cmd;
-    private VcsFileSystem fileSystem;
     private List actionListeners = new ArrayList();
     private VariableInputDialog dlg;
     private java.awt.GridBagConstraints gridBagConstraints;
@@ -54,10 +52,9 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
     }
     
     public void setCommand(VcsDescribedCommand cmd, VariableInputDialog dlg,
-                           VcsFileSystem fileSystem, String title) {
+                           String title) {
         //System.out.println("\nUserCommandCustomizer.setCommand("+cmd+", "+dlg+")");
         this.cmd = cmd;
-        this.fileSystem = fileSystem;
         this.title = title;
         this.dlg = dlg;
         if (!isVisible()) {

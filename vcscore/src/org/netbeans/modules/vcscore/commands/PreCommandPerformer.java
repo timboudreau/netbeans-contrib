@@ -24,7 +24,7 @@ import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.util.*;
 import org.openide.ErrorManager;
 
@@ -60,7 +60,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     private static final String TEMP_FILE_PREFIX = "tempVcsCmd";
     private static final String TEMP_FILE_SUFFIX = "output";
 
-    private VcsFileSystem fileSystem;
+    private CommandExecutionContext executionContext;
     //private VcsCommand cmd;
     private Hashtable vars;
 
@@ -69,8 +69,8 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     //private volatile int preCommandExecuting = 0;
 
     /** Creates new CommandPerformer */
-    public PreCommandPerformer(VcsFileSystem fileSystem, /*VcsCommand cmd, */Hashtable vars) {
-        this.fileSystem = fileSystem;
+    public PreCommandPerformer(CommandExecutionContext executionContext, Hashtable vars) {
+        this.executionContext = executionContext;
         //this.cmd = cmd;
         this.vars = vars;
     }
@@ -166,11 +166,10 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     private Collection processPreCommands(String[] preCommands) throws UserCancelException {
         preCommandOutput = new Vector[preCommands.length];
         preCommandError = new Vector[preCommands.length];
-        //CommandsPool pool = fileSystem.getCommandsPool();
         ArrayList runningExecutors = new ArrayList();
         for (int i = 0; i < preCommands.length; i++) {
             String cmdName = preCommands[i];
-            CommandSupport cmdSupport = fileSystem.getCommandSupport(cmdName);
+            CommandSupport cmdSupport = executionContext.getCommandSupport(cmdName);
             if (cmdSupport == null) continue; // Nothing to run
             Command cmd = cmdSupport.createCommand();
             preCommandOutput[i] = new Vector();

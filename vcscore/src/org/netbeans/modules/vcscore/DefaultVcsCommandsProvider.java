@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,9 +38,11 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
     private Map commandSupportsByClasses;
     private String[] commandNames;
     private boolean expertMode;
+    private PropertyChangeSupport changeSupport;
     
     /** Creates a new instance of DefaultVcsCommandsProvider */
     public DefaultVcsCommandsProvider(CommandsTree commands) {
+        changeSupport = new PropertyChangeSupport(this);
         setCommands(commands);
     }
     
@@ -103,6 +107,7 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
         commandSupportsByClasses = new HashMap();
         fillCommands(commands);
         commandNames = (String[]) commandSupportsByNames.keySet().toArray(new String[commandSupportsByNames.size()]);
+        changeSupport.firePropertyChange(CommandsTree.Provider.PROP_COMMANDS, null, commands);
     }
     
     private void fillCommands(CommandsTree commands) {
@@ -118,6 +123,21 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
             }
             if (subCommands[i].hasChildren()) fillCommands(subCommands[i]);
         }
+    }
+    
+    /** Add a property change listener to this provider.
+     * The listener is called whenever the provided commands change.
+     *
+     */
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        changeSupport.addPropertyChangeListener(l);
+    }
+    
+    /** Remove the property change listener, that is attached to this provider.
+     *
+     */
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        changeSupport.removePropertyChangeListener(l);
     }
     
 }

@@ -97,16 +97,24 @@ public abstract class RuntimeCommand implements Node.Cookie {
     
     /**
      * this method returns the set of actions that should be available for the runtime tab node of the command.
-     *
      */
     public abstract SystemAction[] getActions();
     
     /**
-     * If you returned the CommandOutputViewAction among the other actions in getActions() method,
-     *you should implement this method and display the output in the CommandOutputPanel.
-     *Otherwise just leave it blank.
+     * this method returns the default action that should be available on the runtime tab node of the command.
      */
-    public abstract void openCommandOutputDisplay();
+    public abstract SystemAction getDefaultAction();
+    
+    /**
+     * If you returned the CommandOutputViewAction among the other actions in getActions() method,
+     * you should implement this method and when <code>gui</code> argument is <code>true</code>,
+     * display the output in a custom GUI panel.<p>
+     * If you returned the CommandOutputTextViewAction among the other actions in getActions() method,
+     * you should implement this method and when <code>gui</code> argument is <code>false</code>,
+     * display the output in the CommandOutputPanel.
+     * Otherwise just leave it blank.
+     */
+    public abstract void openCommandOutputDisplay(boolean gui);
     
     /**
      * Create a property sheet for the node.

@@ -27,16 +27,14 @@ import org.openide.util.NbBundle;
 */
 public class AutoAdditionPropertyEditor extends PropertyEditorSupport {
 
-    private static final java.util.ResourceBundle bundle = NbBundle.getBundle(AutoAdditionPropertyEditor.class);
+    /** localized string*/
+    private final static String MANUAL = NbBundle.getMessage(AutoAdditionPropertyEditor.class, "AutoAddition.manual"); // NOI18N
 
     /** localized string*/
-    private final static String MANUAL = bundle.getString("AutoAddition.manual"); // NOI18N
+    private final static String TO_DEFAULT = NbBundle.getMessage(AutoAdditionPropertyEditor.class, "AutoAddition.toDefaultGroup"); // NOI18N
 
     /** localized string*/
-    private final static String TO_DEFAULT = bundle.getString("AutoAddition.toDefaultGroup"); // NOI18N
-
-    /** localized string*/
-    private final static String ASK = bundle.getString("AutoAddition.ask"); // NOI18N
+    private final static String ASK = NbBundle.getMessage(AutoAdditionPropertyEditor.class, "AutoAddition.ask"); // NOI18N
 
     /** array of hosts */
     private static final String[] modes = {MANUAL, TO_DEFAULT};

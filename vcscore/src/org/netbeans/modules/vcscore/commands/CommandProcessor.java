@@ -29,7 +29,9 @@ import java.util.*;
 
 import org.openide.ErrorManager;
 import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.Node;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.RepositoryListener;
@@ -54,8 +56,6 @@ import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.util.Table;
 //import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.openide.DialogDisplayer;
-import org.openide.awt.StatusDisplayer;
 
 /**
  * This class is used as a container of all external commands which are either running or finished.
@@ -83,11 +83,14 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     
     /** The maximum number of running commands in the system. This prevents overwhelming
      * the system with too many commands running concurrently */
-    private static final int MAX_NUM_RUNNING_COMMANDS = 10;
+    private static final int MAX_NUM_RUNNING_COMMANDS = 15;
     /** The maximum number of running refresh commands in the system. This prevents
      * overwhelming the system with too many refresh commands with the ability
      * to still run other commands concurrently */
     private static final int MAX_NUM_RUNNING_LISTS = 7;
+    /** The maximum number of running commands with a normal priority.
+     * This is necessary to leave some space for high-priority commands. */
+    private static final int MAX_NORMAL_PRIORITY = 10;
     
     private static long lastCommandID = 0;
     
@@ -117,6 +120,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     /** Contains finished instances of CommandTaskInfo. */
     //private ArrayList commandsFinished;
     private int numRunningListCommands;
+    private int numRunningNormalPriority;
     
     /**
      * The threads pool that is used to execute commands.
@@ -147,6 +151,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         //outputContainers = new Hashtable();
         //outputVisualizers = new Hashtable();
         numRunningListCommands = 0;
+        numRunningNormalPriority = 0;
         threadsPool = RequestProcessor.getDefault();
         threadTaskInfo = new ThreadLocal();
     }
@@ -530,6 +535,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         //if (name == null || name.length() == 0) name = cmd.getName();
         synchronized (this) {
             if (isListCommandTask(cmdTask)) numRunningListCommands--;
+            if (cmdTask.getPriority() == 0) numRunningNormalPriority--;
             tasksRunning.remove(cw);
             //commandsFinished.add(cw);
             tasksExceptionallyRunning.remove(cw);
@@ -681,9 +687,15 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         //new Thread(new Runnable() {
             public void run() {
                 VcsCommandExecutor vce;
-                if (isListCommandTask(cw.getTask())) {
+                CommandTask task = cw.getTask();
+                if (isListCommandTask(task)) {
                     synchronized (CommandProcessor.this) {
                         numRunningListCommands++;
+                    }
+                }
+                if (task.getPriority() == 0) {
+                    synchronized (CommandProcessor.this) {
+                        numRunningNormalPriority++;
                     }
                 }
                 commandStarted(cw);
@@ -885,6 +897,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         CommandTask task = cw.getTask();
         //System.out.println("canRun("+cmd.getName()+")");
         if (tasksRunning.size() >= MAX_NUM_RUNNING_COMMANDS ||
+            task.getPriority() == 0 && numRunningNormalPriority >= MAX_NORMAL_PRIORITY ||
             isListCommandTask(task) && numRunningListCommands >= MAX_NUM_RUNNING_LISTS) {
             
             //System.out.println("canRun("+task.getName()+") - limit reached.");

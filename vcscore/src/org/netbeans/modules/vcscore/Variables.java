@@ -123,7 +123,13 @@ public class Variables {
     private static final String SUBSTRACT = "-"; // NOI18N
     private static final String REPLACE = "_"; // NOI18N
     
+    private static final String[] VARS_SYS_PROP = {
+        "netbeans.home", "netbeans.user", "java.home", "file.separator", // NOI18N
+        "os.name", "os.arch", "os.version", "user.name", "user.home", // NOI18N
+    };
+    
     private static Collection contextVariablesNames = null;
+    private static Map defaultVariablesMap = null;
 
     private Variables() {
     }
@@ -144,6 +150,23 @@ public class Variables {
             FILE_IS_FOLDER, FILES_IS_FOLDER, MULTIPLE_FILES
         }));
         return Collections.unmodifiableSet(varNames);
+    }
+    
+    public static synchronized Map getDefaultVariablesMap() {
+        if (defaultVariablesMap == null) {
+            defaultVariablesMap = createDefaultVariablesMap();
+        }
+        return defaultVariablesMap;
+    }
+    
+    private static Map createDefaultVariablesMap() {
+        Map vars = new HashMap();
+        for (int i = 0; i < VARS_SYS_PROP.length; i++) {
+            vars.put(VARS_SYS_PROP[i], System.getProperty(VARS_SYS_PROP[i]));
+        }
+        vars.put("classpath.separator", java.io.File.pathSeparator); // NOI18N
+        vars.put("path.separator", java.io.File.separator); // NOI18N
+        return Collections.unmodifiableMap(vars);
     }
     
     /** Expand all occurences of <code>${VARIABLE_NAME}</code> repeatetively.

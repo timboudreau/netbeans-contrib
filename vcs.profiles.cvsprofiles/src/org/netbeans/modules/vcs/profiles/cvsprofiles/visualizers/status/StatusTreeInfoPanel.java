@@ -20,6 +20,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.Method;
+import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.openide.util.*;
 import org.netbeans.modules.vcscore.util.table.*;
@@ -30,9 +31,8 @@ import org.netbeans.spi.vcs.VcsCommandsProvider;
  *
  * @author  Richard Gregor
  */
-public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
+final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
     
-    private ResourceBundle bundle;
     private StatusInfoPanel statPanel;
     private StatusInformation clearStatusInfo;   
     private Class fsCommand;
@@ -58,18 +58,18 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
     private int currentFilter = FILTER_ALL;
     private static final int FILTER_ALL = 0;
     private static final int FILTER_MODIFIED = 1;        
-    private VcsCommandsProvider provider;
+    private VcsCommandsProvider cmdProvider;
  
     
     /** 
      * Creates new form StatusTreeInfoPanel
      */ 
-    public StatusTreeInfoPanel(File topDir){
-        super(topDir);     
+    public StatusTreeInfoPanel(File topDir, VcsCommandsProvider cmdProvider){
+        super(topDir);
+        this.cmdProvider = cmdProvider;
         debug("topDir:"+topDir.getAbsolutePath());
         debug("exists:"+ Boolean.toString(topDir.exists())); 
-        bundle = NbBundle.getBundle(StatusTreeInfoPanel.class);
-        initButtons();         
+        initButtons();
         postInit();
     }    
     
@@ -93,8 +93,7 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
     
     protected JComponent initPanel() {
         initClearInfo();
-   //     statPanel = new StatusInfoPanel(provider);
-        statPanel = new StatusInfoPanel();
+        statPanel = new StatusInfoPanel(cmdProvider);
         setClearPanel();
         return statPanel;
     }
@@ -159,7 +158,7 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         panel.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
 
-        lblTitle.setText(bundle.getString("StatusTreeInfoPanel.lblTitle.text")); // NOI18N
+        lblTitle.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblTitle.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 0;
@@ -169,8 +168,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 11);
         panel.add(lblTitle, gridBagConstraints1);
 
-        cbUptodate.setText(bundle.getString("StatusTreeInfoPanel.cbUptodate.text")); // NOI18N
-        cbUptodate.setMnemonic(bundle.getString("StatusTreeInfoPanel.cbUptodate.mnemonic").charAt(0)); // NOI18N
+        cbUptodate.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUptodate.text")); // NOI18N
+        cbUptodate.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUptodate.mnemonic").charAt(0)); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
@@ -178,8 +177,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (5, 24, 0, 0);
         panel.add(cbUptodate, gridBagConstraints1);
         
-        cbModified.setText(bundle.getString("StatusTreeInfoPanel.cbModified.text")); // NOI18N
-        cbModified.setMnemonic(bundle.getString("StatusTreeInfoPanel.cbModified.mnemonic").charAt(0)); // NOI18N        
+        cbModified.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbModified.text")); // NOI18N
+        cbModified.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbModified.mnemonic").charAt(0)); // NOI18N        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 1;
@@ -187,8 +186,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (5, 12, 0, 11);
         panel.add(cbModified, gridBagConstraints1);
         
-        cbLocAdded.setText(bundle.getString("StatusTreeInfoPanel.cbLocAdded.text")); // NOI18N
-        cbLocAdded.setMnemonic(bundle.getString("StatusTreeInfoPanel.cbLocAdded.mnemonic").charAt(0)); // NOI18N        
+        cbLocAdded.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocAdded.text")); // NOI18N
+        cbLocAdded.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocAdded.mnemonic").charAt(0)); // NOI18N        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 2;
@@ -196,8 +195,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (0, 24, 0, 0);
         panel.add(cbLocAdded, gridBagConstraints1);
         
-        cbLocRemoved.setText(bundle.getString("StatusTreeInfoPanel.cbLocRemoved.text")); // NOI18N
-        cbLocRemoved.setMnemonic(bundle.getString("StatusTreeInfoPanel.cbLocRemoved.mnemonic").charAt(0)); // NOI18N        
+        cbLocRemoved.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocRemoved.text")); // NOI18N
+        cbLocRemoved.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocRemoved.mnemonic").charAt(0)); // NOI18N        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 2;
@@ -205,8 +204,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (0, 12, 0, 11);
         panel.add(cbLocRemoved, gridBagConstraints1);
         
-        cbNeedsMerge.setText(bundle.getString("StatusTreeInfoPanel.cbNeedsMerge.text")); // NOI18N
-        cbNeedsMerge.setMnemonic(bundle.getString("StatusTreeInfoPanel.cbNeedsMerge.mnemonic").charAt(0)); // NOI18N
+        cbNeedsMerge.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsMerge.text")); // NOI18N
+        cbNeedsMerge.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsMerge.mnemonic").charAt(0)); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 3;
@@ -214,8 +213,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (0, 24, 0, 0);
         panel.add(cbNeedsMerge, gridBagConstraints1);
 
-        cbNeedsPatch.setText(bundle.getString("StatusTreeInfoPanel.cbNeedsPatch.text")); // NOI18N
-        cbNeedsPatch.setMnemonic(bundle.getString("StatusTreeInfoPanel.cbNeedsPatch.mnemonic").charAt(0)); // NOI18N
+        cbNeedsPatch.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsPatch.text")); // NOI18N
+        cbNeedsPatch.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsPatch.mnemonic").charAt(0)); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 3;
@@ -223,8 +222,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (0, 12, 0, 11);
         panel.add(cbNeedsPatch, gridBagConstraints1);
 
-        cbNeedsCheckout.setText(bundle.getString("StatusTreeInfoPanel.cbNeedsCheckout.text")); // NOI18N
-        cbNeedsCheckout.setMnemonic(bundle.getString("StatusTreeInfoPanel.cbNeedsCheckout.mnemonic").charAt(0)); // NOI18N
+        cbNeedsCheckout.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsCheckout.text")); // NOI18N
+        cbNeedsCheckout.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsCheckout.mnemonic").charAt(0)); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 4;
@@ -232,8 +231,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (0, 24, 0, 0);
         panel.add(cbNeedsCheckout, gridBagConstraints1);
         
-        cbHasConflict.setText(bundle.getString("StatusTreeInfoPanel.cbHasConflicts.text")); // NOI18N
-        cbHasConflict.setMnemonic(bundle.getString("StatusTreeInfoPanel.cbHasConflicts.mnemonic").charAt(0)); // NOI18N
+        cbHasConflict.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbHasConflicts.text")); // NOI18N
+        cbHasConflict.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbHasConflicts.mnemonic").charAt(0)); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 4;
@@ -241,8 +240,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (0, 12, 0, 11);
         panel.add(cbHasConflict, gridBagConstraints1);
 
-        cbUnknown.setText(bundle.getString("StatusTreeInfoPanel.cbUnknown.text")); // NOI18N
-        cbUnknown.setMnemonic(bundle.getString("StatusTreeInfoPanel.cbUnknown.mnemonic").charAt(0)); // NOI18N
+        cbUnknown.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUnknown.text")); // NOI18N
+        cbUnknown.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUnknown.mnemonic").charAt(0)); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 5;
@@ -251,7 +250,7 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (0, 24, 0, 0);
         panel.add(cbUnknown, gridBagConstraints1);
         
-        lblCount.setText(bundle.getString("StatusTreeInfoPanel.lblCount")); // NOI18N
+        lblCount.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblCount")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 6;
@@ -330,8 +329,8 @@ public class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
   protected TableInfoModel createTableModel() {
         TableInfoModel model = new TableInfoModel();
         Class classa = StatusInformation.class;
-        String  column1 = bundle.getString("StatusTableInfoModel.status"); // NOI18N
-        String  column2 = bundle.getString("StatusTableInfoModel.fileName"); // NOI18N
+        String  column1 = NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTableInfoModel.status"); // NOI18N
+        String  column2 = NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTableInfoModel.fileName"); // NOI18N
         try {
             Method method1 = classa.getMethod("getStatus", null);     // NOI18N
             Method method2 = classa.getMethod("getFile", null);     // NOI18N

@@ -37,6 +37,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.DOMException;
 
+import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
@@ -57,9 +58,10 @@ import org.openide.xml.XMLUtil;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommands;
 import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
+import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
-import org.openide.ErrorManager;
 
 /**
  *
@@ -135,6 +137,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 new PropertyDescriptor("config", CommandLineVcsFileSystem.class, "getConfig", "setConfig"),
                 new PropertyDescriptor("configFileName", CommandLineVcsFileSystem.class, "getConfigFileName", "setConfigFileName"),
                 new PropertyDescriptor("configFileModificationTimeStr", CommandLineVcsFileSystem.class, "getConfigFileModificationTimeStr", null),
+                new PropertyDescriptor("profilesOriginalCommands", CommandLineVcsFileSystem.class, "isProfilesOriginalCommands", "setProfilesOriginalCommands"),
                 new PropertyDescriptor("cacheId", CommandLineVcsFileSystem.class, "getCacheId", "setCacheId"),
                 new PropertyDescriptor("shortFileStatuses", CommandLineVcsFileSystem.class, "isShortFileStatuses", "setShortFileStatuses"), //NOI18N
                 new PropertyDescriptor("VFSMessageLength", CommandLineVcsFileSystem.class, "getVFSMessageLength", "setVFSMessageLength"), //NOI18N
@@ -414,13 +417,13 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     private void readModuleInfo(Document doc) throws DOMException {
         Element rootElem = doc.getDocumentElement();
         NodeList configList = rootElem.getElementsByTagName(VariableIO.CONFIG_ROOT_ELEM);
-        Vector variables = null;
+        Collection variables = null;
         if (configList.getLength() > 0) {
             Element configNode = (Element) configList.item(0);
             NodeList varList = configNode.getElementsByTagName(VariableIO.VARIABLES_TAG);
             if (varList.getLength() > 0) {
                 Node varsNode = varList.item(0);
-                variables = VariableIO.getVariables(varsNode.getChildNodes());
+                variables = VariableIO.getVariables(varsNode.getChildNodes()).getUnconditionedVariables();
             }
         }
         if (variables != null) {
@@ -460,7 +463,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             NodeList varList = configNode.getElementsByTagName(VariableIO.VARIABLES_TAG);
             if (varList.getLength() > 0) {
                 Node varsNode = varList.item(0);
-                fs.setVariables(VariableIO.getVariables(varsNode.getChildNodes()));
+                fs.setVariables(new Vector(VariableIO.getVariables(varsNode.getChildNodes()).getUnconditionedVariables()));
             }
             NodeList labelList = configNode.getElementsByTagName(VariableIO.LABEL_TAG);
             Node labelNode = null;
@@ -472,7 +475,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 Node commands = commandsList.item(0);
                 commandsList = commands.getChildNodes();
             } else commandsList = null;
-            fs.setCommands(UserCommandIO.readCommands(labelNode, commandsList, fs));
+            fs.setCommands(UserCommandIO.readCommands(labelNode, commandsList, fs).getCommands());
         }
         readAdditionalFSProperties(fs, doc);
     }
@@ -480,7 +483,10 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     public static void writeFSProperties(CommandLineVcsFileSystem fs, Document doc) throws DOMException {
         //System.out.println("writeFSProperties("+fs.getSystemName()+")");
         Document vcDoc = XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, VariableIO.PUBLIC_ID, VariableIO.SYSTEM_ID);
-        VariableIO.writeVariables(vcDoc, fs.getConfig(), fs.getVariables());
+        VariableIO.writeVariables(vcDoc, fs.getConfig(),
+                                  new ConditionedVariables(fs.getVariables(),
+                                                           java.util.Collections.EMPTY_MAP,
+                                                           java.util.Collections.EMPTY_MAP));
         UserCommandIO.writeCommands(vcDoc, fs.getCommands());
         Node importedNode = doc.importNode(vcDoc.getDocumentElement(), true);
         doc.getDocumentElement().appendChild(importedNode);

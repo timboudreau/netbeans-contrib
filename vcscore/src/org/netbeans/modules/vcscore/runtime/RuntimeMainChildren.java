@@ -59,11 +59,18 @@ public class RuntimeMainChildren extends Children.Keys  {
         if (providers != null) providerList.addAll(Arrays.asList(providers));
     }
     
+    private void refreshKeys(final Collection collection) {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                setKeys(collection);
+            }
+        });
+    }
 
     /** Called when the preparetion of nodes is needed
      */
     protected void addNotify() {
-        setKeys (getProviders());
+        refreshKeys (getProviders());
     }
 
     /** Called when all children are garbage collected *
@@ -98,7 +105,7 @@ public class RuntimeMainChildren extends Children.Keys  {
             if (provider != null && !providerList.contains(provider)) {
                 providerList.add(provider);
                 provider.notifyAdded();
-                RuntimeMainChildren.this.setKeys(providerList);
+                RuntimeMainChildren.this.refreshKeys(providerList);
             }
         }
         
@@ -112,7 +119,7 @@ public class RuntimeMainChildren extends Children.Keys  {
             if (provider != null && !containsProvider(ev.getRepository(), provider)) {
                 if (providerList.remove(provider)) {
                     provider.notifyRemoved();
-                    RuntimeMainChildren.this.setKeys(providerList);
+                    RuntimeMainChildren.this.refreshKeys(providerList);
                 }
             }
         }
@@ -131,12 +138,15 @@ public class RuntimeMainChildren extends Children.Keys  {
         public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
             RuntimeCommandsProvider oldProvider = (RuntimeCommandsProvider) propertyChangeEvent.getOldValue();
             RuntimeCommandsProvider newProvider = (RuntimeCommandsProvider) propertyChangeEvent.getNewValue();
-            if (oldProvider != null) providerList.remove(oldProvider);
+            if (oldProvider != null) {
+                if (providerList.remove(oldProvider) && newProvider != null) {
+                    newProvider.notifyRemoved();
+                }
+            }
             if (newProvider != null) {
                 providerList.add(newProvider);
-                newProvider.notifyRemoved();
             }
-            RuntimeMainChildren.this.setKeys(providerList);
+            RuntimeMainChildren.this.refreshKeys(providerList);
         }
         
     }    

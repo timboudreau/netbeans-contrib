@@ -1,0 +1,1159 @@
+<?xml version="1.0"?>
+<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd'>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<configuration>
+  <label>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_Label)</label>
+  
+  <os>
+    <compatible>"Unix", "Windows"</compatible>
+    <uncompatible>"Windows 95", "Windows 98", "Windows Me"</uncompatible>
+  </os>
+  
+  <condition var="IS_WINDOWS">
+    <var name="os.name" valueContainsIgnoreCase="WINDOWS"/>
+  </condition>
+  
+  <condition var="IS_WIN9X">
+    <or>
+      <var name="os.name" value="Windows 95"/>
+      <var name="os.name" value="Windows 98"/>
+      <var name="os.name" value="Windows Me"/>
+    </or>
+  </condition>
+  
+  <condition var="IS_WINNT">
+    <var name="IS_WINDOWS" value="true"/>
+    <not>
+      <var name="IS_WIN9X" value="true"/>
+    </not>
+  </condition>
+  
+  <variables>
+    <variable name="FS_DISPLAY_NAME" basic="false">
+      <value>PVCS</value>
+    </variable>
+    <variable name="MODULE_INFORMATION_CODE_NAME_BASE" basic="false">
+      <value>org.netbeans.modules.vcs.profiles.pvcs</value>
+    </variable>
+    <variable name="USER_LOCAL_PARAM_LABELS" basic="false">
+      <value>"getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CMD_Options)"</value>
+    </variable>
+    <variable name="RUN" basic="false">
+      <value>/bin/sh -c "cd \"${WORKDIR}\";</value>
+      <value if="IS_WINNT">cmd /X /C "cd /D \"${WORKDIR}\"&amp;&amp;</value>
+    </variable>
+    <variable name="RUNR" basic="false">
+      <value>/bin/sh -c "cd \"${ROOTDIR}\"; </value>
+      <value if="IS_WINNT">cmd /X /C "cd /D \"${ROOTDIR}\"&amp;&amp;</value>
+    </variable>
+    <variable name="PROJECT_DB" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectDatabase)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectDatabase_Menmonic)" localFile="false" localDir="true" executable="false" order="0">
+      <value>/usr/pvcs/vm/sampledb</value>
+      <value if="IS_WINDOWS">c:\Program Files\pvcs\vm\sampledb</value>
+    </variable>
+    <variable name="PROJECT" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectName)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectName_Mnemonic)" localFile="false" localDir="false" executable="false" order="1">
+      <value>/</value>
+    </variable>
+    <variable name="QUOTE" basic="false">
+      <value>\"</value>
+    </variable>
+    <variable name="PCLI_QUOTE" basic="false">
+      <value>$[? PCLI_OLDSTYLE_QUOTING] [\\\"] [\"]</value>
+      <value if="IS_WINNT">\"</value>
+    </variable>
+    <variable name="PCLI_OLDSTYLE_QUOTING" basic="false" unless="IS_WINNT">
+      <value></value>
+    </variable>
+    <variable name="ESCAPED_(" basic="false">
+      <value>\(</value>
+      <value if="IS_WINNT">(</value>
+    </variable>
+    <variable name="ESCAPED_)" basic="false">
+      <value>\)</value>
+      <value if="IS_WINNT">)</value>
+    </variable>
+    <variable name="SHOWLOCALFILES" basic="false">
+      <value>true</value>
+    </variable>
+    <variable name="WORKDIR" basic="false">
+      <value>${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []</value>
+    </variable>
+    <variable name="WORKDIR_REL" basic="false">
+      <value>$[? MODULE] [$[? DIR] [${MODULE}/${DIR}] [${MODULE}]] [${DIR}]</value>
+      <value if="IS_WINDOWS">$[? MODULE] [$[? DIR] [${MODULE_\/}/${DIR_\/}] [${MODULE_\/}]] [${DIR_\/}]</value>
+    </variable>
+    <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED" basic="false">
+      <value>"getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Current)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Missing)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_LM)"</value>
+    </variable>
+    <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT" basic="false">
+      <value>"getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Short_Current)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Short_Missing)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Short_LM)"</value>
+    </variable>
+    <variable name="NOT_MODIFIABLE_FILE_STATUSES" basic="false">
+      <value>"Local"</value>
+    </variable>
+    <variable name="NUR" basic="false">
+      <value>"</value>
+    </variable>
+    <variable name="LOCAL_FILES_FILTERED_OUT" basic="false">
+      <value>"vcs.cfg"</value>
+    </variable>
+    <variable name="LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE" basic="false">
+      <value unless="IS_WINDOWS">true</value>
+      <value if="IS_WINDOWS">false</value>
+    </variable>
+    <variable name="PS" basic="false">
+      <value>${path.separator}</value>
+    </variable>
+    <variable name="POSSIBLE_FILE_STATUSES" basic="false">
+      <value>"Current", "Missing", "Locally Modified"</value>
+    </variable>
+    <variable name="VCS_FILE_STATUS_MISSING" basic="false">
+      <value>Missing</value>
+    </variable>
+    <variable name="VCS_FOLDER_STATUS_MISSING" basic="false">
+      <value>Missing</value>
+    </variable>
+    <variable name="ICONS_FOR_FILE_STATUSES" basic="false">
+      <value>"vcs/resources/badgeUpToDate.gif", "vcs/resources/badgeNeedsCheckout.gif"</value>
+    </variable>
+    <variable name="RUNW" basic="false">
+      <value>/bin/sh -c "cd \"${ROOTDIR}\"; mkdir -p \"${WORKDIR}\"; cd \"${WORKDIR}\";</value>
+      <value if="IS_WINNT">cmd /X /C "cd /D \"${ROOTDIR}\"&amp;&amp; (mkdir \"${WORKDIR}\" 2>nul || echo. >nul)&amp;&amp; cd /D \"${WORKDIR}\"&amp;&amp;</value>
+    </variable>
+    <variable name="PRID" basic="false">
+      <value>-pr${PCLI_QUOTE}${PROJECT_DB}${PCLI_QUOTE} $[? USER_NAME] [-id${PCLI_QUOTE}${USER_NAME}:${PASSWORD}${PCLI_QUOTE}] []</value>
+    </variable>
+    <variable name="PRIDPP" basic="false">
+      <value>${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []${PCLI_QUOTE}</value>
+    </variable>
+    <variable name="WRAPPER" basic="false">
+      <value>vcs.list.PvcsListCommand.class</value>
+    </variable>
+    <variable name="BACKSLASH" basic="false">
+      <value>\</value>
+    </variable>
+    <variable name="CD" basic="false">
+      <value>cd</value>
+    </variable>
+    <variable name="REVISION_OPERATION_IDENT" basic="false">
+      <value>R</value>
+    </variable>
+    <variable name="DATE_OPERATION_IDENT" basic="false">
+      <value>D</value>
+    </variable>
+    <variable name="AUTO_FILL_VARS" basic="false">
+      <value>PROJECT_DB, AUTO_FILL_CONFIG, PROJECT, AUTO_FILL_CONFIG, USER_NAME, AUTO_FILL_CONFIG</value>
+    </variable>
+    <variable name="ADJUST_CHARS" basic="false" if="IS_WINDOWS">
+      <value>\\</value>
+    </variable>
+    <variable name="ADJUST_VARS" basic="false" if="IS_WINDOWS">
+      <value>"ROOTDIR", "PROJECT_DB", "ARCHIVE", "WORKFILE"</value>
+    </variable>
+    <variable name="MSG_PROMPT_FOR_AUTO_LOCK" basic = "false">
+      <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MSG_PROMPT_FOR_AUTO_LOCK)</value>
+    </variable>
+    <variable name="MSG_PROMPT_FOR_AUTO_EDIT" basic = "false">
+      <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MSG_PROMPT_FOR_AUTO_EDIT)</value>
+    </variable>
+    <variable name="LOCKER_USER_NAME" basic = "false">
+      <value>${USER_NAME}</value>
+    </variable>
+    <variable name="MAX_CMD_LENGTH" basic="false" if="IS_WINDOWS">
+      <value>1000</value>
+    </variable>
+    <variable name="CONFIG_INPUT_DESCRIPTOR" basic="false">
+      <value>PROMPT_FOR(PROJECT_DB, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_ProjectDatabase)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_ProjectDatabase);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_ProjectDatabase_mnc)), SELECTOR_CMD_PROJECT_DATABASE_SELECTOR)
+             PROMPT_FOR(USER_NAME, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_UserName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_UserName_mnc)))
+             PROMPT_FOR(PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_ProjectName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_ProjectName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_ProjectName_mnc)), SELECTOR_CMD_PROJECT_SELECTOR)
+             PROMPT_FOR(ROOTDIR, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_WorkfileLocation)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_WorkfileLocation);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_WorkfileLocation_mnc)), SELECTOR_DIR)
+      </value>
+    </variable>
+  </variables>
+  <commands>
+    <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_Mnemonic)</value>
+      </property>
+      <command name="LIST" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(LIST)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(LIST_Mnemonic)</value>
+        </property>
+	<property name="data.fileName.index">
+	  <value>0</value>
+	</property>
+	<property name="data.status.index">
+	  <value>1</value>
+	</property>
+	<property name="exec">
+	  <value>${WRAPPER} LIST_PROJECT DIFF_TEST_CMD</value>
+	</property>
+	<property name="data.time.index">
+	  <value>-1</value>
+	</property>
+	<property name="data.size.index">
+	  <value>-1</value>
+	</property>
+	<property name="data.locker.index">
+	  <value>2</value>
+	</property>
+	<property name="input">
+	  <value></value>
+	</property>
+	<property name="data.revision.index">
+	  <value>3</value>
+	</property>
+	<property name="data.attr.index">
+	  <value>4</value>
+	</property>
+	<property name="data.date.index">
+	  <value>-1</value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+        <property name="concurrentExec">
+          <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+        </property>
+      </command>
+      <command name="LIST_SUB" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(LIST_SUB)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(LIST_SUB_Mnemonic)</value>
+        </property>
+	<property name="onFile">
+	  <value>false</value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+        <property name="concurrentExec">
+          <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+        </property>
+      </command>
+      <separator />
+      <command name="CREATE_PROJECT_DATABASE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT_DATABASE)">
+        <property name="exec">
+          <value>${RUN} pcli CreateProjectDB ${PRID} -w${PCLI_QUOTE}${ROOTDIR}${PCLI_QUOTE} ${NUR}</value>
+	</property>
+        <property name="onFile">
+          <value>false</value>
+	</property>
+        <property name="onDir">
+          <value>false</value>
+        </property>
+      </command>
+      <command name="CREATE_PROJECT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT)">
+        <property name="exec">
+          <value>${RUN} pcli CreateProject ${PRIDPP} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+        </property>
+        <property name="onFile">
+          <value>false</value>
+	</property>
+        <property name="refreshParentFolder">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>6</value>
+        </property>
+      </command>
+      <separator />
+      <command name="CHECKIN" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+	<property name="exec">
+	  <value>${RUNR} pcli Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${PCLI_QUOTE}${LOCK_DESCRIPTION}${PCLI_QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}${ASSIGN_VERSION}${PCLI_QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	</property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKIN)))
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
+                 ASK_FOR(FORCE_PUT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Force), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Force);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Force_mnc)), "-f", "")
+                 ASK_FOR(CHECK_IN_OUT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Out), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Out);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Out_mnc)), "-u", "", ENABLE(CHECK_IN_OUT_LOCK))
+                 ASK_FOR(CHECK_IN_OUT_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_OutLock), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_OutLock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_OutLock_mnc)), "-l", "", ENABLE(LOCK_DESCRIPTION))
+                 PROMPT_FOR(LOCK_DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_OutLockDescription), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_OutLockDescription);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_OutLockDescription_mnc)))
+                 PROMPT_FOR_EXPERT(ASSIGN_REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_AssignRevision), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_AssignRevision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_AssignRevision_mnc)))
+                 PROMPT_FOR_EXPERT(ASSIGN_VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
+                 ASK_FOR_EXPERT(FLOATING_LABEL, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
+                 ASK_FOR_EXPERT(START_BRANCH, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_StartBranch), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_StartBranch);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_StartBranch_mnc)), "-fb", "")
+          </value>
+	</property>
+	<property name="onDir">
+	  <value>false</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+	<property name="displayInteractive">
+	  <value>true</value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.actions.CommitCommandAction</value>
+        </property>
+        <property name="generalCommandActionDisplayName">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_COMMIT)</value>
+        </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.CheckInCommand</value>
+        </property>
+      </command>
+      <command name="CHECKIN_TEMPLATE_GETTER">
+	<property name="exec">
+	  <value>$[? message] [echo "${message}"] []</value>
+	  <value if="IS_WINNT">$[? message] [cmd /X /C "echo ${message}"] []</value>
+	</property>
+      </command>
+      <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+	<property name="exec">
+	  <value>${RUNW} pcli Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${PCLI_QUOTE}${FILE}${PCLI_QUOTE}] [.]  ${NUR}</value>
+	</property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
+                 ASK_FOR(SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
+                 ASK_FOR(WRITABLE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
+                 PROMPT_FOR_EXPERT(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
+                 ASK_FOR_EXPERT(DO_CHECKOUT_BY_DATE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
+                 SELECT_RADIO_EXPERT(CHECKOUT_BY_DATE, "", "-u",
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThanWork), "-u", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThanWork);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThanWork_mnc))],
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThan), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThan);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThan_mnc)),
+                    PROMPT_FOR_EXPERT(DATE_AFTER, "")],
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_InBefore), "D", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_InBefore);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_InBefore_mnc)),
+                    PROMPT_FOR_EXPERT(DATE_BEFORE, "")])
+                 ASK_FOR_EXPERT(SET_CURR_TIME, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
+                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
+          </value>
+	</property>
+	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+	<property name="displayInteractive">
+	  <value>true</value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshRecursivelyPatternMatched">
+          <value>-z</value>
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
+        </property>
+        <property name="generalCommandActionDisplayName">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_UPDATE)</value>
+        </property>
+      </command>
+      <separator />
+      <command name="ADD" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+        <property name="exec">
+          <value>${RUN} pcli AddFiles ${PRIDPP} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} -t${PCLI_QUOTE}${WF_DESCRIPTION}${PCLI_QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${PCLI_QUOTE}] [] ${PCLI_QUOTE}${WORKDIR}${PS}${FILE}${PCLI_QUOTE} ${NUR}</value>
+        </property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
+                 PROMPT_FOR(WF_DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
+                 ASK_FOR(KEEP_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
+                 PROMPT_FOR_EXPERT(ASSIGN_VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
+                 ASK_FOR_EXPERT(FLOATING_LABEL, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
+          </value>
+	</property>
+	<property name="onFile">
+	  <value>true</value>
+	</property>
+	<property name="onDir">
+	  <value>false</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+	<property name="input">
+	  <value></value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>6</value> <!-- EXEC_SERIAL_ON_PACKAGE || SERIAL_WITH_PARENT -->
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
+        </property>
+        <property name="generalCommandActionDisplayName">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_ADD)</value>
+        </property>
+      </command>
+      <command name="ADD_FILES_IN_DIR" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD_ALL)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+        <property name="exec">
+          <value>$[? RECURSIVE] [org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class -o ADD_IN_FOLDER_CMD] [${RUN} pcli AddFiles ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${PCLI_QUOTE} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} -t${PCLI_QUOTE}${WF_DESCRIPTION}${PCLI_QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${PCLI_QUOTE}] [] ${RECURSIVE} @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD(0)} ${NUR}]</value>
+        </property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
+                 PROMPT_FOR(WF_DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
+                 ASK_FOR(KEEP_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
+                 PROMPT_FOR_EXPERT(ASSIGN_VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
+                 ASK_FOR_EXPERT(FLOATING_LABEL, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
+                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_Recursive), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_Recursive_mnc)), "-z", "")
+          </value>
+	</property>
+	<property name="onFile">
+	  <value>false</value>
+	</property>
+	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+        <property name="disabledOnStatus">
+          <value>"Local"</value>
+	</property>
+	<property name="input">
+	  <value></value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshRecursivelyPatternMatched">
+          <value>RecursiveFolderCommand</value>
+        </property>
+        <property name="concurrentExec">
+          <value>14</value>  <!-- ((SERIAL_ON_PACKAGE || SERIAL_WITH_PARENT) && SERIAL_OF_COMMAND) -->
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
+        </property>
+        <property name="generalCommandActionDisplayName">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_ADD)</value>
+        </property>
+      </command>
+      <command name="ADD_IN_FOLDER_CMD">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+        <property name="exec">
+          <value>${RUN} pcli CreateProject ${PRIDPP} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [; pcli AddFiles ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${PCLI_QUOTE} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} -t${PCLI_QUOTE}${WF_DESCRIPTION}${PCLI_QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${PCLI_QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
+          <value if="IS_WINNT">${RUN} (pcli CreateProject ${PRIDPP} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} || echo.>nul) $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [&amp;&amp; pcli AddFiles ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${PCLI_QUOTE} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} -t${PCLI_QUOTE}${WF_DESCRIPTION}${PCLI_QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${PCLI_QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
+        </property>
+	<property name="onFile">
+	  <value>false</value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="concurrentExec">
+          <value>14</value>  <!-- ((SERIAL_ON_PACKAGE || SERIAL_WITH_PARENT) && SERIAL_OF_COMMAND) -->
+        </property>
+      </command>
+      <command name="DUMMY_FILE_CMD_FOR_ADD">
+	<property name="onDir">
+	  <value>false</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+        <property name="concurrentExec">
+          <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+        </property>
+      </command>
+      <command name="DUMP_FILES_FOR_ADD">
+        <property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class -l -fa DUMMY_FILE_CMD_FOR_ADD</value>
+        </property>
+        <property name="concurrentExec">
+          <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+        </property>
+      </command>
+      <command name="DUMP_FILES_FOR_ADD_IN_FOLDER">
+        <property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class -l -fa DUMMY_FILE_CMD_FOR_ADD</value>
+        </property>
+        <property name="concurrentExec">
+          <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+        </property>
+      </command>
+      <command name="REMOVE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE_Mnemonic)</value>
+        </property>
+	<property name="exec">
+	  <value>${RUNR} pcli vdel ${PRIDPP} $[? REMOVE_WHAT] [-r$[? REVISION - REVISION_OPERATION_IDENT] [${REVISION}] []] [$[? VERSION] [-v${PCLI_QUOTE}${VERSION}${PCLI_QUOTE}] []] ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	</property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_REMOVE)))
+                 SELECT_RADIO(REMOVE_WHAT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REMOVE_What), "-r",
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Tip), "-r", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Tip);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Tip_mnc))],
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Revision), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Revision_mnc)),
+                     PROMPT_FOR(REVISION, "", "")]
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Version), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Version);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Version_mnc)),
+                     PROMPT_FOR(VERSION, "", "")])
+          </value>
+	</property>
+	<property name="onDir">
+	  <value>false</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+	<property name="input">
+	  <value></value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="displayInteractive">
+	  <value>true</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.actions.RemoveCommandAction</value>
+        </property>
+        <property name="generalCommandActionDisplayName">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_REMOVE)</value>
+        </property>
+      </command>
+      <separator />
+      <command name="EDIT">
+	<property name="exec">
+	  <value>${RUN} pcli get ${PRIDPP} ${SHOULD_LOCK} -w ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	</property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
+                 ASK_FOR(SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
+	  </value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+	<property name="displayInteractive">
+	  <value>true</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+      </command>
+      <command name="LOCK">
+	<property name="exec">
+	  <value>${RUN} pcli get ${PRIDPP} -l -w ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	</property>
+	<property name="input">
+	  <value></value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+	<property name="displayInteractive">
+	  <value>true</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+      </command>
+      <command name="LOCK_" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK_Mnemonic)</value>
+        </property>
+	<property name="exec">
+	  <value>${RUN} pcli Lock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] ${RECURSIVE} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	</property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_LOCK)))
+                 PROMPT_FOR(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Revision), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Revision_mnc)))
+                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_LOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_LOCK_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_LOCK_Recursive_mnc)), "-z", "")
+          </value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="input">
+	  <value></value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+	<property name="displayInteractive">
+          <value>true</value>
+        </property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshRecursivelyPatternMatched">
+          <value>-z</value>
+        </property>
+        <property name="refreshOnFail">
+          <value>1</value>
+        </property>
+      </command>
+      <command name="UNLOCK_" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_UNLOCK)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_UNLOCK_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+	<property name="exec">
+	  <value>${RUN} pcli Unlock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] $[? USER] [-u${PCLI_QUOTE}${USER}${PCLI_QUOTE}] [] ${RECURSIVE} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	</property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_UNLOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_UNLOCK)))
+                 PROMPT_FOR(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Revision), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(USER, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_UNLOCK_User), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_UNLOCK_User);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_UNLOCK_User_mnc)))
+                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_UNLOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_UNLOCK_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_UNLOCK_Recursive_mnc)), "-z", "")
+          </value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="displayInteractive">
+	  <value>true</value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshRecursivelyPatternMatched">
+          <value>-z</value>
+        </property>
+        <property name="refreshOnFail">
+          <value>1</value>
+        </property>
+      </command>
+      <separator />
+      <command name="STATUS" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_STATUS)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_STATUS_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+	<property name="exec">
+	  <value>${RUNR} pcli vlog ${PRIDPP} ${REPORT_TYPE} $[? REVISION] [-r${REVISION}] [] $[? AUTHORS] [-a${AUTHORS}] [] $[? LOCKERS] [-l${LOCKERS}] [] $[? OWNERS] [-o${OWNERS}] [] $[? DATE_FROM] [-ds${PCLI_QUOTE}${DATE_FROM}${PCLI_QUOTE}] [] $[? DATE_TO] [-de${PCLI_QUOTE}${DATE_TO}${PCLI_QUOTE}] [] ${RECURSIVE} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	</property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_STATUS),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_STATUS)))
+                 SELECT_COMBO_EXPERT(REPORT_TYPE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_ReportType), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_ReportType);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_ReportType_mnc)),
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_Full), ""],
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_FileInf), "-b"],
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_RevisionInf), "-br"],
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_LockedRev), "-bl"],
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_RevWithVL), "-bv"],
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_RevInGroup), "-bg"],
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_NewestRev), "-bn"],
+                    [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_RT_Tips), "-bc"])
+                 PROMPT_FOR_EXPERT(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Revision), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(AUTHORS, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Authors), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Authors);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Authors_mnc)))
+                 PROMPT_FOR_EXPERT(LOCKERS, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Lockers), "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Lockers);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Lockers_mnc))")
+                 PROMPT_FOR_EXPERT(OWNERS, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Owners), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Owners);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Owners_mnc)))
+                 PROMPT_FOR_EXPERT(DATE_FROM, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_DateFrom), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_DateFrom);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_DateFrom_mnc)))
+                 PROMPT_FOR_EXPERT(DATE_TO, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_DateTo), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_DateTo);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_DateTo_mnc)))
+                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_Recursive), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_Recursive_mnc)), "-z", "")
+          </value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="display">
+	  <value>true</value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.actions.HistoryCommandAction</value>
+        </property>
+        <property name="generalCommandActionDisplayName">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_HISTORY)</value>
+        </property>
+      </command>
+      <separator />
+      <command name="DIFF" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+	<property name="exec">
+	  <value>$[? GEN_DELTA] [${RUN} vdiff -dl $[? REV_VER1] [-r${REVISION1}] [-v${QUOTE}${VERSION1}${QUOTE}] $[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${QUOTE}${VERSION2}${QUOTE}] []] ${IGNORE_WHITE} -d $[? DELTA_FILE] [-xo${QUOTE}${DELTA_FILE}${QUOTE}] [] ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}]
+                                [vcs.commands.Diff.class $[? REV_VER1] [${REVISION1}] ["${BACKSLASH}${VERSION1}"] $[? REV_VER2] [${REVISION2}] ["${BACKSLASH}${VERSION2}"] 3 CHECKOUT_CMD DIFF_CA_CMD]</value>
+	</property>
+  	<property name="inputDescriptor">
+ 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Label)))
+                 SELECT_RADIO_EXPERT(REV_VER1, "", "R",
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Rev1), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Rev1);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_Rev1_mnc)),
+                    PROMPT_FOR_EXPERT(REVISION1, "", "")],
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Ver1), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Ver1);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_Ver1_mnc)),
+                    PROMPT_FOR_EXPERT(VERSION1, "", "")])
+                 SELECT_RADIO_EXPERT(REV_VER2, "", "R",
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Rev2), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Rev2);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_Rev2_mnc)),
+                    PROMPT_FOR_EXPERT(REVISION2, "", "")],
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Ver2), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Ver2);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_Ver2_mnc)),
+                    PROMPT_FOR_EXPERT(VERSION2, "", "")])
+                 ASK_FOR_EXPERT(IGNORE_WHITE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_IgnoreWhite), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_IgnoreWhite);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_IgnoreWhite_mnc)), "-b", "")
+                 ASK_FOR_EXPERT(GEN_DELTA, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_GenDelta), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_GenDelta);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_GenDelta_mnc)), ENABLE(DELTA_FILE))
+                 PROMPT_FOR_EXPERT(DELTA_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_DeltaFile), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_DeltaFile);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_DIFF_DeltaFile_mnc)), SELECTOR_FILE)
+          </value>
+	</property>
+	<property name="onDir">
+	  <value>false</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+        <property name="concurrentExec">
+          <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.actions.DiffCommandAction</value>
+        </property>
+        <property name="generalCommandActionDisplayName">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_DIFF)</value>
+        </property>
+      </command>
+      <command name="APPLY_DELTA" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_APPLY_DELTA)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_APPLY_DELTA_Mnemonic)</value>
+        </property>
+	<property name="exec">
+	  <value>${RUN} regen ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${QUOTE}${DELTA_FILE}${QUOTE} &gt; ${QUOTE}${TEMPORARY_FILE}${QUOTE}&amp;&amp; cp ${QUOTE}${TEMPORARY_FILE}${QUOTE} ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
+	  <value if="IS_WINNT">${RUN} regen ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${QUOTE}${DELTA_FILE}${QUOTE} &gt; ${QUOTE}${TEMPORARY_FILE}${QUOTE}&amp;&amp; copy ${QUOTE}${TEMPORARY_FILE}${QUOTE} ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
+	</property>
+  	<property name="inputDescriptor">
+ 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_APPLY_DELTA_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_APPLY_DELTA_Label)))
+                 PROMPT_FOR(DELTA_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_APPLY_DELTA_DeltaFile), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_APPLY_DELTA_DeltaFile);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_APPLY_DELTA_DeltaFile_mnc)), SELECTOR_FILE)
+          </value>
+	</property>
+	<property name="onDir">
+	  <value>false</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+        <property name="checkForModifications">
+	  <value>true</value>
+	</property>
+      </command>
+      <command name="MERGE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MERGE)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MERGE_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+	</property>
+	<property name="exec">
+	  <value>${RUN} ${CD} ${QUOTE}${WORKDIR}${QUOTE}; mv ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${QUOTE}${WORKDIR}${PS}${FILE}.orig${QUOTE}; vmrg -n $[? PARENT] [-r${PARENT_REVISION}] [-v${QUOTE}${PARENT_VERSION}${QUOTE}] $[? BRANCH1] [$[? BRANCH1_REVISION] [-r${BRANCH1_REVISION}] []] [$[? BRANCH1_VERSION] [-v${QUOTE}${BRANCH1_VERSION}${QUOTE}] []] $[? BRANCH2] [$[? BRANCH2_REVISION] [-r${BRANCH2_REVISION}] []] [$[? BRANCH2_VERSION] [-v${QUOTE}${BRANCH2_VERSION}${QUOTE}] []] $[? OUT_FILE] [-o${QUOTE}${OUT_FILE}${QUOTE}] [] ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}\(${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}\) ${NUR}</value>
+	  <value if="IS_WINNT">${RUN} ${CD} ${QUOTE}${WORKDIR}${QUOTE} &amp;&amp; (attrib -r ${QUOTE}${WORKDIR}${PS}${FILE}.orig${QUOTE} >nul || echo.>nul) &amp;&amp; (del ${QUOTE}${WORKDIR}${PS}${FILE}.orig${QUOTE} 2>nul || echo.>nul) &amp;&amp; (move ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${QUOTE}${WORKDIR}${PS}${FILE}.orig${QUOTE} 2>nul || echo.>nul) &amp;&amp; vmrg -n $[? PARENT] [-r${PARENT_REVISION}] [-v${QUOTE}${PARENT_VERSION}${QUOTE}] $[? BRANCH1] [$[? BRANCH1_REVISION] [-r${BRANCH1_REVISION}] []] [$[? BRANCH1_VERSION] [-v${QUOTE}${BRANCH1_VERSION}${QUOTE}] []] $[? BRANCH2] [$[? BRANCH2_REVISION] [-r${BRANCH2_REVISION}] []] [$[? BRANCH2_VERSION] [-v${QUOTE}${BRANCH2_VERSION}${QUOTE}] []] $[? OUT_FILE] [-o${QUOTE}${OUT_FILE}${QUOTE}] [] ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}(${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}) ${NUR}</value>
+	</property>
+  	<property name="inputDescriptor">
+ 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_Label)))
+                 SELECT_RADIO(PARENT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Parent), "R",
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_RevisionNumber), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_Parent_RevisionNumber);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_Parent_RevisionNumber_mnc)),
+                    PROMPT_FOR(PARENT_REVISION, "", "")],
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_VersionLabel), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_Parent_VersionLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_Parent_VersionLabel_mnc)),
+                    PROMPT_FOR(PARENT_VERSION, "", "")])
+                 SELECT_RADIO(BRANCH1, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Branch1), "R",
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_RevisionNumber), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_B1_RevisionNumber);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_B1_RevisionNumber_mnc)),
+                    PROMPT_FOR(BRANCH1_REVISION, "", "")],
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_VersionLabel), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_B1_VersionLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_B1_VersionLabel_mnc)),
+                    PROMPT_FOR(BRANCH1_VERSION, "", "")])
+                 SELECT_RADIO(BRANCH2, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Branch2), "R",
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_RevisionNumber), "R", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_B2_RevisionNumber);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_B2_RevisionNumber_mnc)),
+                    PROMPT_FOR(BRANCH2_REVISION, "", "")],
+                  [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_VersionLabel), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_B2_VersionLabel);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_B2_VersionLabel_mnc)),
+                    PROMPT_FOR(BRANCH2_VERSION, "", "")])
+                 PROMPT_FOR_EXPERT(OUT_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_OutFile), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_OutFile);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_MERGE_OutFile_mnc)), SELECTOR_FILE)
+          </value>
+	</property>
+	<property name="onDir">
+	  <value>false</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+	<property name="checkForModifications">
+	  <value>true</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+      </command>
+      <separator />
+      <command name="SET_PASSWORD" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(SET_PASSWORD, ${USER_NAME})">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(SET_PASSWORD_Mnemonic)</value>
+        </property>
+	<property name="exec">
+	  <value>vcs.commands.SetPasswordCommand.class</value>
+	</property>
+        <property name="concurrentExec">
+          <value>-1</value>
+        </property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
+      </command>
+      <command name="CHECKOUT_CMD">
+	<property name="exec">
+	  <value>${RUN} get -y $[? REVISION] [-r${QUOTE}${REVISION}${QUOTE}] [] $[? SUFFIX] [-s${SUFFIX}] [] ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${TEMPDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+      </command>
+      <command name="DIFF_CA_CMD">
+	<property name="exec">
+	  <value>${RUNW} vdiff -dl $[? REV_VER1] [-r${REVISION1}] [-v${QUOTE}${VERSION1}${QUOTE}] $[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${QUOTE}${VERSION2}${QUOTE}] []] ${IGNORE_WHITE} ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+      </command>
+      <command name="DIFF_CA_REVISIONS_CMD">
+	<property name="exec">
+	  <value>${RUNW} vdiff -dl -r${REVISION1} $[? REVISION2] [-r${REVISION2}] [] ${IGNORE_WHITE} ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+	</property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+      </command>
+
+      <command name="LIST_PROJECT">
+        <property name="exec">
+          <value>${RUNR} pcli list ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -l -a $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
+          <value if="IS_WINNT">${RUNR} pcli list ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -l -a * ${NUR}</value>
+        </property>
+        <property name="error.regex">
+          <value>^PVCS Version Manager \(VMGUI\) v([0-9]+)\.([0-9\.]+) .*$</value>
+        </property>
+        <property name="ignoreFail">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+      </command>
+      <command name="LIST_PROJECT_REC">
+        <property name="exec">
+          <value>${RUNR} pcli list ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -l -a -z $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
+          <value if="IS_WINNT">${RUNR} pcli list ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -l -a -z * ${NUR}</value>
+        </property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+      </command>
+      <command name="LIST_SUBPROJECTS">
+        <property name="exec">
+          <value>${RUN} pcli list ${PRID} -pp${PCLI_QUOTE}/$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -tProject $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
+          <value if="IS_WINNT">${RUN} pcli list ${PRID} -pp${PCLI_QUOTE}/$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -tProject * ${NUR}</value>
+        </property>
+        <property name="ignoreFail">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+        <property name="executionPriority">
+          <value>1</value> <!-- HIGH PRIORITY -->
+        </property>
+      </command>
+      <command name="DIFF_TEST_CMD">
+        <property name="exec">
+          <value>${RUN} vdiff -t ${QUOTE}${WORKFILE}${QUOTE} ${QUOTE}${ARCHIVE}${QUOTE}; test `echo $?` != 2 ${NUR}</value>
+          <value if="IS_WINNT">${RUN} vdiff -t ${QUOTE}${WORKFILE}${QUOTE} ${QUOTE}${ARCHIVE}${QUOTE} ${NUR}</value>
+        </property>
+        <property name="ignoreFail">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+      </command>
+
+    </command>
+    
+    <command name="RESOLVE_CONFLICTS" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_RESOLVE_CONFLICTS)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_RESOLVE_CONFLICTS_Mnemonic)</value>
+        </property>
+        <property name="exec">
+            <value>org.netbeans.modules.vcs.profiles.pvcs.commands.PvcsResolveConflicts.class</value>
+	</property>
+        <property name="onFile">
+            <value>true</value>
+        </property>
+        <property name="onDir">
+            <value>false</value>
+        </property>
+        <property name="onRoot">
+            <value>false</value>
+        </property>
+    </command>
+
+    <command name="REVISION_LIST">
+      <property name="exec">
+        <value>vcs.commands.PvcsRevisionListGetter.class REVISION_GETTER</value>
+      </property>
+      <property name="ignoreFail">
+	<value>true</value>
+      </property>
+      <property name="concurrentExec">
+        <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+      </property>
+    </command>
+    <command name="REVISION_GETTER">
+      <property name="exec">
+          <value>${RUN} vlog -i ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+      </property>
+      <property name="concurrentExec">
+        <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+      </property>
+    </command>
+    <command name="REVISION_OPEN">
+      <property name="exec">
+          <value>${RUN} get -y $[? REVISION] [-r${REVISION}] [] -p ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+      </property>
+      <property name="numRevisions">
+	<value>1</value>
+      </property>
+      <property name="concurrentExec">
+        <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+      </property>
+    </command>
+    <command name="REVISION_DIFF" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF_Mnemonic)</value>
+      </property>
+      <property name="exec">
+        <value>vcs.commands.Diff.class ${REVISION1} 3 CHECKOUT_CMD DIFF_CA_REVISIONS_CMD</value>
+      </property>
+      <property name="numRevisions">
+	<value>1</value>
+      </property>
+      <property name="concurrentExec">
+        <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+      </property>
+    </command>
+    <command name="REVISION_DIFF2" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_DIFF_Mnemonic)</value>
+      </property>
+      <property name="exec">
+        <value>vcs.commands.Diff.class ${REVISION1} ${REVISION2} 3 CHECKOUT_CMD DIFF_CA_REVISIONS_CMD</value>
+      </property>
+      <property name="numRevisions">
+	<value>2</value>
+      </property>
+      <property name="concurrentExec">
+        <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+      </property>
+    </command>
+
+    <command name="VERIFY_ACTION">
+        <property name="exec">
+            <value>vcs.commands.PvcsVerifyAction.class VERIFY_ACTION_DIFF LOCK_</value>
+        </property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.grouping.VerifyGroupAction</value>
+        </property>
+        <property name="concurrentExec">
+          <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+        </property>
+        <property name="executionPriority">
+          <value>1</value> <!-- HIGH PRIORITY -->
+        </property>
+    </command>
+    <command name="VERIFY_ACTION_DIFF">
+        <property name="exec">
+            <value>${RUNW} vdiff -t -r ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_(} ${NUR}</value>
+        </property>
+        <property name="executionPriority">
+          <value>1</value> <!-- HIGH PRIORITY -->
+        </property>
+    </command>
+
+    <command name="AUTO_FILL_CONFIG">
+      <property name="exec">
+        <value>vcs.commands.PvcsAutoFillConfig.class GET_WORK_LOCATION</value>
+      </property>
+      <property name="concurrentExec">
+        <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+      </property>
+    </command>
+    <command name="PROJECT_DATABASE_SELECTOR">
+      <property name="exec">
+        <value>org.netbeans.modules.vcs.profiles.pvcs.commands.PvcsProjectDatabaseSelector.class LIST_PROJECT_DB</value>
+      </property>
+      <property name="concurrentExec">
+        <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+      </property>
+      <property name="executionPriority">
+        <value>1</value> <!-- HIGH PRIORITY -->
+      </property>
+    </command>
+    <command name="LIST_PROJECT_DB">
+      <property name="exec">
+        <value>${RUN} pcli ListProjectDB $[? GUI_DEF] [-a] [-z ${SEARCH_PATH}] $[? USER_NAME] [-id${PCLI_QUOTE}${USER_NAME}:${PASSWORD}${PCLI_QUOTE}] [] ${NUR}</value>
+        <!-- Not executed in cmd, because kill of cmd does not kill pcli. -->
+        <value if="IS_WINNT">pcli ListProjectDB $[? GUI_DEF] [-a] [-z ${SEARCH_PATH}] $[? USER_NAME] [-id"${USER_NAME}:${PASSWORD}"] []</value>
+      </property>
+      <property name="concurrentExec">
+        <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+      </property>
+    </command>
+    <command name="PROJECT_SELECTOR">
+      <property name="exec">
+        <value>org.netbeans.modules.vcs.profiles.pvcs.commands.PvcsProjectSelector.class LIST_SUBPROJECTS</value>
+      </property>
+      <property name="concurrentExec">
+        <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+      </property>
+      <property name="executionPriority">
+        <value>1</value> <!-- HIGH PRIORITY -->
+      </property>
+    </command>
+    <command name="GET_ARCHIVE_LOCATION">
+      <property name="exec">
+        <value>$[? CACHED_ATTR] [echo ${QUOTE}${CACHED_ATTR}${QUOTE}] [${RUN} pcli GetArchiveLocation ${PRID} /${PCLI_QUOTE}${PROJECT}/$[? COMMON_PARENT] [${COMMON_PARENT}/] []$[? DIR] [${DIR}/] []${FILE}${PCLI_QUOTE}]</value>
+        <value if="IS_WINNT">$[? CACHED_ATTR] [cmd /X /C "echo "${CACHED_ATTR}""] [${RUN} pcli GetArchiveLocation ${PRID} /${PCLI_QUOTE}${PROJECT_\/}/$[? COMMON_PARENT] [${COMMON_PARENT_\/}/] []$[? DIR] [${DIR_\/}/] []${FILE}${PCLI_QUOTE}]</value>
+      </property>
+      <property name="concurrentExec">
+        <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+      </property>
+    </command>
+    <command name="GET_WORK_LOCATION">
+      <property name="exec">
+        <value>${RUN} pcli GetWorkLocation ${PRID} -pp${PCLI_QUOTE}${PROJECT}${PCLI_QUOTE} ${NUR}</value>
+      </property>
+      <property name="concurrentExec">
+        <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+      </property>
+    </command>
+  </commands>
+</configuration>
+

@@ -94,13 +94,15 @@ public class VcsRuntimeCommand extends RuntimeCommand {
         //return executor.getExitStatus();
     }
     
-    public void openCommandOutputDisplay() {
+    public void openCommandOutputDisplay(boolean gui) {
         if (task instanceof VcsDescribedTask) {
-            VcsCommandVisualizer visualizer = ((VcsDescribedTask) task).getVisualizer();
-            if (visualizer.isOpened()) {
-                visualizer.requestFocus();
-            } else {
-                visualizer.open();
+            VcsCommandVisualizer visualizer = ((VcsDescribedTask) task).getVisualizer(gui);
+            if (visualizer != null) {
+                if (visualizer.isOpened()) {
+                    visualizer.requestFocus();
+                } else {
+                    visualizer.open();
+                }
             }
         }
         //pool.openCommandOutput(executor);
@@ -188,6 +190,26 @@ public class VcsRuntimeCommand extends RuntimeCommand {
                             }
                         }
                 });
+        set.put(new PropertySupport.ReadOnly("variables", String.class, "Variables", null) {
+                    public Object getValue() {
+                        if (executor != null) {
+                            StringBuffer buff = new StringBuffer();
+                            java.util.Map vars = executor.getVariables();
+                            vars = new java.util.TreeMap(vars);
+                            for (java.util.Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+                                String name = (String) it.next();
+                                String value = (String) vars.get(name);
+                                buff.append(name);
+                                buff.append("=");
+                                buff.append(value);
+                                buff.append("\n");
+                            }
+                            return buff.toString();
+                        } else {
+                            return null;
+                        }
+                    }
+                });
         }
                 
     }
@@ -197,11 +219,28 @@ public class VcsRuntimeCommand extends RuntimeCommand {
     }
 
     public SystemAction[] getActions() {
-        return new SystemAction[] {
-            CommandOutputViewAction.getInstance(),
-            KillRunningCommandAction.getInstance(),
-            SystemAction.get(PropertiesAction.class)
-        };
+        if (task instanceof VcsDescribedTask && ((VcsDescribedTask) task).hasGUIVisualizer()) {
+            return new SystemAction[] {
+                CommandOutputViewAction.getInstance(),
+                CommandOutputTextViewAction.getInstance(),
+                KillRunningCommandAction.getInstance(),
+                SystemAction.get(PropertiesAction.class)
+            };
+        } else {
+            return new SystemAction[] {
+                CommandOutputTextViewAction.getInstance(),
+                KillRunningCommandAction.getInstance(),
+                SystemAction.get(PropertiesAction.class)
+            };
+        }
+    }
+    
+    public SystemAction getDefaultAction() {
+        if (task instanceof VcsDescribedTask && ((VcsDescribedTask) task).hasGUIVisualizer()) {
+            return CommandOutputViewAction.getInstance();
+        } else {
+            return CommandOutputTextViewAction.getInstance();
+        }
     }
     
     public String getId() {

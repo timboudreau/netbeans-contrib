@@ -27,8 +27,6 @@ import org.openide.util.NbBundle;
 */
 public class AnnotVariablePropertyEditor extends PropertyEditorSupport {
 
-    private static final java.util.ResourceBundle bundle = NbBundle.getBundle(AnnotVariablePropertyEditor.class);
-
     /** array of hosts */
     private  String[] modes;
 

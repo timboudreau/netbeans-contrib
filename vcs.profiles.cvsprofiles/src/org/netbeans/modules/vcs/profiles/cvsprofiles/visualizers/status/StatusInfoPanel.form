@@ -15,13 +15,13 @@
     <Component class="javax.swing.JLabel" name="lblFileName">
       <Properties>
         <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblFilename_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblFilename_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection component="txFileName" type="bean"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblFileName.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblFileName.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -33,13 +33,13 @@
     <Component class="javax.swing.JLabel" name="lblStatus">
       <Properties>
         <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblStatus_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblStatus_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection component="txStatus" type="bean"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblStatus.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblStatus.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -54,7 +54,7 @@
           <Connection component="txRepFile" type="bean"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblRepFile.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblRepFile.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -92,13 +92,13 @@
     <Component class="javax.swing.JLabel" name="lblWorkRev">
       <Properties>
         <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblWorkingRevision" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblWorkingRevision" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection component="txWorkRev" type="bean"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblWorkRev.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblWorkRev.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -110,13 +110,13 @@
     <Component class="javax.swing.JLabel" name="lblRepRev">
       <Properties>
         <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblRepositoryRevision_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblRepositoryRevision_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection component="txRepRev" type="bean"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblRepRev.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblRepRev.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -128,7 +128,7 @@
     <Component class="javax.swing.JButton" name="btnDiff">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.btnDiff.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.btnDiff.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -143,13 +143,13 @@
     <Component class="javax.swing.JLabel" name="lblTag">
       <Properties>
         <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblStickyTag_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblStickyTag_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection component="txTag" type="bean"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblTag.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblTag.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -161,13 +161,13 @@
     <Component class="javax.swing.JLabel" name="lblOptions">
       <Properties>
         <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblStickyOptions" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblStickyOptions" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection component="txOptions" type="bean"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblOptions.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblOptions.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -179,10 +179,10 @@
     <Component class="javax.swing.JLabel" name="lblDate">
       <Properties>
         <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblStickyDate_mnc" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="ACS_StatusInfoPanel.lblStickyDate_mnc" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblDate.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblDate.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -218,7 +218,7 @@
           <Connection component="tblExistingTags" type="bean"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblExistingTags.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblExistingTags.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -230,7 +230,7 @@
     <Component class="javax.swing.JButton" name="btnAdvanced">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.btnAdvanced.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.btnAdvanced.text" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -250,7 +250,7 @@
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-          <GridBagConstraints gridX="1" gridY="0" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="12" insetsLeft="12" insetsBottom="0" insetsRight="0" anchor="17" weightX="0.0" weightY="0.0"/>
+          <GridBagConstraints gridX="1" gridY="0" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="12" insetsLeft="12" insetsBottom="0" insetsRight="0" anchor="17" weightX="0.2" weightY="0.0"/>
         </Constraint>
       </Constraints>
     </Component>
@@ -264,7 +264,7 @@
       </AuxValues>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-          <GridBagConstraints gridX="3" gridY="0" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="12" insetsLeft="11" insetsBottom="0" insetsRight="0" anchor="17" weightX="0.0" weightY="0.0"/>
+          <GridBagConstraints gridX="3" gridY="0" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="12" insetsLeft="11" insetsBottom="0" insetsRight="0" anchor="17" weightX="0.2" weightY="0.0"/>
         </Constraint>
       </Constraints>
     </Component>

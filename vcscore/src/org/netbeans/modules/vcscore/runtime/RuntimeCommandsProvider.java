@@ -62,7 +62,7 @@ public abstract class RuntimeCommandsProvider {
         }
     }
     
-    protected void register() {
+    public void register() {
         synchronized (RuntimeCommandsProvider.class) {
             if (registeredProviders == null) {
                 registeredProviders = new ArrayList();
@@ -72,7 +72,7 @@ public abstract class RuntimeCommandsProvider {
         fireRegisteredListeners(null, this);
     }
     
-    protected void unregister() {
+    public void unregister() {
         boolean fire = false;
         synchronized (RuntimeCommandsProvider.class) {
             if (registeredProviders != null) {

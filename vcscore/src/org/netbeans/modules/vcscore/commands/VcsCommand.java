@@ -128,6 +128,12 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String PROPERTY_CONCURRENT_EXECUTION_WITH = "concurrentExecWith";
     
     /**
+     * An Integer property, that defines the execution priority of this command.
+     * (see {@link org.netbeans.api.vcs.commands.CommandTask#getPriority()} for details).
+     */
+    public static final String PROPERTY_EXEC_PRIORITY = "executionPriority";
+    
+    /**
      * A boolean property, if true, the command can act on files.
      */
     public static final String PROPERTY_ON_FILE = "onFile";
@@ -217,6 +223,13 @@ public interface VcsCommand extends VcsCommandCookie {
      * with a possibility to enter an input will pop-up.
      */
     public static final String PROPERTY_DISPLAY_INTERACTIVE_OUTPUT = "displayInteractive";
+
+    /**
+     * A String property that contains the name of the class which represents the
+     * GUI visualizer of this command. The class must be an instance of
+     * org.netbeans.modules.vcscore.commands.VcsCommandVisualizer
+     */
+    public static final String PROPERTY_DISPLAY_VISUALIZER = "visualizer";
 
     /**
      * Whether to run this command on all files or ignore unimportant.

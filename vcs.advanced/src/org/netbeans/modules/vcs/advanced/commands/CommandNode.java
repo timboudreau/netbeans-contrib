@@ -36,10 +36,9 @@ import org.openide.util.datatransfer.NewType;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
-import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
+import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.Table;
-import org.openide.DialogDisplayer;
 
 /**
  * The Node representation of a VCS command.
@@ -95,6 +94,7 @@ public class CommandNode extends AbstractNode {
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_HIDDEN_TEST_EXPRESSION, String.class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_DISABLED_ON_STATUS, String.class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, Integer.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_EXEC_PRIORITY, Integer.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_CLEAN_UNIMPORTANT_FILES_ON_SUCCESS, Boolean.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER, Boolean.TYPE);
@@ -116,6 +116,7 @@ public class CommandNode extends AbstractNode {
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS, String[].class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_CLASS_NAME, String.class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_DISPLAY_NAME, String.class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_DISPLAY_VISUALIZER, String.class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_COMMANDS_AFTER_SUCCESS, String.class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_COMMANDS_AFTER_FAIL, String.class);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_FILE_NAME, Integer.TYPE);
@@ -551,7 +552,7 @@ public class CommandNode extends AbstractNode {
                             cmd.setProperty(name, value);
                             firePropertyChange(name, old, value);
                             if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(name)) {
-                                cmd.setProperty(CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED, null);
+                                cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
                             }
                             //cmd.fireChanged();
                         }
@@ -566,7 +567,7 @@ public class CommandNode extends AbstractNode {
                             cmd.setProperty(name, defaultValue);
                             firePropertyChange(name, old, defaultValue);
                             if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(name)) {
-                                cmd.setProperty(CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED, null);
+                                cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
                             }
                         }
                 });

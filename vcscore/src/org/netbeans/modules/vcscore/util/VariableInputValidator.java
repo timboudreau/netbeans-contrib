@@ -14,6 +14,8 @@
 package org.netbeans.modules.vcscore.util;
 
 import java.text.MessageFormat;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.openide.util.NbBundle;
 
@@ -89,17 +91,15 @@ public class VariableInputValidator extends Object {
     }
     
     private boolean validateRegExpMatch(VariableInputComponent component, String regExpStr) {
-        org.apache.regexp.RE regExp;
+        String value = component.getValue();
+        if (value == null) value = "";
         try {
-            regExp = new org.apache.regexp.RE(regExpStr);
-        } catch (org.apache.regexp.RESyntaxException exc) {
+            return Pattern.matches(regExpStr, value);
+        } catch (PatternSyntaxException exc) {
             message = g("VariableInputValidator.BadRegExp", regExpStr, component.getLabel(), exc.getLocalizedMessage());
             variable = component.getVariable();
             return false;
         }
-        String value = component.getValue();
-        if (value == null) value = "";
-        return regExp.match(value);
     }
 
     /** Tells whether the validation was successfull.

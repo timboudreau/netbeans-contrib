@@ -566,9 +566,9 @@ public class VcsUtilities {
         return result;
     }
 
-    public static void removeEnterFromKeymap(javax.swing.JTextField field) {
+    public static void removeEnterFromKeymap(javax.swing.text.JTextComponent component) {
         javax.swing.KeyStroke enter = javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, 0);
-        javax.swing.text.Keymap map = field.getKeymap ();
+        javax.swing.text.Keymap map = component.getKeymap ();
         map.removeKeyStrokeBinding (enter);
     }
 

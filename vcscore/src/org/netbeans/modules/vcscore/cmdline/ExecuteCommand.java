@@ -13,13 +13,14 @@
 
 package org.netbeans.modules.vcscore.cmdline;
 
-import java.io.*;
-import java.util.*;
 import java.beans.*;
-import java.text.*;
+import java.io.*;
 import java.lang.reflect.*;
-
-import org.apache.regexp.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.text.*;
 
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
@@ -34,6 +35,7 @@ import org.netbeans.modules.vcscore.cmdline.exec.*;
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
@@ -58,6 +60,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public static final String DEFAULT_REGEX = "^(.*$)"; // Match the whole line by default.
     public static final String STATUS_USE_REG_EXP_PARSE_OUTPUT = "REG_EXP_PARSE_OUTPUT"; // Use the output of the parsing as the status
     
+    private CommandExecutionContext executionContext = null;
     private VcsFileSystem fileSystem = null;
     private UserCommand cmd = null;
     private Hashtable vars = null;
@@ -115,7 +118,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private String refreshFilesMustStartWith = null;
     
     private boolean substituteStatuses = false;
-    private RE[] substituitionRegExps;
+    private Pattern[] substituitionRegExps;
     private String[] substituitionStatuses;
 
     private Collection processingFilesCollection = null;
@@ -125,13 +128,18 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     //private ArrayList commandListeners = new ArrayList();
 
     //-------------------------------------------
-    public ExecuteCommand(VcsFileSystem fileSystem, UserCommand cmd, Hashtable vars) {
-        this(fileSystem, cmd, vars, null);
+    public ExecuteCommand(CommandExecutionContext executionContext, UserCommand cmd, Hashtable vars) {
+        this(executionContext, cmd, vars, null);
     }
 
-    public ExecuteCommand(VcsFileSystem fileSystem, UserCommand cmd, Hashtable vars, String preferredExec) {
+    public ExecuteCommand(CommandExecutionContext executionContext, UserCommand cmd, Hashtable vars, String preferredExec) {
         //super("VCS-ExecuteCommand-"+cmd.getName()); // NOI18N
-        this.fileSystem = fileSystem;
+        this.executionContext = executionContext;
+        if (executionContext instanceof VcsFileSystem) {
+            this.fileSystem = (VcsFileSystem) executionContext;
+        } else {
+            this.fileSystem = null;
+        }
         this.cmd = cmd;
         this.vars = vars;
         if (preferredExec == null) {
@@ -139,8 +147,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         this.preferredExec = preferredExec;
         this.doFileRefresh =
+            (fileSystem != null) &&
             VcsCommandIO.getIntegerPropertyAssumeNegative(cmd, UserCommand.PROPERTY_LIST_INDEX_FILE_NAME) >= 0;
         this.doPostExecutionRefresh =
+            (fileSystem != null) &&
             VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES);
         if (doFileRefresh) {
             refreshInfoElements = new ArrayList();
@@ -156,13 +166,13 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private void parseStatusSubstitutions(String statusSubstitutions) {
         String[] substitutions = VcsUtilities.getQuotedStrings(statusSubstitutions);
         int n = substitutions.length / 2;
-        RE[] regExps = new RE[n];
+        Pattern[] regExps = new Pattern[n];
         String[] statuses = new String[n];
         int nn = n;
         for (int i = 0; i < n; i++) {
             try {
-                regExps[i] = new RE(substitutions[2*i]);
-            } catch(RESyntaxException e) {
+                regExps[i] = Pattern.compile(substitutions[2*i]);
+            } catch(PatternSyntaxException e) {
                 //E.err(e,"RE failed regexp"); // NOI18N
                 ErrorManager.getDefault().notify(
                     ErrorManager.getDefault().annotate(e,
@@ -178,7 +188,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             substituitionStatuses = statuses;
         } else {
             n = nn;
-            substituitionRegExps = new RE[n];
+            substituitionRegExps = new Pattern[n];
             substituitionStatuses = new String[n];
             int j = 0;
             for (int i = 0; i < n; i++) {
@@ -334,12 +344,49 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         return exitStatus;
     }
     
+    private VcsCommandVisualizer createVisualizer() {
+        String visualizerClassName = (String) cmd.getProperty(VcsCommand.PROPERTY_DISPLAY_VISUALIZER);
+        if (visualizerClassName != null) {
+            Class visualizerClass = null;
+            try {
+                visualizerClass =  Class.forName(visualizerClassName, true, VcsUtilities.getSFSClassLoader());
+            } catch (ClassNotFoundException e) {}
+            if (visualizerClass == null) {
+                try {
+                    visualizerClass =  Class.forName(visualizerClassName, true,
+                                                     (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class));
+                } catch (ClassNotFoundException e) {}
+            }
+            if (visualizerClass == null) {
+                try {
+                    printErrorOutput("CLASS EXEC: " + g("ERR_ClassNotFound", visualizerClassName)); // NOI18N
+                } catch(java.util.MissingResourceException mrexc) {
+                    // Likely to be called when the module is being uninstalled
+                    printErrorOutput("CLASS EXEC: Class " + visualizerClassName + " not found"); // NOI18N
+                }
+            } else {
+                VcsCommandVisualizer visualizer = null;
+                try {
+                    visualizer = (VcsCommandVisualizer) visualizerClass.newInstance();
+                } catch (InstantiationException e) {
+                    printErrorOutput("CLASS EXEC: "+g("ERR_CanNotInstantiate", visualizerClass)); // NOI18N
+                } catch (IllegalAccessException e) {
+                    printErrorOutput("CLASS EXEC: "+g("ERR_IllegalAccessOnClass", visualizerClass)); // NOI18N
+                }
+                return visualizer;
+            }
+        }
+        return null;
+    }
+    
     /**
      * Get the graphical visualization of the command.
+     * The returned visualizer might need to be initialized in UserCommandTask,
+     * that owns the CommandOutputCollector.
      * @return null no visualization is desired.
      */
     public VcsCommandVisualizer getVisualizer() {
-        return null;
+        return createVisualizer();
     }
     
     private void commandFinished(String exec, boolean success) {
@@ -397,7 +444,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec) {
         this.preferredExec = exec;
-        fileSystem.getVarValueAdjustment().adjustVarValues(vars);
+        executionContext.getVarValueAdjustment().adjustVarValues(vars);
         if (exec != null && exec.indexOf(Variables.TEMPORARY_FILE) >= 0) {
             try {
                 File tempFile = File.createTempFile("VCS", "tmp");
@@ -439,21 +486,21 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * @return the array of length 2 with global data and error output
      * (either of them can be null) or null, when none of them are defined
      */
-    private StringBuffer[] addRegexListeners(final ExternalCommand ec, final RE[] globalRegexs) {
+    private StringBuffer[] addRegexListeners(final ExternalCommand ec, final Pattern[] globalRegexs) {
         String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
         if (dataRegex == null) dataRegex = DEFAULT_REGEX;
         String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
         if (errorRegex == null) errorRegex = DEFAULT_REGEX;
         String dataRegexGlobal = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX_GLOBAL);
         String errorRegexGlobal = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX_GLOBAL);
-        RE dataRegexGlobalRE = null;
-        RE errorRegexGlobalRE = null;
+        Pattern dataRegexGlobalRE = null;
+        Pattern errorRegexGlobalRE = null;
         final StringBuffer dataOutput;
         final StringBuffer errorOutput;
         if (dataRegexGlobal != null) {
             try {
-                dataRegexGlobalRE = new RE(dataRegexGlobal);
-            } catch (RESyntaxException exc) {
+                dataRegexGlobalRE = Pattern.compile(dataRegexGlobal);
+            } catch (PatternSyntaxException exc) {
                 ErrorManager.getDefault().notify(
                     ErrorManager.getDefault().annotate(exc,
                         NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", dataRegexGlobal)));
@@ -469,8 +516,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         if (errorRegexGlobal != null) {
             try {
-                errorRegexGlobalRE = new RE(errorRegexGlobal);
-            } catch (RESyntaxException exc) {
+                errorRegexGlobalRE = Pattern.compile(errorRegexGlobal);
+            } catch (PatternSyntaxException exc) {
                 ErrorManager.getDefault().notify(
                     ErrorManager.getDefault().annotate(exc,
                         NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", errorRegexGlobal)));
@@ -539,7 +586,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
     }
     
-    private void printGlobalDataOutput(String globalDataOutput, RE globalDataRegex) {
+    private void printGlobalDataOutput(String globalDataOutput, Pattern globalDataRegex) {
         if (globalDataOutput.endsWith(" ")) {
             globalDataOutput = globalDataOutput.substring(0, globalDataOutput.length() - 1);
         }
@@ -547,7 +594,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         printDataOutput(parsed);
     }
     
-    private void printGlobalErrorDataOutput(String globalDataOutput, RE globalDataRegex) {
+    private void printGlobalErrorDataOutput(String globalDataOutput, Pattern globalDataRegex) {
         if (globalDataOutput.endsWith(" ")) {
             globalDataOutput = globalDataOutput.substring(0, globalDataOutput.length() - 1);
         }
@@ -565,7 +612,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //exec = Variables.expand(vars,exec, true);
         preferredExec = preferredExecExpanded = VcsUtilities.array2stringNl(execs);
         StringBuffer[] globalDataOutputWhole = null;
-        RE[] globalRegexs = new RE[2];
+        Pattern[] globalRegexs = new Pattern[2];
         for (int i = 0; i < execs.length; i++) {
             String exec = execs[i];
             ExternalCommand ec = new ExternalCommand(exec);
@@ -573,7 +620,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             //ec.setTimeout(cmd.getTimeout());
             ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT),
                         VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_INPUT_REPEAT));
-            ec.setEnv(fileSystem.getEnvironmentVars());
+            ec.setEnv(executionContext.getEnvironmentVars());
             //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
 
             StringBuffer[] globalDataOutput = addRegexListeners(ec, globalRegexs);
@@ -630,7 +677,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             // Do the same as when the command fails.
         case VcsCommandExecutor.FAILED:
             commandFinished(preferredExecExpanded, false);
-            fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
+            if (fileSystem != null) fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             break;
         }
 
@@ -722,7 +769,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         if (success) {
             E.deb("VcsAdditionalCommand created."); // NOI18N
-            ExecuteCommand.setAdditionalParams(execCommand, fileSystem);
+            ExecuteCommand.setAdditionalParams(execCommand, fileSystem, executionContext);
             String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
             String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
             String input = (String) cmd.getProperty(UserCommand.PROPERTY_INPUT);
@@ -766,7 +813,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         if (Thread.currentThread().interrupted()) {
             exitStatus = VcsCommandExecutor.INTERRUPTED;
             commandFinished(exec, false);
-            fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
+            if (fileSystem != null) fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
         } else {
             if (success) {
                 exitStatus = VcsCommandExecutor.SUCCEEDED;
@@ -774,7 +821,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             } else {
                 exitStatus = VcsCommandExecutor.FAILED;
                 commandFinished(exec, false);
-                fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
+                if (fileSystem != null) fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             }
         }
     }
@@ -822,7 +869,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String[] allArgs = VcsUtilities.getQuotedArguments(exec);
         String first = allArgs[0];
         //E.deb("first = "+first); // NOI18N
-        boolean checkForModification = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS);
+        boolean checkForModification = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)
+                                       && (fileSystem != null);
         Collection processingFiles = null;
         if (checkForModification) {
             processingFiles = getFiles();
@@ -965,27 +1013,44 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * Search for optional methods and set additional parameters.
      */
     protected static void setAdditionalParams(Object execCommand, VcsFileSystem fileSystem) {
+        setAdditionalParams(execCommand, fileSystem, fileSystem);
+    }
+    
+    /**
+     * Search for optional methods and set additional parameters.
+     */
+    protected static void setAdditionalParams(Object execCommand, VcsFileSystem fileSystem,
+                                              CommandExecutionContext executionContext) {
         Class clazz = execCommand.getClass();
-        Class[] paramClasses = new Class[] { VcsFileSystem.class };
-        Method setFileSystemMethod = null;
-        try {
-            setFileSystemMethod = clazz.getDeclaredMethod("setFileSystem", paramClasses);
-        } catch (NoSuchMethodException exc) {
-            setFileSystemMethod = null;
-        } catch (SecurityException excsec) {
-            setFileSystemMethod = null;
-        }
-        if (setFileSystemMethod != null) {
-            Object[] args = new Object[] { fileSystem };
+        if (fileSystem != null) {
+            Class[] paramClasses = new Class[] { VcsFileSystem.class };
+            Method setFileSystemMethod = null;
             try {
-                setFileSystemMethod.invoke(execCommand, args);
-            } catch (IllegalAccessException iae) {
-                // silently ignored
-            } catch (IllegalArgumentException iare) {
-                // silently ignored
-            } catch (InvocationTargetException ite) {
-                // silently ignored
-            } catch (ExceptionInInitializerError eie) {
+                setFileSystemMethod = clazz.getDeclaredMethod("setFileSystem", paramClasses);
+            } catch (Exception exc) {
+                setFileSystemMethod = null;
+            }
+            if (setFileSystemMethod != null) {
+                Object[] args = new Object[] { fileSystem };
+                try {
+                    setFileSystemMethod.invoke(execCommand, args);
+                } catch (Exception iae) {
+                    // silently ignored
+                }
+            }
+        }
+        Class[] paramClasses = new Class[] { CommandExecutionContext.class };
+        Method setExecutionContextMethod = null;
+        try {
+            setExecutionContextMethod = clazz.getDeclaredMethod("setExecutionContext", paramClasses);
+        } catch (Exception exc) {
+            setExecutionContextMethod = null;
+        }
+        if (setExecutionContextMethod != null) {
+            Object[] args = new Object[] { executionContext };
+            try {
+                setExecutionContextMethod.invoke(execCommand, args);
+            } catch (Exception iae) {
                 // silently ignored
             }
         }
@@ -998,7 +1063,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     public Collection getFiles() {
         if (processingFilesCollection == null) {
-            processingFilesCollection = createProcessingFiles(fileSystem, vars);
+            processingFilesCollection = createProcessingFiles(executionContext, vars);
         }
         return processingFilesCollection;
     }
@@ -1008,8 +1073,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * @return the set of files of type <code>String</code> relative
      * to the file system root.
      */
-    public static Collection createProcessingFiles(VcsFileSystem fileSystem, Hashtable vars) {
-        VariableValueAdjustment valueAdjustment = fileSystem.getVarValueAdjustment();
+    public static Collection createProcessingFiles(CommandExecutionContext executionContext, Hashtable vars) {
+        VariableValueAdjustment valueAdjustment = executionContext.getVarValueAdjustment();
         String separator = (String) vars.get("PS");
         char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
         String paths = (String) vars.get("PATHS");
@@ -1257,9 +1322,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String status = elements[RefreshCommandSupport.ELEMENT_INDEX_STATUS];
         if (status == null) return elements;
         for (int i = 0; i < substituitionRegExps.length; i++) {
-            if (substituitionRegExps[i].match(status)) {
+            Matcher matcher = substituitionRegExps[i].matcher(status);
+            if (matcher.matches()) {
                 if (STATUS_USE_REG_EXP_PARSE_OUTPUT.equals(substituitionStatuses[i])) {
-                    status = substituitionRegExps[i].getParen(0);
+                    status = matcher.group();
                 } else {
                     status = substituitionStatuses[i];
                 }

@@ -68,7 +68,19 @@ public abstract class CommandTask extends Task {
      */
     public abstract FileObject[] getFiles();
     
-    //protected abstract int preprocess();
+    /**
+     * Get the priority of this task. This can be taken into account by the task
+     * processor. <p>
+     * Currently only binary priority is distinguished by the CommandProcessor:
+     * <code>priority == 0</code> and <code>priority != 0</code>. When
+     * <code>priority != 0</code>, the task can be run sooner than other tasks
+     * with <code>priority == 0</code>. After the task is running, it's performance
+     * does not depend on the priority.
+     * @return The task's priority. The default implementation returns <code>0</code>.
+     */
+    public int getPriority() {
+        return 0;
+    }
     
     /**
      * Tell, whether the task can be executed now. The task may wish to aviod parallel

@@ -110,7 +110,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
             String path = (String)it.next();
             File file = getFile(path);
             if(file.isDirectory()){                
-                StatusTreeInfoPanel treePanel = new StatusTreeInfoPanel(file);
+                StatusTreeInfoPanel treePanel = new StatusTreeInfoPanel(file, getCommandsProvider());
                 if(files.size() == 1){
                     treePanel.setDataToDisplay(resultList);
                     return treePanel;
@@ -119,7 +119,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
                     tabPane.addTab(file.getName(), treePanel);
                 }
             }else{                
-                StatusInfoPanel statPanel = new StatusInfoPanel();
+                StatusInfoPanel statPanel = new StatusInfoPanel(getCommandsProvider());
                 if(files.size() == 1){
                     statPanel.setData(statusInformation);
                     return statPanel;
@@ -311,7 +311,6 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     }
 
     private File getFileFromRev(String fileName){
-        File actFile = new File(actFilePath);
         File file = null;
         debug("fileName:"+fileName);
         Iterator it = files.iterator();
@@ -331,7 +330,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
                     File f = new File(base,tail);
                     debug("tailed file:"+f.getAbsolutePath());
                     File rFile = new File(repFile);
-                    if(f.exists()&& f.getAbsolutePath().indexOf(rFile.getName()) != -1){
+                    if(f.getAbsolutePath().indexOf(rFile.getName()) != -1){
                         debug("exists");
                         file = f;
                         break;
@@ -405,7 +404,6 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
      */
     private File getFile(String relativePath) {
         debug("getFile:"+relativePath);
-        File file = new File(actFilePath);
         StringBuffer path = new StringBuffer();        
         path.append(rootDir.getAbsolutePath());
         debug("root dir: "+rootDir.getAbsolutePath());

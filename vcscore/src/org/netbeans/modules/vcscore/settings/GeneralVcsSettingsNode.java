@@ -161,6 +161,7 @@ public class GeneralVcsSettingsNode extends AbstractNode {
                     }
  */
                 } catch (Exception exc) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, exc);
                 }
             }
         }

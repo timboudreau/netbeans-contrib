@@ -25,20 +25,65 @@ import java.awt.Component;
  * @version 
  */
 
-public class NotifyDescriptorInputPassword extends NotifyDescriptor.InputLine {
+public class NotifyDescriptorInputPassword extends DialogDescriptor {//NotifyDescriptor.InputLine {
+    
     private javax.swing.JPasswordField passwordField;
-    private JLabel textLabel;
-    private Character mnemonic = null;
 
-    protected Component createDesign (String text) {
+    /** Creates new NotifyDescriptorInputPassword */
+    public NotifyDescriptorInputPassword (String text, String title) {
+        this(text, title, null);
+    }
+    
+    /** Creates new NotifyDescriptorInputPassword */
+    public NotifyDescriptorInputPassword (String text, String title, String description) {
+        this(text, title, null, description, new JPasswordField[1]);
+    }
+    
+    /** Creates new NotifyDescriptorInputPassword */
+    public NotifyDescriptorInputPassword (String text, String title, char mnemonic) {
+        this(text, title, mnemonic, null);
+    }
+
+    /** Creates new NotifyDescriptorInputPassword */
+    public NotifyDescriptorInputPassword (String text, String title, char mnemonic, String description) {
+        this(text, title, new Character(mnemonic), description, new JPasswordField[1]);
+    }
+    
+    /**
+     * Use this constructor as a hack to set passwordField variable.
+     */
+    private NotifyDescriptorInputPassword (String text, String title, Character mnemonic,
+                                           String description, JPasswordField[] passwordFieldPtr) {
+        super (createDesign(text, description, mnemonic, passwordFieldPtr), title);
+        this.passwordField = passwordFieldPtr[0];
+    }
+
+    /*
+    public NotifyDescriptorInputPassword (String text, String title, javax.swing.Icon icon) {
+        super (text, title, icon);
+    }
+    
+    public NotifyDescriptorInputPassword (String text, String title, int optionType, int messageType) {
+        super (text, title, optionType, messageType);
+    }
+     */
+    
+    private static Component createDesign (String text, String description, Character mnemonic,
+                                           JPasswordField passwordFieldPtr[]) {
         //      System.out.println ("createDesign("+text+")"+this+" "+System.identityHashCode(this)); // NOI18N
         JPanel panel = new JPanel();
-        textLabel = new JLabel(text);
+        JLabel textLabel = new JLabel(text);
         textLabel.setBorder(new EmptyBorder(0, 0, 0, 10));
         panel.setLayout(new BorderLayout());
         panel.setBorder(new EmptyBorder(10, 10, 6, 6));
+        //System.out.println("NotifyDescriptorInputPassword: description = "+description);
+        if (description != null) {
+            JLabel descriptionLabel = new JLabel(description);
+            panel.add(descriptionLabel, BorderLayout.NORTH);
+            descriptionLabel.setBorder(new CompoundBorder(descriptionLabel.getBorder(), new EmptyBorder(2, 0, 11, 0)));
+        }
         panel.add("West", textLabel); // NOI18N
-        passwordField = new javax.swing.JPasswordField (25);
+        javax.swing.JPasswordField passwordField = new javax.swing.JPasswordField (25);
         //      System.out.println("passwordField: "+passwordField); // NOI18N
         panel.add("Center", passwordField); // NOI18N
         passwordField.setBorder(new CompoundBorder(passwordField.getBorder(), new EmptyBorder(2, 0, 2, 0)));
@@ -65,6 +110,7 @@ public class NotifyDescriptorInputPassword extends NotifyDescriptor.InputLine {
         if (mnemonic != null) {
             textLabel.setDisplayedMnemonic(mnemonic.charValue());
         }
+        passwordFieldPtr[0] = passwordField;
         return panel;
     }
 
@@ -88,25 +134,4 @@ public class NotifyDescriptorInputPassword extends NotifyDescriptor.InputLine {
         passwordField.setText (text);
     }
 
-    /** Creates new NotifyDescriptorInputPassword */
-    public NotifyDescriptorInputPassword (java.lang.String text, java.lang.String title) {
-        super (text, title);
-    }
-    
-    /** Creates new NotifyDescriptorInputPassword */
-    public NotifyDescriptorInputPassword (java.lang.String text, java.lang.String title, char mnemonic) {
-        super (text, title);
-        this.mnemonic = new Character(mnemonic);
-        textLabel.setDisplayedMnemonic(mnemonic);
-    }
-
-    /*
-    public NotifyDescriptorInputPassword (java.lang.String text, java.lang.String title, javax.swing.Icon icon) {
-     super (text, title, icon);
-}
-    */
-
-    public NotifyDescriptorInputPassword (java.lang.String text, java.lang.String title, int optionType, int messageType) {
-        super (text, title, optionType, messageType);
-    }
 }

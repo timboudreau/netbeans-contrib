@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -18,56 +18,55 @@ import java.awt.*;
 
 import org.openide.*;
 import org.openide.util.*;
-
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
-import org.openide.DialogDisplayer;
+import org.netbeans.modules.vcscore.commands.TextOutputListener;
+import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 
 /**
  * The selector of CVS modules
  * @author  Martin Entlicher
  */
-public class CvsModuleSelector implements VcsAdditionalCommand, CommandDataOutputListener {
+public class CvsModuleSelector implements VcsAdditionalCommand, TextOutputListener {
     private Debug E = new Debug("CvsModuleSelector", true); // NOI18N
     private Debug D = E;
-
+    
     private Hashtable vars;
     private CommandOutputListener stdoutNRListener;
-    private CommandOutputListener stderrNRListener;
-    private String dataRegex = "^(.*)$";
+    private CommandOutputListener stderrNRListener; 
     private StringBuffer outputBuffer;
     private volatile boolean cmdSuccess = true;  // By default we hope the module list is in cash
     private volatile boolean dlgSuccess = false;
     private volatile boolean dlgFinished = false;
     private boolean isCommand = false;
-    
-    
-    //private volatile boolean modulesStatGetStatus = false;
-    //private volatile boolean modulesAllGetStatus = false;
-    private volatile CompleteStatusOutput completeOutput = null;
-    private VcsFileSystem fileSystem = null;
+    //stores results of cvs co -s command
+    private HashSet s_resultSet;
+    private CvsModuleSelector.CompleteTextListener completeTextListener;
+    private ModuleInfo oldInfo;
 
+    private CommandExecutionContext executionContext = null;
+    
     /** Creates new CvsModuleSelector */
     public CvsModuleSelector() {
         isCommand = false;
+        s_resultSet = new HashSet();
     }
     
-    public void setFileSystem(VcsFileSystem fileSystem) {
-        this.fileSystem = fileSystem;
-    }
-    
-    public VcsFileSystem getFileSystem () {
-        return this.fileSystem;
-    }
-    
-    Hashtable getVariables() {
+    public void setExecutionContext(CommandExecutionContext executionContext) {
+        this.executionContext = executionContext;
+    }    
+     
+    public Hashtable getVariables() {
         return vars;
     }
-
+    
     
     /** this method is used to start the selector from the CvsAction popup menu.
      *  This method is used to execute the command.
@@ -85,23 +84,22 @@ public class CvsModuleSelector implements VcsAdditionalCommand, CommandDataOutpu
      *        false if some error occured.
      */
     public boolean exec(Hashtable vars,String[] args,
-                        CommandOutputListener stdoutNRListener,
-                        CommandOutputListener stderrNRListener,
-                        CommandDataOutputListener stdoutListener, String dataRegex,
-                        CommandDataOutputListener stderrListener, String errorRegex) {
+    CommandOutputListener stdoutNRListener,
+    CommandOutputListener stderrNRListener,
+    CommandDataOutputListener stdoutListener, String dataRegex,
+    CommandDataOutputListener stderrListener, String errorRegex) {
         isCommand = true;
         String[] returns = execSel(vars, "MODULE", args, stdoutNRListener, stderrNRListener);
         String[] toReturn = new String[1];
         if (returns != null) {
-            if (returns.length > 0 && returns[0] != null && returns[0].length() > 0) { 
+            if (returns.length > 0 && returns[0] != null && returns[0].length() > 0) {
                 toReturn[0] = VcsUtilities.arrayToQuotedString(returns, false);  //TODO for cygwin =true
-                stdoutListener.outputData(toReturn); 
-            }  
+                stdoutListener.outputData(toReturn);
+            }
             return true;
         }
-        //toReturn[0] = ".";
-        //stdoutListener.match(toReturn);
-        return false;  
+        
+        return false;
     }
     
     /**
@@ -115,29 +113,17 @@ public class CvsModuleSelector implements VcsAdditionalCommand, CommandDataOutpu
      *         or null when an error occures.
      */
     public String[] execSel(Hashtable vars, String variable, String[] args,
-                       CommandOutputListener stdoutNRListener,
-                       CommandOutputListener stderrNRListener) {
+    CommandOutputListener stdoutNRListener,
+    CommandOutputListener stderrNRListener) {
         D.deb("exec for "+variable);
         this.vars = vars;
         this.stdoutNRListener = stdoutNRListener;
         this.stderrNRListener = stderrNRListener;
-        /*
-        if (!runCommand(args)) return null;
-        String[] modules = getModules();
-        if (modules == null || modules.length <= 0) {
-          javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-              NotifyDescriptor nd = new NotifyDescriptor.Message (org.openide.util.NbBundle.getBundle(CvsModuleSelectorDialog.class).getString("CvsModuleSelectorDialog.NoModules"));
-              TopManager.getDefault ().notify (nd);
-            }
-          });
-          return null;
-    }
-        */
-        final CvsModuleSelectorDialog panel = new CvsModuleSelectorDialog (this, args);
+
+        final CvsModuleSelectorDialog panel = new CvsModuleSelectorDialog(this, args);
         panel.calledAsCommand(isCommand);  // if run as command -> is called from CvsAction - disable some stuff
-        final DialogDescriptor dd = new DialogDescriptor (panel, NbBundle.getBundle(CvsModuleSelector.class).getString ("CvsModuleSelectorDialog.title"));
-        final Dialog fdlg = DialogDisplayer.getDefault().createDialog (dd);
+        final DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getBundle(CvsModuleSelector.class).getString("CvsModuleSelectorDialog.title"));
+        final Dialog fdlg = DialogDisplayer.getDefault().createDialog(dd);
         VcsUtilities.centerWindow(fdlg);
         
         Thread showThread = new Thread() {
@@ -165,128 +151,193 @@ public class CvsModuleSelector implements VcsAdditionalCommand, CommandDataOutpu
             if (dlgSuccess) return null;
             else {
                 String[] toReturn = {""};
-              return toReturn;                        
-            }    
+                return toReturn;
+            }
         }
     }
-
-    boolean runCommand(String[] args) {
+    
+    boolean runCommand(String[] args) {        
         if (args.length != 2) {
             if (stderrNRListener != null) stderrNRListener.outputLine("Bad number of arguments. "+
-                                                                      "Expecting two arguments: cvs co -s AND cvs co -c");
+            "Expecting two arguments: cvs co -s AND cvs co -c");
             return false;
-        }
-        VcsCommand cmd = fileSystem.getCommand(args[0]);
+        }        
+  
         Hashtable varsCopy1 = new Hashtable(vars);
-        VcsCommandExecutor vce1 = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCopy1);
-        vce1.addDataOutputListener(this);
-        cmd = fileSystem.getCommand(args[1]);
+        CommandSupport cmdSupp = executionContext.getCommandSupport(args[0]);
+        Command cmd1 = cmdSupp.createCommand();
+        if (cmd1 instanceof VcsDescribedCommand) {
+            ((VcsDescribedCommand) cmd1).setAdditionalVariables(varsCopy1);
+            ((VcsDescribedCommand) cmd1).addTextOutputListener(this);
+        }
+        CommandTask task1 = cmd1.execute(); 
+        cmdSupp = executionContext.getCommandSupport(args[1]);
+        Command cmd2 = cmdSupp.createCommand();
         Hashtable varsCopy2 = new Hashtable(vars);
-        VcsCommandExecutor vce2 = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCopy2);
-        completeOutput = new CompleteStatusOutput();
-        vce2.addDataOutputListener(completeOutput);
-        CommandsPool pool = fileSystem.getCommandsPool();
-        pool.startExecutor(vce1, fileSystem);
-        pool.startExecutor(vce2, fileSystem);
+        completeTextListener = new CvsModuleSelector.CompleteTextListener();
+        if (cmd2 instanceof VcsDescribedCommand) {
+            ((VcsDescribedCommand) cmd2).setAdditionalVariables(varsCopy2);
+            ((VcsDescribedCommand) cmd2).addTextOutputListener(completeTextListener);
+        }
+        CommandTask task2 = cmd2.execute(); 
         try {
-            pool.waitToFinish(vce1);
-            pool.waitToFinish(vce2);
+            task1.waitFinished(0);
+            task2.waitFinished(0);  
         } catch (InterruptedException iexc) {
-            pool.kill(vce1);
-            pool.kill(vce2);
+            task1.stop();
+            task2.stop(); 
             return false;
         }
-        boolean modulesStatGetStatus = vce1.getExitStatus() == VcsCommandExecutor.SUCCEEDED;
-        boolean modulesAllGetStatus = vce2.getExitStatus() == VcsCommandExecutor.SUCCEEDED;
+        boolean modulesStatGetStatus = task1.getExitStatus() == CommandTask.STATUS_SUCCEEDED;
+        boolean modulesAllGetStatus = task2.getExitStatus() == CommandTask.STATUS_SUCCEEDED;
         return modulesStatGetStatus && modulesAllGetStatus;
     }
-
+    
     private Vector getModules() {
         Vector modules = new Vector();
-        String output = outputBuffer.toString();
-       //MK rewrite to add status of the modules..  
-        String line;
-        int index = 0;
-        StringBuffer module;
-        int addedCount = 0;
-        StringTokenizer token = new StringTokenizer(output, "\n", false);
-        while (token.hasMoreTokens()) {
-            Vector row = new Vector();
-            line = token.nextToken();
-            if (line.startsWith(" ") || line.startsWith("\t")) continue; // it's not a line with module name
-            line = line.replace('\t',' ');
-            StringTokenizer lineTok = new StringTokenizer(line, " ", false);
-            if (lineTok.countTokens() < 2) continue;
-            String prvni = lineTok.nextToken();
-            row.add(prvni);
-            row.add(lineTok.nextToken());
-            modules.add(row);
-        }
-        completeOutput.insertDifferent(modules);
-        return modules;  
-    }
+        completeTextListener.mergeStatuses();       
+        HashMap map = completeTextListener.getResultMap();
+        Collection values = map.values();
+        Iterator it = values.iterator();
+        while(it.hasNext()){
+            ModuleInfo info = (ModuleInfo)it.next();
+            modules.addElement(info.toVector());
+        }       
+        
+        return modules;
 
-    public void outputData(String[] elements) {
-        D.deb("match: "+elements[0]);
-        if (elements[0].length() > 0 && elements[0].charAt(0) != '#')
-            outputBuffer.append(elements[0]+"\n");
-    }
-    
-    
-    public Vector getModulesList (String[] args) {
-        Vector modules = null;
-        outputBuffer = new StringBuffer();
+    }    
+     
+    public Vector getModulesList(String[] args) {
+        Vector modules = null; 
         cmdSuccess = runCommand(args);
         if (cmdSuccess) modules = getModules();
         return modules;
     }
-
-    private final class CompleteStatusOutput implements CommandDataOutputListener {
-        private LinkedList statuses;
-        
-        public CompleteStatusOutput() {
-            statuses = new LinkedList();
-        }
-        
-        public void removeFromList(String name) {
-            statuses.remove(name);
-        }
-        
-        public void  insertDifferent(Vector modules) {
-            Iterator parIter = modules.iterator();
-            while(parIter.hasNext()) { // first remove all that are in the list with statuses
-                Vector row = (Vector)parIter.next();
-                removeFromList((String)row.get(0));
-            }
-            Iterator it = statuses.iterator();
-            while (it.hasNext()) {
-                Vector row = new Vector();
-                String str = (String)it.next();
-                //D("in -c list:" + str);
-                row.add(str);
-                row.add("");
-                modules.add(row);
-            }
-        }
-        
-        /** method from the NoRegExpListener.
-         * reads al output of the checkout -c command.
-         * @param elements lines.
-         */
-        public void outputData(String[] elements) {
-            if (elements[0].length() > 0 && elements[0].charAt(0) != '#') {
-                String start = elements[0];
-                if (start == null) return;
-                if (!start.startsWith(" ")) {
-                    int index = start.indexOf(' ');
-                    if (index > 0) {
-                        String name = start.substring(0,index);
-                        statuses.add(name);
-                    }
-                }
-            }
-        }
-        
+    
+    public void outputLine(String line) {        
+        if (line.startsWith(" ") || line.startsWith("\t")) //not a line with module
+            return;
+        line = line.replace('\t',' ');
+        StringTokenizer lineTok = new StringTokenizer(line, " ", false);
+        if (lineTok.countTokens() < 2)
+            return;
+        ModuleInfo info = new ModuleInfo(lineTok.nextToken());
+        info.setStatus(lineTok.nextToken());
+        s_resultSet.add(info);   
     }
-
+    
+    
+    private final class ModuleInfo{
+        private String name;
+        private String status;
+        private String type;
+        private String paths;
+        
+        public ModuleInfo(String name){
+            this(name,null,null,null);
+        }
+        
+        public ModuleInfo(String name, String status, String type, String paths){
+            this.name = name;
+            this.status = status;
+            this.type = type;
+            this.paths = paths;
+        }
+        
+        public void setName(String name){
+            this.name = name;
+        }
+        
+        public String getName(){
+            return name;
+        }
+        
+        public void setStatus(String status){
+            this.status = status;
+        }
+        
+        public String getStatus(){
+            return status;
+        }
+        
+        public void setType(String type){
+            this.type = type;
+        }
+        
+        public String getType(){
+            return type;
+        }
+        
+        public void setPaths(String paths){
+            this.paths = paths;
+        }
+        
+        public String getPaths(){
+            return paths;
+        }
+        
+        public Vector toVector(){
+            Vector vc = new Vector();
+            vc.add(getName());
+            vc.add(getStatus());
+            vc.add(getType());
+            vc.add(getPaths());
+            return vc;
+        }
+    }
+    
+    private final class CompleteTextListener implements TextOutputListener{
+        //stores results of cvs co -c command
+        private HashMap c_resultMap;
+        
+        public CompleteTextListener(){
+            c_resultMap = new HashMap();
+        }
+        
+        public void outputLine(String line) {            
+            StringTokenizer lineTok = new StringTokenizer(line, " ", false);
+            if (line.startsWith(" ") || line.startsWith("\t")){                
+                if (oldInfo != null){
+                  String oldpaths=oldInfo.getPaths();
+                  while(lineTok.hasMoreTokens())
+                      oldpaths += lineTok.nextToken()+" ";       //paths
+                  oldInfo.setPaths(oldpaths);
+                }
+                  return;
+            }
+            line = line.replace('\t',' ');            
+            if (lineTok.countTokens() < 2)
+                return;
+            ModuleInfo info = new ModuleInfo(lineTok.nextToken());
+            String paths="";
+            if(lineTok.hasMoreTokens()){
+                String typeOrPath = lineTok.nextToken();
+                if(typeOrPath.startsWith("-"))          //NOI18N
+                    info.setType(typeOrPath);           //type
+                else
+                    paths += typeOrPath+" ";
+            }            
+            while(lineTok.hasMoreTokens())
+                paths += lineTok.nextToken()+" ";       //paths
+            info.setPaths(paths);
+            c_resultMap.put(info.getName(),info);
+            oldInfo = info;
+        }
+        
+        public void mergeStatuses(){
+            Iterator s_it = s_resultSet.iterator();            
+            while(s_it.hasNext()){
+                ModuleInfo s_info = (ModuleInfo)s_it.next();
+                ModuleInfo c_info = (ModuleInfo)c_resultMap.get(s_info.getName());
+                if(c_info != null)
+                    c_info.setStatus(s_info.getStatus());
+            }               
+        }
+        
+        public HashMap getResultMap(){
+            return c_resultMap;
+        }
+    }
+    
 }

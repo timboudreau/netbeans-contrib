@@ -27,10 +27,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
-//import java.util.StringTokenizer;
-
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.FileObject;
@@ -97,7 +95,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     /** Holds value of property ignoredGarbageFiles -- regexp of ignorable children. */
     private String ignoredGarbageFiles = ""; // NOI18N
     /** regexp matcher for ignoredFiles, null if not needed */
-    private transient RE ignoredGarbageRE = null;
+    private transient Pattern ignoredGarbageRE = null;
     
     /** Holds value of property messageLength. */
     private int messageLength = 50;    
@@ -243,8 +241,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         if (! nue.equals (ignoredGarbageFiles)) {
             if (nue.length () > 0) {
                 try {
-                    ignoredGarbageRE = new RE (nue);
-                } catch (RESyntaxException rese) {
+                    ignoredGarbageRE = Pattern.compile(nue);
+                } catch (PatternSyntaxException rese) {
                     IllegalArgumentException iae = new IllegalArgumentException ();
                     ErrorManager.getDefault().annotate (iae, rese);
                     throw iae;
@@ -455,8 +453,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             ignoredGarbageFiles = "";
         } else if (ignoredGarbageFiles.length () > 0) {
             try {
-                ignoredGarbageRE = new RE (ignoredGarbageFiles);
-            } catch (RESyntaxException rese) {
+                ignoredGarbageRE = Pattern.compile(ignoredGarbageFiles);
+            } catch (PatternSyntaxException rese) {
                 ErrorManager.getDefault ().notify(rese);
             }
         }
@@ -492,7 +490,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                         !fileSystem.isImportant((name.length() == 0) ? files[i] : name + "/" + files[i]) ||
                     //!isShowLocalFiles() && cache != null && status != null &&  -- makes problems, since every file is initially local
                     //    status.getLocalFileStatus().equals(status.getFileStatus((name.length() == 0) ? files[i] : name + "/" + files[i])) ||
-                    ignoredGarbageRE != null && ignoredGarbageRE.match (files[i])) {
+                    ignoredGarbageRE != null && ignoredGarbageRE.matcher(files[i]).matches()) {
                 
                     files[i] = null;
                 }

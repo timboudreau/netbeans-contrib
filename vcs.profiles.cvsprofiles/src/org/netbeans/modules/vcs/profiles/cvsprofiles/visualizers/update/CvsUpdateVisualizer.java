@@ -255,7 +255,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
             contentPane.showExecutionFailed();
     }
     
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
     private static void debug(String msg){
         if(DEBUG)
             System.err.println("CvsUpdateVisualizer: "+msg);

@@ -59,7 +59,7 @@ public class RuntimeCommandNode extends AbstractNode implements PropertyChangeLi
         setShortDescription(NbBundle.getMessage(RuntimeCommandNode.class, "RuntimeCommandNode.Description", displayName.trim()));
         comm.addPropertyChangeListener(WeakListener.propertyChange(this, comm));
         setState(comm.getState());
-        setDefaultAction(CommandOutputViewAction.getInstance());
+        //setDefaultAction(CommandOutputViewAction.getInstance());
         getCookieSet().add(comm);
     }
     
@@ -98,6 +98,10 @@ public class RuntimeCommandNode extends AbstractNode implements PropertyChangeLi
     
     public SystemAction[] getActions() {
         return command.getActions();
+    }
+    
+    public SystemAction getDefaultAction() {
+        return command.getDefaultAction();
     }
 
     public Sheet createSheet() {
