@@ -393,6 +393,11 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     private static ArrayList views = null; // leak??? YES! Remove in componentClosed!
+
+    /** Return true iff the default view has been created already */
+    static boolean defaultViewCreated() {
+        return defview != null;
+    }
     
     /** Return the currently active user task view, or the default
         one if none are active */
