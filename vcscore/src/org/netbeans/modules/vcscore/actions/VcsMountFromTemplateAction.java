@@ -395,7 +395,12 @@ public class VcsMountFromTemplateAction extends NodeAction {
         /** Updates the keys.
          */
         private void updateKeys () {
-            setKeys (wizard.getTemplatesFolder ().getNodeDelegate ().getChildren ().getNodes ());
+            DataFolder folder = wizard.getTemplatesFolder ();
+            if (folder.isValid()) {
+                setKeys (folder.getNodeDelegate ().getChildren ().getNodes ());
+            } else {
+                setKeys(new Object[0]);
+            }
         }
         
         /** Fired when the order of children is changed.
