@@ -51,8 +51,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     
     private static ResourceBundle resourceBundle = null;
 
-    private static String config = "Empty"; // NOI18N
     public static final String TEMPORARY_CONFIG_FILE_NAME = "tmp"; // NOI18N
+
+    private String config = "Empty"; // NOI18N
 
     private Debug D = new Debug ("CommandLineVcsFileSystem", true); // NOI18N
     private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
@@ -166,23 +167,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         if (!file.isDirectory()) file = file.getParentFile();
         return file.getAbsolutePath() + File.separator + CVS_DIRNAME + File.separator + CACHE_FILE_NAME;
          */
-    }
-
-    /**
-     * Get human presentable name.
-     */
-    public String getDisplayName() {
-        //D.deb("getDisplayName() isValid="+isValid()); // NOI18N
-        /*
-        Vector commands = getCommands();
-        if (commands.size() > 1) {
-            UserCommand cmd = (UserCommand) commands.get(0);
-            if (cmd.getExec() == null) {
-                return cmd.getLabel()+" "+getRootDirectory().toString (); // NOI18N
-            }
-        }
-         */
-        return g("LAB_FileSystemValid", getRootDirectory().toString ()); // NOI18N
     }
 
     private void createDir(String path) {
