@@ -50,7 +50,7 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
     public static final String PROP_EJB_EJBMODULES = "ejbModules"; // <List> NOI18N
     public static final String PROP_EJB_SOURCE_FOLDERS = "ejbSourceFolders"; // <List> NOI18N
     public static final String PROP_EJB_RESOURCE_FOLDERS = "ejbResourceFolders"; // <List> NOI18N
-    public static final String SERVER_INSTANCE_ID = "serverInstanceID"; //NOI18N
+    public static final String SERVER_ID = "serverID"; //NOI18N
     public static final String J2EE_LEVEL = "j2eeLevel"; //NOI18N
     public static final String J2EE_SERVER_TYPE = "j2eeServerType"; //NOI18N
     
@@ -91,13 +91,10 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
                     List resources = (List) wiz.getProperty(PROP_EJB_RESOURCE_FOLDERS);
                     EJBProjectGenerator.putResourceFolder(helper, resources);
         
-                    String serverInstanceID = (String) wiz.getProperty(SERVER_INSTANCE_ID);
-                    EJBProjectGenerator.putServerInstanceID(helper, serverInstanceID);
-                    
                     String j2eeLevel = (String) wiz.getProperty(J2EE_LEVEL);
                     EJBProjectGenerator.putJ2EELevel(helper, j2eeLevel);
                     
-                    String serverID = Deployment.getDefault().getServerID(serverInstanceID);
+                    String serverID = (String) wiz.getProperty(SERVER_ID);
                     EJBProjectGenerator.putServerID(helper, serverID);
                     
                     List ejbModules = (List) wiz.getProperty(PROP_EJB_EJBMODULES);
@@ -159,7 +156,7 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
         wiz.putProperty(PROP_EJB_SOURCE_FOLDERS, null);
         wiz.putProperty(PROP_EJB_RESOURCE_FOLDERS, null);
         wiz.putProperty(PROP_EJB_EJBMODULES, null);
-        wiz.putProperty(SERVER_INSTANCE_ID, null);
+        wiz.putProperty(SERVER_ID, null);
         wiz.putProperty(J2EE_LEVEL, null);
         wiz.putProperty(J2EE_SERVER_TYPE, null);
         this.wiz = null;

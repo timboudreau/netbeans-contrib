@@ -99,7 +99,7 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
     }
     
     public boolean useDefaultServer() {
-        return true;
+        return false;
     }
     
     public FileObject[] getSourceRoots() {
