@@ -15,12 +15,16 @@ package org.netbeans.modules.vcs.profiles.vss.commands;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
@@ -37,6 +41,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 
 /**
@@ -213,10 +218,10 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                 }
                 return false;
             }
-            messages = confirm(messages, rootDir);
-            confirmed = messages != null;
-            if (confirmed && (!testOnly || messages.length > 0)) {
-                success = runRealMultiCommand(realCommand, new Hashtable(vars), messages);
+            String[] confirmedFiles = confirm(messages, rootDir, getSelectedFiles(rootDir, vars));
+            confirmed = confirmedFiles != null;
+            if (confirmed && (!testOnly || confirmedFiles.length > 0)) {
+                success = runRealMultiCommand(realCommand, new Hashtable(vars), confirmedFiles);
             }
         } else {
             String message;
@@ -244,6 +249,16 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             vars.put("COMMAND_NOTIFICATION_DISABLED", "true");
         }
         return success;
+    }
+    
+    private String[] getSelectedFiles(String rootDir, Hashtable vars) {
+        Collection filePaths = ExecuteCommand.createProcessingFiles(fileSystem, vars);
+        String[] files = new String[filePaths.size()];
+        int i = 0;
+        for (Iterator it = filePaths.iterator(); it.hasNext(); i++) {
+            files[i] = rootDir + File.separator + ((String) it.next()).replace('/', File.separatorChar);
+        }
+        return files;
     }
     
     /**
@@ -359,11 +374,11 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                VcsCommandIO.getBooleanProperty(vcmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL);
     }
     
-    private boolean runRealMultiCommand(CommandSupport cmdSupp, Hashtable vars, String[] messages) {
+    private boolean runRealMultiCommand(CommandSupport cmdSupp, Hashtable vars, String[] files) {
         Command command = cmdSupp.createCommand();
         VcsDescribedCommand vcmd = (VcsDescribedCommand) command;
         vcmd.setAdditionalVariables(vars);
-        boolean haveFiles = setFiles(command, messages);
+        boolean haveFiles = setFiles(command, rootDir, files);
         if (!haveFiles) return true;
         CommandTask task = command.execute();
         try {
@@ -376,22 +391,16 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                VcsCommandIO.getBooleanProperty(vcmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL);
     }
     
-    private boolean setFiles(Command command, String[] messages) {
+    private boolean setFiles(Command command, String rootDir, String[] filePaths) {
         List fileObjects = new ArrayList();
         List files = new ArrayList();
         int rdl = rootDir.length();
-        for (int i = 0; i < messages.length; i++) {
-            int begin = messages[i].indexOf(rootDir);
-            if (begin >= 0) {
-                String file = retrieveFile(messages[i].substring(begin), getEndChar(messages[i], begin));
-                String path = file.substring(rdl).replace(File.separatorChar, '/');
-                while (path.startsWith("/")) path = path.substring(1);
-                FileObject fo = (fileSystem != null) ? fileSystem.findResource(path) : null;
-                if (fo != null) {
-                    fileObjects.add(fo);
-                } else {
-                    files.add(new File(file));
-                }
+        for (int i = 0; i < filePaths.length; i++) {
+            FileObject fo = (fileSystem != null) ? fileSystem.findResource(filePaths[i]) : null;
+            if (fo != null) {
+                fileObjects.add(fo);
+            } else {
+                files.add(new File(rootDir + File.separator + filePaths[i].replace('/', File.separatorChar)));
             }
         }
         if (fileObjects.size() > 0) {
@@ -450,22 +459,55 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         return true;
     }
     
-    private static String[] confirm(String[] messages, String rootDir) {
+    /**
+     * Confirm (asking the user) the questions provided.
+     * @return The files the questions were confirmed on, relative to rootDir.
+     */
+    private static String[] confirm(String[] messages, String rootDir, String[] selectedFiles) {
         if (messages.length == 0) return messages;
-        List confirmedMessages = new ArrayList();
-        List confirmedPatters = new ArrayList();
-        List deniedPatters = new ArrayList();
+        List confirmedFiles = new ArrayList();
+        List confirmedPatterns = new ArrayList();
+        List deniedPatterns = new ArrayList();
         Object yesAllOption = NbBundle.getMessage(ConfirmationCommand.class, "CTL_YesAll");
         Object noAllOption = NbBundle.getMessage(ConfirmationCommand.class, "CTL_NoAll");
+        Object skipOption = NbBundle.getMessage(ConfirmationCommand.class, "CTL_Skip");
+        List patternItems = new ArrayList();
         for (int i = 0; i < messages.length; i++) {
-            if (checkPatterns(confirmedPatters, messages[i])) {
-                confirmedMessages.add(messages[i]);
+            String file = checkPatterns(confirmedPatterns, messages[i]);
+            if (file != null) {
+                if (!file.startsWith(rootDir)) {
+                    file = uniqueFilePath(file, selectedFiles);
+                }
+                if (file != null) {
+                    file = file.substring(rootDir.length()).replace(File.separatorChar, '/');
+                    while (file.startsWith("/")) file = file.substring(1);
+                    confirmedFiles.add(file);
+                    continue;
+                }
+            }
+            if (checkPatterns(deniedPatterns, messages[i]) != null) {
                 continue;
             }
-            if (checkPatterns(deniedPatters, messages[i])) {
-                continue;
+            patternItems.clear();
+            file = getUnambigousFile(messages[i], rootDir, selectedFiles, patternItems);
+            if (file == null) {
+                String msg = reduceBigMessage(messages[i]) + "\n\n" +
+                             NbBundle.getMessage(ConfirmationCommand.class, "MSG_Ambiguous");
+                NotifyDescriptor confirmation = new NotifyDescriptor(msg,
+                    NbBundle.getMessage(ConfirmationCommand.class, "TTL_Warning"), 
+                    NotifyDescriptor.OK_CANCEL_OPTION,
+                    NotifyDescriptor.WARNING_MESSAGE,
+                    new Object[] { skipOption,
+                                   NotifyDescriptor.CANCEL_OPTION },
+                    skipOption);
+                Object result = DialogDisplayer.getDefault().notify(confirmation);
+                if (skipOption.equals(result)) {
+                    continue;
+                } else {
+                    return null;
+                }
             }
-            NotifyDescriptor confirmation = new NotifyDescriptor(messages[i],
+            NotifyDescriptor confirmation = new NotifyDescriptor(reduceBigMessage(messages[i]),
                 NbBundle.getMessage(ConfirmationCommand.class, "TTL_Confirmation"),
                 NotifyDescriptor.YES_NO_CANCEL_OPTION,
                 NotifyDescriptor.QUESTION_MESSAGE,
@@ -475,46 +517,77 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                 NotifyDescriptor.YES_OPTION);
             Object result = DialogDisplayer.getDefault().notify(confirmation);
             if (NotifyDescriptor.YES_OPTION.equals(result)) {
-                confirmedMessages.add(messages[i]);
+                confirmedFiles.add(file);
             } else if (yesAllOption.equals(result)) {
-                confirmedMessages.add(messages[i]);
-                addPattern(confirmedPatters, messages[i], rootDir);
+                confirmedFiles.add(file);
+                confirmedPatterns.add(patternItems.toArray(new String[0]));
             } else if (NotifyDescriptor.NO_OPTION.equals(result)) {
                 continue;
             } else if (noAllOption.equals(result)) {
-                addPattern(deniedPatters, messages[i], rootDir);
+                deniedPatterns.add(patternItems.toArray(new String[0]));
             } else {
                 // canceled
                 return null;
             }
         }
-        return (String[]) confirmedMessages.toArray(new String[0]);
+        return (String[]) confirmedFiles.toArray(new String[0]);
     }
     
     /**
-     * Add a pattern, that will match the provided message type.
+     * Get the file relative to rootDir.
      */
-    private static void addPattern(List patterns, String message, String rootDir) {
-        ArrayList patternItems = new ArrayList();
+    private static String getUnambigousFile(String message, String rootDir,
+                                            String[] selectedFiles, List patternItems) {
         int begin = 0;
         int fileIndex;
+        String file = null;
+        int rdl = rootDir.length();
         while((fileIndex = message.indexOf(rootDir, begin)) >= 0) {
-            String file = retrieveFile(message.substring(fileIndex), getEndChar(message, fileIndex));
+            String rfile = retrieveFile(message.substring(fileIndex), getEndChar(message, fileIndex));
             patternItems.add(message.substring(begin, fileIndex));
-            begin = fileIndex + file.length();
+            begin = fileIndex + rfile.length();
+            rfile = rfile.substring(rdl).replace(File.separatorChar, '/');
+            while (rfile.startsWith("/")) rfile = rfile.substring(1);
+            if (file == null) {
+                file = rfile;
+            } else {
+                if (!file.equals(rfile)) return null;
+            }
         }
-        if (begin < message.length()) {
-            patternItems.add(message.substring(begin));
-        } else {
-            patternItems.add("");
+        if (file != null) {
+            if (begin < message.length()) {
+                patternItems.add(message.substring(begin));
+            } else {
+                patternItems.add("");
+            }
+        } else { // The file was not found
+            int sentenceEnd = message.lastIndexOf(". ");
+            if (sentenceEnd > 0) {
+                sentenceEnd += 2;
+            } else {
+                sentenceEnd = 0;
+            }
+            int firstSpace = message.indexOf(' ', sentenceEnd);
+            if (firstSpace > 0) {
+                file = message.substring(sentenceEnd, firstSpace);
+                file = uniqueFilePath(file, selectedFiles);
+                if (file == null) {
+                    return null;
+                }
+                file = file.substring(rdl).replace(File.separatorChar, '/');
+                while (file.startsWith("/")) file = file.substring(1);
+                patternItems.add("");//message.substring(0, sentenceEnd));
+                patternItems.add(message.substring(firstSpace + 1));
+            }
         }
-        patterns.add(patternItems.toArray(new String[0]));
+        return file;
     }
     
     /**
      * Check whether the message match at least one of the patterns.
+     * @return The file from the matched pattern.
      */
-    private static boolean checkPatterns(List patterns, String message) {
+    private static String checkPatterns(List patterns, String message) {
         int n = patterns.size();
         for (int i = 0; i < n; i++) {
             String[] pattern = (String[]) patterns.get(i);
@@ -524,9 +597,86 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             for (l-- ; l > 0; l--) {
                 if (message.indexOf(pattern[l]) < 0) break;
             }
-            if (l == 0) return true;
+            if (l == 0) {
+                int beginIndex = message.indexOf(pattern[pattern.length - 2]);
+                int endIndex = message.length() - pattern[pattern.length - 1].length();
+                return message.substring(beginIndex, endIndex).trim();
+            }
         }
-        return false;
+        return null;
+    }
+    
+    private static String reduceBigMessage(String msg) {
+        if (msg.length() > 512) {
+            int sentenceEnd = msg.lastIndexOf(". ");
+            if (sentenceEnd >= 0) {
+                if (msg.length() - sentenceEnd < 256) {
+                    int nextSentenceLength = msg.lastIndexOf(". ", sentenceEnd - 1);
+                    if (nextSentenceLength >= 0 && msg.length() - nextSentenceLength < 512) {
+                        sentenceEnd = nextSentenceLength; // Take the last two sentences.
+                    }
+                }
+                msg = msg.substring(sentenceEnd + 2);
+            } // else We didn't find an end of the sentence, we have to disply it all
+        }
+        return msg;
+    }
+    
+    private static String uniqueFilePath(String file, String[] rootDirs) {
+        String upath = null;
+        String[] path = new String[] { null };
+        Stack tempPath = new Stack();
+        int count = 0;
+        for (int i = 0; i < rootDirs.length; i++) {
+            FileObject root = FileUtil.toFileObject(FileUtil.normalizeFile(new File(rootDirs[i])));
+            if (root == null) {
+                return null;
+            } else {
+                //System.out.println("num occurrences = "+countFileOccurences(file, root));
+                tempPath.clear();
+                count += countFileOccurences(file, root, tempPath, path);
+                if (path[0] != null) {
+                    if (upath == null) {
+                        upath = rootDirs[i]+path[0];
+                    } else {
+                        return null; // We have > 1 paths => no unique path
+                    }
+                }
+            }
+        }
+        if (count == 1) {
+            return upath;
+        } else {
+            return null;
+        }
+    }
+    
+    private static int countFileOccurences(String file, FileObject folder,
+                                           Stack tempPath, String[] path) {
+        int count = 0;
+        FileObject[] children = folder.getChildren();
+        for (int i = 0; i < children.length; i++) {
+            if (children[i].isFolder()) {
+                tempPath.push(children[i].getNameExt());
+                count += countFileOccurences(file, children[i], tempPath, path);
+                tempPath.pop();
+            } else {
+                if (file.equals(children[i].getNameExt())) {
+                    count++;
+                    if (path[0] == null) {
+                        StringBuffer bPath = new StringBuffer();
+                        for (Iterator it = tempPath.iterator(); it.hasNext(); ) {
+                            bPath.append(File.separator);
+                            bPath.append((String) it.next());
+                        }
+                        bPath.append(File.separator);
+                        bPath.append(children[i].getNameExt());
+                        path[0] = bPath.toString();
+                    }
+                }
+            }
+        }
+        return count;
     }
     
 }
