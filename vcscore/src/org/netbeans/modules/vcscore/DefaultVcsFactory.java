@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcscore;
 
+import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,11 +45,11 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
     private static Object fsActionAccessLock = new Object();
     private static VcsAction fsAction = null;
 
-    protected VcsFileSystem fileSystem;
+    protected WeakReference fileSystem;
     
     /** Creates new DefaultVcsFactory */
     public DefaultVcsFactory(VcsFileSystem fileSystem) {
-        this.fileSystem = fileSystem;
+        this.fileSystem = new WeakReference(fileSystem);
     }
 
     /**
@@ -56,6 +57,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      * is the filesystem cache if implements <code>FileStatusProvider</code> or null otherwise.
      */
     public FileStatusProvider getFileStatusProvider() {
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         Object cache = fileSystem.getCacheProvider();
         if (cache instanceof FileStatusProvider) return (FileStatusProvider) cache;
         else return null;
@@ -66,6 +68,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      * is <code>VcsFSCache</code>.
      */
     public FileCacheProvider getFileCacheProvider() {
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         return new VcsFSCache(fileSystem);
     }
 
@@ -75,6 +78,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      */
     public VcsCommandExecutor getVcsDirReader(DirReaderListener listener, String path) {
         VcsCommand list;
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         if (fileSystem.isOffLine()) {
             list = fileSystem.getCommand(VcsCommand.NAME_REFRESH_OFFLINE);
         } else {
@@ -105,6 +109,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      */
     public VcsCommandExecutor getVcsDirReaderRecursive(DirReaderListener listener, String path) {
         VcsCommand list;
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         if (fileSystem.isOffLine()) {
             list = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY_OFFLINE);
         } else {
@@ -161,6 +166,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
     public SystemAction[] getActions(Collection fos) {
         //return new SystemAction[] { getVcsAction() };
         //ArrayList actions = new ArrayList();
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         Node commands = fileSystem.getCommands();
         Node[] commandRoots = commands.getChildren().getNodes();
         //System.out.println("DefaultVcsFactory.getActions(): commandRoots.length = "+commandRoots.length);
@@ -211,6 +217,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
             //    AdditionalCommandDialog addCommand = new org.netbeans.modules.vcscore.cmdline.AdditionalCommandDialog(fileSystem, (UserCommand) command, variables, new javax.swing.JFrame(), false);
             //    return addCommand.createCommand();
             //} else {
+                VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
                 return new ExecuteCommand(fileSystem, (UserCommand) command, variables);
             //}
         } else {
