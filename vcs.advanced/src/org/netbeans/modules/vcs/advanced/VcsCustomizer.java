@@ -71,6 +71,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         removeConfigButton.setMnemonic(KeyEvent.VK_R);
         //advancedButton.setMnemonic(KeyEvent.VK_A);
         browseButton.setMnemonic(KeyEvent.VK_B);
+        linkLabel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
     }
 
     /** This method is called from within the constructor to
@@ -97,7 +98,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jPanel1 = new javax.swing.JPanel();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel1 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        linkLabel = new javax.swing.JLabel();
         advancedPanel = new javax.swing.JPanel();
         varButton = new javax.swing.JButton();
         cmdButton = new javax.swing.JButton();
@@ -108,21 +109,23 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         lockCheckBox = new javax.swing.JCheckBox();
         promptLockCheckBox = new javax.swing.JCheckBox();
         offLineCheckBox = new javax.swing.JCheckBox();
+        
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
+        
         jTabbedPane1.setTabPlacement(3);
         configPanel.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints2;
+        
         vcsPanel.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints3;
-        configCombo.setNextFocusableComponent(saveAsButton);
         
+        configCombo.setNextFocusableComponent(saveAsButton);
         configCombo.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 configComboItemStateChanged(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints3 = new java.awt.GridBagConstraints();
         gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -132,13 +135,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         saveAsButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.saveAsButton.text"));
         saveAsButton.setNextFocusableComponent(removeConfigButton);
-        
         saveAsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveAsButtonActionPerformed(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints3 = new java.awt.GridBagConstraints();
         gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -147,13 +148,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         removeConfigButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.removeConfigButton.text"));
         removeConfigButton.setNextFocusableComponent(propsPanel);
-        
         removeConfigButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 removeConfigButtonActionPerformed(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints3 = new java.awt.GridBagConstraints();
         gridBagConstraints3.gridx = 2;
@@ -173,6 +172,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         propsPanel.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints4;
+        
         jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.jLabel2.text"));
         gridBagConstraints4 = new java.awt.GridBagConstraints();
         gridBagConstraints4.gridx = 0;
@@ -184,21 +184,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         rootDirTextField.setColumns(15);
         rootDirTextField.setText(".");
         rootDirTextField.setNextFocusableComponent(browseButton);
-        
         rootDirTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rootDirTextFieldActionPerformed(evt);
             }
-        }
-        );
-        
+        });
         
         rootDirTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 rootDirTextFieldFocusLost(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints4 = new java.awt.GridBagConstraints();
         gridBagConstraints4.gridx = 1;
@@ -210,13 +206,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         browseButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.browseButton.text"));
         browseButton.setNextFocusableComponent(refreshTextField);
-        
         browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseButtonActionPerformed(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints4 = new java.awt.GridBagConstraints();
         gridBagConstraints4.gridx = 2;
@@ -230,21 +224,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
         propsPanel.add(relMountLabel, gridBagConstraints4);
         
-        
         relMountTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 relMountTextFieldActionPerformed(evt);
             }
-        }
-        );
-        
+        });
         
         relMountTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 relMountTextFieldFocusLost(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints4 = new java.awt.GridBagConstraints();
         gridBagConstraints4.gridy = 3;
@@ -254,13 +244,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         propsPanel.add(relMountTextField, gridBagConstraints4);
         
         relMountButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountButton.text"));
-        
         relMountButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 relMountButtonActionPerformed(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints4 = new java.awt.GridBagConstraints();
         gridBagConstraints4.gridy = 3;
@@ -275,21 +263,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         propsPanel.add(jLabel4, gridBagConstraints4);
         
         refreshTextField.setText("0");
-        
         refreshTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 refreshTextFieldActionPerformed(evt);
             }
-        }
-        );
-        
+        });
         
         refreshTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 refreshTextFieldFocusLost(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints4 = new java.awt.GridBagConstraints();
         gridBagConstraints4.gridx = 1;
@@ -311,27 +295,34 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         configPanel.add(propsPanel, gridBagConstraints2);
         
         jPanel1.setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints6;
-        gridBagConstraints6 = new java.awt.GridBagConstraints();
-        gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints6.insets = new java.awt.Insets(0, 0, 4, 0);
-        gridBagConstraints6.weightx = 1.0;
-        jPanel1.add(jSeparator1, gridBagConstraints6);
+        java.awt.GridBagConstraints gridBagConstraints5;
+        
+        gridBagConstraints5 = new java.awt.GridBagConstraints();
+        gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints5.insets = new java.awt.Insets(0, 0, 4, 0);
+        gridBagConstraints5.weightx = 1.0;
+        jPanel1.add(jSeparator1, gridBagConstraints5);
         
         jLabel1.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("AdditionalProfilesText"));
         jLabel1.setForeground(java.awt.Color.black);
-        gridBagConstraints6 = new java.awt.GridBagConstraints();
-        gridBagConstraints6.gridy = 1;
-        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints6.weightx = 1.0;
-        jPanel1.add(jLabel1, gridBagConstraints6);
+        gridBagConstraints5 = new java.awt.GridBagConstraints();
+        gridBagConstraints5.gridy = 1;
+        gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints5.weightx = 1.0;
+        jPanel1.add(jLabel1, gridBagConstraints5);
         
-        jLabel3.setText("http://vcsgeneric.netbeans.org/profiles/index.html");
-        gridBagConstraints6 = new java.awt.GridBagConstraints();
-        gridBagConstraints6.gridy = 2;
-        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints6.weightx = 1.0;
-        jPanel1.add(jLabel3, gridBagConstraints6);
+        linkLabel.setText("http://vcsgeneric.netbeans.org/profiles/index.html");
+        linkLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                linkLabelMouseReleased(evt);
+            }
+        });
+        
+        gridBagConstraints5 = new java.awt.GridBagConstraints();
+        gridBagConstraints5.gridy = 2;
+        gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints5.weightx = 1.0;
+        jPanel1.add(linkLabel, gridBagConstraints5);
         
         gridBagConstraints2 = new java.awt.GridBagConstraints();
         gridBagConstraints2.gridy = 2;
@@ -344,147 +335,130 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jTabbedPane1.addTab("Configuration", configPanel);
         
         advancedPanel.setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints5;
-        varButton.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.varButton.text"));
+        java.awt.GridBagConstraints gridBagConstraints6;
         
+        varButton.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.varButton.text"));
         varButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 varButtonActionPerformed(evt);
             }
-        }
-        );
+        });
         
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.insets = new java.awt.Insets(8, 12, 8, 4);
-        gridBagConstraints5.weightx = 1.0;
-        advancedPanel.add(varButton, gridBagConstraints5);
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.insets = new java.awt.Insets(8, 12, 8, 4);
+        gridBagConstraints6.weightx = 1.0;
+        advancedPanel.add(varButton, gridBagConstraints6);
         
         cmdButton.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.cmdButton.text"));
-        
         cmdButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmdButtonActionPerformed(evt);
             }
-        }
-        );
+        });
         
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.insets = new java.awt.Insets(8, 4, 8, 11);
-        gridBagConstraints5.weightx = 1.0;
-        advancedPanel.add(cmdButton, gridBagConstraints5);
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.insets = new java.awt.Insets(8, 4, 8, 11);
+        gridBagConstraints6.weightx = 1.0;
+        advancedPanel.add(cmdButton, gridBagConstraints6);
         
         advancedModeCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.advancedModeCheckBox.text"));
-        
         advancedModeCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 advancedModeCheckBoxActionPerformed(evt);
             }
-        }
-        );
+        });
         
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.gridy = 1;
-        gridBagConstraints5.gridwidth = 2;
-        gridBagConstraints5.insets = new java.awt.Insets(0, 12, 4, 11);
-        gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-        advancedPanel.add(advancedModeCheckBox, gridBagConstraints5);
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridy = 1;
+        gridBagConstraints6.gridwidth = 2;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 12, 4, 11);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(advancedModeCheckBox, gridBagConstraints6);
         
         debugCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.debugCheckBox.text"));
-        
         debugCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 debugCheckBoxActionPerformed(evt);
             }
-        }
-        );
+        });
         
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.gridy = 2;
-        gridBagConstraints5.gridwidth = 2;
-        gridBagConstraints5.insets = new java.awt.Insets(0, 12, 4, 11);
-        gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-        advancedPanel.add(debugCheckBox, gridBagConstraints5);
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridy = 2;
+        gridBagConstraints6.gridwidth = 2;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 12, 4, 11);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(debugCheckBox, gridBagConstraints6);
         
         editCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.editCheckBox.text"));
-        
         editCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editCheckBoxActionPerformed(evt);
             }
-        }
-        );
+        });
         
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.gridy = 3;
-        gridBagConstraints5.gridwidth = 2;
-        gridBagConstraints5.insets = new java.awt.Insets(0, 12, 4, 11);
-        gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-        advancedPanel.add(editCheckBox, gridBagConstraints5);
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridy = 3;
+        gridBagConstraints6.gridwidth = 2;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 12, 4, 11);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(editCheckBox, gridBagConstraints6);
         
         promptEditCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptEditCheckBox.text"));
-        
         promptEditCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 promptEditCheckBoxActionPerformed(evt);
             }
-        }
-        );
+        });
         
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.gridy = 4;
-        gridBagConstraints5.gridwidth = 2;
-        gridBagConstraints5.insets = new java.awt.Insets(0, 32, 4, 11);
-        gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-        advancedPanel.add(promptEditCheckBox, gridBagConstraints5);
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridy = 4;
+        gridBagConstraints6.gridwidth = 2;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 32, 4, 11);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(promptEditCheckBox, gridBagConstraints6);
         
         lockCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.lockCheckBox.text"));
-        
         lockCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lockCheckBoxActionPerformed(evt);
             }
-        }
-        );
+        });
         
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.gridy = 5;
-        gridBagConstraints5.gridwidth = 2;
-        gridBagConstraints5.insets = new java.awt.Insets(0, 12, 4, 11);
-        gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-        advancedPanel.add(lockCheckBox, gridBagConstraints5);
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridy = 5;
+        gridBagConstraints6.gridwidth = 2;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 12, 4, 11);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(lockCheckBox, gridBagConstraints6);
         
         promptLockCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptLockCheckBox.text"));
-        
         promptLockCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 promptLockCheckBoxActionPerformed(evt);
             }
-        }
-        );
+        });
         
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.gridy = 6;
-        gridBagConstraints5.gridwidth = 2;
-        gridBagConstraints5.insets = new java.awt.Insets(0, 32, 4, 11);
-        gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-        advancedPanel.add(promptLockCheckBox, gridBagConstraints5);
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridy = 6;
+        gridBagConstraints6.gridwidth = 2;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 32, 4, 11);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(promptLockCheckBox, gridBagConstraints6);
         
         offLineCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.offLineCheckBox.text"));
-        
         offLineCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 offLineCheckBoxActionPerformed(evt);
             }
-        }
-        );
+        });
         
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.gridy = 7;
-        gridBagConstraints5.gridwidth = 2;
-        gridBagConstraints5.insets = new java.awt.Insets(0, 12, 4, 11);
-        gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints5.weighty = 1.0;
-        advancedPanel.add(offLineCheckBox, gridBagConstraints5);
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridy = 7;
+        gridBagConstraints6.gridwidth = 2;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 12, 4, 11);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints6.weighty = 1.0;
+        advancedPanel.add(offLineCheckBox, gridBagConstraints6);
         
         jTabbedPane1.addTab("Advanced", advancedPanel);
         
@@ -495,6 +469,15 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         add(jTabbedPane1, gridBagConstraints1);
         
     }//GEN-END:initComponents
+
+    private void linkLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_linkLabelMouseReleased
+        // Add your handling code here:
+        try {
+            TopManager.getDefault().showUrl(new java.net.URL(linkLabel.getText()));
+        } catch (java.net.MalformedURLException exc) {
+            TopManager.getDefault().notifyException(exc);
+        }
+    }//GEN-LAST:event_linkLabelMouseReleased
 
     private void cmdButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdButtonActionPerformed
         // Add your handling code here:
@@ -827,7 +810,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel linkLabel;
     private javax.swing.JPanel advancedPanel;
     private javax.swing.JButton varButton;
     private javax.swing.JButton cmdButton;
