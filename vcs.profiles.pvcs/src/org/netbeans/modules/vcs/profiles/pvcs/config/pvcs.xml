@@ -1390,10 +1390,10 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT_DATABASE), ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_CREATE_PROJECT_DATABASE_Label)))
                  PROMPT_FOR(DB_PATH, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Database)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Database);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Database_Mnemonic)),
-                            SELECTOR_DIR)
+                            VALIDATOR_FOLDER, SELECTOR_DIR)
                  PROMPT_FOR(DB_WORK, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Work)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Work);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Work_Mnemonic)),
-                            SELECTOR_DIR)
+                            VALIDATOR_FOLDER, SELECTOR_DIR)
                  PROMPT_FOR(DB_NAME, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_CREATE_PROJECT_DATABASE_Name)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_CREATE_PROJECT_DATABASE_Name);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_CREATE_PROJECT_DATABASE_Name_Mnemonic)))
           </value>
@@ -1414,13 +1414,13 @@ Microsystems, Inc. All Rights Reserved.
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
                  PROMPT_FOR(PROJECT_DB, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Database)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Database);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Database_Mnemonic)),
-                            SELECTOR_DIR)
+                            VALIDATOR_FOLDER, SELECTOR_DIR)
                  PROMPT_FOR(USER_NAME, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_UserName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_UserName_mnc)))
                  PROMPT_FOR(PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Project)", "/",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Project);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Project_Mnemonic)))
+                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Project);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Project_Mnemonic)), VALIDATOR_NON_EMPTY)
                  PROMPT_FOR(WORK_PATH, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Work)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Work);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Work_Mnemonic)),
-                            SELECTOR_DIR)
+                            VALIDATOR_FOLDER, SELECTOR_DIR)
                  ASK_FOR(SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
                  ASK_FOR(WRITABLE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
                  PROMPT_FOR_EXPERT(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))

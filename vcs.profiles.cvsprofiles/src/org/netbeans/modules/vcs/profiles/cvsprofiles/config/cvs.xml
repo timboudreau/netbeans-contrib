@@ -2944,10 +2944,10 @@ Microsystems, Inc. All Rights Reserved.
                  
                  PROMPT_FOR(CVS_REPOSITORY, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Repository):", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_Repository);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INIT_VAR_Repository_Mnemonic)),
-                            SELECTOR_DIR)
+                            VALIDATOR_FOLDER, SELECTOR_DIR)
                  PROMPT_FOR(CVS_EXE, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_EXE):", "${CVS_EXE}",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_EXE);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_EXE_Mnemonic)),
-                            SELECTOR_FILE)
+                            VALIDATOR_NON_EMPTY, SELECTOR_FILE)
           </value>
 	</property>
 	<property name="data.regex">
@@ -2982,7 +2982,7 @@ Microsystems, Inc. All Rights Reserved.
                  
                  PROMPT_FOR(ROOTDIR, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_WORKING_DIR)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_INPUT_WORKING_DIR);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_WORKING_DIR_Mnemonic)),
-                            SELECTOR_DIR)
+                            VALIDATOR_FOLDER, SELECTOR_DIR)
                  <!--PROMPT_FOR(CVS_ROOT, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot):", "$[? CVS_ROOT] [${CVS_ROOT}] [${ENVIRONMENT_VAR_CVSROOT}]",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVSRoot);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot_Mnemonic)))                 -->
                  SELECT_COMBO_EDITABLE(SERVERTYPE, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Type):", "pserver",
@@ -2999,7 +2999,7 @@ Microsystems, Inc. All Rights Reserved.
                         ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_User);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_User_Mnemonic)))
              PROMPT_FOR(CVS_REPOSITORY, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Repository):", "",
                         ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_Repository);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Repository_Mnemonic)),
-                        SELECTOR_DIR)
+                        VALIDATOR_NON_EMPTY, SELECTOR_DIR)
                         
                  SELECT_RADIO(BUILT-IN, "", "true", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_true);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true_Mnemonic))"],
                                             ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_false);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_false_Mnemonic))",
@@ -3124,9 +3124,9 @@ Microsystems, Inc. All Rights Reserved.
                  
                  PROMPT_FOR(ROOTDIR, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_WORKING_DIR)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_IMPORT_WORKING_DIR);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_WORKING_DIR_Mnemonic)),
-                            SELECTOR_DIR)
+                            VALIDATOR_FOLDER, SELECTOR_DIR)
                  PROMPT_FOR(CVS_ROOT, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot):", "$[? CVS_ROOT] [${CVS_ROOT}] [${ENVIRONMENT_VAR_CVSROOT}]",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVSRoot);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot_Mnemonic)))
+                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVSRoot);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot_Mnemonic)), VALIDATOR_NON_EMPTY)
                  PROMPT_FOR(REPOS_DIR, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_ReposDir)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_IMPORT_ReposDir);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_ReposDir_Mnemonic)))
                   SELECT_RADIO(BUILT-IN-GLB, "", "true", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_true);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true_Mnemonic))"],
