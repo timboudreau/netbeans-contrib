@@ -55,9 +55,9 @@ final class JndiObjectCreator {
       }
       code = code + "jndiProperties.put(\"" + name + "\",\"" + value + "\");\n";
     }
-    code = code + "try\n{\n    javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n";
-    code = code + "    Object jndiObject= jndiCtx.lookup(\"" + offset.toString() + "\");\n";
-    code= code + "}catch(javax.naming.NamingException jndiException)\n{}\n";
+    code = code + "try {\n  javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n";
+    code = code + "  Object jndiObject = jndiCtx.lookup(\"" + offset.toString() + "\");\n";
+    code= code + "} catch (javax.naming.NamingException ne) {\n  ne.printStackTrace();\n}\n";
     return code;
   }
 }
