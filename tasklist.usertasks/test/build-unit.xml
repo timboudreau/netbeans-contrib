@@ -51,7 +51,15 @@ Microsystems, Inc. All Rights Reserved.
     <!-- Name of this task is defined in cfg-xxx.xml -->
     <!-- This target executes tests inside IDE -->
     <target name="runidetest">
-        <executeTests pluginName="ide" classpath=""/>
+        <executeTests pluginName="ide" classpath="">
+            <classpath>
+                <pathelement location="../build/classes"/>
+                <pathelement location="../../core/src"/>
+                <pathelement location="../../../nbbuild/netbeans/ide4/modules/autoload/tasklist-api.jar"/>
+                <pathelement location="../../../nbbuild/netbeans/platform4/core/openide.jar"/>
+                <pathelement location="../../../nbbuild/netbeans/platform4/core/openide-loaders.jar"/>
+            </classpath> 
+        </executeTests>
     </target>
     
     <!-- This target is executed from test-executor in newly created Project -->

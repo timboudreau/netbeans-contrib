@@ -100,7 +100,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="nbm" depends="netbeans">
         <makenbm file="../tasklist-editor.nbm"
                  productdir="${netbeans.dest.dir}/${cluster.dir}"
-                 module="${nb.modules.eager.dir}/tasklist-editor.jar"
+                 module="${nb.modules/eager.dir}/tasklist-editor.jar"
                  homepage="http://tasklist.${homepage.base}/updates/tasklist-editor.html"
                  distribution="http://${dist.base}/tasklist-editor.nbm"
                  needsrestart="false">

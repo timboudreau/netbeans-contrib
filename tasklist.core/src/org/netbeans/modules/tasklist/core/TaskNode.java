@@ -47,7 +47,7 @@ public class TaskNode extends AbstractNode {
     private static final Logger LOGGER = TLUtils.getLogger(TaskNode.class);
     
     static {
-        LOGGER.setLevel(Level.OFF);
+        LOGGER.setLevel(Level.FINE);
     }
 
     protected final Task item;
@@ -250,6 +250,7 @@ public class TaskNode extends AbstractNode {
     }
 
     public Transferable clipboardCopy() throws IOException {
+        LOGGER.fine("entering");
         return new ExTransferable.Single(TaskTransfer.TODO_FLAVOR) {
             protected Object getData() {
                 return item.clone();

@@ -39,6 +39,7 @@ Microsystems, Inc. All Rights Reserved.
     <testbag testattribs="x-stable" executor="ide" name="Unit tests running in the IDE">
         <testset dir="unit/src">
             <patternset>
+                <include name="org/netbeans/modules/tasklist/usertasks/UserTaskViewTest.class"/>
            </patternset>
         </testset>
     </testbag>

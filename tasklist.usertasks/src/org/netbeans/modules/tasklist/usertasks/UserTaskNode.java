@@ -335,6 +335,7 @@ final class UserTaskNode extends AbstractNode {
     }
     
     protected void createPasteTypes(java.awt.datatransfer.Transferable t, List s) {
+        UTUtils.LOGGER.fine("entering");
         super.createPasteTypes(t, s);
         PasteType p = createTodoPasteType(t, (UserTask) item);
         if (p != null) {
@@ -351,6 +352,7 @@ final class UserTaskNode extends AbstractNode {
      */
     public static PasteType createTodoPasteType(
     Transferable t, UserTask parent) {
+        UTUtils.LOGGER.fine("entering");
         if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
             try {
                 // Multiselection
@@ -396,6 +398,7 @@ final class UserTaskNode extends AbstractNode {
     }
     
     public Transferable clipboardCopy() throws IOException {
+        UTUtils.LOGGER.fine("entering");
         return new ExTransferable.Single(TaskTransfer.TODO_FLAVOR) {
             protected Object getData() {
                 return item.clone();
@@ -468,6 +471,8 @@ final class UserTaskNode extends AbstractNode {
                 } 
                 
                 if (t.isDataFlavorSupported(TaskTransfer.TODO_FLAVOR)) {
+                    UTUtils.LOGGER.fine(t.getTransferData(
+                        TaskTransfer.TODO_FLAVOR).getClass().getName());
                     UserTask item = 
                         (UserTask) t.getTransferData(TaskTransfer.TODO_FLAVOR);
                     addTask(item);

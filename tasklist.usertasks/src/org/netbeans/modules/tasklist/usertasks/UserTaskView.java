@@ -191,7 +191,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public SystemAction[] getToolBarActions() {
         return new SystemAction[] {
             SystemAction.get(NewTaskAction.class),
-            SystemAction.get(DeleteAction.class),
             SystemAction.get(GoToTaskAction.class),
             SystemAction.get(FilterAction.class),
             SystemAction.get(RemoveFilterAction.class),

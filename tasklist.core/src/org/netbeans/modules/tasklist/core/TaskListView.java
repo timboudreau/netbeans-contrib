@@ -197,6 +197,18 @@ public abstract class TaskListView extends TopComponent
      * Common part for all constructors
      */
     private void init_() {
+        manager = new ExplorerManager();
+        ActionMap map = getActionMap();
+        map.put(javax.swing.text.DefaultEditorKit.copyAction, 
+            ExplorerUtils.actionCopy(manager));
+        map.put(javax.swing.text.DefaultEditorKit.cutAction, 
+            ExplorerUtils.actionCut(manager));
+        map.put(javax.swing.text.DefaultEditorKit.pasteAction, 
+            ExplorerUtils.actionPaste(manager));
+        map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
+
+        // following line tells the top component which lookup should be associated with it
+        associateLookup(ExplorerUtils.createLookup(manager, map));
     }
 
     public int getPersistenceType() {
@@ -210,21 +222,6 @@ public abstract class TaskListView extends TopComponent
     }
 
     public ExplorerManager getExplorerManager() {
-        if (manager == null) {
-            // replacement for subclassing ExplorerPanel
-            manager = new ExplorerManager();
-            ActionMap map = getActionMap();
-            map.put(javax.swing.text.DefaultEditorKit.copyAction, 
-                ExplorerUtils.actionCopy(manager));
-            map.put(javax.swing.text.DefaultEditorKit.cutAction, 
-                ExplorerUtils.actionCut(manager));
-            map.put(javax.swing.text.DefaultEditorKit.pasteAction, 
-                ExplorerUtils.actionPaste(manager));
-            map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
-            
-            // following line tells the top component which lookup should be associated with it
-            associateLookup(ExplorerUtils.createLookup(manager, map));
-        }
         return manager;
     }
 
