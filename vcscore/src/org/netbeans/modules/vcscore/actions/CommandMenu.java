@@ -52,6 +52,7 @@ import org.netbeans.modules.vcscore.VcsFSCommandsAction;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.commands.RecursionAwareCommand;
+import org.netbeans.modules.vcscore.commands.RecursionAwareCommandSupport;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -77,8 +78,10 @@ import org.openide.util.SharedClassObject;
  * setting them to GUI mode, informing integrity support, running
  * command customization and waiting on <code>Command.execute()</code>.
  * <p>
- * XXX getApplicableFiles() is called two times, it probably
- * somehow links to command cloning mentioned above.
+ * getApplicableFiles() is called on CommandSupport when the menu is constructed
+ * to know whether the command should be displayed on the popup or not.
+ * Later it's called right before the command is executed to know on which files
+ * the command can be actually executed.
  *
  * @author  Martin Entlicher
  */
@@ -176,6 +179,14 @@ public class CommandMenu extends JMenuPlus {
             }
             allFiles = (FileObject[]) files.toArray(new FileObject[files.size()]);
         }
+        boolean nonRecursive = true; // Whether we're in non-recursive mode
+        for (Iterator it = filesWithInfo.values().iterator(); it.hasNext(); ) {
+            Object fileInfo = it.next();
+            if (fileInfo != NonRecursiveFolder.class) {
+                nonRecursive = false;
+                break;
+            }
+        }
         Map multiCommandsByDisplayName = getMultiCommandsByDisplayName(children, allFiles);
         Set addedDisplayNames = new HashSet();
         for (int i = 0; i < children.length; i++) {
@@ -191,7 +202,8 @@ public class CommandMenu extends JMenuPlus {
             String displayName = cmd.getDisplayName();
             //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
             if (displayName == null) continue;
-            if (removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
+            if (removeDisabled && (cmd.getApplicableFiles(allFiles) == null ||
+                                   !isRecursivnessMatched(nonRecursive, cmd))) {
                 continue;
             }
             if (willAddSeparator) {
@@ -230,11 +242,24 @@ public class CommandMenu extends JMenuPlus {
                 }
                 add(item);
             }
-            if (!removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
+            if (!removeDisabled && (cmd.getApplicableFiles(allFiles) == null ||
+                                    !isRecursivnessMatched(nonRecursive, cmd))) {
                 item.setEnabled(false);
             }
         }
         popupCreated = true;
+    }
+    
+    private static boolean isRecursivnessMatched(boolean nonRecursive, CommandSupport cmd) {
+        if (nonRecursive) {
+            if (cmd instanceof RecursionAwareCommandSupport) {
+                return ((RecursionAwareCommandSupport) cmd).canProcessFoldersNonRecursively();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
     
     private static Map getMultiCommandsByDisplayName(CommandsTree[] children,

@@ -147,6 +147,13 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String PROPERTY_ON_DIR = "onDir";
     /**
+     * A boolean property, if true, the command can act on non recursive folders.
+     * In terms of {@link org.netbeans.api.fileinfo.NonRecursiveFolder}.
+     * When the command is executed on a non-recursive folder, recursionBanned
+     * variable will be set to "true".
+     */
+    public static final String PROPERTY_ON_NON_RECURSIVE_DIR = "onNonRecursiveDir";
+    /**
      * A boolean property, if true, the command can act on the root of the filesystem,
      * if false, the command can act everywhere but on the root.
      */

@@ -73,6 +73,7 @@ import org.netbeans.modules.vcscore.commands.ActionCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.RecursionAwareCommand;
+import org.netbeans.modules.vcscore.commands.RecursionAwareCommandSupport;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.TextErrorListener;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
@@ -94,7 +95,8 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  * @author  Martin Entlicher
  */
 public class UserCommandSupport extends CommandSupport implements java.security.PrivilegedAction,
-                                                                  ActionCommandSupport {
+                                                                  ActionCommandSupport,
+                                                                  RecursionAwareCommandSupport {
     /**
      * The list of variables, that contains file paths which will be clonned
      * when a next command is created.
@@ -390,6 +392,15 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 return null;
             }
         }
+        Command command = getCommand();
+        if (command != null) {
+            if (((RecursionAwareCommand) command).isRecursionBanned() &&
+                VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_NON_RECURSIVE_DIR) == false) {
+
+                // We have disabled recursion, but the command can not run on non-recursive folders.
+                return null;
+            }
+        }
         if (executionContext instanceof VcsFileSystem) {
             files = VcsUtilities.convertFileObjects(files);
         }
@@ -399,6 +410,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //Thread.dumpStack();
         return appFiles;
         //return files;
+    }
+    
+    public boolean canProcessFoldersNonRecursively() {
+        return VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_NON_RECURSIVE_DIR);
     }
     
     protected Object clone() throws CloneNotSupportedException {
