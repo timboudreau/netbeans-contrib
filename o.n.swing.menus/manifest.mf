@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.swing.menus
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Layer: org/netbeans/swing/menus/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/swing/menus/Bundle.properties
+OpenIDE-Module-Install: org/netbeans/swing/menus/Install.class
