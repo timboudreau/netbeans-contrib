@@ -57,11 +57,11 @@ public class ClazzNodeTest extends JellyTestCase {
     
     public static NbTestSuite suite() {
         NbTestSuite suite = new NbTestSuite();
-//        suite.addTest(new ClazzNodeTest("testCopyPasteCopy")); //NOI18N
-//        suite.addTest(new ClazzNodeTest("testCopyPasteCreateLink")); //NOI18N
-//        suite.addTest(new ClazzNodeTest("testCopyPasteSerialize")); //NOI18N
+        suite.addTest(new ClazzNodeTest("testCopyPasteCopy")); //NOI18N
+        suite.addTest(new ClazzNodeTest("testCopyPasteCreateLink")); //NOI18N
+        suite.addTest(new ClazzNodeTest("testCopyPasteSerialize")); //NOI18N
         suite.addTest(new ClazzNodeTest("testCopyPasteDefaultInstance")); //NOI18N
-//        suite.addTest(new ClazzNodeTest("testCutPasteCopy")); //NOI18N
+        suite.addTest(new ClazzNodeTest("testCutPasteCopy")); //NOI18N
         return suite;
     }
     
