@@ -329,14 +329,17 @@ public class CommandExecutorSupport extends Object {
                 String file = VcsUtilities.getFileNamePart(fullPath);
                 //System.out.println("  fullPath = "+fullPath+", dir = "+dir+", file = "+file);
                 Boolean recursively[] = { Boolean.FALSE };
-                String folderName = getFolderToRefresh(fileSystem, vce.getExec(),
-                                                       cmd, dir, file, foldersOnly,
-                                                       doRefreshCurrent, doRefreshParent,
-                                                       recursively);
-                if (folderName != null) {
-                    Boolean rec = (Boolean) foldersToRefresh.get(folderName);
-                    if (!Boolean.TRUE.equals(rec)) {
-                        foldersToRefresh.put(folderName, recursively[0]);
+                String[] folderNames = getFolderToRefresh(fileSystem, vce.getExec(),
+                                                          cmd, dir, file, foldersOnly,
+                                                          doRefreshCurrent, doRefreshParent,
+                                                          recursively);
+                if (folderNames != null) {
+                    for (int i = 0; i < folderNames.length; i++) {
+                        String folderName = folderNames[i];
+                        Boolean rec = (Boolean) foldersToRefresh.get(folderName);
+                        if (!Boolean.TRUE.equals(rec)) {
+                            foldersToRefresh.put(folderName, recursively[0]);
+                        }
                     }
                 }
             }
@@ -348,10 +351,10 @@ public class CommandExecutorSupport extends Object {
      * @param recursively [0] is filled by the method
      * @return dir[+file] converted to FS path or <code>null</code>
      */
-    private static String getFolderToRefresh(VcsFileSystem fileSystem, String exec,
-                                             VcsCommand cmd, String dir, String file,
-                                             boolean foldersOnly, boolean doRefreshCurrent,
-                                             boolean doRefreshParent, Boolean[] recursively) {
+    private static String[] getFolderToRefresh(VcsFileSystem fileSystem, String exec,
+                                               VcsCommand cmd, String dir, String file,
+                                               boolean foldersOnly, boolean doRefreshCurrent,
+                                               boolean doRefreshParent, Boolean[] recursively) {
 
         FileCacheProvider cache = fileSystem.getCacheProvider();
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
@@ -362,7 +365,15 @@ public class CommandExecutorSupport extends Object {
             String refreshPath = dir;//(String) vars.get("DIR");
             refreshPath.replace(java.io.File.separatorChar, '/');
             String refreshPathFile = refreshPath + ((refreshPath.length() > 0) ? "/" : "") + file; //(String) vars.get("FILE");
-            if (!doRefreshParent && cache != null && cache.isDir(refreshPathFile)) refreshPath = refreshPathFile;
+            String[] refreshPaths = null;
+            if (cache != null && cache.isDir(refreshPathFile)) {
+                if (doRefreshCurrent && doRefreshParent) {
+                    refreshPaths = new String[] { refreshPath, refreshPathFile };
+                } else if (!doRefreshParent) {
+                    refreshPath = refreshPathFile;
+                }
+            }
+            //if (!doRefreshParent && cache != null && cache.isDir(refreshPathFile)) refreshPath = refreshPathFile;
             String patternMatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
             String patternUnmatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED);
             boolean rec = (exec != null
@@ -372,9 +383,11 @@ public class CommandExecutorSupport extends Object {
                     || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
             recursively[0] = (rec) ? Boolean.TRUE : Boolean.FALSE;
             //System.out.println("  !foldersOnly = "+(!foldersOnly)+", cache.isDir("+refreshPath+") = "+cache.isDir(refreshPath));
-            if (!foldersOnly || cache.isDir(refreshPath)) {
+            if (refreshPaths != null) {
+                return refreshPaths;
+            } else if (!foldersOnly || cache.isDir(refreshPath)) {
                 //System.out.println("  CALLING REFRESH!");
-                return refreshPath;
+                return new String[] { refreshPath };
             } else {
                 return null;
             }
