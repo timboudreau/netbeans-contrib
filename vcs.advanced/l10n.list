@@ -5,4 +5,5 @@ vcsgeneric/src/org/netbeans/modules/vcs/advanced/config/vcs/commands/passwd/Bund
 vcsgeneric/src/org/netbeans/modules/vcs/advanced/config/vcs/config/Bundle.properties
 vcsgeneric/src/org/netbeans/modules/vcs/advanced/config/vcs/list/Bundle.properties
 vcsgeneric/src/org/netbeans/modules/vcs/advanced/variables/Bundle.properties
+vcsgeneric/src/org/netbeans/modules/vcs/advanced/wizard/mount/Bundle.properties
 
