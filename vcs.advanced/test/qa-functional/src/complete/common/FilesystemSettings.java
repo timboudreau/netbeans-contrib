@@ -121,15 +121,6 @@ public class FilesystemSettings extends NbTestCase {
         operator.selectPath(path);
     }
 
-    /** Creates certain testing contents of the filesystem.
-     * @throws Any unexpected exception thrown during test.
-     */
-    public void createContents() throws Exception {
-        createFile(workingDirectory + File.separator + "A_File.java", true);
-        createFile(workingDirectory + File.separator + "A_File.class", true);
-        api.getFilesystemsTab();
-        APIController.sleep(20000);
-    }
     /** Creates new file or directory at given place.
      * @param name Name of directory or file to create.
      * @param isFile Should file be created or directory ?
@@ -177,16 +168,18 @@ public class FilesystemSettings extends NbTestCase {
         workingDirectory = getWorkDir().getAbsolutePath();
         filesystem = "Empty " + workingDirectory;
         mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+        createFile(workingDirectory + File.separator + "A_File.java", true);
+        createFile(workingDirectory + File.separator + "A_File.class", true);
         APIController.sleep(2000);
-        createContents();
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         filesystemNode.expand();
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        explorer.pushPopupMenu("Properties", filesystem);
-        PropertiesWindow properties = new PropertiesWindow(filesystem);
+        new Action("View|Properties", null).perform(filesystemNode);
         String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_annotationPattern");
-        properties.edit(property);
-        properties.setText(">> ${fileName} $[? attribute][[Yes]][[No]] <<");
+        PropertySheetOperator sheet = new PropertySheetOperator();
+        StringProperty annotationPattern = new StringProperty(sheet.getPropertySheetTabOperator("Properties"), property);
+        annotationPattern.setValue(">> ${fileName} $[? attribute][[Yes]][[No]] <<");
+        TextFieldProperty refreshTime = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Refresh Time For Local Files [ms]");
+        refreshTime.setValue("1000");
         new Action("Versioning|Empty|Refresh", "Empty|Refresh").perform(filesystemNode);
         String node = filesystem + "|>> A_File [No] <<";
         assertNotNull("Can't select " + node, api.getFilesystemsTab().selectNode(node));
@@ -207,12 +200,12 @@ public class FilesystemSettings extends NbTestCase {
         selectNode(new String[] {filesystem, "A_File"}, false);
         MainFrame.getMainFrame().pushMenuNoBlock(VERSIONING_MENU + "|CVS|Editing|Edit");
         new JelloOKOnlyDialog("Information").ok();
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        explorer.pushPopupMenu("Properties", filesystem);
-        PropertiesWindow properties = new PropertiesWindow(filesystem);
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        new Action("View|Properties", null).perform(filesystemNode);
         String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_commandNotification");
-        properties.edit(property);
-        properties.setFalse();
+        PropertySheetOperator sheet = new PropertySheetOperator();
+        ComboBoxProperty commandNotification = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), property);
+        commandNotification.setValue("False");
         selectNode(new String[] {filesystem, "A_File"}, false);
         MainFrame.getMainFrame().pushMenuNoBlock(VERSIONING_MENU + "|CVS|Editing|Edit");
         long oldTimeout = JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
@@ -237,14 +230,12 @@ public class FilesystemSettings extends NbTestCase {
         filesystem = "Empty " + workingDirectory;
         mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
         APIController.sleep(2000);
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        explorer.pushPopupMenu("Properties", filesystem);
-        PropertiesWindow properties = new PropertiesWindow(filesystem);
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        new Action("View|Properties", null).perform(filesystemNode);
         String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_processAllFiles");
-        properties.edit(property);
-        properties.setTrue();
-        properties.close();
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
+        PropertySheetOperator sheet = new PropertySheetOperator();
+        ComboBoxProperty processAllFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), property);
+        processAllFiles.setValue("True");
         selectNode(new String[] {filesystem, "A_File"}, false);
         MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Lock");
         RuntimeTabOperator explorer = new ExplorerOperator().runtimeTab();
@@ -256,16 +247,13 @@ public class FilesystemSettings extends NbTestCase {
             Node command = new Node(commandsHistory, i);
             if (!command.getText().equals("Lock")) continue;
             command.select();
-            PropertiesAction propertiesAction = new PropertiesAction();
-            propertiesAction.perform(command);
-            PropertySheetOperator sheet = new PropertySheetOperator();
+            new Action("View|Properties", null).perform(command);
+            sheet = new PropertySheetOperator();
             StringProperty files = new StringProperty(sheet.getPropertySheetTabOperator("Properties"), "Processed Files");
             if (files.getStringValue().equals("A_File.class")) {
                 found = true;
-                sheet.close();
                 break;
             }
-            sheet.close();
         }
         if (!found) {
             captureScreen();
@@ -293,12 +281,10 @@ public class FilesystemSettings extends NbTestCase {
         filesystemNode.tree().expandPath(filesystemNode.getTreePath());
         Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
         fileNode.select();
-        PropertiesAction propertiesAction = new PropertiesAction();
-        propertiesAction.perform(filesystemNode);
+        new Action("View|Properties", null).perform(filesystemNode);
         PropertySheetOperator sheet = new PropertySheetOperator();
         StringProperty ignoredFiles = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "Ignored Files");
         ignoredFiles.setStringValue("A_File");
-        sheet.close();
         api.getFilesystemsTab();
         filesystemNode.select();
         if (filesystemNode.getChildren().length != 0) {
@@ -321,17 +307,19 @@ public class FilesystemSettings extends NbTestCase {
         APIController.sleep(2000);
         RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
         Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
-        filesystemNode.tree().expandPath(filesystemNode.getTreePath());
-        if (filesystemNode.getChildren().length != 1) {
+        filesystemNode.expand();
+        Thread.sleep(1000);
+        int count = filesystemNode.getChildren().length;
+        if (count != 1) {
             captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
             String children = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: There are more nodes except A_File." + children);
+            throw new Exception("Error: There are more nodes except A_File. " + count);
         }
-        PropertiesAction propertiesAction = new PropertiesAction();
-        propertiesAction.perform(filesystemNode);
+        filesystemNode.select();
+        new Action("View|Properties", null).perform();
         PropertySheetOperator sheet = new PropertySheetOperator();
         PropertySheetTabOperator expertTab;
         try {
@@ -349,8 +337,7 @@ public class FilesystemSettings extends NbTestCase {
         filterBackupFiles.setValue("False");
         createBackupFiles.setValue("False");
         refreshTime.setValue("5000");
-        sheet.close();
-        APIController.sleep(10000);
+        APIController.sleep(5000);
         if (filesystemNode.getChildren().length != 1) {
             captureScreen();
             api.getFilesystemsTab();
@@ -359,9 +346,8 @@ public class FilesystemSettings extends NbTestCase {
             new UnmountFSAction().perform(filesystemNode);
             throw new Exception("Error: Some backup files appeared unintentionally." + children);
         }
-        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
-        OpenAction openAction = new OpenAction();
-        openAction.perform(fileNode);
+        Node fileNode = new Node(filesystemNode, "A_File");
+        new OpenAction().perform(fileNode);
         EditorOperator editor = new EditorOperator("A_File");
         editor.insert("// The first added line.\n");
         new SaveAction().perform();
@@ -374,7 +360,7 @@ public class FilesystemSettings extends NbTestCase {
             new UnmountFSAction().perform(filesystemNode);
             throw new Exception("Error: Create backup files does not work." + children);
         }
-        propertiesAction.perform(filesystemNode);
+        filesystemNode.select();
         sheet = new PropertySheetOperator();
         try {
             expertTab = sheet.getPropertySheetTabOperator("Expert");
@@ -399,7 +385,7 @@ public class FilesystemSettings extends NbTestCase {
             new UnmountFSAction().perform(filesystemNode);
             throw new Exception("Error: Backup files properties do not work." + children);
         }
-        propertiesAction.perform(filesystemNode);
+        filesystemNode.select();
         sheet = new PropertySheetOperator();
         try {
             expertTab = sheet.getPropertySheetTabOperator("Expert");
@@ -412,7 +398,6 @@ public class FilesystemSettings extends NbTestCase {
         }
         filterBackupFiles = new ComboBoxProperty(expertTab, "Filter Backup Files");
         filterBackupFiles.setValue("True");
-        sheet.close();
         APIController.sleep(10000);
         api.getFilesystemsTab();
         filesystemNode.select();
@@ -431,14 +416,18 @@ public class FilesystemSettings extends NbTestCase {
      */
     public void testRefreshTime() throws Exception {
         System.out.print(".. Testing refresh time property ..");
-        filesystem = "Empty " + workingDirectory;
+        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+        String[] filesystems = explorer.getRootNode().getChildren();
+        int count = filesystems.length;
+        for(int i=0; i<count; i++)
+            if (filesystems[i].startsWith("Empty "))
+                new UnmountFSAction().perform(new Node(explorer.getRootNode(), filesystems[i]));
         mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
         APIController.sleep(2000);
-        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+        filesystem = "Empty " + workingDirectory;
         Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
-        filesystemNode.tree().expandPath(filesystemNode.getTreePath());
-        PropertiesAction propertiesAction = new PropertiesAction();
-        propertiesAction.perform(filesystemNode);
+        filesystemNode.expand();
+        new Action("View|Properties", null).perform(filesystemNode);
         PropertySheetOperator sheet = new PropertySheetOperator();
         PropertySheetTabOperator expertTab;
         try {
@@ -451,17 +440,16 @@ public class FilesystemSettings extends NbTestCase {
             throw new Exception("Error: Can't find Expert property tab.");
         }
         TextFieldProperty refreshTime = new TextFieldProperty(expertTab, "Refresh Time For Local Files [ms]");
-        refreshTime.setValue("0");
-        sheet.close();
+        refreshTime.setValue("1000");
         createFile(workingDirectory + File.separator + "B_File.java", true);
-        Thread.sleep(15000);
+        Thread.sleep(2000);
         String[] children = filesystemNode.getChildren();
-        int count = children.length;
+        count = children.length;
         boolean found = false;
         for(int i=0; i<count; i++) if (children[i].startsWith("B_File")) found = true;
         api.getFilesystemsTab();
         filesystemNode.select();
-        if (found) {
+        if (!found) {
             captureScreen();
             String childs = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
@@ -476,6 +464,12 @@ public class FilesystemSettings extends NbTestCase {
      */
     public void testHideShadowFiles() throws Exception {
         System.out.print(".. Testing hide shadow files property ..");
+        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+        String[] filesystems = explorer.getRootNode().getChildren();
+        int count = filesystems.length;
+        for(int i=0; i<count; i++)
+            if (filesystems[i].startsWith("Empty "))
+                new UnmountFSAction().perform(new Node(explorer.getRootNode(), filesystems[i]));
         MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
         VCSWizardProfile profilePage = new VCSWizardProfile();
         filesystem = "Empty " + workingDirectory;
@@ -499,15 +493,13 @@ public class FilesystemSettings extends NbTestCase {
         commandEditor.ok();
         advancedPage.finish();
         APIController.sleep(2000);
-        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
         Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
         filesystemNode.tree().expandPath(filesystemNode.getTreePath());
         filesystemNode.select();
         MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Refresh");
         Node fileNode = new Node(filesystemNode, "C_File");
         fileNode.select();
-        PropertiesAction propertiesAction = new PropertiesAction();
-        propertiesAction.perform(filesystemNode);
+        new Action("View|Properties", null).perform(filesystemNode);
         sheet = new PropertySheetOperator();
         PropertySheetTabOperator expertTab;
         try {
@@ -521,12 +513,11 @@ public class FilesystemSettings extends NbTestCase {
         }
         ComboBoxProperty hideShadowFiles = new ComboBoxProperty(expertTab, "Hide Shadow Files");
         hideShadowFiles.setValue("True");
-        sheet.close();
         filesystemNode.select();
         MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Refresh");
         APIController.sleep(1000);
         String[] children = filesystemNode.getChildren();
-        int count = children.length;
+        count = children.length;
         boolean found = false;
         for(int i=0; i<count; i++) if (children[i].startsWith("C_File")) found = true;
         api.getFilesystemsTab();
