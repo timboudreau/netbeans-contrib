@@ -1437,11 +1437,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Gets the default factory {@link DefaultVcsFactory}. Subclasses may override this to return different instance of {@link VcsFactory}.
      */
     public VcsFactory getVcsFactory () {
-        if (factory == null) {
-            synchronized (this) {
-                if (factory == null) {
-                    factory = new DefaultVcsFactory(this);
-                }
+        synchronized (this) {
+            if (factory == null) {
+                factory = new DefaultVcsFactory(this);
             }
         }
         return factory;
