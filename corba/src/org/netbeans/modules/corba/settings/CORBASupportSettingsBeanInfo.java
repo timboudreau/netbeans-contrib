@@ -18,7 +18,9 @@ import java.beans.*;
 import java.util.ResourceBundle;
 
 import com.netbeans.ide.util.NbBundle;
-import com.netbeans.developer.editors.FileOnlyEditor;
+//import com.netbeans.developer.editors.FileOnlyEditor;
+import com.netbeans.developer.editors.NbProcessDescriptorEditor;
+
 
 /** BeanInfo for CORBASupportSettings - defines property editor
 *
@@ -114,7 +116,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    desc[12].setExpert (true);
 	    desc[13].setDisplayName (CORBASupport.bundle.getString ("PROP_IDL"));
             desc[13].setShortDescription (CORBASupport.bundle.getString ("HINT_IDL"));
-            desc[13].setPropertyEditorClass (FileOnlyEditor.class);
+            desc[13].setPropertyEditorClass (NbProcessDescriptorEditor.class);
 	    desc[13].setExpert (true);
 	    desc[14].setDisplayName ("Template table");
 	    desc[14].setExpert (true);
@@ -155,6 +157,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         5/28/99  Karel Gardas    
  *  5    Gandalf   1.4         5/22/99  Karel Gardas    
  *  4    Gandalf   1.3         5/15/99  Karel Gardas    
  *  3    Gandalf   1.2         5/8/99   Karel Gardas    

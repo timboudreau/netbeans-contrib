@@ -18,6 +18,7 @@ import java.io.*;
 import com.netbeans.ide.options.SystemOption;
 //import com.netbeans.ide.options.ContextSystemOption;
 import com.netbeans.ide.util.NbBundle;
+import com.netbeans.ide.execution.NbProcessDescriptor;
 
 import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
 
@@ -73,7 +74,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
    public static String _test;
     
-   public static File idl;
+   //public static File idl;
+   public static NbProcessDescriptor idl;
     
    public static String _tie_param;
 
@@ -107,6 +109,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
    String addition = "";
 
+   private boolean deserealization;
+
    /** @return human presentable name */
    public String displayName() {
       return CORBASupport.bundle.getString("CTL_CORBASupport_options");
@@ -126,6 +130,14 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       //addOption (getCORBASupportAdvancedSettings ());
       //      setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
       //this.getCookieSet.add (UpdateCookie.class);
+   }
+
+   public void readExternal (ObjectInput in) 
+      throws java.io.IOException, 
+	     java.lang.ClassNotFoundException {
+      deserealization = true;
+      super.readExternal (in);
+      deserealization = false;
    }
 
    public void propertyChange (PropertyChangeEvent event) {
@@ -180,7 +192,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       String old = "";
       orb = s;
       try {
-	 firePropertyChange ("orb", old, orb);
+	 if (!deserealization)
+	    firePropertyChange ("orb", old, orb);
       } catch (Exception e) {
 	 e.printStackTrace ();
       }
@@ -306,17 +319,25 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
     
    // advanced settings
-   public File getIdl () {
+   public NbProcessDescriptor getIdl () {
       return idl;
    }
 
    public static String idl () {
-      return idl.getPath ();
+      return idl.getProcessName ();
    }
 
-   public void setIdl (File s) {
-      File old = idl;
+   public void setIdl (NbProcessDescriptor s) {
+      //System.out.println ("setIdl :-)");
+      NbProcessDescriptor old = idl;
       idl = s;
+      //System.out.println ("switch: " + idl.getClasspathSwitch ());
+      int length = idl.getProcessArgs ().length;
+      String[] params = idl.getProcessArgs ();
+      //for (int i=0; i<length; i++)
+      //	 System.out.println ("param[" + i + "]: " + params[i]);
+      
+      //Thread.dumpStack ();
       firePropertyChange ("idl", old, idl);
    }
 
@@ -476,6 +497,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       Properties props = new Properties ();
       try {
 	 props.load (new StringBufferInputStream(_table));
+	 //props.load (new StringReader (_table));
       }
       catch (IOException e) {
       }
@@ -591,8 +613,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       String new_dir = "";
       String new_package = "";
       String new_tie = "";
-      File old_idl = getIdl ();
-      File new_idl = new File ("noname_idl");
+      NbProcessDescriptor old_idl = getIdl ();
+      NbProcessDescriptor new_idl = null;
       String old_delimiter = getPackageDelimiter();
       String new_delimiter = ".";
 	
@@ -613,7 +635,10 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       new_tie = ((Properties)props.elementAt (index)).getProperty ("TIE_PARAM");
       new_dir = ((Properties)props.elementAt (index)).getProperty ("DIR_PARAM");
       new_package = ((Properties)props.elementAt (index)).getProperty ("PACKAGE_PARAM");
-      new_idl = new File (((Properties)props.elementAt (index)).getProperty ("COMPILER"));
+
+      String[] tmp1 = new String[] {NbProcessDescriptor.CP_REPOSITORY};
+
+      new_idl = new NbProcessDescriptor ( (String)((Properties)props.elementAt (index)).getProperty ("COMPILER"), NbProcessDescriptor.NO_SWITCH, tmp1);
       new_expression = ((Properties)props.elementAt (index)).getProperty ("ERROR_EXPRESSION");
       new_file = ((Properties)props.elementAt (index)).getProperty ("FILE_POSITION");
       new_line = ((Properties)props.elementAt (index)).getProperty ("LINE_POSITION");

@@ -80,6 +80,7 @@ public class OrbPropertyEditor extends PropertyEditorSupport {
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         5/28/99  Karel Gardas    
  *  5    Gandalf   1.4         5/22/99  Karel Gardas    fixed for reading 
  *       configuration from implementations files
  *  4    Gandalf   1.3         5/15/99  Karel Gardas    
