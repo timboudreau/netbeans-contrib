@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Collections;
 import java.lang.ref.SoftReference;
 
+import com.netbeans.ide.util.Task;
 import com.netbeans.ide.src.*;
 
 /** The implementation of source element for class objects.
@@ -30,7 +31,7 @@ public final class SourceElementImpl extends MemberElementImpl
                                      implements SourceElement.Impl {
 
   /** Empty array of imports - constant to return fro getImports() */
-  private static final Import[] EMPTY_IMPORTS = new Import[0];
+  static final Import[] EMPTY_IMPORTS = new Import[0];
 
   /* Soft reference to the class element */
   private SoftReference topClass;
@@ -118,6 +119,18 @@ public final class SourceElementImpl extends MemberElementImpl
     return (ClassElement[])allClassesMap.values().toArray();
   }
 
+  /** @return Always returns STATUS_OK, 'cause we always have the class...
+  */
+  public int getStatus () {
+    return SourceElement.STATUS_OK;
+  }
+
+  /** Returns empty task, because we don't need any preparation.
+  */
+  public Task prepare () {
+    return Task.EMPTY;
+  }
+
   /************* utility methods *********/
 
   /** Returns class element for asociated class data.
@@ -160,6 +173,7 @@ public final class SourceElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  2    src-jtulach1.1         2/11/99  David Simonek   
 *  1    src-jtulach1.0         1/29/99  David Simonek   
 * $
 */
