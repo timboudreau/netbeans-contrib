@@ -250,6 +250,8 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     /**
      * Returns subtasks of this task
      *
+     * @todo all usages require iterator() or size() calls only, so it could be replaced by
+     *       subtasksIterator and subtasksCount methods.
      * @return children
      */
     public List getSubtasks() {
@@ -299,7 +301,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * @param position position for the subtask
      * @param subtask The subtask to be added
      */
-    public void addSubtask(int position, Task subtask) {
+    private void addSubtask(int position, Task subtask) {
         subtask.parent = this;
         if (subtasks == null) {
             subtasks = new LinkedList();
