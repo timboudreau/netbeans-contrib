@@ -116,16 +116,17 @@ final class Repository {
 
 
                 ((VcsDescribedCommand) cmd).addDirReaderListener(TurboUtil.dirReaderListener(fsystem));
-                VcsManager.getDefault().showCustomizer(cmd);
-                CommandTask task = cmd.execute();
-                try {
-                    task.waitFinished(0);
-                    int exitStatus = task.getExitStatus();
-                    return exitStatus == CommandTask.STATUS_SUCCEEDED;
-                } catch (InterruptedException e) {
-                    return false;
-                } finally {
-                    if (task.isRunning()) task.stop();
+                if (VcsManager.getDefault().showCustomizer(cmd)) {
+                    CommandTask task = cmd.execute();
+                    try {
+                        task.waitFinished(0);
+                        int exitStatus = task.getExitStatus();
+                        return exitStatus == CommandTask.STATUS_SUCCEEDED;
+                    } catch (InterruptedException e) {
+                        return false;
+                    } finally {
+                        if (task.isRunning()) task.stop();
+                    }
                 }
             }
         }
@@ -173,17 +174,17 @@ final class Repository {
                     cmd.setGUIMode(false);
 
                     ((VcsDescribedCommand) cmd).addDirReaderListener(TurboUtil.dirReaderListener(fsystem));
-                    VcsManager.getDefault().showCustomizer(cmd);
-                    CommandTask task = cmd.execute();
-
-                    try {
-                        task.waitFinished(0);
-                        int exitStatus = task.getExitStatus();
-                        return exitStatus == CommandTask.STATUS_SUCCEEDED;
-                    } catch (InterruptedException e) {
-                        return false;
-                    } finally {
-                        if (task.isRunning()) task.stop();
+                    if (VcsManager.getDefault().showCustomizer(cmd)) {
+                        CommandTask task = cmd.execute();
+                        try {
+                            task.waitFinished(0);
+                            int exitStatus = task.getExitStatus();
+                            return exitStatus == CommandTask.STATUS_SUCCEEDED;
+                        } catch (InterruptedException e) {
+                            return false;
+                        } finally {
+                            if (task.isRunning()) task.stop();
+                        }
                     }
                 }
             }
@@ -253,15 +254,14 @@ final class Repository {
         fileObject = normalize(fileObject);
         if (fileObject == null) return;
 
-        if (prepareRequests.add(fileObject)) {
-            synchronized(prepareRequests) {
+        synchronized(prepareRequests) {
+            if (prepareRequests.add(fileObject)) {
                 if (preparationTask == null) {
                     preparationTask = new PreparationTask(prepareRequests);
                     RequestProcessor.getDefault().post(preparationTask);
                 }
+                preparationTask.notifyNewRequest();
             }
-
-            preparationTask.notifyNewRequest();
         }
     }
 
