@@ -45,7 +45,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
   private static final boolean PRODUCTION = true;
   //private static final boolean PRODUCTION = false;
 
-  static final long serialVersionUID = 6561734687449790488L;
+  static final long serialVersionUID = -2809668725556980488L;
 
   private String[] checkSections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES", 
 				    "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN",
