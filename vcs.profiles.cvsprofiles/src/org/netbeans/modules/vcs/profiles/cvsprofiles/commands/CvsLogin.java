@@ -21,7 +21,6 @@ import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.cmdline.*;
 
-import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.CvsLoginDialog;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.LoginPanel;
 
 /**
