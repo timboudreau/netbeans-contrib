@@ -63,11 +63,6 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
-import org.netbeans.modules.vcscore.cache.CacheDir;
-import org.netbeans.modules.vcscore.cache.CacheFile;
-import org.netbeans.modules.vcscore.cache.CacheHandler;
-import org.netbeans.modules.vcscore.cache.FileSystemCache;
-import org.netbeans.modules.vcscore.cache.FileCacheProvider;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 import org.netbeans.modules.vcscore.commands.ActionCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
@@ -434,17 +429,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         vcmd.setVcsCommand(this.cmd);
         cmd.setExpertMode(executionContext.isExpertMode());
         if (executionContext instanceof VcsFileSystem) {
-
-            if (Turbo.implemented()) {
-                vcmd.addFileReaderListener(TurboUtil.fileReaderListener((VcsFileSystem)executionContext));
-                return;
-            }
-
-            // old implementation
-            FileSystemCache cache = CacheHandler.getInstance().getCache(((VcsFileSystem) executionContext).getCacheIdStr());
-            if (cache instanceof FileReaderListener) {
-                vcmd.addFileReaderListener((FileReaderListener) cache);
-            }
+            vcmd.addFileReaderListener(TurboUtil.fileReaderListener((VcsFileSystem)executionContext));
         }
     }
     
@@ -501,13 +486,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         boolean cmdCanRunOnMultipleFilesInFolder = VcsCommandIO.getBooleanPropertyAssumeDefault(this.cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER);
         VariableValueAdjustment valueAdjustment = executionContext.getVarValueAdjustment();
 
-        // set cache provider if not running in turbo mode
-        FileCacheProvider cacheProvider = null;
-        if (Turbo.implemented() == false) {
-            cacheProvider = (fileSystem != null) ? fileSystem.getCacheProvider() : null;
-        }
-
-        Object obj = doCustomization(doCreateCustomizer, null, cmd, files, cacheProvider,
+        Object obj = doCustomization(doCreateCustomizer, null, cmd, files,
                                      valueAdjustment, cmdCanRunOnMultipleFiles,
                                      cmdCanRunOnMultipleFilesInFolder);
         if (obj == null) {
@@ -517,11 +496,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return obj;
     }
 
-    /** @param cacheProvider unused in turbo compatible mode */
     private Object doCustomization(boolean doCreateCustomizer,
                                    UserCommandCustomizer customizer,
                                    VcsDescribedCommand cmd,
-                                   Table files, FileCacheProvider cacheProvider,
+                                   Table files,
                                    VariableValueAdjustment valueAdjustment,
                                    boolean cmdCanRunOnMultipleFiles,
                                    boolean cmdCanRunOnMultipleFilesInFolder) {
@@ -537,16 +515,15 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (files != null && files.size() > 1) {
             forEachFile = new boolean[] { true };
         }
-        return doCustomizationWithVars(doCreateCustomizer, customizer, cmd, files, cacheProvider,
+        return doCustomizationWithVars(doCreateCustomizer, customizer, cmd, files,
                                valueAdjustment, vars, forEachFile,
                                cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
     }
 
-    /** @param cacheProvider unused in turbo compatible mode */
     private Object doCustomizationWithVars(boolean doCreateCustomizer,
                                    UserCommandCustomizer customizer,
                                    VcsDescribedCommand cmd,
-                                   Table files, FileCacheProvider cacheProvider,
+                                   Table files,
                                    VariableValueAdjustment valueAdjustment,
                                    Hashtable vars, boolean[] forEachFile,
                                    boolean cmdCanRunOnMultipleFiles,
@@ -557,7 +534,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         Table subFiles;
         if (files != null) {
             subFiles = setupRestrictedFileMap(files, vars, vcsCmd);
-            setVariables(cmd.getVcsCommand(), subFiles, vars, valueAdjustment, cacheProvider,
+            setVariables(cmd.getVcsCommand(), subFiles, vars, valueAdjustment,
                          (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
                          true);
         } else {
@@ -584,7 +561,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (commandExec != null || structuredExec != null) {
             if (doCreateCustomizer) {
                 finalCustomizer = createCustomizer(customizer, commandExec, vars, forEachFile,
-                                                   cmd, files, cacheProvider, valueAdjustment,
+                                                   cmd, files, valueAdjustment,
                                                    cmdCanRunOnMultipleFiles,
                                                    cmdCanRunOnMultipleFilesInFolder);
                 if (finalCustomizer instanceof UserCommandCustomizer) {
@@ -611,7 +588,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (finalCustomizer == null && files != null) {
             VcsDescribedCommand lastCmd = cmd;
             if (!cmdCanRunOnMultipleFiles || cmdCanRunOnMultipleFilesInFolder) {
-                lastCmd = createNextCustomizedCommand(cmd, subFiles, cacheProvider,
+                lastCmd = createNextCustomizedCommand(cmd, subFiles,
                                                       valueAdjustment, vars,
                                                       cmdCanRunOnMultipleFiles,
                                                       cmdCanRunOnMultipleFilesInFolder);
@@ -634,7 +611,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             if (files.size() > 0 && lastCmd != null) {
                 VcsDescribedCommand nextCmd = createNextCommand(files, lastCmd);
                 // Do not attempt to create a customizer again if it was already null
-                doCustomizationWithVars(false, null, nextCmd, files, cacheProvider,  // recursion
+                doCustomizationWithVars(false, null, nextCmd, files,   // recursion
                                 valueAdjustment, new Hashtable(vars), forEachFile,
                                 cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
             }
@@ -644,10 +621,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return finalCustomizer;
     }
 
-    /** @param cacheProvider unused in turbo compatible mode. */
     private VcsDescribedCommand createNextCustomizedCommand(VcsDescribedCommand cmd,
                                                             Table files,
-                                                            FileCacheProvider cacheProvider,
                                                             VariableValueAdjustment valueAdjustment,
                                                             Hashtable vars,
                                                             boolean cmdCanRunOnMultipleFiles,
@@ -655,7 +630,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //System.out.println("createNextCustomizedCommand("+cmd+", "+files+")");
         Table subFiles = setupRestrictedFileMap(files, cmdCanRunOnMultipleFiles,
                                                 cmdCanRunOnMultipleFilesInFolder);
-        setVariables(cmd.getVcsCommand(), subFiles, vars, valueAdjustment, cacheProvider,
+        setVariables(cmd.getVcsCommand(), subFiles, vars, valueAdjustment,
                      (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
                      true);
         cmd.setAdditionalVariables(vars);
@@ -674,7 +649,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             VcsDescribedCommand nextCmd = createNextCommand(remaining, cmd);
             Hashtable newVars = new Hashtable(vars);
             VcsDescribedCommand nextCustomizedCommand =
-                   createNextCustomizedCommand(nextCmd, remaining, cacheProvider,  // recursion
+                   createNextCustomizedCommand(nextCmd, remaining,   // recursion
                                                valueAdjustment, newVars,
                                                cmdCanRunOnMultipleFiles,
                                                cmdCanRunOnMultipleFilesInFolder);
@@ -805,7 +780,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     }
 
     /**
-     * @param cacheProvider unused in turbo compatible mode
      * @return Panel or Exception
      */
     private Object createCustomizer(UserCommandCustomizer customizer,
@@ -813,7 +787,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                     final boolean[] forEachFile,
                                     final VcsDescribedCommand command,
                                     final Table files,
-                                    final FileCacheProvider cacheProvider,
                                     final VariableValueAdjustment valueAdjustment,
                                     final boolean cmdCanRunOnMultipleFiles,
                                     final boolean cmdCanRunOnMultipleFilesInFolder) {
@@ -842,7 +815,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     Object singleFile = files.keys().nextElement();
                     Table subFiles = new Table();
                     subFiles.put(singleFile, files.get(singleFile));
-                    setVariables(command.getVcsCommand(), subFiles, vars, valueAdjustment, cacheProvider,
+                    setVariables(command.getVcsCommand(), subFiles, vars, valueAdjustment,
                                  (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
                                  true);
                     command.setAdditionalVariables(vars);
@@ -850,7 +823,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     //System.out.println("\nVARS for cmd = "+command+" ARE:"+vars+"\n");
                     VcsDescribedCommand nextCmd = createNextCommand(files, command);
                     files.remove(singleFile);
-                    doCustomization(true, finalCustomizer, nextCmd, files, cacheProvider,
+                    doCustomization(true, finalCustomizer, nextCmd, files,
                                     valueAdjustment, cmdCanRunOnMultipleFiles,
                                     cmdCanRunOnMultipleFilesInFolder);
                 } else {
@@ -858,7 +831,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     Table subFiles = setupRestrictedFileMap(files, vars, vcsCmd);
                     VcsDescribedCommand lastCmd = command;
                     if (!cmdCanRunOnMultipleFiles || cmdCanRunOnMultipleFilesInFolder) {
-                        lastCmd = createNextCustomizedCommand(command, subFiles, cacheProvider,
+                        lastCmd = createNextCustomizedCommand(command, subFiles,
                                                               valueAdjustment, vars,
                                                               cmdCanRunOnMultipleFiles,
                                                               cmdCanRunOnMultipleFilesInFolder);
@@ -880,7 +853,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     if (files.size() > 0 && lastCmd != null) {
                         VcsDescribedCommand nextCmd = createNextCommand(files, lastCmd);
                         // Do not attempt to create a customizer again
-                        doCustomizationWithVars(false, null, nextCmd, files, cacheProvider,
+                        doCustomizationWithVars(false, null, nextCmd, files,
                                         valueAdjustment, new Hashtable(vars), forEachFile,
                                         cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
                     }
@@ -1225,13 +1198,11 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      * @param files the table of files
      * @param vars the table of variables to extend
      * @param valueAdjustment the variable value adjustment utility object
-     * @param cacheProvider the provider of cached file attributes
      * @param useGreatestParentPaths whether to define COMMON_PARENT variable and
      *        change the file paths to be relative to this greatest common parent
      */
     public static void setVariables(VcsCommand command, Table files, Hashtable vars,
                                     VariableValueAdjustment valueAdjustment,
-                                    FileCacheProvider cacheProvider,
                                     String relativeMountPoint,
                                     boolean useGreatestParentPaths) {
         // At first, find the greatest parent
@@ -1297,50 +1268,24 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             if (mime != null) vars.put("MIMETYPE", mime); // NOI18N
         }
 
-        if (Turbo.implemented()) {
-            // XXX following properties are not for sure needed for list commands
-            if (command.getName().startsWith("LIST") == false) {  // NOI18N
-                FileProperties fprops = Turbo.getMeta(fo);
-                if (fprops != null) {
-                    if (fprops.getAttr() != null) {
-                        vars.put("CACHED_ATTR", fprops.getAttr());
-                    } else {
-                        vars.remove("CACHED_ATTR");
-                    }
-                    vars.put("CACHED_SIZE", Long.toString(fprops.getSize()));
-                    vars.put("CACHED_ISLOCAL", fprops.isLocal() ? "true" : "");
+        // XXX following properties are not for sure needed for list commands
+        if (command.getName().startsWith("LIST") == false) {  // NOI18N
+            FileProperties fprops = Turbo.getMeta(fo);
+            if (fprops != null) {
+                if (fprops.getAttr() != null) {
+                    vars.put("CACHED_ATTR", fprops.getAttr());
                 } else {
                     vars.remove("CACHED_ATTR");
-                    vars.remove("CACHED_SIZE");
-                    vars.remove("CACHED_ISLOCAL");
                 }
-            }
-        } else // the old implementation
-        if (cacheProvider != null) {
-            if (isFileFolder) {
-                CacheDir cDir = cacheProvider.getDir(origFullName);
-                if (cDir != null) {
-                    vars.put("CACHED_ATTR", cDir.getAttr());
-                    vars.put("CACHED_SIZE", Integer.toString(cDir.getSize()));
-                    vars.put("CACHED_ISLOCAL", cDir.isLocal() ? "true" : "");
-                } else {
-                    vars.remove("CACHED_ATTR");
-                    vars.remove("CACHED_SIZE");
-                    vars.remove("CACHED_ISLOCAL");
-                }
+                vars.put("CACHED_SIZE", Long.toString(fprops.getSize()));
+                vars.put("CACHED_ISLOCAL", fprops.isLocal() ? "true" : "");
             } else {
-                CacheFile cFile = cacheProvider.getFile(origFullName);
-                if (cFile != null) {
-                    vars.put("CACHED_ATTR", cFile.getAttr());
-                    vars.put("CACHED_SIZE", Integer.toString(cFile.getSize()));
-                    vars.put("CACHED_ISLOCAL", cFile.isLocal() ? "true" : "");
-                } else {
-                    vars.remove("CACHED_ATTR");
-                    vars.remove("CACHED_SIZE");
-                    vars.remove("CACHED_ISLOCAL");
-                }
+                vars.remove("CACHED_ATTR");
+                vars.remove("CACHED_SIZE");
+                vars.remove("CACHED_ISLOCAL");
             }
         }
+
         vars.put("FILE_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// the FILE is a folder // NOI18N
         // Second, set the multifiles variables
         StringBuffer qpaths = new StringBuffer();

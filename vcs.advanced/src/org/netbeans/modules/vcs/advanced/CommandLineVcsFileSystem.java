@@ -1305,16 +1305,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             cacheFileName != null && !cacheFileName.equals(newCacheFileName)) {
             
             cacheFileName = newCacheFileName;
-            cacheFileNameChanged();
         }
     }
     
-    private void cacheFileNameChanged() {
-        if (cache != null) {// && cache instanceof VcsFSCache) {
-            //((VcsFSCache) cache).destroyCache();
-        }
-    }
-
     private CommandsTree tryToFindDefaultCommands() {
         if (config == null) return null;
         //ProfilesCache cache = new ProfilesCache(CONFIG_ROOT_FO, this);

@@ -13,13 +13,6 @@
 
 package org.netbeans.modules.vcscore.commands;
 
-import java.awt.Component;
-import java.awt.BorderLayout;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JCheckBox;
-import java.awt.Dialog;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,40 +24,22 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
 
-import org.openide.NotifyDescriptor;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.util.RequestProcessor;
-import org.openide.util.UserCancelException;
 
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
-import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
-//import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.netbeans.modules.vcscore.turbo.Statuses;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
-import org.netbeans.modules.vcscore.cache.FileCacheProvider;
-import org.netbeans.modules.vcscore.caching.FileStatusProvider;
-import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
-import org.netbeans.modules.vcscore.util.VariableInputComponent;
-import org.netbeans.modules.vcscore.util.VariableInputDialog;
-import org.netbeans.modules.vcscore.util.VariableInputFormatException;
-import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.netbeans.modules.vcscore.util.Table;
-import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
-import org.netbeans.modules.vcscore.versioning.RevisionListener;
-import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 
 /**
  * This class contains a support for VCS commands execution.
@@ -133,44 +108,16 @@ public class CommandExecutorSupport extends Object {
     
     private static void deleteUnimportantFiles(VcsFileSystem fileSystem, Collection processedFiles) {
 
-        if (Turbo.implemented()) {
-            String localFileStatus = Statuses.getLocalStatus();
-            String ignoredFileStatus = Statuses.STATUS_IGNORED;
-            for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
-                org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
-                String name = fo.getPath();
-                if (!fileSystem.isImportant(name)) {
-                    FileProperties fprops = Turbo.getMeta(fo);
-                    String status = FileProperties.getStatus(fprops);  // XXX this status is VCS specific
-                    // Do not delete unimportant files, that are version controled.
-                    if (!(localFileStatus.equals(status) || ignoredFileStatus.equals(status))) continue;
-                    if (fo != null) {
-                        try {
-                            fo.delete(fo.lock());
-                        } catch (java.io.IOException ioexc) {}
-                    } else {
-                        try {
-                            fileSystem.delete(name);
-                        } catch (java.io.IOException ioexc) {}
-                    }
-                }
-            }
-            return;
-        }
-
-        // original code
-        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        String localFileStatus = (statusProvider != null) ? statusProvider.getLocalFileStatus() : null;
+        String localFileStatus = Statuses.getLocalStatus();
         String ignoredFileStatus = Statuses.STATUS_IGNORED;
         for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
             org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
             String name = fo.getPath();
             if (!fileSystem.isImportant(name)) {
-                if (statusProvider != null) {
-                    String status = statusProvider.getFileStatus(name);
-                    // Do not delete unimportant files, that are version controled.
-                    if (!(localFileStatus.equals(status) || ignoredFileStatus.equals(status))) continue;
-                }
+                FileProperties fprops = Turbo.getMeta(fo);
+                String status = FileProperties.getStatus(fprops);  // XXX this status is VCS specific
+                // Do not delete unimportant files, that are version controled.
+                if (!(localFileStatus.equals(status) || ignoredFileStatus.equals(status))) continue;
                 if (fo != null) {
                     try {
                         fo.delete(fo.lock());
@@ -335,48 +282,19 @@ public class CommandExecutorSupport extends Object {
      */
     public static void doRefresh(VcsFileSystem fileSystem, String refreshPath, final boolean recursive) {
 
-        if (Turbo.implemented()) {
-            final FileObject fo = fileSystem.findResource(refreshPath);
-            // Spawn the refresh asynchronously, like the original implementation.
-            // XXX it potentionaly spawns many threads. Requests should be
-            // queued and merged
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    if (recursive) {
-                        TurboUtil.refreshRecursively(fo);
-                    } else {
-                        TurboUtil.refreshFolder(fo);
-                    }
+        final FileObject fo = fileSystem.findResource(refreshPath);
+        // Spawn the refresh asynchronously, like the original implementation.
+        // XXX it potentionaly spawns many threads. Requests should be
+        // queued and merged
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                if (recursive) {
+                    TurboUtil.refreshRecursively(fo);
+                } else {
+                    TurboUtil.refreshFolder(fo);
                 }
-            });
-            return;
-        }
-
-        // the old implementation
-        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        if (statusProvider == null) return ;
-        FileCacheProvider cache = fileSystem.getCacheProvider();
-        String dirName = ""; // NOI18N
-        if (cache == null || cache.isDir(refreshPath)) {
-            dirName = refreshPath;
-        }
-        else{
-            dirName = VcsUtilities.getDirNamePart(refreshPath);
-        }
-        if (recursive) {
-            VcsCommand listSub = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY);
-            Object execList = (listSub != null) ? listSub.getProperty(VcsCommand.PROPERTY_EXEC) : null;
-            if (execList != null && ((String) execList).trim().length() > 0) {
-                statusProvider.refreshDirRecursive(dirName);
-            } else {
-                RetrievingDialog rd = new RetrievingDialog(fileSystem, dirName, new javax.swing.JFrame(), false);
-                VcsUtilities.centerWindow(rd);
-                RequestProcessor rp = RequestProcessor.getDefault();
-                rp.post(rd);
             }
-        } else {
-            statusProvider.refreshDir(dirName); // NOI18N
-        }
+        });
     }
     
     /**
@@ -434,79 +352,20 @@ public class CommandExecutorSupport extends Object {
                                                boolean doRefreshParent, boolean doRefreshParentOfCurrent,
                                                Boolean[] recursively) {
 
-        if (Turbo.implemented()) {
-            if (doRefreshCurrent || doRefreshParent || doRefreshParentOfCurrent) { // NOI18N
-                //D.deb("Now refresh folder after CheckIn,CheckOut,Lock,Unlock... commands for convenience"); // NOI18N
-                //fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
-                String refreshPath = dir;//(String) vars.get("DIR");
-                refreshPath.replace(java.io.File.separatorChar, '/');
-                String refreshPathFile;
-                if (".".equals(file)) { // Happens when on the FS root.
-                    refreshPathFile = refreshPath;
-                } else {
-                    refreshPathFile = refreshPath + ((refreshPath.length() > 0) ? "/" : "") + file; //(String) vars.get("FILE");
-                }
-                String currentFolder;
-                String parentFolder;
-                if (fileSystem.folder(refreshPathFile)) { // folder is selected
-                    currentFolder = refreshPathFile;
-                    parentFolder = refreshPath;
-                } else { // file is selected
-                    if (foldersOnly) return null;
-                    currentFolder = parentFolder = refreshPath;
-                }
-                List refreshPaths = new ArrayList(2);
-                // it's important to return the parent folder first, because of the logic in getFoldersToRefresh()
-                if (doRefreshParentOfCurrent) {
-                    String parent = parentFolder;
-                    if (currentFolder.equals(parentFolder)) {
-                        int index = currentFolder.lastIndexOf('/');
-                        if (index > 0) {
-                            parent = currentFolder.substring(0, index);
-                        } else {
-                            parent = "";
-                        }
-                    }
-                    if (!refreshPaths.contains(parent)) {
-                        refreshPaths.add(parent);
-                    }
-                }
-                if (doRefreshParent && !refreshPaths.contains(parentFolder)) {
-                    refreshPaths.add(parentFolder);
-                }
-                if (doRefreshCurrent && !refreshPaths.contains(currentFolder)) {
-                    refreshPaths.add(currentFolder);
-                }
-                String patternMatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
-                String patternUnmatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED);
-                String innerRefreshFolder = (String) refreshPaths.get(refreshPaths.size() - 1);
-                boolean rec = (exec != null
-                    && ( !(fileSystem.folder(innerRefreshFolder) == false
-                                           || (!fileSystem.folder(innerRefreshFolder))))
-                    && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
-                        || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
-                recursively[0] = (rec) ? Boolean.TRUE : Boolean.FALSE;
-                //System.out.println("  !foldersOnly = "+(!foldersOnly)+", cache.isDir("+refreshPath+") = "+cache.isDir(refreshPath));
-                return (String[]) refreshPaths.toArray(new String[0]);
-            } else {
-                return null;
-            }
-
-//            assert false : "Missing return";  // NOI18N
-        }  // else oginial implementation
-
-        FileCacheProvider cache = fileSystem.getCacheProvider();
-        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        if (statusProvider == null) return null; // No refresh without a status provider
         if (doRefreshCurrent || doRefreshParent || doRefreshParentOfCurrent) { // NOI18N
             //D.deb("Now refresh folder after CheckIn,CheckOut,Lock,Unlock... commands for convenience"); // NOI18N
             //fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
             String refreshPath = dir;//(String) vars.get("DIR");
             refreshPath.replace(java.io.File.separatorChar, '/');
-            String refreshPathFile = refreshPath + ((refreshPath.length() > 0) ? "/" : "") + file; //(String) vars.get("FILE");
+            String refreshPathFile;
+            if (".".equals(file)) { // Happens when on the FS root.
+                refreshPathFile = refreshPath;
+            } else {
+                refreshPathFile = refreshPath + ((refreshPath.length() > 0) ? "/" : "") + file; //(String) vars.get("FILE");
+            }
             String currentFolder;
             String parentFolder;
-            if (cache != null && cache.isDir(refreshPathFile)) { // folder is selected
+            if (fileSystem.folder(refreshPathFile)) { // folder is selected
                 currentFolder = refreshPathFile;
                 parentFolder = refreshPath;
             } else { // file is selected
@@ -539,8 +398,8 @@ public class CommandExecutorSupport extends Object {
             String patternUnmatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED);
             String innerRefreshFolder = (String) refreshPaths.get(refreshPaths.size() - 1);
             boolean rec = (exec != null
-                && (cache == null || !(cache.isFile(innerRefreshFolder)
-                                       || (!cache.isDir(innerRefreshFolder) && !fileSystem.folder(innerRefreshFolder))))
+                && ( !(fileSystem.folder(innerRefreshFolder) == false
+                                       || (!fileSystem.folder(innerRefreshFolder))))
                 && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
                     || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
             recursively[0] = (rec) ? Boolean.TRUE : Boolean.FALSE;

@@ -43,20 +43,11 @@ public final class Turbo {
     /** If Boolean.TRUE the code is just firing events. */
     private static volatile ThreadLocal justFiring = new ThreadLocal();
 
-    private static boolean ENABLED;
-
     /** FileObjects which FileProperties.Id attribute is just being computed. */
     private static Set prepareRequests = new HashSet();
 
     static {
-        ENABLED = System.getProperty("netbeans.experimental.useVcsTurbo", "TRUE").equalsIgnoreCase("TRUE"); // NOI18N
-        if (ENABLED) {
-//            System.out.println("Thank you for testing netbeans.experimental.useVcsTurbo!"); // NOI18N
-//            System.out.println("  It's an experimental VCS repository status cache."); // NOI18N
-//            String statFlag = System.getProperty("netbeans.experimental.vcsTurboStatistics", "mini"); // NOI18N
-//            System.out.println("  netbeans.experimental.vcsTurboStatistics=" + statFlag); // NOI18N
-            FAQ.addFileAttributeListener(new FAQForwarder());
-        }
+        FAQ.addFileAttributeListener(new FAQForwarder());
     }
 
     private Turbo() {
@@ -293,22 +284,6 @@ public final class Turbo {
     }
 
     /**
-     * For testing purposes only. It allows to temporary keep two
-     * cache implementations. E.g. client code that does no break
-     * indentation of the old code:
-     * <pre>
-     *   if (Turbo.implemented()) {
-     *       // use cool approach
-     *       return;
-     *   } // else use old cumbersome approach
-     * </pre>
-     * @deprecated client's code should use Turbo unconditionally...
-     */
-    public static boolean implemented() {
-        return ENABLED;
-    }
-
-    /**
      * You do not need this until you need add event listeners. There are static
      * methods for all other oprations. Listeners must be added on default
      * instance in order to support WeakListeners. WeakListeners
@@ -325,8 +300,6 @@ public final class Turbo {
      */
     public static void shutdown() {
         Statistics.shutdown();
-//        System.out.println("Thank you for testing netbeans.experimental.useVcsTurbo!"); // NOI18N
-//        System.out.println("  Statistics goes to " + Statistics.logPath()); // NOI18N
     }
 
 }

@@ -42,12 +42,10 @@ import org.openide.util.UserCancelException;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 //import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
-import org.netbeans.modules.vcscore.cache.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
@@ -181,42 +179,23 @@ public class CommandCustomizationSupport extends Object {
                                         Table files, VcsCommand cmd) {
 
         FileStatusProvider statusProvider = null;
-        if (Turbo.implemented()) {
-            String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
-            if (disabledStatus != null) {
-                Table remaining = new Table();
-                for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-                    String name = (String) enum.nextElement();
-                    FileObject fo = fileSystem.findResource(name);
-                    FileProperties fprops = Turbo.getCachedMeta(fo);
-                    String status = FileProperties.getStatus(fprops);
-                    boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
-                        disabledStatus, Collections.singleton(status));
-                    if (!disabled) {
-                        remaining.put(name, files.get(name));
-                    }
+        String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
+        if (disabledStatus != null) {
+            Table remaining = new Table();
+            for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
+                String name = (String) enum.nextElement();
+                FileObject fo = fileSystem.findResource(name);
+                FileProperties fprops = Turbo.getCachedMeta(fo);
+                String status = FileProperties.getStatus(fprops);
+                boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
+                    disabledStatus, Collections.singleton(status));
+                if (!disabled) {
+                    remaining.put(name, files.get(name));
                 }
-                files = remaining;
             }
-        } else {
-            // original code
-            statusProvider = fileSystem.getStatusProvider();
-            if (statusProvider == null) return files;
-            String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
-            if (disabledStatus != null) {
-                Table remaining = new Table();
-                for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-                    String name = (String) enum.nextElement();
-                    String status = statusProvider.getFileStatus(name);
-                    boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
-                        disabledStatus, Collections.singleton(status));
-                    if (!disabled) {
-                        remaining.put(name, files.get(name));
-                    }
-                }
-                files = remaining;
-            }
+            files = remaining;
         }
+
         boolean disabledWhenNotLocked = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_DISABLED_WHEN_NOT_LOCKED);
         String disabledWhenNotLockedConditionedStr = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_WHEN_NOT_LOCKED+"Conditioned");
         if (disabledWhenNotLocked || disabledWhenNotLockedConditionedStr != null) {
@@ -234,29 +213,16 @@ public class CommandCustomizationSupport extends Object {
                     Hashtable vvars = new Hashtable(vars);
 
                     // cache provider is not necessary in turbo mode
-                    FileCacheProvider cacheProvider = null;
-                    if (Turbo.implemented() == false) {
-                        cacheProvider = fileSystem.getCacheProvider();
-                    }
                     UserCommandSupport.setVariables(cmd, varFiles, vvars, fileSystem.getVarValueAdjustment(),
-                                                    cacheProvider,
                                                     fileSystem.getRelativeMountPoint(), true);
                     String disabledWhenNotLockedConditionedExp = Variables.expand(vvars, disabledWhenNotLockedConditionedStr, false);
                     disabledWhenNotLocked = "true".equalsIgnoreCase(disabledWhenNotLockedConditionedExp);
                     if (disabledWhenNotLocked) {
-                        if (Turbo.implemented()) {
-                            FileObject fo = fileSystem.findResource(name);
-                            FileProperties fprops = Turbo.getMeta(fo);
-                            String locker = fprops != null ? fprops.getLocker() : null;
-                            if (VcsFileSystem.lockerMatch(locker, currentLocker)) {
-                                remaining.put(name, files.get(name));
-                            }
-                        } else {
-                            // original code
-                            String locker = statusProvider.getFileLocker(name);
-                            if (VcsFileSystem.lockerMatch(locker, currentLocker)) {
-                                remaining.put(name, files.get(name));
-                            }
+                        FileObject fo = fileSystem.findResource(name);
+                        FileProperties fprops = Turbo.getMeta(fo);
+                        String locker = fprops != null ? fprops.getLocker() : null;
+                        if (VcsFileSystem.lockerMatch(locker, currentLocker)) {
+                            remaining.put(name, files.get(name));
                         }
                     } else {
                         remaining.put(name, files.get(name));
@@ -265,19 +231,11 @@ public class CommandCustomizationSupport extends Object {
             } else {
                 for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
                     String name = (String) enum.nextElement();
-                    if (Turbo.implemented()) {
-                        FileObject fo = fileSystem.findResource(name);
-                        FileProperties fprops = Turbo.getMeta(fo);
-                        String locker = fprops != null ? fprops.getLocker() : null;
-                        if (VcsFileSystem.lockerMatch(locker, currentLocker)) {
-                            remaining.put(name, files.get(name));
-                        }
-                    } else {
-                        // original code
-                        String locker = statusProvider.getFileLocker(name);
-                        if (VcsFileSystem.lockerMatch(locker, currentLocker)) {
-                            remaining.put(name, files.get(name));
-                        }
+                    FileObject fo = fileSystem.findResource(name);
+                    FileProperties fprops = Turbo.getMeta(fo);
+                    String locker = fprops != null ? fprops.getLocker() : null;
+                    if (VcsFileSystem.lockerMatch(locker, currentLocker)) {
+                        remaining.put(name, files.get(name));
                     }
                 }
             }

@@ -57,12 +57,6 @@ import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.TurboListener;
 import org.netbeans.modules.vcscore.turbo.TurboEvent;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
-import org.netbeans.modules.vcscore.cache.CacheDir;
-import org.netbeans.modules.vcscore.cache.CacheFile;
-import org.netbeans.modules.vcscore.cache.CacheHandler;
-import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
-import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
-import org.netbeans.modules.vcscore.cache.FileSystemCache;
 
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 
@@ -72,7 +66,6 @@ import org.netbeans.spi.vcs.VcsCommandsProvider;
  * @author  Martin Entlicher
  */
 public class VcsObjectIntegritySupport extends OperationAdapter implements Runnable,
-                                                                           CacheHandlerListener,
                                                                            TurboListener,
                                                                            Serializable {
     
@@ -91,7 +84,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private static final RequestProcessor analyzerRequestProcessor = new RequestProcessor("VCS Object Integrity Analyzer", 1);
     
     private transient FileSystem fileSystem;
-    private transient FileSystemCache cache;
     private transient String fsRootPath;
     private transient FileObjectExistence foExistence;
     /** The DataObjects which need to be analyzed for objects integrity. */
@@ -104,7 +96,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private transient Object initializeLock = new Object();
     
     private transient OperationListener operationListener;
-    private transient CacheHandlerListener cacheHandlerListaner;
     private transient TurboListener turboListener;
     private transient PropertyChangeSupport propertyChangeSupport;
     private transient PropertyChangeListener doFileChangeListener;
@@ -181,19 +172,12 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      * @param cache The status cache, that is used to check the files status information.
      * @param fsRootPath The path of the filesystem root.
      */
-    public synchronized void activate(FileSystem fileSystem, FileSystemCache cache,
+    public synchronized void activate(FileSystem fileSystem,
                                       String fsRootPath,
                                       FileObjectExistence foExistence) {
 
-        if (Turbo.implemented()) {
-            turboListener = (TurboListener) WeakListeners.create(TurboListener.class, this, Turbo.singleton());
-            Turbo.singleton().addTurboListener(turboListener);
-        } else {
-            // original implementation
-            this.cache = cache;
-            cacheHandlerListaner = (CacheHandlerListener) WeakListeners.create(CacheHandlerListener.class, this, cache);
-            cache.addCacheHandlerListener(cacheHandlerListaner);
-        }
+        turboListener = (TurboListener) WeakListeners.create(TurboListener.class, this, Turbo.singleton());
+        Turbo.singleton().addTurboListener(turboListener);
 
         this.fileSystem = fileSystem;
         this.fsRootPath = fsRootPath;
@@ -219,11 +203,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             if (operationListener != null) {
                 DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
                 pool.removeOperationListener(operationListener);
-            }
-            if (cacheHandlerListaner != null) {
-                if (Turbo.implemented() == false) {
-                    cache.removeCacheHandlerListener(cacheHandlerListaner);
-                }
             }
         }
         // We must allow that the analyzar task can fire property changes,
@@ -436,137 +415,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      * Invoked from analyzer request processor
      */
     public void run() {
-
-        if (Turbo.implemented()) {
-            runWithTurbo();
-            return;
-        }
-
-        // old implementation
-        Set paths;
-        Set objects;
-        boolean changed = false;
-        synchronized (objectsToAnalyze) {
-            paths = pathsToAnalyze;
-            objects = objectsToAnalyze;
-            pathsToAnalyze = new HashSet();
-            objectsToAnalyze = new HashSet();
-        }
-        if (!paths.isEmpty()) {
-            Enumeration existingEnum = foExistence.getExistingFiles();
-            while(existingEnum.hasMoreElements() && !paths.isEmpty()) {
-                FileObject fo = (FileObject) existingEnum.nextElement();
-                if (paths.remove(fo.getPath())) {
-                    try {
-                        DataObject dobj = DataObject.find(fo);
-                        objects.add(dobj);
-                    } catch (DataObjectNotFoundException donfex) {
-                        // Ignored. If the DO does not exist, it can not be analyzed.
-                    }
-                }
-            }
-        }
-        boolean initialized = false; // Assume, that initialization was not called yet.
-        for (Iterator objIt = objects.iterator(); objIt.hasNext(); ) {
-            DataObject dobj = (DataObject) objIt.next();
-            FileObject primary = dobj.getPrimaryFile();
-            FileSystem fs = (FileSystem) primary.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-            if (primary.isFolder() || !fileSystem.equals(fs)) {
-                //System.out.println("VOIS.run(): ignoring primary = "+primary+" from "+fs);
-                continue;
-            }
-            File primaryFile = FileUtil.toFile(primary);
-            if (primaryFile == null) {
-                // There's no real File underneath
-                continue;
-            }
-            if (!initialized) {
-                initialize(); // Assure, that we're initialized.
-                initialized = true;
-            }
-            //fileSystem.getCacheProvider().
-            CacheFile pcFile = cache.getCacheFile(primaryFile, CacheHandler.STRAT_DISK, null);
-            if (pcFile == null || pcFile.isLocal()) {
-                synchronized (primaryLocalFiles) {
-                    if (filesStorageLocked) {
-                        try {
-                            primaryLocalFiles.wait();
-                        } catch (InterruptedException iex) { /* continue */ }
-                    }
-                    primaryLocalFiles.add(primary.getPath());
-                }
-                changed = true;
-                continue;
-            } else {
-                synchronized (primaryLocalFiles) {
-                    if (filesStorageLocked) {
-                        try {
-                            primaryLocalFiles.wait();
-                        } catch (InterruptedException iex) { /* continue */ }
-                    }
-                    if (primaryLocalFiles.remove(primary.getPath())) {
-                        changed = true;
-                    }
-                }
-            }
-            String primaryFilePath = primary.getPath();
-            //System.out.println("VOIS.run(): have primary: "+primaryFilePath);
-            dobj.addPropertyChangeListener(doFileChangeListener);
-            Set filesToAdd = new HashSet();
-            Set filesToRemove = new HashSet();
-            Set fileSet = dobj.files();
-            for (Iterator fileIt = fileSet.iterator(); fileIt.hasNext(); ) {
-                FileObject fo = (FileObject) fileIt.next();
-                if (primary.equals(fo)) continue;
-                String filePath = fo.getPath();
-                fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-                File file = FileUtil.toFile(fo);
-                if (file == null) {
-                    filesToRemove.add(filePath);
-                    continue;
-                }
-                if (fo.isFolder() || !fileSystem.equals(fs) ||
-                    SharabilityQuery.getSharability(file) == SharabilityQuery.NOT_SHARABLE ||
-                    ignoredSecondaryLocalFiles.contains(filePath)) {
-                        
-                    filesToRemove.add(filePath);
-                    continue;
-                }
-                CacheFile cFile = cache.getCacheFile(file, CacheHandler.STRAT_DISK, null);
-                //System.out.println("   VOIS.run(): secondary '"+fo+"', cache = "+cFile);
-                if (cFile == null || cFile.isLocal()) {
-                    filesToAdd.add(filePath);
-                } else {
-                    filesToRemove.add(filePath);
-                }
-            }
-            synchronized (objectsWithLocalFiles) {
-                if (filesStorageLocked) {
-                    try {
-                        objectsWithLocalFiles.wait();
-                    } catch (InterruptedException iex) { /* continue */ }
-                }
-                Set localSec = (Set) objectsWithLocalFiles.get(primaryFilePath);
-                if (localSec == null) {
-                    localSec = new HashSet();
-                }
-                localSec.addAll(filesToAdd);
-                for (Iterator fileIt = filesToAdd.iterator(); fileIt.hasNext(); ) {
-                    String secFile = (String) fileIt.next();
-                    filesMap.put(secFile, primaryFilePath);
-                }
-                localSec.removeAll(filesToRemove);
-                filesMap.keySet().removeAll(filesToRemove);
-                if (localSec.size() > 0) {
-                    objectsWithLocalFiles.put(primaryFilePath, localSec);
-                    changed = true;
-                } else {
-                    Object removedObj = objectsWithLocalFiles.remove(primaryFilePath);
-                    if (removedObj != null) changed = true;
-                }
-            }
-        }
-        if (changed) firePropertyChange();
+        runWithTurbo();
     }
     
     /**
@@ -616,197 +465,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         return fileSystem.findResource(name);
     }
     
-    private static final String getFilePath(CacheFile cFile, String fsRootPath) {
-        String absPath = cFile.getAbsolutePath();
-        String path = null;
-        if (absPath.startsWith(fsRootPath)) {
-            if (fsRootPath.length() == absPath.length()) {
-                path = "";
-            } else {
-                path = absPath.substring(fsRootPath.length() + 1, absPath.length());
-            }
-            path = path.replace(File.separatorChar, '/');
-         }
-        return path;
-    }
-
-    // TODO do I understand well that here we synchronize filesystens with CacheDir structures
-    // and that this is not needed if all operations touch filesystem fileobjects directly?
-    // Should not it listen on FileObject add/remove on FS directly?
-
-    /** is called when a file/dir is added to the cache. The filesystem should
-     * generally perform findResource() on the dir the added files is in
-     * and do refresh of that directory.
-     */
-    public void cacheAdded(CacheHandlerEvent event) {
-
-        assert Turbo.implemented() == false;
-
-        CacheFile cFile = event.getCacheFile();
-        //System.out.println("VOIS.cacheAdded("+cFile+")");
-        if (cFile instanceof CacheDir || cFile.isLocal()) return ;
-        String path = getFilePath(cFile, fsRootPath);
-        if (path != null) {
-            initialize(); // Assure, that we're initialized.
-            boolean wasLocal;
-            synchronized (primaryLocalFiles) {
-                if (filesStorageLocked && primaryLocalFiles.contains(path)) {
-                    try {
-                        primaryLocalFiles.wait();
-                    } catch (InterruptedException iex) { /* continue */ }
-                }
-                wasLocal = primaryLocalFiles.remove(path);
-            }
-            if (wasLocal) {
-                // It was a local primary file; now it's not local, we need to
-                // analyze the DataObject again.
-                synchronized (objectsToAnalyze) {
-                    pathsToAnalyze.add(path);
-                }
-                analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
-                return ;
-            }
-            boolean changed = false;
-            synchronized (objectsWithLocalFiles) {
-                if (filesStorageLocked && filesMap.containsKey(path)) {
-                    try {
-                        objectsWithLocalFiles.wait();
-                    } catch (InterruptedException iex) { /* continue */ }
-                }
-                String primary = (String) filesMap.remove(path);
-                if (primary != null) {
-                    // It was a local secondary file, so it needs to be removed.
-                    Set localSec = (Set) objectsWithLocalFiles.get(primary);
-                    if (localSec != null) {
-                        //System.out.println("    removing secondary: "+path);
-                        localSec.remove(path);
-                        if (localSec.size() == 0) {
-                            objectsWithLocalFiles.remove(primary);
-                        }
-                        changed = true;
-                    }
-                }
-            }
-            if (changed) firePropertyChange();
-        }
-    }
-    
-    /** is Called when a file/dir is removed from cache.
-     */
-    public void cacheRemoved(CacheHandlerEvent event) {
-
-        assert Turbo.implemented() == false;
-
-        CacheFile cFile = event.getCacheFile();
-        // If the removed cache file was local, ignore it, because only delete
-        // can remove it entirely.
-        if (cFile instanceof CacheDir || cFile.isLocal()) return ;
-        String path = getFilePath(cFile, fsRootPath);
-        if (path != null) {
-            initialize(); // Assure, that we're initialized.
-            boolean changed = false;
-            synchronized (objectsWithLocalFiles) {
-                if (filesStorageLocked && objectsWithLocalFiles.containsKey(path)) {
-                    try {
-                        objectsWithLocalFiles.wait();
-                    } catch (InterruptedException iex) { /* continue */ }
-                }
-                // If it was a primary file, remove all local secondary files:
-                Set localSet = (Set) objectsWithLocalFiles.remove(path);
-                if (localSet != null) {
-                    for (Iterator it = localSet.iterator(); it.hasNext(); ) {
-                        String secondary = (String) it.next();
-                        filesMap.remove(secondary);
-                    }
-                    changed = true;
-                }
-            }
-            if (changed) firePropertyChange();
-        }
-    }
-    
-    /** is called each time the status of a file changes in cache.
-     */
-    public void statusChanged(CacheHandlerEvent event) {
-
-        assert Turbo.implemented() == false;
-
-        CacheFile cFile = event.getCacheFile();
-        if (cFile instanceof CacheDir) return ;
-        //System.out.println("VOIS.statusChanged("+cFile+")");
-        String path = getFilePath(cFile, fsRootPath);
-        if (path != null) {
-            initialize(); // Assure, that we're initialized.
-            boolean changed = false;
-            if (cFile.isLocal()) {
-                synchronized (objectsWithLocalFiles) {
-                    if (filesStorageLocked && objectsWithLocalFiles.containsKey(path)) {
-                        try {
-                            objectsWithLocalFiles.wait();
-                        } catch (InterruptedException iex) { /* continue */ }
-                    }
-                    // If it was a primary file, remove all local secondary files:
-                    Set localSet = (Set) objectsWithLocalFiles.remove(path);
-                    if (localSet != null) {
-                        //System.out.println("   Removed primary: "+path);
-                        for (Iterator it = localSet.iterator(); it.hasNext(); ) {
-                            String secondary = (String) it.next();
-                            filesMap.remove(secondary);
-                        }
-                        synchronized (primaryLocalFiles) {
-                            if (filesStorageLocked) {
-                                try {
-                                    primaryLocalFiles.wait();
-                                } catch (InterruptedException iex) { /* continue */ }
-                            }
-                            primaryLocalFiles.add(path);
-                        }
-                        changed = true;
-                    }
-                    // If a versioned secondary FileObject becomes local,
-                    // it can be too performance expensive to find the
-                    // appropriate primary file. It is supposed, that this
-                    // does occur very rearly.
-                }
-            } else {
-                synchronized (objectsWithLocalFiles) {
-                    if (filesStorageLocked && filesMap.containsKey(path)) {
-                        try {
-                            objectsWithLocalFiles.wait();
-                        } catch (InterruptedException iex) { /* continue */ }
-                    }
-                    // If a secondary FileObject becomes non-local, remove it
-                    // from the maps.
-                    String primary = (String) filesMap.remove(path);
-                    if (primary != null) {
-                        Set localSet = (Set) objectsWithLocalFiles.get(primary);
-                        if (localSet != null) {
-                            localSet.remove(path);
-                        }
-                        changed = true;
-                    }
-                }
-                synchronized (primaryLocalFiles) {
-                    if (filesStorageLocked && primaryLocalFiles.contains(path)) {
-                        try {
-                            primaryLocalFiles.wait();
-                        } catch (InterruptedException iex) { /* continue */ }
-                    }
-                    // If a primary file becomes non-local, an analysis must be made
-                    if (primaryLocalFiles.remove(path)) {
-                        // It was a local primary file; now it's not local, we need to
-                        // analyze the DataObject again.
-                        synchronized (objectsToAnalyze) {
-                            pathsToAnalyze.add(path);
-                        }
-                        analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
-                    }
-                }
-            }
-            if (changed) firePropertyChange();
-        }
-    }
-
     public void turboChanged(TurboEvent e) {
         FileObject fo = e.getFileObject();
         FileProperties props = e.getFileProperties();

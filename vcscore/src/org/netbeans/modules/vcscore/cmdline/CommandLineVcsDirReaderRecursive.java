@@ -198,19 +198,11 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
         if (exec == null || exec.trim().length() == 0) {
             //String dirName = (((String) vars.get("DIR"))).replace(((String) vars.get("PS")).charAt(0), '/');
 
-            if (Turbo.implemented()) {
-                FileObject folder = getFileSystem().findResource(path);
-                doRefreshRecursively(folder);
-                exitStatus = VcsCommandExecutor.SUCCEEDED;
-                return;
-            }
-
-            // original impl showing UI
-            RetrievingDialog rd = new RetrievingDialog(getFileSystem(), path, new javax.swing.JFrame(), false);
-            VcsUtilities.centerWindow(rd);
-            rd.run();
+            FileObject folder = getFileSystem().findResource(path);
+            doRefreshRecursively(folder);
             exitStatus = VcsCommandExecutor.SUCCEEDED;
-            return ;
+            return;
+
         } else {
             try {
                 super.run();

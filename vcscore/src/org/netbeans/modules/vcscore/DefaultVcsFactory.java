@@ -36,8 +36,6 @@ import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.actions.AddToGroupAction;
 import org.netbeans.modules.vcscore.actions.RefreshLocalFolderAction;
 //import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
-import org.netbeans.modules.vcscore.cache.FileCacheProvider;
-import org.netbeans.modules.vcscore.cache.impl.VcsFSCache;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 
 //import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReader;
@@ -74,106 +72,9 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      * is the filesystem cache if implements <code>FileStatusProvider</code> or null otherwise.
      */
     public FileStatusProvider getFileStatusProvider() {
-        assert Turbo.implemented() == false;
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        Object cache = fileSystem.getCacheProvider();
-        if (cache instanceof FileStatusProvider) return (FileStatusProvider) cache;
-        else return null;
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * Get the provider of the VCS cache. The default provider
-     * is <code>VcsFSCache</code>.
-     */
-    public FileCacheProvider getFileCacheProvider() {
-        assert Turbo.implemented() == false;
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        return new VcsFSCache(fileSystem);
-    }
-
-    /**
-     * Get the VCS directory reader.
-     * @return an instance of <code>CommandLineVcsDirReader</code> or null when can not be created.
-     *
-    public VcsCommandExecutor getVcsDirReader(DirReaderListener listener, String path) {
-        VcsCommand list;
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        if (fileSystem.isOffLine()) {
-            list = fileSystem.getCommand(VcsCommand.NAME_REFRESH_OFFLINE);
-        } else {
-            list = fileSystem.getCommand(VcsCommand.NAME_REFRESH);
-        }
-        if (list == null) return null;
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
-
-        if (!java.io.File.separator.equals ("/") ) { // NOI18N
-            String winPath = path.replace('/', java.io.File.separatorChar);
-            vars.put("DIR", winPath); // NOI18N
-        } else {
-            vars.put("DIR", path); // NOI18N
-        }
-
-        String exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
-        if (exec != null && !CommandExecutorSupport.promptForVariables(fileSystem, exec, vars, list, null)) return null;
-        if (list instanceof UserCommand) {
-            return new CommandLineVcsDirReader(listener, fileSystem, (UserCommand) list, vars);
-        } else {
-            return null;
-        }
-    }
-    
-    /**
-     * Get the VCS directory reader that reads the whole directory structure.
-     * @return an instance of <code>CommandLineVcsDirReader</code> or null when can not be created.
-     *
-    public VcsCommandExecutor getVcsDirReaderRecursive(DirReaderListener listener, String path) {
-        VcsCommand list;
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        if (fileSystem.isOffLine()) {
-            list = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY_OFFLINE);
-        } else {
-            list = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY);
-        }
-        if (list == null) return null;
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
-
-        if (!java.io.File.separator.equals ("/")) { // NOI18N
-            String winPath = path.replace('/', java.io.File.separatorChar);
-            vars.put("DIR", winPath); // NOI18N
-        } else {
-            vars.put("DIR", path); // NOI18N
-        }
-
-        String exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
-        if (exec != null && !CommandExecutorSupport.promptForVariables(fileSystem, exec, vars, list, null)) return null;
-        if (list instanceof UserCommand) {
-            return new CommandLineVcsDirReaderRecursive(listener, fileSystem, (UserCommand) list, vars);
-        } else {
-            return null;
-        }
-    }
-    
-    /*
-     * Get the VCS action.
-     * @return instance of <code>VcsAction</code>
-     *
-    public VcsAction getVcsAction() {
-        return new VcsAction (fileSystem);
-    }
-     */
-    
-    /*
-     * Get the VCS action for a collection of <code>FileObject</code>s.
-     * If the collection is null, it gets the <code>FileObject</code>s from
-     * currently selected nodes.
-     * @param fos the collection of <code>FileObject</code>s or null.
-     * @return instance of <code>VcsAction</code>
-     *
-    public VcsAction getVcsAction(Collection fos) {
-        return new VcsAction (fileSystem, fos);
-    }
-     */
-    
     /**
      * Get the array of VCS actions for a collection of <code>FileObject</code>s.
      * If the collection is null, it gets the <code>FileObject</code>s from

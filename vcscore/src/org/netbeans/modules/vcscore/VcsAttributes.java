@@ -34,10 +34,6 @@ import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
-import org.netbeans.modules.vcscore.cache.CacheReference;
-import org.netbeans.modules.vcscore.cache.FileCacheProvider;
-import org.netbeans.modules.vcscore.caching.FileStatusProvider;
-import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
 import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 //import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -251,30 +247,15 @@ public class VcsAttributes extends Attributes {
         }
         if (VCS_STATUS.equals(attrName)) {
             if (!fileSystem.getFile(name).exists()) return VCS_STATUS_MISSING;
-
-            if (Turbo.implemented()) {
-                FileObject fo = fileSystem.findResource(name);
-                FileProperties fprops = Turbo.getMeta(fo);
-                String status = FileProperties.getStatus(fprops);
-                if (Statuses.getLocalStatus().equals(status)) {
-                    return VCS_STATUS_LOCAL;
-                } else if (Statuses.getUnknownStatus().equals(status)) {
-                    return VCS_STATUS_UNKNOWN;
-                }
-                return VCS_STATUS_UP_TO_DATE;                                
+            FileObject fo = fileSystem.findResource(name);
+            FileProperties fprops = Turbo.getMeta(fo);
+            String status = FileProperties.getStatus(fprops);
+            if (Statuses.getLocalStatus().equals(status)) {
+                return VCS_STATUS_LOCAL;
+            } else if (Statuses.getUnknownStatus().equals(status)) {
+                return VCS_STATUS_UNKNOWN;
             }
-
-            // original implementation
-            FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-            if (statusProvider != null) {
-                String status = statusProvider.getFileStatus(name);
-                //CacheFile file = cacheProvider.getFile(name);
-                if (statusProvider.getLocalFileStatus().equals(status)) {
-                    return VCS_STATUS_LOCAL;
-                }
-                return VCS_STATUS_UP_TO_DATE;
-            }
-            return VCS_STATUS_UNKNOWN;
+            return VCS_STATUS_UP_TO_DATE;
         } else if (GeneralCommandAction.VCS_ACTION_ATTRIBUTE.equals(attrName)) {
             return supporter;            
         } else if (VCS_NATIVE_FS.equals(attrName)) {
@@ -288,38 +269,18 @@ public class VcsAttributes extends Attributes {
         } else if (VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE.equals(attrName)) {
             return fileSystem;
         }  else {
-
-            if (Turbo.implemented()) {
-                if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
-                    FileReference ref = fileSystem.getFileReference(name);
-                    if (ref != null && ref.wasVirtual()) {
-                        return VirtualsDataLoader.class.getName();
-                    }
-                } else if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
-                    FileReference ref = fileSystem.getFileReference(name);
-                    if (ref != null && ref.wasVirtual()) {
-                        return "org.netbeans.modules.vcscore"; //NOI18N
-                    }
-                }
-
-                return super.readAttribute(name, attrName);
-            }
-
-            // the old implementation
             if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
-                CacheReference ref = fileSystem.getCacheReference(name);
-                if ( (ref != null) && ref.isVirtual()) {
-                        return VirtualsDataLoader.class.getName();
+                FileReference ref = fileSystem.getFileReference(name);
+                if (ref != null && ref.wasVirtual()) {
+                    return VirtualsDataLoader.class.getName();
                 }
             } else if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
-                CacheReference ref = fileSystem.getCacheReference(name);
-                if (ref != null) {
-                    if (ref.isVirtual()) {
-                        //                        System.out.println("is vitrual module..");
-                        return "org.netbeans.modules.vcscore"; //NOI18N
-                    }
+                FileReference ref = fileSystem.getFileReference(name);
+                if (ref != null && ref.wasVirtual()) {
+                    return "org.netbeans.modules.vcscore"; //NOI18N
                 }
             }
+
             return super.readAttribute(name, attrName);
         }
     }
@@ -371,60 +332,30 @@ public class VcsAttributes extends Attributes {
             });
             super.writeAttribute(name, VCS_SCHEDULED_FILE_ATTR, value);
         } else {
-
-            if (Turbo.implemented()) {
-                if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
-                    if (value == null && !fileSystem.checkVirtual(name)) {
-                        FileReference ref = fileSystem.getFileReference(name);
-                        if (ref != null) {
-                            ref.setVirtual(false);
-                        }
-                        return;
-                    }
-                    else if (VirtualsDataLoader.class.getName().equals(value)) {
-                        FileReference ref = fileSystem.getFileReference(name);
-                        if (ref != null) {
-                            ref.setVirtual(true);
-                        }
-                        return;
-                    }
-                }
-                if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
-                    if (value != null && "org.netbeans.modules.vcscore".equals(value.toString())  //NOI18N
-                        && fileSystem.checkVirtual(name)) {
-                       //don't write to .nbattrs file..
-                       return;
-                    }
-                    //System.out.println("write assigned module=" + value);
-                }
-                super.writeAttribute(name, attrName, value);
-                return;
-            }
-
-            // the old implementation
             if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
-                if (value == null) {
-                    CacheReference ref = fileSystem.getCacheReference(name);
+                if (value == null && !fileSystem.checkVirtual(name)) {
+                    FileReference ref = fileSystem.getFileReference(name);
                     if (ref != null) {
                         ref.setVirtual(false);
                     }
+                    return;
                 }
                 else if (VirtualsDataLoader.class.getName().equals(value)) {
-                    CacheReference ref = fileSystem.getCacheReference(name);
+                    FileReference ref = fileSystem.getFileReference(name);
                     if (ref != null) {
                         ref.setVirtual(true);
                     }
                     return;
                 }
-            }    
+            }
             if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
                 if (value != null && "org.netbeans.modules.vcscore".equals(value.toString())  //NOI18N
                     && fileSystem.checkVirtual(name)) {
                    //don't write to .nbattrs file..
-                   return;  
+                   return;
                 }
                 //System.out.println("write assigned module=" + value);
-            }                
+            }
             super.writeAttribute(name, attrName, value);
         }
     }
@@ -509,26 +440,14 @@ public class VcsAttributes extends Attributes {
     private void performRefresh(final String name, final Object recursive) {
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
-            boolean rec = Boolean.TRUE.equals(recursive);
+                boolean rec = Boolean.TRUE.equals(recursive);
 
-                if (Turbo.implemented()) {
-                    FileObject fo = fileSystem.findFileObject(name);
-                    if (rec) {
-                        TurboUtil.refreshRecursively(fo);
-                    } else {
-                        TurboUtil.refreshFolder(fo);
-                    }
-                    return;
-                }
-
-            FileCacheProvider cache = fileSystem.getCacheProvider();
-            if (cache != null) {
+                FileObject fo = fileSystem.findFileObject(name);
                 if (rec) {
-                    cache.refreshCacheDirRecursive(name);
+                    TurboUtil.refreshRecursively(fo);
                 } else {
-                    cache.refreshCacheDir(name);
+                    TurboUtil.refreshFolder(fo);
                 }
-            }
             }
         });
     }

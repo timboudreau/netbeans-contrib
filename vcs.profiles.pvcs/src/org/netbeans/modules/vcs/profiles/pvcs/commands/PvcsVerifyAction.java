@@ -106,70 +106,31 @@ public class PvcsVerifyAction extends java.lang.Object implements VcsAdditionalC
     
     private void fillFilesByState(List fos, String getStatusCmd) throws InterruptedException {
 
-        if (Turbo.implemented()) {
-            for (Iterator it = fos.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                if (!fileSystem.getFile(fo.getPath()).exists()) {
-                    // File does not exist locally - same behavior as whan it was not changed locally:
-                    uptoDateFiles.add(fo);
-                    continue;
-                }
-                FileProperties fprops = Turbo.getMeta(fo);
-                String status = FileProperties.getStatus(fprops);
-                if (Statuses.getLocalStatus().equals(status)) {
-                    localFiles.add(fo);
-                    //System.out.println("  is Local");
-                } else {
-                    if (getStatusCmd != null) {
-                        status = getFreshFileStatus(fo.getPath(), fileSystem.getCommand(getStatusCmd));
-                        //System.out.println("getFreshFileStatus("+file+") = "+status);
-                    }
-                    if (UP_TO_DATE.equals(status)) {
-                        uptoDateFiles.add(fo);
-                        //System.out.println("  is Up to date");
-                    } else {
-                        //System.out.println("  is Unrecognized => should me modified or so.");
-                        String locker = fprops != null ? fprops.getLocker() : null;
-                        if (locker == null || locker.trim().length() == 0) {
-                            notLockedFiles.add(fo);
-                        }
-                    }
-                }
+        for (Iterator it = fos.iterator(); it.hasNext(); ) {
+            FileObject fo = (FileObject) it.next();
+            if (!fileSystem.getFile(fo.getPath()).exists()) {
+                // File does not exist locally - same behavior as whan it was not changed locally:
+                uptoDateFiles.add(fo);
+                continue;
             }
-            return;
-        }
-
-        // the old implementation
-        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        if (statusProvider == null) {
-            localFiles.addAll(fos);
-        } else {
-            for (Iterator it = fos.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                if (!fileSystem.getFile(fo.getPath()).exists()) {
-                    // File does not exist locally - same behavior as whan it was not changed locally:
-                    uptoDateFiles.add(fo);
-                    continue;
+            FileProperties fprops = Turbo.getMeta(fo);
+            String status = FileProperties.getStatus(fprops);
+            if (Statuses.getLocalStatus().equals(status)) {
+                localFiles.add(fo);
+                //System.out.println("  is Local");
+            } else {
+                if (getStatusCmd != null) {
+                    status = getFreshFileStatus(fo.getPath(), fileSystem.getCommand(getStatusCmd));
+                    //System.out.println("getFreshFileStatus("+file+") = "+status);
                 }
-                String file = fo.getPath();
-                String status = statusProvider.getFileStatus(file);
-                if (statusProvider.getLocalFileStatus().equals(status)) {
-                    localFiles.add(fo);
-                    //System.out.println("  is Local");
+                if (UP_TO_DATE.equals(status)) {
+                    uptoDateFiles.add(fo);
+                    //System.out.println("  is Up to date");
                 } else {
-                    if (getStatusCmd != null) {
-                        status = getFreshFileStatus(file, fileSystem.getCommand(getStatusCmd));
-                        //System.out.println("getFreshFileStatus("+file+") = "+status);
-                    }
-                    if (UP_TO_DATE.equals(status)) {
-                        uptoDateFiles.add(fo);
-                        //System.out.println("  is Up to date");
-                    } else {
-                        //System.out.println("  is Unrecognized => should me modified or so.");
-                        String locker = statusProvider.getFileLocker(file);
-                        if (locker == null || locker.trim().length() == 0) {
-                            notLockedFiles.add(fo);
-                        }
+                    //System.out.println("  is Unrecognized => should me modified or so.");
+                    String locker = fprops != null ? fprops.getLocker() : null;
+                    if (locker == null || locker.trim().length() == 0) {
+                        notLockedFiles.add(fo);
                     }
                 }
             }

@@ -13,7 +13,6 @@
 package org.netbeans.modules.vcscore.caching;
 
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.cache.impl.RefreshCommandSupport;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.api.vcs.FileStatusInfo;
@@ -277,7 +276,7 @@ public final class StatusFormat {
         }
         return annotationFontColor;
     }
-    
+
     private static String escapeSpecialHTMLCharacters(String str) {
         str = org.openide.util.Utilities.replaceString(str, "&", "&amp;");
         str = org.openide.util.Utilities.replaceString(str, "<", "&lt;");
@@ -285,7 +284,7 @@ public final class StatusFormat {
         str = org.openide.util.Utilities.replaceString(str, "\"", "&quot;");
         return str;
     }
-    
+
     /**
      * Get the annotation line in a HTML format for a file.
      * It takes last known status
@@ -399,7 +398,7 @@ public final class StatusFormat {
             public void refreshDir(String path) {}
             public void refreshDirRecursive(String path) {}
         };
-        String annot = RefreshCommandSupport.getHtmlStatusAnnotation("name", "full/name", pattern, testProvider, new Hashtable()); // NOI18N
+        String annot = getHtmlStatusAnnotation("name", "full/name", pattern, testProvider, new Hashtable()); // NOI18N
         java.awt.image.BufferedImage bimage =
             new java.awt.image.BufferedImage(100, 100, java.awt.image.BufferedImage.TYPE_3BYTE_BGR);
         try {
@@ -411,7 +410,7 @@ public final class StatusFormat {
             return false;
         }
         testStatus[0] = "test"; // NOI18N
-        annot = RefreshCommandSupport.getHtmlStatusAnnotation("name", "full/name", pattern, testProvider, new Hashtable()); // NOI18N
+        annot = getHtmlStatusAnnotation("name", "full/name", pattern, testProvider, new Hashtable()); // NOI18N
         try {
             org.openide.awt.HtmlRenderer.renderHTML(annot, bimage.getGraphics(), 0, 0,
                 0, 0, bimage.getGraphics().getFont(), bimage.getGraphics().getColor(), 0, true);
@@ -423,4 +422,71 @@ public final class StatusFormat {
         //System.out.println("VALID HTML");
         return true;
     }
+
+    /**
+     * Get the annotation line in a HTML format for a file.
+     * @param name the object file name
+     * @param fullName the full path of the file with respect to the filesystem root
+     * @param annotationPattern the pattern how the annotation should be displayed
+     * @param statusProvider the provider of the status attributes information
+     * @return the annotation pattern filled up with proper attributes
+     */
+    public static String getHtmlStatusAnnotation(String name, String fullName, String annotationPattern,
+                                                 FileStatusProvider statusProvider, Hashtable additionalVars) {
+        Hashtable vars = new Hashtable();
+        if (additionalVars != null) vars.putAll(additionalVars);
+        name = escapeSpecialHTMLCharacters(name);
+        // Special "light gray" color for the file annotation
+        name += getAnnotationFontColor();
+        vars.put(ANNOTATION_PATTERN_FILE_NAME, name);
+        if ("${fileName}".equals(annotationPattern)) { // NOI18N
+            return Variables.expand(vars, annotationPattern, false);
+        }
+        //String status = statusProvider.getFileStatus(fullName);
+        FileStatusInfo statusInfo = statusProvider.getFileStatusInfo(fullName);
+        String status;
+        if (statusInfo != null) {
+            status = statusInfo.getDisplayName();
+            status = escapeSpecialHTMLCharacters(status);
+            if (statusInfo instanceof javax.swing.colorchooser.ColorSelectionModel) {
+                java.awt.Color c = ((javax.swing.colorchooser.ColorSelectionModel) statusInfo).getSelectedColor();
+                if (c != null) {
+                    String r = Integer.toHexString(c.getRed());
+                    if (r.length() == 1) r = "0"+r;
+                    String g = Integer.toHexString(c.getGreen());
+                    if (g.length() == 1) g = "0"+g;
+                    String b = Integer.toHexString(c.getBlue());
+                    if (b.length() == 1) b = "0"+b;
+                    status = "<font color=#"+r+g+b+">" + status + "</font>"; //NOI18N
+                }
+            }
+        } else {
+            status = statusProvider.getFileStatus(fullName);
+            status = escapeSpecialHTMLCharacters(status);
+        }
+        return createStatusAnnotation(status, vars, fullName, annotationPattern, statusProvider, true);
+    }
+
+    private static String createStatusAnnotation(String status, Hashtable vars,
+                                                 String fullName, String annotationPattern,
+                                                 FileStatusProvider statusProvider, boolean escapeHTML) {
+        if (status != null) vars.put(ANNOTATION_PATTERN_STATUS, status);
+        status = statusProvider.getFileLocker(fullName);
+        if (status != null) vars.put(ANNOTATION_PATTERN_LOCKER, escapeSpecialHTMLCharacters(status));
+        status = statusProvider.getFileRevision(fullName);
+        if (status != null) vars.put(ANNOTATION_PATTERN_REVISION, escapeSpecialHTMLCharacters(status));
+        status = statusProvider.getFileSticky(fullName);
+        if (status != null) vars.put(ANNOTATION_PATTERN_STICKY, escapeSpecialHTMLCharacters(status));
+        status = statusProvider.getFileSize(fullName);
+        if (status != null) vars.put(ANNOTATION_PATTERN_SIZE, escapeSpecialHTMLCharacters(status));
+        status = statusProvider.getFileAttribute(fullName);
+        if (status != null) vars.put(ANNOTATION_PATTERN_ATTR, escapeSpecialHTMLCharacters(status));
+        status = statusProvider.getFileDate(fullName);
+        if (status != null) vars.put(ANNOTATION_PATTERN_DATE, escapeSpecialHTMLCharacters(status));
+        status = statusProvider.getFileTime(fullName);
+        if (status != null) vars.put(ANNOTATION_PATTERN_TIME, escapeSpecialHTMLCharacters(status));
+        //System.out.println("vars = "+vars+",\npattern = "+annotationPattern+",\nexpansion = "+Variables.expandFast(vars, annotationPattern, false));
+        return Variables.expand(vars, annotationPattern, false);
+    }
+
 }

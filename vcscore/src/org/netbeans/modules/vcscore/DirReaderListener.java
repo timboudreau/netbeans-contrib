@@ -26,8 +26,7 @@ public interface DirReaderListener extends EventListener {
     /**
      * The reading of a directory was finished. The files attributes data are provided.
      * @param path the path of the read directory relative to the file system root.
-     * @param rawData the collection of arrays of elements defined in
-     * {@link org.netbeans.modules.vcscore.cache.impl.RefreshCommandSupport} class.
+     * @param rawData the collection of arrays of elements defined in StatusFormat
      * @param success whether the reading process succeeded
      */
     public void readDirFinished(String path, Collection rawData, boolean success);
@@ -37,7 +36,7 @@ public interface DirReaderListener extends EventListener {
      * @param path the path of the read directory relative to the file system root.
      * @param rawData the container of the retrieved directory structure with
      * associated array of elements defined in
-     * {@link org.netbeans.modules.vcscore.cache.impl.RefreshCommandSupport} class.
+     * {@link StatusFormat} class.
      * @param success whether the reading process succeeded
      */
     public void readDirFinishedRecursive(String path, VcsDirContainer rawData, boolean success);

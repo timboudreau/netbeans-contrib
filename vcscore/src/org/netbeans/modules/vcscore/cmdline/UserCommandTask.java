@@ -44,10 +44,7 @@ import org.netbeans.spi.vcs.commands.CommandTaskSupport;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.DirReaderListener;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.TurboUtil;
-import org.netbeans.modules.vcscore.cache.CacheHandler;
-import org.netbeans.modules.vcscore.cache.FileSystemCache;
 import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
@@ -262,10 +259,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
 
     /** The original cache API was not able to refresh folder, it used a fake file trick*/
     private File createDirProbe(File original) {
-        if (Turbo.implemented()) {
-            return original;
-        }
-        return new File(original, "test");
+        return original;
     }
 
     /** This task should only spawn a refresh task. */
@@ -275,31 +269,19 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     
     /** Spawn the refresh task. */
     void spawnRefresh(VcsFileSystem fileSystem) {
-        if (Turbo.implemented()) {
-            assert spawnRefreshFile != null;
-            final FileObject fo = FileUtil.toFileObject(spawnRefreshFile);
-            assert fo != null : "Missing fileobject for " + spawnRefreshFile.getAbsolutePath(); // NOI18N
-            // Spawn the refresh asynchronously, like the original implementation.
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    if (spawnRefreshRecursively) {
-                        TurboUtil.refreshRecursively(fo);
-                    } else {
-                        TurboUtil.refreshFolder(fo);
-                    }
+        assert spawnRefreshFile != null;
+        final FileObject fo = FileUtil.toFileObject(spawnRefreshFile);
+        assert fo != null : "Missing fileobject for " + spawnRefreshFile.getAbsolutePath(); // NOI18N
+        // Spawn the refresh asynchronously, like the original implementation.
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                if (spawnRefreshRecursively) {
+                    TurboUtil.refreshRecursively(fo);
+                } else {
+                    TurboUtil.refreshFolder(fo);
                 }
-            });
-            return;
-        }
-
-        // original implementation
-        FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
-        Object locker = new Object();
-        cache.getCacheFile(spawnRefreshFile,
-                           (spawnRefreshRecursively) ? CacheHandler.STRAT_REFRESH_RECURS
-                                                     : CacheHandler.STRAT_REFRESH,
-                           locker);
-        locker = null;
+            }
+        });
     }
     
     public String getDisplayName() {

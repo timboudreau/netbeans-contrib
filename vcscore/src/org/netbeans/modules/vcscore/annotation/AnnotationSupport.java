@@ -14,15 +14,7 @@
 package org.netbeans.modules.vcscore.annotation;
 
 import java.util.*;
-import java.io.File;
-
-import org.openide.util.NbBundle;
-
-import org.netbeans.modules.vcscore.cache.*;
-import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
  * This class provides means of creating a mutable annotation of the data object.

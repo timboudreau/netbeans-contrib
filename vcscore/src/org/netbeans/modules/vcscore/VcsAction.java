@@ -29,7 +29,6 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Table;
-import org.netbeans.modules.vcscore.cache.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
@@ -60,27 +59,11 @@ public final class VcsAction extends Object {//NodeAction implements ActionListe
      * @param path the directory path
      */
     private static void doList(VcsFileSystem fileSystem, String path) {
-
-        if (Turbo.implemented()) {
-            FileObject fo = fileSystem.findResource(path);
-            if (fo == null) return ;
-            if (fo.isData()) fo = fo.getParent();
-            Turbo.getRepositoryMeta(fo);
-            TurboUtil.refreshFolder(fo);
-            return;
-        }
-
-        // the old implementation
-        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        FileCacheProvider cache = fileSystem.getCacheProvider();
-        if (statusProvider == null) return;
-        //System.out.println("cache = "+cache+", cache.isDir("+path+") = "+cache.isDir(path));
-        if (cache == null || cache.isDir(path)) {
-            statusProvider.refreshDir(path);
-        } else {
-            String dirName = VcsUtilities.getDirNamePart(path);
-            statusProvider.refreshDir(dirName);
-        }
+        FileObject fo = fileSystem.findResource(path);
+        if (fo == null) return ;
+        if (fo.isData()) fo = fo.getParent();
+        Turbo.getRepositoryMeta(fo);
+        TurboUtil.refreshFolder(fo);
     }
 
     /**
@@ -442,11 +425,7 @@ public final class VcsAction extends Object {//NodeAction implements ActionListe
         Table files = new Table();
         //boolean refreshDone = false;
         addImportantFiles(fileObjects, files, processAll, fileSystem, true);
-        if (Turbo.implemented()) {
-            files = removeDisabledWithTurbo(fileSystem, files, cmd);
-        } else {
-            files = removeDisabled(fileSystem.getStatusProvider(), files, cmd);
-        }
+        files = removeDisabledWithTurbo(fileSystem, files, cmd);
         if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
             (VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName())) {
             ArrayList paths = new ArrayList();

@@ -84,52 +84,22 @@ public class VssVerifyAction extends java.lang.Object implements VcsAdditionalCo
     
     private void fillFilesByState(List fos) {
 
-        if (Turbo.implemented()) {
-            for (Iterator it = fos.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                FileProperties fprops = Turbo.getMeta(fo);
-                String status = FileProperties.getStatus(fprops);
-                //System.out.println("fillFilesByState: file = '"+file+"', status = "+status);
-                if (Statuses.getLocalStatus().equals(status)) {
-                    localFiles.add(fo);
-                    //System.out.println("  is Local");
-                } else if (UP_TO_DATE.equals(status)) {
-                    uptoDateFiles.add(fo);
-                    //System.out.println("  is Up to date");
-                } else {
-                    //System.out.println("  is Unrecognized => should me modified or so.");
-                    String locker = fprops != null ? fprops.getLocker() : null;
-                    if (locker == null || locker.trim().length() == 0) {
-                        notLockedFiles.add(fo);
-                    }
-                }
-            }
-
-            return;
-        }
-
-        // the original implementation
-        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        if (statusProvider == null) {
-            localFiles.addAll(fos);
-        } else {
-            for (Iterator it = fos.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                String file = fo.getPath();
-                String status = statusProvider.getFileStatus(file);
-                //System.out.println("fillFilesByState: file = '"+file+"', status = "+status);
-                if (statusProvider.getLocalFileStatus().equals(status)) {
-                    localFiles.add(fo);
-                    //System.out.println("  is Local");
-                } else if (UP_TO_DATE.equals(status)) {
-                    uptoDateFiles.add(fo);
-                    //System.out.println("  is Up to date");
-                } else {
-                    //System.out.println("  is Unrecognized => should me modified or so.");
-                    String locker = statusProvider.getFileLocker(file);
-                    if (locker == null || locker.trim().length() == 0) {
-                        notLockedFiles.add(fo);
-                    }
+        for (Iterator it = fos.iterator(); it.hasNext(); ) {
+            FileObject fo = (FileObject) it.next();
+            FileProperties fprops = Turbo.getMeta(fo);
+            String status = FileProperties.getStatus(fprops);
+            //System.out.println("fillFilesByState: file = '"+file+"', status = "+status);
+            if (Statuses.getLocalStatus().equals(status)) {
+                localFiles.add(fo);
+                //System.out.println("  is Local");
+            } else if (UP_TO_DATE.equals(status)) {
+                uptoDateFiles.add(fo);
+                //System.out.println("  is Up to date");
+            } else {
+                //System.out.println("  is Unrecognized => should me modified or so.");
+                String locker = fprops != null ? fprops.getLocker() : null;
+                if (locker == null || locker.trim().length() == 0) {
+                    notLockedFiles.add(fo);
                 }
             }
         }

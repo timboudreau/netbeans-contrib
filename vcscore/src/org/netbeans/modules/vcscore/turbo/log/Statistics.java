@@ -132,6 +132,7 @@ public final class Statistics {
     public static void shutdown() {
         printCacheStatistics();
         out.close();
+//        System.out.println("  Statistics goes to " + Statistics.logPath()); // NOI18N        
     }
 
     public static String logPath() {

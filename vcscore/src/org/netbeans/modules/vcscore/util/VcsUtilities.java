@@ -1091,32 +1091,6 @@ public class VcsUtilities {
         return unique;
     }
     
-    public static List createIgnoreList(final org.netbeans.modules.vcscore.cache.CacheDir dir,
-                                             final String path,
-                                             final org.netbeans.modules.vcscore.VcsFileSystem.IgnoreListSupport ignSupport) {
-
-        assert Turbo.implemented() == false;
-        
-        org.netbeans.modules.vcscore.cache.CacheDir parent = dir.getParent();
-        //System.out.println("createIgnoreList("+dir.getAbsolutePath()+", "+path+"), parent = "+((parent == null) ? "null" : parent.getAbsolutePath()));
-        List ignoreList = null;
-        if (parent == null)
-            ignoreList = ignSupport.createIgnoreList(path, ignSupport.createInitialIgnoreList());
-        else {
-            //CacheDir pd = cache.getDir(parent.getPackageNameExt('/','.'));
-            List parentIgnoreList;
-            //System.out.println("  parent has ignore list set = "+parent.isIgnoreListSet());
-            if (!parent.isIgnoreListSet()) {
-                parentIgnoreList = createIgnoreList(parent, VcsUtilities.getDirNamePart(path), ignSupport);
-            } else {
-                parentIgnoreList = parent.getIgnoreList();
-            }
-            ignoreList = ignSupport.createIgnoreList(path, parentIgnoreList);
-        }
-        dir.setIgnoreList(ignoreList);
-        return ignoreList;
-    }
-    
     /**
      * Performs the conversion from the Fileobjects retrieved from nodes to the real
      * underlying versioning filesystem's fileobjects. Should be used in the action's code whenever 

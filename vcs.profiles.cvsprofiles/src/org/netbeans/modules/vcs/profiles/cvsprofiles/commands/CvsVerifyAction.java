@@ -94,53 +94,24 @@ public class CvsVerifyAction extends java.lang.Object implements VcsAdditionalCo
     }
 
     private void fillFilesByState(List fos) {
-        if (Turbo.implemented()) {
-            HashSet toUpdate = new HashSet(Arrays.asList(TO_UPDATE));
-            for (Iterator it = fos.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                String localStatus = Statuses.getLocalStatus();
-                FileProperties fprops = Turbo.getMeta(fo);
-                String status = FileProperties.getStatus(fprops);
-                //System.out.println("fillFilesByState: file = '"+file+"', status = "+status);
-                if (localStatus.equals(status)) {
-                    localFiles.add(fo);
-                    //System.out.println("  is Local");
-                } else if (toUpdate.contains(status)) {
-                    outOfDateFiles.add(fo);
-                    //System.out.println("  is Out Of Date");
-                } else if (UP_TO_DATE.equals(status)) {
-                    uptoDateFiles.add(fo);
-                    //System.out.println("  is Up to date");
-                } else {
-                    //System.out.println("  is Unrecognized => should me modified or so.");
-                }
-            }
-            return;
-        }
-
-        // original code
-        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        if (statusProvider == null) {
-            localFiles.addAll(fos);
-        } else {
-            HashSet toUpdate = new HashSet(Arrays.asList(TO_UPDATE));
-            for (Iterator it = fos.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                String file = fo.getPath();
-                String status = statusProvider.getFileStatus(file);
-                //System.out.println("fillFilesByState: file = '"+file+"', status = "+status);
-                if (statusProvider.getLocalFileStatus().equals(status)) {
-                    localFiles.add(fo);
-                    //System.out.println("  is Local");
-                } else if (toUpdate.contains(status)) {
-                    outOfDateFiles.add(fo);
-                    //System.out.println("  is Out Of Date");
-                } else if (UP_TO_DATE.equals(status)) {
-                    uptoDateFiles.add(fo);
-                    //System.out.println("  is Up to date");
-                } else {
-                    //System.out.println("  is Unrecognized => should me modified or so.");
-                }
+        HashSet toUpdate = new HashSet(Arrays.asList(TO_UPDATE));
+        for (Iterator it = fos.iterator(); it.hasNext(); ) {
+            FileObject fo = (FileObject) it.next();
+            String localStatus = Statuses.getLocalStatus();
+            FileProperties fprops = Turbo.getMeta(fo);
+            String status = FileProperties.getStatus(fprops);
+            //System.out.println("fillFilesByState: file = '"+file+"', status = "+status);
+            if (localStatus.equals(status)) {
+                localFiles.add(fo);
+                //System.out.println("  is Local");
+            } else if (toUpdate.contains(status)) {
+                outOfDateFiles.add(fo);
+                //System.out.println("  is Out Of Date");
+            } else if (UP_TO_DATE.equals(status)) {
+                uptoDateFiles.add(fo);
+                //System.out.println("  is Up to date");
+            } else {
+                //System.out.println("  is Unrecognized => should me modified or so.");
             }
         }
     }

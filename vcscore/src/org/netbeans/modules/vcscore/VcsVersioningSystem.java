@@ -112,11 +112,6 @@ class VcsVersioningSystem extends VersioningFileSystem {
         return fileSystem.getStatus();
     }        
     
-    public FileStatusProvider getFileStatusProvider() {
-        assert Turbo.implemented() == false;
-        return fileSystem.getStatusProvider();
-    }
-    
     public boolean isShowDeadFiles() {
         return fileSystem.isShowDeadFiles();
     }
@@ -304,28 +299,13 @@ class VcsVersioningSystem extends VersioningFileSystem {
                             //System.out.println("ADDING new revisions: "+workNew);
                             oldList.removeAll(workOld); // remove all old revisions (some VCS may perhaps allow removing revisions)
 
-                            if (Turbo.implemented()) {
-                                FileObject fo = findResource(name);
-                                FileProperties fprops = Turbo.getMeta(fo);
-                                String revision = fprops != null ? fprops.getRevision() : null;
-                                if (revision != null) {
-                                    for (Iterator it = oldList.iterator(); it.hasNext(); ) {
-                                        RevisionItem item = (RevisionItem) it.next();
-                                        item.setCurrent(revision.equals(item.getRevision()));
-                                    }
-                                }
-                                return;
-                            }
-
-                            // original implementation
-                            FileStatusProvider status = getFileStatusProvider();
-                            if (status != null) {
-                                String revision = status.getFileRevision(name);
-                                if (revision != null) {
-                                    for (Iterator it = oldList.iterator(); it.hasNext(); ) {
-                                        RevisionItem item = (RevisionItem) it.next();
-                                        item.setCurrent(revision.equals(item.getRevision()));
-                                    }
+                            FileObject fo = findResource(name);
+                            FileProperties fprops = Turbo.getMeta(fo);
+                            String revision = fprops != null ? fprops.getRevision() : null;
+                            if (revision != null) {
+                                for (Iterator it = oldList.iterator(); it.hasNext(); ) {
+                                    RevisionItem item = (RevisionItem) it.next();
+                                    item.setCurrent(revision.equals(item.getRevision()));
                                 }
                             }
                         }

@@ -195,17 +195,6 @@ public abstract class VersioningFileSystem {
         return NO_ACTIONS;
     }
 
-    /**
-     * Get the status provider. All file status information
-     * is retrieved from this provider.
-     * @return the status provider or <code>null<code>, when no provider
-     *         is defined.
-     */
-    public FileStatusProvider getFileStatusProvider() {
-        assert Turbo.implemented() == false;
-        return null;
-    }
-
     protected final FileObject findResource(String name) {
         return fileSystem.findResource(name);
     }

@@ -135,11 +135,6 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         fsRootDir = fileSystem.getRootDirectory().getAbsolutePath();
         //collectRevisions(processingFiles, fsRootDir);
         Map foldersByProcessingFiles = null;
-        if (doRefresh) {
-            if (Turbo.implemented() == false) {
-                foldersByProcessingFiles = getFoldersByProcessingFiles(processingFiles);
-            }
-        }
 
         final String rootDir = Variables.expand(vars, (String) vars.get(args[0]), false);
         final String rootDirCutted = (rootDir.endsWith(File.separator)) ?
@@ -255,22 +250,16 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             // and update have removed it locally. children must be updated.
             // removed folders are unreported so cannot be catched by above sends
 
-            if (Turbo.implemented()) {
-                Iterator it = processingFiles.iterator();
-                while (it.hasNext()) {
-                    String processingFile = (String) it.next();
-                    FileObject fo = fileSystem.findResource(processingFile);
-                    if (fo != null && fo.isFolder()) {
-                        FileObject parent = fo.getParent();
-                        if (parent != null) {
-                            parent.refresh();
-                        }
+            Iterator it = processingFiles.iterator();
+            while (it.hasNext()) {
+                String processingFile = (String) it.next();
+                FileObject fo = fileSystem.findResource(processingFile);
+                if (fo != null && fo.isFolder()) {
+                    FileObject parent = fo.getParent();
+                    if (parent != null) {
+                        parent.refresh();
                     }
                 }
-            } else {
-                sendRemovedFolders(foldersByProcessingFiles,
-                                   getFoldersByProcessingFiles(processingFiles),
-                                   stdoutDataListener);
             }
         }
         if (vce.getExitStatus() == VcsCommandExecutor.INTERRUPTED) {

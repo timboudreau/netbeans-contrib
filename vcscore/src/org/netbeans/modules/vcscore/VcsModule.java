@@ -27,8 +27,6 @@ public final class VcsModule extends ModuleInstall {
     private static final long serialVersionUID = 0L;
 
     public void close() {
-        if (Turbo.implemented()) {
-            Turbo.shutdown();
-        }
+        Turbo.shutdown();
     }
 }
