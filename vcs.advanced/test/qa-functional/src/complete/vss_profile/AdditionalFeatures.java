@@ -82,10 +82,19 @@ public class AdditionalFeatures extends NbTestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    /** Method called before each testcase. Redirects system output.
+    /** Method called before each testcase. Sets default timeouts, redirects system
+     * output and maps main components.
      */
-    protected void setUp() {
-        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new File(workingDir).mkdirs();
+        File outputFile = new File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        File errorFile = new File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
+        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
     }
 
     /** Method will create a file and capture the screen.
@@ -114,8 +123,8 @@ public class AdditionalFeatures extends NbTestCase {
         new Action(VERSIONING_MENU + "|" + VERSIONING_EXPLORER, VERSIONING_EXPLORER).perform(A_FileNode);
         VersioningFrameOperator versioningExplorer = new VersioningFrameOperator();
         filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
-        new Node(filesystemNode, "A_File.java [Current]|2.0  Three lines have changed.").select();
-        new OpenAction().perform(new Node(filesystemNode, "A_File.java [Current]|1.0  Generated A_File class."));
+        new Node(filesystemNode, "A_File.java [Current]|2  Three lines have changed.").select();
+        new OpenAction().perform(new Node(filesystemNode, "A_File.java [Current]|1  Generated A_File class."));
         versioningExplorer.close();
         String editorContents = new EditorOperator("A_File.java 1.0").getText();
         if (!editorContents.equals("/** This is testing file.\n */\n\n public class Testing_File {\n }\n"))
@@ -134,9 +143,9 @@ public class AdditionalFeatures extends NbTestCase {
         new Action(VERSIONING_MENU + "|" + VERSIONING_EXPLORER, VERSIONING_EXPLORER).perform(A_FileNode);
         VersioningFrameOperator versioningExplorer = new VersioningFrameOperator();
         filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
-        new Action(null, DIFF).perform(new Node(filesystemNode, "A_File.java [Current]|1.0  Generated A_File class."));
+        new Action(null, DIFF).perform(new Node(filesystemNode, "A_File.java [Current]|1  Generated A_File class."));
         versioningExplorer.close();
-        EditorOperator editor = new EditorOperator("Diff: A_File.java");
+        TopComponentOperator editor = new TopComponentOperator(new EditorWindowOperator(), "Diff: A_File.java");
         JEditorPaneOperator headRevision = new JEditorPaneOperator(editor, 0);
         JEditorPaneOperator workingRevision = new JEditorPaneOperator(editor, 1);
         String headRevisionContents = "/** This is testing file.\n */\n\n public class Testing_File {\n\n }\n";
@@ -214,7 +223,7 @@ public class AdditionalFeatures extends NbTestCase {
         filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
         new Action(null, REFRESH_REVISIONS).perform(new Node(filesystemNode, "test [Current]|B_File.java [Current]"));
         MainWindowOperator.getDefault().waitStatusText("Command REVISION_LIST finished.");
-        new Node(filesystemNode, "test [Current]|B_File.java [Current]|2.0  Checked in from VCS group.").select();
+        new Node(filesystemNode, "test [Current]|B_File.java [Current]|2  Checked in from VCS group.").select();
         versioningExplorer.close();
         System.out.println(". done !");
     }

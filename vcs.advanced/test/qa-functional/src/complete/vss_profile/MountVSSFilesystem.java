@@ -67,15 +67,16 @@ public class MountVSSFilesystem extends NbTestCase {
     /** Method called before each testcase. Sets default timeouts, redirects system
      * output and maps main components.
      */
-    protected void setUp() {
-        org.netbeans.test.oo.gui.jelly.JellyProperties.setDefaults();
-        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
-    }
-    
-    /** Method called after each testcase. Resets Jemmy WaitComponentTimeout.
-     */
-    protected void tearDown() {
-        org.netbeans.test.oo.gui.jelly.JellyProperties.setDefaults();
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new File(workingDir).mkdirs();
+        File outputFile = new File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        File errorFile = new File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
+        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
     }
     
     /** Method will create a file and capture the screen.

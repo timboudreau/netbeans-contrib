@@ -87,10 +87,19 @@ public class RegularDevelopment extends NbTestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    /** Method called before each testcase. Redirects system output.
+    /** Method called before each testcase. Sets default timeouts, redirects system
+     * output and maps main components.
      */
-    protected void setUp() {
-        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new File(workingDir).mkdirs();
+        File outputFile = new File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        File errorFile = new File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
+        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
     }
 
     /** Method will create a file and capture the screen.

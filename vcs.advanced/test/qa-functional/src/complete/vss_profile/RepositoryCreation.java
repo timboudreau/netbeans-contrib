@@ -73,10 +73,19 @@ public class RepositoryCreation extends NbTestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    /** Method called before each testcase. Redirects system output.
+    /** Method called before each testcase. Sets default timeouts, redirects system
+     * output and maps main components.
      */
-    protected void setUp() {
-        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new File(workingDir).mkdirs();
+        File outputFile = new File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        File errorFile = new File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
+        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
     }
 
     /** Method responsible for VSS repository creation physically on disc.
@@ -131,13 +140,13 @@ public class RepositoryCreation extends NbTestCase {
         wizard.setVSSCommand(workingDirectory + File.separator + "Repo" + File.separator + "VSS" + File.separator + "win32" + File.separator + "SS.EXE");
         wizard.setVSSSSDIR(workingDirectory + File.separator + "Repo" + File.separator + "VSS");
         wizard.finish();
-        try { new JButtonOperator(new NbDialogOperator("Password:"), "OK").push(); }
-        catch(TimeoutExpiredException e) {}
         Thread.currentThread().sleep(3000);
         String filesystem = "VSS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         Node testNode = new Node( filesystemNode, "test [Local]");
         new Action(VERSIONING_MENU + "|" + CREATE_PROJECT, CREATE_PROJECT).perform(testNode);
+        try { new JButtonOperator(new NbDialogOperator("Password:"), "OK").push(); }
+        catch(TimeoutExpiredException e) {}
         CreateProjectCommandOperator createProject = new CreateProjectCommandOperator("test");
         createProject.setComment("For testing purpose.");
         createProject.ok();

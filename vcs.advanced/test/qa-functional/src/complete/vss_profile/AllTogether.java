@@ -45,6 +45,21 @@ public class AllTogether extends NbTestCase {
         return suite;
     }
     
+    /** Method called before each testcase. Sets default timeouts, redirects system
+     * output and maps main components.
+     */
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new java.io.File(workingDir).mkdirs();
+        java.io.File outputFile = new java.io.File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        java.io.File errorFile = new java.io.File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        java.io.PrintWriter outputWriter = new java.io.PrintWriter(new java.io.FileWriter(outputFile));
+        java.io.PrintWriter errorWriter = new java.io.PrintWriter(new java.io.FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
+    }
+
     /** Use for internal test execution inside IDE.
      * @param args Command line arguments.
      */
