@@ -145,6 +145,12 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String PROPERTY_RUN_ON_MULTIPLE_FILES = "runOnMultipleFiles";
     
     /**
+     * A boolean property, if true the files that are to be processed are sorted
+     * by the hierarchical order prior calling the command (the child file never goes before its parent).
+     */
+    public static final String PROPERTY_NEEDS_HIERARCHICAL_ORDER = "needsHierarchicalOrder";
+    
+    /**
      * When true, the command is supposed to return fail status even when it finish normally.
      * The user will not be warned, that this command has failed.
      * I.e. DIFF command fails when it finds some differences, but the user should not be
