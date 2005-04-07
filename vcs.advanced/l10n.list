@@ -2,6 +2,12 @@ vcsgeneric/src/**/Bundle*.properties
 vcsgeneric/src/**/*.html
 vcsgeneric/src/**/*.gif
 exclude vcsgeneric/src/**/package.html
-vcsgeneric/profiles/**/Bundle*.properties
-vcsgeneric/profiles/**/*.html
-vcsgeneric/profiles/**/*.gif
+vcsgeneric/profiles/cvsprofiles/src/**/Bundle*.properties
+vcsgeneric/profiles/cvsprofiles/src/**/*.html
+vcsgeneric/profiles/cvsprofiles/src/**/*.gif
+vcsgeneric/profiles/pvcs/src/**/Bundle*.properties
+vcsgeneric/profiles/pvcs/src/**/*.html
+vcsgeneric/profiles/pvcs/src/**/*.gif
+vcsgeneric/profiles/vss/src/**/Bundle*.properties
+vcsgeneric/profiles/vss/src/**/*.html
+vcsgeneric/profiles/vss/src/**/*.gif
