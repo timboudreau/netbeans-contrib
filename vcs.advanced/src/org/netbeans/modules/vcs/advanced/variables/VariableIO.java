@@ -164,53 +164,30 @@ public class VariableIO extends Object {
         for (int i = 0; i < ch.length; i++) {
             filesMap.put(ch[i].getName(), ch[i]);
         }
-        
-        String branding = NbBundle.getBranding();
-        Set languages = new HashSet();
-        Set countries = new HashSet();
-        Set variants = new HashSet();
-        Locale[] locales = Locale.getAvailableLocales();
-        for (int i = 0; i < locales.length; i++) {
-            String l = locales[i].getLanguage().toLowerCase();
-            if (l.length() > 0) languages.add(l);
-            l = locales[i].getCountry().toLowerCase();
-            if (l.length() > 0) countries.add(l);
-            l = locales[i].getVariant().toLowerCase();
-            if (l.length() > 0) variants.add(l);
-        }
-        
         // The list of base names - without _<locale>
         HashSet baseList = new HashSet();
         for (int i = 0; i < ch.length; i++) {
             String name = ch[i].getName();
-            int locBits = 15; // branding, language, country, variant
-            int dash;
-            while ((dash = name.lastIndexOf('_')) > 0 && locBits > 0) {
-                String ending = name.substring(dash + 1).toLowerCase();
-                if (locBits >= 8 && variants.contains(ending)) {
-                    name = name.substring(0, dash);
-                    locBits = 7;
-                } else if (locBits >= 4 && countries.contains(ending)) {
-                    name = name.substring(0, dash);
-                    locBits = 3;
-                } else if (locBits >= 2 && languages.contains(ending)) {
-                    name = name.substring(0, dash);
-                    locBits = 1;
-                } else if (locBits >= 1 && branding.equals(ending)) {
-                    name = name.substring(0, dash);
-                    locBits = 0;
-                } else {
-                    locBits = 0;
-                }
+            int underscore = name.indexOf('_');
+            String base;
+            if (underscore > 0) {
+                base = name.substring(0, underscore);
+            } else {
+                base = name;
             }
-            baseList.add(name);
+            baseList.add(base);
         }
         ArrayList res = new ArrayList();
         // Now find the correct names according to current locale
         for (Iterator it = baseList.iterator(); it.hasNext(); ) {
             String baseName = (String) it.next();
             FileObject fo = (FileObject) NbBundle.getLocalizedValue(filesMap, baseName);
-            res.add(fo.getNameExt());
+            if (fo != null) {
+                res.add(fo.getNameExt());
+            } else { // We've chosen a bad basename or the file exists only with another locale
+                ErrorManager.getDefault().log(ErrorManager.ERROR,
+                        "Ignoring VCS profile(s) starting with \""+baseName+"\", the files contain an underscore, but do not match the current locale.");
+            }
         }
         return res;
     }

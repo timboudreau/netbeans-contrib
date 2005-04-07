@@ -16,6 +16,8 @@ package org.netbeans.modules.vcs.advanced;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 
 import org.openide.filesystems.*;
 import java.awt.event.*;
@@ -25,6 +27,7 @@ import javax.swing.event.*;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.util.UserCancelException;
 
 /**
  * The Save As dialog, that works on FileObjects. It is used to save configuration files.
@@ -271,6 +274,13 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
     private void saveButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         // Add your handling code here:
         selectedFile = fileNameTextField.getText();
+        try {
+            if (selectedFile.indexOf('_') > 0 && willChangeNameWithUnderscore(selectedFile)) {
+                return;
+            }
+        } catch (UserCancelException ucex) {
+            selectedFile = null;
+        }
         closeDialog(null);
     }//GEN-LAST:event_saveButtonActionPerformed
 
@@ -286,6 +296,21 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
         dispose ();
     }//GEN-LAST:event_closeDialog
 
+    /**
+     * Display a question that will ask whether the user is sure to use this name
+     * even though it contains an underscore.
+     */
+    public static boolean willChangeNameWithUnderscore(String nameWithUnderscore) throws UserCancelException {
+        NotifyDescriptor.Confirmation question =
+                new NotifyDescriptor.Confirmation(org.openide.util.NbBundle.getMessage(ConfigSaveAsDialog.class, "CTL_NameUnderscore", nameWithUnderscore),
+                                                  NotifyDescriptor.YES_NO_CANCEL_OPTION, NotifyDescriptor.WARNING_MESSAGE);
+        Object ret = DialogDisplayer.getDefault().notify(question);
+        if (ret == NotifyDescriptor.CANCEL_OPTION) {
+            throw new UserCancelException();
+        }
+        return ret == NotifyDescriptor.YES_OPTION;
+    }
+    
     private void fillFileList() {
         javax.swing.DefaultListModel model = new javax.swing.DefaultListModel();
         String[] configNames = ProfilesFactory.getDefault().getProfilesNames();

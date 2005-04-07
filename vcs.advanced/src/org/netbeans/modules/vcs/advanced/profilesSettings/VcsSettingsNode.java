@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ResourceBundle;
+import org.netbeans.modules.vcs.advanced.ConfigSaveAsDialog;
 
 import org.netbeans.modules.vcs.advanced.ProfilesFactory;
 import org.netbeans.modules.vcs.advanced.commands.ConditionedCommands;
@@ -34,6 +35,7 @@ import org.openide.nodes.Children.SortedArray;
 import org.openide.nodes.CookieSet;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.UserCancelException;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.actions.NewAction;
@@ -115,6 +117,17 @@ public class VcsSettingsNode extends AbstractNode {
                 return;
 
             String profileName = input.getInputText();
+            
+            try {
+                while (profileName.indexOf('_') > 0 && ConfigSaveAsDialog.willChangeNameWithUnderscore(profileName)) {
+                    if (DialogDisplayer.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
+                        return;
+                    profileName = input.getInputText();
+                }
+            } catch (UserCancelException ucex) {
+                return ;
+            }
+            
             ProfilesFactory.getDefault().addProfile(profileName, profileName, null, null,
                 new HashSet(), new HashSet(), new ConditionedVariables(new ArrayList(), new HashMap(), new HashMap()),
                 new ConditionedCommandsBuilder(CommandsTree.EMPTY).getConditionedCommands());
