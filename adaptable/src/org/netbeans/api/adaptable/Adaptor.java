@@ -18,6 +18,13 @@ package org.netbeans.api.adaptable;
  * @author Jaroslav Tulach
  */
 public final class Adaptor extends java.lang.Object {
+    /** initializes access to friend features for 
+     * the rest of the module.
+     */
+    static {
+        org.netbeans.modules.adaptable.Accessor.API = new AccessorImpl ();
+    }
+    
     /**
      * implementation of Adaptor functionality 
      */
@@ -32,5 +39,20 @@ public final class Adaptor extends java.lang.Object {
         this.impl = impl;
         this.data = data;
     }
+    
+    
+    /** Finds a Lookup for a given object in the context of 
+     * given provider.
+     *
+     * @param obj represented object
+     * @param provider the provider of the aspect
+     */
+    public static org.openide.util.Lookup getLookup (Object obj, Adaptor provider) {
+        if (provider == null) {
+            return org.openide.util.Lookup.EMPTY;
+        }
+        return provider.impl.createLookup (obj, provider.data);
+    }
+    
     
 }

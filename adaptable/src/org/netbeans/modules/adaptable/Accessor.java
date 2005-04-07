@@ -26,7 +26,7 @@ public abstract class Accessor {
     static {
         // forces initialization of class Aspects that initializes
         // field API
-        Class c = org.netbeans.api.adaptable.Aspects.class;
+        Class c = org.netbeans.api.adaptable.Adaptor.class;
     }
  
     /**
