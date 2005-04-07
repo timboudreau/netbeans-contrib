@@ -47,12 +47,20 @@ public final class Adaptor extends java.lang.Object {
      * @param obj represented object
      * @param provider the provider of the aspect
      */
-    public static org.openide.util.Lookup getLookup (Object obj, Adaptor provider) {
+    public static Adaptable getLookup (Object obj, Adaptor provider) {
         if (provider == null) {
-            return org.openide.util.Lookup.EMPTY;
+            return Empty.EMPTY;
         }
         return provider.impl.createLookup (obj, provider.data);
     }
-    
-    
+
+    /** Empty adaptable.
+     */
+    private static final class Empty implements Adaptable {
+        static final Empty EMPTY = new Empty ();
+        
+        public <T> T lookup (Class<T> what) {
+            return null;
+        }
+    }
 }

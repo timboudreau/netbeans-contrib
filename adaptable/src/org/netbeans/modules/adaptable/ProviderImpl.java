@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.adaptable;
 
+import org.netbeans.api.adaptable.Adaptable;
+
 /** Functionality provided by aspects.
  *
  * @author Jaroslav Tulach
@@ -22,5 +24,5 @@ public interface ProviderImpl {
      * @param obj the object to create lookup for
      * @param data the data originally passed to AspectProvider
      */
-    public org.openide.util.Lookup createLookup (Object obj, Object data);
+    public Adaptable createLookup (Object obj, Object data);
 }
