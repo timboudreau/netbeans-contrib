@@ -13,15 +13,24 @@
 
 package org.netbeans.api.adaptable;
 
-/** Implementation of accessor for friend access to hidden features
- * of the API.
+/**
  *
  * @author Jaroslav Tulach
  */
-final class AccessorImpl extends org.netbeans.modules.adaptable.Accessor {
+public final class Adaptor extends java.lang.Object {
+    /**
+     * implementation of Adaptor functionality 
+     */
+    final org.netbeans.modules.adaptable.ProviderImpl impl;
+    /** any data associated with the provider */
+    final Object data;
     
-    public Adaptor createAspectProvider(org.netbeans.modules.adaptable.ProviderImpl impl, Object data) {
-        return new Adaptor (impl, data);
+    /**  */
+    Adaptor(
+        org.netbeans.modules.adaptable.ProviderImpl impl, Object data
+    ) {
+        this.impl = impl;
+        this.data = data;
     }
     
 }

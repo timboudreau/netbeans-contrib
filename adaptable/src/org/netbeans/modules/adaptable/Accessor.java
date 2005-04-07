@@ -29,9 +29,10 @@ public abstract class Accessor {
         Class c = org.netbeans.api.adaptable.Aspects.class;
     }
  
-    /** Creates new instance of AspectProvider
+    /**
+     * Creates new instance of Adaptor
      * @param impl the impl to pass to the provider
      */
-    public abstract AspectProvider createAspectProvider (ProviderImpl impl, Object data);
+    public abstract Adaptor createAspectProvider (ProviderImpl impl, Object data);
     
 }
