@@ -756,6 +756,9 @@ FilteredTopComponent {
     protected void componentClosed() {
         getUserTaskList().destroy();
         
+        if (defview == this)
+            defview = null;
+        
  	Iterator it = views.iterator();
         while (it.hasNext()) {
             WeakReference wr = (WeakReference) it.next();
