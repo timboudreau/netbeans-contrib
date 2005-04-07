@@ -27,7 +27,7 @@ import org.openide.util.Utilities;
 /**
  * ListCellRenderer for priorities
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public class PriorityListCellRenderer extends DefaultListCellRenderer {
     private static final Image LOW = Utilities.loadImage(

@@ -13,32 +13,42 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import java.beans.PropertyEditor;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeListener;
 
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 
 /**
  * Panel for duration
  *
- * @author Tim Lebedkov
+ * @author tl
  */
-public class DurationPanel extends javax.swing.JPanel {
-
+public class DurationPanel extends javax.swing.JPanel implements
+ChangeListener {
     private static final long serialVersionUID = 1;
 
+    private PropertyEditor pe;
+    
     /**
      * Creates new form DurationPanel
      */
     public DurationPanel() {
         initComponents();
         
-        ((SpinnerNumberModel) jSpinnerDays.getModel()).setMinimum(new Integer(0));
-        ((SpinnerNumberModel) jSpinnerDays.getModel()).setMaximum(new Integer(1000));
-        ((SpinnerNumberModel) jSpinnerHours.getModel()).setMinimum(new Integer(0));
-        ((SpinnerNumberModel) jSpinnerHours.getModel()).setMaximum(new Integer(23));
-        ((SpinnerNumberModel) jSpinnerMinutes.getModel()).setMinimum(new Integer(0));
-        ((SpinnerNumberModel) jSpinnerMinutes.getModel()).setMaximum(new Integer(59));
+        SpinnerNumberModel snm = (SpinnerNumberModel) jSpinnerDays.getModel();
+        snm.setMinimum(new Integer(0));
+        snm.setMaximum(new Integer(1000));
+        snm.addChangeListener(this);
+        snm = (SpinnerNumberModel) jSpinnerHours.getModel();
+        snm.setMinimum(new Integer(0));
+        snm.setMaximum(new Integer(23));
+        snm.addChangeListener(this);
+        snm = (SpinnerNumberModel) jSpinnerMinutes.getModel();
+        snm.setMinimum(new Integer(0));
+        snm.setMaximum(new Integer(59));
+        snm.addChangeListener(this);
         
         ((JSpinner.NumberEditor) jSpinnerDays.getEditor()).getTextField().setColumns(2);
         ((JSpinner.NumberEditor) jSpinnerHours.getEditor()).getTextField().setColumns(2);
@@ -54,6 +64,19 @@ public class DurationPanel extends javax.swing.JPanel {
         jSpinnerHours.setEnabled(b);
         jSpinnerMinutes.setEnabled(b);
     }    
+    
+    /**
+     * Sets new property editor.
+     *
+     * @param pe a property editor or null
+     */
+    public void setPropertyEditor(PropertyEditor pe) {
+        this.pe = pe;
+        if (pe != null) {
+            Integer v = (Integer) pe.getValue();
+            setDuration(v == null ? 0 : v.intValue());
+        }
+    }
     
     /**
      * Sets the duration shown in this panel
@@ -82,6 +105,12 @@ public class DurationPanel extends javax.swing.JPanel {
         
         return (days * Settings.getDefault().getHoursPerDay() + hours) * 60 + 
             minutes;
+    }
+
+    public void stateChanged(javax.swing.event.ChangeEvent e) {
+        if (pe != null) {
+            pe.setValue(new Integer(getDuration()));
+        }
     }
     
     /** This method is called from within the constructor to

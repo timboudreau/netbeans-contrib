@@ -32,7 +32,7 @@ import org.openide.explorer.propertysheet.PropertyEnv;
 // bugfix# 9219 for attachEnv() method
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
-
+ 
 
 /** 
  * A property editor for the Date class. 

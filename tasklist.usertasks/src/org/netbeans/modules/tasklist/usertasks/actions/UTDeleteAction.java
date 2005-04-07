@@ -79,13 +79,13 @@ implements ListSelectionListener {
     private boolean doConfirm(UserTaskTreeTableNode[] sel) {
         String message, title;
         if (sel.length == 1) {
-            message = NbBundle.getMessage(UTDeleteAction.class, "MSG_ConfirmDeleteObject",
+            message = NbBundle.getMessage(UTDeleteAction.class, "MSG_ConfirmDeleteObject", // NOI18N
                 sel[0].getUserTask().getSummary());
-            title = NbBundle.getMessage(UTDeleteAction.class, "MSG_ConfirmDeleteObjectTitle");
+            title = NbBundle.getMessage(UTDeleteAction.class, "MSG_ConfirmDeleteObjectTitle"); // NOI18N
         } else {
-            message = NbBundle.getMessage(UTDeleteAction.class, "MSG_ConfirmDeleteObjects",
+            message = NbBundle.getMessage(UTDeleteAction.class, "MSG_ConfirmDeleteObjects", // NOI18N
                 new Integer(sel.length));
-            title = NbBundle.getMessage(UTDeleteAction.class, "MSG_ConfirmDeleteObjectsTitle");
+            title = NbBundle.getMessage(UTDeleteAction.class, "MSG_ConfirmDeleteObjectsTitle"); // NOI18N
         }
         NotifyDescriptor desc = new NotifyDescriptor.Confirmation(message, title, NotifyDescriptor.YES_NO_OPTION);
         return NotifyDescriptor.YES_OPTION.equals(DialogDisplayer.getDefault().notify(desc));

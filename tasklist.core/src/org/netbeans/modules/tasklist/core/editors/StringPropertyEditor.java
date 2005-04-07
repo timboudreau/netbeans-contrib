@@ -21,7 +21,7 @@ import javax.swing.JLabel;
  * Does not paint non-editable values in gray as default property editor for
  * strings.
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public class StringPropertyEditor extends PropertyEditorSupport {
     public boolean isPaintable() {

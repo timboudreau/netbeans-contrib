@@ -20,7 +20,7 @@ import javax.swing.SwingConstants;
 /**
  * PropertyEditor for line numbers.
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public final class ColumnPropertyEditor extends PropertyEditorSupport {
     private static final JLabel LABEL = new JLabel();

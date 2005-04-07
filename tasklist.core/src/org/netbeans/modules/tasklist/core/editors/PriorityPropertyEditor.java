@@ -27,7 +27,7 @@ import org.netbeans.modules.tasklist.core.Task;
 /**
  * PropertyEditor for task priorities.
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public final class PriorityPropertyEditor extends PropertyEditorSupport {
     private static final String[] TAGS = SuggestionPriority.getPriorityNames();

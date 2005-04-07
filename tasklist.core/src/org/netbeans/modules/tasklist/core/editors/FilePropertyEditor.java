@@ -18,7 +18,7 @@ import org.openide.filesystems.FileObject;
 /**
  * PropertyEditor for "file" property.
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public final class FilePropertyEditor extends StringPropertyEditor {
     public String getAsText() {

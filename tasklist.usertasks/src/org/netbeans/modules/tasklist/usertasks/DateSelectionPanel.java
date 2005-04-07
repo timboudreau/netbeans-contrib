@@ -12,18 +12,8 @@
  */
 package org.netbeans.modules.tasklist.usertasks;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 

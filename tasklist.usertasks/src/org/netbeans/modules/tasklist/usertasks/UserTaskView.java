@@ -396,20 +396,20 @@ FilteredTopComponent {
             }
             
             // active filter 25. March 2005
-            String filter = (String) m.get("filter");
+            String filter = (String) m.get("filter"); // NOI18N
             if (filter != null) {
                 Filter f = getFilters().getFilterByName(filter);
                 setFilter(f);
             }
             
             // expanded state 25. March 2005
-            Object expn = m.get("expandedNodes");
+            Object expn = m.get("expandedNodes"); // NOI18N
             if (expn != null) {
                 tt.setExpandedNodes(tt.readResolveExpandedNodes(expn));
             }
             
             // selected nodes
-            Object seln = m.get("selectedNodes");
+            Object seln = m.get("selectedNodes"); // NOI18N
             if (seln != null) {
                 tt.select(tt.readResolveExpandedNodes(seln));
             }
@@ -504,13 +504,13 @@ FilteredTopComponent {
         
         // active filter
         if (getFilter() != null)
-            m.put("filter", getFilter().getName());
+            m.put("filter", getFilter().getName()); // NOI18N
         
         // expanded nodes
-        m.put("expandedNodes", tt.writeReplaceExpandedNodes(tt.getExpandedNodes()));
+        m.put("expandedNodes", tt.writeReplaceExpandedNodes(tt.getExpandedNodes())); // NOI18N
         
         // selected nodes
-        m.put("selectedNodes", tt.writeReplaceExpandedNodes(tt.getSelectedPaths()));
+        m.put("selectedNodes", tt.writeReplaceExpandedNodes(tt.getSelectedPaths())); // NOI18N
         
         objectOutput.writeObject(m);
 

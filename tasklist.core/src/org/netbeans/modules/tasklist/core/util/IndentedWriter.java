@@ -19,7 +19,7 @@ import java.io.*;
  * Indented writer. Provides methods to increase and decrease indentation
  * of each line.
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public final class IndentedWriter extends PrintWriter {
     private boolean needIndent = true;

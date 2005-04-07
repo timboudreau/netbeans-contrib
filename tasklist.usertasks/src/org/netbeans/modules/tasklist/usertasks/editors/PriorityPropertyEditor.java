@@ -23,7 +23,7 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 /**
  * PropertyEditor for task priorities.
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public final class PriorityPropertyEditor extends PropertyEditorSupport {
     private static final String[] TAGS = UserTask.getPriorityNames();
@@ -53,25 +53,6 @@ public final class PriorityPropertyEditor extends PropertyEditorSupport {
         setValue(new Integer(index));
     }
     
-    public boolean isPaintable() {
-        return true;
-    }
-
-    public void paintValue(java.awt.Graphics gfx, java.awt.Rectangle box) {
-        Object v = getValue();
-        if (v instanceof Integer) {
-            int value = ((Integer) v).intValue();
-            gfx.translate(box.x, box.y);
-            
-            // FIXME take into account background color
-            LABEL.setForeground(PriorityListCellRenderer.COLORS[value - 1]);
-            LABEL.setText(getAsText());
-            LABEL.setSize(box.width, box.height);
-            LABEL.paint(gfx);
-            gfx.translate(-box.x, -box.y);
-        }
-    }
-
     public String[] getTags() {
         return TAGS;
     }

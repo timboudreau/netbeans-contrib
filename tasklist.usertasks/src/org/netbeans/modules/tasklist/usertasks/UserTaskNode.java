@@ -241,11 +241,11 @@ public final class UserTaskNode extends AbstractNode {
             p.setShortDescription(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "HNT_progressComputed")); // NOI18N
             ss.put(p);
             
-            p = new PropertySupport.Reflection(item, Integer.TYPE, "getEffort", null); // NOI18N
+            p = new PropertySupport.Reflection(item, Integer.TYPE, "getEffort", "setEffort"); // NOI18N
             p.setName("effort"); // NOI18N
+            p.setValue("canEditAsText", Boolean.FALSE); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_effortProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_effortProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
@@ -258,17 +258,18 @@ public final class UserTaskNode extends AbstractNode {
             
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getRemainingEffort", null); // NOI18N
             p.setName("remainingEffort"); // NOI18N
+            p.setValue("canEditAsText", Boolean.FALSE); // NOI18N
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_remainingEffortProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_remainingEffortProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
-            p = new PropertySupport.Reflection(item, Integer.TYPE, "getSpentTime", null); // NOI18N
+            p = new PropertySupport.Reflection(item, Integer.TYPE, "getSpentTime", "setSpentTime"); // NOI18N
             p.setName("spentTime"); // NOI18N
+            p.setValue("canEditAsText", Boolean.FALSE); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_spentTimeProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_spentTimeProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 

@@ -23,7 +23,7 @@ import javax.swing.JList;
 /**
  * ListCellRenderer for priorities
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public class PriorityListCellRenderer extends DefaultListCellRenderer {
     private static final long serialVersionUID = 1;

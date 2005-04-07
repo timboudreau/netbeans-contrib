@@ -39,14 +39,14 @@ public class TaskTest extends TestCase {
      */
     public void testGetEffort() {
         UserTaskList utl = new UserTaskList();
-        UserTask root = new UserTask("root", utl);
+        UserTask root = new UserTask("root", utl); // NOI18N
         root.setEffortComputed(true);
         
-        UserTask a = new UserTask("a", utl);
+        UserTask a = new UserTask("a", utl); // NOI18N
         a.setEffort(200);
         assertTrue(a.getEffort() == 200);
         
-        UserTask b = new UserTask("b", utl);
+        UserTask b = new UserTask("b", utl); // NOI18N
         b.setEffort(300);
         
         root.getSubtasks().add(a);
@@ -61,15 +61,15 @@ public class TaskTest extends TestCase {
      */
     public void testGetEffort2() {
         UserTaskList utl = new UserTaskList();
-        UserTask root = new UserTask("root", utl);
+        UserTask root = new UserTask("root", utl); // NOI18N
         root.setEffortComputed(true);
         root.setProgressComputed(true);
         
-        UserTask a = new UserTask("a", utl);
+        UserTask a = new UserTask("a", utl); // NOI18N
         a.setEffort(200);
         a.setPercentComplete(25);
         
-        UserTask b = new UserTask("b", utl);
+        UserTask b = new UserTask("b", utl); // NOI18N
         b.setEffort(300);
         b.setPercentComplete(75);
         

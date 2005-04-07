@@ -126,15 +126,15 @@ public class TestTable extends JellyTestCase {
     }
     
     /**
-     * See description for the test 15
+     * See description in testCases.html
      */
     public void testDelete() {
-        TopComponentOperator tc = openIcsFile("test15.ics");
+        TopComponentOperator tc = openIcsFile("test15.ics"); // NOI18N
         
         JTableOperator t = new JTableOperator(tc, 0);
         t.waitHasFocus();
         
-        Action ea = new Action(null, "Expand All");
+        Action ea = new Action(null, "Expand All"); // NOI18N
         ea.performPopup(t);
         
         t.addRowSelectionInterval(6, 8);
@@ -146,10 +146,10 @@ public class TestTable extends JellyTestCase {
         new EventTool().waitNoEvent(1500);
 
         JPopupMenuOperator pm = new JPopupMenuOperator();
-        pm.pushMenuNoBlock("Delete");
+        pm.pushMenuNoBlock("Delete"); // NOI18N
 
-        DialogOperator dop = new DialogOperator("Confirm Multiple Object Deletion");
-        JButtonOperator bo = new JButtonOperator(dop, "Yes");
+        DialogOperator dop = new DialogOperator("Confirm Multiple Object Deletion"); // NOI18N
+        JButtonOperator bo = new JButtonOperator(dop, "Yes"); // NOI18N
         bo.push();
         
         new EventTool().waitNoEvent(1500);

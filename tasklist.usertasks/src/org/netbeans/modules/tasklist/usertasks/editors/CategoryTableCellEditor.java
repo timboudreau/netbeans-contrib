@@ -24,6 +24,8 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 
 /**
  * TableCellEditor for the category
+ *
+ * @author tl
  */
 public class CategoryTableCellEditor extends DefaultCellEditor {
     /**

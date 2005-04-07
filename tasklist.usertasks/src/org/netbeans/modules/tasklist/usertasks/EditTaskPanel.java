@@ -14,7 +14,6 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.BorderLayout;
-import java.awt.Dialog;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +22,6 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -40,10 +38,7 @@ import javax.swing.text.JTextComponent;
 import org.netbeans.modules.tasklist.usertasks.dependencies.DependenciesPanel;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.renderers.PriorityListCellRenderer;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
-import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;

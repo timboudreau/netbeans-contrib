@@ -143,31 +143,31 @@ public class UserTaskListTest extends NbTestCase {
    /** Test the import/export feature */
     public void testComplexICalImportExport() throws Exception {
 	    // based on testcase.ics .
-        String contents = "BEGIN:VCALENDAR\r\nPRODID:-//NetBeans tasklist/" +
-            "/NONSGML 1.0//EN\r\nVERSION:2.0\r\n\r\nBEGIN:VTODO\r\nUID:nb1" +
-            "032191274156.3@proto/192.129.100.100\r\nCREATED:20020916T1547" +
-            "54Z\r\nSUMMARY:This is a second test task\r\nDESCRIPTION:More" +
-            " details \\n\\n\\n\\n\\nhere\r\nPRIORITY:5\r\nPERCENT-COMPLETE:0\r\n" +
-            "CATEGORIES:cat 1\\, cat 2\r\nEND:VTODO\r\n\r\nBEGIN:VTODO\r\n" +
-            "UID:nb1032191304749.6@proto/192.129.100.100\r\nCREATED:200209" +
-            "16T154824Z\r\nSUMMARY:subtask 2\r\nPERCENT-COMPLETE:0\r\nRELA" +
-            "TED-TO:nb1032191274156.3@proto/192.129.100.100\r\nEND:VTODO\r" +
-            "\n\r\nBEGIN:VTODO\r\nUID:nb1032191288704.4@proto/192.129.100." +
-            "100\r\nCREATED:20020916T154808Z\r\nSUMMARY:subtask 1\r\nPERCE" +
-            "NT-COMPLETE:0\r\nRELATED-TO:nb1032191274156.3@proto/192.129.1" +
-            "00.100\r\nEND:VTODO\r\n\r\nBEGIN:VTODO\r\nUID:nb1032191297655" +
-            ".5@proto/192.129.100.100\r\nCREATED:20020916T154817Z\r\nSUMMA" +
-            "RY:subtask1a\r\nPERCENT-COMPLETE:0\r\nRELATED-TO:nb1032191288" +
-            "704.4@proto/192.129.100.100\r\nEND:VTODO\r\n\r\nBEGIN:VTODO\r" +
-            "\nUID:nb1032191234814.2@proto/192.129.100.100\r\nCREATED:2002" +
-            "0916T154714Z\r\nSUMMARY:Test Task\r\nDESCRIPTION:This is a mu" +
-            "ltiline\\ndescription\\ncontaining all kinds of \"evil\r\n \"\\nch" +
-            "aracters that may trip up the import/export:\\n!" +
-            "\r\n \r\nPRIORITY:1\r\nPERCENT-COMPLETE:55\r\nCATEGORI" +
-            "ES:My category\r\nLAST-MODIFIED:20020916T154730Z\r\nX-NETBEAN" +
-            "S-FILENAME:/tmp/testfile\r\nX-NETBEANS-LINE:21\r\nX-IGNORE-ME" +
-            ":whatever\r\nEND:VTODO\r\n\r\nEND:VCALENDAR\r\n";
-        byte[] byteContents = contents.getBytes("utf8");
+        String contents = "BEGIN:VCALENDAR\r\nPRODID:-//NetBeans tasklist/" + // NOI18N
+            "/NONSGML 1.0//EN\r\nVERSION:2.0\r\n\r\nBEGIN:VTODO\r\nUID:nb1" + // NOI18N
+            "032191274156.3@proto/192.129.100.100\r\nCREATED:20020916T1547" + // NOI18N
+            "54Z\r\nSUMMARY:This is a second test task\r\nDESCRIPTION:More" + // NOI18N
+            " details \\n\\n\\n\\n\\nhere\r\nPRIORITY:5\r\nPERCENT-COMPLETE:0\r\n" + // NOI18N
+            "CATEGORIES:cat 1\\, cat 2\r\nEND:VTODO\r\n\r\nBEGIN:VTODO\r\n" + // NOI18N
+            "UID:nb1032191304749.6@proto/192.129.100.100\r\nCREATED:200209" + // NOI18N
+            "16T154824Z\r\nSUMMARY:subtask 2\r\nPERCENT-COMPLETE:0\r\nRELA" + // NOI18N
+            "TED-TO:nb1032191274156.3@proto/192.129.100.100\r\nEND:VTODO\r" + // NOI18N
+            "\n\r\nBEGIN:VTODO\r\nUID:nb1032191288704.4@proto/192.129.100." + // NOI18N
+            "100\r\nCREATED:20020916T154808Z\r\nSUMMARY:subtask 1\r\nPERCE" + // NOI18N
+            "NT-COMPLETE:0\r\nRELATED-TO:nb1032191274156.3@proto/192.129.1" + // NOI18N
+            "00.100\r\nEND:VTODO\r\n\r\nBEGIN:VTODO\r\nUID:nb1032191297655" + // NOI18N
+            ".5@proto/192.129.100.100\r\nCREATED:20020916T154817Z\r\nSUMMA" + // NOI18N
+            "RY:subtask1a\r\nPERCENT-COMPLETE:0\r\nRELATED-TO:nb1032191288" + // NOI18N
+            "704.4@proto/192.129.100.100\r\nEND:VTODO\r\n\r\nBEGIN:VTODO\r" + // NOI18N
+            "\nUID:nb1032191234814.2@proto/192.129.100.100\r\nCREATED:2002" + // NOI18N
+            "0916T154714Z\r\nSUMMARY:Test Task\r\nDESCRIPTION:This is a mu" + // NOI18N
+            "ltiline\\ndescription\\ncontaining all kinds of \"evil\r\n \"\\nch" + // NOI18N
+            "aracters that may trip up the import/export:\\n!" + // NOI18N
+            "\r\n \r\nPRIORITY:1\r\nPERCENT-COMPLETE:55\r\nCATEGORI" + // NOI18N
+            "ES:My category\r\nLAST-MODIFIED:20020916T154730Z\r\nX-NETBEAN" + // NOI18N
+            "S-FILENAME:/tmp/testfile\r\nX-NETBEANS-LINE:21\r\nX-IGNORE-ME" + // NOI18N
+            ":whatever\r\nEND:VTODO\r\n\r\nEND:VCALENDAR\r\n"; // NOI18N
+        byte[] byteContents = contents.getBytes("utf8"); // NOI18N
         ByteArrayInputStream reader = new ByteArrayInputStream(contents.getBytes());
 
         ICalImportFormat io = new ICalImportFormat();
@@ -181,8 +181,8 @@ public class UserTaskListTest extends NbTestCase {
         
         // Check that the list we read in is indeed correct
         List subtasks = list.getSubtasks();
-        assertTrue("Not all tasks in the list found: found " + subtasks.size() +
-                   " elements",
+        assertTrue("Not all tasks in the list found: found " + subtasks.size() + // NOI18N
+                   " elements", // NOI18N
                    subtasks.size() == 2);
         ListIterator it = subtasks.listIterator();
         int count = 0;
@@ -190,78 +190,78 @@ public class UserTaskListTest extends NbTestCase {
             UserTask task = (UserTask)it.next();
             switch (count) {
             case 0: {
-                assertTrue("Wrong description: " + task.getSummary(),
-                           task.getSummary().equals("This is a second test task"));
-                assertTrue("Wrong isDone",
+                assertTrue("Wrong description: " + task.getSummary(), // NOI18N
+                           task.getSummary().equals("This is a second test task")); // NOI18N
+                assertTrue("Wrong isDone", // NOI18N
                            !task.isDone());
-                assertEquals("Wrong Percent Complete", 0, task.getPercentComplete());
-                assertTrue("Wrong hasSubtasks",
+                assertEquals("Wrong Percent Complete", 0, task.getPercentComplete()); // NOI18N
+                assertTrue("Wrong hasSubtasks", // NOI18N
                            !task.getSubtasks().isEmpty());
 
-                assertEquals("Wrong Description", "More details \n\n\n\n\nhere", task.getDetails());
-                assertEquals("Wrong uid", "nb1032191274156.3@proto/192.129.100.100", task.getUID());
-                assertEquals("Wrong priority", 5, task.getPriority());
-                assertEquals("Wrong category", "cat 1, cat 2", task.getCategory());
+                assertEquals("Wrong Description", "More details \n\n\n\n\nhere", task.getDetails()); // NOI18N
+                assertEquals("Wrong uid", "nb1032191274156.3@proto/192.129.100.100", task.getUID()); // NOI18N
+                assertEquals("Wrong priority", 5, task.getPriority()); // NOI18N
+                assertEquals("Wrong category", "cat 1, cat 2", task.getCategory()); // NOI18N
 
                 // Do date comparison
                 long created = task.getCreatedDate();
-                TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
+                TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles"); // NOI18N
                 GregorianCalendar cal = new GregorianCalendar(tz);
                 cal.setTime(new Date(created));
-                assertEquals("Wrong created day", cal.get(Calendar.DAY_OF_MONTH),
+                assertEquals("Wrong created day", cal.get(Calendar.DAY_OF_MONTH), // NOI18N
                              16);
-                assertEquals("Wrong created day", cal.get(Calendar.MONTH), 8);
-                assertEquals("Wrong created year", cal.get(Calendar.YEAR), 2002);
-                assertEquals("Wrong created hour", cal.get(Calendar.HOUR_OF_DAY), 8);
-                assertEquals("Wrong created minute", cal.get(Calendar.MINUTE), 47);
-                assertEquals("Wrong created second", cal.get(Calendar.SECOND), 54);
+                assertEquals("Wrong created day", cal.get(Calendar.MONTH), 8); // NOI18N
+                assertEquals("Wrong created year", cal.get(Calendar.YEAR), 2002); // NOI18N
+                assertEquals("Wrong created hour", cal.get(Calendar.HOUR_OF_DAY), 8); // NOI18N
+                assertEquals("Wrong created minute", cal.get(Calendar.MINUTE), 47); // NOI18N
+                assertEquals("Wrong created second", cal.get(Calendar.SECOND), 54); // NOI18N
 
                 // Do subtask check
                 List subtasks2 = task.getSubtasks();
-                assertEquals("Wrong # of subtasks.", 2, subtasks2.size());
+                assertEquals("Wrong # of subtasks.", 2, subtasks2.size()); // NOI18N
                 ListIterator it2 = subtasks2.listIterator();
                 if (it2.hasNext()) {
                     UserTask subtask = (UserTask)it2.next();
-                    assertEquals("Wrong subtask 2 description",
-                                 "subtask 2", subtask.getSummary());
+                    assertEquals("Wrong subtask 2 description", // NOI18N
+                                 "subtask 2", subtask.getSummary()); // NOI18N
                 } else {
-                    fail("Missing subtask 2");
+                    fail("Missing subtask 2"); // NOI18N
                 }
                 if (it2.hasNext()) {
                     UserTask subtask = (UserTask)it2.next();
-                    assertEquals("Wrong subtask1 description",
-                                 "subtask 1", subtask.getSummary());
-                    assertTrue("Wrong hasSubtasks for subtask 1",
+                    assertEquals("Wrong subtask1 description", // NOI18N
+                                 "subtask 1", subtask.getSummary()); // NOI18N
+                    assertTrue("Wrong hasSubtasks for subtask 1", // NOI18N
                     	!subtask.getSubtasks().isEmpty());
                     List subtasks3 = subtask.getSubtasks();
-                    assertEquals("Wrong # of subtasks.", 1, subtasks3.size());
+                    assertEquals("Wrong # of subtasks.", 1, subtasks3.size()); // NOI18N
                     ListIterator it3 = subtasks3.listIterator();
                     while (it3.hasNext()) {
                         UserTask subtask2 = (UserTask)it3.next();
-                        assertEquals("Wrong subtask1 description",
-                                     "subtask1a", subtask2.getSummary());
+                        assertEquals("Wrong subtask1 description", // NOI18N
+                                     "subtask1a", subtask2.getSummary()); // NOI18N
                         assertTrue(!it3.hasNext()); // Only one subtask
                     }
                 } else {
-                    fail("Missing subtask 1");
+                    fail("Missing subtask 1"); // NOI18N
                 }
                 break;
             }
             case 1: {
-                assertTrue("Wrong description: " + task.getSummary(),
-                           task.getSummary().equals("Test Task"));
-                assertTrue("Wrong isDone",
+                assertTrue("Wrong description: " + task.getSummary(), // NOI18N
+                           task.getSummary().equals("Test Task")); // NOI18N
+                assertTrue("Wrong isDone", // NOI18N
                            !task.isDone());
-                assertEquals("Wrong Percent Complete", 55, task.getPercentComplete());
-                assertEquals("Wrong Description", 
-                    "This is a multiline\ndescription\ncontaining all kinds " + 
-                    "of \"evil\"\ncharacters that may trip up the " + 
-                    "import/export:\n!", 
+                assertEquals("Wrong Percent Complete", 55, task.getPercentComplete()); // NOI18N
+                assertEquals("Wrong Description",  // NOI18N
+                    "This is a multiline\ndescription\ncontaining all kinds " +  // NOI18N
+                    "of \"evil\"\ncharacters that may trip up the " +  // NOI18N
+                    "import/export:\n!",  // NOI18N
                     task.getDetails());
 
-                assertEquals("Wrong uid", "nb1032191234814.2@proto/192.129.100.100", task.getUID());
-                assertEquals("Wrong priority", 1, task.getPriority());
-                assertEquals("Wrong category", "My category", task.getCategory());
+                assertEquals("Wrong uid", "nb1032191234814.2@proto/192.129.100.100", task.getUID()); // NOI18N
+                assertEquals("Wrong priority", 1, task.getPriority()); // NOI18N
+                assertEquals("Wrong category", "My category", task.getCategory()); // NOI18N
                 //assertEquals("Wrong filename", "/tmp/testfile", task.getFilename());
                 //assertEquals("Wrong line number", 21, task.getLineNumber());
                 break;
@@ -307,7 +307,7 @@ public class UserTaskListTest extends NbTestCase {
     // do a second check
     
     private UserTaskList openList(String name) throws Exception {
-        File data = new File(getClass().getResource("data").getFile());
+        File data = new File(getClass().getResource("data").getFile()); // NOI18N
         LocalFileSystem lfs = new LocalFileSystem();
         lfs.setRootDirectory(data);
         Repository.getDefault().addFileSystem(lfs);
@@ -316,7 +316,7 @@ public class UserTaskListTest extends NbTestCase {
         try {
             DataObject dao = DataObject.find(lfs.findResource(name));
             if (dao == null) {
-                fail(name + " not found");
+                fail(name + " not found"); // NOI18N
             }
             fo = dao.getPrimaryFile();
         } catch (Exception e) {

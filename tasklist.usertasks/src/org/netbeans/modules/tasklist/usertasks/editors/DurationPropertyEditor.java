@@ -13,25 +13,35 @@
 
 package org.netbeans.modules.tasklist.usertasks.editors;
 
+import java.awt.Component;
+import java.beans.FeatureDescriptor;
+import java.beans.PropertyEditorSupport;
 import java.text.MessageFormat;
-
-import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
+import javax.swing.border.EmptyBorder;
+import org.netbeans.modules.tasklist.usertasks.DurationPanel;
 import org.netbeans.modules.tasklist.usertasks.Settings;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
+import org.openide.explorer.propertysheet.ExPropertyEditor;
+import org.openide.explorer.propertysheet.PropertyEnv;
+import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 
 /**
  * PropertyEditor for duration in minutes.
  *
- * @author Tim Lebedkov
+ * @author tl
  */
-public class DurationPropertyEditor extends StringPropertyEditor {
+public class DurationPropertyEditor extends PropertyEditorSupport 
+implements ExPropertyEditor {
     private static final MessageFormat EFFORT_FORMAT = 
         new MessageFormat(NbBundle.getMessage(DurationPropertyEditor.class, 
             "EffortFormat")); // NOI18N
+
+    private boolean editable;
     
     public String getAsText() {
-        int duration = ((Integer) getValue()).intValue();
+        Integer value = (Integer) getValue();
+        int duration = value == null ? 0 : value.intValue();
         Duration d = new Duration(duration,
             Settings.getDefault().getHoursPerDay(), 
             Settings.getDefault().getDaysPerWeek());
@@ -41,5 +51,31 @@ public class DurationPropertyEditor extends StringPropertyEditor {
             new Integer(d.days), new Integer(d.hours), new Integer(d.minutes)
         }).trim();
         return s;
+    }
+
+    public void setAsText(String text) throws IllegalArgumentException {
+        super.setAsText(text);
+    }
+
+    public boolean supportsCustomEditor () {
+        return true;
+    }
+
+    public Component getCustomEditor() {
+        int duration = ((Integer) getValue()).intValue();
+	DurationPanel dp = new DurationPanel();
+        dp.setPropertyEditor(this);
+        dp.setBorder(new EmptyBorder(11, 11, 12, 12));
+        if (!editable)
+            dp.setEnabled(false);
+        return dp;
+    }
+    
+    public void attachEnv(PropertyEnv env) {        
+        FeatureDescriptor desc = env.getFeatureDescriptor();
+        if (desc instanceof Node.Property){
+            Node.Property prop = (Node.Property)desc;
+            editable = prop.canWrite();
+        }
     }
 }

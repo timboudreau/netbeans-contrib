@@ -21,7 +21,7 @@ import org.openide.util.Utilities;
 /** 
  * BeanInfo for TaskList object loader.
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public final class TaskListLoaderBeanInfo extends SimpleBeanInfo {
     public Image getIcon(int type) {

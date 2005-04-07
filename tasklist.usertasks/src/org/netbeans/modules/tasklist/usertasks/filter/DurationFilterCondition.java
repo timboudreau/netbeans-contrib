@@ -24,7 +24,7 @@ import org.openide.util.NbBundle;
 /**
  * Condition class for comparisons of durations.
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public class DurationFilterCondition extends OneOfFilterCondition {
     public static final int EQUALS = 0;
