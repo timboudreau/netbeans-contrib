@@ -41,26 +41,12 @@ public final class Adaptor extends java.lang.Object {
     }
     
     
-    /** Finds a Lookup for a given object in the context of 
-     * given provider.
+    /** Creates or finds an Adaptable object for a given object in the context of 
+     * this Adaptor.
      *
      * @param obj represented object
-     * @param provider the provider of the aspect
      */
-    public static Adaptable getLookup (Object obj, Adaptor provider) {
-        if (provider == null) {
-            return Empty.EMPTY;
-        }
-        return provider.impl.createLookup (obj, provider.data);
-    }
-
-    /** Empty adaptable.
-     */
-    private static final class Empty implements Adaptable {
-        static final Empty EMPTY = new Empty ();
-        
-        public <T> T lookup (Class<T> what) {
-            return null;
-        }
+    public Adaptable getAdaptable (Object obj) {
+        return impl.createLookup (obj, data);
     }
 }
