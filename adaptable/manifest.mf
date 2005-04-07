@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.adaptable/1
+OpenIDE-Module-Specification-Version: 0.1
+_OpenIDE-Module-Layer: org/netbeans/modules/archiver/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/adaptable/Bundle.properties
