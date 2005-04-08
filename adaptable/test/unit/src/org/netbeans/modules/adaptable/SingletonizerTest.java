@@ -7,20 +7,20 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package org.netbeans.modules.aspects;
+package org.netbeans.modules.adaptable;
 
 import java.util.Collections;
 import java.util.TooManyListenersException;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.netbeans.api.aspects.*;
-import org.openide.util.Lookup;
+
+import org.netbeans.api.adaptable.*;
+import org.netbeans.spi.adaptable.*;
+
 
 /** Tests Singletonizer behaviour.`
  *
@@ -39,9 +39,9 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
-        AspectProvider provider = Singletonizer.create (supported, runImpl);
+        Adaptor provider = Adaptors.singletonizer (supported, runImpl);
         Object representedObject = "sampleRO";
-        Lookup lookup = Aspects.getLookup(representedObject, provider);
+        Adaptable lookup = provider.getAdaptable (representedObject);
         
         assertNotNull ("Lookup created", lookup);
         // initialized at 40, increased to 48 when added byte[] with cached results
@@ -76,7 +76,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] classes = { Integer.class };
         
         try {
-            AspectProvider provider = Singletonizer.create (classes, new Singletonizer.Impl () {
+            Adaptor provider = Adaptors.singletonizer (classes, new Singletonizer () {
                 public boolean isEnabled (Class c) {
                     return false;
                 }
@@ -107,14 +107,15 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
-        AspectProvider provider = Singletonizer.create (supported, runImpl);
+        Adaptor provider = Adaptors.singletonizer (supported, runImpl);
         Object representedObject = new String ("sampleRO");
-        Lookup lookup = Aspects.getLookup(representedObject, provider);
+        Adaptable lookup = provider.getAdaptable (representedObject);
         
-        assertSame ("Next time the same lookup is returned", lookup, Aspects.getLookup(representedObject, provider));
+        assertSame ("Next time the same lookup is returned", lookup, provider.getAdaptable (representedObject));
         Object representedObject2 = new String ("sampleRO2");
-        Lookup lookup2 = Aspects.getLookup(representedObject2, provider);
+        Adaptable lookup2 = provider.getAdaptable (representedObject2);
         
+        /* XXX
         Lookup.Result resultListener = lookup.lookup (new Lookup.Template (java.awt.event.ActionListener.class));
         assertNotNull (resultListener);
         Lookup.Result resultRunnable = lookup.lookup (new Lookup.Template (Runnable.class));
@@ -182,18 +183,18 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         java.lang.ref.WeakReference refRepresented2 = new java.lang.ref.WeakReference (representedObject2);
         representedObject2 = null;
         assertGC ("Represeted object shall disappear as well", refRepresented2);
-        
+        */
     }
 
     /** Counting listener */
-    private static class Listener implements org.openide.util.LookupListener {
+    private static class Listener implements javax.swing.event.ChangeListener {
         public int cnt;
         
-        public Listener (Lookup.Result res) {
-            res.addLookupListener (this);
+        public Listener (Adaptable res) {
+            // XXX res.addLookupListener (this);
         }
         
-        public void resultChanged (org.openide.util.LookupEvent ev) {
+        public void stateChanged (javax.swing.event.ChangeEvent ev) {
             cnt++;
         }
         
@@ -204,7 +205,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     } // end of Listener
     
     /** Implementation of singletonizer */
-    private static class Implementation implements Singletonizer.Impl {
+    private static class Implementation implements org.netbeans.spi.adaptable.Singletonizer {
         public boolean isEnabled = true;
         public int cnt;
         public Object representedObject;

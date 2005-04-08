@@ -28,6 +28,7 @@ Microsystems, Inc. All Rights Reserved.
             </module-dependencies>
             <public-packages>
                 <package>org.netbeans.api.adaptable</package>
+                <package>org.netbeans.spi.adaptable</package>
             </public-packages>
             <javadoc/>
         </data>

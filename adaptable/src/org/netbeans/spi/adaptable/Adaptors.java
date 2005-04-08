@@ -23,8 +23,8 @@ public final class Adaptors extends java.lang.Object {
      * @param classes the interfaces that we can support 
      * @param impl provider of the functionality
      */
-    public static org.netbeans.api.adaptable.Adaptor create (Class[] classes, Singletonizer impl) {
-        return org.netbeans.modules.adaptable.Singletonizer.create (classes, impl);
+    public static org.netbeans.api.adaptable.Adaptor singletonizer (Class[] classes, Singletonizer impl) {
+        return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl);
     }
 
 }
