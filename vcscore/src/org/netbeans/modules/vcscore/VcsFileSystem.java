@@ -3930,8 +3930,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (isCallEditFilesOn()) {
             if (!file.canWrite ()) {
                 FileObject fo = findResource(name);
-                FileProperties fprops = Turbo.getCachedMeta(fo);
-                if (fprops != null && !fprops.isLocal () && !name.endsWith (".orig")) { // NOI18N
+                // Get really cached attribute in any case (from memory or disk layer).
+                FileProperties fprops = (FileProperties) FileAttributeQuery.getDefault().readAttribute(fo, FileProperties.ID);
+                boolean local = (fprops != null) ? fprops.isLocal() : false;
+                if (!local && !name.endsWith (".orig")) { // NOI18N
                     if (isPromptForEditOn()) {
                         VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
                         String message;
@@ -3946,7 +3948,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         if (isLockFilesOn()) {
             FileObject fo = findResource(name);
-            FileProperties fprops = Turbo.getCachedMeta(fo);
+            // Get really cached attribute in any case (from memory or disk layer).
+            FileProperties fprops = (FileProperties) FileAttributeQuery.getDefault().readAttribute(fo, FileProperties.ID);
             boolean local = fprops != null ? fprops.isLocal() : false;
             // *.orig is a temporary file created by AbstractFileObject
             // on saving every file to enable undo if saving fails
@@ -4105,8 +4108,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if(isLockFilesOn ()) {
             FileObject fo = findResource(name);
             assert fo != null : "No resource for '"+name+"'"; // NOI18N
-            FileProperties fprops = Turbo.getCachedMeta(fo);
-            if (fprops != null && !fprops.isLocal () && !name.endsWith (".orig")) { // NOI18N
+            // Get really cached attribute in any case (from memory or disk layer).
+            FileProperties fprops = (FileProperties) FileAttributeQuery.getDefault().readAttribute(fo, FileProperties.ID);
+            boolean local = (fprops != null) ? fprops.isLocal() : false;
+            if (!local && !name.endsWith (".orig")) { // NOI18N
                 Command command = createCommand("UNLOCK", name, null);
                 if (command != null) {
                     boolean customized = VcsManager.getDefault().showCustomizer(command);
