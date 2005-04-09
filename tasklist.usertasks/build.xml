@@ -8,14 +8,11 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-
 <project name="tasklist/usertasks" default="netbeans" basedir=".">
-    <property file="../version.properties"/>
-    <property name="manifest.mf" location="manifest-subst.mf"/>
-    <property name="nbm.needs.restart" value="false"/>
+
     <import file="../../nbbuild/templates/projectized.xml"/>
     
     <target name="build-init" depends="projectized.build-init">
@@ -30,13 +27,6 @@ Microsystems, Inc. All Rights Reserved.
             <include name="${nb.system.dir}/ModuleAutoDeps/${code.name.base.dashes}.xml" if="has.module.auto.deps"/>
             <include name="${nb.modules.dir}/ext/jcalendar*.jar"/>
         </patternset>
-    </target>
-    
-    <target name="jar-prep" depends="projectized.jar-prep">
-        <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-        <filter filtersfile="../version.properties"/>
-        <filter token="tl.usertasks.spec" value="${tl.usertasks.spec}"/>
-        <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     </target>
     
     <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
@@ -73,10 +63,6 @@ Microsystems, Inc. All Rights Reserved.
             style="../www/updates/updates.xsl"/>
     </target>
     
-    <target name="clean" depends="projectized.clean">
-        <delete file="manifest-subst.mf"/>
-    </target>
-    
     <target name="pmd-check">
         <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
             <classpath>
@@ -95,4 +81,5 @@ Microsystems, Inc. All Rights Reserved.
             </fileset>
         </pmd>
     </target>
+
 </project>

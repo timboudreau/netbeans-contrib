@@ -1,8 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.tasklistapi/1
-OpenIDE-Module-Specification-Version: @tl.api.spec@
-OpenIDE-Module-Implementation-Version: @tl.api.impl@
-OpenIDE-Module-Build-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-Implementation-Version: 6
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/client/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/apihole/tasklist/mf-layer.xml
 

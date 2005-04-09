@@ -8,15 +8,17 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project basedir="." default="netbeans" name="j2ee/blueprints">
 
     <import file="../../nbbuild/templates/projectized.xml"/>
+
     <property name="extnl" location="../../nbbuild/external"/>
     <property name="build.gensrc.dir" location="build/gensrc"/>
-    <target name="jar" depends="init,extra-solutions,dd2beansgen,compile,jar-prep,jar-no-module-deps,jar-with-module-deps"/>
+
+    <target name="jar" depends="init,extra-solutions,dd2beansgen,compile,projectized.jar"/>
     
     <!-- Define schema2beans task -->
     <target name="s2binit" depends="build-init">

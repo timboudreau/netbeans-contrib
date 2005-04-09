@@ -8,29 +8,16 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-
 <project name="tasklist/pmd" default="netbeans" basedir=".">
-    <property file="../version.properties"/>
-    <property name="manifest.mf" location="manifest-subst.mf"/>
+
     <import file="../../nbbuild/templates/projectized.xml"/>
-    
-    <target name="jar-prep" depends="projectized.jar-prep">
-        <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-        <filter filtersfile="../version.properties"/>
-        <filter token="tl.pmd.spec" value="${tl.pmd.spec}"/>
-        <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    </target>
     
     <target name="changelog">
         <style in="module-updates.xml" out="../www/updates/tasklist-pmd.html" 
             style="../www/updates/updates.xsl"/>
-    </target>
-    
-    <target name="clean" depends="projectized.clean">
-        <delete file="manifest-subst.mf"/>
     </target>
     
     <target name="pmd-check">
@@ -51,4 +38,5 @@ Microsystems, Inc. All Rights Reserved.
             </fileset>
         </pmd>
     </target>
+
 </project>

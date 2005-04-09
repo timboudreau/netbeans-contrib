@@ -14,11 +14,9 @@ Microsystems, Inc. All Rights Reserved.
 <project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
-        <data xmlns="http://www.netbeans.org/ns/nb-module-project/1">
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.vcs.advanced</code-name-base>
             <path>vcsgeneric</path>
-            <!-- Can not specify implementation version here,
-                 the dependency is defined in the manifest -->
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.openide</code-name-base>
@@ -35,7 +33,7 @@ Microsystems, Inc. All Rights Reserved.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <implementation-version>promotionE</implementation-version>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -44,7 +42,7 @@ Microsystems, Inc. All Rights Reserved.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <implementation-version>promotionE</implementation-version>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
