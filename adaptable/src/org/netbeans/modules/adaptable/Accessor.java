@@ -27,7 +27,12 @@ public abstract class Accessor {
         // forces initialization of class Aspects that initializes
         // field API
         Class c = org.netbeans.api.adaptable.Adaptor.class;
-        org.netbeans.api.adaptable.Adaptor.init ();
+        try {
+            Class.forName (c.getName (), true, c.getClassLoader ());
+        } catch (Exception ex) {
+            // swallow
+        }
+        //org.netbeans.api.adaptable.Adaptor.init ();
         assert API != null : "We have to initilialize the API field"; // NOI18N
     }
  
