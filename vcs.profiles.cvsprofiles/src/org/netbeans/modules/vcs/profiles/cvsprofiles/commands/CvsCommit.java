@@ -435,18 +435,16 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             this.stdoutNRListener = stdoutNRListener;
             this.fileUpdateListener = fileUpdateListener;
             filePaths = new ArrayList(filePaths); // Have our own copy, we'll change the list to keep there just files
-            //this.filePaths = filePaths;
+            this.filePaths = filePaths;
             this.pathsBuildersByRelPaths = createPathsBuilders(workingDir, filePaths, cvsRepository);//new StatusFilePathsBuilder(workingDir, cvsRepository);
             this.workingDir = workingDir;
             this.cvsRepository = cvsRepository;
             workPathLength = workingDir.getAbsolutePath().length();
             elementsToSend = new ArrayList();
-            filePaths = new ArrayList(filePaths); // Have our own copy, we'll change the list to keep there just files
-            this.filePaths = filePaths;
             for (int i = 0; i < filePaths.size(); i++) {
                 String path = (String) filePaths.get(i);
                 File file = new File(workingDir, path);
-                if (!file.isFile()) {
+                if (file.isDirectory()) {
                     filePaths.remove(i);
                     i--;
                 }
