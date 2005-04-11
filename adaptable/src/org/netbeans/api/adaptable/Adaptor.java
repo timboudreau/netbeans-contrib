@@ -24,7 +24,11 @@ public final class Adaptor extends java.lang.Object {
     static {
         org.netbeans.modules.adaptable.Accessor.API = new AccessorImpl ();
     }
-    
+  
+    // temporary hack to find out why static initializer is not called
+    public static void init () {
+        org.netbeans.modules.adaptable.Accessor.API = new AccessorImpl ();
+    }
     /**
      * implementation of Adaptor functionality 
      */

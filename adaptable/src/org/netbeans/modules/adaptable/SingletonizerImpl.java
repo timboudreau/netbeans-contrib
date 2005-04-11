@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.adaptable;
 
+import java.lang.ref.Reference;
 import java.util.Collections;
 import java.util.TooManyListenersException;
 import javax.swing.event.ChangeListener;
@@ -72,19 +73,18 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
     }
     
     public void stateChanged (javax.swing.event.ChangeEvent e) {
-        /*
-        if (e.getSource () instanceof Impl) {
+        if (e.getSource () instanceof org.netbeans.spi.adaptable.Singletonizer) {
             // refresh all of them
             java.util.Iterator it = lookups.values ().iterator ();
             while (it.hasNext ()) {
-                LkpReference ref = (LkpReference)it.next ();
+                Reference ref = (Reference)it.next ();
                 Lkp lkp = (Lkp)ref.get ();
                 if (lkp != null) {
                     lkp.update ();
                 }
             }
         } else {
-            LkpReference ref = (LkpReference)lookups.get (e.getSource ());
+            Reference ref = (Reference)lookups.get (e.getSource ());
             if (ref == null) {
                 return;
             }
@@ -93,7 +93,6 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                 lkp.update ();
             }
         }
-         */
     }
     
     //
@@ -134,6 +133,11 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             } else {
                 throw new IllegalStateException ("Method " + method + " cannot be invoked when " + method.getDeclaringClass ());
             }
+        }
+        
+        /** Updates its state. */
+        final void update () {
+            enabled = null;
         }
         
         /** Checks whether a class is enabled or not */
