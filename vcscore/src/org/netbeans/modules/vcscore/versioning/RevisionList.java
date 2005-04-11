@@ -78,6 +78,7 @@ public class RevisionList extends TreeSet implements Node.Cookie {
         boolean status = super.remove(obj);
         nodeDelegatesWithoutChildren.remove(obj);
         nodeDelegatesWithChildren.remove(obj);
+        existingChildren.remove(obj);
         //System.out.println("RevisionList.remove("+((RevisionItem) obj).getRevision()+")");
         fireChanged();
         return status;
@@ -87,6 +88,7 @@ public class RevisionList extends TreeSet implements Node.Cookie {
         boolean status = super.removeAll(c);
         for (Iterator it = c.iterator(); it.hasNext(); nodeDelegatesWithoutChildren.remove(it.next()));
         for (Iterator it = c.iterator(); it.hasNext(); nodeDelegatesWithChildren.remove(it.next()));
+        for (Iterator it = c.iterator(); it.hasNext(); existingChildren.remove(it.next()));
         //System.out.println("RevisionList.removeAll("+c+"): c.size() = "+c.size());
         fireChanged();
         return status;
@@ -151,7 +153,7 @@ public class RevisionList extends TreeSet implements Node.Cookie {
      * @param item The revision item to get the children for or
      *             <code>null</code> when the root children are requested.
      */
-    public final RevisionChildren getChildrenFor(RevisionItem item) {
+    public final synchronized RevisionChildren getChildrenFor(RevisionItem item) {
         if (item == null) {
             if (rootChildren == null) {
                 rootChildren = createChildrenFor(null);
@@ -172,7 +174,8 @@ public class RevisionList extends TreeSet implements Node.Cookie {
      * This method is called for revision items that are not branches
      * and {@link #containsSubRevisions} returns true.
      * The initial children should be returned when <code>null</code>
-     * argument is provided.
+     * argument is provided. <p>
+     * Called under a lock on <code>this</code>.
      * @param item The revision item to get the children for or
      *             <code>null</code> when the root children are requested.
      */
@@ -186,7 +189,7 @@ public class RevisionList extends TreeSet implements Node.Cookie {
      * Uses {@link #createNodeDelegate} method to create the node when it
      * does not exist.
      */
-    public final Node getNodeDelegate(RevisionItem item, RevisionChildren children) {
+    public final synchronized Node getNodeDelegate(RevisionItem item, RevisionChildren children) {
         Node node;
         if (children == null) {
             node = (Node) nodeDelegatesWithoutChildren.get(item);
@@ -206,6 +209,8 @@ public class RevisionList extends TreeSet implements Node.Cookie {
     
     /**
      * Get the node delegate for RevisionItem. Override to provide custom Node implementation.
+     * <p>
+     * Called under a lock on <code>this</code>.
      * @param item The revision item
      * @param children The children obtained from {@getChildrenFor} method.
      */
