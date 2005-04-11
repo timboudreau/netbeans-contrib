@@ -31,7 +31,11 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.URLMapper;
+import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
+import org.openide.text.DataEditorSupport;
 import org.openide.text.Line;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -210,28 +214,39 @@ public class NewTaskAction extends NodeAction {
     /**
      * Performs the action
      *
-     * @param utl user task list. null = default task list
-     * @param parentNode default parent; if null the root node will be used
-     * @param url associated URL
-     * @parem lineNumber line number. 
-     * @param associate if true, set the checkbox for the filename by default (only
-     *         makes sense if filename != null)
+     * @param line the associated line
      */
-    public static void performAction(UserTaskList utl, UserTask parent, 
-        URL url, int lineNumber, boolean associate) {
+    public static void performAction(Line line) {
         NewTaskAction nta = (NewTaskAction) NewTaskAction.get(NewTaskAction.class);
-        nta.associate = associate;
-        if (utl == null)
+
+        DataObject dob = DataEditorSupport.findDataObject(line);
+        if (dob == null)
             return;
-        nta.utl = utl;
+        
+        FileObject fo = dob.getPrimaryFile();
+        URL url = URLMapper.findURL(fo, URLMapper.EXTERNAL);
+        if (url == null)
+            return;
+
+        nta.associate = true;
         nta.url = url;
-        nta.lineNumber = lineNumber;
-        nta.parent = parent;
+        nta.lineNumber = line.getLineNumber();
         
         // After the add - view the todo list as well!
-        nta.utv = UserTaskView.getCurrent();
-        if (nta.utv == null)
-            return;
+        nta.utv = UserTaskView.getLastActivated();
+        if (nta.utv == null) {
+            nta.utv = UserTaskView.getDefault();
+            nta.utv.showInMode();
+        }    
+        nta.utl = nta.utv.getUserTaskList();
+        
+        // find parent task
+        Node[] nodes = nta.utv.getExplorerManager().getSelectedNodes();
+        if (nodes.length > 0 && nodes[0] instanceof UserTaskNode) {
+            nta.parent = ((UserTaskNode) nodes[0]).getTask();
+        } else {
+            nta.parent = null;
+        }
         
         nta.performTheAction();
     }

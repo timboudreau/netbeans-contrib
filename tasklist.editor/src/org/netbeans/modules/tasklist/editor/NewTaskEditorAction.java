@@ -84,16 +84,7 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
         }
 
         Line lineObj = NbEditorUtilities.getLine(doc, caret.getDot(), false);
-        DataObject dob = DataEditorSupport.findDataObject(lineObj);
-        if (dob == null)
-            return;
-        
-        FileObject fo = dob.getPrimaryFile();
-        URL url = URLMapper.findURL(fo, URLMapper.EXTERNAL);
-        if (url == null)
-            return;
-
-        NewTaskAction.performAction(null, null, url, line, true);
+        NewTaskAction.performAction(lineObj);
     }
 
     public String getString(String str) {

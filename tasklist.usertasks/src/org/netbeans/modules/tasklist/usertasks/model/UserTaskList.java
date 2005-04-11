@@ -479,7 +479,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
             public void run() {
                 UserTaskDuePanel panel = new UserTaskDuePanel(t);
                 
-                String title = NbBundle.getMessage(NewTaskAction.class, "TaskDueLabel"); // NOI18N
+                String title = NbBundle.getMessage(UserTaskList.class, "TaskDueLabel"); // NOI18N
                 DialogDescriptor d = new DialogDescriptor(panel, title);                
                 d.setModal(false);
                 d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);

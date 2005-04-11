@@ -118,6 +118,8 @@ FilteredTopComponent {
      * UserTaskView.class
      */
     private transient static List views = new ArrayList();
+    
+    private transient static WeakReference lastActivated = null;
 
     static {
         // repaint the view if the number of working hours per day has
@@ -176,6 +178,21 @@ FilteredTopComponent {
         else 
             return null;
     }    
+    
+    /**
+     * Returns the last activated view.
+     *
+     * @return the view that was activated as the last one or null
+     */
+    public static UserTaskView getLastActivated() {
+        if (lastActivated == null)
+            return null;
+        UserTaskView v = (UserTaskView) lastActivated.get();
+        if (v.isOpened())
+            return v;
+        else
+            return null;
+    }
 
     /** 
      * Locate a particular view showing the given list 
@@ -260,6 +277,7 @@ FilteredTopComponent {
         RemoveFilterAction removeFilter =
             (RemoveFilterAction) SystemAction.get(RemoveFilterAction.class);
         removeFilter.enable();
+        lastActivated = new WeakReference(this);
     }
     
     /** 
@@ -749,6 +767,7 @@ FilteredTopComponent {
         initialized = true;
         ExplorerUtils.activateActions(manager, false);
         ExplorerUtils.activateActions(manager, true);
+        lastActivated = new WeakReference(this);
     }
 
 

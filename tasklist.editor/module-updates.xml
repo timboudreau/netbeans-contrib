@@ -1,5 +1,7 @@
 <updates>
-
+    <update version="?.?.???? (NetBeans 4.1)">
+        <change>Bugfix for #57512: [41cat] No context menu for Tasks</change>
+    </update>
     <update version="1.4">
     <change>Editor implementation independent functionality moved to core,
     now it holds just one NetBeans editor and UserTasks
