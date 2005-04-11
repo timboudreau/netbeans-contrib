@@ -14,7 +14,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="tasklist/suggestions/ui" default="netbeans" basedir=".">
 
-    <import file="../nbbuild/templates/projectized.xml"/>
+    <import file="../../../nbbuild/templates/projectized.xml"/>
 
     <target name="changelog">
         <style in="module-updates.xml" out="../../www/updates/tasklist-suggestions.html" style="../../www/updates/updates.xsl"/>
