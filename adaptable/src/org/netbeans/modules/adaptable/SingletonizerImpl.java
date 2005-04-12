@@ -29,8 +29,10 @@ import org.netbeans.api.adaptable.*;
 public final class SingletonizerImpl extends Object 
 implements ProviderImpl, javax.swing.event.ChangeListener {
     private Class[] classes;
-    /** Keeps track of existing lookups. Type of Object to LkpReference<Lkp> */
-    private java.util.Map<Object,Reference<Lkp>> lookups = new java.util.WeakHashMap<Object,Reference<Lkp>> ();
+    /**
+     * Keeps track of existing lookups. 
+     */
+    private java.util.Map<Object, Reference<AdaptableImpl>> lookups = new java.util.WeakHashMap<Object,Reference<AdaptableImpl>> ();
     
     
     /** We control the life cycle */
@@ -63,11 +65,11 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
     //
    
     public Adaptable createLookup(Object obj, Object data) {
-        java.lang.ref.Reference<Lkp> ref = lookups.get (obj);
-        Lkp lkp = ref == null ? null : (Lkp)ref.get ();
+        java.lang.ref.Reference<AdaptableImpl> ref = lookups.get (obj);
+        AdaptableImpl lkp = ref == null ? null : (AdaptableImpl)ref.get ();
         if (lkp == null) {
-            lkp = new Lkp (obj, (org.netbeans.spi.adaptable.Singletonizer)data, classes);
-            ref = new java.lang.ref.WeakReference<Lkp> (lkp);
+            lkp = new AdaptableImpl (obj, (org.netbeans.spi.adaptable.Singletonizer)data, classes);
+            ref = new java.lang.ref.WeakReference<AdaptableImpl> (lkp);
             lookups.put (obj, ref);
         }
         return lkp;
@@ -79,7 +81,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             java.util.Iterator it = lookups.values ().iterator ();
             while (it.hasNext ()) {
                 Reference ref = (Reference)it.next ();
-                Lkp lkp = (Lkp)ref.get ();
+                AdaptableImpl lkp = (AdaptableImpl)ref.get ();
                 if (lkp != null) {
                     lkp.update ();
                 }
@@ -89,7 +91,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             if (ref == null) {
                 return;
             }
-            Lkp lkp = (Lkp)ref.get ();
+            AdaptableImpl lkp = (AdaptableImpl)ref.get ();
             if (lkp != null) {
                 lkp.update ();
             }
@@ -100,7 +102,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
     // The Lookup that points to a represented object
     //
     
-    private static final class Lkp 
+    private static final class AdaptableImpl 
     implements Adaptable, java.lang.reflect.InvocationHandler {
         final Object obj;
         final org.netbeans.spi.adaptable.Singletonizer impl;
@@ -111,7 +113,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         /** Change listener associated with this adaptable object */
         private ChangeListener listener;
         
-        public Lkp (Object obj, org.netbeans.spi.adaptable.Singletonizer impl, Class[] classes) {
+        public AdaptableImpl (Object obj, org.netbeans.spi.adaptable.Singletonizer impl, Class[] classes) {
             this.obj = obj;
             this.impl = impl;
             this.proxy = java.lang.reflect.Proxy.newProxyInstance(
@@ -188,5 +190,5 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             }
             return false;
         }
-    } // end of Lkp
+    } // end of AdaptableImpl
 }
