@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.ArrayList;
 import java.util.Iterator;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -44,8 +42,7 @@ import org.openide.filesystems.FileObject;
  * @author Petr Kuzel
  */
 public class DefaultSuggestionManager extends SuggestionManager {
-    private List suggestions = new ArrayList(200);
-    
+
     // See super for accurate javadoc
     public SuggestionAgent createSuggestion(FileObject fo, String type,
         String summary, SuggestionPerformer action, Object data) {
@@ -94,32 +91,10 @@ public class DefaultSuggestionManager extends SuggestionManager {
      * Must be over written, does nothing.
      */
     public void register(String type, List add, List remove) {
-        suggestions.addAll(add);
-        suggestions.removeAll(remove);
-        fireChange();
+        assert false : "This public contract is not implemented use private one!";
     }
 
-    /**
-     * Fires a ChangeEvent for all listeners.
-     */
-    protected void fireChange() {
-        // Guaranteed to return a non-null array
-        Object[] l = listeners.getListenerList();
-        
-        ChangeEvent event = null;
-        
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = l.length - 2; i >= 0; i -= 2) {
-            if (l[i] == ChangeListener.class) {
-                // Lazily create the event:
-                if (event == null)
-                    event = new ChangeEvent(this);
-                ((ChangeListener) l[i + 1]).stateChanged(event);
-            }
-        }
-    }
-    
+
     /**
      * Update target tasklist including grouping (if over treshold).
      *
@@ -133,10 +108,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
     public void register(String typeName,
         List addList, List removeList,
         SuggestionList tasklist, boolean sizeKnown) {
-        suggestions.addAll(addList);
-        if (removeList != null) suggestions.removeAll(removeList);
-        fireChange();
-        
+
         //System.err.println("register(" + typeName + ", " + addList +
         //                   ", " + removeList + "," + tasklist + ", " +
         //                   request + ", " + sizeKnown + ")");
@@ -374,8 +346,4 @@ public class DefaultSuggestionManager extends SuggestionManager {
         this.unfilteredType = unfilteredType;
     }
 
-    public Suggestion[] getSuggestions() {
-        return (Suggestion[]) suggestions.toArray(
-            new Suggestion[suggestions.size()]);
-    }
 }

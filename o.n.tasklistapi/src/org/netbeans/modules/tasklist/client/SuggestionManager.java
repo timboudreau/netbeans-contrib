@@ -203,32 +203,6 @@ abstract public class SuggestionManager {
      */
     abstract public void register(String type, List add, List remove);
 
-    /**
-     * Adds a listener that will be notified each time new suggestions
-     * are registered or de-registered.
-     *
-     * @param l a listener
-     */
-    public void addChangeListener(ChangeListener l) {
-        listeners.add(ChangeListener.class, l);
-    }
-    
-    /**
-     * Removes a listener registered by addChangeListener
-     *
-     * @param l a listener registered through addChangeListener
-     */
-    public void removeChangeListener(ChangeListener l) {
-        listeners.remove(ChangeListener.class, l);
-    }
-    
-    /**
-     * Returns all currently available suggestions.
-     *
-     * @return suggestions
-     */
-    abstract public Suggestion[] getSuggestions();
-    
     /** Get the default Suggestion Manager.
      * <p>
      * @return the default instance from lookup
