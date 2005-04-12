@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?> <!-- -*- sgml-indent-step: 2 -*- -->
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
                 Sun Public License Notice
 
@@ -8,22 +8,13 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-
 <project name="extbrowser/jdiclib" basedir="." default="netbeans">
+
   <import file="../../nbbuild/templates/projectized.xml"/>
   
-  <target name="files-init" depends="basic-init">
-    <patternset id="module.files">
-        <include name="${module.jar}"/>
-        <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
-        <include name="${nb.modules.dir}/ext/jdic.jar"/>
-        <include name="${nb.modules.dir}/lib/libjdic.so"/>
-    </patternset>
-  </target>
-
   <target name="netbeans-extra" depends="release"/>
 
   <target name="release" depends="init">
