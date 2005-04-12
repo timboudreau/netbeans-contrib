@@ -15,6 +15,7 @@ package org.netbeans.modules.adaptable;
 
 import java.lang.ref.Reference;
 import java.util.Collections;
+import java.util.List;
 import java.util.TooManyListenersException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -110,8 +111,8 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         /** array of 0/1 for each class in impl.classes to identify the state 
          * whether it should be enabled or not */
         private byte[] enabled;
-        /** Change listener associated with this adaptable object */
-        private ChangeListener listener;
+        /** Change listener associated with this adaptable object either ChangeListener or List<ChangeListener>*/
+        private List<ChangeListener> listener;
         
         public AdaptableImpl (Object obj, org.netbeans.spi.adaptable.Singletonizer impl, Class[] classes) {
             this.obj = obj;
@@ -130,13 +131,32 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             return null;
         }
         
-        public void addChangeListener (ChangeListener l) {
-            this.listener = l;
+        public synchronized void addChangeListener (ChangeListener l) {
+            if (this.listener == null) {
+                this.listener = Collections.singletonList (l);
+            } else {
+                if (this.listener instanceof java.util.ArrayList) {
+                    this.listener.add (l);
+                } else {
+                    java.util.ArrayList<ChangeListener> arr = new java.util.ArrayList<ChangeListener> ();
+                    arr.addAll (this.listener);
+                    arr.add (l);
+                    this.listener = arr;
+                }
+            }
         }
         
-        public void removeChangeListener (ChangeListener l) {
-            if (this.listener == l) {
-                this.listener = l;
+        public synchronized void removeChangeListener (ChangeListener l) {
+            if (this.listener instanceof java.util.ArrayList) {
+                List<ChangeListener> arr = this.listener;
+                arr.remove (l);
+                if (arr.size () == 1) {
+                    this.listener = Collections.singletonList (arr.get (0));
+                }
+            } else {
+                if (this.listener != null && this.listener.contains (l)) {
+                    this.listener = null;
+                }
             }
         }
         
@@ -153,9 +173,20 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         /** Updates its state. */
         final void update () {
             enabled = null;
-            ChangeListener l = this.listener;
-            if (l != null) {
-                l.stateChanged (new ChangeEvent (this)); 
+            
+            List<ChangeListener> arr = null;
+            
+            synchronized (this) {
+                if (this.listener == null) {
+                    return;
+                }
+
+                arr = this.listener;
+            }
+            
+            
+            for (ChangeListener listener : arr) {
+                listener.stateChanged (new ChangeEvent (this)); 
             }
         }
         

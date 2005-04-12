@@ -139,8 +139,8 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         }
         assertNull ("ActionListener is not there still", lookup.lookup (java.awt.event.ActionListener.class)); 
         listenerRunnable.assertCount ("This one changed", 1);
+        listenerListener.assertCount ("This one as well", 1);
         listenerRunnable2.assertCount ("No change in run2 or 1", fireChangeOnAllObjects ? 1 : 0);
-        listenerListener.assertCount ("This one have not", 0);
 
         runImpl.isEnabled = true;
         if (fireChangeOnAllObjects) {
@@ -153,7 +153,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         assertNotNull ("Runnable2 is still there as nobody fired a change", lookup2.lookup (Runnable.class));
         assertNull ("ActionListener is not there still", lookup.lookup (java.awt.event.ActionListener.class));
         listenerRunnable.assertCount ("This one changed", 1);
-        listenerListener.assertCount ("This one have not", 0);
+        listenerListener.assertCount ("This as well", 1);
         listenerRunnable2.assertCount ("No change in run2 again or 1", fireChangeOnAllObjects ? 1 : 0);
         
         java.lang.ref.WeakReference refLookup2 = new java.lang.ref.WeakReference (lookup2);
@@ -163,6 +163,50 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         java.lang.ref.WeakReference refRepresented2 = new java.lang.ref.WeakReference (representedObject2);
         representedObject2 = null;
         assertGC ("Represeted object shall disappear as well", refRepresented2);
+    }
+    
+    public void testMoreListeners () throws Exception {
+        final int cnt = 5;
+        
+        
+        Class[] supported = { Runnable.class };
+        
+        Implementation runImpl = new Implementation ();
+        Adaptor provider = Adaptors.singletonizer (supported, runImpl);
+        
+        Adaptable adaptable = provider.getAdaptable (this);
+        
+        Listener[] arr = new Listener[cnt];
+        for (int i = 0; i < cnt; i++) {
+            arr[i] = new Listener (adaptable);
+        }
+        
+        runImpl.isEnabled = false;
+        runImpl.listener.stateChanged (new ChangeEvent (new Object ()));
+        
+        for (int i = 0; i < cnt; i++) {
+            arr[i].assertCount (i + " - no changes as the fire was on other object", 0);
+        }
+        
+        runImpl.isEnabled = false;
+        runImpl.listener.stateChanged (new ChangeEvent (this));
+        
+        for (int i = 0; i < cnt; i++) {
+            arr[i].assertCount (i + " - one change", 1);
+        }
+        
+        
+        for (int i = 0; i < cnt; i++) {
+            adaptable.removeChangeListener (arr[i]);
+        }
+        
+        
+        runImpl.isEnabled = false;
+        runImpl.listener.stateChanged (new ChangeEvent (this));
+        
+        for (int i = 0; i < cnt; i++) {
+            arr[i].assertCount (i + " - no change listener removed", 0);
+        }
     }
 
     /** Counting listener */
