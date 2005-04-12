@@ -30,7 +30,7 @@ public final class SingletonizerImpl extends Object
 implements ProviderImpl, javax.swing.event.ChangeListener {
     private Class[] classes;
     /** Keeps track of existing lookups. Type of Object to LkpReference<Lkp> */
-    private java.util.Map lookups = new java.util.WeakHashMap ();
+    private java.util.Map<Object,Reference<Lkp>> lookups = new java.util.WeakHashMap<Object,Reference<Lkp>> ();
     
     
     /** We control the life cycle */
@@ -63,11 +63,11 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
     //
    
     public Adaptable createLookup(Object obj, Object data) {
-        java.lang.ref.Reference ref = (java.lang.ref.Reference)lookups.get (obj);
+        java.lang.ref.Reference<Lkp> ref = lookups.get (obj);
         Lkp lkp = ref == null ? null : (Lkp)ref.get ();
         if (lkp == null) {
             lkp = new Lkp (obj, (org.netbeans.spi.adaptable.Singletonizer)data, classes);
-            ref = new java.lang.ref.WeakReference (lkp);
+            ref = new java.lang.ref.WeakReference<Lkp> (lkp);
             lookups.put (obj, ref);
         }
         return lkp;
@@ -121,9 +121,9 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             );
         }
         
-        public Object lookup(Class clazz) {
+        public <T> T lookup(Class<T> clazz) {
             if (isEnabled (clazz)) {
-                return proxy;
+                return clazz.cast (proxy);
             }
             return null;
         }
@@ -158,7 +158,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         }
         
         /** Checks whether a class is enabled or not */
-        final boolean isEnabled (Class clazz) {
+        final boolean isEnabled (Class<?> clazz) {
             Class[] allSupportedClasses = proxy.getClass().getInterfaces ();
             if (enabled == null) {
                 enabled = new byte[(allSupportedClasses.length + 7) / 8];
