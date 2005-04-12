@@ -59,11 +59,12 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         runImpl.isEnabled = false;
         
-        assertNull ("Runnable not available any longer", lookup.lookup (Runnable.class));
+        assertNotNull ("Runnable is there as nobody fired a change", lookup.lookup (Runnable.class));
 
         // this shall still succeed as the change in isEnabled state has not been fired
         r.run ();
         runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        assertNull ("Runnable of course is no longer there", lookup.lookup (Runnable.class));
         try {
             r.run ();
             fail ("Should throw IllegalStateException");
@@ -115,21 +116,13 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Object representedObject2 = new String ("sampleRO2");
         Adaptable lookup2 = provider.getAdaptable (representedObject2);
         
-        /* XXX
-        Lookup.Result resultListener = lookup.lookup (new Lookup.Template (java.awt.event.ActionListener.class));
-        assertNotNull (resultListener);
-        Lookup.Result resultRunnable = lookup.lookup (new Lookup.Template (Runnable.class));
-        assertNotNull (resultRunnable);
-        Lookup.Result resultRunnable2 = lookup2.lookup (new Lookup.Template (Runnable.class));
-        assertNotNull (resultRunnable2);
+        assertNotNull ("Runnable is there A", lookup.lookup (Runnable.class)); 
+        assertNotNull ("Runnable is there B", lookup2.lookup (Runnable.class)); 
         
-        Listener listenerListener = new Listener (resultListener);
-        Listener listenerRunnable = new Listener (resultRunnable);
-        Listener listenerRunnable2 = new Listener (resultRunnable2);
         
-        assertEquals ("Runnable is there once", 1, resultRunnable.allInstances ().size ()); 
-        assertEquals ("ActionListener is not there", 0, resultListener.allInstances ().size ()); 
-        assertEquals ("Runnable2 is there once", 1, resultRunnable2.allInstances ().size ()); 
+        Listener listenerListener = new Listener (lookup);
+        Listener listenerRunnable = new Listener (lookup);
+        Listener listenerRunnable2 = new Listener (lookup2);
         
         runImpl.isEnabled = false;
         if (fireChangeOnAllObjects) {
@@ -138,13 +131,13 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
             runImpl.listener.stateChanged (new ChangeEvent (representedObject));
         }
         
-        assertEquals ("Runnable is not there anymore", 0, resultRunnable.allInstances ().size ()); 
+        assertNull ("Runnable is not there anymore", lookup.lookup (Runnable.class)); 
         if (fireChangeOnAllObjects) {
-            assertEquals ("Runnable2 is not there anomore", 0, resultRunnable2.allInstances ().size ());
+            assertNull ("Runnable2 is not there anomore", lookup2.lookup (Runnable.class));
         } else {
-            assertEquals ("Runnable2 is still there as nobody fired a change", 1, resultRunnable2.allInstances ().size ()); 
+            assertNotNull ("Runnable2 is still there as nobody fired a change", lookup2.lookup (Runnable.class));
         }
-        assertEquals ("ActionListener is not there still", 0, resultListener.allInstances ().size ()); 
+        assertNull ("ActionListener is not there still", lookup.lookup (java.awt.event.ActionListener.class)); 
         listenerRunnable.assertCount ("This one changed", 1);
         listenerRunnable2.assertCount ("No change in run2 or 1", fireChangeOnAllObjects ? 1 : 0);
         listenerListener.assertCount ("This one have not", 0);
@@ -156,25 +149,12 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
             runImpl.listener.stateChanged (new ChangeEvent (representedObject));
         }
         
-        assertEquals ("Runnable reappeared", 1, resultRunnable.allInstances ().size ()); 
-        assertEquals ("Runnable2 is still there as nobody fired a change", 1, resultRunnable.allInstances ().size ()); 
-        assertEquals ("ActionListener is not there still", 0, resultListener.allInstances ().size ()); 
+        assertNotNull ("Runnable reappeared", lookup.lookup (Runnable.class)); 
+        assertNotNull ("Runnable2 is still there as nobody fired a change", lookup2.lookup (Runnable.class));
+        assertNull ("ActionListener is not there still", lookup.lookup (java.awt.event.ActionListener.class));
         listenerRunnable.assertCount ("This one changed", 1);
         listenerListener.assertCount ("This one have not", 0);
         listenerRunnable2.assertCount ("No change in run2 again or 1", fireChangeOnAllObjects ? 1 : 0);
-        
-        java.lang.ref.WeakReference refRunnable = new java.lang.ref.WeakReference (resultRunnable);
-        java.lang.ref.WeakReference refRunnable2 = new java.lang.ref.WeakReference (resultRunnable2);
-        java.lang.ref.WeakReference refListener = new java.lang.ref.WeakReference (resultListener);
-        
-        resultRunnable2 = null;
-        assertGC ("result 2 shall GC", refRunnable2);
-        
-        resultListener = null;
-        assertGC ("result for Listener shall GC", refListener);
-        
-        resultRunnable = null;
-        assertGC ("All results shall GC", refRunnable);
         
         java.lang.ref.WeakReference refLookup2 = new java.lang.ref.WeakReference (lookup2);
         lookup2 = null;
@@ -183,7 +163,6 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         java.lang.ref.WeakReference refRepresented2 = new java.lang.ref.WeakReference (representedObject2);
         representedObject2 = null;
         assertGC ("Represeted object shall disappear as well", refRepresented2);
-        */
     }
 
     /** Counting listener */
@@ -191,7 +170,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         public int cnt;
         
         public Listener (Adaptable res) {
-            // XXX res.addLookupListener (this);
+            res.addChangeListener (this);
         }
         
         public void stateChanged (javax.swing.event.ChangeEvent ev) {

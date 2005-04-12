@@ -16,6 +16,7 @@ package org.netbeans.modules.adaptable;
 import java.lang.ref.Reference;
 import java.util.Collections;
 import java.util.TooManyListenersException;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.*;
 
@@ -29,7 +30,7 @@ public final class SingletonizerImpl extends Object
 implements ProviderImpl, javax.swing.event.ChangeListener {
     private Class[] classes;
     /** Keeps track of existing lookups. Type of Object to LkpReference<Lkp> */
-    private java.util.HashMap lookups = new java.util.HashMap ();
+    private java.util.Map lookups = new java.util.WeakHashMap ();
     
     
     /** We control the life cycle */
@@ -107,6 +108,8 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         /** array of 0/1 for each class in impl.classes to identify the state 
          * whether it should be enabled or not */
         private byte[] enabled;
+        /** Change listener associated with this adaptable object */
+        private ChangeListener listener;
         
         public Lkp (Object obj, org.netbeans.spi.adaptable.Singletonizer impl, Class[] classes) {
             this.obj = obj;
@@ -119,10 +122,20 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         }
         
         public Object lookup(Class clazz) {
-            if (impl.isEnabled (clazz) && clazz.isInstance(proxy)) {
+            if (isEnabled (clazz)) {
                 return proxy;
             }
             return null;
+        }
+        
+        public void addChangeListener (ChangeListener l) {
+            this.listener = l;
+        }
+        
+        public void removeChangeListener (ChangeListener l) {
+            if (this.listener == l) {
+                this.listener = l;
+            }
         }
         
         /** Called when one wants an interface provided by this singletonizer
@@ -138,6 +151,10 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         /** Updates its state. */
         final void update () {
             enabled = null;
+            ChangeListener l = this.listener;
+            if (l != null) {
+                l.stateChanged (new ChangeEvent (this)); 
+            }
         }
         
         /** Checks whether a class is enabled or not */

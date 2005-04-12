@@ -13,10 +13,12 @@
 
 package org.netbeans.api.adaptable;
 
+import javax.swing.event.ChangeListener;
+
 /** Generic adaptable interface that represents object that can be
  * seen in various ways. For example by calling 
  * <pre>
- * String adatable.lookup(String.class);
+ * String s = adatable.lookup(String.class);
  * </pre>
  * one can get view of the object as a string
  *
@@ -28,4 +30,13 @@ public interface Adaptable {
      * @return instance of the class or null if such view is not possible
      */
     public <T> T lookup (Class<T> what);
+    
+    /** Attaches listener to the Adaptable to be notified when a change
+     * in the results returned from the lookup method happens.
+     */
+    public void addChangeListener (ChangeListener l);
+    
+    /** Removes the listener.
+     */
+    public void removeChangeListener (ChangeListener l);
 }
