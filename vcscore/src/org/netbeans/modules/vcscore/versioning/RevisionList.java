@@ -76,9 +76,11 @@ public class RevisionList extends TreeSet implements Node.Cookie {
     
     public boolean remove(Object obj) {
         boolean status = super.remove(obj);
-        nodeDelegatesWithoutChildren.remove(obj);
-        nodeDelegatesWithChildren.remove(obj);
-        existingChildren.remove(obj);
+        synchronized (this) {
+            nodeDelegatesWithoutChildren.remove(obj);
+            nodeDelegatesWithChildren.remove(obj);
+            existingChildren.remove(obj);
+        }
         //System.out.println("RevisionList.remove("+((RevisionItem) obj).getRevision()+")");
         fireChanged();
         return status;
@@ -86,9 +88,11 @@ public class RevisionList extends TreeSet implements Node.Cookie {
     
     public boolean removeAll(Collection c) {
         boolean status = super.removeAll(c);
-        for (Iterator it = c.iterator(); it.hasNext(); nodeDelegatesWithoutChildren.remove(it.next()));
-        for (Iterator it = c.iterator(); it.hasNext(); nodeDelegatesWithChildren.remove(it.next()));
-        for (Iterator it = c.iterator(); it.hasNext(); existingChildren.remove(it.next()));
+        synchronized (this) {
+            for (Iterator it = c.iterator(); it.hasNext(); nodeDelegatesWithoutChildren.remove(it.next()));
+            for (Iterator it = c.iterator(); it.hasNext(); nodeDelegatesWithChildren.remove(it.next()));
+            for (Iterator it = c.iterator(); it.hasNext(); existingChildren.remove(it.next()));
+        }
         //System.out.println("RevisionList.removeAll("+c+"): c.size() = "+c.size());
         fireChanged();
         return status;
