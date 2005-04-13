@@ -211,7 +211,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
     /**
      * Return the live TaskList that we're managing
      */
-    private SuggestionList getList() {
+    public final SuggestionList getList() {
         if (list == null) {
             list = new SuggestionList();
         }

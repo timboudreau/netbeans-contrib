@@ -3,15 +3,21 @@ package org.netbeans.modules.tasklist.suggestions.ui;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 import org.netbeans.modules.tasklist.client.*;
+import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
+import org.netbeans.modules.tasklist.core.TaskListener;
+import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.core.TaskList;
+import org.netbeans.modules.tasklist.core.TLUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 
+import java.util.List;
+
 /**
  * A table model for suggestions.
  */
-public class SuggestionsTableModel extends AbstractTableModel implements
-ChangeListener {
+public class SuggestionsTableModel extends AbstractTableModel implements TaskListener {
     private static final String[] COLUMNS = {
         NbBundle.getMessage(SuggestionsTableModel.class, "SummaryCol"), // NOI18N
         NbBundle.getMessage(SuggestionsTableModel.class, "PriorityCol"), // NOI18N
@@ -20,21 +26,20 @@ ChangeListener {
         NbBundle.getMessage(SuggestionsTableModel.class, "FileCol") // NOI18N
     };
     
-    private SuggestionManager sm;
-    private Suggestion[] s;
+    private TaskList list;
+    private List suggestions;
     
     /**
      * Creates a new instance of SuggestionsTableMode
      */
     public SuggestionsTableModel() {
-        sm = SuggestionManager.getDefault();
-        sm.addChangeListener(this);
+        SuggestionManagerImpl sm = (SuggestionManagerImpl) SuggestionManager.getDefault();
+        list = sm.getList();
+        list.addTaskListener(this);
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
-        if (s == null)
-            s = sm.getSuggestions();
-        Suggestion sug = s[rowIndex];
+        Suggestion sug = getSuggestion(rowIndex);
         switch (columnIndex) {
             case 0:
                 return sug.getSummary();
@@ -49,7 +54,7 @@ ChangeListener {
                 else
                     return new Integer(line.getLineNumber());
             case 4:
-                FileObject fo = s[rowIndex].getFileObject();
+                FileObject fo = sug.getFileObject();
                 if (fo == null)
                     return null;
                 return fo.getNameExt();
@@ -59,18 +64,11 @@ ChangeListener {
     }
 
     public int getRowCount() {
-        if (s == null)
-            s = sm.getSuggestions();
-        return s.length;
+        return TLUtils.recursiveCount(list.getTasks().iterator());
     }
 
     public int getColumnCount() {
         return 5;
-    }
-
-    public void stateChanged(javax.swing.event.ChangeEvent e) {
-        s = null;
-        fireTableDataChanged();
     }
 
     public String getColumnName(int column) {
@@ -84,8 +82,30 @@ ChangeListener {
      * @return Suggestion
      */
     public Suggestion getSuggestion(int row) {
-        if (s == null)
-            s = sm.getSuggestions();
-        return s[row];
+        if (suggestions == null) {
+            suggestions = list.getTasks();
+        }
+        return (Suggestion) suggestions.get(row);
+    }
+
+    public void selectedTask(Task t) {
+    }
+
+    public void warpedTask(Task t) {
+    }
+
+    public void addedTask(Task t) {
+        suggestions = null;
+        fireTableDataChanged();
+    }
+
+    public void removedTask(Task pt, Task t, int index) {
+        suggestions = null;
+        fireTableDataChanged();
+    }
+
+    public void structureChanged(Task t) {
+        suggestions = null;
+        fireTableDataChanged();
     }
 }
