@@ -34,8 +34,10 @@ public final class Adaptors extends java.lang.Object {
      * @param impl singletonizer that handles the calls to created adaptables
      * @param initCall initializer (or null) to be notified when a first call
      *    is made to an object's adaptable method
-     * @param initListener initListener (or null) to be notified when a first
+     * @param initListener initializer (or null) to be notified when a first
      *    listener is added to the Adaptable 
+     * @param noListener deinitilizer (or null) that is supposed to be called
+     *    when the last listener is removed from an adaptable
      * @param gc deinitilizer (or null) to be notified when an Adaptable is GCed and
      *    no longer in use 
      */
@@ -44,6 +46,7 @@ public final class Adaptors extends java.lang.Object {
             Singletonizer impl,
             Initializer initCall,
             Initializer initListener,
+            Deinitializer noListener,
             Deinitializer gc
     ) {
         return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl);

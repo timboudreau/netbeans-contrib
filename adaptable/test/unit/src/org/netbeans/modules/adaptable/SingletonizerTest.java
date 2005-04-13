@@ -216,7 +216,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     }
 
     /** Counting listener */
-    private static class Listener implements javax.swing.event.ChangeListener {
+    protected static final class Listener implements javax.swing.event.ChangeListener {
         public int cnt;
         
         public Listener (Adaptable res) {
@@ -234,8 +234,8 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     } // end of Listener
     
     /** Implementation of singletonizer */
-    private static class Implementation implements org.netbeans.spi.adaptable.Singletonizer {
-        public boolean isEnabled = true;
+    protected static final class Implementation implements org.netbeans.spi.adaptable.Singletonizer {
+        private boolean isEnabled = true;
         public int cnt;
         public Object representedObject;
         public java.lang.reflect.Method method;
@@ -260,6 +260,15 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         public void removeChangeListener (ChangeListener listener) {
             if (this.listener == listener) {
                 this.listener = null;
+            }
+        }
+        
+        public void setEnabled (boolean e) {
+            if (e == isEnabled) return;
+            
+            isEnabled = e;
+            if (listener != null) {
+                listener.stateChanged(new ChangeEvent (this));
             }
         }
     } // end of Implementation
