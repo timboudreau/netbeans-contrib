@@ -201,10 +201,10 @@ Microsystems, Inc. All Rights Reserved.
       <value>${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []</value>
     </variable>
     <variable name="RUN" basic="false">
-      <value if="IS_WINNT">cmd /X /C "${CD} ${QUOTE}${ROOTDIR}${PS}.${QUOTE}&amp;&amp;  </value>
-      <value if="IS_WIN9X">${SHELL} -c "${CD} ${QUOTE}${ROOTDIR_\/}${QUOTE}&amp;&amp;  </value>
-      <value if="IS_OS2">cmd /C "${CD} ${QUOTE}${ROOTDIR}${PS}.${QUOTE}&amp;&amp;  </value>
-      <value>/bin/sh -c "${CD} ${QUOTE}${ROOTDIR}${QUOTE}; </value>
+      <value if="IS_WINNT">cmd /X /C "${CD} \"${ROOTDIR}${PS}.\"&amp;&amp;  </value>
+      <value if="IS_WIN9X">${SHELL} -c "${CD} \"\"${ROOTDIR_\/}\"\"&amp;&amp;  </value>
+      <value if="IS_OS2">cmd /C "${CD} "${ROOTDIR}${PS}."&amp;&amp;  </value>
+      <value>/bin/sh -c "${CD} \"${ROOTDIR}\"; </value>
     </variable>
       <variable name="RUN_NO_CD" basic="false">
         <value if="IS_WINNT">cmd /X /C "</value>
@@ -3137,9 +3137,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} $[? CO_ALL] [${CO_ALL}] [${CO_MODULE}] ${NUR}]
-                                 [$[? IS_WIN9X] [${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} $[? CO_ALL] [${CO_ALL}] [${CO_MODULE}] ${NUR}] 
-                                 [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} $[? CO_ALL] [${CO_ALL}] [${CO_MODULE}] ${NUR}]]
+	  <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class "dir=${ROOTDIR}" -d "${CVSROOT}" checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D "${DATE}"] [] ${PRUNE_EMPTY}  ${RECURSIVE} $[? CO_ALL] [${CO_ALL}] [${CO_MODULE}] ${NUR}]
+                                 [$[? IS_WIN9X] [${RUN} \"\"${CVS_EXE_\/}\"\" -d \"\"${CVSROOT}\"\" ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D \"\"${DATE}\"\"] [] ${PRUNE_EMPTY}  ${RECURSIVE} $[? CO_ALL] [${CO_ALL}] [${CO_MODULE}] ${NUR}] 
+                                 [${RUN} \"${CVS_EXE}\" -d \"${CVSROOT}\" ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D \"${DATE}\"] [] ${PRUNE_EMPTY}  ${RECURSIVE} $[? CO_ALL] [${CO_ALL}] [${CO_MODULE}] ${NUR}]]
           </value>
 	</property>
 	<property name="display">
@@ -3273,26 +3273,26 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_MODULES_S_CMD">
         <property name="exec">
-          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]
-                                  [$[? IS_WIN9X][${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]
-                                  [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]]
+          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class "dir=${ROOTDIR}" -d "${CVSROOT}" -f checkout -s ${NUR}]
+                                  [$[? IS_WIN9X][${RUN} \"\"${CVS_EXE_\/}\"\" -d \"\"${CVSROOT}\"\" -f checkout -s ${NUR}]
+                                  [${RUN} \"${CVS_EXE}\" -d \"${CVSROOT}\" -f checkout -s ${NUR}]]
           </value>
 	</property>
       </command>
       <command name="CHECKOUT_MODULES_C_CMD">
         <property name="exec">
-          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}]
-                                 [$[? IS_WIN9X][${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}]
-                                 [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}]]
+          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class "dir=${ROOTDIR}" -d "${CVSROOT}" -f checkout -c ${NUR}]
+                                 [$[? IS_WIN9X][${RUN} \"\"${CVS_EXE_\/}\"\" -d \"\"${CVSROOT}\"\" -f checkout -c ${NUR}]
+                                 [${RUN} \"${CVS_EXE}\" -d \"${CVSROOT}\" -f checkout -c ${NUR}]]
           </value>
 	</property>
       </command>
       <command name="IMPORT_CMD">
         <property name="exec">
-          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
-                                  [$[? IS_WINNT][${RUN} cd /D ${ROOTDIR} &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
-                                  [$[? IS_WIN9X][${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
-                                  [${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]]]
+          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class "dir=${ROOTDIR}" -d "${CVSROOT}" import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m "${DESCRIPTION}" "${REPOS_DIR}" ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
+                                  [$[? IS_WINNT][${RUN} cd /D ${ROOTDIR} &amp;&amp; \"${CVS_EXE}\" -d \"${CVSROOT}\" ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m \"${DESCRIPTION}\" \"${REPOS_DIR}\" ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
+                                  [$[? IS_WIN9X][${RUN} cd ${ROOTDIR}; \"\"${CVS_EXE_\/}\"\" -d \"\"${CVSROOT}\"\" ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m \"\"${DESCRIPTION}\"\" \"\"${REPOS_DIR}\"\" ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
+                                  [${RUN} cd ${ROOTDIR}; \"${CVS_EXE}\" -d \"${CVSROOT}\" ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m \"${DESCRIPTION}\" \"${REPOS_DIR}\" ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]]]
           </value>
         </property>
       </command>
@@ -3396,10 +3396,10 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_IMPORTED">
 	<property name="exec">
-          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${CHECKOUT_ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
-                                  [$[? IS_WINNT][${RUN} cd /D ${CHECKOUT_ROOTDIR} &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
-                                  [$[? IS_WIN9X][${RUN} cd ${CHECKOUT_ROOTDIR}; ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
-                                  [${RUN} cd ${CHECKOUT_ROOTDIR}; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]]]
+          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class "dir=${CHECKOUT_ROOTDIR}" -d "${CVSROOT}" checkout ${CHECKOUT_OPTIONS} "${REPOS_DIR}" ${NUR}]
+                                  [$[? IS_WINNT][${RUN} cd /D ${CHECKOUT_ROOTDIR} &amp;&amp; \"${CVS_EXE}\" -d \"${CVSROOT}\" ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} \"${REPOS_DIR}\" ${NUR}]
+                                  [$[? IS_WIN9X][${RUN} cd ${CHECKOUT_ROOTDIR}; \"\"${CVS_EXE_\/}\"\" -d \"\"${CVSROOT}\"\" ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} \"\"${REPOS_DIR}\"\" ${NUR}]
+                                  [${RUN} cd ${CHECKOUT_ROOTDIR}; \"${CVS_EXE}\" -d \"${CVSROOT}\" ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} \"${REPOS_DIR}\" ${NUR}]]]
           </value>
         </property>
         <property name="preCommands">
@@ -3428,8 +3428,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="COPY_NON_SHARABLE_CMD">
 	<property name="exec">
-          <value>${RUN} ${CD} ${QUOTE}${FOLDER_COPY_SRC}${QUOTE} &amp;&amp; cp -r -p ${QUOTE}${FILE_TO_COPY}${QUOTE} ${QUOTE}${FOLDER_COPY_DEST}${QUOTE} ${NUR}</value>
-          <value if="IS_WINNT">${RUN} ${CD} ${QUOTE}${FOLDER_COPY_SRC}${QUOTE} &amp;&amp; $[? FILE_TO_COPY_IS_FOLDER] [xcopy ${QUOTE}${FILE_TO_COPY}${QUOTE} ${QUOTE}${FOLDER_COPY_DEST}${PS}${FILE_TO_COPY}${QUOTE} /E /F /K /I] [xcopy ${QUOTE}${FILE_TO_COPY}${QUOTE} ${QUOTE}${FOLDER_COPY_DEST}${QUOTE} /E /F /K /I] ${NUR}</value>
+          <value>${RUN} ${CD} \"${FOLDER_COPY_SRC}\" &amp;&amp; cp -r -p \"${FILE_TO_COPY}\" \"${FOLDER_COPY_DEST}\" ${NUR}</value>
+          <value if="IS_WINNT">${RUN} ${CD} \"${FOLDER_COPY_SRC}\" &amp;&amp; $[? FILE_TO_COPY_IS_FOLDER] [xcopy \"${FILE_TO_COPY}\" \"${FOLDER_COPY_DEST}${PS}${FILE_TO_COPY}\" /E /F /K /I] [xcopy \"${FILE_TO_COPY}\" \"${FOLDER_COPY_DEST}\" /E /F /K /I] ${NUR}</value>
         </property>
       </command>
     </command>
