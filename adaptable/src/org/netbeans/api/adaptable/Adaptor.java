@@ -13,7 +13,8 @@
 
 package org.netbeans.api.adaptable;
 
-/**
+/** Provider of Adaptable objects for other objects. It serves as a factory
+ * and cache for obtaining Adaptables for any objects.
  *
  * @author Jaroslav Tulach
  */

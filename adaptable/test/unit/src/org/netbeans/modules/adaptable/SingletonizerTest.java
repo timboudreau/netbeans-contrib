@@ -34,12 +34,18 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     protected void setUp () throws Exception {
         super.setUp ();
     }
+    
+    /** Subclassable method to create an Adaptors.singletonizer
+     */
+    protected Adaptor createSingletonizer (Class[] supported, Singletonizer impl) {
+        return Adaptors.singletonizer (supported, impl);
+    }
 
     public void testProvidesImplementationOfRunnable () {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
-        Adaptor provider = Adaptors.singletonizer (supported, runImpl);
+        Adaptor provider = createSingletonizer (supported, runImpl);
         Object representedObject = "sampleRO";
         Adaptable lookup = provider.getAdaptable (representedObject);
         
@@ -77,7 +83,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] classes = { Integer.class };
         
         try {
-            Adaptor provider = Adaptors.singletonizer (classes, new Singletonizer () {
+            Adaptor provider = createSingletonizer (classes, new Singletonizer () {
                 public boolean isEnabled (Class c) {
                     return false;
                 }
@@ -108,7 +114,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
-        Adaptor provider = Adaptors.singletonizer (supported, runImpl);
+        Adaptor provider = createSingletonizer (supported, runImpl);
         Object representedObject = new String ("sampleRO");
         Adaptable lookup = provider.getAdaptable (representedObject);
         
@@ -172,7 +178,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
-        Adaptor provider = Adaptors.singletonizer (supported, runImpl);
+        Adaptor provider = createSingletonizer (supported, runImpl);
         
         Adaptable adaptable = provider.getAdaptable (this);
         

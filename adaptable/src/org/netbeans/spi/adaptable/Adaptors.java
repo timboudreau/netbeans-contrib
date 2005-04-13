@@ -27,4 +27,25 @@ public final class Adaptors extends java.lang.Object {
         return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl);
     }
 
+    /** Creates a new Adaptor backed by Singletonizer, with additional
+     * life cycle manager.
+     *
+     * @param classes maximal set of classes that we can implement
+     * @param impl singletonizer that handles the calls to created adaptables
+     * @param initCall initializer (or null) to be notified when a first call
+     *    is made to an object's adaptable method
+     * @param initListener initListener (or null) to be notified when a first
+     *    listener is added to the Adaptable 
+     * @param gc deinitilizer (or null) to be notified when an Adaptable is GCed and
+     *    no longer in use 
+     */
+    public static org.netbeans.api.adaptable.Adaptor singletonizer (
+            Class[] classes, 
+            Singletonizer impl,
+            Initializer initCall,
+            Initializer initListener,
+            Deinitializer gc
+    ) {
+        return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl);
+    }
 }
