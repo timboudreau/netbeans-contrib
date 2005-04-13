@@ -150,7 +150,7 @@ public class SingletonizerLifeCycleTest extends SingletonizerTest {
 
         public void assertCalls (String msg, int cnt, Object obj) {
             if (cnt != -1) {
-                assertEquals (msg, called, cnt);
+                assertEquals (msg, cnt, called);
             }
             if (obj != this) {
                 assertEquals (msg, obj, this.lastCalledOn);

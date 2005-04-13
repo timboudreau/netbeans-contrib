@@ -24,7 +24,7 @@ public final class Adaptors extends java.lang.Object {
      * @param impl provider of the functionality
      */
     public static org.netbeans.api.adaptable.Adaptor singletonizer (Class[] classes, Singletonizer impl) {
-        return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl);
+        return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl, null, null, null, null);
     }
 
     /** Creates a new Adaptor backed by Singletonizer, with additional
@@ -46,9 +46,9 @@ public final class Adaptors extends java.lang.Object {
             Singletonizer impl,
             Initializer initCall,
             Initializer initListener,
-            Deinitializer noListener,
-            Deinitializer gc
+            Deinitializer gc,
+            Deinitializer noListener
     ) {
-        return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl);
+        return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl, initCall, initListener, noListener, gc);
     }
 }

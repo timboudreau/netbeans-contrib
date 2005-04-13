@@ -16,10 +16,12 @@ package org.netbeans.modules.adaptable;
 import java.lang.ref.Reference;
 import java.util.Collections;
 import java.util.List;
-import java.util.TooManyListenersException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.*;
+import org.netbeans.spi.adaptable.Initializer;
+import org.netbeans.spi.adaptable.Deinitializer;
+import org.netbeans.spi.adaptable.Singletonizer;
 
 /** A bunch of utility methods that support making functionality
  * "singletonized". There is a more instances, but only one object
@@ -35,30 +37,68 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
      */
     private java.util.Map<Object, Reference<AdaptableImpl>> lookups = new java.util.WeakHashMap<Object,Reference<AdaptableImpl>> ();
     
+    /** singletonizer we delegate to */
+    private final Singletonizer single;
+    /** fields for life cycle control */
+    final Initializer initCall;
+    final Initializer initListener;
+    final Deinitializer noListener;
+    final Deinitializer gc;
     
     /** We control the life cycle */
-    private SingletonizerImpl (Class[] classes) {
+    private SingletonizerImpl (
+        Class[] classes,
+        Singletonizer single,
+        Initializer initCall,
+        Initializer initListener,
+        Deinitializer noListener,
+        Deinitializer gc
+    ) {
         this.classes = classes;
+        this.single = single;
+        this.initCall = initCall;
+        this.initListener = initListener;
+        this.noListener = noListener;
+        this.gc = gc;
     }
     
     /**
      * Creates an Adaptor based on that support sinletonization.
      * @param classes the interfaces that we support
      * @param impl provider of the functionality
+     * @param initCall initializer (or null) to be notified when a first call
+     *    is made to an object's adaptable method
+     * @param initListener initializer (or null) to be notified when a first
+     *    listener is added to the Adaptable 
+     * @param noListener deinitilizer (or null) that is supposed to be called
+     *    when the last listener is removed from an adaptable
+     * @param gc deinitilizer (or null) to be notified when an Adaptable is GCed and
+     *    no longer in use 
      */
-    public static Adaptor create (Class[] classes, org.netbeans.spi.adaptable.Singletonizer impl) {
+    public static Adaptor create (
+        Class[] classes, 
+        org.netbeans.spi.adaptable.Singletonizer impl,
+        Initializer initCall,
+        Initializer initListener,
+        Deinitializer noListener,
+        Deinitializer gc
+    ) {
         for (int i = 0; i < classes.length; i++) {
             if (!classes[i].isInterface()) {
                 throw new IllegalArgumentException ("Works only on interfaces: " + classes[i].getName ()); // NOI18N
             }
         }
-        SingletonizerImpl single = new SingletonizerImpl (classes);
+        SingletonizerImpl single = new SingletonizerImpl (classes, impl, initCall, initListener, noListener, gc);
         try {
             impl.addChangeListener (single);
         } catch (java.util.TooManyListenersException ex) {
             throw new IllegalStateException ("addChangeListener should not throw exception: " + impl); // NOI18N
         }
         return Accessor.API.createAspectProvider(single, impl);
+    }
+    
+    public Singletonizer getSingletonizer () {
+        return single;
     }
     
     //
@@ -69,9 +109,8 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         java.lang.ref.Reference<AdaptableImpl> ref = lookups.get (obj);
         AdaptableImpl lkp = ref == null ? null : (AdaptableImpl)ref.get ();
         if (lkp == null) {
-            lkp = new AdaptableImpl (obj, (org.netbeans.spi.adaptable.Singletonizer)data, classes);
-            ref = new java.lang.ref.WeakReference<AdaptableImpl> (lkp);
-            lookups.put (obj, ref);
+            lkp = new AdaptableImpl (obj, this, classes);
+            lookups.put (obj, lkp.ref);
         }
         return lkp;
     }
@@ -105,23 +144,23 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
     
     private static final class AdaptableImpl 
     implements Adaptable, java.lang.reflect.InvocationHandler {
-        final Object obj;
-        final org.netbeans.spi.adaptable.Singletonizer impl;
+        final AdaptableRef ref;
         final Object proxy; 
         /** array of 0/1 for each class in impl.classes to identify the state 
          * whether it should be enabled or not */
         private byte[] enabled;
         /** Change listener associated with this adaptable object either ChangeListener or List<ChangeListener>*/
         private List<ChangeListener> listener;
+        /** first call has been made */
+        private boolean firstCallDone;
         
-        public AdaptableImpl (Object obj, org.netbeans.spi.adaptable.Singletonizer impl, Class[] classes) {
-            this.obj = obj;
-            this.impl = impl;
+        public AdaptableImpl (Object obj, SingletonizerImpl impl, Class[] classes) {
             this.proxy = java.lang.reflect.Proxy.newProxyInstance(
                 getClass ().getClassLoader (), 
                 classes,
                 this
             );
+            this.ref = new AdaptableRef (this, obj, impl);
         }
         
         public <T> T lookup(Class<T> clazz) {
@@ -132,31 +171,48 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         }
         
         public synchronized void addChangeListener (ChangeListener l) {
-            if (this.listener == null) {
-                this.listener = Collections.singletonList (l);
-            } else {
-                if (this.listener instanceof java.util.ArrayList) {
-                    this.listener.add (l);
+            boolean callAdded = false;
+            synchronized (this) {
+                if (this.listener == null) {
+                    this.listener = Collections.singletonList (l);
+                    callAdded = true;
                 } else {
-                    java.util.ArrayList<ChangeListener> arr = new java.util.ArrayList<ChangeListener> ();
-                    arr.addAll (this.listener);
-                    arr.add (l);
-                    this.listener = arr;
+                    if (this.listener instanceof java.util.ArrayList) {
+                        this.listener.add (l);
+                    } else {
+                        java.util.ArrayList<ChangeListener> arr = new java.util.ArrayList<ChangeListener> ();
+                        arr.addAll (this.listener);
+                        arr.add (l);
+                        this.listener = arr;
+                    }
                 }
+            }
+            
+            
+            if (callAdded && ref.impl.initListener != null) {
+                ref.impl.initListener.initialize (ref.obj);
             }
         }
         
-        public synchronized void removeChangeListener (ChangeListener l) {
-            if (this.listener instanceof java.util.ArrayList) {
-                List<ChangeListener> arr = this.listener;
-                arr.remove (l);
-                if (arr.size () == 1) {
-                    this.listener = Collections.singletonList (arr.get (0));
+        public void removeChangeListener (ChangeListener l) {
+            boolean callRemoved = true;
+            synchronized (this) {
+                if (this.listener instanceof java.util.ArrayList) {
+                    List<ChangeListener> arr = this.listener;
+                    arr.remove (l);
+                    if (arr.size () == 1) {
+                        this.listener = Collections.singletonList (arr.get (0));
+                    }
+                } else {
+                    if (this.listener != null && this.listener.contains (l)) {
+                        this.listener = null;
+                        callRemoved = true;
+                    }
                 }
-            } else {
-                if (this.listener != null && this.listener.contains (l)) {
-                    this.listener = null;
-                }
+            }
+            
+            if (callRemoved && ref.impl.noListener != null) {
+                ref.impl.noListener.deinitialize (ref.obj);
             }
         }
         
@@ -164,7 +220,14 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
          */
         public Object invoke(Object proxy, java.lang.reflect.Method method, Object[] args) throws Throwable {
             if (isEnabled (method.getDeclaringClass ())) {
-                return impl.invoke(obj, method, args);
+                if (!firstCallDone) {
+                    firstCallDone = true;
+                    if (ref.impl.initCall != null) {
+                        ref.impl.initCall.initialize (ref.obj);
+                    }
+                }
+                
+                return ref.impl.getSingletonizer ().invoke(ref.obj, method, args);
             } else {
                 throw new IllegalStateException ("Method " + method + " cannot be invoked when " + method.getDeclaringClass ());
             }
@@ -198,7 +261,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                 int offset = 1;
                 int index = 0;
                 for (int i = 0; i < allSupportedClasses.length; i++) {
-                    if (impl.isEnabled (allSupportedClasses[i])) {
+                    if (ref.impl.getSingletonizer ().isEnabled (allSupportedClasses[i])) {
                         enabled[index] |= offset;
                     }
                     if (offset == 128) {
@@ -222,4 +285,36 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             return false;
         }
     } // end of AdaptableImpl
+
+    /** A reference to adaptable that gets cleared when it is gone.
+     */
+    private static final class AdaptableRef extends java.lang.ref.WeakReference<AdaptableImpl> {
+        /** queue we need to clear */
+        private static final java.lang.ref.ReferenceQueue<AdaptableImpl> QUEUE = new java.lang.ref.ReferenceQueue<AdaptableImpl> ();
+        /** we need to know the object we work with */
+        final Object obj;
+        /** implementation we work with */
+        final SingletonizerImpl impl;
+        
+        public AdaptableRef (AdaptableImpl adapt, Object obj, SingletonizerImpl impl) {
+            super (adapt, QUEUE);
+            this.obj = obj;
+            this.impl = impl;
+        }
+        
+        
+        public static final void cleanUpQueue () {
+            for (;;) {
+                Reference<? extends AdaptableImpl> x = QUEUE.poll ();
+                if (x == null) {
+                    break;
+                }
+                AdaptableRef ref = (AdaptableRef)x;
+                
+                if (ref.impl.gc != null) {
+                    ref.impl.gc.deinitialize (ref.obj);
+                }
+            }
+        }
+    }
 }
