@@ -40,6 +40,8 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
     
     private static final Image FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.icon"); // NOI18N
     private static final Image OPEN_FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.openedIcon"); // NOI18N
+    
+    private static final Object PLEASE_WAIT = new Object();
 
     protected File topDirectory;
     private ArrayList files;
@@ -62,6 +64,7 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
     public AbstractTreeInfoPanel(File topDir) {
         this();        
         topDirectory = topDir;
+        setWaitModel();
         insideTreeRenderer = new DefaultTreeCellRenderer();
         trDirStructure.setCellRenderer(this);
         trDirStructure.putClientProperty("JTree.lineStyle", "Angled"); // NOI18N
@@ -220,6 +223,13 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
   
   protected JPanel getButtonPanel() {
       return pnlButtons;
+  }
+  
+  private void setWaitModel() {
+      DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(topDirectory);
+      DefaultMutableTreeNode child = new DefaultMutableTreeNode(PLEASE_WAIT);
+      rootNode.add(child);
+      trDirStructure.setModel(new DefaultTreeModel(rootNode));
   }
   
   protected void recreateModel() {
@@ -416,7 +426,11 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
           if (node != null) {
               Object userObj = node.getUserObject();
               if (userObj != null) {
-                  if (userObj instanceof File) { // it is a directory
+                  if (userObj == PLEASE_WAIT) {
+                      String pleaseWaitText = NbBundle.getMessage(org.netbeans.modules.vcscore.versioning.RevisionChildren.class, "WaitNodeTooltip");
+                      label.setText(pleaseWaitText);
+                      label.setIcon(new ImageIcon(org.netbeans.modules.vcscore.versioning.RevisionChildren.class.getResource("/org/netbeans/modules/vcscore/versioning/wait.gif")));
+                  } else if (userObj instanceof File) { // it is a directory
                       label.setText(((File)userObj).getName());
                       if (!expanded) {
                           if (FOLDER_ICON != null) {

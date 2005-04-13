@@ -297,7 +297,7 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         gridBagConstraints1.insets = new java.awt.Insets (0, 12, 0, 11);
         panel.add(cbInvalid, gridBagConstraints1);
         
-        lblCount.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblCount")); // NOI18N
+        lblCount.setText(NbBundle.getMessage(StatusTreeInfoPanel.class, "StatusTreeInfoPanel.lblCount", "0", "0")); // NOI18N
         lblCount.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblCount")); // NOI18N
         lblCount.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblCount")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
