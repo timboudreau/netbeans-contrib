@@ -41,4 +41,10 @@ public abstract class Accessor {
      * @param impl the impl to pass to the provider
      */
     public abstract Adaptor createAspectProvider (ProviderImpl impl, Object data);
+    
+    /** Gets the associated data */
+    public abstract Object getData (Adaptor adaptor);
+    /** Gets associated provider */
+    public abstract ProviderImpl getProviderImpl (Adaptor adaptor);
+    
 }

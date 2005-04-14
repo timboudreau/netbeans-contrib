@@ -23,5 +23,13 @@ final class AccessorImpl extends org.netbeans.modules.adaptable.Accessor {
     public Adaptor createAspectProvider(org.netbeans.modules.adaptable.ProviderImpl impl, Object data) {
         return new Adaptor (impl, data);
     }
+
+    public Object getData(Adaptor adaptor) {
+        return adaptor.data;
+    }
+
+    public org.netbeans.modules.adaptable.ProviderImpl getProviderImpl(Adaptor adaptor) {
+        return adaptor.impl;
+    }
     
 }

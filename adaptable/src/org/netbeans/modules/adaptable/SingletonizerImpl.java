@@ -105,14 +105,18 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
     // Implementation of ProviderImpl
     //
    
-    public Adaptable createLookup(Object obj, Object data) {
+    public Adaptable createLookup(Object obj, Adaptor adaptor) {
         java.lang.ref.Reference<AdaptableImpl> ref = lookups.get (obj);
         AdaptableImpl lkp = ref == null ? null : (AdaptableImpl)ref.get ();
         if (lkp == null) {
-            lkp = new AdaptableImpl (obj, this, classes);
+            lkp = new AdaptableImpl (obj, adaptor, classes);
             lookups.put (obj, lkp.ref);
         }
         return lkp;
+    }
+    
+    final void removeObject (Object obj) {
+        lookups.remove (obj);
     }
     
     public void stateChanged (javax.swing.event.ChangeEvent e) {
@@ -154,7 +158,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         /** first call has been made */
         private boolean firstCallDone;
         
-        public AdaptableImpl (Object obj, SingletonizerImpl impl, Class[] classes) {
+        public AdaptableImpl (Object obj, Adaptor impl, Class[] classes) {
             this.proxy = java.lang.reflect.Proxy.newProxyInstance(
                 getClass ().getClassLoader (), 
                 classes,
@@ -189,8 +193,8 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             }
             
             
-            if (callAdded && ref.impl.initListener != null) {
-                ref.impl.initListener.initialize (ref.obj);
+            if (callAdded && ref.getImpl().initListener != null) {
+                ref.getImpl().initListener.initialize (ref.getRepresentedObject());
             }
         }
         
@@ -211,8 +215,8 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                 }
             }
             
-            if (callRemoved && ref.impl.noListener != null) {
-                ref.impl.noListener.deinitialize (ref.obj);
+            if (callRemoved && ref.getImpl().noListener != null) {
+                ref.getImpl().noListener.deinitialize (ref.getRepresentedObject());
             }
         }
         
@@ -222,12 +226,12 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             if (isEnabled (method.getDeclaringClass ())) {
                 if (!firstCallDone) {
                     firstCallDone = true;
-                    if (ref.impl.initCall != null) {
-                        ref.impl.initCall.initialize (ref.obj);
+                    if (ref.getImpl().initCall != null) {
+                        ref.getImpl().initCall.initialize (ref.getRepresentedObject());
                     }
                 }
                 
-                return ref.impl.getSingletonizer ().invoke(ref.obj, method, args);
+                return ref.getImpl().getSingletonizer ().invoke(ref.getRepresentedObject(), method, args);
             } else {
                 throw new IllegalStateException ("Method " + method + " cannot be invoked when " + method.getDeclaringClass ());
             }
@@ -261,7 +265,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                 int offset = 1;
                 int index = 0;
                 for (int i = 0; i < allSupportedClasses.length; i++) {
-                    if (ref.impl.getSingletonizer ().isEnabled (allSupportedClasses[i])) {
+                    if (ref.getImpl().getSingletonizer ().isEnabled (allSupportedClasses[i])) {
                         enabled[index] |= offset;
                     }
                     if (offset == 128) {
@@ -290,31 +294,72 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
      */
     private static final class AdaptableRef extends java.lang.ref.WeakReference<AdaptableImpl> {
         /** queue we need to clear */
-        private static final java.lang.ref.ReferenceQueue<AdaptableImpl> QUEUE = new java.lang.ref.ReferenceQueue<AdaptableImpl> ();
+        private static final java.lang.ref.ReferenceQueue QUEUE = new java.lang.ref.ReferenceQueue ();
+        static {
+            new AdaptableCleaner ();
+        }
         /** we need to know the object we work with */
-        final Object obj;
+        private final Object obj;
         /** implementation we work with */
-        final SingletonizerImpl impl;
+        private final Adaptor impl;
         
-        public AdaptableRef (AdaptableImpl adapt, Object obj, SingletonizerImpl impl) {
+        public AdaptableRef (AdaptableImpl adapt, Object obj, Adaptor impl) {
             super (adapt, QUEUE);
             this.obj = obj;
             this.impl = impl;
         }
+
+        final Object getRepresentedObject() {
+            return obj;
+        }
+
+        final SingletonizerImpl getImpl() {
+            return (SingletonizerImpl)Accessor.API.getProviderImpl (impl);
+        }
         
-        
-        public static final void cleanUpQueue () {
+        public static final void cleanUpQueue (AdaptableRef ref) {
+            if (ref == null) {
+                ref = (AdaptableRef)QUEUE.poll ();
+            }
             for (;;) {
-                Reference<? extends AdaptableImpl> x = QUEUE.poll ();
-                if (x == null) {
+                if (ref == null) {
                     break;
                 }
-                AdaptableRef ref = (AdaptableRef)x;
-                
-                if (ref.impl.gc != null) {
-                    ref.impl.gc.deinitialize (ref.obj);
+                if (ref.getImpl().gc != null) {
+                    ref.getImpl().gc.deinitialize (ref.getRepresentedObject());
                 }
+                if (ref.getImpl().noListener != null) {
+                    ref.getImpl().noListener.deinitialize (ref.getRepresentedObject());
+                }
+                ref.getImpl().removeObject(ref.getRepresentedObject());
+                ref = (AdaptableRef)QUEUE.poll ();
             }
         }
-    }
+    } // end of AdaptableRef
+    
+    /** A thread to cleanup the adaptable.
+     */
+    private static final class AdaptableCleaner extends Thread {
+        public AdaptableCleaner () {
+            super ("Adaptable References Cleaner");
+            setDaemon(true);
+            setPriority(MIN_PRIORITY);
+            start ();
+        }
+        
+        public void run () {
+            AdaptableRef ref;
+            for (;;) {
+                // to allow GC
+                ref = null;
+                try {
+                    ref = (AdaptableRef)AdaptableRef.QUEUE.remove ();
+                    AdaptableRef.cleanUpQueue(ref);
+                } catch (InterruptedException ex) {
+                    // go on
+                }
+                
+            }
+        }
+    } // end of AdaptableCleaner
 }

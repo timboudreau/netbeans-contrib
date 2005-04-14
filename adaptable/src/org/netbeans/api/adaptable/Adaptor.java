@@ -48,6 +48,6 @@ public final class Adaptor extends java.lang.Object {
      * @param obj represented object
      */
     public Adaptable getAdaptable (Object obj) {
-        return impl.createLookup (obj, data);
+        return impl.createLookup (obj, this);
     }
 }

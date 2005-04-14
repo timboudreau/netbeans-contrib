@@ -51,7 +51,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         assertNotNull ("Lookup created", lookup);
         // initialized at 40, increased to 48 when added byte[] with cached results
-        assertSize ("It is small", Collections.singleton (lookup), 48, new Object[] { runImpl, representedObject });
+        assertSize ("It is small", Collections.singleton (lookup), 48, new Object[] { provider, runImpl, representedObject });
         
         Runnable r = (Runnable)lookup.lookup(Runnable.class);
         assertNotNull ("Runnable provided", r);
