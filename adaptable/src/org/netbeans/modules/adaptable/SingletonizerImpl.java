@@ -142,6 +142,13 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         }
     }
     
+    /** Method just for testing purposes. Returns objects, that
+     * shall be excluding from assertSize computations as they are static
+     */
+    static Object excludeFromAssertSize () {
+        return AdaptableRef.QUEUE;
+    }
+    
     //
     // The Lookup that points to a represented object
     //
@@ -155,8 +162,6 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         private byte[] enabled;
         /** Change listener associated with this adaptable object either ChangeListener or List<ChangeListener>*/
         private List<ChangeListener> listener;
-        /** first call has been made */
-        private boolean firstCallDone;
         
         public AdaptableImpl (Object obj, Adaptor impl, Class[] classes) {
             this.proxy = java.lang.reflect.Proxy.newProxyInstance(
@@ -224,8 +229,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
          */
         public Object invoke(Object proxy, java.lang.reflect.Method method, Object[] args) throws Throwable {
             if (isEnabled (method.getDeclaringClass ())) {
-                if (!firstCallDone) {
-                    firstCallDone = true;
+                if (ref.madeFirstCall ()) {
                     if (ref.getImpl().initCall != null) {
                         ref.getImpl().initCall.initialize (ref.getRepresentedObject());
                     }
@@ -301,7 +305,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         /** we need to know the object we work with */
         private final Object obj;
         /** implementation we work with */
-        private final Adaptor impl;
+        private volatile Object impl;
         
         public AdaptableRef (AdaptableImpl adapt, Object obj, Adaptor impl) {
             super (adapt, QUEUE);
@@ -314,7 +318,24 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         }
 
         final SingletonizerImpl getImpl() {
-            return (SingletonizerImpl)Accessor.API.getProviderImpl (impl);
+            Object i = impl;
+            if (i instanceof SingletonizerImpl) {
+                return (SingletonizerImpl)i;
+            } else {
+                return (SingletonizerImpl)Accessor.API.getProviderImpl ((Adaptor)i);
+            }
+        }
+        
+        /** Marks this reference as already done first call.
+         * @return true if the first call has not been done yet.
+         */
+        final boolean madeFirstCall () {
+            Object i = impl;
+            if (this.impl instanceof SingletonizerImpl) {
+                return false;
+            }
+            this.impl = getImpl ();
+            return true;
         }
         
         public static final void cleanUpQueue (AdaptableRef ref) {
@@ -336,6 +357,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             }
         }
     } // end of AdaptableRef
+    
     
     /** A thread to cleanup the adaptable.
      */
