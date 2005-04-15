@@ -13,7 +13,13 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.awt.AWTEvent;
+import java.awt.EventQueue;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.ActionListener;
+import java.awt.event.InvocationEvent;
+import java.util.Iterator;
 
 import org.netbeans.api.vcs.commands.CommandTask;
 
@@ -246,12 +252,107 @@ public class DialogVisualizerWrapper extends javax.swing.JDialog implements VcsC
         return null;
     }
     
-    /**
-     * @param args the command line arguments
-     *
-    public static void main(String args[]) {
-        new DialogVisualizerWrapper(new javax.swing.JFrame(), true).show();
+    private PumpControl pumpControl;
+    
+    public void show() {
+        pumpControl = new PumpControl();
+        super.show();
     }
+    
+    public void dispose() {
+        super.dispose();
+        pumpControl.release();
+    }
+    
+    /**
+     * Control the event pump.
+     * Do not let invocation events from outside of VCS and JDK to process.
+     * This is a protection of our modal dialog, so that scheduled events do not
+     * create GUI upon us.
      */
+    private class PumpControl implements Runnable {
+        
+        private java.util.List ignoredEvents = new java.util.ArrayList();
+        private EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+        private CleanUpEvent cleanUpEvent = new CleanUpEvent(Toolkit.getDefaultToolkit(), this);
+        
+        public PumpControl() {
+            cleanUp();
+            queue.postEvent(new InvocationEvent(Toolkit.getDefaultToolkit(), this));
+        }
+        
+        private void cleanUp() {
+            java.util.List eventsToReturn = new java.util.ArrayList();
+            while (queue.peekEvent() != null) {
+                try {
+                    AWTEvent event = queue.getNextEvent();
+                    if (ignore(event)) {
+                        ignoredEvents.add(event);
+                    } else {
+                        eventsToReturn.add(event);
+                    }
+                } catch (InterruptedException iex) {}
+            }
+            for (Iterator it = eventsToReturn.iterator(); it.hasNext(); ) {
+                AWTEvent event = (AWTEvent) it.next();
+                queue.postEvent(event);
+            }
+        }
+        
+        public void run() {
+            if (queue != null) {
+                try {
+                    Thread.currentThread().sleep(20);
+                } catch (InterruptedException iex) {}
+                cleanUp();
+                queue.postEvent(cleanUpEvent);
+            }
+        }
+        
+        public void release() {
+            // Post all the ignored events now
+            for (Iterator it = ignoredEvents.iterator(); it.hasNext(); ) {
+                AWTEvent event = (AWTEvent) it.next();
+                queue.postEvent(event);
+                //System.out.println("POST Event: "+event);
+            }
+            // Stop cleaning up.
+            queue = null;
+        }
+        
+        private boolean ignore(AWTEvent event) {
+            //System.out.println("HAVE Event: "+event);
+            if (event instanceof InvocationEvent) {
+                InvocationEvent ie = (InvocationEvent) event;
+                String ids;
+                try {
+                    java.lang.reflect.Field runnableField = ie.getClass().getDeclaredField("runnable");
+                    runnableField.setAccessible(true);
+                    Object runnable = runnableField.get(ie);
+                    ids = runnable.getClass().getName();
+                } catch (Exception ex) {
+                    ids = ie.paramString();
+                }
+                if (ids.indexOf("javax.swing") >= 0 || ids.indexOf("java.awt") >= 0 ||
+                        ids.indexOf("sun.awt.") >= 0 ||
+                        ids.indexOf("vcscore") >= 0) {
+                    return false;
+                } else {
+                    //System.out.println("IGNORED Event: "+event);
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        
+        private class CleanUpEvent extends InvocationEvent {
+            public CleanUpEvent(Object source, Runnable run) {
+                // ID = PaintEvent.PAINT, to have the lowest priority.
+                super(source, java.awt.event.PaintEvent.PAINT, run, null, false);
+            }
+        }
+        
+    }
     
 }
