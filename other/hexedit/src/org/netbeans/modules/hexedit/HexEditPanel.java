@@ -18,6 +18,9 @@
 
 package org.netbeans.modules.hexedit;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
 import org.netbeans.modules.hexedit.ByteListModel;
 import org.netbeans.modules.hexedit.HexCellEditor;
 
@@ -51,6 +54,21 @@ public class HexEditPanel extends JPanel {
 
     public HexEditPanel() {
         initComponents();
+    }
+    
+    public HexEditPanel (File f) throws FileNotFoundException {
+        this();
+        if (f.length() > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException (
+                    Util.formatMessage("MSG_FILE_TOO_LARGE", new Object[]{f})); //NOI18N
+        }
+        if (f.isFile() && f.exists() && f.canRead()) {
+            RandomAccessFile raf = new RandomAccessFile (f, f.canWrite() ? "rw" : "r");
+
+            FileChannel channel = raf.getChannel();
+            setFileChannel (channel, (int) f.length());
+        }
+        setName(f.toString());
     }
 
     public void setFileChannel (FileChannel channel, int length) {
