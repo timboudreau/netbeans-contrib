@@ -11,3 +11,4 @@ exclude vcscore/src/org/netbeans/modules/vcscore/runtime/package.html
 exclude vcscore/src/org/netbeans/modules/vcscore/commands/package.html
 exclude vcscore/src/org/netbeans/modules/vcscore/actions/package.html
 exclude vcscore/src/org/netbeans/modules/vcscore/versioning/impl/package.html
+vcscore/javacorebridge/src/**/Bundle*.properties
