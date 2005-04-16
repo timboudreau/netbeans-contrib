@@ -35,7 +35,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
     /**
      * Keeps track of existing lookups. 
      */
-    private java.util.Map<Object, Reference<AdaptableImpl>> lookups = new java.util.WeakHashMap<Object,Reference<AdaptableImpl>> ();
+    private java.util.Map<Object, Reference<AdaptableImpl>> lookups = new java.util.HashMap<Object,Reference<AdaptableImpl>> ();
     
     /** singletonizer we delegate to */
     private final Singletonizer single;
