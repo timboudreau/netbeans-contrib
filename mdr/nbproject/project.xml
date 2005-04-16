@@ -68,6 +68,10 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages/>
+            <class-path-extension>
+                <runtime-relative-path>ext/mdr.jar</runtime-relative-path>
+                <binary-origin>../dist/mdr.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

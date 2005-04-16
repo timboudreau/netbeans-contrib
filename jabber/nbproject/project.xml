@@ -16,7 +16,7 @@ Contributor(s): Petr Nejedly
 <project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
-        <data xmlns="http://www.netbeans.org/ns/nb-module-project/1">
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.jabber</code-name-base>
             <path>contrib/jabber</path>
             <module-dependencies>
@@ -31,6 +31,14 @@ Contributor(s): Petr Nejedly
                 </dependency>
             </module-dependencies>
             <public-packages/>
+            <class-path-extension>
+                <runtime-relative-path>ext/smack.jar</runtime-relative-path>
+                <binary-origin>external/smack.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/smackx.jar</runtime-relative-path>
+                <binary-origin>external/smackx.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

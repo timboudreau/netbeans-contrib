@@ -3,7 +3,6 @@ OpenIDE-Module: org.netbeans.modules.tasklist.usertasks/2
 OpenIDE-Module-Implementation-Version: 44
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/usertasks/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/usertasks/mf-layer.xml
-Class-Path: docs/org-netbeans-modules-tasklist-usertasks.jar ext/jcalendar.jar 
 
 Name: org/netbeans/modules/tasklist/usertasks/TaskListLoader.class
 OpenIDE-Module-Class: Loader

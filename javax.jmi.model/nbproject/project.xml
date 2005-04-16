@@ -8,13 +8,13 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
-        <data xmlns="http://www.netbeans.org/ns/nb-module-project/1">
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>javax.jmi.model</code-name-base>
             <path>mdr/mof</path>
             <module-dependencies>
@@ -37,11 +37,14 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <!-- Ideally, none. In practice, some. XXX kill when possible or use impl deps -->
                 <package>javax.jmi.model</package>
                 <package>javax.jmi.primitivetypes</package>
                 <package>javax.jmi.corbaidltypes</package>		
             </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/mof.jar</runtime-relative-path>
+                <binary-origin>${external.dir}/mof.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

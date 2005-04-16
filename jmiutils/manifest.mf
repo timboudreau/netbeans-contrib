@@ -3,5 +3,4 @@ OpenIDE-Module: org.netbeans.modules.jmiutils/1
 OpenIDE-Module-Layer: org/netbeans/modules/jmiutils/resources/layer.xml
 OpenIDE-Module-Implementation-Version: 2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jmiutils/Bundle.properties
-Class-Path: ext/jmiutils.jar
 

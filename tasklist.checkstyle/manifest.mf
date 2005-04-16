@@ -2,5 +2,4 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.tasklist.checkstyle/2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/checkstyle/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/checkstyle/mf-layer.xml
-Class-Path: ext/checkstyle-all.jar
 

@@ -8,13 +8,13 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
-        <data xmlns="http://www.netbeans.org/ns/nb-module-project/1">
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.jmiutils</code-name-base>
             <path>mdr/nbjmiutils</path>
             <module-dependencies>
@@ -53,8 +53,16 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <!-- Ideally, none. In practice, some. XXX kill when possible or use impl deps -->
+                <!-- XXX this is very likely incorrect. JavaMetamodel (in java/javacore) extends MetamodelManager (wrapped by this module). -->
+                <!-- Since JavaMetamodel is treated as public, client modules can call it without an impl dep. -->
+                <!-- BUT javac (in JDK 1.4 at least) wants to access the superclass, meaning you need to have a compile dep on this module. -->
+                <!-- Which is funny, since the client will not be able to actually access MetamodelManager directly without an impl dep. -->
+                <!-- This situation is a violation of the basic rule that an exposed API must not refer directly to an API-inaccessible class. -->
             </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/jmiutils.jar</runtime-relative-path>
+                <binary-origin>../jmiutils/dist/jmiutils.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

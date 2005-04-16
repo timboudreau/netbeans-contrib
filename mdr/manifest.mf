@@ -5,7 +5,6 @@ OpenIDE-Module-Layer: org/netbeans/modules/mdr/resources/mdr-layer.xml
 OpenIDE-Module-Implementation-Version: 2
 OpenIDE-Module-Provides: org.netbeans.api.mdr.MDRManager
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/mdr/Bundle.properties
-Class-Path: ext/mdr.jar
 
 Name: org/netbeans/modules/mdr/MDRLoader.class
 OpenIDE-Module-Class: Loader

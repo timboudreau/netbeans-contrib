@@ -61,6 +61,10 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages/>
+            <class-path-extension>
+                <runtime-relative-path>ext/checkstyle-all.jar</runtime-relative-path>
+                <binary-origin>../external/checkstyle-all.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

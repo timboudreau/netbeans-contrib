@@ -1,8 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.jdiclib/1
-OpenIDE-Module-Public-Packages: org.jdesktop.**
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jdiclib/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
-OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.18
-Class-Path: ext/jdic.jar
+

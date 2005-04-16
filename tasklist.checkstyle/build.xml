@@ -14,8 +14,10 @@ Microsystems, Inc. All Rights Reserved.
 <project name="tasklist/checkstyle" default="netbeans" basedir=".">
 
     <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <target name="netbeans-extra" depends="release"/>
     
-    <target name="basic-init" depends="projectized.basic-init">
+    <target name="release" depends="build-init">
         <available file="../external/checkstyle-all.jar" property="checkstyle-all.present" />
         <fail unless="checkstyle-all.present" message="Missing library. Read README for proper setup." />
         <available file="../external/checkstyle_checks.xml" property="checkstyle-rule.present" />
@@ -26,8 +28,8 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="checkstyle-all.jar"/>
             </fileset>
         </copy>
-       <mkdir dir="netbeans/configs"/>
-       <copy todir="netbeans/configs">
+       <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/configs"/>
+       <copy todir="${netbeans.dest.dir}/${cluster.dir}/configs">
          <fileset dir="../external">
            <include name="checkstyle.xml"/>
          </fileset>
@@ -37,10 +39,6 @@ Microsystems, Inc. All Rights Reserved.
     <target name="changelog">
         <style in="module-updates.xml" out="../www/updates/tasklist-checkstyle.html" 
             style="../www/updates/updates.xsl"/>
-    </target>
-    
-    <target name="clean" depends="projectized.clean">
-        <delete file="manifest-subst.mf"/>
     </target>
     
     <target name="pmd-check">

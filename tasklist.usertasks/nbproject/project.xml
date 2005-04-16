@@ -62,6 +62,10 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages/>
+            <class-path-extension>
+                <runtime-relative-path>ext/jcalendar.jar</runtime-relative-path>
+                <binary-origin>../external/jcalendar.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>
