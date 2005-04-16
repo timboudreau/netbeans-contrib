@@ -14,8 +14,10 @@ Microsystems, Inc. All Rights Reserved.
 <project name="tasklist/html" default="netbeans" basedir=".">
 
     <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <target name="netbeans-extra" depends="release"/>
     
-    <target name="basic-init" depends="projectized.basic-init">
+    <target name="release" depends="build-init">
         <ant antfile="../external/build.xml" dir="../external"/>
         <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext"/>
         <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
