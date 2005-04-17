@@ -14,9 +14,9 @@
 package org.netbeans.modules.tasklist.editor;
 
 import java.awt.event.ActionEvent;
-import java.net.URL;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
+import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
 import org.netbeans.editor.BaseAction;
@@ -26,10 +26,6 @@ import org.netbeans.editor.Utilities;
 import org.netbeans.editor.LocaleSupport.Localizer;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.URLMapper;
-import org.openide.loaders.DataObject;
-import org.openide.text.DataEditorSupport;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 
@@ -47,11 +43,11 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
     /**
      * Add a new task tied ot the current line
      */
-    public static final String newTodoItemAction = "new-todo-item"; // NOI18N
+    public static final String NEW_USER_TASK_ACTION = "new-todo-item"; // NOI18N
 
 
     public NewTaskEditorAction() {
-        super(newTodoItemAction);
+        super(NEW_USER_TASK_ACTION);
         LocaleSupport.addLocalizer(this); // XXX is this too late?
     }
 
@@ -83,7 +79,7 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
             return;
         }
 
-        Line lineObj = NbEditorUtilities.getLine(doc, caret.getDot(), false);
+        Line lineObj = NbEditorUtilities.getLine((Document) doc, caret.getDot(), false);
         NewTaskAction.performAction(lineObj);
     }
 

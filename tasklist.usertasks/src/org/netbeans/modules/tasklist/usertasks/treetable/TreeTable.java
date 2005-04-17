@@ -768,6 +768,24 @@ public class TreeTable extends JTable {
         }
         return new TreePath(p);
     }
+
+    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+        if (renderer instanceof TreeTableRenderer) {
+            Object node = getNodeForRow(row);
+            Object value = getTreeTableModel().getValueAt(node, column);
+            boolean isSelected = isCellSelected(row, column);
+            boolean rowIsAnchor = (selectionModel.getAnchorSelectionIndex() == row);
+            boolean colIsAnchor =
+                (columnModel.getSelectionModel().getAnchorSelectionIndex() == column);
+            boolean hasFocus = (rowIsAnchor && colIsAnchor) && isFocusOwner();
+
+            return ((TreeTableRenderer) 
+                renderer).getTreeTableCellRendererComponent(this, 
+                    node, value, isSelected, hasFocus, row, column);
+        } else {
+            return super.prepareRenderer(renderer, row, column);
+        }
+    }
     
     /**
      * A TreeCellRenderer that displays a JTree.

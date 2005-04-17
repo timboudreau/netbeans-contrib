@@ -54,10 +54,81 @@ import org.netbeans.modules.tasklist.usertasks.*;
  *
  * @author Tor Norbye
  * @author Trond Norbye
+ * @author tl
  */
 public class UserTaskList implements Timeout, ObjectList.Owner {    
-    private static UserTaskList tasklist = null;
+    /**
+     * Callback for the UserTaskList.process method
+     */
+    private static interface UserTaskProcessor {
+        /**
+         * This method will be called for each user task.
+         *
+         * @param ut reference to the task
+         */
+        public void process(UserTask ut);
+    }
+
+    /**
+     * Callback for finding the next timeout
+     */
+    private static class FindNextTimeoutUserTaskProcessor implements
+    UserTaskProcessor {
+        private long nextTimeout = Long.MAX_VALUE;
+        
+        /** Task for the next timeout */
+        public UserTask ref = null;
+        
+        public void process(UserTask t) {
+            long n = t.getDueTime();
+            if (n != Long.MAX_VALUE && !t.isDueAlarmSent() && !t.isDone() &&
+                n > System.currentTimeMillis() && n < nextTimeout) {
+                nextTimeout = n;
+                ref = t;
+            }
+        }
+    }
     
+    private static class ShowExpiredUserTaskProcessor implements
+        UserTaskProcessor {
+        public void process(UserTask t) {
+            long n = t.getDueTime();
+            if (n != Long.MAX_VALUE && !t.isDueAlarmSent() &&
+                !t.isDone() && 
+                n <= System.currentTimeMillis()) {
+                showExpiredTask(t);
+            }
+        }
+
+        /**
+         * Present the user with a dialog that shows information of the task that
+         * expired... 
+         *
+         * @todo Replace the UserTaskDuePanel with the EditTaskPanel????
+         * @param task the task to show
+         */
+        private void showExpiredTask(UserTask task) {
+            task.setDueAlarmSent(true);
+
+            final UserTask t = task;
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    UserTaskDuePanel panel = new UserTaskDuePanel(t);
+
+                    String title = NbBundle.getMessage(UserTaskList.class, "TaskDueLabel"); // NOI18N
+                    DialogDescriptor d = new DialogDescriptor(panel, title);                
+                    d.setModal(false);
+                    d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
+                    d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
+                    java.awt.Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
+                    dlg.pack();
+                    dlg.show();
+                }
+            });
+        }
+    }
+    
+    private static UserTaskList tasklist = null;
     
     /**
      * Returns the default task list
@@ -85,7 +156,8 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
                     "CannotCreateFile", f.getAbsolutePath())); // NOI18N
         }
 
-        return readDocument(FileUtil.toFileObject(f));
+        tasklist = readDocument(FileUtil.toFileObject(f));
+        return tasklist;
     }
     
     private UserTaskObjectList tasks;
@@ -296,7 +368,23 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
         return null;
     }
 
-    /** Schedule a document save */
+    /**
+     * Process all tasks including subtasks in the depth-first order.
+     *
+     * @param p a callback that will be called for each task
+     * @param list a list of user tasks
+     */
+    public void processDepthFirst(UserTaskProcessor p, UserTaskObjectList list) {
+        for (int i = 0; i < list.size(); i++) {
+            UserTask ut = list.getUserTask(i);
+            processDepthFirst(p, ut.getSubtasks());
+            p.process(ut);
+        }
+    }
+        
+    /** 
+     * Schedule a document save 
+     */
     private void scheduleWrite() {
         // Stop our current timer; the previous node has not
         // yet been scanned; too brief an interval
@@ -412,34 +500,23 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      * Order a timeout for the next due date
      */
     void orderNextTimeout() {
-        long nextTimeout = Long.MAX_VALUE;
-        long now = System.currentTimeMillis();
+        ShowExpiredUserTaskProcessor se =
+            new ShowExpiredUserTaskProcessor();
+        processDepthFirst(se, getSubtasks());
         
-        UserTask ref = null;
-
-        Iterator i = getSubtasks().iterator();
-        while (i.hasNext()) {
-            UserTask t = (UserTask)i.next();            
-            long n = t.getDueTime();
-
-            if (n != Long.MAX_VALUE && !t.isDueAlarmSent()) {
-                if (n <= now) {
-                    showExpiredTask(t);
-                    continue;
-                } else if (n < nextTimeout) {
-                    nextTimeout = n;
-                    ref = t;
-                }
-            }
-        }
-
-        if (nextTimeout != currentTimeout) {
+        FindNextTimeoutUserTaskProcessor p = 
+            new FindNextTimeoutUserTaskProcessor();
+        processDepthFirst(p, getSubtasks());
+        
+        if (p.ref != null && p.ref.getDueTime() != Long.MAX_VALUE && 
+            !p.ref.isDueAlarmSent() && !p.ref.isDone() &&
+            p.ref.getDueTime() != currentTimeout) {
             // cancel the previous ordered timeout, and add the new one
             if (currentTimeout != Long.MAX_VALUE) {
                 TimeoutProvider.getInstance().cancel(this, null);
             }
-            TimeoutProvider.getInstance().add(this, ref, nextTimeout);
-            currentTimeout = nextTimeout;
+            TimeoutProvider.getInstance().add(this, p.ref, p.ref.getDueTime());
+            currentTimeout = p.ref.getDueTime();
         }
     }
     
@@ -455,40 +532,8 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      * @param o the object provided as a user reference
      */
     public void timeoutExpired(Object o) {
-        // Show the task...
-        showExpiredTask((UserTask)o);
-
         // order the next timeout for this list
         orderNextTimeout();
-    }
-
-    /**
-     * Present the user with a dialog that shows information of the task that
-     * expired... 
-     *
-     * @todo Replace the UserTaskDuePanel with the EditTaskPanel????
-     * @param task the task to show
-     */
-    private void showExpiredTask(UserTask task) {
-        task.setDueAlarmSent(true);
-        expiredTask = true;
-        markChanged();
-        
-        final UserTask t = task;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                UserTaskDuePanel panel = new UserTaskDuePanel(t);
-                
-                String title = NbBundle.getMessage(UserTaskList.class, "TaskDueLabel"); // NOI18N
-                DialogDescriptor d = new DialogDescriptor(panel, title);                
-                d.setModal(false);
-                d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
-                d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
-                java.awt.Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
-                dlg.pack();
-                dlg.show();
-            }
-        });
     }
 
     protected void setNeedSave(boolean b) {
@@ -513,6 +558,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      * it should save itself soon. Eventually calls save 
      */
     public void markChanged() {
+        orderNextTimeout();
         needSave = true;
         save();
     }
