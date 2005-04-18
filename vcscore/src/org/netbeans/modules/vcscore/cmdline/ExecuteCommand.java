@@ -593,7 +593,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             if (errorRegexGlobalRE == null) {
                 ec.addRegexErrorListener(new RegexOutputListener() {
                                               public void outputMatchedGroups(String[] data) {
-                                                  printDataErrorOutput(data);
+                                                  printDataErrorOutputReal(data);
                                               }
                                           }, errorRegex);
             } else {
@@ -633,7 +633,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             globalDataOutput = globalDataOutput.substring(0, globalDataOutput.length() - 1);
         }
         String[] parsed = ExternalCommand.matchToStringArray(globalDataRegex, globalDataOutput);
-        printDataErrorOutput(parsed);
+        printDataErrorOutputReal(parsed);
     }
     
     //-------------------------------------------
@@ -825,15 +825,19 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         if (mergeOutputStreams) {
             printDataOutput(data);
         } else {
-            for (Iterator it = regexErrorListeners.iterator(); it.hasNext(); ) {
-                ((RegexOutputListener) it.next()).outputMatchedGroups(data);
-            }
-            for (Iterator it = dataErrorListeners.iterator(); it.hasNext(); ) {
-                ((CommandDataOutputListener) it.next()).outputData(data);
-            }
-            if (getFileRefreshFromErrOut) {
-                collectRefreshInfo(data);
-            }
+            printDataErrorOutputReal(data);
+        }
+    }
+
+    protected void printDataErrorOutputReal(String[] data) {
+        for (Iterator it = regexErrorListeners.iterator(); it.hasNext(); ) {
+            ((RegexOutputListener) it.next()).outputMatchedGroups(data);
+        }
+        for (Iterator it = dataErrorListeners.iterator(); it.hasNext(); ) {
+            ((CommandDataOutputListener) it.next()).outputData(data);
+        }
+        if (getFileRefreshFromErrOut) {
+            collectRefreshInfo(data);
         }
     }
 
