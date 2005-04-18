@@ -22,8 +22,8 @@ Microsystems, Inc. All Rights Reserved.
         <fail unless="checkstyle-all.present" message="Missing library. Read README for proper setup." />
         <available file="../external/checkstyle_checks.xml" property="checkstyle-rule.present" />
         <fail unless="checkstyle-rule.present" message="Missing ruleset. Read README for proper setup."/>
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext"/>
-        <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules/ext"/>
+        <copy todir="${netbeans.dest.dir}/${cluster.dir}/modules/ext">
             <fileset dir="../external">
                 <include name="checkstyle-all.jar"/>
             </fileset>

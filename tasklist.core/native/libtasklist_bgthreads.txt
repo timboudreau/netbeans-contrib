@@ -1,4 +1,4 @@
-Put this native library under {netbeans36}/modules/autoload/bin
+Put this native library under {netbeans}/modules/lib
 to get improved less intrusive background scanning for TODOs.
 
 WARNING: Use on your own risk it's not officially supported

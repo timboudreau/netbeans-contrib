@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -17,12 +17,12 @@ Microsystems, Inc. All Rights Reserved.
   
   <target name="init" depends="default.init">
     <patternset id="utilities/loaderswitcher.files">
-      <include name="${nb.modules.dir}/loaderswitcher.jar"/>
+      <include name="modules/loaderswitcher.jar"/>
     </patternset>
 
     <path id="cp">
-      <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
-      <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+      <pathelement location="${openide.dir}/core/openide.jar"/>
+      <pathelement location="${openide/loaders.dir}/core/openide-loaders.jar"/>
     </path>
   </target>
 
@@ -33,10 +33,10 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/loaderswitcher.jar"
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/modules/loaderswitcher.jar"
             manifest="manifest-subst.mf"
             basedir="src"
 	    excludesfile="../../nbbuild/standard-jar-excludes.txt"
@@ -45,7 +45,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/loaderswitcher.jar">
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="modules/loaderswitcher.jar">
       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
         <patternset refID="utilities/loaderswitcher.files"/>
       </fileset>
@@ -55,7 +55,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="loaderswitcher.nbm"
              productdir="${netbeans.dest.dir}/${cluster.dir}"
-             module="${nb.modules.dir}/loaderswitcher.jar"
+             module="modules/loaderswitcher.jar"
 	     homepage="http://utilities.${homepage.base}/loaderswitcher/"
 	     distribution="http://${dist.base}/loaderswitcher.nbm">
       <license file="${license.file}"/>

@@ -32,7 +32,7 @@ Contributor(s): Petr Nejedly
     <target name="netbeans-extra" depends="release"/>
 
     <target name="release" depends="init">
-        <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
+        <copy todir="${netbeans.dest.dir}/${cluster.dir}/modules/ext">
             <fileset dir="external">
                 <include name="smack*.jar"/>
             </fileset>

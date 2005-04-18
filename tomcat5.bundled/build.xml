@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -20,16 +20,16 @@ Microsystems, Inc. All Rights Reserved.
   <target name="init" depends="default.init">
     <ant dir="${nb_all}/tomcatint/external" target="unscramble"/>
     <patternset id="tomcatint/tomcat5/bundled.files">
-      <include name="${nb.modules/eager.dir}/tomcat5-bundled.jar"/>
+      <include name="modules/eager/tomcat5-bundled.jar"/>
       <include name="${tomcat.filename}/**"/>
     </patternset>
   </target>
 
   <target name="jars" depends="init">
-    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/eager.dir}"/>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules/eager"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/eager.dir}/tomcat5-bundled.jar"
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/modules/eager/tomcat5-bundled.jar"
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
@@ -41,9 +41,9 @@ Microsystems, Inc. All Rights Reserved.
   <target name="release" depends="init,jars">
     <unzip src="../../external/${tomcat.filename}.zip" dest="${netbeans.dest.dir}/${cluster.dir}" />
     <!-- monitor -->
-    <copy file="${schema2beans/rt.dir}/${nb.modules.dir}/org-netbeans-modules-schema2beans.jar" 
+    <copy file="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" 
           tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.5.7/common/lib/org-netbeans-modules-schema2beans.jar"/>
-    <copy file="${monitor.dir}/${nb.modules.dir}/ext/org-netbeans-modules-web-httpmonitor.jar"
+    <copy file="${monitor.dir}/modules/ext/org-netbeans-modules-web-httpmonitor.jar"
           tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.5.7/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
     <chmod perm="ugo+x">
       <fileset dir="${netbeans.dest.dir}/${cluster.dir}/${tomcat.filename}/bin">
@@ -61,7 +61,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="netbeans" depends="jars,release" description="Builds the module">
-    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules/eager.dir}/tomcat5-bundled.jar">
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="modules/eager/tomcat5-bundled.jar">
        <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
          <patternset refID="tomcatint/tomcat5/bundled.files"/>
        </fileset>
@@ -71,7 +71,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans" description="Prepare the module for distribution via Auto Update.">
     <makenbm file="bundledtomcat.nbm"
            productdir="${netbeans.dest.dir}/${cluster.dir}"
-           module="${nb.modules/eager.dir}/tomcat5-bundled.jar"
+           module="modules/eager/tomcat5-bundled.jar"
            homepage="http://tomcatint.${homepage.base}/"
            distribution="http://${dist.base}/bundledtomcat.nbm">
       <license name="bundledtomcat-license.txt">

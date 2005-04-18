@@ -19,8 +19,8 @@ Microsystems, Inc. All Rights Reserved.
     
     <target name="release" depends="build-init">
         <ant antfile="../external/build.xml" dir="../external"/>
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext"/>
-        <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules/ext"/>
+        <copy todir="${netbeans.dest.dir}/${cluster.dir}/modules/ext">
             <fileset dir="../external">
                 <include name="Tidy*.jar"/>
             </fileset>

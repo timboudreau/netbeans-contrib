@@ -15,9 +15,10 @@ Microsystems, Inc. All Rights Reserved.
 
     <import file="../../nbbuild/templates/projectized.xml"/>
     
+    <!-- XXX currently this target is not called, so this file is not in the build... delete target or add <target name="netbeans-extra" depends="native"/> -->
     <target name="native">
-        <mkdir dir="netbeans/modules/autoload/bin"/>
-        <copy file="native/libtasklist_bgthreads.so" todir="netbeans/modules/autoload/bin"/>
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules/lib"/>
+        <copy file="native/libtasklist_bgthreads.so" todir="${netbeans.dest.dir}/${cluster.dir}/modules/lib"/>
     </target>
 
     <target name="changelog">

@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -17,11 +17,11 @@ Microsystems, Inc. All Rights Reserved.
 
     <target name="init" depends="default.init">
         <patternset id="naming.files">
-            <include name="${nb.modules/autoload.dir}/naming.jar"/>
+            <include name="modules/autoload/naming.jar"/>
         </patternset>
         <path id="cp">
-            <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
-            <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+            <pathelement location="${openide.dir}/core/openide.jar"/>
+            <pathelement location="${openide/loaders.dir}/core/openide-loaders.jar"/>
         </path>
     </target>
     
@@ -32,10 +32,10 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="jars" depends="compile">
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}"/>
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules/autoload"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}/naming.jar"
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/modules/autoload/naming.jar"
                 basedir="src"
                 manifest="manifest-subst.mf"
                 excludesfile="../../nbbuild/standard-jar-excludes.txt"
@@ -44,9 +44,9 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="netbeans" depends="jars">
-        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules/autoload.dir}/naming.jar">
+        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="modules/autoload/naming.jar">
             <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-                <include name="${nb.modules/autoload.dir}/naming.jar"/>
+                <include name="modules/autoload/naming.jar"/>
          </fileset>
         </genlist>
     </target>
@@ -54,7 +54,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="nbm" depends="netbeans">
         <makenbm file="naming.nbm"
                  productdir="${netbeans.dest.dir}/${cluster.dir}"
-                 module="${nb.modules/autoload.dir}/naming.jar"
+                 module="modules/autoload/naming.jar"
                  homepage="http://contrib.${homepage.base}/"
                  distribution="http://${dist.base}/naming.nbm">
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
@@ -63,7 +63,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <target name="test-build" depends="jars">
         <mkdir dir="reload/ext"/>
-        <copy file="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}/naming.jar" tofile="reload/naming.jar"/>
+        <copy file="${netbeans.dest.dir}/${cluster.dir}/modules/autoload/naming.jar" tofile="reload/naming.jar"/>
     </target>
     <target name="test" depends="test-build">
         <nbinstaller module="reload/naming.jar" action="reinstall"/>

@@ -21,8 +21,8 @@ Microsystems, Inc. All Rights Reserved.
 
     <target name="release" depends="init">
         <property file="build.properties"/>
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext"/>
-        <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules/ext"/>
+        <copy todir="${netbeans.dest.dir}/${cluster.dir}/modules/ext">
             <fileset dir="external">
                 <include name="${jalopy}"/>
                 <include name="${jdom}"/>
