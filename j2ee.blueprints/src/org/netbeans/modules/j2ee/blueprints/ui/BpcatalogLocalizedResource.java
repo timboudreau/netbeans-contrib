@@ -1,7 +1,14 @@
 /*
- * BpcatalogHtmlResource.java
+ *                 Sun Public License Notice
  *
- * Created on 2005/02/25, 20:43
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.j2ee.blueprints.ui;
@@ -10,7 +17,6 @@ import java.net.URL;
 import java.util.Locale;
 
 /**
- *
  * @author Yutaka Yoshida
  */
 public class BpcatalogLocalizedResource {
