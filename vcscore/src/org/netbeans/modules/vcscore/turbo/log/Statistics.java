@@ -32,11 +32,8 @@ import java.util.Date;
  * @author Petr Kuzel
  */
 public final class Statistics {
-    
-    private static boolean DO_LOG = System.getProperty("netbeans.experimental.vcsTurboStatistics", "mini").equalsIgnoreCase("performance");  // NOI18N
 
     private static PrintWriter out;
-    private static boolean doCloseOut = false;
     private static long requests = 0;
     private static long faqRequests = 0;
     private static long memoryHits = 0;
@@ -50,6 +47,7 @@ public final class Statistics {
     private static long maxQueueSize = 0;
     private static long absoluteKeys = 0;
     private static long maxMemoryEntries = 0;
+    private static boolean outToBeClosed;
 
     private Statistics() {
         // only static methods
@@ -59,12 +57,11 @@ public final class Statistics {
      * Checks if additional logging required for detailed performance evaluation is required.
      */
     public static boolean logPerformance() {
-        return DO_LOG;
+        return System.getProperty("netbeans.experimental.vcsTurboStatistics", "mini").equalsIgnoreCase("performance");  // NOI18N
     }
 
     /** FileObject  created adding permision to store it in memory layer. */
     public static void fileObjectAdded(String path) {
-        if (!DO_LOG) return ;
         if (path != null) println("FS+ " + path);
         newCounter++;
         long allocated = newCounter - gcCounter;
@@ -75,21 +72,18 @@ public final class Statistics {
 
     /** FileObject GC notifiled, removing permision to store it in memory layer. */
     public static void fileObjectRemoved(String path) {
-        if (!DO_LOG) return ;
         if (path != null) println("FS- " + path);
         gcCounter++;
     }
 
     /** Absolute path key (a fallback) was created for weak key */
     public static void absolutePathKey(String absolutePath) {
-        if (!DO_LOG) return ;
         println("KEY " + absolutePath);
         absoluteKeys++;
     }
 
     /** Turbo request arrived */
     public static void request() {
-        if (!DO_LOG) return ;
         requests++;
         if (requests % 1000 == 0) {
             printCacheStatistics();
@@ -97,30 +91,25 @@ public final class Statistics {
     }
 
     public static void attributeRequest() {
-        if (!DO_LOG) return ;
         faqRequests++;
     }
 
     /** The client request was resolved by memory layer */
     public static void memoryHit() {
-        if (!DO_LOG) return ;
         memoryHits++;
     }
 
     /** new background thread spawned */
     public static void backgroundThread() {
-        if (!DO_LOG) return ;
         threads++;
     }
 
     /** Duplicate request eliminated from queue. */
     public static void duplicate() {
-        if (!DO_LOG) return ;
         duplicates++;
     }
 
     public static void queueSize(int size) {
-        if (!DO_LOG) return ;
         if (size > maxQueueSize) {
             maxQueueSize = size;
         }
@@ -128,32 +117,28 @@ public final class Statistics {
 
     /** The client request was resolved by disk layer */
     public static void diskHit() {
-        if (!DO_LOG) return ;
         diskHits++;
     }
 
     /** New data were appended to end of disk cache */
     public static void diskAppend() {
-        if (!DO_LOG) return ;
         fastDiskWrites++;
     }
 
     /** Disk file was optimalized */
     public static void diskRewrite() {
-        if (!DO_LOG) return ;
         slowDiskWrites++;
     }
 
     public static void shutdown() {
-        if (!DO_LOG) return ;
         printCacheStatistics();
-        if (doCloseOut) {
+        if (outToBeClosed) {
             out.close();
         }
 //        System.out.println("  Statistics goes to " + Statistics.logPath()); // NOI18N        
     }
 
-    private static String logPath() {
+    public static String logPath() {
         return System.getProperty("java.io.tmpdir") + File.separator + "netbeans-vcs-turbo.log"; // NOI18N
     }
     
@@ -169,13 +154,17 @@ public final class Statistics {
     }
 
     private static synchronized void println(String s) {
+        
+        if (System.getProperty("netbeans.experimental.vcsTurboStatistics", "off").equalsIgnoreCase("off")) return;  // NOI18N
+        
         if (out == null) {
             String filePath = logPath();
             try {
                 out = new PrintWriter(new BufferedWriter(new FileWriter(filePath), 512));
-                doCloseOut = true;
+                outToBeClosed = true;
             } catch (IOException e) {
                 out = new PrintWriter(new OutputStreamWriter(System.out), true);
+                outToBeClosed = false;
             }
             out.println("FS followed by +/- denotes new memory cache entry/releasing it"); // NOI18N
             out.println("CS describes summary statistics of memory and disk caches"); // NOI18N
