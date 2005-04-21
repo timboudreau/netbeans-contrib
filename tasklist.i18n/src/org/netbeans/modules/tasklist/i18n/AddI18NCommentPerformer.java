@@ -24,7 +24,7 @@ import org.openide.util.NbBundle;
 /**
  * Inserts // NOI18N
  *
- * @author Tim Lebedkov
+ * @author tl
  */
 public class AddI18NCommentPerformer implements SuggestionPerformer {
     /** 

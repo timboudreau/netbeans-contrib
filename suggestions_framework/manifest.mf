@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.suggestions_framework/2
-OpenIDE-Module-Implementation-Version: 8
+OpenIDE-Module-Implementation-Version: 9
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/suggestions/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/suggestions/mf-layer.xml
 OpenIDE-Module-Provides: org.netbeans.api.tasklist.SuggestionManager

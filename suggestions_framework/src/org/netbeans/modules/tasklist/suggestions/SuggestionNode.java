@@ -58,7 +58,7 @@ public class SuggestionNode extends TaskNode {
     private TaskListView view;
 
 
-    protected SuggestionNode(SuggestionImpl item) {
+    public SuggestionNode(SuggestionImpl item) {
       this(item, Children.LEAF);
     }
 

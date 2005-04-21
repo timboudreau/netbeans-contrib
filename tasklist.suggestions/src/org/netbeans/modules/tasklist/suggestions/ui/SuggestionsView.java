@@ -488,22 +488,7 @@ public class SuggestionsView extends TaskListView implements SuggestionView {
         Component cmp = super.createCenterComponent();
         JTabbedPane tp = new JTabbedPane();
         tp.addTab("Current File", cmp); // TODO: i18n
-        JTable t = new JTable(new SuggestionsTableModel());
-        t.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() != 2)
-                    return;
-                JTable tt = (JTable) e.getSource();
-                int row = tt.rowAtPoint(e.getPoint());
-                if (row < 0)
-                    return;
-                Suggestion s = 
-                    ((SuggestionsTableModel) tt.getModel()).getSuggestion(row);
-                Line l = s.getLine();
-                if (l != null)
-                    l.show(Line.SHOW_GOTO);
-            }
-        });
+        JTable t = new SuggestionsTable();
         tp.addTab("Open Projects", new JScrollPane( // TODO: i18n
             t));
         return tp;
