@@ -1,162 +1,69 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
-<!--
-                Sun Public License Notice
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<project name="java3d" default="default" basedir=".">
+    <description>Builds, tests, and runs the project java3d.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <!--
 
-The contents of this file are subject to the Sun Public License
-Version 1.0 (the "License"). You may not use this file except in
-compliance with the License. A copy of the License is available at
-http://www.sun.com/
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
 
-The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
-Microsystems, Inc. All Rights Reserved.
--->
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
 
-<project name="java3d" default="netbeans" basedir=".">
+    (Targets beginning with '-' are not intended to be called on their own.)
 
-  <property name="homepage.base" value="netbeans.org"/>
-  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="../nbbuild/standard-nbm-license.txt"/>
-  <property name="build.compiler.debug" value="on"/>
+    Example of inserting an obfuscator after compilation could look like this:
 
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../nbbuild/nbantext.jar"/>
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
 
-  <target name="compile">
-    <ant dir="J3dEditor_2.0" target="compile"/>
-    <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
-      <classpath>
-        <fileset dir="../openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
-       <pathelement location="J3dFly_2.0/src"/>
-       <pathelement location="J3dEditor_2.0/src"/>
-       <pathelement location="../core/netbeans/lib/core.jar"/>
-      </classpath>
-    </javac>
-  </target>
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
 
-  <target name="jars" depends="compile">
-    <ant dir="J3dEditor_2.0" target="jars"/>
-    <mkdir dir="release/lib/ext"/>
-    <copy file="J3dEditor_2.0/lib/j3dedit.jar" tofile="release/lib/ext/j3dedit.jar"/>
-    <copy file="J3dEditor_2.0/lib/j3d_interposer.jar" tofile="release/lib/ext/j3d_interposer.jar"/>
-    <copy file="J3dFly_2.0/lib/j3dfly-utils.jar" tofile="release/lib/ext/j3dfly-utils.jar"/>
-    <copy file="J3dFly_2.0/lib/j3dfly.jar" tofile="release/lib/ext/j3dfly.jar"/>
-    <mkdir dir="netbeans/modules"/>
-    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../nbbuild/nbantext.jar"/>
-    <locjar jarfile="netbeans/modules/java3d.jar"
-            manifest="manifest-subst.mf"
-            basedir="src"
-	    excludesfile="../nbbuild/standard-jar-excludes.txt"
-	    compress="false">
-      <locale name="ja"/>
-    </locjar>
-  </target>
 
-  <target name="release">
-    <copy todir="netbeans" includeEmptyDirs="false">
-      <fileset dir="release"/>
-    </copy>
-  </target>
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
 
-  <target name="netbeans" depends="jars,release"/>
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
 
-  <target name="nbm" depends="netbeans">
-    <makenbm file="java3d.nbm"
-             topdir="."
-	     manifest="manifest-subst.mf"
-	     homepage="http://java3D.${homepage.base}/"
-	     distribution="http://{dist.base}/java3d.nbm">
-      <license file="${license.file}"/>
-    </makenbm>
-  </target>
+    An example of overriding the target for project execution could look like this:
 
-  <target name="bundle" depends="nbm" >
-      <property name="dailyBuild" value="true"/>
-      <tstamp/>
-      <tar tarfile="release_2.0_beta_${DSTAMP}.tar"
-           basedir="."
-           excludes="**/CVS"
-           includes="J3dFly_2.0/bin/*, J3dFly_2.0/lib/*, 
-		     J3dFly_2.0/preferences/*, J3dFly_2.0/universe-configs/*, 
-		     J3dEditor_2.0/bin/*, J3dEditor_2.0/lib/*, 
-		     J3dEditor_2.0/preferences/*, loaders/*, 
-                     extra_loaders/README, java3d.nbm, extra_libs/README,
-                     README"
-      />
-      <zip zipfile="release_2.0_beta_${DSTAMP}.zip"
-           basedir="."
-           excludes="**/CVS"
-           includes="J3dFly_2.0/bin/*, J3dFly_2.0/lib/*, 
-		     J3dFly_2.0/preferences/*, J3dFly_2.0/universe-configs/*, 
-		     J3dEditor_2.0/bin/*, J3dEditor_2.0/lib/*, 
-		     J3dEditor_2.0/preferences/*, loaders/*, 
-                     extra_loaders/README, java3d.nbm, extra_libs/README,
-                     README"
-      />
-      <zip zipfile="release_2.0_beta_${DSTAMP}_with_examples.zip"
-           basedir="."
-           excludes="**/CVS"
-           includes="J3dFly_2.0/bin/*, J3dFly_2.0/lib/*, 
-		     J3dFly_2.0/preferences/*, J3dFly_2.0/universe-configs/*, 
-		     J3dEditor_2.0/bin/*, J3dEditor_2.0/lib/*, 
-		     J3dEditor_2.0/preferences/*, loaders/*, 
-                     extra_loaders/README, java3d.nbm, extra_libs/README,
-                     README,
-		     geometry/**"
-      />
-  </target>
+        <target name="run" depends="java3d-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
 
-  <target name="clean">
-  <ant dir="J3dEditor_2.0" target="clean"/>
-  <delete>
-      <fileset dir="src">
-        <include name="**/*.class"/>
-      </fileset>
-    </delete>
-    <delete file="manifest-subst.mf"/>
-    <delete file="java3d.nbm"/>
-    <delete dir="netbeans"/>
-    <delete dir="Info"/>
-    <delete file="release/lib/ext/j3dedit.jar"/>
-    <delete file="release/lib/ext/j3dfly-utils.jar"/>
-    <delete file="release/lib/ext/j3dfly.jar"/>
-  </target>
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
 
-  <target name="javadoc">
-      <javadoc destdir="www/javadoc"
-	       version="true"
-               author="true"
-	       packagenames="com.sun.j3d.demos.*,org.netbeans.modules.*"
-	       excludepackagenames="com.sun.j3d.demos.utils.scenegraph.io.*,
-				    com.sun.j3d.demos.j3dfly.animation*,
-				    com.sun.j3d.demos.j3dfly.doctools,
-				    com.sun.j3d.demos.j3dfly.pdfdoctools,
-				    com.sun.j3d.demos.utils.vpbehaviors.vehicles"
-	       sourcepath="J3dEditor_2.0/src:J3dFly_2.0/src:src">
-       <group title="J3dFly" packages="com.sun.j3d.demos.j3dfly*"/>
-       <group title="J3dFly Utilities" packages="com.sun.j3d.demos.utils*"/>
-       <group title="J3dEditor" packages="com.sun.j3d.demos.j3dedit*"/>
-       <group title="Java 3D Netbeans Module" packages="org.netbeans.modules.java3d*"/>
-     </javadoc>
-
-  </target>
-  
-  <target name="java3dparserdb" depends="clean,release">
-    <mkdir dir="java3dparserdb/netbeans"/>
-      <copy todir="java3dparserdb/netbeans" includeEmptyDirs="false">
-        <fileset dir="release"/>
-      </copy>
-      <makenbm file="java3dparserdb.nbm"
-        topdir="java3dparserdb"
-        manifest="manifest.parserdb.mf"
-        homepage="http://java3D.${homepage.base}/"
-        distribution="http://{dist.base}/java3dparserdb.nbm">
-        <license file="${license.file}"/>
-      </makenbm>
-      <delete dir="java3dparserdb" />
-    </target>
-
+    -->
 </project>
