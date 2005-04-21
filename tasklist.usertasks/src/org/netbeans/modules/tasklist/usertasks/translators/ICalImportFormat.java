@@ -513,7 +513,14 @@ public class ICalImportFormat implements ExportImportFormat {
             } else if (name.equals("PRIORITY")) { // NOI18N
                 try {
                     int prio = Integer.parseInt(value);
-                    task.setPriority(prio);
+                    if (prio < 0) 
+                        task.setPriority(UserTask.MEDIUM); // An error.
+                    else if (prio == 0)
+                        task.setPriority(UserTask.MEDIUM);
+                    else if (prio > UserTask.LOW)
+                        task.setPriority(UserTask.LOW);
+                    else
+                        task.setPriority(prio);
                 } catch (NumberFormatException e) {
                     ErrorManager.getDefault().notify(e);
                 }

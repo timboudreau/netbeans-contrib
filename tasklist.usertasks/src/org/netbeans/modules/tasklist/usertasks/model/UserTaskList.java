@@ -338,10 +338,20 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      */
     public static UserTaskList readDocument(FileObject fo) throws IOException {
         if (fo.isValid()) {
-            long m = System.currentTimeMillis();
-            UserTaskList ret = readDocument(fo.getInputStream());
-            UTUtils.LOGGER.fine("File " + fo + " read in " + // NOI18N
-                (System.currentTimeMillis() - m) + "ms"); // NOI18N
+            InputStream is = fo.getInputStream();
+            UserTaskList ret = null;
+            try {
+                long m = System.currentTimeMillis();
+                ret = readDocument(is);
+                UTUtils.LOGGER.fine("File " + fo + " read in " + // NOI18N
+                    (System.currentTimeMillis() - m) + "ms"); // NOI18N
+            } finally {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            }
             ret.file = fo;
             return ret;
         } else {

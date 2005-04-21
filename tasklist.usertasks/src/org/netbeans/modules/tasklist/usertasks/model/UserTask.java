@@ -1204,6 +1204,8 @@ ObjectList.Owner {
         setIcon(from.getIcon());
         setType(from.getType());
         setDetails(from.getDetails());
+        setDueDate(from.getDueDate());
+        setDueAlarmSent(from.isDueAlarmSent());
 
         // Copying the parent reference may seem odd, since for children
         // it should be changed - but this only affects the root node.
@@ -1458,6 +1460,8 @@ ObjectList.Owner {
      * @param priority The priority of the task.
      */
     public void setPriority(int priority) {
+        assert priority == HIGH || priority == MEDIUM_HIGH ||
+            priority == MEDIUM || priority == MEDIUM_LOW || priority == LOW;
         int old = getPriority();
         if (old == priority) return;
         this.priority = priority;

@@ -59,7 +59,7 @@ public class StartedUserTask {
         if (lastDuration == started.getSpentTime()) {
             if ((System.currentTimeMillis() - 
                 ActivityListener.getLastActivityMillis()) > 10 * 60 * 1000 &&
-                System.getProperty("org.netbeans.modules.tasklist.usertasks.DontDetectInactivity") == null) {
+                System.getProperty("org.netbeans.modules.tasklist.usertasks.DontDetectInactivity") == null) { // NOI18N
                 if (Settings.getDefault().getCollectWorkPeriods()) {
                     int m = (int) ((System.currentTimeMillis() - startedAt) / 
                         (1000 * 60));

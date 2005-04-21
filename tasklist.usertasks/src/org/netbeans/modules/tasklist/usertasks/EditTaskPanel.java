@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.ComboBoxModel;
@@ -51,6 +52,7 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTask;
  * this file using the form builder.
  *
  * @author Tor Norbye
+ * @author tl
  */
 public class EditTaskPanel extends JPanel implements ActionListener {
 
@@ -338,6 +340,15 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         Date ret;
         if (dueCheckBox.isSelected()) {
             ret = jDateChooserDue.getDate();
+            UTUtils.LOGGER.fine(ret.toString());
+            Calendar c = Calendar.getInstance();
+            c.setTime(ret);
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+            ret = c.getTime();
+            UTUtils.LOGGER.fine("corrected:" + ret.toString()); // NOI18N
         } else {
             ret = null;
         }
