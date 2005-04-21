@@ -55,6 +55,7 @@ public class StaticSuggestions {
      */
     public synchronized void add(Suggestion s) {
         all.add(s);
+        fireChange();
     }
     
     /**
@@ -66,7 +67,17 @@ public class StaticSuggestions {
         int index = all.indexOf(s);
         if (index >= 0) {
             all.remove(s);
+            fireChange();
         }
+    }
+    
+    /**
+     * Returns all registered suggestions.
+     *
+     * @return all registered suggestions.
+     */
+    public synchronized Suggestion[] getAll() {
+        return (Suggestion[]) all.toArray(new Suggestion[all.size()]);
     }
     
     /**

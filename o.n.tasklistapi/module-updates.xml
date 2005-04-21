@@ -1,6 +1,9 @@
 <updates>
-  <update version="1.1">
-    <change>API marked as private</change>
-  </update>
+    <update version="7">
+        <change>StaticSuggestions</change>
+    </update>
+    <update version="1.1">
+        <change>API marked as private</change>
+    </update>
 </updates>
 
