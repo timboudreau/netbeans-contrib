@@ -76,10 +76,10 @@ Microsystems, Inc. All Rights Reserved.
   <target name="javadoc" depends="projectized.javadoc, init-javadoc"/>
   
   <target name="init-javadoc">
-      <mkdir dir="javadoc/DD-API/arch"/>
-      <copy file="doc/ddapi_architecture.html" todir="javadoc/DD-API/arch"/>
-      <copy file="doc/dd_api_schema.jpg" todir="javadoc/DD-API/arch"/>
-      <copy file="doc/usage.html" todir="javadoc/DD-API/arch"/>
+      <mkdir dir="javadoc/org-netbeans-api-web-dd/arch"/>
+      <copy file="doc/ddapi_architecture.html" todir="javadoc/org-netbeans-api-web-dd/arch"/>
+      <copy file="doc/dd_api_schema.jpg" todir="javadoc/org-netbeans-api-web-dd/arch"/>
+      <copy file="doc/usage.html" todir="javadoc/org-netbeans-api-web-dd/arch"/>
   </target>  
    
 </project>
