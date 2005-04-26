@@ -1,0 +1,9 @@
+Manifest-version: 1.0
+OpenIDE-Module: org.netbeans.modules.hexeditor/1
+OpenIDE-Module-Name: hexeditor
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Implementation-Version: 0.1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/hexeditor/resources/Bundle.properties
+OpenIDE-Module-Build-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-Layer: org/netbeans/modules/hexeditor/resources/layer.xml
+Class-Path: ext/HexEdit.jar
