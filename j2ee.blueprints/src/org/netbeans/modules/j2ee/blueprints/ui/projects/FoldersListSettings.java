@@ -27,7 +27,7 @@ public class FoldersListSettings extends SystemOption {
 //    private static final String SHOW_AGAIN_BROKEN_REF_ALERT = "showAgainBrokenRefAlert"; //NOI18N
 
     public String displayName() {
-        return NbBundle.getMessage (FoldersListSettings.class, "TXT_WebProjectFolderList"); //NOI18N
+        return ""; //NOI18N
     }
 
     public String getLastExternalSourceRoot () {
