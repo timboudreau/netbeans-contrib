@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project name="contrib/insertunicode" basedir="." default="netbeans">
@@ -30,7 +30,7 @@ Microsystems, Inc. All Rights Reserved.
         <replaceregexp file="build/tmp/uni-names.txt" match="~$" replace=""/>
     </target>
 
-    <target name="compile" depends="projectized.compile">
+    <target name="compile" depends="projectized-common.compile">
         <copy file="build/tmp/uni-names.txt" tofile="build/classes/org/netbeans/modules/insertunicode/uni-names.txt"/>
     </target>
   

@@ -44,10 +44,10 @@ Microsystems, Inc. All Rights Reserved.
         <ant dir="../insanelib" target="clean" inheritAll="false"/>
     </target>
     
-    <target name="compile" depends="compile-lib,jar-cli,projectized.compile"/>
+    <target name="compile" depends="compile-lib,jar-cli,projectized-common.compile"/>
 
     <target name="netbeans-extra" depends="jar-cli"/>
 
-    <target name="clean" depends="clean-lib,projectized.clean"/>
+    <target name="clean" depends="clean-lib,projectized-common.clean"/>
 
 </project>

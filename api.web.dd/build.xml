@@ -52,9 +52,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <!--<delete file="${s2b_root_2_4}/WebAppType.java"/>-->
   </target>
 
-  <target name="compile" depends="dd2beansgen, projectized.compile"/>
+  <target name="compile" depends="dd2beansgen, projectized-common.compile"/>
   
-  <target name="clean" depends="projectized.build-init, clean-ddgen-src, projectized.clean"/>
+  <target name="clean" depends="projectized-common.clean,clean-ddgen-src"/>
 
   <target name="clean-ddgen-src">
         <mkdir dir="${s2b_root_2_3}"/>
