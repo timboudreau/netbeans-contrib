@@ -80,7 +80,12 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
     public JMenuItem getPresenter(boolean inMenu, Lookup lookup) { 
         FileSystem dfs = Repository.getDefault().getDefaultFileSystem ();
         menuRoot = dfs.findResource(GLOBAL_MENU_FOLDER);
-        FileObject[] filob = menuRoot.getChildren();
+        FileObject[] filob;
+        if (menuRoot == null) { // No global menu
+            filob = new FileObject[0];
+        } else {
+            filob = menuRoot.getChildren();
+        }
         JInlineMenu menu = new JInlineMenu();        
         ArrayList items = new ArrayList();
         String osname = System.getProperty(OS_NAME);
