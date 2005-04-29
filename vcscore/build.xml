@@ -27,6 +27,14 @@ Microsystems, Inc. All Rights Reserved.
             <exclude name="org/netbeans/modules/vcscore/cmdline/exec/CommandExecutor1_5.java" unless="have-jdk-1.5"/>
         </javac>
         <copy todir="${build.classes.dir}">
+          <fileset dir="${src.dir}" includes="**/*.properties"/>
+          <filterchain>
+            <filterreader classname="org.apache.tools.ant.filters.StripLineComments">
+              <param type="comment" value="#"/>
+            </filterreader>
+          </filterchain>
+        </copy>
+        <copy todir="${build.classes.dir}">
             <fileset dir="${src.dir}" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"/>
             <fileset dir="classes_1_5">
                  <exclude name="**" if="have-jdk-1.5"/>
