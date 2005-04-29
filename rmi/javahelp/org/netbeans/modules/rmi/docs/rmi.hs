@@ -1,6 +1,6 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-*     Copyright 2002 Sun Microsystems, Inc. All rights reserved.
+*     Copyright 2005 Sun Microsystems, Inc. All rights reserved.
 *     Use is subject to license terms.
 -->
 <!DOCTYPE helpset
@@ -33,18 +33,12 @@
     <data>rmi-idx.xml</data>
   </view>
 
-  <view>
-    <name>Search</name>
-
-   <label>Search</label>
-
-   <type>javax.help.SearchView</type>
- 
-  <data engine="com.sun.java.help.search.DefaultSearchEngine">
-      JavaHelpSearch2
-
-   </data>
-  </view>
+    <view>
+        <name>Search</name>
+        <label>Search</label>
+        <type>javax.help.SearchView</type>
+        <data engine="com.sun.java.help.search.DefaultSearchEngine">JavaHelpSearch</data>
+    </view>
 
 
 </helpset>

@@ -15,7 +15,7 @@ Microsystems, Inc. All Rights Reserved.
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
-            <code-name-base>org.netbeans.modules.rmi.registry</code-name-base>
+            <code-name-base>org.netbeans.modules.rmi</code-name-base>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.openide</code-name-base>
@@ -23,7 +23,7 @@ Microsystems, Inc. All Rights Reserved.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>3.36</specification-version>
+                        <specification-version>4.25</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
