@@ -54,6 +54,8 @@ public class NetbeansUI extends TopComponent {
         JabberUI ui = new JabberUI(man);
         
         add(ui, BorderLayout.CENTER);
+	
+        INSTANCE = this;
     }
     
     public static synchronized Object getTopComponent() {
