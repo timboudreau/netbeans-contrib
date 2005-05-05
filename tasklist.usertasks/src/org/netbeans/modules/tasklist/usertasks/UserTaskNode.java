@@ -73,6 +73,7 @@ import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.openide.nodes.Node;
 
 /**
  * Node for a user task
@@ -434,7 +435,7 @@ public final class UserTaskNode extends AbstractNode {
      * @return an appropriate paste type, or null if not appropriate
      */
     public static PasteType createTodoPasteType(
-    UserTaskNode target, Transferable t) {
+    Node target, Transferable t) {
         // UTUtils.LOGGER.fine("entering");
         if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
             try {
@@ -552,7 +553,7 @@ public final class UserTaskNode extends AbstractNode {
      */
     private static final class TodoPaste extends PasteType {
         private final Transferable t;
-        private final UserTaskNode target;
+        private final Node target;
         
         /**
          * Creates a paste type for a UserTask
@@ -560,7 +561,7 @@ public final class UserTaskNode extends AbstractNode {
          * @param t a transferable object
          * @param target parent for the pasted task
          */
-        public TodoPaste(UserTaskNode target, Transferable t) {
+        public TodoPaste(Node target, Transferable t) {
             this.t = t;
             this.target = target;
         }
@@ -622,7 +623,10 @@ public final class UserTaskNode extends AbstractNode {
                 ut.setLine(item.getLine());
                 ut.setPriority(item.getPriority());
             }
-            target.pasteTask(ut);
+            if (target instanceof UserTaskNode)
+                ((UserTaskNode) target).pasteTask(ut);
+            else
+                ((UserTaskListNode) target).pasteTask(ut);
         }
     }
 }

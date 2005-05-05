@@ -48,9 +48,6 @@ import org.netbeans.modules.tasklist.usertasks.*;
 
 /**
  * This class represents the tasklist itself
- * @todo The tasks that had a due time while the IDE was shut down will not
- *       store it's "alarm-sent-property" unless the tasklist is touched after
- *       the file is beeing parsed... I'll fix this as soon as possible...
  *
  * @author Tor Norbye
  * @author Trond Norbye
@@ -60,7 +57,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
     /**
      * Callback for the UserTaskList.process method
      */
-    private static interface UserTaskProcessor {
+    public static interface UserTaskProcessor {
         /**
          * This method will be called for each user task.
          *
@@ -104,7 +101,6 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
          * Present the user with a dialog that shows information of the task that
          * expired... 
          *
-         * @todo Replace the UserTaskDuePanel with the EditTaskPanel????
          * @param task the task to show
          */
         private void showExpiredTask(UserTask task) {
@@ -117,9 +113,9 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
 
                     String title = NbBundle.getMessage(UserTaskList.class, "TaskDueLabel"); // NOI18N
                     DialogDescriptor d = new DialogDescriptor(panel, title);                
-                    d.setModal(false);
+                    d.setModal(true);
                     d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
-                    d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
+                    d.setOptions(new Object[] {DialogDescriptor.OK_OPTION});
                     java.awt.Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
                     dlg.pack();
                     dlg.show();
@@ -312,7 +308,6 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
         ret.dontSave = true;
         try {
             io.read(ret, is);
-            ret.orderNextTimeout();
         } catch (IOException e) {
             // NOTE the exception text should be localized!
             DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
@@ -322,6 +317,8 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
         ret.needSave = false;
         ret.dontSave = false;        
 
+        ret.orderNextTimeout();
+        
         if (ret.expiredTask) {
             // One (or more) tasks expired while the IDE was closed...
             // save the list as soon as possible...
@@ -384,7 +381,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      * @param p a callback that will be called for each task
      * @param list a list of user tasks
      */
-    public void processDepthFirst(UserTaskProcessor p, UserTaskObjectList list) {
+    public static void processDepthFirst(UserTaskProcessor p, UserTaskObjectList list) {
         for (int i = 0; i < list.size(); i++) {
             UserTask ut = list.getUserTask(i);
             processDepthFirst(p, ut.getSubtasks());
@@ -568,6 +565,8 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      * it should save itself soon. Eventually calls save 
      */
     public void markChanged() {
+        if (dontSave)
+            return;
         orderNextTimeout();
         needSave = true;
         save();

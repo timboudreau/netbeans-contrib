@@ -39,4 +39,11 @@ public class UserTaskTest extends TestCase {
         assertEquals(d.hours, 1);
         assertEquals(d.minutes, 0);
     }
+    
+    public void testHashCode() {
+        UserTaskList list = new UserTaskList();
+        UserTask a = new UserTask("A", list);
+        UserTask b = new UserTask("B", list);
+        assertTrue(a.hashCode() != b.hashCode());
+    }
 }

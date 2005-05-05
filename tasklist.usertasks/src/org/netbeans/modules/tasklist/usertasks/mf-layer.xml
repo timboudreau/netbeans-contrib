@@ -149,6 +149,28 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="AnnotationTypes">
             <file name="DoneTaskAnnotation.xml" url="DoneTaskAnnotation.xml"/>
             <file name="DoneTaskNoHighlightAnnotation.xml" url="DoneTaskNoHighlightAnnotation.xml"/>
+            <folder name="StatusForAnnotationType">
+                <file name="org.netbeans.modules.tasklist.usertasks.UserTaskDone">
+                    <attr name="status" stringvalue="ok" />
+                    <attr name="color" stringvalue="65280" />
+                    <attr name="browseable" boolvalue="true" />
+                </file>
+                <file name="org.netbeans.modules.tasklist.usertasks.UserTaskDoneNoHighlight">
+                    <attr name="status" stringvalue="ok" />
+                    <attr name="color" stringvalue="65280" />
+                    <attr name="browseable" boolvalue="true" />
+                </file>
+                <file name="Task">
+                    <attr name="status" stringvalue="ok" />
+                    <attr name="color" stringvalue="16711680" />
+                    <attr name="browseable" boolvalue="true" />
+                </file>
+                <file name="TaskNoHighlight">
+                    <attr name="status" stringvalue="ok" />
+                    <attr name="color" stringvalue="16711680" />
+                    <attr name="browseable" boolvalue="true" />
+                </file>
+            </folder>
         </folder>
     </folder>
 

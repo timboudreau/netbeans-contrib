@@ -44,11 +44,6 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
         }*/
     }
 
-    // TODO: not used
-    public Component getCustomEditor() {
-	return new DateSelectionPanel(new Date());
-    }
-    
     public Component getTableCellRendererComponent(javax.swing.JTable table, 
         Object value, boolean isSelected, boolean hasFocus, 
         int row, int column) {

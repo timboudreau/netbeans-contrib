@@ -1149,6 +1149,10 @@ ObjectList.Owner {
         edited = ed;
     }
     
+    public int hashCode() {
+        return summary.hashCode() + details.hashCode() + priority;
+    }
+    
     /** 
      * Create an identical copy of a task (a deep copy, e.g. the
      * list of subtasks will be cloned as well 

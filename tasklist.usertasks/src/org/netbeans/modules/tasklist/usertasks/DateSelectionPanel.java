@@ -24,8 +24,6 @@ import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
  * remember the format each time.... Well, the panel "works for me now" so I
  * move on to the next phase in my project, but one should really:
  *
- * @todo The panel is too big...
- *
  * @author  Trond Norbye
  */
 public class DateSelectionPanel extends javax.swing.JPanel

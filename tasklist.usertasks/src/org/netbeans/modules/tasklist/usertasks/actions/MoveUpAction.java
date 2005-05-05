@@ -53,6 +53,9 @@ public class MoveUpAction extends NodeAction {
         UserTaskNode n = (UserTaskNode) activatedNodes[0];
         UserTask ut = n.getTask();
 
+        if (ut.getList() == null)
+            return false;
+        
         UserTaskObjectList list;
         if (ut.getParent() == null)
             list = ut.getList().getSubtasks();

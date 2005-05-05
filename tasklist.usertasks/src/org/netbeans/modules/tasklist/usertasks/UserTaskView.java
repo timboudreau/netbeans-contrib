@@ -165,6 +165,25 @@ FilteredTopComponent {
 	return defview;
     }
 
+    /**
+     * Returns all opened views.
+     *
+     * @return array of all opened views
+     */
+    public static UserTaskView[] getAll() {
+        synchronized(UserTaskView.class) {
+            WeakReference[] r = (WeakReference[]) views.toArray(
+                new WeakReference[views.size()]);
+            List views = new ArrayList();
+            for (int i = 0; i < r.length; i++) {
+                UserTaskView v = (UserTaskView) r[i].get();
+                if (v != null)
+                    views.add(v);
+            }
+            return (UserTaskView[]) views.toArray(new UserTaskView[views.size()]);
+        }
+    }
+    
     /** 
      * Return the currently active user task view, or null
      *
