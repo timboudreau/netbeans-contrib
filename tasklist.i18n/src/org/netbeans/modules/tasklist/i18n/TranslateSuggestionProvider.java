@@ -54,7 +54,7 @@ public class TranslateSuggestionProvider extends DocumentSuggestionProvider {
 
     static {
         LOGGER.setLevel(Level.FINE);
-        Thread t = new Thread(new I18NScanner());
+        Thread t = new Thread(new TranslateOpenProjectsScanner());
         t.setPriority(Thread.MIN_PRIORITY);
         t.setDaemon(true);
         t.start();
@@ -86,8 +86,8 @@ public class TranslateSuggestionProvider extends DocumentSuggestionProvider {
         if (!manager.isEnabled(TYPE)) {
             return null;
         }
-        I18NFileChecker c = new I18NFileChecker(env.getFileObject());
-        I18NFileChecker.Error[] err = c.run();
+        TranslateFileChecker c = new TranslateFileChecker(env.getFileObject());
+        TranslateFileChecker.Error[] err = c.run();
         List tasks = new ArrayList(err.length);
         
         for (int i = 0; i < err.length; i++) {
