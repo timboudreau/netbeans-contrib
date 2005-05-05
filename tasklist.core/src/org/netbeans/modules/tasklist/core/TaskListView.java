@@ -589,7 +589,7 @@ FilteredTopComponent
     protected void componentActivated() {
         super.componentActivated();
         assert initialized : 
-            "#37438 dangling componentActivated event, no componentOpened()" + 
+            "#37438 dangling componentActivated event, no componentOpened()" +  // NOI18N
             " called at " + this;
         ExplorerUtils.activateActions(manager, true);
         RemoveFilterAction removeFilter =

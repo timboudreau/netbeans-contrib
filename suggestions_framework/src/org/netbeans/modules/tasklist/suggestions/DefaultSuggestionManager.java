@@ -67,11 +67,11 @@ public class DefaultSuggestionManager extends SuggestionManager {
             summary = sb.toString();
         }
 
-        SPIMonitor.log("  create type: " + type + " summary: " + summary);
+        SPIMonitor.log("  create type: " + type + " summary: " + summary); // NOI18N
 
         SuggestionType st = SuggestionTypes.getDefault().getType(type);
         if (st == null) {
-            throw new IllegalArgumentException("type " + st +
+            throw new IllegalArgumentException("type " + st + // NOI18N
                     " is not registered");
         }
         SuggestionImpl s = new SuggestionImpl(fo,
