@@ -17,7 +17,6 @@
  */
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
-import com.sun.rsasign.w;
 import javax.swing.JTextField;
 
 import javax.swing.DefaultCellEditor;
