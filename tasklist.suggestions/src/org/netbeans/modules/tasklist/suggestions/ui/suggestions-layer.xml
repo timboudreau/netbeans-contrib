@@ -8,11 +8,10 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-<!DOCTYPE filesystem PUBLIC '-//NetBeans//DTD Filesystem 1.1//EN' 'http://www.netbeans.org/dtds/filesystem-1_1.dtd'>
-
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
 
     <folder name="Actions">
@@ -29,13 +28,4 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
 
-    <folder name="Toolbars">
-        <folder name="Window">
-            <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-suggestions-ui-SuggestionsAction.instance" boolvalue="true"/>
-            <file name="org-netbeans-modules-tasklist-suggestions-ui-SuggestionsAction.instance"/>
-            <attr name="org-netbeans-modules-tasklist-suggestions-ui-SuggestionsAction.instance/org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance" boolvalue="true"/>
-        </folder>
-    </folder>
-
 </filesystem>
-
