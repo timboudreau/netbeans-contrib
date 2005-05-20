@@ -623,8 +623,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             if(value instanceof Category) {
                 Category category = (Category)value;
                 label.setIcon(categoryIcon);
+                // construct key : "category/CATEGORY-ID/category-name"
+                String catKey = "category/" + category.getId().trim() + "/category-name";
                 try {
-                    catName = bundleBpcatalog.getString(category.getCategoryName().trim());
+                    catName = bundleBpcatalog.getString(catKey);
                 } catch (Exception e) {
                     catName = category.getCategoryName().trim();
                 }
@@ -633,8 +635,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             else if(value instanceof Solution) {
                 Solution solution = (Solution)value;
                 label.setIcon(articleIcon);
+                // construct key : "solution/SOLUTION-ID/full-name"
+                String solKey = "solution/" + solution.getId().trim() + "/full-name";
                 try {
-                    fullName = bundleBpcatalog.getString(solution.getFullName().trim());
+                    fullName = bundleBpcatalog.getString(solKey);
                 } catch (Exception e) {
                     fullName = solution.getFullName().trim();
                 }
