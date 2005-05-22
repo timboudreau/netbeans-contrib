@@ -28,6 +28,10 @@ import org.openide.filesystems.*;
 * @author  Jaroslav Tulach
 */
 final class Profiles extends Object {
+    /** URL of previously activated profile */
+    private static java.net.URL previousProfile;
+    
+    
     private Profiles () {
     }
 
@@ -81,13 +85,28 @@ final class Profiles extends Object {
     /** Activates given profile in the current session.
      */
     public static void activateProfile (FileObject profile) {
-        org.netbeans.core.projects.SystemFileSystem sfs;
         try {
-            sfs = (org.netbeans.core.projects.SystemFileSystem)Repository.getDefault().getDefaultFileSystem();
-            org.netbeans.core.projects.ModuleLayeredFileSystem layer = sfs.getUserLayer();
-            layer.addURLs (Collections.singleton(profile.getURL()));
+            activateProfile (profile.getURL ());
         } catch (Exception ex) {
             org.openide.ErrorManager.getDefault().notify (ex);
+        }
+    }
+    
+    /** Activates given profile in the current session.
+     */
+    public static void activateProfile (java.net.URL profile) throws Exception {
+        org.netbeans.core.projects.SystemFileSystem sfs;
+        sfs = (org.netbeans.core.projects.SystemFileSystem)Repository.getDefault().getDefaultFileSystem();
+        org.netbeans.core.projects.ModuleLayeredFileSystem layer = sfs.getUserLayer();
+        
+        if (previousProfile != null) {
+            layer.removeURLs (Collections.singleton (previousProfile));
+        }
+        
+        previousProfile = profile;
+        
+        if (profile != null) {
+            layer.addURLs (Collections.singleton(profile));
         }
     }
     

@@ -22,6 +22,8 @@ import org.netbeans.junit.*;
 
 
 import org.openide.filesystems.*;
+import org.openide.modules.ModuleInfo;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -77,6 +79,56 @@ public class ProfilesTest extends NbTestCase {
         
         assertDirectories ("Generated profile is exactly the same", fs.getRoot(), root);
     }
+    
+    public void testOverridesOfLayersReallyWork () throws Exception {
+        FileSystem fs = Repository.getDefault ().getDefaultFileSystem ();
+        
+        assertEquals ("We are really using the core filesystem", "org.netbeans.core.projects.SystemFileSystem", fs.getClass ().getName ());
+        
+        java.util.Iterator it = Lookup.getDefault ().lookup (new Lookup.Template (ModuleInfo.class)).allInstances().iterator();
+        boolean ok = false;
+        while (it.hasNext ()) {
+            ModuleInfo i = (ModuleInfo)it.next ();
+            if (i.getCodeName ().equals ("org.netbeans.modules.profiles.test")) {
+                ok = i.isEnabled ();
+                break;
+            }
+        }
+        if (!ok) {
+            fail ("The test module is supposed to be found");
+        }
+        
+        FileObject our = fs.findResource ("TestModule/sample.txt");
+        assertNotNull ("We defined the file in our layer", our);
+        assertEquals ("It contains Ahoj", 4, our.getSize ());
+        assertContent ("It contains Ahoj", "Ahoj", our);
+        
+        class L extends FileChangeAdapter {
+            public int cnt;
+            
+            public void fileChanged (FileEvent ev) {
+                cnt++;
+            }
+        }
+        L listener = new L ();
+        our.addFileChangeListener (listener);
+        
+        Profiles.activateProfile (ProfilesTest.class.getResource ("override-layer.xml"));
+        
+        FileObject nf = fs.findResource ("TestModule/sample.txt");
+        assertEquals ("The file stays the same", our, nf);
+        assertContent ("It contains new content", "Ahoj Man.", our);
+        assertEquals ("one changes in content", 1, listener.cnt);
+        
+        // deactivate the profile
+        Profiles.activateProfile ((java.net.URL)null);
+        FileObject ourAgain = fs.findResource ("TestModule/sample.txt");
+        assertEquals ("Still the same", nf, ourAgain);
+        assertContent ("It contains Ahoj", "Ahoj", ourAgain);
+        assertEquals ("second changes in content", 1, listener.cnt);
+        
+        
+    }
 
     public static void assertDirectories (String msg, FileObject f1, FileObject f2) throws java.io.IOException {
         assertEquals (msg + " both are the same", f1.isData(), f2.isData());
@@ -131,5 +183,16 @@ public class ProfilesTest extends NbTestCase {
         if (!attr.isEmpty()) {
             fail (msg + " These attributes are only at " + f1 + ": " + attr);
         }
+    }
+    
+    private static void assertContent (String msg, String cnt, FileObject fo) throws Exception {
+        byte[] arr = new byte[(int)fo.getSize()];
+
+        assertEquals (msg + " length must match ", cnt.length(), arr.length);
+
+        int r1 = fo.getInputStream().read(arr);
+        assertEquals (msg + " read enough", arr.length, r1);
+        
+        assertEquals (msg + " content", cnt, new String (arr));
     }
 }

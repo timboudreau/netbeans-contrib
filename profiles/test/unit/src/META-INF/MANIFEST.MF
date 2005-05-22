@@ -1,0 +1,3 @@
+OpenIDE-Module: org.netbeans.modules.profiles.test
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Layer: org/netbeans/modules/profiles/test-layer.xml
