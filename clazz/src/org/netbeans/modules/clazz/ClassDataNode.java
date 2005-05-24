@@ -232,9 +232,8 @@ abstract class ClassDataNode extends DataNode
     */
     protected void setErrorToolTip (Exception exc) {
         String errMsg = findErrorMessage(exc);
-        errorMsg = MessageFormat.format(
-            NbBundle.getBundle(ClassDataNode.class).getString("FMT_ErrorHint"),
-            new Object[] { errMsg }
+        errorMsg = NbBundle.getMessage(ClassDataNode.class, "FMT_ErrorHint",
+            errMsg
         );
         setShortDescription(errorMsg);
     }
