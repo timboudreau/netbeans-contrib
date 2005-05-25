@@ -18,10 +18,8 @@ Microsystems, Inc. All Rights Reserved.
             <code-name-base>org.netbeans.swing.scrollbars</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <!-- this dependency is nonsense, but the build system requires one -->
+                    <!-- XXX remove after openide split -->
                     <code-name-base>org.openide</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>4.32</specification-version> 
@@ -32,7 +30,6 @@ Microsystems, Inc. All Rights Reserved.
                 <package>org.netbeans.swing.scrollbars.api</package>
                 <package>org.netbeans.swing.scrollbars.spi</package>
             </public-packages>
-            <javadoc/>
         </data>
     </configuration>
 </project>

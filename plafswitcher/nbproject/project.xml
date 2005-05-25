@@ -28,7 +28,6 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages/>
-            <javadoc/>
         </data>
     </configuration>
 </project>

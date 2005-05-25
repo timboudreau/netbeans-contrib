@@ -102,7 +102,6 @@ Microsystems, Inc. All Rights Reserved.
                 <package>org.netbeans.modules.vcscore.turbo</package>
                 <package>org.netbeans.modules.vcscore.turbo.local</package>
             </public-packages>
-            <javadoc/>
         </data>
     </configuration>
 </project>

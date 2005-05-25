@@ -47,7 +47,6 @@ Microsystems, Inc. All Rights Reserved.
             <public-packages>
                 <package>org.netbeans.api.looks2aspects</package>
             </public-packages>
-            <javadoc/>
         </data>
     </configuration>
 </project>

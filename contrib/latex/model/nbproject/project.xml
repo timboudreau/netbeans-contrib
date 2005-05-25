@@ -49,7 +49,6 @@ Microsystems, Inc. All Rights Reserved.
 	        <package>org.netbeans.modules.latex.model.structural</package>
 	        <package>org.netbeans.modules.latex.model</package>
 	    </public-packages>
-	    <javadoc />
         </data>
     </configuration>
 </project>

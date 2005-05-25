@@ -78,7 +78,6 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- org.netbeans.modules.vcs.advanced exports Profile and CommandLineVcsFileSystem -->
                 <package>org.netbeans.modules.vcs.advanced</package>
             </public-packages>
-            <javadoc/>
         </data>
     </configuration>
 </project>

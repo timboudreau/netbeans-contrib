@@ -59,7 +59,6 @@ Microsystems, Inc. All Rights Reserved.
             <public-packages>
                 <package>org.netbeans.api.povproject</package>
             </public-packages>
-            <javadoc/>
         </data>
     </configuration>
 </project>

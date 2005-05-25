@@ -33,7 +33,6 @@ Microsystems, Inc. All Rights Reserved.
                 <package>org.netbeans.spi.wizard</package>
                 <package>org.netbeans.api.wizard</package>
             </public-packages>
-            <javadoc/>
         </data>
     </configuration>
 </project>
