@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
         <buildTests srcdir="unit/src" compileexcludes="**/data/**">
             <classpath>
                 <!-- Add classpath elements needed to compile tests -->
-                <pathelement location="../dist/*.jar"/>
+                <fileset dir="../dist" includes="*.jar"/>
             </classpath>
         </buildTests>
     </target>
@@ -37,7 +37,7 @@ Microsystems, Inc. All Rights Reserved.
         <executeTests pluginname="jvm">
             <classpath>
                 <!-- Add classpath elements needed to run tests -->
-                <pathelement location="../dist/*.jar"/>
+                <fileset dir="../dist" includes="*.jar"/>
             </classpath>
         </executeTests>
     </target>
