@@ -17,6 +17,7 @@ import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataLoader;
 import org.openide.loaders.DataLoaderPool;
+import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -42,7 +43,7 @@ public final class FormatAction extends CookieAction {
 
 	/** Cookies for which to enable the action. */
 	private static final Class[] COOKIE_CLASSES =
-		new Class[] {DataFolder.class, DataObject.class};
+		new Class[] {DataFolder.class, DataObject.class, DataNode.class};
 
 	/** The name of the action to display in 'Build' menu. */
 	private String _name =
@@ -55,7 +56,7 @@ public final class FormatAction extends CookieAction {
 	public FormatAction() {
 		// we have to register popups here, because otherwise users would have
 		// to open the "Build" menu first in order to see the popup menus
-		registerPopups();
+		//		registerPopups();
 	}
 
 	/**
@@ -105,8 +106,10 @@ public final class FormatAction extends CookieAction {
 	 *
 	 * @return <code>true</code> if the action should be enabled.
 	 */
-	protected boolean enable(Node[] nodes) {
-		System.out.println("nodes " + nodes.length);
+	protected boolean enableOld(Node[] nodes) {
+		if (!super.enable(nodes)) {
+			return false;
+		}
 
 		boolean enabled = false;
 		boolean single = true;
@@ -235,7 +238,7 @@ public final class FormatAction extends CookieAction {
 	 *
 	 * @return <code>true</code> if the node has an opened editor pane.
 	 */
-	private boolean isOpened(Node node) {
+	private static boolean isOpened(Node node) {
 
 		EditorCookie cookie = (EditorCookie) node.getCookie(EditorCookie.class);
 
