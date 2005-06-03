@@ -472,8 +472,6 @@ public final class StatusFormat {
     public static String getHtmlStatusAnnotation(String name, FileObject fo, final String annotationPattern,
                                                  int annotationStyle, Map possibleFileStatusInfoMap) {
 
-        assert name.indexOf(File.separatorChar) == -1 : "#51577 trap " + name;  // NOI18N
-
         Hashtable vars = new Hashtable();
         name = escapeSpecialHTMLCharacters(name);
         // Special "light gray" color for the file annotation
