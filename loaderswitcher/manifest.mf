@@ -1,6 +1,5 @@
 OpenIDE-Module: org.netbeans.modules.loaderswitcher/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/loaderswitcher/Bundle.properties
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 5.0
 OpenIDE-Module-Module-Dependencies: org.netbeans.core/1 > 1.0, org.openide.loaders > 5.1
 OpenIDE-Module-Specification-Version: 1.1
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@

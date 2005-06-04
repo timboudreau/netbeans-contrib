@@ -17,14 +17,6 @@ Microsystems, Inc. All Rights Reserved.
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.swing.scrollbars</code-name-base>
             <module-dependencies>
-                <dependency>
-                    <!-- XXX remove after openide split -->
-                    <code-name-base>org.openide</code-name-base>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>4.32</specification-version> 
-                    </run-dependency>
-                </dependency>
             </module-dependencies>
             <public-packages>
                 <package>org.netbeans.swing.scrollbars.api</package>

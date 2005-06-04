@@ -19,22 +19,11 @@ Microsystems, Inc. All Rights Reserved.
             <module-dependencies>
                 <dependency>
                     <code-name-base>javax.jmi.reflect</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
                     </run-dependency>
                 </dependency>
-                <dependency>
-                    <code-name-base>org.openide</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>3.36</specification-version>
-                    </run-dependency>
-                </dependency>
-            </module-dependencies>
+                </module-dependencies>
             <public-packages>
                 <package>javax.jmi.model</package>
                 <package>javax.jmi.primitivetypes</package>
