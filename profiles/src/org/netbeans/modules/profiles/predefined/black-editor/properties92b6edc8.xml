@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE properties PUBLIC "-//NetBeans//DTD Editor Properties settings 1.0//EN"
+                            "http://www.netbeans.org/dtds/EditorProperties-1_0.dtd">
+<properties>
+    <property class="java.lang.Boolean" name="backgroundDrawing" value="true"/>
+    <property class="java.lang.Boolean" name="textAntialiasing" value="false"/>
+    <property class="java.lang.Boolean" name="glyphsOverLineNumbers" value="true"/>
+    <property class="java.lang.Boolean" name="combineGlyphs" value="false"/>
+    <property class="java.lang.Boolean" name="toolbarVisible" value="true"/>
+    <property class="java.lang.Boolean" name="showGlyphGutter" value="false"/>
+</properties>

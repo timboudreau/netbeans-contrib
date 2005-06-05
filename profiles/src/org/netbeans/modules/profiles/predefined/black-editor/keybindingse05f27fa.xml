@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings PUBLIC "-//NetBeans//DTD Editor KeyBindings settings 1.0//EN"
+                          "http://www.netbeans.org/dtds/EditorKeyBindings-1_0.dtd">
+<bindings>
+    <bind actionName="macro-move-li" key="C-O"/>
+    <bind actionName="macro-Show URL" key="C-Q"/>
+</bindings>

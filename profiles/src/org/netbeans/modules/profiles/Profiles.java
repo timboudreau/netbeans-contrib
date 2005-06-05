@@ -204,7 +204,7 @@ final class Profiles extends Object {
                     while (hex.length() < 8) {
                         hex = "0" + hex; // NOI18N
                     }
-                    FileObject data = FileUtil.createData (datadir, file.getName () + hex + "." + file.getExt());
+                    FileObject data = FileUtil.createData (datadir, file.getName () + '-' + hex + "." + file.getExt());
                     url = datadir.getNameExt() + '/' + data.getNameExt();
                     FileLock lock = data.lock ();
                     OutputStream os = data.getOutputStream(lock);

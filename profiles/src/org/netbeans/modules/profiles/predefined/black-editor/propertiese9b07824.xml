@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!DOCTYPE properties PUBLIC "-//NetBeans//DTD Editor Properties settings 1.0//EN"
+                            "http://www.netbeans.org/dtds/EditorProperties-1_0.dtd">
+<properties>
+    <property class="java.lang.String" name="indentEngine" value="SL[/IndentEngine/org-netbeans-modules-xml-text-settings-XMLIndentEngine"/>
+    <property class="java.lang.Boolean" name="line-number-visible" value="true"/>
+</properties>

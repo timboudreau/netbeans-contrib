@@ -14,7 +14,9 @@ Microsystems, Inc. All Rights Reserved.
 
 <filesystem>
     <folder name="Profiles">
-        <file name="BlackEditor.profile" url="predefined/black-editor.profile" />
+        <file name="BlackEditor.profile" url="predefined/black-editor.profile" >
+	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.profiles.Bundle"/>
+        </file>
     </folder>
 
     <folder name="Actions">

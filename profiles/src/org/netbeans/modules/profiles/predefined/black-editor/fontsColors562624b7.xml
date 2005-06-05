@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.0//EN"
+                             "http://www.netbeans.org/dtds/EditorFontsColors-1_0.dtd">
+<fontscolors>
+    <fontcolor syntaxName="xml-pi-start"/>
+    <fontcolor syntaxName="guarded" bgColor="#000066"/>
+    <fontcolor syntaxName="xml-text"/>
+    <fontcolor syntaxName="xml-ref"/>
+    <fontcolor syntaxName="xml-pi-target"/>
+    <fontcolor syntaxName="highlight-caret-row" bgColor="#333333"/>
+    <fontcolor syntaxName="xml-comment" foreColor="#FFFFFF"/>
+    <fontcolor syntaxName="xml-ws"/>
+    <fontcolor syntaxName="default" foreColor="#FFFFFF" bgColor="#000000">
+        <font name="Monospaced" size="12" style="plain"/>
+    </fontcolor>
+    <fontcolor syntaxName="xml-error"/>
+    <fontcolor syntaxName="xml-attribute" foreColor="#CCCC00"/>
+    <fontcolor syntaxName="xml-operator"/>
+    <fontcolor syntaxName="xml-value" foreColor="#999900"/>
+    <fontcolor syntaxName="xml-EOL"/>
+    <fontcolor syntaxName="xml-doctype" foreColor="#0000CC"/>
+    <fontcolor syntaxName="xml-pi-end"/>
+    <fontcolor syntaxName="xml-cdata-section"/>
+    <fontcolor syntaxName="xml-tag" foreColor="#3333FF"/>
+    <fontcolor syntaxName="xml-pi-content"/>
+    <elementcolor name="caret-color-insert-mode" color="#FFFFFF"/>
+    <elementcolor name="caret-color-overwrite-mode" color="#FFFFFF"/>
+</fontscolors>

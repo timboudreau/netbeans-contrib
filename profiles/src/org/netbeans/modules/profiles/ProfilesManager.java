@@ -101,7 +101,7 @@ implements ExplorerManager.Provider, Lookup.Provider {
         addJarButton.setEnabled(false);
         newCategoryButton.setEnabled(false);
         removeButton.setEnabled(false);
-        saveAs.setEnabled(false);
+        exportButton.setEnabled(false);
     }
 
     public void addNotify() {
@@ -135,13 +135,14 @@ implements ExplorerManager.Provider, Lookup.Provider {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         captionLabel = new javax.swing.JLabel();
         treePanel = new javax.swing.JPanel();
         infoLabel = new javax.swing.JLabel();
         addJarButton = new javax.swing.JButton();
         activateProfile = new javax.swing.JButton();
         saveAs = new javax.swing.JButton();
-        moveUpButton = new javax.swing.JButton();
+        exportButton = new javax.swing.JButton();
         moveDownButton = new javax.swing.JButton();
         removeButton = new javax.swing.JButton();
         newCategoryButton = new javax.swing.JButton();
@@ -225,10 +226,10 @@ implements ExplorerManager.Provider, Lookup.Provider {
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 10);
         add(saveAs, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(moveUpButton, org.openide.util.NbBundle.getMessage(ProfilesManager.class, "CTL_MoveUp_Button"));
-        moveUpButton.addActionListener(new java.awt.event.ActionListener() {
+        org.openide.awt.Mnemonics.setLocalizedText(exportButton, org.openide.util.NbBundle.getMessage(ProfilesManager.class, "CTL_Export_Button"));
+        exportButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                moveUpButtonActionPerformed(evt);
+                exportButtonActionPerformed(evt);
             }
         });
 
@@ -237,7 +238,7 @@ implements ExplorerManager.Provider, Lookup.Provider {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(28, 12, 0, 10);
-        add(moveUpButton, gridBagConstraints);
+        add(exportButton, gridBagConstraints);
 
         org.openide.awt.Mnemonics.setLocalizedText(moveDownButton, org.openide.util.NbBundle.getMessage(ProfilesManager.class, "CTL_MoveDown_Button"));
         moveDownButton.addActionListener(new java.awt.event.ActionListener() {
@@ -312,9 +313,9 @@ implements ExplorerManager.Provider, Lookup.Provider {
         moveNode(false);
     }//GEN-LAST:event_moveDownButtonActionPerformed
 
-    private void moveUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moveUpButtonActionPerformed
+    private void exportButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportButtonActionPerformed
         moveNode(true);
-    }//GEN-LAST:event_moveUpButtonActionPerformed
+    }//GEN-LAST:event_exportButtonActionPerformed
 
     private void newCategoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newCategoryButtonActionPerformed
 //GEN-HEADEREND:event_newCategoryButtonActionPerformed
@@ -356,10 +357,11 @@ implements ExplorerManager.Provider, Lookup.Provider {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton activateProfile;
     private javax.swing.JButton addJarButton;
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel captionLabel;
+    private javax.swing.JButton exportButton;
     private javax.swing.JLabel infoLabel;
     private javax.swing.JButton moveDownButton;
-    private javax.swing.JButton moveUpButton;
     private javax.swing.JButton newCategoryButton;
     private javax.swing.JButton removeButton;
     private javax.swing.JButton saveAs;
@@ -414,5 +416,6 @@ implements ExplorerManager.Provider, Lookup.Provider {
         }
         
         activateProfile.setEnabled(enable);
+        exportButton.setEnabled(enable);
     }
 }

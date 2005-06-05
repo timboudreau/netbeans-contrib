@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.0//EN"
+                             "http://www.netbeans.org/dtds/EditorFontsColors-1_0.dtd">
+<fontscolors>
+    <fontcolor foreColor="#999999" syntaxName="java-identifier">
+        <font name="Nimbus Mono L" size="14" style="bold"/>
+    </fontcolor>
+    <fontcolor foreColor="#6666FF" syntaxName="java-keywords">
+        <font name="Nimbus Mono L" size="14" style="italic"/>
+    </fontcolor>
+    <fontcolor bgColor="#000033" syntaxName="guarded"/>
+    <fontcolor bgColor="#333333" syntaxName="highlight-caret-row"/>
+    <fontcolor bgColor="#CCCCCC" foreColor="#FF3333" syntaxName="status-bar"/>
+    <fontcolor foreColor="#99FF66" syntaxName="java-operators"/>
+    <fontcolor foreColor="#CC6600" syntaxName="java-layer-method">
+        <font name="Nimbus Mono L" size="14" style="italic"/>
+    </fontcolor>
+    <fontcolor bgColor="#000000" foreColor="#FFFFFF" syntaxName="default">
+        <font name="Nimbus Mono L" size="14" style="plain"/>
+    </fontcolor>
+    <fontcolor foreColor="#FFFF00" syntaxName="java-char-literal"/>
+    <fontcolor bgColor="#339900" foreColor="#000000" syntaxName="highlight-search"/>
+    <fontcolor foreColor="#FFFF00" syntaxName="java-string-literal"/>
+    <fontcolor bgColor="#FF0000" foreColor="#FFFFFF" syntaxName="status-bar-bold">
+        <font name="Monospaced" size="14" style="plain"/>
+    </fontcolor>
+    <fontcolor foreColor="#FFFF00" syntaxName="java-numeric-literals"/>
+    <elementcolor color="#FFFFFF" name="caret-color-insert-mode"/>
+    <elementcolor color="#FFFFFF" name="caret-color-overwrite-mode"/>
+</fontscolors>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.0//EN"
+                             "http://www.netbeans.org/dtds/EditorFontsColors-1_0.dtd">
+<fontscolors>
+    <fontcolor syntaxName="highlight-caret-row" bgColor="#333333"/>
+    <fontcolor syntaxName="html-argument" foreColor="#FF6633">
+        <font name="Monospaced" size="14" style="bold"/>
+    </fontcolor>
+    <fontcolor syntaxName="default" foreColor="#FFFFFF" bgColor="#000000">
+        <font name="Monospaced" size="14" style="plain"/>
+    </fontcolor>
+    <fontcolor syntaxName="html-value" foreColor="#FFFF00"/>
+    <fontcolor syntaxName="html-tag" foreColor="#6666FF">
+        <font name="Monospaced" size="14" style="bold"/>
+    </fontcolor>
+    <fontcolor syntaxName="html-operator" foreColor="#24C424"/>
+    <elementcolor name="caret-color-insert-mode" color="#FFFFFF"/>
+    <elementcolor name="caret-color-overwrite-mode" color="#FFFFFF"/>
+</fontscolors>

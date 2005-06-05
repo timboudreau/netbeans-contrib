@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE properties PUBLIC "-//NetBeans//DTD Editor Properties settings 1.0//EN"
+                            "http://www.netbeans.org/dtds/EditorProperties-1_0.dtd">
+<properties>
+    <property class="java.lang.Boolean" name="display-go-to-class-info" value="false"/>
+    <property class="java.lang.Boolean" name="goto-class-case-sensitive" value="true"/>
+    <property class="java.lang.Float" name="line-height-correction" value="1.0"/>
+    <property class="java.awt.Color" name="javadoc-bg-color" value="#FFFFCC"/>
+    <property class="java.lang.String" name="indentEngine" value="SL[/IndentEngine/Java Indentation Engine"/>
+    <property class="java.lang.Boolean" name="line-number-visible" value="true"/>
+    <property class="java.lang.Integer" name="fast-import-selection" value="2"/>
+    <property class="java.lang.Boolean" name="goto-class-show-inner-classes" value="true"/>
+    <property class="java.lang.Integer" name="tab-size" value="4"/>
+</properties>

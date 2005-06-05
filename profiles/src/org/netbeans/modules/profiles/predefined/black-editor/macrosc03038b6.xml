@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE macros PUBLIC "-//NetBeans//DTD Editor Macros settings 1.0//EN"
+                        "http://www.netbeans.org/dtds/EditorMacros-1_0.dtd">
+<macros>
+    <macro name="wrap-string" xml:space="preserve">"\"" delete-next caret-end-line "\\n\"" delete-next " +" caret-down caret-begin-line</macro>
+    <macro name="RemoveListener" xml:space="preserve">caret-begin-line selection-down selection-down selection-down delete-previous caret-down selection-down delete-previous</macro>
+    <macro name="Replace" xml:space="preserve">find-next "Look delegate = extractLook (del" word-match-prev "s);" caret-down selection-begin-line "if (de" word-match-next " ! " delete-previous "= null)" abbrev-reset " {"</macro>
+    <macro name="insert-column-at-the-end-and-enter" xml:space="preserve">caret-end-line ";" insert-break</macro>
+</macros>

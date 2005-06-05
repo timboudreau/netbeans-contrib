@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN"
+                      "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
+<type description_key="HINT_PC_MIXED_BREAKPOINTS" glyph="nbresloc:/org/netbeans/modules/debugger/resources/editor/MultiBreakpoint+PC.gif" highlight="0x660066" localizing_bundle="org.netbeans.modules.debugger.support.Bundle" name="debugger-PC_mixedBP" type="line" visible="true">
+    <combination order="400" tiptext_key="HINT_PC_MIXED_BREAKPOINTS_TOOLTIP">
+        <combine absorb_all="false" annotationtype="debugger-mixed_BP" optional="false"/>
+        <combine absorb_all="false" annotationtype="CurrentPC" optional="false"/>
+    </combination>
+</type>

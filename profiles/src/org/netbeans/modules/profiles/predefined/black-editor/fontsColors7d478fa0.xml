@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.0//EN"
+                             "http://www.netbeans.org/dtds/EditorFontsColors-1_0.dtd">
+<fontscolors>
+    <elementcolor color="#FFFFFF" name="caret-color-insert-mode"/>
+    <elementcolor color="#FFFFFF" name="caret-color-overwrite-mode"/>
+</fontscolors>

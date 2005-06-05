@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings PUBLIC "-//NetBeans//DTD Editor KeyBindings settings 1.0//EN"
+                          "http://www.netbeans.org/dtds/EditorKeyBindings-1_0.dtd">
+<bindings>
+    <bind actionName="macro-delete.javadoc.name" key="C-Q"/>
+</bindings>
