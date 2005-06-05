@@ -105,19 +105,24 @@ public class ProfilesTest extends NbTestCase {
         
         class L extends FileChangeAdapter {
             public int cnt;
+            public FileObject last;
             
             public void fileChanged (FileEvent ev) {
                 cnt++;
+                last = ev.getFile();
             }
         }
         L listener = new L ();
+        L fsl = new L ();
         our.addFileChangeListener (listener);
+        fs.addFileChangeListener (fsl);
         
         Profiles.activateProfile (ProfilesTest.class.getResource ("override-layer.xml"));
         
         FileObject nf = fs.findResource ("TestModule/sample.txt");
         assertEquals ("The file stays the same", our, nf);
         assertContent ("It contains new content", "Ahoj Man.", our);
+        assertEquals ("one changes in filesystem content", 1, fsl.cnt);
         assertEquals ("one changes in content", 1, listener.cnt);
         
         // deactivate the profile
@@ -125,7 +130,7 @@ public class ProfilesTest extends NbTestCase {
         FileObject ourAgain = fs.findResource ("TestModule/sample.txt");
         assertEquals ("Still the same", nf, ourAgain);
         assertContent ("It contains Ahoj", "Ahoj", ourAgain);
-        assertEquals ("second changes in content", 1, listener.cnt);
+        assertEquals ("second changes in content", 2, listener.cnt);
         
         
     }
