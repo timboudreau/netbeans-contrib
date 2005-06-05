@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.jar.*;
 import org.openide.filesystems.*;
@@ -140,13 +142,15 @@ final class Profiles extends Object {
         
         Manifest mf = new Manifest();
         Attributes attr = mf.getMainAttributes();
+        attr.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         attr.putValue("OpenIDE-Module", "org.netbeans.modules.profiles.generated." + profile.getName()); // NOI18N
         String layer = "org/netbeans/modules/profiles/generated/" + profile.getName() + "/layer.xml"; // NOI18N
         attr.putValue("OpenIDE-Module-Layer", layer);
         
-        String prof = "org/netbeans/modules/profiles/generated/" + profile.getNameExt(); // NOI18N
+        final String dir = "org/netbeans/modules/profiles/generated/" + profile.getName() + "/"; // NOI18N
+        String prof = dir + profile.getNameExt(); // NOI18N
         
-        JarOutputStream os = new JarOutputStream(new java.io.FileOutputStream(jar), mf);
+        final JarOutputStream os = new JarOutputStream(new java.io.FileOutputStream(jar), mf);
 
         {
             // writing the layer file
@@ -157,18 +161,68 @@ final class Profiles extends Object {
             wr.write("<!DOCTYPE filesystem PUBLIC \"-//NetBeans//DTD Filesystem 1.1//EN\" \"http://www.netbeans.org/dtds/filesystem-1_1.dtd\">\n"); // NOI18N
             wr.write("<filesystem>\n"); // NOI18N
             wr.write("  <folder name='Profiles'>\n"); // NOI18N
-            wr.write("    <file name='" + profile.getNameExt() + "' url='" + prof + "' />"); // NOI18N
+            wr.write("    <file name='" + profile.getNameExt() + "' url='nbres:/" + prof + "' />\n"); // NOI18N
             wr.write("  </folder>\n"); // NOI18N
             wr.write("</filesystem>\n"); // NOI18N
             wr.flush();
         }
+
+        class JarC implements Creator {
+            public Object[] create(String name) throws IOException {
+                os.putNextEntry(new JarEntry(dir + name));
+                String url = "nbres:/" + dir + name; 
+                return new Object[] { os, url };
+            }
+            
+            public void close(Object[] arr) throws IOException {
+            }
+            
+            public boolean accept (FileObject fo) {
+                return true;
+            }
+        }
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try {
+            XMLFileSystem fs = new XMLFileSystem(profile.getURL());
+            writeOut(fs.getRoot(), bytes, new JarC());
+        } catch (org.xml.sax.SAXException ex) {
+            throw (IOException)new IOException(ex.getMessage()).initCause(ex);
+        }
+        
+        // write the profile file
+        os.putNextEntry(new JarEntry(prof));
+        os.write(bytes.toByteArray());
         
         os.close();
+    }
+
+    private static void writeOut(final FileObject root, final Set acceptor, OutputStream out, final FileObject datadir) throws IOException {
+        class FSC implements Creator {
+            public Object[] create(String name) throws IOException {
+                FileObject data = FileUtil.createData (datadir, name);
+                String url = datadir.getNameExt() + '/' + data.getNameExt();
+                FileLock lock = data.lock ();
+                OutputStream os = data.getOutputStream(lock);
+                return new Object[] { os, url, lock };
+            }
+            
+            public void close(Object[] arr) throws IOException {
+                OutputStream os = (OutputStream)arr[0];
+                os.close();
+                FileLock l = (FileLock)arr[2];
+                l.releaseLock();
+            }
+            
+            public boolean accept (FileObject fo) {
+                return acceptor.contains(fo);
+            }
+        }
+        writeOut(root, out, new FSC());
     }
     
     /** Write a complete layer to a stream.
      */
-    private static void writeOut(FileObject root, Set acceptor, OutputStream out, FileObject datadir) throws IOException {
+    private static void writeOut(FileObject root, OutputStream out, Creator c) throws IOException {
         Writer wr = new OutputStreamWriter(out, "UTF-8"); // NOI18N
         wr.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); // NOI18N
         // Simplify debugging a bit:
@@ -179,9 +233,9 @@ final class Profiles extends Object {
             wr.write(">"); // NOI18N
             wr.write('\n'); // NOI18N
         }
-        writeFolder(wr, root, 1, datadir, acceptor);
+        writeFolder(wr, root, 1, c);
         wr.write("</filesystem>\n"); // NOI18N
-        wr.close();
+        wr.flush();
     }
     
     private static final String SPACES = "                                                                                        "; // NOI18N
@@ -200,14 +254,14 @@ final class Profiles extends Object {
 
     /** Write one <folder>.
      */
-    private static void writeFolder(Writer wr, FileObject elem, int depth, FileObject datadir, Set acceptor) throws IOException {
+    private static void writeFolder(Writer wr, FileObject elem, int depth, Creator creator) throws IOException {
         FileObject[] chArr = elem.getChildren();
         if (chArr == null || chArr.length == 0) return;
         Iterator it = Arrays.asList(chArr).iterator();
         
         while (it.hasNext()) {
             FileObject child = (FileObject)it.next();
-            if (!acceptor.contains (child)) {
+            if (!creator.accept(child)) {
                 continue;
             }
             
@@ -220,7 +274,7 @@ final class Profiles extends Object {
                     wr.write('>'); // NOI18N
                     wr.write('\n'); // NOI18N
                 }
-                writeFolder(wr, child, depth + 1, datadir, acceptor);
+                writeFolder(wr, child, depth + 1, creator);
                 wr.write(space(depth));
                 wr.write("</folder>"); // NOI18N
                 wr.write('\n'); // NOI18N
@@ -237,13 +291,12 @@ final class Profiles extends Object {
                     int r = is.read (contents);
                     is.close ();
                     if (r != s) throw new IOException ("Should read " + s + " bytes but was only " + r + " for " + file);
-                    FileObject data = FileUtil.createData (datadir, file.getPath().replace('/', '-'));
-                    url = datadir.getNameExt() + '/' + data.getNameExt();
-                    FileLock lock = data.lock ();
-                    OutputStream os = data.getOutputStream(lock);
-                    os.write (contents);
-                    os.close ();
-                    lock.releaseLock();
+
+                    Object[] arr = creator.create(file.getPath().replace('/', '-'));
+                    url = (String)arr[1];
+                    OutputStream os = (OutputStream)arr[0];
+                    os.write(contents);
+                    creator.close(arr);
                     // else it is already there, presumably with the right contents, unless
                     // there is a hash collision - unlikely, SHA-1 would make it safer
                     // XXX should old data_* files be deleted? possible but probably not important
@@ -336,6 +389,18 @@ final class Profiles extends Object {
         
         
         return org.openide.xml.XMLUtil.toHex(os.toByteArray(), 0, os.toByteArray().length);
+    }
+    
+    private interface Creator {
+        /** Returns [0] = output stream, [1] url = to refer to it */
+        public Object[] create(String name) throws IOException;
+        /** release what ever was allocated with create.
+         */
+        public void close(Object[] arr) throws IOException;
+        
+        /** accept this object?
+         */
+        public boolean accept(FileObject fo);
     }
 }
 

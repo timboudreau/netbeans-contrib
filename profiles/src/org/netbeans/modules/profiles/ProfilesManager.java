@@ -98,7 +98,6 @@ implements ExplorerManager.Provider, Lookup.Provider {
         });
         
         activateProfile.setEnabled(false);
-        addJarButton.setEnabled(false);
         newCategoryButton.setEnabled(false);
         removeButton.setEnabled(false);
         exportButton.setEnabled(false);
@@ -139,7 +138,6 @@ implements ExplorerManager.Provider, Lookup.Provider {
         captionLabel = new javax.swing.JLabel();
         treePanel = new javax.swing.JPanel();
         infoLabel = new javax.swing.JLabel();
-        addJarButton = new javax.swing.JButton();
         activateProfile = new javax.swing.JButton();
         saveAs = new javax.swing.JButton();
         exportButton = new javax.swing.JButton();
@@ -181,21 +179,6 @@ implements ExplorerManager.Provider, Lookup.Provider {
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
         add(infoLabel, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(addJarButton, org.openide.util.NbBundle.getMessage(ProfilesManager.class, "CTL_AddJAR_Button"));
-        addJarButton.setToolTipText(org.openide.util.NbBundle.getMessage(ProfilesManager.class, "HINT_AddJAR"));
-        addJarButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addJarButtonActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 10);
-        add(addJarButton, gridBagConstraints);
-
         org.openide.awt.Mnemonics.setLocalizedText(activateProfile, org.openide.util.NbBundle.getMessage(ProfilesManager.class, "CTL_AddLibrary_Button"));
         activateProfile.setToolTipText(org.openide.util.NbBundle.getMessage(ProfilesManager.class, "HINT_AddLibrary"));
         activateProfile.addActionListener(new java.awt.event.ActionListener() {
@@ -206,9 +189,9 @@ implements ExplorerManager.Provider, Lookup.Provider {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 10);
+        gridBagConstraints.insets = new java.awt.Insets(28, 12, 0, 10);
         add(activateProfile, gridBagConstraints);
 
         org.openide.awt.Mnemonics.setLocalizedText(saveAs, org.openide.util.NbBundle.getMessage(ProfilesManager.class, "CTL_AddProject_Button"));
@@ -221,9 +204,9 @@ implements ExplorerManager.Provider, Lookup.Provider {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 10);
+        gridBagConstraints.insets = new java.awt.Insets(28, 12, 0, 10);
         add(saveAs, gridBagConstraints);
 
         org.openide.awt.Mnemonics.setLocalizedText(exportButton, org.openide.util.NbBundle.getMessage(ProfilesManager.class, "CTL_Export_Button"));
@@ -235,9 +218,9 @@ implements ExplorerManager.Provider, Lookup.Provider {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(28, 12, 0, 10);
+        gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 10);
         add(exportButton, gridBagConstraints);
 
         org.openide.awt.Mnemonics.setLocalizedText(moveDownButton, org.openide.util.NbBundle.getMessage(ProfilesManager.class, "CTL_MoveDown_Button"));
@@ -314,7 +297,30 @@ implements ExplorerManager.Provider, Lookup.Provider {
     }//GEN-LAST:event_moveDownButtonActionPerformed
 
     private void exportButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportButtonActionPerformed
-        moveNode(true);
+        org.openide.filesystems.FileObject profile = null;
+        
+        Node[] nodes = explorerManager.getSelectedNodes();
+        if (nodes.length == 1) {
+            DataObject obj = (DataObject)nodes[0].getCookie (DataObject.class);
+            if (obj != null) {
+                org.openide.filesystems.FileObject fo = obj.getPrimaryFile();
+                if (fo.hasExt("profile")) {
+                    profile = fo;
+                }
+            }
+        }                         
+        
+        if (profile == null) {
+            return;
+        }
+        
+        javax.swing.JFileChooser chooser = new javax.swing.JFileChooser();
+        chooser.setSelectedFile(new java.io.File("your-profile.jar"));
+        int returnVal = chooser.showSaveDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            Profiles.exportProfile(profile, chooser.getSelectedFile());
+        }        
+        
     }//GEN-LAST:event_exportButtonActionPerformed
 
     private void newCategoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newCategoryButtonActionPerformed
@@ -348,15 +354,9 @@ implements ExplorerManager.Provider, Lookup.Provider {
         }//GEN-HEADEREND:event_activateProfileActionPerformed
     }//GEN-LAST:event_activateProfileActionPerformed
 
-    private void addJarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addJarButtonActionPerformed
-        
-        
-    }//GEN-LAST:event_addJarButtonActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton activateProfile;
-    private javax.swing.JButton addJarButton;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel captionLabel;
     private javax.swing.JButton exportButton;

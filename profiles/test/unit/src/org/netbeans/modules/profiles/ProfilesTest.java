@@ -34,6 +34,10 @@ public class ProfilesTest extends NbTestCase {
     private FileSystem workfs;
     private FileObject root;
     
+    static {
+        org.netbeans.core.startup.Main.initializeURLFactory();
+    }
+    
     public ProfilesTest(String testName) {
         super(testName);
     }
@@ -140,7 +144,9 @@ public class ProfilesTest extends NbTestCase {
         Profiles.exportProfile (profil, module);
         
         org.netbeans.Module m;
-        m = org.netbeans.core.startup.Main.getModuleSystem ().getManager ().create (module, this, false, false, false);
+        m = org.netbeans.core.startup.Main.getModuleSystem ().getManager ().create (
+            module, new org.netbeans.core.startup.ModuleHistory("module-with-profile.jar"), false, false, false
+        );
         org.netbeans.core.startup.Main.getModuleSystem ().getManager ().enable (m);
         
         FileObject p = Repository.getDefault ().getDefaultFileSystem ().findResource ("Profiles/SomeProfile.profile");
@@ -177,10 +183,10 @@ public class ProfilesTest extends NbTestCase {
             assertEquals (msg + " length is the same for " + f1 + " and " + f2, arr1.length, arr2.length);
 
             if (arr1.length > 0) {
-                int r1 = f1.getInputStream().read(arr1);
-                int r2 = f2.getInputStream().read(arr2);
+                int r1 = readStream (f1.getInputStream(), arr1);
+                int r2 = readStream (f2.getInputStream(), arr2);
 
-                assertEquals (msg + " read the same", r1, r2);
+                assertEquals (msg + " read the same " + f1, r1, r2);
 
                 for (int i = 0; i < r1; i++) {
                     assertEquals (msg + " arr[" + i + "]", arr1[i], arr2[i]);
@@ -209,6 +215,18 @@ public class ProfilesTest extends NbTestCase {
         if (!attr.isEmpty()) {
             fail (msg + " These attributes are only at " + f1 + ": " + attr);
         }
+    }
+    
+    private static int readStream (java.io.InputStream is, byte[] arr) throws java.io.IOException {
+        int off = 0;
+        while (off < arr.length) {
+            int ch = is.read();
+            if (ch == -1) {
+                break;
+            }
+            arr[off++] = (byte)ch;
+        }
+        return off;
     }
     
     private static void assertContent (String msg, String cnt, FileObject fo) throws Exception {
