@@ -318,13 +318,17 @@ implements ExplorerManager.Provider, Lookup.Provider {
         chooser.setSelectedFile(new java.io.File("your-profile.jar"));
         int returnVal = chooser.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            Profiles.exportProfile(profile, chooser.getSelectedFile());
+            try {
+                Profiles.exportProfile(profile, chooser.getSelectedFile());
+            } catch (java.io.IOException ex) {
+                ErrorManager.getDefault().notify(ex);
+            }
         }        
         
     }//GEN-LAST:event_exportButtonActionPerformed
 
     private void newCategoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newCategoryButtonActionPerformed
-//GEN-HEADEREND:event_newCategoryButtonActionPerformed
+    
     }//GEN-LAST:event_newCategoryButtonActionPerformed
 
     private void saveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsActionPerformed
@@ -351,7 +355,7 @@ implements ExplorerManager.Provider, Lookup.Provider {
                     Profiles.activateProfile (fo);
                 }
             }
-        }//GEN-HEADEREND:event_activateProfileActionPerformed
+        }
     }//GEN-LAST:event_activateProfileActionPerformed
 
 
