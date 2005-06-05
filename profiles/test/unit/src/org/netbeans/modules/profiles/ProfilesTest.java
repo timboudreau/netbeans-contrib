@@ -31,28 +31,28 @@ import org.openide.util.Lookup;
  */
 public class ProfilesTest extends NbTestCase {
     private FileSystem fs;
+    private FileSystem workfs;
+    private FileObject root;
     
     public ProfilesTest(String testName) {
         super(testName);
     }
 
     protected void setUp() throws Exception {
+        clearWorkDir();
+        
         fs = Repository.getDefault ().getDefaultFileSystem ();
         
         assertEquals ("We are really using the core filesystem", "org.netbeans.core.startup.layers.SystemFileSystem", fs.getClass ().getName ());
+
+        assertModule ("The test module is supposed to be found", "org.netbeans.modules.profiles.test");
         
-        java.util.Iterator it = Lookup.getDefault ().lookup (new Lookup.Template (ModuleInfo.class)).allInstances().iterator();
-        boolean ok = false;
-        while (it.hasNext ()) {
-            ModuleInfo i = (ModuleInfo)it.next ();
-            if (i.getCodeName ().equals ("org.netbeans.modules.profiles.test")) {
-                ok = i.isEnabled ();
-                break;
-            }
-        }
-        if (!ok) {
-            fail ("The test module is supposed to be found");
-        }
+        File f = getWorkDir();
+        LocalFileSystem lfs = new LocalFileSystem ();
+        lfs.setRootDirectory(f);
+        
+        workfs = lfs;
+        root = FileUtil.createFolder(lfs.getRoot(), "original");
     }
 
     protected void tearDown() throws Exception {
@@ -65,36 +65,11 @@ public class ProfilesTest extends NbTestCase {
     }
 
     public void testGenerateProfile() throws Exception {
-        clearWorkDir();
-
-        File f = getWorkDir();
-        LocalFileSystem lfs = new LocalFileSystem ();
-        lfs.setRootDirectory(f);
+        FileObject profil = generateDefaultProfile("Sample");
         
-        FileObject root = FileUtil.createFolder(lfs.getRoot(), "original");
+        XMLFileSystem p = new XMLFileSystem (profil.getURL());
         
-        FileObject x = FileUtil.createData (root, "down/bellow/X.instance");
-        FileObject y = FileUtil.createData (root, "down/Y.settings");
-        java.io.OutputStream os = y.getOutputStream(y.lock());
-        os.write ("Ahoj".getBytes());
-        os.close();
-        FileObject z = FileUtil.createData (root, "down/attr/Z.xml");
-        z.setAttribute("IntAttr", new Integer (20));
-        z.setAttribute("StringAttr", "Kuk");
-        
-        HashSet all = new HashSet() {
-            public boolean contains (Object o) {
-                return true;
-            }
-        };
-        FileObject profil = Profiles.generateProfile(
-            FileUtil.createFolder (lfs.getRoot(), "result"), "Sample", 
-            root, all
-        );
-        
-        XMLFileSystem fs = new XMLFileSystem (profil.getURL());
-        
-        assertDirectories ("Generated profile is exactly the same", fs.getRoot(), root);
+        assertDirectories ("Generated profile is exactly the same", p.getRoot(), root);
     }
     
     public void testOverridesOfLayersReallyWork () throws Exception {
@@ -134,9 +109,51 @@ public class ProfilesTest extends NbTestCase {
         
         
     }
+    
+    private FileObject generateDefaultProfile(String name) throws Exception {
+        FileObject x = FileUtil.createData (root, "down/bellow/X.instance");
+        FileObject y = FileUtil.createData (root, "down/Y.settings");
+        java.io.OutputStream os = y.getOutputStream(y.lock());
+        os.write ("Ahoj".getBytes());
+        os.close();
+        FileObject z = FileUtil.createData (root, "down/attr/Z.xml");
+        z.setAttribute("IntAttr", new Integer (20));
+        z.setAttribute("StringAttr", "Kuk");
+        
+        HashSet all = new HashSet() {
+            public boolean contains (Object o) {
+                return true;
+            }
+        };
+        FileObject profil = Profiles.generateProfile(
+            FileUtil.createFolder (workfs.getRoot(), "result"), name, 
+            root, all
+        );
+        
+        return profil;
+    }
 
+    public void testExportProfile() throws Exception {
+        FileObject profil = generateDefaultProfile("SomeProfile");
+
+        File module = new File(getWorkDir (), "module-with-profile.jar");
+        Profiles.exportProfile (profil, module);
+        
+        org.netbeans.Module m;
+        m = org.netbeans.core.startup.Main.getModuleSystem ().getManager ().create (module, this, false, false, false);
+        org.netbeans.core.startup.Main.getModuleSystem ().getManager ().enable (m);
+        
+        FileObject p = Repository.getDefault ().getDefaultFileSystem ().findResource ("Profiles/SomeProfile.profile");
+        assertNotNull ("Profile has been generated", p);
+        XMLFileSystem fs = new XMLFileSystem (p.getURL ());
+            
+        assertDirectories ("Generated module profile is exactly the same", fs.getRoot(), root);
+    }
+
+    
+    
     public static void assertDirectories (String msg, FileObject f1, FileObject f2) throws java.io.IOException {
-        assertEquals (msg + " both are the same", f1.isData(), f2.isData());
+        assertEquals (msg + " both are the same" + f1 + " and " + f2, f1.isData(), f2.isData());
         
         if (f1.isFolder()) {
             FileObject[] arr1 = f1.getChildren();
@@ -146,7 +163,11 @@ public class ProfilesTest extends NbTestCase {
                 fail (msg + " wrong children\n" + Arrays.asList (arr1) + "\n" + Arrays.asList (arr2));
             }
             
+            java.util.Arrays.sort(arr1, new CompareByName());
+            java.util.Arrays.sort(arr2, new CompareByName());
+            
             for (int i = 0; i < arr1.length; i++) {
+                assertEquals (msg + " same name ", arr1[i].getNameExt(), arr2[i].getNameExt());
                 assertDirectories (msg, arr1[i], arr2[i]);
             }
         } else {
@@ -199,5 +220,29 @@ public class ProfilesTest extends NbTestCase {
         assertEquals (msg + " read enough", arr.length, r1);
         
         assertEquals (msg + " content", cnt, new String (arr));
+    }
+    
+    private static void assertModule (String msg, String cb) {
+        java.util.Iterator it = Lookup.getDefault ().lookup (new Lookup.Template (ModuleInfo.class)).allInstances().iterator();
+        boolean ok = false;
+        while (it.hasNext ()) {
+            ModuleInfo i = (ModuleInfo)it.next ();
+            if (i.getCodeName ().equals (cb)) {
+                ok = i.isEnabled ();
+                break;
+            }
+        }
+        if (!ok) {
+            fail (msg);
+        }
+    }
+    
+    private static class CompareByName implements java.util.Comparator {
+        public int compare(Object o1, Object o2) {
+            FileObject f1 = (FileObject)o1;
+            FileObject f2 = (FileObject)o2;
+            
+            return f1.getNameExt().compareTo(f2.getNameExt());
+        }
     }
 }

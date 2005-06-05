@@ -125,6 +125,15 @@ final class Profiles extends Object {
         
         return res; 
     }
+
+    /** explorts profile as a module JAR file.
+     * @param profile file containing the description of the profile (usually .profile extension)
+     * @param jar file to generate the module to
+     */
+    public static void exportProfile (
+        FileObject profile, java.io.File jar
+    ) throws java.io.IOException {
+    }
     
     /** Write a complete layer to a stream.
      */
@@ -197,14 +206,7 @@ final class Profiles extends Object {
                     int r = is.read (contents);
                     is.close ();
                     if (r != s) throw new IOException ("Should read " + s + " bytes but was only " + r + " for " + file);
-                    java.util.zip.CRC32 crc = new java.util.zip.CRC32();
-                    crc.update(contents);
-                    String hex = Long.toHexString(crc.getValue());
-                    // Note that it is really an int, not a long, so hex.length() <= 8.
-                    while (hex.length() < 8) {
-                        hex = "0" + hex; // NOI18N
-                    }
-                    FileObject data = FileUtil.createData (datadir, file.getName () + '-' + hex + "." + file.getExt());
+                    FileObject data = FileUtil.createData (datadir, file.getPath().replace('/', '-'));
                     url = datadir.getNameExt() + '/' + data.getNameExt();
                     FileLock lock = data.lock ();
                     OutputStream os = data.getOutputStream(lock);
