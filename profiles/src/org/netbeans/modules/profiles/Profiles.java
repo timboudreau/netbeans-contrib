@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.*;
+import java.util.jar.*;
 import org.openide.filesystems.*;
 
 
@@ -133,6 +134,36 @@ final class Profiles extends Object {
     public static void exportProfile (
         FileObject profile, java.io.File jar
     ) throws java.io.IOException {
+        if (!profile.hasExt ("profile")) {
+            throw new IOException("Wrong profile name" + profile); // NOI18N
+        }
+        
+        Manifest mf = new Manifest();
+        Attributes attr = mf.getMainAttributes();
+        attr.putValue("OpenIDE-Module", "org.netbeans.modules.profiles.generated." + profile.getName()); // NOI18N
+        String layer = "org/netbeans/modules/profiles/generated/" + profile.getName() + "/layer.xml"; // NOI18N
+        attr.putValue("OpenIDE-Module-Layer", layer);
+        
+        String prof = "org/netbeans/modules/profiles/generated/" + profile.getNameExt(); // NOI18N
+        
+        JarOutputStream os = new JarOutputStream(new java.io.FileOutputStream(jar), mf);
+
+        {
+            // writing the layer file
+            os.putNextEntry(new JarEntry(layer));
+            Writer wr = new OutputStreamWriter(os, "UTF-8"); // NOI18N
+            wr.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); // NOI18N
+            wr.write("<?xml-stylesheet type=\"text/xml\" href=\"http://openide.netbeans.org/fs/filesystem.xsl\"?>\n"); // NOI18N
+            wr.write("<!DOCTYPE filesystem PUBLIC \"-//NetBeans//DTD Filesystem 1.1//EN\" \"http://www.netbeans.org/dtds/filesystem-1_1.dtd\">\n"); // NOI18N
+            wr.write("<filesystem>\n"); // NOI18N
+            wr.write("  <folder name='Profiles'>\n"); // NOI18N
+            wr.write("    <file name='" + profile.getNameExt() + "' url='" + prof + "' />"); // NOI18N
+            wr.write("  </folder>\n"); // NOI18N
+            wr.write("</filesystem>\n"); // NOI18N
+            wr.flush();
+        }
+        
+        os.close();
     }
     
     /** Write a complete layer to a stream.
