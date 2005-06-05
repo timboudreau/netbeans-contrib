@@ -95,9 +95,9 @@ final class Profiles extends Object {
     /** Activates given profile in the current session.
      */
     public static void activateProfile (java.net.URL profile) throws Exception {
-        org.netbeans.core.projects.SystemFileSystem sfs;
-        sfs = (org.netbeans.core.projects.SystemFileSystem)Repository.getDefault().getDefaultFileSystem();
-        org.netbeans.core.projects.ModuleLayeredFileSystem layer = sfs.getUserLayer();
+        org.netbeans.core.startup.layers.SystemFileSystem sfs;
+        sfs = (org.netbeans.core.startup.layers.SystemFileSystem)Repository.getDefault().getDefaultFileSystem();
+        org.netbeans.core.startup.layers.ModuleLayeredFileSystem layer = sfs.getUserLayer();
         
         if (previousProfile != null) {
             layer.removeURLs (Collections.singleton (previousProfile));
