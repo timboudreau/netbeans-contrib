@@ -30,12 +30,29 @@ import org.openide.util.Lookup;
  * @author Jaroslav Tulach
  */
 public class ProfilesTest extends NbTestCase {
+    private FileSystem fs;
     
     public ProfilesTest(String testName) {
         super(testName);
     }
 
     protected void setUp() throws Exception {
+        fs = Repository.getDefault ().getDefaultFileSystem ();
+        
+        assertEquals ("We are really using the core filesystem", "org.netbeans.core.startup.layers.SystemFileSystem", fs.getClass ().getName ());
+        
+        java.util.Iterator it = Lookup.getDefault ().lookup (new Lookup.Template (ModuleInfo.class)).allInstances().iterator();
+        boolean ok = false;
+        while (it.hasNext ()) {
+            ModuleInfo i = (ModuleInfo)it.next ();
+            if (i.getCodeName ().equals ("org.netbeans.modules.profiles.test")) {
+                ok = i.isEnabled ();
+                break;
+            }
+        }
+        if (!ok) {
+            fail ("The test module is supposed to be found");
+        }
     }
 
     protected void tearDown() throws Exception {
@@ -81,23 +98,6 @@ public class ProfilesTest extends NbTestCase {
     }
     
     public void testOverridesOfLayersReallyWork () throws Exception {
-        FileSystem fs = Repository.getDefault ().getDefaultFileSystem ();
-        
-        assertEquals ("We are really using the core filesystem", "org.netbeans.core.projects.SystemFileSystem", fs.getClass ().getName ());
-        
-        java.util.Iterator it = Lookup.getDefault ().lookup (new Lookup.Template (ModuleInfo.class)).allInstances().iterator();
-        boolean ok = false;
-        while (it.hasNext ()) {
-            ModuleInfo i = (ModuleInfo)it.next ();
-            if (i.getCodeName ().equals ("org.netbeans.modules.profiles.test")) {
-                ok = i.isEnabled ();
-                break;
-            }
-        }
-        if (!ok) {
-            fail ("The test module is supposed to be found");
-        }
-        
         FileObject our = fs.findResource ("TestModule/sample.txt");
         assertNotNull ("We defined the file in our layer", our);
         assertEquals ("It contains Ahoj", 4, our.getSize ());
