@@ -1498,7 +1498,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>${RUN} diff -B ${QUOTE}${FILE}${QUOTE} ${OPTIONS} ${NUR}</value>
         </property>
 	<property name="data.regex">
-	  <value>(^The files are different.$)</value>
+	  <value>$[? LOCALIZED_PROFILE_COPY] [(^ResourceMsg1(VSS_MSG_FILES_ARE_DIFFERENT)$)] [(^The files are different.$)]</value>
 	</property>
 	<property name="ignoreFail">
 	  <value>true</value>
