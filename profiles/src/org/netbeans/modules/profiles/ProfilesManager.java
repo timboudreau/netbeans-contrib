@@ -315,7 +315,7 @@ implements ExplorerManager.Provider, Lookup.Provider {
         }
         
         javax.swing.JFileChooser chooser = new javax.swing.JFileChooser();
-        chooser.setSelectedFile(new java.io.File("your-profile.jar"));
+        chooser.setSelectedFile(new java.io.File("nbprofile-" + profile.getName() + ".jar"));
         int returnVal = chooser.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
