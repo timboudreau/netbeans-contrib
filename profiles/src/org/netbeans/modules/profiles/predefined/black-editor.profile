@@ -13,28 +13,6 @@
             </folder>
             <folder name="x-jsp">
                 <file name="properties.xml" url="nbres:/org/netbeans/modules/profiles/predefined/black-editor/properties587d90fb.xml"/>
-                <folder name="Popup">
-                    <attr name="SeparatorJSP.instance/org-netbeans-modules-web-debug-actions-AddJspWatchAction.instance" boolvalue="true"/>
-                    <attr name="com-xpdev-refactory-netbeans-action-InfoAction.instance/com-xpdev-refactory-netbeans-action-WhereAction.instance" stringvalue="true"/>
-                    <attr name="format/Separator5.instance" boolvalue="true"/>
-                    <attr name="org-openide-actions-PasteAction.instance/SeparatorProperties.instance" boolvalue="true"/>
-                    <attr name="com-xpdev-refactory-netbeans-action-WhereAction.instance/SeparatorJSP.instance" stringvalue="true"/>
-                    <attr name="org-netbeans-modules-project-ui-RunSingle.instance/org-netbeans-modules-web-core-jsploader-EditServletAction.shadow" boolvalue="true"/>
-                    <attr name="SeparatorAfterToggle.instance/org-openide-actions-CutAction.instance" boolvalue="true"/>
-                    <attr name="org-netbeans-modules-web-core-jsploader-EditServletAction.shadow/SeparatorJSP.instance" boolvalue="true"/>
-                    <attr name="Separator5.instance/org-netbeans-modules-project-ui-RunSingle.instance" boolvalue="true"/>
-                    <attr name="org-netbeans-modules-web-debug-actions-AddJspWatchAction.instance/org-netbeans-modules-debugger-ui-actions-ToggleBreakpointAction.shadow" boolvalue="true"/>
-                    <attr name="SeparatorProperties.instance/org-openide-actions-PropertiesAction.instance" boolvalue="true"/>
-                    <attr name="SeparatorFolding.instance/generate-fold-popup" boolvalue="true"/>
-                    <attr name="org-netbeans-modules-debugger-ui-actions-ToggleBreakpointAction.shadow/SeparatorAfterToggle.instance" boolvalue="true"/>
-                    <attr name="org-openide-actions-PropertiesAction.instance/SeparatorFolding.instance" boolvalue="true"/>
-                    <file name="SeparatorRIT_1.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                    </file>
-                    <file name="com-xpdev-refactory-netbeans-action-GotoAction.instance"/>
-                    <file name="com-xpdev-refactory-netbeans-action-InfoAction.instance"/>
-                    <file name="com-xpdev-refactory-netbeans-action-WhereAction.instance"/>
-                </folder>
                 <file name="fontsColors.xml" url="nbres:/org/netbeans/modules/profiles/predefined/black-editor/fontsColors7d478fa0.xml"/>
             </folder>
             <folder name="xml">
@@ -83,8 +61,8 @@
         </folder>
     </folder>
     <folder name="Shortcuts">
-        <file name="CS-D.shadow">
-            <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-project-ui-DebugTestSingle.instance"/>
+        <file name="CS-S.shadow">
+            <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-SaveAllAction.instance"/>
         </file>
         <file name="A-F11.shadow" url="nbres:/org/netbeans/modules/profiles/predefined/black-editor/A-F11b144476f.shadow"/>
         <file name="AS-F11.shadow" url="nbres:/org/netbeans/modules/profiles/predefined/black-editor/AS-F11f592378e.shadow"/>

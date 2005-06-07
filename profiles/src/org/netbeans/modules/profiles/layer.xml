@@ -14,6 +14,12 @@ Microsystems, Inc. All Rights Reserved.
 
 <filesystem>
     <folder name="Profiles">
+        <!-- JST-PENDING: empty profile does not work as there is a bug in XMLFileSystem that does not notify when files are deleted
+        <file name="empty.profile" url="predefined/empty.profile" >
+	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.profiles.Bundle"/>
+        </file>
+        -->
+        <attr name="empty.profile/BlackEditor.profile" boolvalue="true" />
         <file name="BlackEditor.profile" url="predefined/black-editor.profile" >
 	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.profiles.Bundle"/>
         </file>
@@ -27,10 +33,11 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Menu">
         <folder name="Tools">
+            <attr name="Separator2.instance/ProfilesAction.shadow" boolvalue="true" />
+            <attr name="ProfilesAction.shadow/org-netbeans-core-actions-SetupWizardAction.instance" boolvalue="true" />
             <file name="ProfilesAction.shadow" >
                 <attr name="originalFile" stringvalue="/Actions/System/org-netbeans-modules-profiles-ProfilesAction.instance" />
             </file>
-            <attr name="org-netbeans-modules-form-actions-InstallBeanAction.instance/Separator2.instance" boolvalue="true" />
         </folder>
     </folder>
 </filesystem>
