@@ -3598,8 +3598,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return <CODE>true</CODE> if file is read-only
      */
     public boolean readOnly (String name) {
-        if(folder(name)) return false;
-        return !getFile (name).canWrite ();
+        File f = getFile(name);
+        if (f.isDirectory()) return false;
+        return !f.canWrite () && f.exists();
     }
 
     public String mimeType (String name) {
