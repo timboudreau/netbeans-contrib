@@ -16,7 +16,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <import file="../../nbbuild/templates/projectized.xml"/>
   
-  <target name="compile" depends="compile-language-tex,compile-language-bibtex,projectized.compile" />
+  <target name="compile" depends="compile-language-tex,compile-language-bibtex,projectized-common.compile" />
   
   <target name="compile-language-tex">
     
@@ -33,7 +33,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="do-editor-release">
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/bin" />
     <copy file="../client/src/client.linux" tofile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/bin/lide-editor-client" failonerror="false" />
-    <chmod file="${netbeans.dest.dir}/${cluster.dir}/modules/bin/lide-editor-client" perm="uog+x" />
+    <chmod file="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/bin/lide-editor-client" perm="uog+x" />
   </target>
   
   <target name="compile-language-bibtex">

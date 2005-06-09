@@ -19,77 +19,23 @@ Microsystems, Inc. All Rights Reserved.
             <module-dependencies>
 
                 <dependency>
-                    <code-name-base>org.openide</code-name-base>
+                    <code-name-base>org.openide.util</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>4.30</specification-version>
+                        <specification-version>6.2</specification-version>
                     </run-dependency>
                 </dependency>
 
                 <dependency>
-                    <code-name-base>org.openide.loaders</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency/>
-                </dependency>
-
-                <dependency>
-                    <code-name-base>org.netbeans.modules.editor</code-name-base>
+                    <code-name-base>org.openide.text</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>3</release-version>
-                        <specification-version>1.19</specification-version>
+                        <specification-version>6.2</specification-version>
                     </run-dependency>
                 </dependency>
 
-                <dependency>
-                    <code-name-base>org.netbeans.modules.editor.lib</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                    </run-dependency>
-                </dependency>
-
-                <dependency>
-                    <code-name-base>org.netbeans.modules.editor.fold</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                    </run-dependency>
-                </dependency>
-                
-                <dependency>
-                    <code-name-base>org.netbeans.modules.editor.util</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                    </run-dependency>
-                </dependency>
-                
-                <dependency>
-                    <code-name-base>org.netbeans.modules.editor.plain</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                    </run-dependency>
-                </dependency>
-                
-                <dependency>
-                    <code-name-base>org.netbeans.modules.editor.plain.lib</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                    </run-dependency>
-                </dependency>
-                
                 <dependency>
                     <code-name-base>org.netbeans.modules.lexer</code-name-base>
                     <build-prerequisite/>
@@ -100,15 +46,6 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
 		
                 <dependency>
-		    <code-name-base>org.netbeans.modules.latex.model</code-name-base>
-		    <build-prerequisite/>
-		    <compile-dependency/>
-		    <run-dependency>
-		        <release-version>1</release-version>
-		    </run-dependency>
-		</dependency>
-
-                <dependency>
 		    <code-name-base>org.netbeans.modules.latex.editor</code-name-base>
 		    <build-prerequisite/>
 		    <compile-dependency/>
@@ -118,7 +55,7 @@ Microsystems, Inc. All Rights Reserved.
 		</dependency>
 
                 <dependency>
-		    <code-name-base>org.netbeans.modules.editorhints</code-name-base>
+		    <code-name-base>org.netbeans.modules.editor.hints</code-name-base>
 		    <build-prerequisite/>
 		    <compile-dependency/>
 		    <run-dependency>
