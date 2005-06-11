@@ -33,10 +33,10 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules"/>
+    <mkdir dir="${cluster}/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/modules/loaderswitcher.jar"
+    <jar jarfile="${cluster}/modules/loaderswitcher.jar"
             manifest="manifest-subst.mf"
             basedir="src"
 	    excludesfile="../../nbbuild/standard-jar-excludes.txt"
@@ -45,8 +45,8 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="modules/loaderswitcher.jar">
-      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+    <genlist outputfiledir="${cluster}" module="modules/loaderswitcher.jar">
+      <fileset dir="${cluster}">
         <patternset refID="utilities/loaderswitcher.files"/>
       </fileset>
     </genlist>
@@ -54,7 +54,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="nbm" depends="netbeans">
     <makenbm file="loaderswitcher.nbm"
-             productdir="${netbeans.dest.dir}/${cluster.dir}"
+             productdir="${cluster}"
              module="modules/loaderswitcher.jar"
 	     homepage="http://utilities.${homepage.base}/loaderswitcher/"
 	     distribution="http://${dist.base}/loaderswitcher.nbm">
@@ -69,7 +69,7 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
       </fileset>
-      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+      <fileset dir="${cluster}">
         <patternset refID="utilities/loaderswitcher.files"/>
       </fileset>
     </delete>

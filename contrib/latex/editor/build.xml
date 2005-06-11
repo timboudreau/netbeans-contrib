@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -31,9 +31,9 @@ Microsystems, Inc. All Rights Reserved.
   </target>
     
   <target name="do-editor-release">
-    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/bin" />
-    <copy file="../client/src/client.linux" tofile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/bin/lide-editor-client" failonerror="false" />
-    <chmod file="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/bin/lide-editor-client" perm="uog+x" />
+    <mkdir dir="${cluster}/${nb.modules.dir}/bin" />
+    <copy file="../client/src/client.linux" tofile="${cluster}/${nb.modules.dir}/bin/lide-editor-client" failonerror="false" />
+    <chmod file="${cluster}/${nb.modules.dir}/bin/lide-editor-client" perm="uog+x" />
   </target>
   
   <target name="compile-language-bibtex">

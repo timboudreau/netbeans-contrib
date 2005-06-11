@@ -18,11 +18,11 @@ Microsystems, Inc. All Rights Reserved.
     <!-- Called after jar target and before module-* targets in projectized.xml -->
     <target name="netbeans-extra">
         <ant dir=".." target="makedist" inheritall="false"/>
-        <unzip src="../xtest-distribution.zip" dest="${netbeans.dest.dir}/${cluster.dir}/xtest-distribution" />
+        <unzip src="../xtest-distribution.zip" dest="${cluster}/xtest-distribution" />
     </target>
 
     <target name="clean" depends="projectized-common.clean">
-        <delete dir="${netbeans.dest.dir}/${cluster.dir}/xtest-distribution"/>
+        <delete dir="${cluster}/xtest-distribution"/>
     </target>
 
   </project>

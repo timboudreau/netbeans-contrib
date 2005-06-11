@@ -61,26 +61,26 @@ Microsystems, Inc. All Rights Reserved.
        <include name="org/netbeans/modules/vcs/profiles/testprofiles/list/*.class"/>       
        <include name="org/netbeans/modules/vcs/profiles/testprofiles/list/*.properties"/>
     </makelayer>
-    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules"/>
+    <mkdir dir="${cluster}/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/modules/test-profile.jar"
+    <jar jarfile="${cluster}/modules/test-profile.jar"
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
 	 excludes="src/org/netbeans/modules/vcs/profiles/testprofiles/mf-layer_XX.xml" 
          compress="false">
     </jar>
-    <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/config/Modules">
-      <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
+    <createmodulexml xmldir="${cluster}/config/Modules">
+      <enabled dir="${cluster}">
         <include name="modules/test-profile.jar"/>
       </enabled>
     </createmodulexml>
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="modules/test-profile.jar">
-      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+    <genlist outputfiledir="${cluster}" module="modules/test-profile.jar">
+      <fileset dir="${cluster}">
         <patternset refID="vcsgeneric/profiles/testprofiles.files"/>
       </fileset>
     </genlist>
@@ -88,7 +88,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="nbm" depends="netbeans">
     <makenbm file="test-profile.nbm"
-             productdir="${netbeans.dest.dir}/${cluster.dir}"
+             productdir="${cluster}"
              module="modules/test-profile.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/test-profile.nbm">
@@ -104,7 +104,7 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*.jar"/>
         <include name="org/netbeans/modules/vcs/profiles/testprofiles/layer-include*.xml"/>
       </fileset>
-      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+      <fileset dir="${cluster}">
         <patternset refID="vcsgeneric/profiles/testprofiles.files"/>
       </fileset>
     </delete>

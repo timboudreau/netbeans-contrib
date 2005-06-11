@@ -2,6 +2,6 @@
 <project basedir="." default="netbeans" name="contrib/quickfilechooser">
     <import file="../../nbbuild/templates/projectized.xml"/>
     <target name="demo" depends="netbeans" description="Try a quick demo of the GUI.">
-        <java fork="true" classpath="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" classname="org.netbeans.modules.quickfilechooser.Demo"/>
+        <java fork="true" classpath="${cluster}/${module.jar}" classname="org.netbeans.modules.quickfilechooser.Demo"/>
     </target>
 </project>

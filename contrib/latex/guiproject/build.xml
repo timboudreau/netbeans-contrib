@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -27,8 +27,8 @@ Microsystems, Inc. All Rights Reserved.
     <target name="jar-ant">
         <ant dir="../ant" target="jar" inheritall="false">
         </ant>
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/ant/extra"/>
-        <copy file="../ant/dist/ant-latex.jar" todir="${netbeans.dest.dir}/${cluster.dir}/ant/extra/" />
+        <mkdir dir="${cluster}/ant/extra"/>
+        <copy file="../ant/dist/ant-latex.jar" todir="${cluster}/ant/extra/" />
     </target>
 
     <target name="netbeans-extra" depends="jar-ant"/>-->

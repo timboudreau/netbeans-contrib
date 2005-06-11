@@ -18,12 +18,12 @@ Microsystems, Inc. All Rights Reserved.
   <target name="netbeans-extra" depends="release"/>
 
   <target name="release" depends="init">
-    <copy todir="${netbeans.dest.dir}/${cluster.dir}/modules/ext">
+    <copy todir="${cluster}/modules/ext">
         <fileset dir="../release/">
             <include name="*.jar"/>
         </fileset>
     </copy>
-    <copy todir="${netbeans.dest.dir}/${cluster.dir}/modules/lib">
+    <copy todir="${cluster}/modules/lib">
         <fileset dir="../release/">
             <include name="mozembed*"/>
             <include name="*.dll"/>

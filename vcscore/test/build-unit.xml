@@ -21,7 +21,7 @@ Microsystems, Inc. All Rights Reserved.
         <buildTests srcdir="unit/src" compileexcludes="**/data/**">
             <classpath>
                 <path refid="test.unit.compile.cp"/>
-                <pathelement location="${netbeans.dest.dir}/${cluster.dir}/modules/org-netbeans-modules-vcs-advanced.jar"/>
+                <pathelement location="${cluster}/modules/org-netbeans-modules-vcs-advanced.jar"/>
                 <pathelement location="../../vcsgeneric/test/unit/testprofile/src"/>
             </classpath>
         </buildTests>
@@ -31,7 +31,7 @@ Microsystems, Inc. All Rights Reserved.
         <executeTests pluginname="jvm">
             <classpath>
                 <path refid="test.unit.run.cp"/>
-                <pathelement location="${netbeans.dest.dir}/${cluster.dir}/modules/org-netbeans-modules-vcs-advanced.jar"/>
+                <pathelement location="${cluster}/modules/org-netbeans-modules-vcs-advanced.jar"/>
                 <pathelement location="../../vcsgeneric/test/unit/testprofile/src"/>
             </classpath>
         </executeTests>

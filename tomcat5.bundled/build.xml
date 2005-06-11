@@ -26,10 +26,10 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="init">
-    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules/eager"/>
+    <mkdir dir="${cluster}/modules/eager"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/modules/eager/tomcat5-bundled.jar"
+    <jar jarfile="${cluster}/modules/eager/tomcat5-bundled.jar"
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
@@ -39,14 +39,14 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="release" depends="init,jars">
-    <unzip src="../../external/${tomcat.filename}.zip" dest="${netbeans.dest.dir}/${cluster.dir}" />
+    <unzip src="../../external/${tomcat.filename}.zip" dest="${cluster}" />
     <!-- monitor -->
     <copy file="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" 
-          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.5.7/common/lib/org-netbeans-modules-schema2beans.jar"/>
+          tofile="${cluster}/jakarta-tomcat-5.5.7/common/lib/org-netbeans-modules-schema2beans.jar"/>
     <copy file="${monitor.dir}/modules/ext/org-netbeans-modules-web-httpmonitor.jar"
-          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.5.7/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
+          tofile="${cluster}/jakarta-tomcat-5.5.7/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
     <chmod perm="ugo+x">
-      <fileset dir="${netbeans.dest.dir}/${cluster.dir}/${tomcat.filename}/bin">
+      <fileset dir="${cluster}/${tomcat.filename}/bin">
         <include name="*.sh"/>
       </fileset>
     </chmod>
@@ -54,15 +54,15 @@ Microsystems, Inc. All Rights Reserved.
     <!-- XXX:copy IDE-README.txt
     <copy file="torelease/IDE-README.txt" tofile="netbeans/${tomcat.filename}/IDE-README.txt" includeEmptyDirs="false"/> -->
     <!-- copy dummy to empty directories -->
-    <copy file="torelease/dummy" tofile="${netbeans.dest.dir}/${cluster.dir}/${tomcat.filename}/logs/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="${netbeans.dest.dir}/${cluster.dir}/${tomcat.filename}/temp/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="${netbeans.dest.dir}/${cluster.dir}/${tomcat.filename}/work/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="${netbeans.dest.dir}/${cluster.dir}/${tomcat.filename}/common/classes/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="${cluster}/${tomcat.filename}/logs/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="${cluster}/${tomcat.filename}/temp/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="${cluster}/${tomcat.filename}/work/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="${cluster}/${tomcat.filename}/common/classes/dummy" includeEmptyDirs="false"/>
   </target>
 
   <target name="netbeans" depends="jars,release" description="Builds the module">
-    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="modules/eager/tomcat5-bundled.jar">
-       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+    <genlist outputfiledir="${cluster}" module="modules/eager/tomcat5-bundled.jar">
+       <fileset dir="${cluster}">
          <patternset refID="tomcatint/tomcat5/bundled.files"/>
        </fileset>
     </genlist>
@@ -70,7 +70,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="nbm" depends="netbeans" description="Prepare the module for distribution via Auto Update.">
     <makenbm file="bundledtomcat.nbm"
-           productdir="${netbeans.dest.dir}/${cluster.dir}"
+           productdir="${cluster}"
            module="modules/eager/tomcat5-bundled.jar"
            homepage="http://tomcatint.${homepage.base}/"
            distribution="http://${dist.base}/bundledtomcat.nbm">
@@ -89,7 +89,7 @@ Microsystems, Inc. All Rights Reserved.
         <delete file="bundledtomcat.nbm"/>
         <delete dir="test"/>
         <delete>
-          <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+          <fileset dir="${cluster}">
             <patternset refID="tomcatint/tomcat5/bundled.files"/>
           </fileset>
         </delete>

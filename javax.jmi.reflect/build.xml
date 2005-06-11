@@ -19,8 +19,8 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="release" depends="init,unscramble">
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules/ext"/>
-        <copy todir="${netbeans.dest.dir}/${cluster.dir}/modules/ext">
+        <mkdir dir="${cluster}/modules/ext"/>
+        <copy todir="${cluster}/modules/ext">
             <fileset dir="${external.dir}">
                 <include name="jmi.jar"/>
             </fileset>
@@ -32,7 +32,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
         <mkdir dir="build"/>
         <makenbm file="build/${nbm}"
-                 productdir="${netbeans.dest.dir}/${cluster.dir}"
+                 productdir="${cluster}"
                  module="${module.jar}"
                  homepage="${nbm.homepage}"
                  distribution="http://${dist.base}/${nbm}"

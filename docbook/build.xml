@@ -46,7 +46,7 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="jar" depends="init,compile,jar-prep,external">
-        <jarwithmoduleattributes jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}">
+        <jarwithmoduleattributes jarfile="${cluster}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}">
             <fileset dir="${build.classes.dir}"/>
             <zipfileset prefix="org/netbeans/modules/docbook/lib" dir="build/docbook-libs">
                 <include name="config.properties"/>
@@ -71,7 +71,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
         <mkdir dir="build"/>
         <makenbm file="build/${nbm}"
-                 productdir="${netbeans.dest.dir}/${cluster.dir}"
+                 productdir="${cluster}"
                  module="${module.jar}"
                  homepage="${nbm.homepage}"
                  distribution="http://${dist.base}/${nbm}"

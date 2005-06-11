@@ -27,8 +27,8 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="jar-cli" depends="init,compile-cli">
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/core" />
-        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/core/org-netbeans-modules-performance-insane-cli.jar">
+        <mkdir dir="${cluster}/core" />
+        <jar jarfile="${cluster}/core/org-netbeans-modules-performance-insane-cli.jar">
             <fileset dir="build/cliclasses"/>
         </jar>
     </target>
@@ -36,7 +36,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="compile-lib" depends="init">
         <echo message="Building library..."/>
         <ant dir="../insanelib" target="jar" inheritAll="false"/>
-        <copy file="../insanelib/dist/insanelib.jar" todir="${netbeans.dest.dir}/${cluster.dir}/modules/ext" />
+        <copy file="../insanelib/dist/insanelib.jar" todir="${cluster}/modules/ext" />
     </target>
 
     <target name="clean-lib">

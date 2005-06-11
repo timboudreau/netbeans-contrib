@@ -17,7 +17,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="reload" depends="jar">
     <mkdir dir="module-test"/>
-    <copy file="${netbeans.dest.dir}/${cluster.dir}/modules/${teamware.jar}"
+    <copy file="${cluster}/modules/${teamware.jar}"
         tofile="module-test/${teamware.jar}"/>
     <nbinstaller module="module-test/${teamware.jar}" action="reinstall"/>
   </target>
