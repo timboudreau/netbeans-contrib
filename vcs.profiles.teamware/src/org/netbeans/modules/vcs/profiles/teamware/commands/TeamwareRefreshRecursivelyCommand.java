@@ -44,8 +44,9 @@ public class TeamwareRefreshRecursivelyCommand extends VcsListRecursiveCommand {
         if (dirName != null) {
             dir = new File(dir, dirName);
         }
-        String path = dir.toString().substring(root.toString().length());
-        if (path.startsWith(File.separator)) {
+        String path = dir.toString().substring(root.toString().length())
+            .replace(File.separatorChar, '/');
+        if (path.startsWith("/")) {
             path = path.substring(1);
         }
         listDir(path, dir, filesByName, stdoutListener, stderrListener);
@@ -82,7 +83,7 @@ public class TeamwareRefreshRecursivelyCommand extends VcsListRecursiveCommand {
             }
             String subpath = path;
             if (path.length() > 0) {
-                subpath += File.separator;
+                subpath += "/";
             }
             subpath += data[1];
             if (files[i].isDirectory()) {
