@@ -377,7 +377,8 @@ public class InsaneParser {
 
         Map sortedTypeCount = new TreeMap(new Comparator() {
             public int compare(Object o1, Object o2) {
-                return ((Comparable)typeCount.get(o1)).compareTo(typeCount.get(o2));
+                int res = ((Comparable)typeCount.get(o1)).compareTo(typeCount.get(o2));
+                return res != 0? res: ((Comparable)o1).compareTo(o2);
             }
         });
         
