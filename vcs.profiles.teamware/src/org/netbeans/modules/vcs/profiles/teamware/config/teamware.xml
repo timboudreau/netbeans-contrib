@@ -180,7 +180,7 @@ Contributor(s): Daniel Blaukopf.
             </command>
             <command displayName="Commit" name="CHECKIN">
                 <property name="inputDescriptor">
-                    <value>PROMPT_FOR(COMMENT, "Comment:", "")</value>
+                    <value>PROMPT_FOR_FILE(COMMENT, "Comment:")</value>
                 </property>
                 <property name="exec">
                     <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareCommitCommand.class</value>

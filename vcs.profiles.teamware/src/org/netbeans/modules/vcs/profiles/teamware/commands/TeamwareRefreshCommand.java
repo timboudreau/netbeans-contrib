@@ -40,7 +40,9 @@ public class TeamwareRefreshCommand extends VcsListCommand {
         for (int i = 0 ; i < files.length; i++) {
             String[] data = TeamwareRefreshSupport.listFile(files[i],
                 sccsDir, stderrListener);
-            if (data != null /*&& !data[0].equals("Ignored")*/) {
+            if (data != null
+                && !data[0].equals("Ignored")
+                && !data[0].equals("Local")) {
                 stdoutListener.outputLine(dir + File.separator + data[1] + " [" + data[0] + "]");
                 filesByName.put(data[1], data);
             }

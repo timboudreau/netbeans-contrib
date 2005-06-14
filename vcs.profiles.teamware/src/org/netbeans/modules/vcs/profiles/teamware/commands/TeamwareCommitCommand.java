@@ -16,7 +16,9 @@
 
 package org.netbeans.modules.vcs.profiles.teamware.commands;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -35,7 +37,16 @@ public class TeamwareCommitCommand implements VcsAdditionalCommand {
 
         File file = TeamwareSupport.getFile(vars);
         try {
-            new SFile(file).delget((String) vars.get("COMMENT"));
+            StringBuffer sb = new StringBuffer();
+            File commentFile = new File((String) vars.get("COMMENT"));
+            BufferedReader r = new BufferedReader(new FileReader(commentFile));
+            for (String line; (line = r.readLine()) != null;) {
+                if (sb.length() > 0) {
+                    sb.append("\n");
+                }
+                sb.append(line);
+            }
+            new SFile(file).delget(sb.toString());
             return true;
         } catch (IOException e) {
             stderr.outputLine(e.toString());
