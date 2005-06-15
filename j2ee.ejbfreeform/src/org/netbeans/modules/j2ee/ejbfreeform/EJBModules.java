@@ -93,6 +93,11 @@ public class EJBModules implements EjbJarProvider, AntProjectListener, ClassPath
     }
 
     public ClassPath findClassPath (FileObject file, String type) {
+        // findClassPath() should return null for any other type than
+        // ClassPath.SOURCE, see #59031
+        if (!ClassPath.SOURCE.equals (type)) {
+            return null;
+        }
         Project owner = FileOwnerQuery.getOwner (file);
         if (owner != null && owner.equals (project)) {
             if (modules == null) {
