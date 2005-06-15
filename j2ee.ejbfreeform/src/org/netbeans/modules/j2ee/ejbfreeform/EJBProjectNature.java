@@ -54,9 +54,6 @@ public class EJBProjectNature implements ProjectNature {
     public static final String STYLE_CONFIG_FILES = "configFiles"; // NOI18N
     public static final String STYLE_EJBS = "ejbs"; // NOI18N
     
-    private AntProjectHelper projectHelper;
-    private PropertyEvaluator projectEvaluator;
-
     private static final WeakHashMap/*<Project,WeakReference<Lookup>>*/ lookupCache = new WeakHashMap();
 
     private List schemas = new ArrayList();
@@ -64,8 +61,6 @@ public class EJBProjectNature implements ProjectNature {
     public EJBProjectNature() {}
 
     public Lookup getLookup(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
-        this.projectHelper = projectHelper;
-        this.projectEvaluator = projectEvaluator;
         WeakReference wr = (WeakReference)lookupCache.get(project);
         Lookup lookup = wr != null ? (Lookup)wr.get() : null;
         if (lookup == null) {
