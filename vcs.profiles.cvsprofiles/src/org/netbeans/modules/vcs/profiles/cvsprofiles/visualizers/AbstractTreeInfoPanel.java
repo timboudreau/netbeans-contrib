@@ -26,6 +26,7 @@ import org.openide.util.NbBundle;
 import javax.accessibility.*;
 
 import org.netbeans.modules.vcscore.util.table.*;
+import org.openide.util.Utilities;
 
 
 /** 
@@ -34,9 +35,9 @@ import org.netbeans.modules.vcscore.util.table.*;
  */
 public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implements TreeCellRenderer {    
     
-    private static final String DEFAULT_FOLDER = "/org/openide/loaders/defaultFolder.gif"; // NOI18N
-    private static final String DEFAULT_OPEN_FOLDER = "/org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
-    private static final String DEFAULT_FILE = "/org/openide/resources/defaultNode.gif"; // NOI18N
+    private static final String DEFAULT_FOLDER = "org/openide/loaders/defaultFolder.gif"; // NOI18N
+    private static final String DEFAULT_OPEN_FOLDER = "org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
+    private static final String DEFAULT_FILE = "org/openide/resources/defaultNode.gif"; // NOI18N
     
     private static final Image FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.icon"); // NOI18N
     private static final Image OPEN_FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.openedIcon"); // NOI18N
@@ -436,22 +437,19 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
                           if (FOLDER_ICON != null) {
                               label.setIcon(new ImageIcon(FOLDER_ICON));
                           } else {
-                              java.net.URL url1 = this.getClass().getResource(DEFAULT_FOLDER);
-                              label.setIcon(new ImageIcon(url1));
+                              label.setIcon(new ImageIcon(Utilities.loadImage(DEFAULT_FOLDER)));
                           }
                       } else {
                           if (OPEN_FOLDER_ICON != null) {
                               label.setIcon(new ImageIcon(OPEN_FOLDER_ICON));
                           } else {
-                              java.net.URL url2 = this.getClass().getResource(DEFAULT_OPEN_FOLDER);
-                              label.setIcon(new ImageIcon(url2));
+                              label.setIcon(new ImageIcon(Utilities.loadImage(DEFAULT_OPEN_FOLDER)));
                           }
                       }
                   } else if (userObj instanceof FileInfoContainer) { //is File
                       FileInfoContainer info = (FileInfoContainer)userObj;
                       label.setText(info.getFile().getName());
-                      java.net.URL url3 = this.getClass().getResource(DEFAULT_FILE);
-                      label.setIcon(new ImageIcon(url3));
+                      label.setIcon(new ImageIcon(Utilities.loadImage(DEFAULT_FILE)));
                   }
               }
           }
