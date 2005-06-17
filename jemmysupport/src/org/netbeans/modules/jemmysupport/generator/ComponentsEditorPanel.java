@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -161,7 +161,6 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
         splitPane.setLeftComponent(scrollPane);
 
         propertySheet.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentsEditorPanel.class, "TTT_Properties", new Object[] {}));
-        propertySheet.setDisplayWritableOnly(true);
         splitPane.setRightComponent(propertySheet);
         propertySheet.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ComponentsEditorPanel.class, "LBL_Properties", new Object[] {}));
 
@@ -219,7 +218,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     public static boolean showDialog(ComponentGenerator gen) {
         DialogDescriptor desc = new DialogDescriptor(new ComponentsEditorPanel(gen), NbBundle.getMessage(ComponentsEditorPanel.class, "ComponentsEditor_Title"), true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null); // NOI18N
         desc.setHelpCtx(new HelpCtx(ComponentsEditorPanel.class));
-        org.openide.DialogDisplayer.getDefault().createDialog(desc).show();
+        org.openide.DialogDisplayer.getDefault().createDialog(desc).setVisible(true);
         return desc.getValue()==DialogDescriptor.OK_OPTION;
     }
     

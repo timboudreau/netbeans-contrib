@@ -7,20 +7,25 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.jemmysupport.generator;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.BeanTreeView;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
@@ -30,6 +35,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.windows.TopComponent;
 
 /** Component Generator panel
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -46,6 +52,8 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     private java.util.Properties props;
     // "<default package>"
     private static final String DEFAULT_PACKAGE_LABEL = NbBundle.getBundle("org.netbeans.modules.java.project.Bundle").getString("LBL_DefaultPackage");
+    // TopComponent for showing project structure
+    private ProjectView projectView;
 
     
     /** creates ans shows Component Generator dialog
@@ -60,9 +68,8 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
                 }
             });
         }
-        // XXX doesn't work for projects
-        //panel.setSelectedNodes(nodes);
-        dialog.show();
+        panel.setSelectedNodes(nodes);
+        dialog.setVisible(true);
     }
     
     /** Creates new ComponentGeneratorPanel
@@ -70,42 +77,88 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     public ComponentGeneratorPanel(Node[] nodes) {
         loadProperties();
         initComponents();
-        packagesPanel.getExplorerManager().setRootContext(createPackagesNode());
-        packagesPanel.getExplorerManager().addVetoableChangeListener(this);
-        packagesPanel.getExplorerManager().addPropertyChangeListener(this);
+        projectView = new ProjectView();
+        projectView.getExplorerManager().setRootContext(createPackagesNode(nodes));
+        projectView.getExplorerManager().addVetoableChangeListener(this);
+        projectView.getExplorerManager().addPropertyChangeListener(this);
+        projectViewPanel.add(projectView, BorderLayout.CENTER);
     }
-
+    
+    private class ProjectView extends TopComponent implements ExplorerManager.Provider, Lookup.Provider {
+        
+        private ExplorerManager manager;
+        private BeanTreeView projectTreeView;
+    
+        public ProjectView() {
+            this.setName("");
+            this.manager = new ExplorerManager();
+            this.setLayout(new java.awt.BorderLayout());
+            projectTreeView = new BeanTreeView();
+            projectTreeView.setRootVisible(true);
+            projectTreeView.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Package"));
+            projectTreeView.setPopupAllowed(false);
+            projectTreeView.setAutoscrolls(true);
+            this.add(projectTreeView, BorderLayout.CENTER);
+        }
+        
+        public ExplorerManager getExplorerManager() {
+            return manager;
+        }
+        
+        public BeanTreeView getBeanTreeView() {
+            return projectTreeView;
+        }
+    }
+    
     
     private void setSelectedNodes(Node[] nodes) {
-        // XXX this doesnt work anymore
         DataFolder df;
-        if (packagesTreeView.isEnabled() && nodes!=null && nodes.length>0 && (df=(DataFolder)nodes[0].getCookie(DataFolder.class))!=null) {
+        if (projectView.getBeanTreeView().isEnabled() && nodes != null && nodes.length > 0 &&
+                (df=(DataFolder)nodes[0].getCookie(DataFolder.class)) != null) {
             try {
-                StringTokenizer packageName = new StringTokenizer(df.getPrimaryFile().getPackageName('.'), "."); // NOI18N
-                Node node = packagesPanel.getExplorerManager().getRootContext().getChildren().findChild(df.getPrimaryFile().getFileSystem().getSystemName());
-                while (packageName.hasMoreTokens()) {
-                    node = node.getChildren().findChild(packageName.nextToken());
+                // create pathList of node selected in Project view
+                Node node = nodes[0];
+                ArrayList pathList = new ArrayList();
+                pathList.add(node.getName());
+                while((node = node.getParentNode()) != null) {
+                    // ignore root node
+                    if(node.getParentNode() != null) {
+                        pathList.add(node.getName());
+                    }
                 }
-                packagesPanel.getExplorerManager().setSelectedNodes(new Node[]{node});
+                // find node in our tree
+                Node nodeToSelect = projectView.getExplorerManager().getRootContext();
+                for(int i=0;i<pathList.size()-1;i++) {
+                    String name = (String)pathList.get(pathList.size()-2-i);
+                    nodeToSelect = nodeToSelect.getChildren().findChild(name);
+                }
+                projectView.getExplorerManager().setSelectedNodes(new Node[] {nodeToSelect});
             }
-            catch(Exception e) {}
+            catch(Exception e) {
+                // ignore
+            }
         }
     }
     
-    private Node createPackagesNode() {
-        Lookup context = Utilities.actionsGlobalContext();
-        DataObject dataObject = (DataObject)context.lookup(DataObject.class);
-        if(dataObject != null) {
-            Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
-            if(p != null) {
-                LogicalViewProvider lvp = (LogicalViewProvider)p.getLookup().lookup(LogicalViewProvider.class);
-                return new DataFolderFilterNode(lvp.createLogicalView().cloneNode());
+    private Node createPackagesNode(Node[] nodes) {
+        Project project = (Project)nodes[0].getLookup().lookup(Project.class);
+        if(project == null) {
+            // no project root node is selected
+            DataObject dataObject = (DataObject)nodes[0].getLookup().lookup(DataObject.class);
+            if(dataObject != null) {
+                // find project of selected DataObject
+                project = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
             }
         }
-        // no project selected => create a dummy node with message "Please, close the dialog and select a project."
-        Node node = new AbstractNode(Children.LEAF);
-        node.setDisplayName(NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_SelectProjectNode")); // NOI18N
-        return node;
+        if(project != null) {
+            LogicalViewProvider lvp = (LogicalViewProvider)project.getLookup().lookup(LogicalViewProvider.class);
+            return new DataFolderFilterNode(lvp.createLogicalView().cloneNode());
+        } else {
+            // no project selected => create a dummy node with message "Please, close the dialog and select a project."
+            Node node = new AbstractNode(Children.LEAF);
+            node.setDisplayName(NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_SelectProjectNode")); // NOI18N
+            return node;
+        }
     }
     
     void loadProperties() {
@@ -140,12 +193,12 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
-    private void initComponents() {//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        packagesPanel = new org.openide.explorer.ExplorerPanel();
-        packagesTreeView = new org.openide.explorer.view.BeanTreeView();
         selectLabel = new javax.swing.JLabel();
+        projectViewPanel = new javax.swing.JPanel();
         helpLabel = new javax.swing.JLabel();
         helpLabel.setVisible(false);
         stopButton = new javax.swing.JButton();
@@ -161,24 +214,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         setAlignmentX(0.0F);
         setAlignmentY(0.0F);
         setPreferredSize(new java.awt.Dimension(600, 300));
-        packagesPanel.setName("");
-        packagesTreeView.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Package"));
-        packagesTreeView.setPopupAllowed(false);
-        packagesTreeView.setAutoscrolls(true);
-        packagesPanel.add(packagesTreeView, java.awt.BorderLayout.CENTER);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 10.0;
-        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
-        add(packagesPanel, gridBagConstraints);
-
         selectLabel.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_Package").charAt(0));
-        selectLabel.setLabelFor(packagesTreeView);
         selectLabel.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_Package"));
         selectLabel.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Package"));
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -190,6 +226,18 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
         add(selectLabel, gridBagConstraints);
+
+        projectViewPanel.setLayout(new java.awt.BorderLayout());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 10.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
+        add(projectViewPanel, gridBagConstraints);
 
         helpLabel.setFont(new java.awt.Font("Dialog", 2, 12));
         helpLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -293,7 +341,8 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
         add(cbUseComponentName, gridBagConstraints);
 
-    }//GEN-END:initComponents
+    }
+    // </editor-fold>//GEN-END:initComponents
     
     private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
         if (thread!=null) {
@@ -302,7 +351,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         }
         stopButton.setVisible(false);
         helpLabel.setVisible(false);
-        packagesTreeView.setEnabled(true);
+        projectView.getBeanTreeView().setEnabled(true);
         startButton.setVisible(true);
         //        customizeButton.setEnabled(true);
         screenShot.setEnabled(true);
@@ -312,7 +361,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     }//GEN-LAST:event_stopButtonActionPerformed
     
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
-        packagesTreeView.setEnabled(false);
+        projectView.getBeanTreeView().setEnabled(false);
         startButton.setVisible(false);
         stopButton.setVisible(true);
         //        customizeButton.setEnabled(false);
@@ -348,9 +397,9 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     public void propertyChange(java.beans.PropertyChangeEvent ev) {
         if (org.openide.explorer.ExplorerManager.PROP_SELECTED_NODES.equals(ev.getPropertyName())) {
             startButton.setEnabled(false);
-            Node[] arr = packagesPanel.getExplorerManager().getSelectedNodes();
+            Node[] arr = projectView.getExplorerManager().getSelectedNodes();
             if (arr.length == 1) {
-                org.openide.loaders.DataFolder df = (org.openide.loaders.DataFolder)arr[0].getCookie(org.openide.loaders.DataFolder.class);
+                DataFolder df = (DataFolder)arr[0].getCookie(DataFolder.class);
                 try {
                     if ((df != null) && (!df.getPrimaryFile().getFileSystem().isReadOnly())) {
                         startButton.setEnabled(true);
@@ -377,8 +426,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     private javax.swing.JCheckBox cbUseComponentName;
     private javax.swing.JLabel helpLabel;
     private javax.swing.JCheckBox mergeConflicts;
-    private org.openide.explorer.ExplorerPanel packagesPanel;
-    private org.openide.explorer.view.BeanTreeView packagesTreeView;
+    private javax.swing.JPanel projectViewPanel;
     private javax.swing.JCheckBox screenShot;
     private javax.swing.JLabel selectLabel;
     private javax.swing.JCheckBox showEditor;
