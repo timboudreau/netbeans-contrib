@@ -12,12 +12,13 @@
  */
 
 package org.netbeans.modules.quickfilechooser;
+
 import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.KeyboardFocusManager;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -28,6 +29,7 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.Collections;
 import javax.swing.AbstractAction;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -52,6 +54,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     private DefaultListModel completionsModel;
     private JList completions;
     private String maximalCompletion;
+    private boolean currentDirectoryChanging;
     
     public ChooserComponentUI(JFileChooser jfc) {
         super(jfc);
@@ -86,7 +89,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         completions = new JList(completionsModel);
         completions.setVisibleRowCount(25);
         completions.setEnabled(false);
-        // XXX support branding if icons (for Open Project chooser)
+        completions.setCellRenderer(new FileCellRenderer());
         fc.add(new JScrollPane(completions), BorderLayout.CENTER);
 	JButton approve = new JButton(getApproveButtonText(fc));
 	approve.addActionListener(getApproveSelectionAction());
@@ -140,7 +143,18 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                     if (x != null) {
                         getAccessoryPanel().add(x);
                     }
+                } else if (JFileChooser.DIRECTORY_CHANGED_PROPERTY.equals(name) && !currentDirectoryChanging) {
+                    currentDirectoryChanging = true;
+                    try {
+                        String t = getFileChooser().getCurrentDirectory().getAbsolutePath() + File.separatorChar;
+                        text.setText(t);
+                        text.setCaretPosition(t.length());
+                    } finally {
+                        currentDirectoryChanging = false;
+                    }
                 }
+                // XXX may have to handle JFileChooser.FILE_CHANGED_PROPERTY too
+                // XXX may have to enable/disable approval button acc. to some event?
             }
         };
     }
@@ -160,11 +174,12 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                 if (kids != null) {
                     Arrays.sort(kids, Collator.getInstance());
                     for (int i = 0; i < kids.length; i++) {
-                        if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY && !new File(d, kids[i]).isDirectory()) {
+                        File kid = new File(d, kids[i]);
+                        if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY && !kid.isDirectory()) {
                             continue;
                         }
                         if (kids[i].regionMatches(true, 0, suffix, 0, suffixLen)) {
-                            completionsModel.addElement(kids[i]);
+                            completionsModel.addElement(kid);
                             if (maximalCompletion == null) {
                                 maximalCompletion = kids[i];
                             } else {
@@ -184,7 +199,14 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         }
         // Fire changes to interested listeners. Note that we only support a single
         // file selection, but some listeners may be asking for getSelectedFiles, so humor them.
-        getFileChooser().setSelectedFiles(new File[] {new File(getFileName())});
+        if (!currentDirectoryChanging) {
+            currentDirectoryChanging = true;
+            try {
+                getFileChooser().setSelectedFiles(new File[] {new File(getFileName())});
+            } finally {
+                currentDirectoryChanging = false;
+            }
+        }
     }
     
     private final class CompleteAction extends AbstractAction {
@@ -194,9 +216,21 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             int slash = name.lastIndexOf(File.separatorChar);
             assert slash != -1;
             String newname = maximalCompletion != null ? name.substring(0, slash + 1) + maximalCompletion : null;
-            if (newname != null && new File(newname).isDirectory() && !newname.endsWith(File.separator)) {
-                // XXX should also check that there is no non-dir completion (e.g. .../nb_all/nbbuild/build{,.xml,.properties})
-                newname += File.separatorChar;
+            File newnameF = newname != null ? new File(newname) : null;
+            if (newnameF != null && newnameF.isDirectory() && !newname.endsWith(File.separator)) {
+                // Also check that there is no non-dir completion (e.g. .../nb_all/nbbuild/build{,.xml,.properties})
+                String[] siblings = newnameF.getParentFile().list();
+                boolean complete = true;
+                String me = newnameF.getName();
+                for (int i = 0; i < siblings.length; i++) {
+                    if (siblings[i].startsWith(me) && !siblings[i].equals(me)) {
+                        complete = false;
+                        break;
+                    }
+                }
+                if (complete) {
+                    newname += File.separatorChar;
+                }
             }
             if (maximalCompletion != null && !newname.equals(name)) {
                 text.setText(newname);
@@ -222,19 +256,31 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         
         public void actionPerformed(ActionEvent e) {
             String t = text.getText();
-            int slash = t.lastIndexOf(File.separatorChar);
+            int cut = Math.max(t.lastIndexOf(File.separatorChar), t.lastIndexOf('.') - 1);
             String newText;
-            if (slash == -1) {
+            if (cut == -1) {
                 newText = "";
-            } else if (slash == t.length() - 1) {
+            } else if (cut == t.length() - 1) {
                 // XXX when running in JDK 1.4 (but not 1.6, didn't check 1.5)
                 // it seems that DefaultEditorKit.DeletePrevCharAction is run after
                 // this action (bound to unmodified BACK_SPACE), for no obvious reason
-                newText = t.substring(0, slash);
+                newText = t.substring(0, cut);
             } else {
-                newText = t.substring(0, slash + 1);
+                newText = t.substring(0, cut + 1);
             }
             text.setText(newText);
+        }
+        
+    }
+    
+    private final class FileCellRenderer extends DefaultListCellRenderer/*<File>*/ {
+        
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            File f = (File) value;
+            Component soop = super.getListCellRendererComponent(list, f.getName(), index, isSelected, cellHasFocus);
+            setIcon(getFileChooser().getIcon(f));
+            setEnabled(true); // don't draw text or icons grayed out
+            return soop;
         }
         
     }
