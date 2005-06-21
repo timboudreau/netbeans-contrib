@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Leon Chiver. All Rights Reserved.
+-->
+
+<doclet-completion><class-tags><tag name="spring.bean"><attribute name="id" required="false" type="text"/><attribute name="name" required="false" type="text"/><attribute name="autowire" required="false" type="text">
+                <value>no</value>
+                <value>byName</value>
+                <value>byType</value>
+                <value>constructor</value>
+                <value>auto-detect</value>
+              </attribute><attribute name="dependency-check" required="false" type="text">
+                  <value>none</value>
+                  <value>objects</value>
+                  <value>simple</value>
+                  <value>all</value>
+              </attribute><attribute name="description" required="false" type="text"/><attribute name="destroy-method" required="false" type="text"/><attribute name="init-method" required="false" type="text"/><attribute name="lazy-init" required="false" type="bool"/><attribute name="singleton" required="false" type="bool"/></tag><tag name="spring.property"><attribute name="ref" required="false" type="text"/><attribute name="list" required="false" type="text"/><attribute name="name" required="true" type="text"/><attribute name="value" required="false" type="text"/></tag></class-tags><method-tags><tag name="spring.constructor-arg"><attribute name="ref" required="false" type="text"/><attribute name="list" required="false" type="text"/><attribute name="value" required="false" type="text"/></tag><tag name="spring.property"><attribute name="ref" required="false" type="text"/><attribute name="list" required="false" type="text"/><attribute name="value" required="false" type="text"/></tag><tag name="spring.validator"><attribute name="type" required="true" type="text"/><attribute name="msgkey" required="false" type="text"/><attribute name="msgvalue" required="false" type="text"/><attribute name="page" required="false" type="text"/><attribute name="arg0value" required="false" type="text"/><attribute name="arg0resource" required="false" type="text"/><attribute name="arg1value" required="false" type="text"/><attribute name="arg1resource" required="false" type="text"/><attribute name="arg2value" required="false" type="text"/><attribute name="arg2resource" required="false" type="text"/><attribute name="arg3value" required="false" type="text"/><attribute name="arg3resource" required="false" type="text"/></tag><tag name="spring.validator-args"><attribute name="arg0value" required="false" type="text"/><attribute name="arg0resource" required="false" type="text"/><attribute name="arg1value" required="false" type="text"/><attribute name="arg1resource" required="false" type="text"/><attribute name="arg2value" required="false" type="text"/><attribute name="arg2resource" required="false" type="text"/><attribute name="arg3value" required="false" type="text"/><attribute name="arg3resource" required="false" type="text"/></tag><tag name="spring.validator-var"><attribute name="name" required="true" type="text"/><attribute name="value" required="true" type="text"/></tag></method-tags><field-tags/></doclet-completion>

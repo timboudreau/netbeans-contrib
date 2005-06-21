@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Leon Chiver. All Rights Reserved.
+-->
+
+<doclet-completion><class-tags><tag name="hibernate.mapping"><attribute name="schema" required="false" type="text"/><attribute name="default-cascade" required="false" type="text">
+                                <value>none</value>
+                                <value>save-update</value>
+                            </attribute><attribute name="auto-import" required="false" type="bool">
+                                <value>true</value>
+                                <value>false</value>
+                            </attribute></tag><tag name="hibernate.class"><attribute name="table" required="false" type="text"/><attribute name="discriminator-value" required="false" type="text"/><attribute name="mutable" required="false" type="bool">
+                                <value>true</value>
+                                <value>false</value>
+                            </attribute><attribute name="dynamic-update" required="false" type="bool"/><attribute name="dynamic-insert" required="false" type="bool"/><attribute name="select-before-update" required="false" type="bool"/><attribute name="optimistic-lock" required="false" type="text">
+                                <value>version</value>
+                                <value>none</value>
+                                <value>all</value>
+                                <value>dirty</value>
+                            </attribute><attribute name="polymorphism" required="false" type="text">
+                                <value>explicit</value>
+                                <value>implicit</value>
+                            </attribute><attribute name="schema" required="false" type="text"/><attribute name="lazy" required="false" type="bool"/><attribute name="proxy" required="false" type="text"/><attribute name="where" required="false" type="text"/></tag><tag name="hibernate.subclass"><attribute name="table" required="false" type="text"/><attribute name="discriminator-value" required="false" type="text"/><attribute name="lazy" required="false" type="bool"/><attribute name="proxy" required="false" type="text"/><attribute name="dynamic-update" required="false" type="bool"/><attribute name="dynamic-insert" required="false" type="bool"/></tag><tag name="hibernate.discriminator"><attribute name="column" required="true" type="text"/><attribute name="type" required="false" type="text"/><attribute name="length" required="false" type="text"/><attribute name="not-null" required="false" type="bool">
+								<value>true</value>
+								<value>false</value>								
+							</attribute><attribute name="force" required="false" type="bool">
+								<value>true</value>
+								<value>false</value>								
+							</attribute><attribute name="insert" required="false" type="bool">
+								<value>true</value>
+								<value>false</value>								
+							</attribute></tag><tag name="hibernate.joined-subclass"><attribute name="lazy" required="false" type="bool"/><attribute name="proxy" required="false" type="text"/><attribute name="dynamic-update" required="false" type="bool"/><attribute name="dynamic-insert" required="false" type="bool"/><attribute name="schema" required="false" type="text"/><attribute name="table" required="false" type="text"/></tag><tag name="hibernate.joined-subclass-key"><attribute name="column" required="true" type="text"/></tag><tag name="hibernate.cache"><attribute name="usage" required="true" type="text">
+                                <value>read-write</value>
+                                <value>nonstrict-read-write</value>
+                                <value>read-only</value>
+                                <value>transactional</value>
+                            </attribute></tag><tag name="hibernate.jcs-cache"><attribute name="usage" required="true" type="text">
+                                <value>read-write</value>
+                                <value>nonstrict-read-write</value>
+                                <value>read-only</value>
+                                <value>transactional</value>
+                            </attribute></tag><tag name="hibernate.query"><attribute name="name" required="true" type="text"/><attribute name="query" required="true" type="text"/></tag></class-tags><method-tags><tag name="hibernate.id"><attribute name="column" required="false" type="text"/><attribute name="type" required="false" type="text"/><attribute name="length" required="false" type="text"/><attribute name="unsaved-value" required="false" type="text"/><attribute name="generator-class" required="true" type="text">
+                                <value>uuid.hex</value>
+                                <value>uuid.string</value>
+                                <value>increment</value>
+                                <value>assigned</value>
+                                <value>native</value>
+                                <value>identity</value>
+                                <value>sequence</value>
+                                <value>hilo</value>
+                                <value>seqhilo</value>
+                                <value>foreign</value>
+                            </attribute></tag><tag name="hibernate.generator-param"><attribute name="name" required="true" type="text"/><attribute name="value" required="true" type="text"/></tag><tag name="hibernate.property"><attribute name="column" required="false" type="text"/><attribute name="type" required="false" type="text"/><attribute name="length" required="false" type="text"/><attribute name="not-null" required="false" type="bool"/><attribute name="unique" required="false" type="bool"/><attribute name="insert" required="false" type="bool"/><attribute name="update" required="false" type="bool"/><attribute name="formula" required="false" type="text"/></tag><tag name="hibernate.any"><attribute name="id-type" required="true" type="text"/><attribute name="meta-type" required="false" type="text"/><attribute name="cascade" required="true" type="text"/></tag><tag name="hibernate.any-column"><attribute name="name" required="true" type="text"/><attribute name="length" required="false" type="text"/><attribute name="unique" required="false" type="bool"/><attribute name="not-null" required="false" type="bool"/><attribute name="index" required="false" type="text"/><attribute name="unique-key" required="false" type="text"/><attribute name="sql-type" required="false" type="text"/></tag><tag name="hibernate.component"><attribute name="class" required="false" type="text"/><attribute name="prefix" required="false" type="text"/></tag><tag name="hibernate.parent"/><tag name="hibernate.version"><attribute name="column" required="false" type="text"/><attribute name="type" required="false" type="text">
+                                <value>integer</value>
+                                <value>short</value>
+                                <value>long</value>
+                                <value>timestamp</value>
+                                <value>calendar</value>
+                            </attribute><attribute name="access" required="false" type="text">
+                                <value>field</value>
+                                <value>property</value>
+                                <value>ClassName</value>
+                            </attribute><attribute name="unsaved-value" required="false" type="text">
+                                <value>null</value>
+                                <value>negative</value>
+                                <value>undefined</value>
+                            </attribute></tag><tag name="hibernate.timestamp"><attribute name="column" required="false" type="text"/></tag><tag name="hibernate.many-to-one"><attribute name="column" required="false" type="text"/><attribute name="class" required="false" type="text"/><attribute name="cascade" required="false" type="text">
+                                <value>all</value>
+                                <value>none</value>
+                                <value>save-update</value>
+                                <value>delete</value>
+                            </attribute><attribute name="not-null" required="false" type="bool"/><attribute name="unique" required="false" type="bool"/><attribute name="outer-join" required="false" type="text">
+                                <value>true</value>
+                                <value>false</value>
+                                <value>auto</value>
+                            </attribute><attribute name="insert" required="false" type="bool"/><attribute name="update" required="false" type="bool"/><attribute name="property-ref" required="false" type="text"/><attribute name="foreign-key" required="false" type="text"/></tag><tag name="hibernate.one-to-one"><attribute name="class" required="false" type="text"/><attribute name="property-ref" required="false" type="text"/><attribute name="constrained" required="false" type="bool"/><attribute name="cascade" required="false" type="text">
+                                <value>all</value>
+                                <value>none</value>
+                                <value>save-update</value>
+                                <value>delete</value>
+                            </attribute><attribute name="outer-join" required="false" type="bool">
+                                <value>true</value>
+                                <value>false</value>
+                                <value>auto</value>
+                            </attribute><attribute name="foreign-key" required="false" type="text"/></tag><tag name="hibernate.column"><attribute name="name" required="true" type="text"/><attribute name="length" required="false" type="text"/><attribute name="unique" required="false" type="bool"/><attribute name="not-null" required="false" type="bool"/><attribute name="index" required="false" type="text"/><attribute name="unique-key" required="false" type="text"/><attribute name="sql-type" required="false" type="text"/><attribute name="formula" required="false" type="text"/></tag><tag name="hibernate.set"><attribute name="inverse" required="false" type="bool"/><attribute name="table" required="false" type="text"/><attribute name="schema" required="false" type="text"/><attribute name="lazy" required="false" type="bool"/><attribute name="cascade" required="false" type="text">
+                                <value>all</value>
+                                <value>none</value>
+                                <value>save-update</value>
+                                <value>delete</value>
+								<value>all-delete-orphan</value>
+								<value>delete-orphan</value>
+                            </attribute><attribute name="sort" required="false" type="text"/><attribute name="order-by" required="false" type="text"/><attribute name="where" required="false" type="text"/></tag><tag name="hibernate.bag"><attribute name="inverse" required="false" type="bool"/><attribute name="table" required="false" type="text"/><attribute name="schema" required="false" type="text"/><attribute name="lazy" required="false" type="bool"/><attribute name="cascade" required="false" type="text">
+                                <value>all</value>
+                                <value>none</value>
+                                <value>save-update</value>
+                                <value>delete</value>
+								<value>all-delete-orphan</value>
+								<value>delete-orphan</value>
+                            </attribute><attribute name="order-by" required="false" type="text"/><attribute name="where" required="false" type="text"/></tag><tag name="hibernate.list"><attribute name="table" required="false" type="text"/><attribute name="schema" required="false" type="text"/><attribute name="lazy" required="false" type="bool"/><attribute name="cascade" required="false" type="text">
+                                <value>all</value>
+                                <value>none</value>
+                                <value>save-update</value>
+                                <value>delete</value>
+								<value>all-delete-orphan</value>
+								<value>delete-orphan</value>
+                            </attribute><attribute name="where" required="false" type="text"/></tag><tag name="hibernate.map"><attribute name="table" required="false" type="text"/><attribute name="schema" required="false" type="text"/><attribute name="lazy" required="false" type="bool"/><attribute name="cascade" required="false" type="text">
+                                <value>all</value>
+                                <value>save-update</value>
+                                <value>delete</value>
+                                <value>none</value>
+								<value>all-delete-orphan</value>
+								<value>delete-orphan</value>
+                            </attribute><attribute name="sort" required="false" type="text"/><attribute name="order-by" required="false" type="text"/><attribute name="where" required="false" type="text"/></tag><tag name="hibernate.array"><attribute name="table" required="false" type="text"/><attribute name="schema" required="false" type="text"/><attribute name="cascade" required="false" type="text">
+                                <value>all</value>
+                                <value>none</value>
+                                <value>save-update</value>
+                                <value>delete</value>
+                            </attribute><attribute name="where" required="false" type="text"/></tag><tag name="hibernate.primitive-array"><attribute name="table" required="false" type="text"/><attribute name="schema" required="false" type="text"/><attribute name="cascade" required="false" type="text">
+                                <value>all</value>
+                                <value>none</value>
+                                <value>save-update</value>
+                                <value>delete</value>
+                            </attribute><attribute name="where" required="false" type="text"/></tag><tag name="hibernate.collection-key"><attribute name="column" required="true" type="text"/></tag><tag name="hibernate.collection-key-column"><attribute name="name" required="true" type="text"/><attribute name="length" required="false" type="text"/><attribute name="unique" required="false" type="bool"/><attribute name="not-null" required="false" type="bool"/><attribute name="index" required="false" type="text"/><attribute name="unique-key" required="false" type="text"/><attribute name="sql-type" required="false" type="text"/></tag><tag name="hibernate.collection-index"><attribute name="column" required="true" type="text"/><attribute name="type" required="false" type="text"/><attribute name="length" required="false" type="text"/></tag><tag name="hibernate.index-many-to-many"><attribute name="column" required="true" type="text"/><attribute name="class" required="true" type="text"/><attribute name="foreign-key" required="false" type="text"/></tag><tag name="hibernate.collection-element"><attribute name="column" required="true" type="text"/><attribute name="type" required="true" type="text"/><attribute name="length" required="false" type="text"/><attribute name="not-null" required="false" type="bool"/><attribute name="unique" required="false" type="bool"/></tag><tag name="hibernate.collection-composite-element"><attribute name="class" required="true" type="text"/></tag><tag name="hibernate.collection-many-to-many"><attribute name="column" required="true" type="text"/><attribute name="class" required="false" type="text"/><attribute name="outer-join" required="false" type="text">
+                                <value>true</value>
+                                <value>false</value>
+                                <value>auto</value>
+                            </attribute></tag><tag name="hibernate.collection-one-to-many"><attribute name="class" required="false" type="text"/></tag><tag name="hibernate.collection-cache"><attribute name="usage" required="true" type="text">
+                                <value>read-write</value>
+                                <value>nonstrict-read-write</value>
+                                <value>read-only</value>
+                                <value>transactional</value>
+                            </attribute></tag><tag name="hibernate.many-to-any"><attribute name="id-type" required="true" type="text"/><attribute name="meta-type" required="false" type="text"/></tag><tag name="hibernate.many-to-any-column"><attribute name="name" required="true" type="text"/><attribute name="length" required="false" type="text"/><attribute name="unique" required="false" type="bool"/><attribute name="not-null" required="false" type="bool"/><attribute name="index" required="false" type="text"/><attribute name="unique-key" required="false" type="text"/><attribute name="sql-type" required="false" type="text"/></tag><tag name="hibernate.collection-jcs-cache"><attribute name="usage" required="true" type="text">
+                                <value>read-write</value>
+                                <value>nonstrict-read-write</value>
+                                <value>read-only</value>
+                                <value>transactional</value>
+                            </attribute></tag></method-tags><field-tags/></doclet-completion>

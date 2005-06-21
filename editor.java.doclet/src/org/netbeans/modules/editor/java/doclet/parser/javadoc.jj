@@ -1,0 +1,164 @@
+/*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Leon Chiver. All Rights Reserved.
+ */
+
+options {
+    CACHE_TOKENS=true;
+    STATIC=true;
+    FORCE_LA_CHECK=true;
+}
+
+
+PARSER_BEGIN(JavadocParser)
+
+package org.netbeans.modules.editor.java.doclet.parser;
+
+import org.netbeans.modules.editor.java.doclet.ast.*;
+
+public class JavadocParser {
+}
+
+PARSER_END(JavadocParser)
+
+TOKEN:
+{
+    < DOC_START: "/**" (" " | "\t")* > |
+    < PARAGRAPH_START0: "/**" (" " | "\t")* "@" > |
+    < PARAGRAPH_START1: ("\n" | "\r") (" " | "\t")* ("*")? (" " | "\t")* "@" > |
+    < DOC_END: ("\n" | "\r")* (" " | "\t")* "*/" > |
+    < EQ: "=" > |
+    < WORD: (~[" ", "\t", "\n", "\r", "="])+ > 
+        {
+            if (image.toString().endsWith("*/")) {
+                // This is the end of the comment block
+                // We go back two chars to get the last word
+                input_stream.backup(2);
+                image.setLength(image.length() - 2);
+                matchedToken.image = image.toString();
+            }
+        }
+}
+
+SKIP:
+{
+    < LINE_START: ("\n" | "\r") (" " | "\t")* "*" >
+}
+
+SPECIAL_TOKEN:
+{
+    < WHITESPACE: ([" ", "\t", "\n", "\r"]) > 
+}
+
+
+Javadoc doc() :
+{
+    Javadoc jd = new Javadoc();
+    Token parStart;
+}
+{
+    try {
+        (<DOC_START> (text())? | parStart = <PARAGRAPH_START0> paragraph(jd, 0)) (parStart = <PARAGRAPH_START1> paragraph(jd, parStart.beginLine))* <DOC_END>
+    } catch (ParseException ex) {
+        // Should normally not happen
+        ex.printStackTrace();
+    } finally {
+        return jd;
+    }
+}
+
+void text():
+{
+}
+{
+    (<WORD>)+
+}
+
+void paragraph(Javadoc jd, int beginLine):
+{
+    Tag t = new Tag();
+    t.setBeginLine(beginLine);
+    Token tok1 = null;
+    Token tok2 = null;k
+    Token tok;
+    boolean validTag = true;
+}
+{
+    (
+        (tok1 = <WORD> | tok2 = <EQ>)
+            { 
+                // We checked for both <WORD> or <EQ>, so that we don't
+                // get a parse exception if @= is in the javadoc
+                // Alternatively, we could handle the exception
+                tok = tok1 != null ? tok1 : tok2;
+                if (tok.specialToken != null) {
+                    validTag = false;
+                } else {
+                    t.setName(tok.image); 
+                    t.setNameBeginColumn(tok.beginColumn);
+                    t.setNameEndColumn(tok.endColumn);
+                }
+            } 
+        // Call attributeList in any case: if it's  valid tag we'll add
+        // the attributes, otherwise we'll just consume them
+        attributeList(t, validTag)
+    )? 
+        {
+            if (validTag) {
+                jd.addTag(t);
+            }
+        }
+}
+
+/**
+ * This method goes through a tag's content and decides if the words are attributes
+ * or attribute values. For example in "@tag a1=a2", a1 would be the attribute and a2
+ * would be it's value, while in "@tag a1 a2" both a1 and a2 would be attributes.
+ * The attributes are added to the tag only if the tag is a valid one
+ */
+void attributeList(Tag t, boolean validTag):
+{
+    Token word;
+    Attribute a = null;
+    boolean nextIsAttributeValue = false;
+}
+{
+    (
+        (
+            word = <WORD>
+            {   
+                if (validTag) {
+                    if (nextIsAttributeValue && a != null) {
+                        a.setValue(word.image); 
+                        a.setValueLine(word.beginLine);
+                        a.setValueBeginColumn(word.beginColumn);
+                        a.setValueEndColumn(word.endColumn);
+                        a = null;
+                    } else {
+                        a = new Attribute();
+                        a.setName(word.image);
+                        a.setLine(word.beginLine);
+                        a.setBeginColumn(word.beginColumn);
+                        a.setEndColumn(word.endColumn);
+                        t.addAttribute(a);
+                        nextIsAttributeValue = false;
+                    }
+                }   
+            }
+        ) | 
+        <EQ> 
+            { 
+                if (a != null) {
+                    // The next word is an attribute value
+                    nextIsAttributeValue = !nextIsAttributeValue; 
+                }
+            }
+    )*
+}

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Leon Chiver. All Rights Reserved.
+-->
+
+<doclet-completion><class-tags><tag name="ejb.bean"><attribute name="name" required="true" type="text"/><attribute name="description" required="false" type="text"/><attribute name="display-name" required="false" type="text"/><attribute name="small-icon" required="false" type="text"/><attribute name="large-icon" required="false" type="text"/><attribute name="generate" required="false" type="bool"/><attribute name="jndi-name" required="false" type="text"/><attribute name="local-jndi-name" required="false" type="text"/><attribute name="view-type" required="false" type="text">
+                <value>local</value>
+                <value>remote</value>
+                <value>both</value>
+                <value>service-endpoint</value>
+                <value>local-service-endpoint</value>
+                <value>remote-service-endpoint</value>
+                <value>all</value>
+              </attribute><attribute name="type" required="true" type="text">
+                <value>CMP</value>
+                <value>BMP</value>
+              
+                <value>Stateless</value>
+                <value>Stateful</value>
+              </attribute><attribute name="transaction-type" required="false" type="text">
+                <value>Container</value>
+                <value>Bean</value>
+              </attribute><attribute name="reentrant" required="false" type="bool"/><attribute name="cmp-version" required="false" type="text">
+                <value>1.x</value>
+                <value>2.x</value>
+              </attribute><attribute name="schema" required="false" type="text"/><attribute name="primkey-field" required="false" type="text"/><attribute name="use-soft-locking" required="false" type="bool"/><attribute name="message-selector" required="false" type="text"/><attribute name="acknowledge-mode" required="false" type="text">
+                <value>Auto-acknowledge</value>
+                <value>Dups-ok-acknowledge</value>
+              </attribute><attribute name="destination-type" required="false" type="text">
+                <value>javax.jms.Queue</value>
+                <value>javax.jms.Topic</value>
+              </attribute><attribute name="subscription-durability" required="false" type="text">
+                <value>Durable</value>
+                <value>NonDurable</value>
+              </attribute><attribute name="destination-jndi-name" required="false" type="text"/><attribute name="connection-factory-jndi-name" required="false" type="text"/><attribute name="remote-business-interface" required="false" type="text"/><attribute name="local-business-interface" required="false" type="text"/><attribute name="impl-class-name" required="false" type="text"/><attribute name="service-endpoint-business-interface" required="false" type="text"/></tag><tag name="ejb.dao"><attribute name="class" required="false" type="text"/><attribute name="pattern" required="false" type="text"/><attribute name="package" required="false" type="text"/><attribute name="generate" required="false" type="bool"/><attribute name="impl-class" required="false" type="text"/><attribute name="impl-jndi" required="false" type="text"/><attribute name="create-methods" required="false" type="text"/><attribute name="finder-methods" required="false" type="text"/></tag><tag name="ejb.data-object"><attribute name="extends" required="false" type="text"/></tag><tag name="ejb.ejb-external-ref"><attribute name="view-type" required="true" type="text">
+                <value>local</value>
+                <value>remote</value>
+              </attribute><attribute name="link" required="false" type="text"/><attribute name="ref-name" required="true" type="text"/><attribute name="ejb-name" required="false" type="text"/><attribute name="type" required="true" type="text">
+                <value>Entity</value>
+                <value>Session</value>
+              </attribute><attribute name="home" required="false" type="text"/><attribute name="business" required="true" type="text"/><attribute name="remote" required="false" type="text"/></tag><tag name="ejb.ejb-ref"><attribute name="ejb-name" required="true" type="text"/><attribute name="view-type" required="true" type="text">
+                <value>local</value>
+                <value>remote</value>
+              </attribute><attribute name="ref-name" required="false" type="text"/></tag><tag name="ejb.env-entry"><attribute name="name" required="true" type="text"/><attribute name="description" required="false" type="text"/><attribute name="type" required="false" type="text">
+                <value>java.lang.Boolean</value>
+                <value>java.lang.Byte</value>
+                <value>java.lang.Character</value>
+                <value>java.lang.String</value>
+                <value>java.lang.Short</value>
+                <value>java.lang.Integer</value>
+                <value>java.lang.Long</value>
+                <value>java.lang.Float</value>
+                <value>java.lang.Double</value>
+              </attribute><attribute name="value" required="false" type="text"/></tag><tag name="ejb.finder"><attribute name="view-type" required="false" type="text">
+                <value>local</value>
+                <value>remote</value>
+                <value>both</value>
+              </attribute><attribute name="description" required="false" type="text"/><attribute name="signature" required="true" type="text"/><attribute name="unchecked" required="false" type="bool"/><attribute name="role-name" required="false" type="text"/><attribute name="query" required="false" type="text"/><attribute name="result-type-mapping" required="false" type="text">
+                <value>none</value>
+                <value>Local</value>
+                <value>Remote</value>
+              </attribute><attribute name="transaction-type" required="false" type="text"/><attribute name="method-intf" required="false" type="text">
+                <value>Home</value>
+                <value>LocalHome</value>
+              </attribute></tag><tag name="ejb.home"><attribute name="extends" required="false" type="text"/><attribute name="local-extends" required="false" type="text"/><attribute name="generate" required="false" type="text">
+                <value>local</value>
+                <value>remote</value>
+              </attribute><attribute name="remote-class" required="false" type="text"/><attribute name="local-class" required="false" type="text"/><attribute name="remote-pattern" required="false" type="text"/><attribute name="local-pattern" required="false" type="text"/><attribute name="pattern" required="false" type="text"/><attribute name="remote-package" required="false" type="text"/><attribute name="local-package" required="false" type="text"/><attribute name="package" required="false" type="text"/></tag><tag name="ejb.interface"><attribute name="extends" required="false" type="text"/><attribute name="local-extends" required="false" type="text"/><attribute name="service-endpoint-extends" required="false" type="text"/><attribute name="generate" required="false" type="text">
+                <value>local</value>
+                <value>remote</value>
+                <value>service-endpoint</value>
+              </attribute><attribute name="remote-class" required="false" type="text"/><attribute name="local-class" required="false" type="text"/><attribute name="service-endpoint-class" required="false" type="text"/><attribute name="remote-pattern" required="false" type="text"/><attribute name="local-pattern" required="false" type="text"/><attribute name="service-endpoint-pattern" required="false" type="text"/><attribute name="pattern" required="false" type="text"/><attribute name="remote-package" required="false" type="text"/><attribute name="local-package" required="false" type="text"/><attribute name="service-endpoint-package" required="false" type="text"/><attribute name="package" required="false" type="text"/></tag><tag name="ejb.permission"><attribute name="role-name" required="false" type="text"/><attribute name="unchecked" required="false" type="bool"/></tag><tag name="ejb.persistence"><attribute name="table-name" required="false" type="text"/><attribute name="read-only" required="false" type="bool"/></tag><tag name="ejb.pk"><attribute name="class" required="false" type="text"/><attribute name="pattern" required="false" type="text"/><attribute name="package" required="false" type="text"/><attribute name="generate" required="false" type="bool"/><attribute name="extends" required="false" type="text"/><attribute name="implements" required="false" type="text"/><attribute name="role-name" required="false" type="text"/><attribute name="unchecked" required="false" type="bool"/><attribute name="method-intf" required="false" type="text">
+                <value>Home</value>
+                <value>LocalHome</value>
+              </attribute></tag><tag name="ejb.resource-env-ref"><attribute name="name" required="true" type="text"/><attribute name="type" required="true" type="text"/></tag><tag name="ejb.resource-ref"><attribute name="res-ref-name" required="true" type="text"/><attribute name="res-type" required="true" type="text"/><attribute name="res-auth" required="true" type="text">
+                <value>Container</value>
+                <value>Application</value>
+              </attribute><attribute name="res-sharing-scope" required="false" type="text">
+                <value>Shareable</value>
+                <value>Unshareable</value>
+              </attribute><attribute name="jndi-name" required="false" type="text"/></tag><tag name="ejb.security-identity"><attribute name="description" required="false" type="text"/><attribute name="use-caller-identity" required="false" type="bool"/><attribute name="run-as" required="false" type="text"/></tag><tag name="ejb.security-role-ref"><attribute name="role-name" required="true" type="text"/><attribute name="role-link" required="true" type="text"/></tag><tag name="ejb.security-roles"><attribute name="role-names" required="true" type="text"/></tag><tag name="ejb.transaction"><attribute name="type" required="true" type="text">
+                <value>NotSupported</value>
+                <value>Supports</value>
+                <value>Required</value>
+                <value>RequiresNew</value>
+                <value>Mandatory</value>
+                <value>Never</value>
+              </attribute></tag><tag name="ejb.util"><attribute name="generate" required="true" type="text">
+                <value>false</value>
+                <value>no</value>
+                <value>logical</value>
+                <value>physical</value>
+              </attribute></tag><tag name="ejb.value-object"><attribute name="name" required="false" type="text"/><attribute name="match" required="false" type="text"/><attribute name="extends" required="false" type="text"/><attribute name="implements" required="false" type="text"/><attribute name="abstract" required="false" type="bool"/><attribute name="generatePKConstructor" required="false" type="bool"/></tag><tag name="ejb.facade"><attribute name="name" required="false" type="text"/><attribute name="description" required="false" type="text"/><attribute name="display-name" required="false" type="text"/><attribute name="small-icon" required="false" type="text"/><attribute name="large-icon" required="false" type="text"/><attribute name="jndi-name" required="false" type="text"/><attribute name="local-jndi-name" required="false" type="text"/><attribute name="view-type" required="false" type="text">
+                <value>local</value>
+                <value>remote</value>
+                <value>both</value>
+              </attribute><attribute name="type" required="true" type="text">
+                <value>Stateless</value>
+                <value>Stateful</value>
+              </attribute><attribute name="transaction-type" required="false" type="text">
+                <value>Container</value>
+                <value>Bean</value>
+              </attribute></tag><tag name="ejb.remote-facade"/></class-tags><method-tags><tag name="ejb.aggregate"/><tag name="ejb.create-method"><attribute name="view-type" required="false" type="text">
+                <value>local</value>
+                <value>remote</value>
+              </attribute></tag><tag name="ejb.home-method"><attribute name="view-type" required="false" type="text">
+                <value>local</value>
+                <value>remote</value>
+              </attribute></tag><tag name="ejb.interface-method"><attribute name="view-type" required="false" type="text">
+                <value>local</value>
+                <value>remote</value>
+                <value>both</value>
+                <value>service-endpoint</value>
+                <value>remote-service-endpoint</value>
+                <value>local-service-endpoint</value>
+                <value>all</value>
+              </attribute></tag><tag name="ejb.permission"><attribute name="role-name" required="false" type="text"/><attribute name="unchecked" required="false" type="bool"/></tag><tag name="ejb.persistence"><attribute name="column-name" required="false" type="text"/><attribute name="jdbc-type" required="false" type="text">
+                <value>ARRAY</value>
+                <value>BIGINT</value>
+                <value>BINARY</value>
+                <value>BIT</value>
+                <value>BLOB</value>
+                <value>BOOLEAN</value>
+                <value>CHAR</value>
+                <value>CLOB</value>
+                <value>DATALINK</value>
+                <value>DATE</value>
+                <value>DECIMAL</value>
+                <value>DISTINCT</value>
+                <value>DOUBLE</value>
+                <value>FLOAT</value>
+                <value>INTEGER</value>
+                <value>JAVA_OBJECT</value>
+                <value>LONGVARBINARY</value>
+                <value>LONGVARCHAR</value>
+                <value>NULL</value>
+                <value>NUMERIC</value>
+                <value>OTHER</value>
+                <value>REAL</value>
+                <value>REF</value>
+                <value>SMALLINT</value>
+                <value>STRUCT</value>
+                <value>TIME</value>
+                <value>TIMESTAMP</value>
+                <value>TINYINT</value>
+                <value>VARBINARY</value>
+                <value>VARCHAR</value>
+              </attribute><attribute name="sql-type" required="false" type="text"/><attribute name="read-only" required="false" type="bool"/></tag><tag name="ejb.persistent-field"/><tag name="ejb.pk-field"/><tag name="ejb.relation"><attribute name="name" required="true" type="text"/><attribute name="role-name" required="true" type="text"/><attribute name="cascade-delete" required="false" type="text"/><attribute name="target-ejb" required="false" type="text"/><attribute name="target-role-name" required="false" type="text"/><attribute name="target-cascade-delete" required="false" type="text"/><attribute name="target-multiple" required="false" type="text"/></tag><tag name="ejb.select"><attribute name="query" required="true" type="text"/><attribute name="result-type-mapping" required="false" type="text">
+                <value>none</value>
+                <value>Local</value>
+                <value>Remote</value>
+              </attribute></tag><tag name="ejb.transaction"><attribute name="type" required="true" type="text">
+                <value>NotSupported</value>
+                <value>Supports</value>
+                <value>Required</value>
+                <value>RequiresNew</value>
+                <value>Mandatory</value>
+                <value>Never</value>
+              </attribute></tag><tag name="dao.call"><attribute name="name" required="false" type="text"/></tag><tag name="ejb.value-object"><attribute name="match" required="false" type="text"/><attribute name="compose" required="false" type="text"/><attribute name="compose-name" required="false" type="text"/><attribute name="aggregate" required="false" type="text"/><attribute name="aggregate-name" required="false" type="text"/><attribute name="members" required="false" type="text"/><attribute name="members-name" required="false" type="text"/><attribute name="relation" required="false" type="text"/><attribute name="type" required="false" type="text">
+			      <value>java.util.Collection</value>
+			      <value>java.util.Set</value>
+			    </attribute></tag><tag name="ejb.facade-method"><attribute name="invalidate" required="false" type="bool"/><attribute name="cache" required="false" type="bool"/><attribute name="immutable" required="false" type="bool"/></tag></method-tags><field-tags/></doclet-completion>
