@@ -99,19 +99,19 @@ public class DocletCompletionItem implements CompletionItem {
         }
         try {
             int caretOffset = component.getCaretPosition();
-            int matchLength = getInitialMatchLength(doc, caretOffset);
             CharSeq seq = doc.getText();
             switch (type) {
                 case TYPE_ATTRIBUTE:
-                    String ins = text.substring(matchLength) + "=\"\"";
-                    if (seq.charAt(caretOffset - 1) != ' ') {
+                    String ins = text;
+                    if (!ins.startsWith(" ")) {
                         ins = " " + ins;
                     }
+                    ins = ins.substring(getInitialMatchLength(ins, doc, caretOffset)) + "=\"\"";
                     doc.insertString(caretOffset, ins, null);
                     component.setCaretPosition(component.getCaretPosition() - 1);
                     break;
                 case TYPE_ATTRIBUTE_VALUE:
-                    ins = text.substring(matchLength);
+                    ins = text.substring(getInitialMatchLength(text, doc, caretOffset));
                     doc.insertString(caretOffset, ins, null);
                     char nextChar = seq.charAt(caretOffset + ins.length());
                     if (nextChar == '"' || nextChar == '\'') {
@@ -120,7 +120,7 @@ public class DocletCompletionItem implements CompletionItem {
                     }
                     break;
                 case TYPE_TEXT:
-                    ins = text.substring(matchLength);
+                    ins = text.substring(getInitialMatchLength(text, doc, caretOffset));
                     doc.insertString(caretOffset, ins, null);
                     break;
                 case TYPE_SUBSTITUTE:
@@ -134,7 +134,7 @@ public class DocletCompletionItem implements CompletionItem {
         }
     }
     
-    private int getInitialMatchLength(BaseDocument doc, int caretOffset) throws BadLocationException {
+    private int getInitialMatchLength(String text, BaseDocument doc, int caretOffset) throws BadLocationException {
         int matchLength = 0;
         int maxCompletionIndex = text.length() - 1;
         int completionIndex = maxCompletionIndex;
