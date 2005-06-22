@@ -151,14 +151,18 @@ public class JavadocParser implements JavadocParserConstants {
                 if (validTag) {
                     if (nextIsAttributeValue && a != null) {
                         a.setValue(word.image);
-                        a.setValueLine(word.beginLine);
+                        // XXX - really strange behaviour of beginline
+                        // We get get line + 1, so we have to adjust this
+                        a.setValueLine(word.beginLine - 1);
                         a.setValueBeginColumn(word.beginColumn);
                         a.setValueEndColumn(word.endColumn);
                         a = null;
                     } else {
                         a = new Attribute();
                         a.setName(word.image);
-                        a.setLine(word.beginLine);
+                        // XXX - really strange behaviour of beginline
+                        // We get get line + 1, so we have to adjust this
+                        a.setLine(word.beginLine - 1);
                         a.setBeginColumn(word.beginColumn);
                         a.setEndColumn(word.endColumn);
                         t.addAttribute(a);

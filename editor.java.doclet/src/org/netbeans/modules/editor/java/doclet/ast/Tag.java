@@ -98,7 +98,7 @@ public class Tag {
             for (int i = sz - 1; i >= 0; i--) {
                 Attribute attr = (Attribute) attributeList.get(i);
                 if (attr.getValueLine() == line && attr.getValueBeginColumn() <= column && 
-                        attr.getValueEndColumn() > column) {
+                        attr.getValueEndColumn() >= column) {
                     return attr;
                 } 
             }
