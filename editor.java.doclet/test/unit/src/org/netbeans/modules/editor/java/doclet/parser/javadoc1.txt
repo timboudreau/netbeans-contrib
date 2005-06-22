@@ -1,0 +1,11 @@
+/**     @deprecated
+ * @param          a1
+ * @param a2
+ *      
+            @hibernate.property name='gigi' column = DB_COLUMN
+ *
+ * size =  
+    "20"
+ ** @notATag
+@param a3 some comment
+ */

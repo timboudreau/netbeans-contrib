@@ -1,0 +1,10 @@
+/**
+ * Begin of comment
+ *
+ * @tag1 tag1_attr1
+ * tag1_attr2="tag1_attr2_value" tag1_attr3  =  tag1_attr3_value
+ *
+ * @tag2
+ */
+ 
+ 
