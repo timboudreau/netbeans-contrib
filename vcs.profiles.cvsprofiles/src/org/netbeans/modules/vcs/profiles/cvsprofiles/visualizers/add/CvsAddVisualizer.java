@@ -107,14 +107,12 @@ public class CvsAddVisualizer extends OutputVisualizer {
         if (files.size() == 1) {
             String filePath = (String) files.iterator().next();
             java.io.File file = new java.io.File(filePath);
-            title = java.text.MessageFormat.format(
-            NbBundle.getBundle(this.getClass()).getString("CvsAddVisualizer.title_one"), // NOI18N
-            new Object[] { commandName,file.getName()});
+            title = NbBundle.getMessage(this.getClass(), "CvsAddVisualizer.title_one", // NOI18N
+                new Object[] { commandName,file.getName()});
         }
         else if (files.size() > 1) {
-            title = java.text.MessageFormat.format(
-            NbBundle.getBundle(this.getClass()).getString("CvsAddVisualizer.title_many"), // NOI18N
-            new Object[] {commandName, Integer.toString(files.size())});
+            title = NbBundle.getMessage(this.getClass(), "CvsAddVisualizer.title_many", // NOI18N
+                new Object[] {commandName, Integer.toString(files.size())});
         }
         else title = commandName;
         out.addVisualizer(title,contentPane, true);
