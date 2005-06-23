@@ -7,13 +7,12 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update;
 
-import java.awt.Dialog;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,25 +21,11 @@ import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.Iterator;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualizer;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.netbeans.modules.vcscore.util.table.RevisionComparator;
-import org.netbeans.modules.vcscore.util.table.DateComparator;
-import org.netbeans.modules.vcscore.util.table.IntegerComparator;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
-import org.openide.windows.WindowManager;
-import org.openide.windows.Workspace;
 
 /**
  * The cvs update visualizer.
@@ -537,12 +522,10 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         }
     }
     
-    private static boolean DEBUG = false;
+    private static final boolean DEBUG = false;
     private static void debug(String msg){
         if(DEBUG)
             System.err.println("CvsUpdateVisualizer: "+msg);
     }
-    
-    
     
 }
