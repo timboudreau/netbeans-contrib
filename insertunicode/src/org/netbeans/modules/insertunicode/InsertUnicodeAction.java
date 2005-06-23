@@ -7,17 +7,13 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.insertunicode;
 
-import java.awt.Component;
 import java.awt.Toolkit;
-import org.openide.awt.Actions;
-import org.openide.awt.JMenuPlus;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -29,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.prefs.Preferences;
 import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -36,6 +33,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.text.BadLocationException;
 import org.openide.ErrorManager;
+import org.openide.awt.JMenuPlus;
+import org.openide.awt.Mnemonics;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -43,14 +42,9 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.Presenter;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.TopComponent;
-/*
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import org.openide.util.WeakListener;
- */
 
 /** @author Jesse Glick */
-public class InsertUnicodeAction extends SystemAction implements Presenter.Popup /*, Presenter.Menu, Presenter.Toolbar, PropertyChangeListener */ {
+public class InsertUnicodeAction extends SystemAction implements Presenter.Popup {
     
     public void actionPerformed(ActionEvent e) {
         throw new IllegalStateException();
@@ -71,29 +65,6 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
     public JMenuItem getPopupPresenter() {
         return new MainPopup(true, false);
     }
-    
-    /*
-    public JMenuItem getMenuPresenter() {
-        return new MainPopup(true, true);
-    }
-    
-    public Component getToolbarPresenter() {
-        return new MainPopup(false, true);
-    }
-    
-    protected void initialize() {
-        super.initialize();
-        TopComponent.getRegistry().addPropertyChangeListener(WeakListener.propertyChange(this, TopComponent.getRegistry()));
-        setEnabled(getPane() != null);
-    }
-
-     public void propertyChange(PropertyChangeEvent evt) {
-        if (TopComponent.Registry.PROP_CURRENT_NODES.equals(evt.getPropertyName())) {
-            JEditorPane pane = getPane();
-            setEnabled(pane != null);
-        }
-    }
-     */
     
     private static JEditorPane getPane() {
         Node[] ns = TopComponent.getRegistry().getCurrentNodes();
@@ -137,7 +108,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
         }
         
         protected LazyMenu(String text) {
-            Actions.setMenuText(this, text, true);
+            Mnemonics.setLocalizedText(this, text);
         }
         
         private boolean inited = false;
@@ -186,7 +157,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                 sub.clear();
                 fixupItems(moreitems);
                 JMenuItem more = new JMenu();
-                Actions.setMenuText(more, NbBundle.getMessage(InsertUnicodeAction.class, "LBL_more"), true);
+                Mnemonics.setLocalizedText(more, NbBundle.getMessage(InsertUnicodeAction.class, "LBL_more"));
                 Iterator it = moreitems.iterator();
                 while (it.hasNext()) {
                     more.add((JMenuItem)it.next());
@@ -230,24 +201,12 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
         public MainPopup(boolean showText, boolean showIcon) {
             SystemAction a = SystemAction.get(InsertUnicodeAction.class);
             if (showText) {
-                Actions.setMenuText(this, a.getName(), true);
+                Mnemonics.setLocalizedText(this, a.getName());
             }
             if (showIcon) {
                 setIcon(a.getIcon());
             }
-            /*
-            a.addPropertyChangeListener(WeakListener.propertyChange(this, a));
-            setEnabled(a.isEnabled());
-             */
         }
-        
-        /*
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (SystemAction.PROP_ENABLED.equals(evt.getPropertyName())) {
-                setEnabled(((SystemAction)evt.getSource()).isEnabled());
-            }
-        }
-         */
         
         protected List doCreate() {
             makeBlocks();
@@ -303,7 +262,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                             return;
                         }
                         String toInsert;
-                        switch (modeChoice) {
+                        switch (getModeChoice()) {
                         case MODE_RAW:
                             toInsert = new String(new char[] {_c});
                             break;
@@ -340,7 +299,13 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
     }
 
     private static final int MODE_RAW = 0, MODE_JAVA = 1, MODE_XML = 2, MODE_HTML = 3;
-    static int modeChoice = MODE_RAW;
+    private static final String KEY_MODE = "unicode.insert.mode"; // NOI18N
+    static int getModeChoice() {
+        return Preferences.userNodeForPackage(InsertUnicodeAction.class).getInt(KEY_MODE, MODE_RAW);
+    }
+    static void setModeChoice(int mode) {
+        Preferences.userNodeForPackage(InsertUnicodeAction.class).putInt(KEY_MODE, mode);
+    }
     // XXX make the mode sensitive to content type of current pane
     // default to MODE_JAVA for text/x-java, text/x-properties
     // default to MODE_XML for text/xml, application/xml, text/*+xml
@@ -350,7 +315,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
     private static final class ModePopup extends JMenuPlus {
         
         public ModePopup() {
-            Actions.setMenuText(this, NbBundle.getMessage(InsertUnicodeAction.class, "LBL_escape_mode"), true);
+            Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "LBL_escape_mode"));
             add(new ModeChoice(MODE_RAW));
             add(new ModeChoice(MODE_JAVA));
             add(new ModeChoice(MODE_XML));
@@ -367,26 +332,26 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
             this.mode = mode;
             switch (mode) {
             case MODE_RAW:
-                Actions.setMenuText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_raw"), true);
+                Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_raw"));
                 break;
             case MODE_JAVA:
-                Actions.setMenuText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_java"), true);
+                Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_java"));
                 break;
             case MODE_XML:
-                Actions.setMenuText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_xml"), true);
+                Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_xml"));
                 break;
             case MODE_HTML:
-                Actions.setMenuText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_html"), true);
+                Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_html"));
                 break;
             default:
                 throw new IllegalArgumentException();
             }
-            setSelected(mode == modeChoice);
+            setSelected(mode == getModeChoice());
             addActionListener(this);
         }
         
         public void actionPerformed(ActionEvent e) {
-            modeChoice = mode;
+            setModeChoice(mode);
         }
         
     }
