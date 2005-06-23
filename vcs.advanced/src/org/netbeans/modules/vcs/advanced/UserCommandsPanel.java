@@ -17,7 +17,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
-import java.text.MessageFormat;
 
 import org.openide.util.NbBundle;
 import org.openide.nodes.Children;
@@ -25,15 +24,11 @@ import org.openide.nodes.Index;
 import org.openide.nodes.Node;
 import org.openide.explorer.*;
 import org.openide.explorer.propertysheet.*;
-import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
-import org.openide.util.HelpCtx;
 
-import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 
 import org.netbeans.modules.vcs.advanced.commands.*;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
