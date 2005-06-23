@@ -17,7 +17,6 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -189,8 +188,8 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
     }
     
     public String name() {
-        return MessageFormat.format (NbBundle.getMessage(NewEJBFreeformProjectWizardIterator.class, "TXT_NewEJBFreeformProjectWizardIterator_TitleFormat"), // NOI18N
-            new Object[] {new Integer (index + 1), new Integer (panels.length) });
+        return NbBundle.getMessage(NewEJBFreeformProjectWizardIterator.class, "TXT_NewEJBFreeformProjectWizardIterator_TitleFormat",
+            new Object[] {new Integer (index + 1), new Integer (panels.length)} );
     }
     
     public boolean hasNext() {
