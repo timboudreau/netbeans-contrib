@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -38,7 +38,7 @@ public class CvsBranchFrame extends javax.swing.JFrame {
         initComponents ();
         initAccessibility();
         initBranchDraw ();
-        setTitle(g("CvsBranchFrame.title", branches.getFileName()));
+        setTitle(NbBundle.getMessage(CvsBranchFrame.class, "CvsBranchFrame.title", branches.getFileName()));
         pack ();
         HelpCtx.setHelpIDString (getRootPane (), CvsBranchFrame.class.getName ());
         this.addWindowListener (new WindowAdapter() {
@@ -268,9 +268,9 @@ public class CvsBranchFrame extends javax.swing.JFrame {
             if (rev != null) return rev;
             Vector branches = item.getBranches();
             if (branches != null) {
-                Enumeration enum = branches.elements();
-                while (enum.hasMoreElements()) {
-                    CvsRevisionGraphItem branch = (CvsRevisionGraphItem) enum.nextElement();
+                Enumeration en = branches.elements();
+                while (en.hasMoreElements()) {
+                    CvsRevisionGraphItem branch = (CvsRevisionGraphItem) en.nextElement();
                     //if (branch.getXPos() == xPos && branch.getYPos() == yPos) return branch.getRevision();
                     rev = getRevision(xPos, yPos, branch.next);
                     if (rev != null) return rev;
@@ -328,9 +328,9 @@ public class CvsBranchFrame extends javax.swing.JFrame {
             int width = 0;
             java.awt.FontMetrics fm = g.getFontMetrics();
             Vector revisions = logInfo.getRevisions();
-            Enumeration enum = revisions.elements();
-            while (enum.hasMoreElements()) {
-                String revision = (String) enum.nextElement();
+            Enumeration en = revisions.elements();
+            while (en.hasMoreElements()) {
+                String revision = (String) en.nextElement();
                 int w = fm.stringWidth(revision);
                 if (w > width) width = w;
             }
@@ -360,9 +360,9 @@ public class CvsBranchFrame extends javax.swing.JFrame {
             paintRevision(g, item.getXPos(), item.getYPos(), item.getRevision());
             Vector branches = item.getBranches();
             if (branches != null) {
-                Enumeration enum = branches.elements();
-                while (enum.hasMoreElements()) {
-                    CvsRevisionGraphItem branch = (CvsRevisionGraphItem) enum.nextElement();
+                Enumeration en = branches.elements();
+                while (en.hasMoreElements()) {
+                    CvsRevisionGraphItem branch = (CvsRevisionGraphItem) en.nextElement();
                     String branchName = branch.getRevision();
                     //java.awt.Point point = (java.awt.Point) branchPositions.get(branchName);
                     //paintBranch(g, point.x, point.y - 1, branchName);
@@ -418,14 +418,6 @@ public class CvsBranchFrame extends javax.swing.JFrame {
                 }
             }
         }
-    }
-
-    private String g(String s) {
-        //D.deb("getting "+s);
-        return org.openide.util.NbBundle.getBundle(CvsBranchFrame.class).getString (s);
-    }
-    private String  g(String s, Object obj) {
-        return java.text.MessageFormat.format (g(s), new Object[] { obj });
     }
 
     private CvsLogInfo logInfo;
