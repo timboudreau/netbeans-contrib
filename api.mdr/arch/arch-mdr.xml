@@ -32,7 +32,7 @@
     <ul>
         <li>The reflective JMI API and JMI interfaces generated for
             MOF metamodel. These are located in javax.jmi package.</li>
-        <li>Proprietary <api name="MDRAPI" category="stable" group="java"  type="export" url="http://www.netbeans.org/download/dev/javadoc/MDRAPI"/> classes exposing additional functionality not standardized by JMI (even notifications mechanism, concept of a repository, JMI mapper, etc.)</li>
+        <li>Proprietary <api name="MDRAPI" category="stable" group="java"  type="export" url="@TOP@"/> classes exposing additional functionality not standardized by JMI (even notifications mechanism, concept of a repository, JMI mapper, etc.)</li>
     </ul>
     By MDR a new kind of API is introduced - JMI interfaces generated from a given metamodel.
     Since it is expected that the number of NetBeans modules that will use MOF metamodels
