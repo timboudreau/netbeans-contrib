@@ -46,8 +46,8 @@ public final class Adaptors extends java.lang.Object {
             Singletonizer impl,
             Initializer initCall,
             Initializer initListener,
-            Deinitializer gc,
-            Deinitializer noListener
+            Uninitializer gc,
+            Uninitializer noListener
     ) {
         return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl, initCall, initListener, noListener, gc);
     }

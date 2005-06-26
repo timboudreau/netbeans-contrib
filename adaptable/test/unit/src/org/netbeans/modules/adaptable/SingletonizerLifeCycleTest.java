@@ -17,7 +17,7 @@ import java.io.Serializable;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.spi.adaptable.Adaptors;
-import org.netbeans.spi.adaptable.Deinitializer;
+import org.netbeans.spi.adaptable.Uninitializer;
 import org.netbeans.spi.adaptable.Initializer;
 import org.netbeans.spi.adaptable.Singletonizer;
 
@@ -134,7 +134,7 @@ public class SingletonizerLifeCycleTest extends SingletonizerTest {
     }
     
     
-    protected static final class InitDeinit implements Initializer, Deinitializer {
+    protected static final class InitDeinit implements Initializer, Uninitializer {
         private int called = 0;
         private Object lastCalledOn = null;
         
@@ -143,7 +143,7 @@ public class SingletonizerLifeCycleTest extends SingletonizerTest {
             lastCalledOn = representedObject;
         }
 
-        public void deinitialize(Object representedObject) {
+        public void uninitialize(Object representedObject) {
             called++;
             lastCalledOn = representedObject;
         }

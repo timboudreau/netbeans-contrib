@@ -20,7 +20,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.*;
 import org.netbeans.spi.adaptable.Initializer;
-import org.netbeans.spi.adaptable.Deinitializer;
+import org.netbeans.spi.adaptable.Uninitializer;
 import org.netbeans.spi.adaptable.Singletonizer;
 
 /** A bunch of utility methods that support making functionality
@@ -42,8 +42,8 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
     /** fields for life cycle control */
     final Initializer initCall;
     final Initializer initListener;
-    final Deinitializer noListener;
-    final Deinitializer gc;
+    final Uninitializer noListener;
+    final Uninitializer gc;
     
     /** We control the life cycle */
     private SingletonizerImpl (
@@ -51,8 +51,8 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         Singletonizer single,
         Initializer initCall,
         Initializer initListener,
-        Deinitializer noListener,
-        Deinitializer gc
+        Uninitializer noListener,
+        Uninitializer gc
     ) {
         this.classes = classes;
         this.single = single;
@@ -80,8 +80,8 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         org.netbeans.spi.adaptable.Singletonizer impl,
         Initializer initCall,
         Initializer initListener,
-        Deinitializer noListener,
-        Deinitializer gc
+        Uninitializer noListener,
+        Uninitializer gc
     ) {
         for (int i = 0; i < classes.length; i++) {
             if (!classes[i].isInterface()) {
@@ -221,7 +221,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             }
             
             if (callRemoved && ref.getImpl().noListener != null) {
-                ref.getImpl().noListener.deinitialize (ref.getRepresentedObject());
+                ref.getImpl().noListener.uninitialize (ref.getRepresentedObject());
             }
         }
         
@@ -347,10 +347,10 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                     break;
                 }
                 if (ref.getImpl().gc != null) {
-                    ref.getImpl().gc.deinitialize (ref.getRepresentedObject());
+                    ref.getImpl().gc.uninitialize (ref.getRepresentedObject());
                 }
                 if (ref.getImpl().noListener != null) {
-                    ref.getImpl().noListener.deinitialize (ref.getRepresentedObject());
+                    ref.getImpl().noListener.uninitialize (ref.getRepresentedObject());
                 }
                 ref.getImpl().removeObject(ref.getRepresentedObject());
                 ref = (AdaptableRef)QUEUE.poll ();
