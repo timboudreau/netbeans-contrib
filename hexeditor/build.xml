@@ -16,26 +16,9 @@ Microsystems, Inc. All Rights Reserved.
   
   <import file="../../nbbuild/templates/projectized.xml"/>
   
-  <target name="init" depends="projectized.init">
-    <mkdir dir="ext"/>
-    <copy file="../hexedit/dist/HexEdit.jar" tofile="ext/HexEdit.jar" failonerror="true"/>
-    <patternset id="contrib/samplemodule/hexeditor.files">
-      <include name="ext/*.jar"/>
-    </patternset>
-  </target>
-  
-  <target name="netbeans" depends="projectized.netbeans">
-    <mkdir dir="${cluster}/${nb.modules.dir}/ext"/>
-    <copy todir="${cluster}/${nb.modules.dir}/ext">
-      <fileset dir="ext">
-        <include name="*.jar"/>
-      </fileset>
-    </copy>
-  </target>
-  
-  <target name="clean" depends="projectized.clean">
-    <delete dir="ext"/>
+  <target name="netbeans-extra" depends="build-init">
+    <mkdir dir="${cluster}/modules/ext"/>
+    <copy file="../hexedit/dist/hexedit.jar" todir="${cluster}/modules/ext"/>
   </target>
   
 </project>
-

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.hexeditor;
@@ -27,40 +27,39 @@ import org.openide.util.actions.*;
 import org.openide.windows.TopComponent;
 
 /**
- * Action that opens the Navigator window
+ * Action that opens a Hex Editor
  *
  * @author Tim Boudreau
  */
-public class HexEditAction extends CallableSystemAction {
+public class HexEditAction extends CookieAction {
     
     public HexEditAction() {
     }
     
-    public void performAction () {
-        Node[] n = TopComponent.getRegistry().getActivatedNodes();
-        if (n.length != 1) {
-            Toolkit.getDefaultToolkit().beep();
-            return;
-        }
+    public void performAction (Node[] n) {
         DataObject dob = (DataObject) n[0].getLookup().lookup (DataObject.class);
-        if (dob != null && dob.isValid()) {
-            FileObject fileObject = dob.getPrimaryFile();
-            if (fileObject != null && fileObject.isValid() && !fileObject.isVirtual()) {
-                File f = FileUtil.toFile (fileObject);
-                if (f != null) {
-                    TopComponent tc = new TopComponent (n[0].getLookup());
-                    tc.setDisplayName (n[0].getDisplayName());
-                    tc.setLayout (new BorderLayout());
-                    try {
-                        tc.add (new HexEditPanel (f), BorderLayout.CENTER);
-                    } catch (FileNotFoundException fe) {
-                        ErrorManager.getDefault().notify (fe);
-                    }
-                    tc.open();
-                    tc.requestActive();
-                }
+        FileObject fileObject = dob.getPrimaryFile();
+        File f = FileUtil.toFile (fileObject);
+        if (f != null && f.isFile()) {
+            TopComponent tc = new TopComponent (n[0].getLookup());
+            tc.setDisplayName (n[0].getDisplayName());
+            tc.setLayout (new BorderLayout());
+            try {
+                tc.add (new HexEditPanel (f), BorderLayout.CENTER);
+                tc.open();
+                tc.requestActive();
+            } catch (FileNotFoundException fe) {
+                ErrorManager.getDefault().notify (fe);
             }
         }
+    }
+    
+    protected Class[] cookieClasses() {
+        return new Class[] { DataObject.class };
+    }
+    
+    protected int mode() {
+        return CookieAction.MODE_EXACTLY_ONE;
     }
 
     public String getName () {
