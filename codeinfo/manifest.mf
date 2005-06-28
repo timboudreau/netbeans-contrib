@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.codeinfo
+OpenIDE-Module-Layer: org/netbeans/modules/codeinfo/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/codeinfo/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
