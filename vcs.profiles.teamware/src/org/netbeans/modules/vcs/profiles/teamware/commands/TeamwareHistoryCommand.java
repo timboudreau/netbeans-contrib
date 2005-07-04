@@ -54,20 +54,7 @@ public class TeamwareHistoryCommand implements VcsAdditionalCommand {
 
         File file = TeamwareSupport.getFile(vars);
         SFile sFile = new SFile(file);
-        SortedSet revisions = new TreeSet(new Comparator() {
-            public int compare(Object o1, Object o2) {
-                SRevisionItem rev1 = (SRevisionItem) o1;
-                SRevisionItem rev2 = (SRevisionItem) o2;
-                long diff = rev1.getLongDate() - rev2.getLongDate();
-                return diff > 0 ? 1 : (diff < 0 ? -1 : 0);
-            }
-        });
-        for (Iterator i = sFile.getRevisions().iterator(); i.hasNext();) {
-            SRevisionItem item = (SRevisionItem) i.next();
-            if (item.getDate() != null) {
-                revisions.add(item);
-            }
-        }
+        SortedSet revisions = sFile.getExternalRevisions();
         int revWidth = 0;
         int dateWidth = 0;
         int whoWidth = 0;

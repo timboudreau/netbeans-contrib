@@ -43,7 +43,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TreeSet;
 import org.netbeans.api.diff.Difference;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
@@ -659,6 +661,31 @@ public class SFile {
         return revisionList;
     }
 
+    /** Some revisions are stored in the revision list must have no
+     * external meaning. For example, if there is a revision "1.2.1.1" then
+     * NetBeans will want a revision "1.2.1". However, 1.2.1 will not really
+     * exist. This method filters out these fake revision numbers.
+     *
+     * @return externally valid revisions, sorted by ascending date
+     */
+    public SortedSet getExternalRevisions() {
+        SortedSet revisions = new TreeSet(new Comparator() {
+            public int compare(Object o1, Object o2) {
+                SRevisionItem rev1 = (SRevisionItem) o1;
+                SRevisionItem rev2 = (SRevisionItem) o2;
+                long diff = rev1.getLongDate() - rev2.getLongDate();
+                return diff > 0 ? 1 : -1;
+            }
+        });
+        for (Iterator i = getRevisions().iterator(); i.hasNext();) {
+            SRevisionItem item = (SRevisionItem) i.next();
+            if (item.getDate() != null) {
+                revisions.add(item);
+            }
+        }
+        return revisions;
+    }
+    
     /** Parse the SCCS file to get revision details */
     private void readHeader(BufferedReader in) throws IOException {
         this.revisionList = new SRevisionList();
@@ -771,6 +798,7 @@ public class SFile {
     /** Parse the S file to get a specific revision */
     public String getAsString(SRevisionItem revision, boolean expandVariables)
             throws IOException {
+
         class GetStringVisitor extends LineVisitor {
             boolean dosFormat = false;//true;
             List lines = new ArrayList();
