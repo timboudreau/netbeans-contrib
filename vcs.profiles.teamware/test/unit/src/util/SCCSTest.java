@@ -95,6 +95,14 @@ public class SCCSTest extends NbTestCase {
         String[] argv = new String[args.length + 1];
         argv[0] = System.getProperty("sccs");
         System.arraycopy(args, 0, argv, 1, args.length);
+        StringBuffer command = new StringBuffer();
+        for (int i = 0; i < argv.length; i++) {
+            if (i > 0) {
+                command.append(" ");
+            }
+            command.append(argv[i].replace('/', File.separatorChar));
+        }
+        log(command.toString());
         Process p = Runtime.getRuntime().exec(argv, null, dir);
         class StreamCopier implements Runnable {
             InputStream in;
@@ -144,11 +152,15 @@ public class SCCSTest extends NbTestCase {
         String dataDir = System.getProperty("data.dir");
         File sccsDir = new File(dataDir, "SCCS");
         File[] dataFiles = sccsDir.listFiles();
+        List dataFileList = new ArrayList();
         for (int i = 0; i < dataFiles.length; i++) {
-            dataFiles[i] = new File(dataDir,
-                dataFiles[i].getName().substring(2));
+            if (dataFiles[i].getName().startsWith("s.")) {
+                dataFileList.add(new File(dataDir,
+                        dataFiles[i].getName().substring(2)));
+            }
         }
-        return dataFiles;
+        return (File[])
+                dataFileList.toArray(new File[dataFileList.size()]);
     }
     
     protected List parseLines(byte[] b) throws IOException {
@@ -237,7 +249,7 @@ public class SCCSTest extends NbTestCase {
                     + "'\nbut found '" + new String(b2, 0, i + 1) + "'");
             }
         }
-        assertEquals(b1.length, b2.length);
+        assertEquals("Array length differs", b1.length, b2.length);
     }
     
     protected void assertStringCollectionEquals(List linesA, List linesB) {

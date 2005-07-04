@@ -20,12 +20,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import junit.framework.*;
-import org.netbeans.junit.*;
 import util.SCCSTest;
 import org.netbeans.modules.vcs.profiles.teamware.util.SFile;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
-import org.netbeans.modules.vcscore.versioning.RevisionList;
+
 
 public class ListRevisionsTest extends SCCSTest {
 
@@ -53,7 +53,7 @@ public class ListRevisionsTest extends SCCSTest {
         exec(file.getParentFile(),
             new String[] { "prs", "-e", "-d:I:", file.getName() }, out, err);
         try {
-            assertEquals(sFile.getRevisions(), out);
+            assertEquals(sFile.getExternalRevisions(), out);
         } catch (AssertionFailedError e) {
             logToFile(file.getName() + ".out", out);
             logToFile(file.getName() + ".err", err);
@@ -63,14 +63,10 @@ public class ListRevisionsTest extends SCCSTest {
     
     // make sure the output of "sccs prs" matches the RevisionList obtained
     // by parsing the S file
-    private void assertEquals(RevisionList revisionList, ByteArrayOutputStream out)
+    private void assertEquals(Set revisionList, ByteArrayOutputStream out)
         throws IOException {
         List lines = parseLines(out.toByteArray());
-        List revisions1 = new ArrayList();
-        for (Iterator j = lines.iterator(); j.hasNext();) {
-            String line = (String) j.next();
-            revisions1.add(line);
-        }
+        List revisions1 = new ArrayList(lines);
         List revisions2 = new ArrayList();
         for (Iterator j = revisionList.iterator(); j.hasNext();) {
             RevisionItem item = (RevisionItem) j.next();
@@ -78,11 +74,7 @@ public class ListRevisionsTest extends SCCSTest {
         }
         Collections.sort(revisions1);
         Collections.sort(revisions2);
-        try {
-            assertStringCollectionEquals(revisions1, revisions2);
-        } catch (AssertionFailedError e) {
-            
-        }
+        assertStringCollectionEquals(revisions1, revisions2);
     }
         
 }

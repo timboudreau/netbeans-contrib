@@ -19,12 +19,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import junit.framework.*;
-import org.netbeans.junit.*;
 import util.SCCSTest;
 import org.netbeans.modules.vcs.profiles.teamware.util.SFile;
 import org.netbeans.modules.vcs.profiles.teamware.util.SRevisionItem;
-import org.netbeans.modules.vcs.profiles.teamware.util.SRevisionList;
+
 
 public class VerifyRevisionsTest extends SCCSTest {
     
@@ -33,7 +34,7 @@ public class VerifyRevisionsTest extends SCCSTest {
         File[] files = getReadOnlyTestFiles();
         for (int i = 0; i < files.length; i++) {
             SFile sFile = new SFile(files[i]);
-            SRevisionList revisionList = sFile.getRevisions();
+            Set revisionList = sFile.getExternalRevisions();
             for (Iterator j = revisionList.iterator(); j.hasNext();) {
                 SRevisionItem item = (SRevisionItem) j.next();
                 suite.addTest(new VerifyRevisionsTest(files[i], item));
@@ -81,14 +82,14 @@ public class VerifyRevisionsTest extends SCCSTest {
             is.close();
             byte[] b1 = out.toByteArray();
             byte[] b2 = sFile.getAsBytes(revision, true);
-            log("Checking binary, expanded");
-            check(b1, b2, out, err);
             if (!sFile.isEncoded()) {
                 byte[] b3 = sFile.getAsString(revision, true)
                     .getBytes();
                 log("Checking ASCII, expanded");
-                check(b1, b3, out, err);
+                checkASCII(b1, b3, out, err);
             }
+            log("Checking binary, expanded");
+            check(b1, b2, out, err);
             tmpFile.delete();
         }
         // and unexpanded tags
@@ -113,14 +114,14 @@ public class VerifyRevisionsTest extends SCCSTest {
             is.close();
             byte[] b1 = out.toByteArray();
             byte[] b2 = sFile.getAsBytes(revision, false);
-            log("Checking binary, unexpanded");
-            check(b1, b2, out, err);
             if (!sFile.isEncoded()) {
                 byte[] b3 = sFile.getAsString(revision, false)
                     .getBytes();
                 log("Checking ASCII, unexpanded");
-                check(b1, b3, out, err);
+                checkASCII(b1, b3, out, err);
             }
+            log("Checking binary, unexpanded");
+            check(b1, b2, out, err);
             tmpFile.delete();
         }
     }
@@ -130,6 +131,23 @@ public class VerifyRevisionsTest extends SCCSTest {
 
         try {
             assertEquals(b1, b2);
+        } catch (AssertionFailedError e) {
+            log("Expected: ");
+            log(out);
+            log(err);
+            log("but got:");
+            log(new String(b2));
+            throw e;
+        }
+    }
+
+    private void checkASCII(byte[] b1, byte[] b2,
+        ByteArrayOutputStream out, ByteArrayOutputStream err) throws IOException {
+
+        List lines1 = parseLines(b1);
+        List lines2 = parseLines(b2);
+        try {
+            assertStringCollectionEquals(lines1, lines2);
         } catch (AssertionFailedError e) {
             log("Expected: ");
             log(out);

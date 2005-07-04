@@ -22,13 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
+import java.util.Set;
 import junit.framework.*;
-import org.netbeans.junit.*;
 import util.SCCSTest;
 import org.netbeans.modules.vcs.profiles.teamware.util.SFile;
 import org.netbeans.modules.vcs.profiles.teamware.util.SRevisionItem;
-import org.netbeans.modules.vcs.profiles.teamware.util.SRevisionList;
-import org.netbeans.modules.vcs.profiles.teamware.util.UU;
+
 
 public class ModifyTest extends SCCSTest {
     
@@ -58,17 +57,22 @@ public class ModifyTest extends SCCSTest {
         file = getFileCopy(file);
         SFile sFile = new SFile(file);
         String[] modificationInstructions =
-                sFile.getRevisions().getActiveRevision().getMessage().split(";");
+                sFile.getRevisions().getActiveRevision().getMessage().trim().split(";");
         if (modificationInstructions.length == 0) {
             return;
         }
         Modification[] mods = new Modification[modificationInstructions.length];
         for (int i = 0; i < mods.length; i++) {
-            String[] s = modificationInstructions[i].split("[+-]");
-            mods[i] = new Modification();
-            mods[i].index = Integer.parseInt(s[0]);
-            mods[i].add = Integer.parseInt(s[1]);
-            mods[i].remove = Integer.parseInt(s[2]);
+            try {
+                String[] s = modificationInstructions[i].split("[+-]");
+                mods[i] = new Modification();
+                mods[i].index = Integer.parseInt(s[0]);
+                mods[i].add = Integer.parseInt(s[1]);
+                mods[i].remove = Integer.parseInt(s[2]);
+            } catch (NumberFormatException e) {
+                log("Not a modification: " + modificationInstructions[i]);
+                return;
+            }
         }
         boolean encoded = sFile.isEncoded();
         log("Modifying revision " + file + (encoded ? " (binary)" : ""));
@@ -120,7 +124,7 @@ public class ModifyTest extends SCCSTest {
         out.write(baos.toByteArray());
         out.close();
         sFile.delget("Applied modifications");
-        SRevisionList revisionList = sFile.getRevisions();
+        Set revisionList = sFile.getExternalRevisions();
         for (Iterator i = revisionList.iterator(); i.hasNext();) {
             verifyRevision(file, sFile, (SRevisionItem) i.next());
         }
