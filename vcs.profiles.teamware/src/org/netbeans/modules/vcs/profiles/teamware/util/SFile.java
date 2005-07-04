@@ -183,11 +183,10 @@ public class SFile {
         SRevisionItem oldRevision =
             getRevisions().getRevisionByName(pFileData[0]);
         BufferedReader br1 =
-            new BufferedReader(new StringReader(getAsString(oldRevision, false)));
-        BufferedReader br2 = new BufferedReader(new StringReader(fileContents));
-        DiffProvider dp =
-            (DiffProvider) Lookup.getDefault().lookup(DiffProvider.class);
-        final Difference[] diffs = dp.computeDiff(br1, br2);
+            new LineReader(new StringReader(getAsString(oldRevision, false)));
+        BufferedReader br2 = new LineReader(new StringReader(fileContents));
+        
+        final Difference[] diffs = getBuiltInDiffProvider().computeDiff(br1, br2);
         if (diffs.length == 0) {
             unedit();
             return;
@@ -488,13 +487,36 @@ public class SFile {
         File baseFile = getBaseFile();
         byte[] currentBaseFileData = readFileData(baseFile);
         if (!dataMatches(newBaseFileData, currentBaseFileData)) {
+            String testCase = createDelGetTestCase();
+            File tmpFile = File.createTempFile("s.test.", ".case");
+            tmpFile.deleteOnExit();
+            FileWriter tmpFileWriter = new FileWriter(tmpFile);
+            tmpFileWriter.write(testCase);
+            tmpFileWriter.close();
+
+            File oldFile = File.createTempFile("test.", ".old");
+            File newFile = File.createTempFile("test.", ".new");
+            File sFile2 = File.createTempFile("test.", ".s");
+            oldFile.deleteOnExit();
+            newFile.deleteOnExit();
+            sFile2.deleteOnExit();
+            FileOutputStream oldFileOut = new FileOutputStream(oldFile);
+            oldFileOut.write(currentBaseFileData);
+            oldFileOut.close();
+            FileOutputStream newFileOut = new FileOutputStream(newFile);
+            newFileOut.write(newBaseFileData);
+            newFileOut.close();
+            FileOutputStream sFileOut = new FileOutputStream(sFile2);
+            sFileOut.write(sFileContents);
+            sFileOut.close();
+
             String reportThis =
                 "Algorithm exception; this operation would corrupt your SCCS data.\n\n"
                 + "\nYour data has been preserved. You should use the command line"
                 + " sccs on this file.\n\n"
                 + "Please report this bug at http://www.netbeans.org/issues/enter_bug.cgi?component=vcsgeneric\n"
-                + "attaching the following test case:\n\n"
-                + createDelGetTestCase();
+                + "attaching the file\n\n"
+                + tmpFile;
             throw new IOException(reportThis);
         }
         newSFile.sFile.delete();
@@ -621,6 +643,7 @@ public class SFile {
                 in = new LineReader(new FileReader(sFile));
                 readHeader(in);
             } catch (Exception e) {
+                e.printStackTrace(System.err);
                 // return an empty list
                 return new SRevisionList();
             } finally {
@@ -645,6 +668,9 @@ public class SFile {
         boolean done = false;
         while (!done) {
             String s = in.readLine();
+            if (s.endsWith("\r")) {
+                s = s.substring(0, s.length() - 1);
+            }
             if (s == null || s.length() < 2 || s.charAt(0) != (char) 1) {
                 done = true;
                 continue;
@@ -703,7 +729,7 @@ public class SFile {
                 case 'd': {
                     String[] data = s.split(" ");
                     int sn1 = Integer.parseInt(data[6]);
-                    int sn2 = Integer.parseInt(data[7]);
+                    int sn2 = Integer.parseInt(data[7].trim());
                     this.greatestSerialNumber =
                         Math.max(this.greatestSerialNumber, sn1);
                     if (data[1].equals("D")) {
@@ -1062,6 +1088,20 @@ public class SFile {
             .format(new Date(time));
     }
     
+    private static DiffProvider getBuiltInDiffProvider() {
+        // The built-in diff provider works better with dos/unix line endings,
+        // so use that if it is available
+        Lookup.Template template = new Lookup.Template(DiffProvider.class,
+                "SL[/DiffProviders/org-netbeans-modules-diff-builtin-provider-BuiltInDiffProvider", null);
+        DiffProvider provider = (DiffProvider)
+                Lookup.getDefault().lookupItem(template).getInstance();
+        if (provider == null) {
+            provider = (DiffProvider)
+                    Lookup.getDefault().lookup(DiffProvider.class);
+        }
+        return provider;
+    }
+    
     private String createDelGetTestCase() throws IOException {
         File baseFile = getBaseFile();
         byte[] fileData = readFileData(baseFile);
@@ -1079,10 +1119,8 @@ public class SFile {
             getRevisions().getRevisionByName(pFileData[0]);
         BufferedReader br1 =
             new BufferedReader(new StringReader(getAsString(oldRevision, false)));
-        BufferedReader br2 = new BufferedReader(new StringReader(fileContents));
-        DiffProvider dp =
-            (DiffProvider) Lookup.getDefault().lookup(DiffProvider.class);
-        final Difference[] diffs = dp.computeDiff(br1, br2);
+        BufferedReader br2 = new LineReader(new StringReader(fileContents));
+        final Difference[] diffs = getBuiltInDiffProvider().computeDiff(br1, br2);
         final StringBuffer sb = new StringBuffer();
         for (int i = 0; i < diffs.length; i++) {
             if (i > 0) {
@@ -1166,6 +1204,9 @@ public class SFile {
             int lineNumber = 1;
             public void includeLine(String line) {
                 sb.append("Line " + (lineNumber++));
+                if (line.endsWith("\r")) {
+                    sb.append("\r");
+                }
                 sb.append("\n");
             }
             public void excludeLine(String line) {
@@ -1181,5 +1222,5 @@ public class SFile {
         String checksum = new String(checksum(s.getBytes()));
         return "\u0001h" + checksum + "\n" + sb.toString();
     }
-            
+    
 }
