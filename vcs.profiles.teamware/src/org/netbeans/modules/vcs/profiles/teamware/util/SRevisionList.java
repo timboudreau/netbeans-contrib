@@ -79,6 +79,7 @@ public class SRevisionList extends RevisionList {
         LinkedList waitingList = new LinkedList();
         waitingList.add(String.valueOf(item.getSerialNumber()));
         Set nonTransitiveAdditions = new HashSet();
+        Set nonTransitiveRemovals = new HashSet();
         while (!waitingList.isEmpty()) {
             String sn = (String) waitingList.removeFirst();
             if (!sns.contains(sn)) {
@@ -102,17 +103,20 @@ public class SRevisionList extends RevisionList {
                         additionalInclusions.addAll(includedItem.includedSerialNumbers());
                     }
                 }
+                Set exclusions = item.excludedSerialNumbers();
+                for (Iterator i = exclusions.iterator(); i.hasNext();) {
+                    nonTransitiveRemovals.add(i.next());
+                }
             }
             sn = String.valueOf(item.getPredecessor());
             if (!sns.contains(sn) && !waitingList.contains(sn)) {
                 waitingList.add(sn);
             }
-            sns.removeAll(item.excludedSerialNumbers());
             sns.removeAll(item.ignoredSerialNumbers());
-            waitingList.removeAll(item.excludedSerialNumbers());
             waitingList.removeAll(item.ignoredSerialNumbers());
         }
         sns.addAll(nonTransitiveAdditions);
+        sns.removeAll(nonTransitiveRemovals);
         return sns;
     }
     
