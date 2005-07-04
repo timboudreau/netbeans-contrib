@@ -54,8 +54,8 @@ public class SRevisionItem extends NumDotRevisionItem {
     
     public long getLongDate() {
         try {
-            DateFormat df = new SimpleDateFormat("yy/MM/dd");
-            return df.parse(getDate()).getTime();
+            DateFormat df = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+            return df.parse(getDate() + " "  + getTime()).getTime();
         } catch (ParseException e) {
             return 0L;
         }
