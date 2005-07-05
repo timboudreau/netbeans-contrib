@@ -29,9 +29,6 @@ public class SRevisionList extends RevisionList {
     private SRevisionItem activeRevision = null;
     
     public synchronized void add(RevisionItem item) {
-        if (activeRevision == null) {
-            activeRevision = (SRevisionItem) item;
-        }
         String revision = item.getRevision();
         if (NumDotRevisionItem.numDots(revision) > 1) {
             // Assure that we have the branch for that revision created
@@ -45,6 +42,10 @@ public class SRevisionList extends RevisionList {
             }
             if (branch != null) {
                 super.add(new SRevisionItem(branch));
+            }
+        } else {
+            if (activeRevision == null) {
+                activeRevision = (SRevisionItem) item;
             }
         }
         super.add(item);
@@ -80,6 +81,7 @@ public class SRevisionList extends RevisionList {
         waitingList.add(String.valueOf(item.getSerialNumber()));
         Set nonTransitiveAdditions = new HashSet();
         Set nonTransitiveRemovals = new HashSet();
+        Set ignores = new HashSet();
         while (!waitingList.isEmpty()) {
             String sn = (String) waitingList.removeFirst();
             if (!sns.contains(sn)) {
@@ -103,20 +105,17 @@ public class SRevisionList extends RevisionList {
                         additionalInclusions.addAll(includedItem.includedSerialNumbers());
                     }
                 }
-                Set exclusions = item.excludedSerialNumbers();
-                for (Iterator i = exclusions.iterator(); i.hasNext();) {
-                    nonTransitiveRemovals.add(i.next());
-                }
+                nonTransitiveRemovals.addAll(item.excludedSerialNumbers());
+                ignores.addAll(item.ignoredSerialNumbers());
             }
             sn = String.valueOf(item.getPredecessor());
             if (!sns.contains(sn) && !waitingList.contains(sn)) {
                 waitingList.add(sn);
             }
-            sns.removeAll(item.ignoredSerialNumbers());
-            waitingList.removeAll(item.ignoredSerialNumbers());
         }
         sns.addAll(nonTransitiveAdditions);
         sns.removeAll(nonTransitiveRemovals);
+        sns.removeAll(ignores);
         return sns;
     }
     
