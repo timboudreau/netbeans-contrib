@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import org.netbeans.api.diff.Difference;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -1096,14 +1097,19 @@ public class SFile {
         return line;
     }
     
+    private static DateFormat yymmddFormat = new SimpleDateFormat("yy/MM/dd");
+    private static DateFormat mmddyyFormat = new SimpleDateFormat("MM/dd/yy");
+    static {
+        yymmddFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        mmddyyFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+    
     private static String yymmdd(long date) {
-        DateFormat df = new SimpleDateFormat("yy/MM/dd");
-        return df.format(new Date(date));
+        return yymmddFormat.format(new Date(date));
     }
 
     private static String mmddyy(long date) {
-        DateFormat df = new SimpleDateFormat("MM/dd/yy");
-        return df.format(new Date(date));
+        return mmddyyFormat.format(new Date(date));
     }
     
     private static String time(long time) {
