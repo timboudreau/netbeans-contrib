@@ -22,9 +22,14 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TimeZone;
 import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem;
 
 public class SRevisionItem extends NumDotRevisionItem {
+    private static DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
     private int serialNumber;
     private int predecessor;
     private String time;
@@ -54,8 +59,23 @@ public class SRevisionItem extends NumDotRevisionItem {
     
     public long getLongDate() {
         try {
-            DateFormat df = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
-            return df.parse(getDate() + " "  + getTime()).getTime();
+            String dateString = getDate() + " " + getTime();
+            int year = Integer.parseInt(dateString.substring(0, 2));
+            if (year >= 70 && year <= 99) {
+                dateString = "19" + dateString;
+            } else if (year == 69) {
+                // strange SCCS behavior emulated here
+                dateString = "1970" + dateString.substring(2);
+            } else {
+                dateString = "20" + dateString;
+            }
+            long date = dateFormat.parse(dateString).getTime();
+            if (date / 1000l > 0x7fffffffl) {
+                dateString = "19" + dateString.substring(2);
+                date = dateFormat.parse(dateString).getTime();
+                date = ((date / 1000l) - 0x43E80000l) * 1000l;
+            }
+            return date;
         } catch (ParseException e) {
             return 0L;
         }
