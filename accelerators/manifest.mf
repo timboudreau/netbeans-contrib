@@ -3,6 +3,10 @@ OpenIDE-Module: accelerators
 OpenIDE-Module-Layer: ro/level7/netbeans/mf-layer.xml
 OpenIDE-Module-Localizing-Bundle: ro/level7/netbeans/Bundle.properties
 OpenIDE-Module-Specification-Version: 0.4.0
+OpenIDE-Module-Install: ro/level7/netbeans/AcceleratorsModule.class
 
 Name: ro/level7/netbeans/fastopen/FastOpenAction.class
+OpenIDE-Module-Class: Action
+
+Name: net/movzx/netbeans/terminal/RunTerminalAction.class
 OpenIDE-Module-Class: Action
