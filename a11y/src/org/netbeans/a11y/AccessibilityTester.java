@@ -119,7 +119,7 @@ public class AccessibilityTester{
         
         /* If Tester is running on jdk 1.4 or higner, testing approach is another as on 1.3 <= reason of new Focus Management implementation */
         String javaVersion = System.getProperty("java.version");
-        if(javaVersion.indexOf("1.4") != -1 || javaVersion.indexOf("1.5") != -1)
+        if(javaVersion.indexOf("1.4") != -1 || javaVersion.indexOf("1.5") != -1 || javaVersion.indexOf("1.6") != -1)
             jdk14_higherTesting = true;
         
         TAB_TRAVERSAL_TIME_OUT = 15000;

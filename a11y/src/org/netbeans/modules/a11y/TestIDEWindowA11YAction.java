@@ -30,7 +30,7 @@ public class TestIDEWindowA11YAction extends NodeAction {
     
     protected void performAction(Node[] nodes) {
         UIAccessibilityTester at = UIAccessibilityTester.getInstance();
-        at.show();
+        at.setVisible(true);
         at.requestFocus();
     }
     

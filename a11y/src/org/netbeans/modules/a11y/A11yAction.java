@@ -168,7 +168,7 @@ public class A11yAction extends CookieAction {
             frame.setLocation(  screenSize.width+20 > frameSize.width ?     (screenSize.width - frameSize.width) / 2 : 0,
                                 screenSize.height+20 > frameSize.height ?   (screenSize.height - frameSize.height) / 2 : 0);
             
-            frame.show();
+            frame.setVisible(true);
             
             
             threadInterrupt();
