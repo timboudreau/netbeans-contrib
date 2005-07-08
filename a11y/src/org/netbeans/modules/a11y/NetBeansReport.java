@@ -91,7 +91,7 @@ public class NetBeansReport extends AccessibilityTester.ReportGenerator{
     private void printComponentDetails(PrintWriter out, Component comp){
         StringBuffer componentPrintString = new StringBuffer("");
         
-        RADComponent metacomp = replicator.getMetaComponent(comp);
+        RADComponent metacomp = replicator.getTopMetaComponent();
         if (metacomp != null){
             String classname = comp.getClass().toString();
             
