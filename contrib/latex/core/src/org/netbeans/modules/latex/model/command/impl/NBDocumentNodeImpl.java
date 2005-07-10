@@ -30,7 +30,6 @@ import java.util.Set;
 import org.netbeans.modules.latex.model.command.Command;
 
 import org.openide.filesystems.*;
-import org.openide.util.WeakListener;
 
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.TraverseHandler;
