@@ -545,7 +545,8 @@ public final class StatusFormat {
                                                  Map possibleFileStatusInfoMap,
                                                  int[] multiFilesAnnotationTypes) {
         
-        assert name.indexOf(File.separatorChar) == -1 : "#51577 trap " + name;  // NOI18N
+        //assert name.indexOf(File.separatorChar) == -1 : "#51577 trap " + name;  // NOI18N
+        //The name *can* have a slash in it's name - e.g. "I/O APIs" - display name of a project node.
 
         Hashtable vars = new Hashtable();
         name = escapeSpecialHTMLCharacters(name);
