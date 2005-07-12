@@ -242,22 +242,22 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
     
     private Map replaceMap;
     
-    private Map getReplaceMap(Project project) throws IOException {
+    private Map getReplaceMap(Project project) {
         if(replaceMap == null) {
             replaceMap = new HashMap();
             File xtestHome = InstalledFileLocator.getDefault().
                     locate("xtest-distribution", "org.netbeans.modules.xtest", false);  // NOI18N
-            replaceMap.put("__XTEST_HOME__", xtestHome.getCanonicalPath()); // NOI18N
+            replaceMap.put("__XTEST_HOME__", xtestHome.getAbsolutePath()); // NOI18N
             String projectName = ProjectUtils.getInformation(project).getName();
             replaceMap.put("__XTEST_MODULE__", projectName); // NOI18N
             File netbeansDestDir = InstalledFileLocator.getDefault().
                     locate("core/core.jar", null, false);  // NOI18N
             netbeansDestDir = new File(netbeansDestDir, "../../.."); // NOI18N
-            replaceMap.put("__NETBEANS_DEST_DIR__", netbeansDestDir.getCanonicalPath()); // NOI18N
+            replaceMap.put("__NETBEANS_DEST_DIR__", netbeansDestDir.getAbsolutePath()); // NOI18N
             File jemmyJar = InstalledFileLocator.getDefault().
                     locate("modules/ext/jemmy.jar", "org.netbeans.modules.jemmy", false);  // NOI18N
             if(jemmyJar != null) {
-                replaceMap.put("__JEMMY_JAR__", jemmyJar.getCanonicalPath()); // NOI18N
+                replaceMap.put("__JEMMY_JAR__", jemmyJar.getAbsolutePath()); // NOI18N
             } else {
                 replaceMap.put("__JEMMY_JAR__", "jemmy.jar"); // NOI18N
             }

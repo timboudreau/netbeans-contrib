@@ -13,8 +13,6 @@
 package org.netbeans.modules.xtest;
 
 import java.io.File;
-import java.io.IOException;
-import org.openide.ErrorManager;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.modules.ModuleInstall;
 
@@ -23,10 +21,6 @@ public class XTestModule extends ModuleInstall {
     public void restored () {
         File xtestHome = InstalledFileLocator.getDefault().
             locate("xtest-distribution", "org.netbeans.modules.xtest", false);  // NOI18N
-        try {
-            System.setProperty("xtest.home", xtestHome.getCanonicalPath()); // NOI18N
-        } catch (IOException e) {
-            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, e);
-        }
+        System.setProperty("xtest.home", xtestHome.getAbsolutePath()); // NOI18N
     }
 }
