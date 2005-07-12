@@ -41,6 +41,7 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.jmiutils</code-name-base>
+                    <build-prerequisite/>
                     <run-dependency>
                         <release-version>1</release-version>
                         <implementation-version/>

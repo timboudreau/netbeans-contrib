@@ -60,7 +60,16 @@ Microsystems, Inc. All Rights Reserved.
     <copy file="torelease/dummy" tofile="${cluster}/${tomcat.filename}/common/classes/dummy" includeEmptyDirs="false"/>
   </target>
 
-  <target name="netbeans" depends="jars,release" description="Builds the module">
+  <target name="modulexml" depends="init">
+    <mkdir dir="${cluster}/config/Modules"/>
+    <createmodulexml xmldir="${cluster}/config/Modules">
+      <eager dir="${cluster}">
+        <include name="modules/eager/tomcat5-bundled.jar"/>
+      </eager>
+    </createmodulexml>
+  </target>
+
+  <target name="netbeans" depends="jars,release,modulexml" description="Builds the module">
     <genlist outputfiledir="${cluster}" module="modules/eager/tomcat5-bundled.jar">
        <fileset dir="${cluster}">
          <patternset refID="tomcatint/tomcat5/bundled.files"/>
