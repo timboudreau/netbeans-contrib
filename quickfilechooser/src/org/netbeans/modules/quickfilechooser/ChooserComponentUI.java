@@ -20,20 +20,34 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -43,6 +57,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicFileChooserUI;
+import org.openide.util.NbBundle;
 
 /**
  * The UI for the {@link JFileChooser}.
@@ -55,6 +70,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     private JList completions;
     private String maximalCompletion;
     private boolean currentDirectoryChanging;
+    private JButton approve = null;
     
     public ChooserComponentUI(JFileChooser jfc) {
         super(jfc);
@@ -64,9 +80,29 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         return new ChooserComponentUI((JFileChooser) c);
     }
 
+    private JFileChooser filechooser = null;
+    private JComboBox box = null;
     public void installComponents(JFileChooser fc) {
         super.installComponents(fc);
         fc.setLayout(new BorderLayout());
+        filechooser = fc;
+        
+        String[] hist = getHistory();
+        JPanel histPanel = new JPanel();
+        histPanel.setBorder (BorderFactory.createEmptyBorder (0, 0, 5, 0));
+        box = new JComboBox (hist);
+
+        box.addActionListener (new HAL());
+        histPanel.setLayout (new BorderLayout());
+        JLabel histInstructions = new JLabel (NbBundle.getMessage (ChooserComponentUI.class, "LBL_History"));
+        histInstructions.setBorder (BorderFactory.createEmptyBorder (0, 0, 0, 5));
+        histInstructions.setLabelFor(box);
+        histPanel.add (box, BorderLayout.CENTER);
+        histPanel.add (histInstructions, BorderLayout.WEST);
+        if (getHistory().length == 0) {
+            box.setEnabled (false);
+        }
+        
         text = new JTextField(100);
         text.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
             Collections.singleton(AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_TAB, KeyEvent.CTRL_DOWN_MASK)));
@@ -75,6 +111,14 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, InputEvent.CTRL_DOWN_MASK), "delete-path-component");
         text.getActionMap().put("delete-path-component", new DeletePathComponentAction());
         text.setFont(new Font("Monospaced", Font.PLAIN, text.getFont().getSize())); // NOI18N
+        Action up = new UpDownAction (true);
+        Action down = new UpDownAction (false);
+        text.getActionMap().put("up", up);
+        text.getActionMap().put("down", down);
+        text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up"); //NOI18N
+        text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), 
+                "down"); //NOI18N
+        
         text.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
                 refreshCompletions();
@@ -84,14 +128,34 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             }
             public void changedUpdate(DocumentEvent e) {}
         });
-        fc.add(text, BorderLayout.PAGE_START);
+        JPanel pnl = new JPanel();
+        pnl.setLayout (new BorderLayout());
+        pnl.add (text, BorderLayout.CENTER);
+        JLabel instructions = new JLabel(NbBundle.getMessage(
+                ChooserComponentUI.class, 
+                "LBL_TextField")); //NOI18N
+        instructions.setLabelFor(text);
+        instructions.setBorder (BorderFactory.createEmptyBorder(12, 0, 0, 0));
+        histPanel.add (instructions, BorderLayout.SOUTH); //NOI18N
+        pnl.setBorder (BorderFactory.createEmptyBorder (12, 12, 0, 12));
+        pnl.add (histPanel, BorderLayout.NORTH);
+        
+        fc.add(pnl, BorderLayout.PAGE_START);
         completionsModel = new DefaultListModel();
         completions = new JList(completionsModel);
+        completions.addMouseListener (new CML());
+        
         completions.setVisibleRowCount(25);
         completions.setEnabled(false);
         completions.setCellRenderer(new FileCellRenderer());
-        fc.add(new JScrollPane(completions), BorderLayout.CENTER);
-	JButton approve = new JButton(getApproveButtonText(fc));
+        JScrollPane jsc = new JScrollPane(completions);
+        JPanel pnl2 = new JPanel();
+        pnl2.setLayout(new BorderLayout());
+        pnl2.add (jsc, BorderLayout.CENTER);
+        pnl2.setBorder (BorderFactory.createEmptyBorder(12, 12, 12, 0));
+        
+        fc.add(pnl2, BorderLayout.CENTER);
+	approve = new JButton(getApproveButtonText(fc));
 	approve.addActionListener(getApproveSelectionAction());
         approve.setDefaultCapable(true);
 	JButton cancel = new JButton(cancelButtonText);
@@ -101,13 +165,54 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         buttons.add(approve);
         buttons.add(cancel);
         fc.add(buttons, BorderLayout.SOUTH);
+        getAccessoryPanel().setBorder (
+                BorderFactory.createEmptyBorder (12,0,12,12));
         fc.add(getAccessoryPanel(), BorderLayout.EAST);
 	JComponent x = fc.getAccessory();
 	if (x != null) {
 	    getAccessoryPanel().add(x);
 	}
+        box.setFocusable(false);
+        updateButtons();
     }
+    
+    private void updateButtons() {
+        File f = getFileChooser().getSelectedFile();
 
+        if (getFileChooser() != null && getFileChooser().getFileFilter() != null && f != null) {
+            boolean accepted = getFileChooser().getFileFilter().accept(f);
+            getApproveSelectionAction().setEnabled(accepted);
+            approve.setEnabled(accepted);
+            if (accepted && approve.isShowing() && approve.getTopLevelAncestor() instanceof JDialog) {
+                JDialog dlg = (JDialog) approve.getTopLevelAncestor();
+                dlg.getRootPane().setDefaultButton (approve);
+            } else {
+                approve.setEnabled(false);
+            }
+        } else {
+            getApproveSelectionAction().setEnabled(false);
+            approve.setEnabled(false);
+        }
+    }
+    
+    
+    protected JButton getApproveButton(JFileChooser fc) {
+	return approve;
+    }
+    
+    
+    private class HAL implements ActionListener {
+        public void actionPerformed (ActionEvent ae) {
+            updateFromHistory();
+        }
+    }
+    
+    private void updateFromHistory() {
+        text.setText (box.getSelectedItem().toString() + File.separatorChar);
+        refreshCompletions();
+        text.requestFocus();
+    }
+    
     public void uninstallComponents(JFileChooser fc) {
         fc.removeAll();
         text = null;
@@ -202,11 +307,14 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         if (!currentDirectoryChanging) {
             currentDirectoryChanging = true;
             try {
-                getFileChooser().setSelectedFiles(new File[] {new File(getFileName())});
+                File file = new File(getFileName());
+                getFileChooser().setSelectedFiles(new File[] {file});
+                setDirectorySelected(file.exists() && file.isDirectory());
             } finally {
                 currentDirectoryChanging = false;
             }
         }
+        updateButtons();
     }
     
     private final class CompleteAction extends AbstractAction {
@@ -249,7 +357,6 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                 }
             }
         }
-        
     }
     
     private final class DeletePathComponentAction extends AbstractAction {
@@ -284,5 +391,153 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         }
         
     }
-
+    
+    public Action getApproveSelectionAction() {
+	return new ProxyApproveSelectionAction (super.getApproveSelectionAction());
+    }
+    
+    private static void updateHistory (JFileChooser jfc) {
+        File f = jfc.getSelectedFile();
+        String pth = f.getParent();
+        if (history == null) {
+            history = new ArrayList();
+        }
+        if (!history.contains(pth)) {
+            history.add(pth);
+            StringBuffer buf = new StringBuffer();
+            for (Iterator i=new HashSet(history).iterator(); i.hasNext();) {
+                buf.append (i.next());
+                if (i.hasNext()) {
+                    buf.append (File.pathSeparatorChar);
+                }
+            }
+            Preferences prefs = Preferences.userNodeForPackage(ChooserComponentUI.class);
+            prefs.put(KEY, buf.toString());
+        }
+    }
+    
+    private static final String KEY = "recentFolders";
+    
+    private static List history = null;
+    private static String[] getHistory() {
+        if (history == null) {
+            loadHistory();
+        }
+        if (history != null) {
+            String[] result = (String[]) history.toArray (new String[history.size()]);
+            Arrays.sort(result);
+            return result;
+        } else {
+            return new String[0];
+        }
+    }
+    
+    private static void loadHistory() {
+        Preferences prefs = Preferences.userNodeForPackage(ChooserComponentUI.class);
+        String hist = prefs.get(KEY, "");
+        List h = new ArrayList();
+        if (hist.length() > 0) {
+            for (StringTokenizer tok = new StringTokenizer (hist, File.pathSeparator); tok.hasMoreTokens();) {
+                String f = tok.nextToken();
+                if ((new File(f)).exists()) {
+                    h.add (f);
+                }
+            }
+        }
+        history = h;
+    }
+    
+    private class ProxyApproveSelectionAction implements Action, PropertyChangeListener {
+        private final Action delegate;
+        public ProxyApproveSelectionAction (Action delegate) {
+            this.delegate = delegate;
+        }
+        
+        public Object getValue(String key) {
+            return delegate.getValue(key);
+        }
+        
+        public void putValue(String key, Object value) {
+            delegate.putValue (key, value);
+        }
+        
+        public void setEnabled(boolean b) {
+            delegate.setEnabled(b);
+        }
+        
+        public boolean isEnabled() {
+            return delegate.isEnabled();
+        }
+        
+        private List l = new ArrayList();
+        public synchronized void addPropertyChangeListener(PropertyChangeListener listener) {
+            l.add (listener);
+            if (l.size() == 1) {
+                delegate.addPropertyChangeListener(this);
+            }
+        }
+        
+        public synchronized void removePropertyChangeListener(PropertyChangeListener listener) {
+            l.remove(listener);
+            if (l.isEmpty()) {
+                delegate.removePropertyChangeListener(this);
+            }
+        }
+        
+        public void actionPerformed(ActionEvent e) {
+            delegate.actionPerformed(e);
+            updateHistory(filechooser);
+        }
+        
+        public void propertyChange (PropertyChangeEvent old) {
+            PropertyChangeListener[] pcl;
+            synchronized (this) {
+                pcl = (PropertyChangeListener[]) l.toArray (new PropertyChangeListener[l.size()]);
+            }
+            if (pcl.length > 0) {
+                PropertyChangeEvent nue = new PropertyChangeEvent (this, 
+                        old.getPropertyName(), old.getOldValue(), 
+                        old.getNewValue());
+                for (int i=0; i < pcl.length; i++) {
+                    pcl[i].propertyChange (nue);
+                }
+            }
+        }
+    }
+    
+    private class CML extends MouseAdapter {
+        public void mousePressed (MouseEvent me) {
+            JList jl = (JList) me.getSource();
+            int idx = jl.locationToIndex(me.getPoint());
+            if (idx != -1) {
+                text.setText(jl.getModel().getElementAt(idx).toString());
+            }
+        }
+    }
+    
+    private class UpDownAction extends AbstractAction {
+        private final boolean up;
+        UpDownAction (boolean up) {
+            this.up = up;
+        }
+        public void actionPerformed(ActionEvent ae) {
+            int sz = box.getModel().getSize();
+            int sel = box.getSelectedIndex();
+            if (up) {
+                sel++;
+            } else {
+                sel--;
+            }
+            if (sel < 0) {
+                sel = box.getModel().getSize() -1;
+            } else if (sel >= box.getModel().getSize()) {
+                sel = 0;
+            }
+            box.setSelectedIndex (sel);
+            updateFromHistory();
+        }
+        public boolean isEnabled() {
+            return box.getModel().getSize() > 0;
+        }
+    }
 }
