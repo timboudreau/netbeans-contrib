@@ -13,7 +13,6 @@ Microsystems, Inc. All Rights Reserved.
 -->
 <project basedir="." default="netbeans" name="j2ee/blueprints">
 
-    <property file="./build.properties"/>
     <import file="../../nbbuild/templates/projectized.xml"/>
 
     <property name="extnl" location="../../nbbuild/external"/>
