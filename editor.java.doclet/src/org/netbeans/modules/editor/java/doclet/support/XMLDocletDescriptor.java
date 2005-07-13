@@ -314,8 +314,8 @@ public abstract class XMLDocletDescriptor implements DocletDescriptor {
         List attrs = sz == 0 ? Collections.EMPTY_LIST : new ArrayList();
         for (int i = 0; i < sz; i++) {
             Element ae = (Element) tagAttrList.item(i);
-            processTagAttribute(ae, attrs);
-        }
+            processTagAttribute(ae, attrs); 
+        } 
         Collections.sort(attrs, attributeComparator);
         TagDescriptor td = new TagDescriptor(tagName, methodPrefix, attrs);
         tags.add(td);
@@ -331,7 +331,7 @@ public abstract class XMLDocletDescriptor implements DocletDescriptor {
         List values = sz == 0 ? Collections.EMPTY_LIST : new ArrayList();
         for (int i = 0; i < sz; i++) {
             Element ve = (Element) valueList.item(i);
-            values.add(ve.getTextContent());
+            values.add(ve.getFirstChild().getNodeValue());
         }
         AttributeDescriptor desc = new AttributeDescriptor(attrName, required, values, type);
         l.add(desc);

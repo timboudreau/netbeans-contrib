@@ -286,11 +286,11 @@ public class DocletCompletionProvider implements CompletionProvider {
             return;
         }
         Attribute currentAttribute = null;;
-        currentAttribute = currentTag.getAttributeAtPosition(relativeLine + 1, column);
+        currentAttribute = currentTag.getAttributeAtPosition(relativeLine, column);
         boolean isValue = false;
         if (currentAttribute == null) {
             // Check if the caret is not inside the attribute's value
-            currentAttribute = currentTag.getAttributeWithValueAtPosition(relativeLine + 1, column);
+            currentAttribute = currentTag.getAttributeWithValueAtPosition(relativeLine, column);
             if (currentAttribute != null) {
                 isValue = true;
             }
