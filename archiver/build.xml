@@ -11,8 +11,6 @@ The Original Code is NetBeans. The Initial Developer of the Original
 Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-<project default="netbeans">
-
+<project name="contrib/archiver" basedir="." default="netbeans">
     <import file="../../nbbuild/templates/projectized.xml"/>
-
 </project>
