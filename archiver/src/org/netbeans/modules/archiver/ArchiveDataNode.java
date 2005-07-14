@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -24,7 +24,7 @@ public class ArchiveDataNode extends DataNode {
     
     public ArchiveDataNode(ArchiveDataObject obj, Children ch) {
         super(obj, ch);
-        setIconBase("org/netbeans/modules/archiver/beans");
+        setIconBaseWithExtension("org/netbeans/modules/archiver/beans.gif");
     }
     
     protected ArchiveDataObject getArchiveDataObject() {
