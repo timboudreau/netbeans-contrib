@@ -66,7 +66,7 @@ public abstract class XMLDocletDescriptor implements DocletDescriptor {
     private final static String TYPE_BOOL = "bool";
     
     private final static int SORT_PRIORITY = -500;
-    
+        
     private List methodTags = new ArrayList();
     
     private List classTags = new ArrayList();
