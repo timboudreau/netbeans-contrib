@@ -21,9 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import javax.swing.text.Document;
-import org.netbeans.modules.editor.errorstripe.spi.Mark;
-import org.netbeans.modules.editor.errorstripe.spi.MarkProvider;
-import org.netbeans.modules.editor.errorstripe.spi.UpToDateStatus;
+import org.netbeans.modules.editor.errorstripe.privatespi.Mark;
+import org.netbeans.modules.editor.errorstripe.privatespi.MarkProvider;
 import org.netbeans.modules.latex.model.Queue;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.SourcePosition;
@@ -40,16 +39,11 @@ import org.openide.nodes.Node;
  *
  * @author Jan Lahoda
  */
-public class LaTeXStructureMarkProvider extends MarkProvider implements ModelListener, PropertyChangeListener {
+public class LaTeXStructureMarkProvider extends MarkProvider implements ModelListener {
     
     private Document document;
     private Map/*<StructuralElement, Mark>*/ element2Mark;
     private List currentMarks;
-    
-    private LaTeXSource source;
-    
-    private boolean isParsing = false;
-    private boolean sourceIsUpToDate = true;
     
     /** Creates a new instance of elementMarkProvider */
     public LaTeXStructureMarkProvider(Document document) {
@@ -64,20 +58,9 @@ public class LaTeXStructureMarkProvider extends MarkProvider implements ModelLis
             FileObject file = stream.getPrimaryFile();
             
             model.addModelListener(file, this);
-            
-            source = LaTeXSource.get(file);
-            
-            source.addPropertyChangeListener(this);
         }
     }
 
-    public UpToDateStatus getUpToDate() {
-        if (sourceIsUpToDate)
-            return UpToDateStatus.UP_TO_DATE_OK;
-        
-        return isParsing ? UpToDateStatus.UP_TO_DATE_PROCESSING : UpToDateStatus.UP_TO_DATE_DIRTY;
-    }
-    
     private synchronized Mark getMarkFor(StructuralElement element) {
         Mark mark = (Mark) element2Mark.get(element);
         
@@ -132,18 +115,5 @@ public class LaTeXStructureMarkProvider extends MarkProvider implements ModelLis
         firePropertyChange("marks", old, this.currentMarks);
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
-        if ("upToDate".equals(evt.getPropertyName())) {
-            sourceIsUpToDate = source.isUpToDate();
-            firePropertyChange("upToDate", null, getUpToDate());
-            return ;
-        }
-        
-        if ("parsing".equals(evt.getPropertyName())) {
-            isParsing = ((Boolean) evt.getNewValue()).booleanValue();
-            firePropertyChange(PROP_UP_TO_DATE, null, getUpToDate());
-            return ;
-        }
-    }
     
 }

@@ -12,22 +12,23 @@
  */
 
 package org.netbeans.modules.latex.errorstripe;
-import javax.swing.text.JTextComponent;
-import org.netbeans.modules.editor.errorstripe.privatespi.MarkProvider;
-import org.netbeans.modules.editor.errorstripe.privatespi.MarkProviderCreator;
+
+import javax.swing.text.Document;
+import org.netbeans.spi.editor.errorstripe.UpToDateStatusProvider;
+import org.netbeans.spi.editor.errorstripe.UpToDateStatusProviderFactory;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class LaTeXStructureMarkProviderCreator implements MarkProviderCreator {
+public class LaTeXUpToDateProviderCreator implements UpToDateStatusProviderFactory {
     
-    /** Creates a new instance of AnnotationMarkProviderCreator */
-    public LaTeXStructureMarkProviderCreator() {
+    /** Creates a new instance of LaTeXUpToDateProviderCreator */
+    public LaTeXUpToDateProviderCreator() {
     }
-
-    public MarkProvider createMarkProvider(JTextComponent pane) {
-        return new LaTeXStructureMarkProvider(pane.getDocument());
+    
+    public UpToDateStatusProvider createUpToDateStatusProvider(Document document) {
+        return new LaTeXUpToDateStatusProvider(document);
     }
     
 }
