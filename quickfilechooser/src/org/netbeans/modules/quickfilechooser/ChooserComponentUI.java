@@ -231,6 +231,8 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         } else if (text.startsWith("~" + File.separatorChar)) {
             return System.getProperty("user.home") + text.substring(1);
         } else {
+            // XXX on Unix systems, treat /home/me//usr/local as /usr/local
+            // (so that you can use "//" to start a new path, without selecting & deleting)
             return text;
         }
     }
