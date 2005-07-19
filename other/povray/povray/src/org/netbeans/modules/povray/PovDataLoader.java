@@ -17,6 +17,7 @@
  */
 
 package org.netbeans.modules.povray;
+import java.io.IOException;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.ExtensionList;
@@ -42,7 +43,7 @@ public class PovDataLoader extends UniFileLoader {
         setDisplayName(NbBundle.getMessage(PovDataLoader.class, "TYPE_Povray")); //NOI18N
     }  
 
-    protected MultiDataObject createMultiObject(FileObject primaryFile) throws DataObjectExistsException, java.io.IOException {
+    protected MultiDataObject createMultiObject(FileObject primaryFile) throws DataObjectExistsException, IOException {
         return new PovRayDataObject (primaryFile, this);
     }
 }

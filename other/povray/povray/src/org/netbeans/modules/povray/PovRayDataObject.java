@@ -56,37 +56,19 @@ import org.openide.windows.CloneableOpenSupport;
  */
 public class PovRayDataObject extends MultiDataObject {
     
-    /** Creates a new instance of PovRayDataObject */
     public PovRayDataObject(FileObject file, MultiFileLoader ldr) throws DataObjectExistsException {
         super(file, ldr);
-    }
-    
-    private WeakReference editorSupport = null;
-    
-    public Node.Cookie getCookie(Class clazz) {
-        if (clazz == LineCookie.class || clazz == EditCookie.class || clazz == EditorCookie.class) {
-            return getEditorSupport(true);
-        } else {
-            return super.getCookie (clazz);
-        }
-    }
-    
-    private PovEditorSupport getEditorSupport(boolean create) {
-        PovEditorSupport result = null;
-        if (editorSupport != null) {
-            result = (PovEditorSupport) editorSupport.get();
-        }
-        
-        if (result == null && create) {
-            result = new PovEditorSupport (new EditorEnv());
-            editorSupport = new WeakReference (result);
-        }
-        return result;
+        //DataEditorSupport has a factory for simple plain-text editing support;
+        //we use it here to make it possible to double click .pov files to
+        //edit them
+        Node.Cookie cookie = (Node.Cookie)DataEditorSupport.create(this, getPrimaryEntry(), getCookieSet ());
+        getCookieSet ().add (cookie);
+        // ( for more info, see 
+        //  http://www.netbeans.org/issues/show_bug.cgi?id=17081 )
     }
     
     public Node createNodeDelegate() {
-        DataNode node = new PovRayDataNode(this);
-        return node;
+        return new PovRayDataNode(this);
     }
     
     public HelpCtx getHelpCtx() {
@@ -134,113 +116,5 @@ public class PovRayDataObject extends MultiDataObject {
             provider.setMainFile(result);
         }
         return result;
-    }
-    
-    public class PovEditorSupport extends DataEditorSupport implements EditCookie, EditorCookie, LineCookie {
-        private final PovRayDataObject.EditorEnv env;
-        
-        /** Creates a new instance of PovEditorSupport */
-        public PovEditorSupport(EditorEnv env) {
-            super (PovRayDataObject.this, env);
-            this.env = env;
-        }
-
-        public PovRayDataObject.EditorEnv getEnv() {
-            return env;
-        }  
-    }    
-    
-    class EditorEnv implements CloneableEditorSupport.Env {
-        public InputStream inputStream () throws IOException {
-            return getPrimaryFile().getInputStream();
-        }
-
-        public OutputStream outputStream () throws IOException {
-            return getPrimaryFile().getOutputStream(getPrimaryFile().lock());
-        }
-
-        public Date getTime () {
-            return modifiedDate != null ? modifiedDate : 
-                PovRayDataObject.this.getPrimaryFile().lastModified();
-        }
-
-        public String getMimeType () {
-            return "text/x-povray";
-        }        
-        
-        public CloneableOpenSupport findCloneableOpenSupport() {
-            return getEditorSupport(true);
-        }
-        
-        private List vetoListeners = Collections.synchronizedList (new ArrayList(3));
-        private List pcListeners = Collections.synchronizedList (new ArrayList(3));
-
-        public void addPropertyChangeListener (PropertyChangeListener l) {
-            pcListeners.add (l);
-        }
-
-        public void removePropertyChangeListener (PropertyChangeListener l) {
-            pcListeners.remove(l);
-        }
-
-        public void addVetoableChangeListener (VetoableChangeListener l) {
-            vetoListeners.add(l);
-        }
-
-        public void removeVetoableChangeListener (VetoableChangeListener l) {
-            vetoListeners.remove(l);
-        }
-        
-        private void fire(String s, Object old, Object nue) throws PropertyVetoException {
-            PropertyChangeEvent evt = new PropertyChangeEvent(this, s, old, nue);
-            for (Iterator i=vetoListeners.iterator(); i.hasNext();) {
-                VetoableChangeListener veto = (VetoableChangeListener) i.next();
-                veto.vetoableChange(evt);
-            }
-            for (Iterator i=pcListeners.iterator(); i.hasNext();) {
-                PropertyChangeListener l = (PropertyChangeListener) i.next();
-                l.propertyChange(evt);
-            }
-        }
-
-        public boolean isValid () {
-            return PovRayDataObject.this.isValid();
-        }
-        
-        public boolean isModified () {
-            return modifiedDate != null;
-        }
-
-        private Date modifiedDate = null;
-        public void markModified () throws java.io.IOException {
-            Date oldDate = modifiedDate;
-            modifiedDate = new Date();
-            if (oldDate == null) {
-                try {
-                    fire (PROP_MODIFIED, Boolean.FALSE, Boolean.TRUE);
-                } catch (PropertyVetoException veto) {
-                    modifiedDate = oldDate;
-                }
-            }
-        }
-
-        public void unmarkModified () {
-            boolean wasModified = modifiedDate != null;
-            Date oldDate = modifiedDate;
-            modifiedDate = null;
-            if (oldDate != null) {
-                try {
-                    fire (PROP_MODIFIED, Boolean.TRUE, Boolean.FALSE);
-                } catch (PropertyVetoException veto) {
-                    modifiedDate = oldDate;
-                }
-            }
-        }
-        
-        public void makeInvalid() throws PropertyVetoException {
-            if (isValid()) {
-                fire (PROP_VALID, Boolean.TRUE, Boolean.FALSE);
-            }
-        }
     }
 }
