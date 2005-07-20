@@ -49,7 +49,7 @@ public class PropertyNode extends AbstractNode {
     /** Current value of the property, or null if unset. */
     protected String value;
     /** List of all child properties (may be empty). */
-    protected List kids;
+    protected List/*<String>*/ kids;
     /** Listener to change in properties. */
     private ChangeListener listener;
     /** Current property sheet. */
@@ -69,7 +69,7 @@ public class PropertyNode extends AbstractNode {
         
         if (property != null) {
             // Set FeatureDescriptor stuff:
-            setName(property);
+            super.setName(property);
             setDisplayName(shorten(property));
             value = System.getProperty(property);
         } else {
@@ -227,9 +227,10 @@ public class PropertyNode extends AbstractNode {
         // unless it actually has to...
         Sheet.Set props = Sheet.createPropertiesSet();
         sheet.put(props);
-        if (value != null)
+        if (value != null) {
             props.put(new PropertySupport.Name(this));
-        if (value != null) props.put(new ValueProp(property));
+            props.put(new ValueProp(property));
+        }
         Iterator it = kids.iterator();
         while (it.hasNext()) {
             props.put(new ValueProp((String) it.next()));
@@ -268,16 +269,17 @@ public class PropertyNode extends AbstractNode {
      */
     public void setName(String nue) {
         String old = getName();
-        if (old == null || /* #18421 */ old.equals("")) { // NOI18N
-            super.setName(nue);
-        } else {
-            Properties p = System.getProperties();
-            String value = p.getProperty(property);
-            p.remove(property);
-            if (value != null) p.setProperty(nue, value);
-            System.setProperties(p);
-            PropertiesNotifier.getDefault().changed();
+        if (old.equals(nue)) {
+            return;
         }
+        Properties p = System.getProperties();
+        String value = (String) p.remove(property);
+        if (value != null) {
+            p.setProperty(nue, value);
+        }
+        System.setProperties(p);
+        PropertiesNotifier.getDefault().changed();
+        // this node will be removed and a new one added with the new name
     }
     
     /**

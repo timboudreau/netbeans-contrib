@@ -16,8 +16,9 @@
 package org.netbeans.modules.sysprops;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 import javax.swing.Action;
 import org.openide.actions.NewAction;
 import org.openide.actions.OpenLocalExplorerAction;
@@ -42,7 +43,6 @@ public class SystemPropertiesNode extends PropertyNode {
         super(null, listAllProperties());
         
         // Set FeatureDescriptor stuff:
-        setName("SystemPropertiesNode");
         setDisplayName(NbBundle.getMessage(SystemPropertiesNode.class, "LBL_AllPropsNode"));
         setShortDescription(NbBundle.getMessage(SystemPropertiesNode.class, "HINT_AllPropsNode"));
     }
@@ -50,11 +50,11 @@ public class SystemPropertiesNode extends PropertyNode {
     /** Get a list of all system properties.
      * @return all of them
      */
-    public static List listAllProperties() {
+    public static List/*<String>*/ listAllProperties() {
         List l = new ArrayList();
-        Enumeration en = System.getProperties().propertyNames();
-        while (en.hasMoreElements()) {
-            String prop = (String) en.nextElement();
+        Iterator it = new TreeSet(System.getProperties().keySet()).iterator();
+        while (it.hasNext()) {
+            String prop = (String) it.next();
             // Exclude environment variables here.
             if (! prop.startsWith("Env-") && ! prop.startsWith("env-")) {
                 l.add(prop);
@@ -70,8 +70,6 @@ public class SystemPropertiesNode extends PropertyNode {
     public Action[] getActions(boolean context) {
         return new Action[] {
             SystemAction.get(RefreshPropertiesAction.class),
-            null,
-            SystemAction.get(OpenLocalExplorerAction.class),
             null,
             SystemAction.get(NewAction.class),
             null,
@@ -98,9 +96,9 @@ public class SystemPropertiesNode extends PropertyNode {
         ss.setName("envvars");
         ss.setDisplayName(NbBundle.getMessage(SystemPropertiesNode.class, "LBL_envvars_tab"));
         ss.setShortDescription(NbBundle.getMessage(SystemPropertiesNode.class, "HINT_envvars_tab"));
-        Enumeration en = System.getProperties().propertyNames();
-        while (en.hasMoreElements()) {
-            String prop = (String) en.nextElement();
+        Iterator it = new TreeSet(System.getProperties().keySet()).iterator();
+        while (it.hasNext()) {
+            String prop = (String) it.next();
             // List environment variables (only the ones with proper case).
             if (prop.startsWith("Env-")) {
                 String env = prop.substring(4); // cut off Env-
@@ -110,7 +108,15 @@ public class SystemPropertiesNode extends PropertyNode {
         s.put(ss);
         return s;
     }
+
+    public String getName() {
+        return "SystemPropertiesNode";
+    }
     
+    public boolean canRename() {
+        return false;
+    }
+
     /** Property representing one environment variable. */
     private static final class EnvVarProp extends PropertySupport.ReadOnly {
         public EnvVarProp(String env) {

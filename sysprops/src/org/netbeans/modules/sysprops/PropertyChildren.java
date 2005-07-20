@@ -102,11 +102,11 @@ public class PropertyChildren extends Children.Keys {
      * @param the starting property (or pseudo-property)
      * @return a (possibly empty) list
      */
-    public static List findSubProperties(String prop) {
-        List subprops = new ArrayList();
-        Enumeration e = System.getProperties().propertyNames();
-        while (e.hasMoreElements()) {
-            String subprop = (String) e.nextElement();
+    public static List/*<String>*/ findSubProperties(String prop) {
+        List/*<String>*/ subprops = new ArrayList();
+        Iterator it = new TreeSet(System.getProperties().keySet()).iterator();
+        while (it.hasNext()) {
+            String subprop = (String) it.next();
             if (subprop.startsWith("Env-") || subprop.startsWith("env-")) {
                 continue;
             }
@@ -114,7 +114,6 @@ public class PropertyChildren extends Children.Keys {
                 subprops.add(subprop);
             }
         }
-        Collections.sort(subprops);
         return subprops;
     }
     

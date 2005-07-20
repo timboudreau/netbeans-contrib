@@ -16,7 +16,6 @@
 package org.netbeans.modules.sysprops;
 
 import java.io.IOException;
-import java.util.ResourceBundle;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
@@ -61,17 +60,19 @@ class SystemPropertyNewType extends NewType {
             desc.setInputText(propertyName + ".");
         }
         
-        DialogDisplayer.getDefault().notify(desc);
+        if (!DialogDisplayer.getDefault().notify(desc).equals(NotifyDescriptor.OK_OPTION)) {
+            // User cancelled.
+            return;
+        }
         
-        // return if the user has canceled the dialog
         String key = desc.getInputText();
-        if ("".equals(key)) return;
         
         // create a new Dialog to ast the Value of the Propertry
         msg = NbBundle.getMessage(SystemPropertyNewType.class, "MSG_NewProp_dialog_value");
         desc = new NotifyDescriptor.InputLine(msg, title);
-        // [PENDING] return if result is a cancel
-        DialogDisplayer.getDefault().notify(desc);
+        if (!DialogDisplayer.getDefault().notify(desc).equals(NotifyDescriptor.OK_OPTION)) {
+            return;
+        }
         String value = desc.getInputText();
         
         // add the Property to the SystemProperties
