@@ -11,12 +11,6 @@
                     <compile-dependency/>
                     <run-dependency/>
                 </dependency>
-                <dependency>
-                    <code-name-base>org.openide.util</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency/>
-                </dependency>
             </module-dependencies>
             <public-packages/>
         </data>

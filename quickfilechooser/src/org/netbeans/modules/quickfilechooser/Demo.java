@@ -38,6 +38,7 @@ public class Demo {
                 }
             }
         });
+        //chooser.setControlButtonsAreShown(false);
         chooser.showOpenDialog(null);
         System.out.println("Selected: " + Arrays.asList(chooser.getSelectedFiles()));
         System.exit(0);
