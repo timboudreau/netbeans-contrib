@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.quickfilechooser;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
 /**
@@ -25,9 +28,22 @@ public class Install {
      * Register the new UI.
      */
     public static void main(String[] args) {
-        UIManager.getDefaults().put("FileChooserUI", ChooserComponentUI.class.getName());
+        final UIDefaults uid = UIManager.getDefaults();
+        final String key = "FileChooserUI";
+        Class impl = ChooserComponentUI.class;
+        final String val = impl.getName();
+        uid.put(key, val);
         // To make it work in NetBeans too:
-        UIManager.getDefaults().put(ChooserComponentUI.class.getName(), ChooserComponentUI.class);
+        uid.put(val, impl);
+        // #61147: prevent NB from switching to a different UI later (under GTK):
+        uid.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                String name = evt.getPropertyName();
+                if ((name.equals(key) || name.equals("UIDefaults")) && !val.equals(uid.get(key))) {
+                    uid.put(key, val);
+                }
+            }
+        });
     }
     
 }
