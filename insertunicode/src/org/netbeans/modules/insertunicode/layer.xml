@@ -14,14 +14,10 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Editors">
-        <folder name="text">
-            <folder name="base">
-                <folder name="Popup">
-                    <attr name="org-openide-actions-PasteAction.instance/org-netbeans-modules-insertunicode-InsertUnicodeAction.instance" boolvalue="true"/>
-                    <file name="org-netbeans-modules-insertunicode-InsertUnicodeAction.instance"/>
-                    <attr name="org-netbeans-modules-insertunicode-InsertUnicodeAction.instance/Separator2.instance" boolvalue="true"/>
-                </folder>
-            </folder>
+        <folder name="Popup">
+            <attr name="org-openide-actions-PasteAction.instance/org-netbeans-modules-insertunicode-InsertUnicodeAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-insertunicode-InsertUnicodeAction.instance"/>
+            <attr name="org-netbeans-modules-insertunicode-InsertUnicodeAction.instance/Separator2.instance" boolvalue="true"/>
         </folder>
     </folder>
 </filesystem>
