@@ -1934,8 +1934,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
                                    varsToEnableDisable);
         }
         boolean setMainComponent = true;
-        for (Enumeration enum = group.getElements(); enum.hasMoreElements(); ) {
-            java.awt.Component c = (java.awt.Component) enum.nextElement();
+        for (Enumeration en = group.getElements(); en.hasMoreElements(); ) {
+            java.awt.Component c = (java.awt.Component) en.nextElement();
             if (setMainComponent) {
                 mainComponent_ptr[0] = c;
                 setMainComponent = false;
@@ -2072,9 +2072,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 //System.out.println("    pchev = "+pchev+", NEW VALUE = "+pchev.getNewValue());
                 if (!button.isEnabled()) { // The button was just disabled
                     if (button.isSelected()) {
-                        Enumeration enum = group.getElements();
-                        for (int i = 0; enum.hasMoreElements(); i++) {
-                            javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
+                        Enumeration en = group.getElements();
+                        for (int i = 0; en.hasMoreElements(); i++) {
+                            javax.swing.JRadioButton radio = (javax.swing.JRadioButton) en.nextElement();
                             if (radio.isEnabled()) {
                                 //System.out.println("  Selecting button '"+radio.getText()+"' instead!!!");
                                 radio.doClick(); // <-- to trigger an action event
@@ -2086,9 +2086,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         }
                         if (!unselectedRadioButtons.contains(button)) {
                             // No button was enabled. We need to select back the original.
-                            enum = group.getElements();
-                            for (int i = 0; enum.hasMoreElements(); i++) {
-                                javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
+                            en = group.getElements();
+                            for (int i = 0; en.hasMoreElements(); i++) {
+                                javax.swing.JRadioButton radio = (javax.swing.JRadioButton) en.nextElement();
                                 if (unselectedRadioButtons.contains(radio)) {
                                     radio.setSelected(true);
                                     unselectedRadioButtons.remove(radio);
@@ -2134,9 +2134,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     private void removeUnselectedButtons(javax.swing.ButtonGroup group) {
-        Enumeration enum = group.getElements();
-        for (int i = 0; enum.hasMoreElements(); i++) {
-            javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
+        Enumeration en = group.getElements();
+        for (int i = 0; en.hasMoreElements(); i++) {
+            javax.swing.JRadioButton radio = (javax.swing.JRadioButton) en.nextElement();
             unselectedRadioButtons.remove(radio);
         }
     }
@@ -2146,10 +2146,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private String selectButton(String value, VariableInputComponent[] subComponents,
                                 javax.swing.ButtonGroup group) {
         if (value == null && subComponents.length > 0) value = subComponents[0].getValue();
-        Enumeration enum = group.getElements();
+        Enumeration en = group.getElements();
         javax.swing.JRadioButton toBeSelectedRadio = null;
-        for (int i = 0; enum.hasMoreElements(); i++) {
-            javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
+        for (int i = 0; en.hasMoreElements(); i++) {
+            javax.swing.JRadioButton radio = (javax.swing.JRadioButton) en.nextElement();
             if (value.equals(subComponents[i].getValue())) {
                 if (radio.isEnabled()) {
                     if (!radio.isSelected()) {
@@ -2173,9 +2173,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         // The button that is to be selected is not enabled => we need to find the seleced one
         // and return it's value
         synchronized (disabledComponents) {
-            enum = group.getElements();
-            for (int i = 0; enum.hasMoreElements(); i++) {
-                javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
+            en = group.getElements();
+            for (int i = 0; en.hasMoreElements(); i++) {
+                javax.swing.JRadioButton radio = (javax.swing.JRadioButton) en.nextElement();
 
                 //System.out.println("  radio "+radio.hashCode()+", "+radio.getText()+", disabledComponents = "+disabledComponents.get(radio));
                 if (disabledComponents.get(radio) == null) {
@@ -2484,8 +2484,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
             variablePanel.add(label, gridBagConstraints2);
             labelOffset += 2;
         }
-        for(Enumeration enum = varLabels.keys(); enum.hasMoreElements(); i++) {
-            String labelStr = (String) enum.nextElement();
+        for(Enumeration en = varLabels.keys(); en.hasMoreElements(); i++) {
+            String labelStr = (String) en.nextElement();
             this.userPromptLabelTexts[i] = labelStr;
             javax.swing.JLabel label = new javax.swing.JLabel(labelStr+":");
             javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);

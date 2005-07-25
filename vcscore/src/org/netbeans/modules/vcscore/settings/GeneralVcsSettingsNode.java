@@ -51,10 +51,10 @@ public class GeneralVcsSettingsNode extends AbstractNode {
             }
             if (dobj != null && dobj instanceof DataFolder) {
                 DataFolder folder = (DataFolder)dobj;
-                java.util.Enumeration enum = folder.children();
+                java.util.Enumeration en = folder.children();
                 getChildren().remove(getChildren().getNodes());
-                while (enum.hasMoreElements()) {
-                    Object obj = enum.nextElement();
+                while (en.hasMoreElements()) {
+                    Object obj = en.nextElement();
                     if (obj instanceof InstanceDataObject) {
                         InstanceDataObject ido = (InstanceDataObject)obj;
                         if (ido.isValid()) {
