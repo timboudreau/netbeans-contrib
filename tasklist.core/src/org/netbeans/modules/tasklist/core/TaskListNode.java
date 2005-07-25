@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -21,7 +21,6 @@ import org.openide.util.RequestProcessor;
 
 import javax.swing.*;
 import java.util.Collections;
-import java.util.ArrayList;
 import java.util.Enumeration;
 
 /**
@@ -86,7 +85,7 @@ public class TaskListNode extends AbstractNode {
         private volatile RequestProcessor.Task batchSetKeys;
         private volatile boolean active = false;
 
-        private TaskListChildren(ObservableList list) {
+        TaskListChildren(ObservableList list) {
             assert list != null;
             this.list = list;
         }

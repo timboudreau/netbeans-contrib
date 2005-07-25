@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -15,18 +15,14 @@ package org.netbeans.modules.tasklist.core;
 
 
 import java.awt.Image;
-import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
 import org.openide.actions.DeleteAction;
@@ -36,12 +32,8 @@ import org.openide.loaders.InstanceSupport;
 
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExTransferable;
-import org.openide.util.datatransfer.PasteType;
 
 public class TaskNode extends AbstractNode {
     private static final Logger LOGGER = TLUtils.getLogger(TaskNode.class);
@@ -97,6 +89,8 @@ public class TaskNode extends AbstractNode {
     }
 
     private class DisposalListener extends NodeAdapter {
+        public DisposalListener () {}
+        
         public void nodeDestroyed(NodeEvent ev) {
             if (ev.getNode() == TaskNode.this) {
                 item.removeTaskListener(monitor);
@@ -402,6 +396,8 @@ public class TaskNode extends AbstractNode {
     // TaskListener implementation ~~~~~~~~~~~~~~~~~~~~~~
 
     private class Monitor implements TaskListener, PropertyChangeListener {
+        public Monitor () {}
+        
         public void selectedTask(Task t) {
             // it's view job
         }

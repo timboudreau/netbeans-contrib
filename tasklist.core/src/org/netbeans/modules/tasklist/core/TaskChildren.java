@@ -7,19 +7,15 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.tasklist.core;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.*;
 
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
-import org.openide.util.Mutex;
-import org.openide.util.WeakListener;
 import org.openide.util.WeakListeners;
 
 
@@ -32,7 +28,6 @@ import org.openide.util.WeakListeners;
  */
 public class TaskChildren extends Children.Keys {
     
-    private java.util.Map keys2tasks;  // vs. Children.Map
     private final Task parent;
     private Monitor monitor;
 
@@ -88,7 +83,6 @@ public class TaskChildren extends Children.Keys {
     
     /** Called when the parent node is collapsed: cleanup */    
     protected void removeNotify() {
-        keys2tasks = null;
         assert monitor != null : "Dangling removeNotify()"; // NOI18N
         // parent.getList().removeTaskListener(monitor);
         monitor = null;
@@ -132,6 +126,8 @@ public class TaskChildren extends Children.Keys {
     // Monitor tasklist and react to changes ~~~~~~~~~~~~~~~~~~~~~
 
     private class Monitor implements TaskListener {
+        public Monitor () {}
+        
         public void selectedTask(Task t) {
             // it's node job
         }

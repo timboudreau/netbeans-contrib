@@ -17,10 +17,6 @@ package org.netbeans.modules.tasklist.core;
 import java.io.*;
 import java.util.*;
 
-import org.netbeans.modules.tasklist.core.translators.HTMLSupport;
-import org.openide.ErrorManager;
-import org.openide.util.NbBundle;
-
 /**
  * This class models flat list or hierarchical tasks.
  * It dispatches membership events.
@@ -310,34 +306,6 @@ public class TaskList implements ObservableList, TaskListener {
             for (int i = 0; i < n; i++) {
                 TaskListener tl = (TaskListener) listeners.get(i);
                 tl.addedTask(task);
-            }
-        }
-    }
-
-    /**
-     * Fire TaskListener.selectedTask
-     * @deprecated splitting model from the view
-     */
-    private void notifySelected(Task task) {
-        synchronized (listeners) {
-            int n = listeners.size();
-            for (int i = 0; i < n; i++) {
-                TaskListener tl = (TaskListener) listeners.get(i);
-                tl.selectedTask(task);
-            }
-        }
-    }
-
-    /**
-     * Fire TaskListener.warpedTask
-     * @deprecated splitting model from the view
-     */
-    private void notifyWarped(Task task) {
-        synchronized (listeners) {
-            int n = listeners.size();
-            for (int i = 0; i < n; i++) {
-                TaskListener tl = (TaskListener) listeners.get(i);
-                tl.warpedTask(task);
             }
         }
     }

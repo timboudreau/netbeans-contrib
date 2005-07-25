@@ -354,22 +354,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         fireAddedTask(subtask);
     }
 
-    /**
-     * Add subtask in a particular place
-     *
-     * @param position position for the subtask
-     * @param subtask The subtask to be added
-     */
-    private void addSubtask(int position, Task subtask) {
-        subtask.parent = this;
-        if (subtasks == null) {
-            subtasks = Collections.synchronizedList(new LinkedList());
-        }
-        subtasks.add(position, subtask);
-        subtasksCopy = null;
-        fireAddedTask(subtask);
-    }
-
     /** Add a list of subtasks to this task.
      * @param subtasks The tasks to add
      * @param append When true, append to the list, otherwise prepend. Ignored

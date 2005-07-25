@@ -14,7 +14,6 @@
 package org.netbeans.modules.tasklist.core.editors;
 
 import java.beans.PropertyEditorSupport;
-import javax.swing.JLabel;
 
 /**
  * PropertyEditor for String.class.

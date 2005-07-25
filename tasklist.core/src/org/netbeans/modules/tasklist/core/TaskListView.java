@@ -747,7 +747,6 @@ FilteredTopComponent
 
         int sortingColumn = objectInput.read();
         int sortAscendingInt = objectInput.read();
-        boolean ascending = (sortAscendingInt != 0);
         int numVisible = objectInput.read();
 
         // Account for conversion to unsigned byte in writeExternal
@@ -773,17 +772,17 @@ FilteredTopComponent
             }
             for (int i = 0; i < numVisible; i++) {
                 int uid = objectInput.read();
-                int index;
+//                int index;
                 if ((uid < numColumns) && (columns[uid].uid == uid)) {
                     // UID == column index. This is the scenario for now
                     // until we delete columns in the middle etc.
-                    index = uid;
+//                    index = uid;
                 } else {
                     // Have to search for the uid
-                    index = -1;
+//                    index = -1;
                     for (int j = 0; j < numColumns; j++) {
                         if (columns[j].uid == uid) {
-                            index = j;
+//                            index = j;
                             break;
                         }
                     }

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -18,10 +18,7 @@ import javax.swing.text.*;
 
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,13 +28,8 @@ import java.awt.event.FocusEvent;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import javax.swing.JEditorPane;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 
 import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataObject;
@@ -46,15 +38,8 @@ import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.URLMapper;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.text.CloneableEditor;
-import org.openide.text.CloneableEditorSupport;
-import org.openide.text.NbDocument;
-import org.openide.windows.Mode;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 /** 
  * Various utility methods shared by the various tasklist related modules
@@ -63,7 +48,7 @@ import org.openide.windows.WindowManager;
  */
 public final class TLUtils {
     /** Common logger for the core module */
-    public static Logger LOGGER = TLUtils.getLogger(TLUtils.class);
+    public static final Logger LOGGER = TLUtils.getLogger(TLUtils.class);
     
     static {
         LOGGER.setLevel(Level.FINE);

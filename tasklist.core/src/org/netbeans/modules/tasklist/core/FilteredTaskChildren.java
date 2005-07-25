@@ -7,16 +7,14 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.core;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.tasklist.core.filter.Filter;
@@ -118,23 +116,6 @@ final class FilteredTaskChildren extends FilterNode.Children {
         }
         return false;
     }
-
-    /** 
-     * Return all matching tasks that are subnodes of the given task
-     */
-    private void findMatches(List matches, Task n) {
-        // we check those as well...
-        Iterator it = n.subtasksIterator();
-        while (it.hasNext()) {
-            Task next = (Task) it.next();
-            if (filter.accept(next)) {
-                matches.add(next);
-            } else {
-                findMatches(matches, next);
-            }
-        }
-    }
-
 
     public void filterChildrenAdded(NodeMemberEvent ev) {
         super.filterChildrenAdded(ev);
