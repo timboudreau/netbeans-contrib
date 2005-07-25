@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -17,7 +17,6 @@ package org.netbeans.modules.vcscore.search;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.util.*;
 
 import org.openide.cookies.InstanceCookie;
@@ -31,7 +30,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.ErrorManager;
 import org.openidex.search.*;
 
@@ -72,7 +71,7 @@ public class VcsSearchType extends SearchType {
             return;
         
         dataObject.addPropertyChangeListener(
-            WeakListener.propertyChange(getDataObjectListener(), dataObject)
+            WeakListeners.propertyChange(getDataObjectListener(), dataObject)
         );
         
     }
