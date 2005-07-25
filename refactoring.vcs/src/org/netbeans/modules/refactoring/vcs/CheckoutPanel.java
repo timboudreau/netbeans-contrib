@@ -42,7 +42,7 @@ public class CheckoutPanel extends javax.swing.JPanel {
                         boolean cellHasFocus) 
                   {
                     super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                    setText("<html>" + ((FileObject) value).getNameExt() + " <font color=#707070>(" + FileUtil.getFileDisplayName((FileObject) value) + ")</font></html>");
+                    setText("<html>" + ((FileObject) value).getNameExt() + " <font color=#707070>(" + FileUtil.getFileDisplayName((FileObject) value) + ")</font></html>"); //NOI18N
                     return this;
                 }
                 
@@ -65,7 +65,7 @@ public class CheckoutPanel extends javax.swing.JPanel {
         setLayout(new java.awt.BorderLayout(0, 6));
 
         setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(12, 12, 11, 11)));
-        org.openide.awt.Mnemonics.setLocalizedText(topLabel, "Files To Update");
+        org.openide.awt.Mnemonics.setLocalizedText(topLabel, org.openide.util.NbBundle.getMessage(CheckoutPanel.class, "LBL_FilesToUpdate"));
         add(topLabel, java.awt.BorderLayout.NORTH);
 
         add(progressBar, java.awt.BorderLayout.SOUTH);
