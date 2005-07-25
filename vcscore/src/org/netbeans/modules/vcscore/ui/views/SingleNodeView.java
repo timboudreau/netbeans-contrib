@@ -17,31 +17,18 @@ import java.awt.event.*;
 import java.awt.*;
 import java.beans.*;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.awt.dnd.DnDConstants;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import javax.swing.*;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.accessibility.*;
 
 import org.openide.ErrorManager;
 import org.openide.awt.MouseUtils;
-import org.openide.explorer.*;
+import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.Node;
+import org.openide.nodes.NodeOp;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.actions.Presenter;
-import org.openide.nodes.*;
-import org.openide.filesystems.*;
-import org.openide.loaders.*;
-import org.openide.util.*;
+import org.openide.util.WeakListeners;
 import org.openide.util.actions.CallbackSystemAction;
-import org.openide.actions.PopupAction;
-import org.netbeans.modules.vcscore.versioning.*;
-
 
 /** 
  * Explorer view to display single item in a panel.
@@ -381,8 +368,8 @@ public class SingleNodeView extends JPanel implements Externalizable {
 
             manager = em;
 
-            manager.addVetoableChangeListener(wlvc = WeakListener.vetoableChange (managerListener, manager));
-            manager.addPropertyChangeListener(wlpc = WeakListener.propertyChange (managerListener, manager));
+            manager.addVetoableChangeListener(wlvc = WeakListeners.vetoableChange (managerListener, manager));
+            manager.addPropertyChangeListener(wlpc = WeakListeners.propertyChange (managerListener, manager));
 
             Node[] nodes = manager.getSelectedNodes();
             if (nodes != null && nodes.length == 1 && nodes[0] instanceof FileInfoNode) {
@@ -606,6 +593,9 @@ public class SingleNodeView extends JPanel implements Externalizable {
     /** Popup menu listener. */
     private final class PopupAdapter extends
         org.openide.awt.MouseUtils.PopupMouseAdapter {
+        
+        public PopupAdapter () {}
+        
         protected void showPopup (MouseEvent e) {
 //            System.out.println("createdpopup..");
             createPopup(e.getX(), e.getY());
@@ -686,6 +676,8 @@ public class SingleNodeView extends JPanel implements Externalizable {
     private final class Listener extends MouseAdapter
     implements 
     PropertyChangeListener, VetoableChangeListener {
+        
+        public Listener () {}
         
         public void mouseClicked(MouseEvent e) {
             if (MouseUtils.isDoubleClick(e)) {

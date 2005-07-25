@@ -17,10 +17,6 @@ import java.awt.event.*;
 import java.awt.*;
 import java.beans.*;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.awt.dnd.DnDConstants;
-import java.util.HashSet;
-import java.util.HashMap;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -30,14 +26,9 @@ import javax.accessibility.*;
 import org.openide.ErrorManager;
 import org.openide.awt.MouseUtils;
 import org.openide.explorer.*;
-import org.openide.util.WeakListener;
-import org.openide.util.HelpCtx;
-import org.openide.util.actions.SystemAction;
-import org.openide.util.actions.Presenter;
+import org.openide.util.WeakListeners;
 import org.openide.nodes.*;
-import org.openide.util.Utilities;
 import org.openide.util.actions.*;
-import org.openide.actions.PopupAction;
 
 import org.netbeans.modules.vcscore.util.table.*;
 
@@ -465,8 +456,8 @@ public class TableView extends JScrollPane implements Externalizable {
 
             manager = em;
 
-            manager.addVetoableChangeListener(wlvc = WeakListener.vetoableChange (managerListener, manager));
-            manager.addPropertyChangeListener(wlpc = WeakListener.propertyChange (managerListener, manager));
+            manager.addVetoableChangeListener(wlvc = WeakListeners.vetoableChange (managerListener, manager));
+            manager.addPropertyChangeListener(wlpc = WeakListeners.propertyChange (managerListener, manager));
             
             updateSelection();
         };
@@ -620,6 +611,9 @@ public class TableView extends JScrollPane implements Externalizable {
     /** Popup menu listener. */
     private final class PopupAdapter extends
         org.openide.awt.MouseUtils.PopupMouseAdapter {
+        
+        public PopupAdapter () {}
+        
         protected void showPopup (MouseEvent e) {
             int i = table.rowAtPoint(new Point (e.getX (), e.getY ()));
             if (!(table.getSelectedRow() == i)) {
@@ -740,6 +734,8 @@ public class TableView extends JScrollPane implements Externalizable {
     private final class Listener extends MouseAdapter
         implements TableModelListener, ListSelectionListener,
         PropertyChangeListener, VetoableChangeListener {
+        
+        public Listener () {}
         
         public void tableChanged(TableModelEvent e) {
 //            updateSelection();

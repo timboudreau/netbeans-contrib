@@ -15,9 +15,6 @@ package org.netbeans.modules.vcscore.actions;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
@@ -27,26 +24,16 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import org.openide.*;
-import org.openide.DialogDisplayer;
-import org.openide.actions.MoveDownAction;
-import org.openide.actions.MoveUpAction;
 import org.openide.awt.Actions;
-import org.openide.cookies.InstanceCookie;
-import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.explorer.view.MenuView;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
-import org.openide.util.Mutex;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.*;
-import org.openide.util.WeakListener;
-import org.openide.util.RequestProcessor;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 /** Creates a new VCS filesystem from template in the "Templates/Mount/VCS" folder.
  * Copied and adapted from org.openide.actions.NewTemplateAction
@@ -59,9 +46,6 @@ public class VcsMountFromTemplateAction extends NodeAction {
     
     private static final String ATTR_MNEMONIC = "VcsMountAction.mnemonic"; // NOI18N
     
-    /** Last node selected reference to (Node). */
-    private static Reference where = new WeakReference (null);
-
     /** Standard wizard (unmodified).*/
     private static Reference standardWizardRef;
     
@@ -355,6 +339,9 @@ public class VcsMountFromTemplateAction extends NodeAction {
     private static class TemplateActionListener implements NodeAcceptor, DataFilter {
 
         static final long serialVersionUID = 4733270452576543255L;
+        
+        public TemplateActionListener () {}
+        
         public boolean acceptNodes (Node[] nodes) {
             if ((nodes == null) || (nodes.length != 1)) {
                 return false;
@@ -373,6 +360,8 @@ public class VcsMountFromTemplateAction extends NodeAction {
     /** My special version of template wizard.
     */
     private static final class TW extends TemplateWizard implements FileSystem.AtomicAction {
+        
+        public TW () {}
 
         /** Calls iterator's instantiate. It is called when user selects
          * a option which is not CANCEL_OPTION or CLOSED_OPTION.

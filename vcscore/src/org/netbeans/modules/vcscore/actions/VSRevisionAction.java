@@ -16,11 +16,9 @@ package org.netbeans.modules.vcscore.actions;
 //import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.util.*;
 
-import org.openide.awt.JMenuPlus;
 import org.openide.awt.JInlineMenu;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.nodes.*;
@@ -201,7 +199,7 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
             Registry r = WindowManager.getDefault().getRegistry ();
 
             r.addPropertyChangeListener (
-                org.openide.util.WeakListener.propertyChange (propL, r)
+                org.openide.util.WeakListeners.propertyChange (propL, r)
             );
         }
 
@@ -254,6 +252,7 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
         /** Property listnener to watch changes of enable state.
         */
         private class PropL implements PropertyChangeListener {
+            public PropL () {}
             public void propertyChange (PropertyChangeEvent ev) {
                 String name = ev.getPropertyName ();
                 if (

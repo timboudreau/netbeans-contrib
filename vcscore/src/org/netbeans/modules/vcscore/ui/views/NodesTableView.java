@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -17,27 +17,20 @@ import java.awt.event.*;
 import java.awt.*;
 import java.beans.*;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.awt.dnd.DnDConstants;
 import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.accessibility.*;
 
 import org.openide.ErrorManager;
 import org.openide.awt.MouseUtils;
 import org.openide.explorer.*;
-import org.openide.util.WeakListener;
-import org.openide.util.HelpCtx;
+import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.actions.Presenter;
 import org.openide.nodes.*;
-import org.openide.util.Utilities;
-import org.openide.util.actions.*;
-import org.openide.actions.PopupAction;
 
 import org.netbeans.modules.vcscore.util.table.*;
+import org.openide.util.actions.CallbackSystemAction;
 
 /** Explorer view to display items in a list.
 * @author   Ian Formanek, Jan Jancura, Jaroslav Tulach
@@ -398,6 +391,7 @@ public class NodesTableView extends JScrollPane implements Externalizable {
     }
     
     private class TableNodeListener extends  NodeAdapter {
+        public TableNodeListener () {}
         
         public void nodeDestroyed(org.openide.nodes.NodeEvent nodeEvent) {
 //            System.out.println("node destroyed..");
@@ -437,8 +431,8 @@ public class NodesTableView extends JScrollPane implements Externalizable {
 
             manager = em;
 
-            manager.addVetoableChangeListener(wlvc = WeakListener.vetoableChange (managerListener, manager));
-            manager.addPropertyChangeListener(wlpc = WeakListener.propertyChange (managerListener, manager));
+            manager.addVetoableChangeListener(wlvc = WeakListeners.vetoableChange (managerListener, manager));
+            manager.addPropertyChangeListener(wlpc = WeakListeners.propertyChange (managerListener, manager));
             
             clearModel();
             FileVcsInfo info = (FileVcsInfo)manager.getRootContext().getCookie(FileVcsInfo.class);
@@ -603,6 +597,8 @@ public class NodesTableView extends JScrollPane implements Externalizable {
     /** Popup menu listener. */
     private final class PopupAdapter extends
         org.openide.awt.MouseUtils.PopupMouseAdapter {
+        public PopupAdapter () {}
+        
         protected void showPopup (MouseEvent e) {
             int i = table.rowAtPoint(new Point (e.getX (), e.getY ()));
 /*            if (!(table.getSelectedRow() == i)) {
@@ -694,6 +690,7 @@ public class NodesTableView extends JScrollPane implements Externalizable {
     private final class Listener extends MouseAdapter
         implements TableModelListener, ListSelectionListener,
         PropertyChangeListener, VetoableChangeListener {
+        public Listener () {}
         
         public void tableChanged(TableModelEvent e) {
 //            updateSelection();
