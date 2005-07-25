@@ -365,8 +365,8 @@ public final class VcsAction extends Object {//NodeAction implements ActionListe
          String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
          if (disabledStatus == null) return files;
          Table remaining = new Table();
-         for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-             String name = (String) enum.nextElement();
+         for (Enumeration en = files.keys(); en.hasMoreElements(); ) {
+             String name = (String) en.nextElement();
              FileObject fo = fileSystem.findResource(name);
              FileProperties fprops = Turbo.getMeta(fo);
              String status = FileProperties.getStatus(fprops);
@@ -386,8 +386,8 @@ public final class VcsAction extends Object {//NodeAction implements ActionListe
         String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
         if (disabledStatus == null) return files;
         Table remaining = new Table();
-        for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-            String name = (String) enum.nextElement();
+        for (Enumeration en = files.keys(); en.hasMoreElements(); ) {
+            String name = (String) en.nextElement();
             String status = statusProvider.getFileStatus(name);
             boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
                 disabledStatus, Collections.singleton(status));
