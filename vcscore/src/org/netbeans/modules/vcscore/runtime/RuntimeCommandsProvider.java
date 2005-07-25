@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import org.openide.filesystems.FileSystem;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 /**
  * The provider of commands for the representation on the Runtime Tab.
@@ -165,7 +165,7 @@ public abstract class RuntimeCommandsProvider {
         public RuntimeFolderChildren(RuntimeCommandsProvider provider) {
             this.provider = provider;
             setKeys(provider.children());
-            provider.addPropertyChangeListener(WeakListener.propertyChange(this, provider));
+            provider.addPropertyChangeListener(WeakListeners.propertyChange(this, provider));
         }
         
         protected Node[] createNodes(Object obj) {

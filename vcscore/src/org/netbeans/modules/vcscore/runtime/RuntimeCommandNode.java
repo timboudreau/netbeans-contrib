@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -17,14 +17,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.awt.Image;
 
-import org.openide.actions.PropertiesAction;
 import org.openide.nodes.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.Utilities;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
-
-import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.util.WeakListeners;
 
 /**
  * The node of command in the runtime tab.
@@ -57,7 +54,7 @@ public class RuntimeCommandNode extends AbstractNode implements PropertyChangeLi
         if (displayName == null || displayName.length() == 0) displayName = command.getName();
         setDisplayName(displayName.trim());
         setShortDescription(NbBundle.getMessage(RuntimeCommandNode.class, "RuntimeCommandNode.Description", displayName.trim()));
-        comm.addPropertyChangeListener(WeakListener.propertyChange(this, comm));
+        comm.addPropertyChangeListener(WeakListeners.propertyChange(this, comm));
         setState(comm.getState());
         //setDefaultAction(CommandOutputViewAction.getInstance());
         getCookieSet().add(comm);
@@ -117,11 +114,6 @@ public class RuntimeCommandNode extends AbstractNode implements PropertyChangeLi
             if (displayName == null || displayName.length() == 0) displayName = command.getName();
             setDisplayName(displayName);
         }
-    }
-
-
-    private String g(String name) {
-        return org.openide.util.NbBundle.getBundle(RuntimeCommandNode.class).getString(name);
     }
 
 }
