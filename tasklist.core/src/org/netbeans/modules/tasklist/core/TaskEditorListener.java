@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -16,10 +16,6 @@ package org.netbeans.modules.tasklist.core;
 import org.openide.text.Line;
 import org.openide.text.Annotation;
 import org.openide.text.Annotatable;
-
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.TaskViewListener;
-import org.netbeans.modules.tasklist.core.TaskAnnotation;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;

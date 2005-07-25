@@ -16,7 +16,6 @@ package org.netbeans.modules.tasklist.core.editors;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 
-import java.awt.Color;
 import java.awt.Component;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

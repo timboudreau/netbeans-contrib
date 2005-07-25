@@ -20,9 +20,7 @@ import org.netbeans.modules.tasklist.core.*;
 import org.openide.awt.Actions;
 
 import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
 import org.openide.util.actions.BooleanStateAction;
-import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.actions.Presenter;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
