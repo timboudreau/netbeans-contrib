@@ -21,8 +21,6 @@ import java.io.*;
 import java.lang.ref.Reference;
 import java.text.*;
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -30,28 +28,20 @@ import javax.swing.event.ChangeListener;
 import org.openide.*;
 import org.openide.util.actions.*;
 import org.openide.util.NbBundle;
-import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileSystem.Status;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
-import org.openide.filesystems.DefaultAttributes;
 import org.openide.filesystems.FileStatusEvent;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataLoader;
-import org.openide.loaders.DataLoaderPool;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.DataShadow;
 import org.openide.nodes.Node;
-import org.openide.nodes.Children;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import org.openide.util.SharedClassObject;
 import org.openide.util.UserQuestionException;
-import org.openide.util.WeakListener;
 import org.openide.util.WeakListeners;
 import org.openide.windows.InputOutput;
 
@@ -225,13 +215,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected static final int REFRESH_TIME = 0; // Disabled by default (see #28352).
     protected volatile int refreshTimeToSet = REFRESH_TIME;
 
-    private static final String LOCAL_FILES_ADD_VAR = "SHOWLOCALFILES"; // NOI18N
     private static final String LOCK_FILES_ON = "LOCKFILES"; // NOI18N
     private static final String PROMPT_FOR_LOCK_ON = "PROMPTFORLOCK"; // NOI18N
     private static final String EDIT_FILES_ON = "CALLEDITONFILES"; // NOI18N
     private static final String PROMPT_FOR_EDIT_ON = "PROMPTFOREDIT"; // NOI18N
-
-    private static final String DEFAULT_QUOTING_VALUE = "\\\""; // NOI18N
 
     private static final String DEFAULT_CACHE_ID = "VCS_Cache"; // NOI18N
 
@@ -1030,17 +1017,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             public void run() {
                 FileObject fo = findExistingResource(path);
                 if (fo == null) return;
-                Enumeration enum = existingFileObjects(fo);
+                Enumeration en = existingFileObjects(fo);
                 //Enumeration enum = fo.getChildren(recursively);
                 HashSet hs = new HashSet();
-                if (enum.hasMoreElements()) {
+                if (en.hasMoreElements()) {
                     // First add the root FileObject
-                    hs.add(enum.nextElement());
+                    hs.add(en.nextElement());
                 }
-                while(enum.hasMoreElements()) {
+                while(en.hasMoreElements()) {
                     //fo = (FileObject) enum.nextElement();
                     //hs.add(fo);
-                    FileObject chfo = (FileObject) enum.nextElement();
+                    FileObject chfo = (FileObject) en.nextElement();
                     if (!recursively && !fo.equals(chfo.getParent())) break;
                     hs.add(chfo);
                 }
@@ -1078,12 +1065,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return The set of FileObjects
      */
     private Set findExistingResources(Collection names) {
-        Enumeration enum = existingFileObjects(getRoot());
+        Enumeration en = existingFileObjects(getRoot());
         Set fos = new HashSet();
         int n = names.size();
         int i = 0;
-        while (enum.hasMoreElements() && i < n) {
-            FileObject obj = (FileObject) enum.nextElement();
+        while (en.hasMoreElements() && i < n) {
+            FileObject obj = (FileObject) en.nextElement();
             String name = obj.getPath();
             if (names.contains(name)) {
                 fos.add(obj);
@@ -1099,10 +1086,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * FileObjects and search them for the desired one.
      */
     public FileObject findExistingResource(String name) {
-        Enumeration enum = existingFileObjects(getRoot());
+        Enumeration en = existingFileObjects(getRoot());
         FileObject fo = null;
-        while (enum.hasMoreElements()) {
-            FileObject obj = (FileObject) enum.nextElement();
+        while (en.hasMoreElements()) {
+            FileObject obj = (FileObject) en.nextElement();
             if (name.equals(obj.getPath())) {
                 fo = obj;
                 break;
@@ -1121,7 +1108,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         VcsConfigVariable schVar = (VcsConfigVariable) variablesByName.get(VAR_STATUS_SCHEDULED_ADD);
         String scheduledStatusAdd = (schVar != null) ? schVar.getValue() : null;
         schVar = (VcsConfigVariable) variablesByName.get(VAR_STATUS_SCHEDULED_REMOVE);
-        String scheduledStatusRemove = (schVar != null) ? schVar.getValue() : null;
+//        String scheduledStatusRemove = (schVar != null) ? schVar.getValue() : null;
         //System.out.println("checkScheduledStates(): scheduledStatusAdd = "+scheduledStatusAdd+", scheduledStatusRemove = "+scheduledStatusRemove);
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
@@ -2335,7 +2322,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private String mergeStatus(Object[] fileObjects) {
         String mergedStatus = null;
         int len = fileObjects.length;
-        for (int i = 0; i < fileObjects.length; i++) {
+        for (int i = 0; i < len; i++) {
             FileObject fo = (FileObject) fileObjects[i];
             FileProperties fprops = Turbo.getCachedMeta(fo);
             if (mergedStatus == null) {
@@ -2933,18 +2920,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     }
 
-    private static boolean areOnlyHiddenFiles(String[] files) {
-        ArrayList fileList = new ArrayList(Arrays.asList(files));
-        fileList.remove(".nbintdb"); // NOI18N
-        fileList.remove(".nbattrs"); // NOI18N
-        fileList.remove("fileSystem.attributes"); // NOI18N
-        for (int i = 0; i < fileList.size(); i++) {
-            String file = (String) fileList.get(i);
-            if (file.endsWith("~")) fileList.remove(i--); // NOI18N
-        }
-        return fileList.size() == 0;
-    }
-
     private transient Vector scheduledFilesToBeProcessed;
 
     /**
@@ -3139,9 +3114,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("checkForModifications("+path+")");
         if (".".equals(path)) path = "";
         FileObject first = this.findResource(path);
-        Enumeration enum = existingFileObjects(first);
-        while(enum.hasMoreElements()) {
-            FileObject fo = (FileObject) enum.nextElement();
+        Enumeration en = existingFileObjects(first);
+        while(en.hasMoreElements()) {
+            FileObject fo = (FileObject) en.nextElement();
             if (!(fo.isData() && refreshData || fo.isFolder() && refreshFolders)) {
                 continue;
             }
@@ -3558,8 +3533,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return true if the file is folder, false otherwise
      */
     public boolean folder (String name) {
-        boolean isFolder;
-
         File f = getFile (name);
         if (f != null && f.exists()) {
             return f.isDirectory ();
@@ -3674,10 +3647,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
             return fileChangeHandlers;
         }
-    }
-    
-    private synchronized void resetFileChangeHandlers() {
-        fileChangeHandlers = null;
     }
     
     private synchronized void callFileChangeHandler(String name, String status) {
@@ -4451,6 +4420,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     private class SettingsPropertyChangeListener implements PropertyChangeListener {
+        public SettingsPropertyChangeListener () {}
         public void propertyChange(final PropertyChangeEvent event) {
             settingsChanged(event.getPropertyName(), event.getOldValue(), event.getNewValue());
         }
@@ -4459,6 +4429,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private class VcsList implements AbstractFileSystem.List {
 
         private static final long serialVersionUID = 9164232967348550668L;
+        
+        public VcsList () {}
 
         public String[] children(String name) {
             return list.children(name);
@@ -4473,6 +4445,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * a multifilesystem.
      */
     private class RegistryListener extends Object implements FSRegistryListener {
+        
+        public RegistryListener () {}
 
         public void fsAdded(org.netbeans.modules.vcscore.registry.FSRegistryEvent ev) {
             if (VcsFileSystem.this.equals(ev.getInfo().getExistingFileSystem())) {
