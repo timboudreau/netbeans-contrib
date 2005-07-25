@@ -171,9 +171,9 @@ public class GroupUtils {
         //System.out.println(" primaryFile = "+dataObj.getPrimaryFile());
         FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
-        Enumeration enum = rootFo.getData(true);
-        while (enum.hasMoreElements()) {
-            FileObject fo = (FileObject)enum.nextElement();
+        Enumeration en = rootFo.getData(true);
+        while (en.hasMoreElements()) {
+            FileObject fo = (FileObject)en.nextElement();
             try {
                 DataObject dobj = DataObject.find(fo);
                 //System.out.println("  dobj = "+dobj+", instanceof DataShadow = "+(dobj instanceof DataShadow));

@@ -142,10 +142,10 @@ public class MainVcsGroupChildren extends Children.Keys  {
         FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
         if (rootFo != null) {
-            Enumeration enum = rootFo.getChildren(false);
-            if (enum != null) {
-                while (enum.hasMoreElements()) {
-                    FileObject fo = (FileObject)enum.nextElement();
+            Enumeration en = rootFo.getChildren(false);
+            if (en != null) {
+                while (en.hasMoreElements()) {
+                    FileObject fo = (FileObject)en.nextElement();
                     if (fo.isFolder()) {
                         grList.add(fo);
                     }

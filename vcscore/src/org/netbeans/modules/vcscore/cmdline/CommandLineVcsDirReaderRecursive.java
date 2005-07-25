@@ -172,8 +172,8 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
         Hashtable filesByName = (Hashtable) rawData.getElement();
         if (filesByName != null) {
             Hashtable filesByNameTranslated = new Hashtable();
-            for (Enumeration enum = filesByName.keys(); enum.hasMoreElements(); ) {
-                String name = (String) enum.nextElement();
+            for (Enumeration en = filesByName.keys(); en.hasMoreElements(); ) {
+                String name = (String) en.nextElement();
                 String[] elements = (String[]) filesByName.get(name);
                 elements = CommandLineVcsDirReader.translateElements(elements, listSub);
                 filesByNameTranslated.put(name, elements);

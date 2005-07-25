@@ -1347,8 +1347,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         int[][] fileIndexes = new int[6][nFILES];
         // The array is automatically initialized with zeros.
         int iFile = 0;
-        for (Enumeration enum = files.keys(); enum.hasMoreElements(); iFile++) {
-            fullName = (String) enum.nextElement();
+        for (Enumeration en = files.keys(); en.hasMoreElements(); iFile++) {
+            fullName = (String) en.nextElement();
             absFullName = (rootDir != null) ? rootDir + ((fullName.length() > 0) ? separatorChar + fullName : "") : fullName;
             fo = (FileObject) files.get(fullName);
             origFullName = fullName;
@@ -1443,8 +1443,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      */
     private static String findGreatestParent(Table files) {
         String greatestParent = null;
-        for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-            String fullName = (String) enum.nextElement();
+        for (Enumeration en = files.keys(); en.hasMoreElements(); ) {
+            String fullName = (String) en.nextElement();
             String parent = VcsUtilities.getDirNamePart(fullName);
             //System.out.println("findGreatestParent: fullName = '"+fullName+"', parent = '"+parent+"', prev greatestParent = '"+greatestParent+"'");
             if (greatestParent == null) {
