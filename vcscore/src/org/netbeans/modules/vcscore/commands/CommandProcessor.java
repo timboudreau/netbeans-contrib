@@ -23,8 +23,6 @@ import java.beans.Customizer;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.beans.IntrospectionException;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import org.openide.ErrorManager;
@@ -32,27 +30,16 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
-import org.openide.nodes.Node;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.BeanNode;
 import org.openide.util.RequestProcessor;
 import org.openide.util.UserCancelException;
-import org.openide.util.WeakListener;
-//import org.openide.nodes.AbstractNode;
-//import org.openide.nodes.Children;
 
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 
-import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.cmdline.UserCommandCustomizer;
-//import org.netbeans.modules.vcscore.runtime.*;
-//import org.netbeans.modules.vcscore.cache.FileSystemCache;
-//import org.netbeans.modules.vcscore.cache.CacheHandler;
-import org.netbeans.modules.vcscore.util.Table;
-//import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.VariableInputDialog;
 
@@ -92,8 +79,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     /** The maximum number of running commands with a normal priority.
      * This is necessary to leave some space for high-priority commands. */
     private static final int MAX_NORMAL_PRIORITY = 10;
-    
-    private static long lastCommandID = 0;
     
     private static CommandProcessor instance = null;
     
@@ -679,7 +664,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         threadsPool.post(new Runnable() {
         //new Thread(new Runnable() {
             public void run() {
-                VcsCommandExecutor vce;
                 CommandTask task = cw.getTask();
                 if (isListCommandTask(task)) {
                     synchronized (CommandProcessor.this) {
@@ -830,35 +814,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             tasks.add(cw.getTask());
         }
         return (CommandTask[]) tasks.toArray(new CommandTask[tasks.size()]);
-    }
-    
-    /** @return true if there are two files contained in the same package folder, false otherwise.
-     */
-    private static boolean areFilesInSamePackage(Collection files1, Collection files2) {
-        for(Iterator it1 = files1.iterator(); it1.hasNext(); ) {
-            String file1 = (String) it1.next();
-            String dir1 = VcsUtilities.getDirNamePart(file1);
-            for(Iterator it2 = files2.iterator(); it2.hasNext(); ) {
-                String file2 = (String) it2.next();
-                String dir2 = VcsUtilities.getDirNamePart(file2);
-                if (dir1.equals(dir2)) return true;
-            }
-        }
-        return false;
-    }
-    
-    /** @return true if a file or folder from <code>files1</code> is contained in a folder
-     * from <code>files2</code>
-     */
-    private static boolean isParentFolder(Collection files1, Collection files2) {
-        for(Iterator it1 = files1.iterator(); it1.hasNext(); ) {
-            String file1 = (String) it1.next();
-            for(Iterator it2 = files2.iterator(); it2.hasNext(); ) {
-                String file2 = (String) it2.next();
-                if (file1.startsWith(file2)) return true;
-            }
-        }
-        return false;
     }
     
     private boolean isListCommandTask(CommandTask task) {
@@ -1188,10 +1143,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         return status;
     }
 
-    
-    private static String g(String s) {
-        return org.openide.util.NbBundle.getMessage(CommandProcessor.class, s);
-    }
     
     private static String  g(String s, Object obj) {
         return org.openide.util.NbBundle.getMessage(CommandProcessor.class, s, obj);

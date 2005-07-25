@@ -369,8 +369,8 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             if (maxLastLines > 0) lastLines = new ArrayList();
             boolean linesCut = false;
             boolean appendNewLine = false;
-            for (Enumeration enum = preCommandOutput[whichOutput].elements(); enum.hasMoreElements(); line++) {
-                String[] elements = (String[]) enum.nextElement();
+            for (Enumeration en = preCommandOutput[whichOutput].elements(); en.hasMoreElements(); line++) {
+                String[] elements = (String[]) en.nextElement();
                 if (elements.length > index && elements[index] != null) {
                     if (maxFirstLines > 0) {
                         if (line < maxFirstLines) {
@@ -426,8 +426,8 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             return exec;
         }
         try {
-            for (Enumeration enum = preCommandOutput[whichOutput].elements(); enum.hasMoreElements(); ) {
-                String[] elements = (String[]) enum.nextElement();
+            for (Enumeration en = preCommandOutput[whichOutput].elements(); en.hasMoreElements(); ) {
+                String[] elements = (String[]) en.nextElement();
                 if (elements.length > index) {
                     writer.write(((elements[index] != null) ? elements[index] : "") + "\n");
                 }

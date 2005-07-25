@@ -182,8 +182,8 @@ public class CommandCustomizationSupport extends Object {
         String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
         if (disabledStatus != null) {
             Table remaining = new Table();
-            for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-                String name = (String) enum.nextElement();
+            for (Enumeration en = files.keys(); en.hasMoreElements(); ) {
+                String name = (String) en.nextElement();
                 FileObject fo = fileSystem.findResource(name);
                 FileProperties fprops = Turbo.getMeta(fo);
                 String status = FileProperties.getStatus(fprops);
@@ -206,8 +206,8 @@ public class CommandCustomizationSupport extends Object {
                 currentLocker = Variables.expand(vars, currentLocker, false);
             }
             if (disabledWhenNotLockedConditionedStr != null) {
-                for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-                    String name = (String) enum.nextElement();
+                for (Enumeration enm = files.keys(); enm.hasMoreElements(); ) {
+                    String name = (String) enm.nextElement();
                     Table varFiles = new Table();
                     varFiles.put(name, files.get(name));
                     Hashtable vvars = new Hashtable(vars);
@@ -229,8 +229,8 @@ public class CommandCustomizationSupport extends Object {
                     }
                 }
             } else {
-                for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-                    String name = (String) enum.nextElement();
+                for (Enumeration enu = files.keys(); enu.hasMoreElements(); ) {
+                    String name = (String) enu.nextElement();
                     FileObject fo = fileSystem.findResource(name);
                     FileProperties fprops = Turbo.getMeta(fo);
                     String locker = fprops != null ? fprops.getLocker() : null;
@@ -929,8 +929,8 @@ public class CommandCustomizationSupport extends Object {
                                     // An explicit Set As Default is for that purpose
                                 }
                                 Hashtable valuesTable = dlg.getUserParamsValuesTable();
-                                for (Enumeration enum = userParamsVarNames.keys(); enum.hasMoreElements(); ) {
-                                    String varName = (String) enum.nextElement();
+                                for (Enumeration en = userParamsVarNames.keys(); en.hasMoreElements(); ) {
+                                    String varName = (String) en.nextElement();
                                     //System.out.println("varName = "+varName+", label = "+userParamsVarNames.get(varName));
                                     String value = (String) valuesTable.get(userParamsVarNames.get(varName));
                                     vars.put(varName, value);
