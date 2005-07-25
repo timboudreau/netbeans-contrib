@@ -21,15 +21,11 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
 
 import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.util.Lookup;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
@@ -48,8 +44,6 @@ import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
  */
 public class CommandLineFSRecognizer extends FSRecognizer implements PropertyChangeListener {
     
-    private static final String CONFIG_ROOT = "vcs/config"; // NOI18N
-    
     public static final String VAR_AUTORECOGNIZE_FROM_FILE = "AUTORECOGNIZE_FROM_FILE"; // NOI18N
     public static final String VAR_AUTORECOGNIZE_FROM_COMMAND = "AUTORECOGNIZE_FROM_COMMAND"; // NOI18N
     
@@ -64,7 +58,7 @@ public class CommandLineFSRecognizer extends FSRecognizer implements PropertyCha
     
     private void init() {
         ProfilesFactory profilesFactory = ProfilesFactory.getDefault();
-        profilesFactory.addPropertyChangeListener(WeakListener.propertyChange(this, profilesFactory));
+        profilesFactory.addPropertyChangeListener(WeakListeners.propertyChange(this, profilesFactory));
         String profileNames[] = profilesFactory.getProfilesNames();
         for (int i = 0; i < profileNames.length; i++) {
             if (profilesFactory.isOSCompatibleProfile(profileNames[i])) {
