@@ -116,8 +116,8 @@ public class RevisionList extends TreeSet implements Node.Cookie {
      */
     private final void fireChanged() {
         //System.out.println("RevisionList.fireChange()");
-        for(Enumeration enum = listeners.elements(); enum.hasMoreElements(); ) {
-            ChangeListener listener = (ChangeListener) enum.nextElement();
+        for(Enumeration en = listeners.elements(); en.hasMoreElements(); ) {
+            ChangeListener listener = (ChangeListener) en.nextElement();
             listener.stateChanged(new ChangeEvent(this));
         }
     }

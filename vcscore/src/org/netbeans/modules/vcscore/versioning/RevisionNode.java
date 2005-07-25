@@ -15,8 +15,6 @@ package org.netbeans.modules.vcscore.versioning;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Hashtable;
-import java.util.Enumeration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,7 +26,7 @@ import org.openide.cookies.ViewCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.modules.vcscore.actions.VSRevisionAction;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
@@ -88,7 +86,7 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         this.item = item;
         addCookies();
         setIcon();
-        if (item != null) item.addPropertyChangeListener(WeakListener.propertyChange(this, item));
+        if (item != null) item.addPropertyChangeListener(WeakListeners.propertyChange(this, item));
     }
     
     private void addCookies() {
@@ -124,7 +122,7 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         setDisplayName(item.getDisplayName());
         addCookies();
         setIcon();
-        if (item != null) item.addPropertyChangeListener(WeakListener.propertyChange(this, item));
+        if (item != null) item.addPropertyChangeListener(WeakListeners.propertyChange(this, item));
     }
     
     public RevisionItem getItem() {
@@ -350,10 +348,6 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
                 //set.put(propertyRevision);
             }
         }
-    }
-    
-    private String g(String resource) {
-        return org.openide.util.NbBundle.getBundle(RevisionNode.class).getString(resource);
     }
     
 }
