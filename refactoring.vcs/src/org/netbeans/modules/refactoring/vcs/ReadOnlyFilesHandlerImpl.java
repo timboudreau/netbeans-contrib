@@ -13,8 +13,11 @@
 
 package org.netbeans.modules.refactoring.vcs;
 import java.util.Collection;
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.modules.refactoring.api.Problem;
 import org.netbeans.modules.refactoring.spi.*;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -28,7 +31,12 @@ public class ReadOnlyFilesHandlerImpl implements ReadOnlyFilesHandler {
     
     public Problem createProblem(Collection files) {
         //if files cannot be handled by VCS return null
-        return new Problem(false, "Some files are checked out as read-only. You can update them as read-write.", ProblemDetailsFactory.createProblemDetails(new CheckoutFiles(files)));
+        FileObject[] fos = (FileObject[]) files.toArray(new FileObject[0]);
+        Command editCmd = VcsManager.getDefault().createCommand("EDIT", fos);
+        if (editCmd == null) return null;
+        fos = editCmd.getApplicableFiles(fos);
+        editCmd.setFiles(fos);
+        return new Problem(false, "Some files are checked out as read-only. You can update them as read-write.", ProblemDetailsFactory.createProblemDetails(new CheckoutFiles(fos, editCmd)));
     }
     
 }
