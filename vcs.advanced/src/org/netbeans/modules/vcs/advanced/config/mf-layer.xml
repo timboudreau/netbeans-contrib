@@ -144,6 +144,10 @@ Microsystems, Inc. All Rights Reserved.
                 </file>
             </folder>    
         </folder>            
+        <folder name="JavaHelp">
+            <file name="org-netbeans-modules-vcs-advanced-config-helpset.xml" url="helpset-decl.xml"/>
+            <attr name="org-netbeans-modules-usersguide-below-regular.txt/org-netbeans-modules-vcs-advanced-config-helpset.xml" boolvalue="true"/>
+        </folder>
     </folder>      
 
 </filesystem>
