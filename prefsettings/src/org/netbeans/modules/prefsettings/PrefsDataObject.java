@@ -108,13 +108,41 @@ public class PrefsDataObject extends DataObject {
     }
     
     public String attr (String key) {
-        return (String) getPrimaryFile().getAttribute(key);
+        return attr(getPrimaryFile(), key);
+    }
+    
+    private String attr (FileObject fo, String key) {
+        return (String) fo.getAttribute(key);
     }
     
     public Preferences getPreferences() {
-        return Preferences.userRoot().node(getPrimaryFile().getPath());
+        Preferences parentNode = getPreferencesParent();
+        String prefName = stripNonDirectoryChars(getPrimaryFile().getName());
+        return parentNode.node(prefName);
     }
     
+    private Preferences getPreferencesParent() {
+        String path = attr(KEY_PREFS_PATH);
+        if (path == null) {
+            FileObject parent = getPrimaryFile().getParent();
+            path = attr(parent, KEY_PREFS_PATH);
+            if (path == null)
+                path = stripNonDirectoryChars(parent.getPath());
+        }
+        assert path != null;
+        return Preferences.userRoot().node(path);
+    }
+    
+    private String stripNonDirectoryChars(String path) {
+        StringBuffer sb = new StringBuffer(path);
+        for (int i = sb.length() - 1; i >= 0; i--) {
+            char ch = sb.charAt(i);
+            if (ch == '.' || ch == '_' || ch < 0x20 || ch > 0x7E)
+                sb.setCharAt(i, '-');
+        }
+        return sb.toString();
+    }
+
     public String getLocalizedString (String key) {
         String bundle = attr (KEY_BUNDLE);
         if (bundle == null) {
@@ -137,7 +165,8 @@ public class PrefsDataObject extends DataObject {
     public static final String KEY_BUNDLE = "bundle"; //NOI18N
     public static final String KEY_HELPCTX = "helpContext"; //NOI18N
     public static final String KEY_NODE_CLASS = "nodeClass"; //NOI18N
-    public static final String KEY_ICON = "icon";
+    public static final String KEY_ICON = "icon";  //NOI18N
+    public static final String KEY_PREFS_PATH = "prefsPath"; //NOI18N
 
     protected DataObject handleCopy(DataFolder f) throws IOException {
         throw new UnsupportedOperationException();
