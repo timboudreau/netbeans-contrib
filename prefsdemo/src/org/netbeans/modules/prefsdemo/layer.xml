@@ -7,6 +7,7 @@
         <attr name="helpID" stringvalue="org.netbeans.core.ControlPanelNode" />
         <folder name="AAA_Demo"> 
             <attr name="bundle" stringvalue="org/netbeans/modules/prefsdemo/Bundle"/>
+            <attr name="prefsPath" stringvalue="org/netbeans/modules/prefsdemo"/>
             
             <!-- This file will have a custom node class, and we define the
               properties in its initProperties method.  If a custom node
