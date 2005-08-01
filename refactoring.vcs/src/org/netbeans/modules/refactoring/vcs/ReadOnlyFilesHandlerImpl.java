@@ -33,7 +33,13 @@ public class ReadOnlyFilesHandlerImpl implements ReadOnlyFilesHandler {
     public Problem createProblem(Collection files) {
         //if files cannot be handled by VCS return null
         FileObject[] fos = (FileObject[]) files.toArray(new FileObject[0]);
-        Command editCmd = VcsManager.getDefault().createCommand("EDIT", fos); //NOI18N
+        Command editCmd;
+        try {
+            editCmd = VcsManager.getDefault().createCommand("EDIT", fos); //NOI18N
+        } catch (IllegalArgumentException iaex) {
+            // The provided files are not under version control
+            editCmd = null;
+        }
         if (editCmd == null) return null;
         fos = editCmd.getApplicableFiles(fos);
         editCmd.setFiles(fos);
