@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+ * 
+ *     Copyright © 2005 Sun Microsystems, Inc. All rights reserved.
+ *     Use is subject to license terms.
+ * 
+-->
+<html>
+    <head>
+        <title>Using VCS Groups</title>
+        <link rel="stylesheet" href="../../../usersguide/ide.css" type="text/css">
+    </head>
+    <body>
+        <h2>Using VCS Groups</h2>
+        <p><small><a href="#seealso">See Also</a></small></p>
+        <p>VCS groups simplify the process of working with version-controlled files by
+        organizing related files together. Once organized into groups, you can use
+        the
+        VCS Groups window to track changed files, prepare groups of files
+        for check-in, and perform VCS commands on the entire group.</p>
+        <p>To open the VCS Groups window, choose Window > Versioning > VCS
+        Groups from the main window.</p>
+        <h3>Adding Files to VCS Groups</h3>
+        <p>You can add files to a group manually using the Include in VCS Group command
+        or have them added automatically whenever they are altered. 
+        <h4>To add files to the Default Group automatically:</h4>
+        <ol>
+            <li>Right-click the top-level VCS Groups node and choose Properties. 
+            <li>In the VCS Groups property sheet, select Move Modified Files to Default
+            Group in the Auto Addition combo box. 
+        </ol>
+        Files are automatically added to the Default
+        Group whenever they are changed. If necessary, you can then move the files
+        to another group.</p>
+        <h3>Preparing Grouped Files for Check-in to the Repository</h3>
+        
+<p>Prior to committing a group of files to the repository, you can use the Verify 
+  command to insure that each of the files exist in the repository, are up to 
+  date (CVS only), and have been changed. </p>
+        <h4>To verify a group of files for check-in: resolve
+        any problems with your grouped files</h4>
+        <ol>
+            <li>Right-click the node of the group containing the files you want to verify
+            and choose Verify. The Group Verification dialog box opens, displaying all
+            files found to have problems  sorted under one of four tabs:
+            <ul>
+                <li><b>Do Add</b></li>
+                <li><b>Do Update</b></li>
+                <li><b>Not Locked</b></li>
+                <li><b>Not Changed</b></li>
+            </ul>
+            <li>In each tab, select the  check box to activate the
+            radio buttons' functions if necessary. 
+            <li>Select the files you wish to include in each tab's file list and select
+            the appropriate radio buttons. 
+            <li>After configuring settings for each tab, click Correct Group. 
+            <p>The IDE carries out the specified commands and displays a status report in the VCS Ouput window.
+        </ol>
+        <ul class="note">
+        <li>To resolve all of the problems with grouped files
+        simultaneously, set all of the options on all of the tabs in the Group
+        Verification dialog box before you click Correct Group. </li></ul>
+        <h3>Adding and Removing VCS Groups</h3>
+        <p>By default, the VCS Groups window contains the Default group alone, however,
+        you can also create additional groups within which to organize your versioned
+        files. 
+        <h4>To create a VCS group:</h4>
+        <ol>
+            <li>  Right-clicking the top-level VCS
+            Groups node and choose Add VCS Group.
+            <li> Enter the desired name for the group and click OK.
+            <p>The IDE the list of available groups in the VCS Groups window. 
+        </ol>
+        <table>
+            <tr>
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr>
+                <td width="23"></td>
+                <td>
+                <a href="vcs_commit.html">Committing Local Changes to a VCS Repository</a><br>
+                <a href="vcs_merge.html">Merging File Revisions</a><br>
+                <a href="vcs_usingvcs.html">Using Version Control with the IDE</a> </td>
+            </tr>
+        </table>
+        <hr>
+        <small><a href="../credits.html">Legal Notices</a></small>
+        <table border="0" cellpadding="20">
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    </body>
+</html>

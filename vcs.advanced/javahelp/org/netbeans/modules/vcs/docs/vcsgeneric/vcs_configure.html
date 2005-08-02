@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+ * 
+ *     Copyright © 2005 Sun Microsystems, Inc. All rights reserved.
+ *     Use is subject to license terms.
+ * 
+-->
+<html>
+    <head>
+        <title>Configuring Version Control Settings</title>
+        <link rel="stylesheet" href="../../../usersguide/ide.css" type="text/css">
+    </head>
+    <body>
+        <h2>Configuring Version Control Settings</h2>
+        <p><small><a href="#seealso">See Also</a></small></p>
+        <p>The IDE allows you to edit both global VCS settings and settings specific
+        to a local VCS working directory. The Versioning customizer allows you to edit
+        VCS settings and other advanced options for a VCS working directory. You can
+        also configure global VCS settings in the IDE's Options window. </p>
+        <h4>To edit settings for a local VCS working directory:</h4>
+        <ol>
+            <li>Choose Versioning > Versioning
+            Manager.
+            <li>In the Versioning Manager, open the VCS working directory's customizer
+            by selecting it's node and choosing Edit.
+            <li>In the Profile Tab, select the profile  for the VCS
+            program you are using from the list of those currently installed
+            in the Version Control System Profile
+            combo box. 
+            <p><b>Note:</b> the remaining settings
+            differ depending on which profile is currently selected. 
+            <!--<li>If you want to save the current setup, you can do so as a new profile by clicking Save As, entering the file name
+            and profile label, and clicking Save.</li>-->
+            <li>Edit any settings you wish to change.</li>
+            <li>(Optional) In the Advanced Tab, select any advanced options you require.
+            </li>
+            <li>(Optional) In the Environment Tab, disable any system environment variables
+            you don't want to use with the IDE. You can also create and edit user-defined
+            environment variables.
+            <p><b>Note:</b> Most environment variables must be set outside
+            of the IDE.
+            <li>(Optional) In the Properties Tab, configure any of the version control system's
+            environment variables you want to use with the IDE.
+            <li>Click OK to close the customizer.
+                <p>The IDE applies the settings to the designated local working directory. 
+            </li>
+        </ol>
+
+        <ul class="note">
+            <li>Changes made in the customizer apply only to the
+            local working directory for which they are set. </li>
+        </ul>
+
+        <h4>To edit global VCS settings:</h4>
+        <ol>
+            <li>Choose Tools > Options
+            from the main window.</li>
+            <li>In the Options window, expand the Source Creation and Management node and
+            select  the Version Control Settings node.</li>
+            <li>Enter the settings for the options you require.
+            <p>You can configure the following options:
+            <ul>
+                <li><b>Advanced Mode  Notification.</b> If true, enables prompting for advanced
+                options when invoking VCS commands. </li>
+                <li><b>Auto Refresh.</b> Sets the frequency with which versioned directories
+                automatically refresh file status information. It is recommended that you
+                set this property to For Newly Opened Folders because automatic refreshes
+                on large directories can take a long time.</li>
+                <li><b>File Status Annotation Display.</b> Sets the whether or not files'
+                status annotations are displayed and at what level of detail. </li>
+                <li><b>Home Directory.</b> Sets the location  corresponding
+                to the system's <tt>HOME</tt> directory.
+                This directory is used as the location for configuration files, such as the <tt>.cvspass</tt> file
+                for CVS filesystems.</li>
+                <li><b>Offline Mode. </b>If True, disables automatic refreshing of status information.
+                File status information is still available with
+                the Refresh command.</li>
+                <li><b>Override  Settings of Versioned Directories. </b>If True, ignores options
+                set for specific working directories. Changes are applied to
+                new versioned directories only, existing working directories are not affected.</li>
+            </ul>
+            <li>If you need to edit VCS commands for a profile, expand Version Control
+            Settings > Generic VCS Profiles,
+            select the profile's node, and click the ellipsis (...) for the appropriate
+            property.
+            <p>The IDE applies the settings to the designated VCS profile.
+        </ol>
+
+        <ul class="note">
+            <li>You can also configure how a VCS working directory's
+            versioning information is displayed by right-clicking its node (<img src="./images/vcsGeneric.gif" alt="Working Directory">)
+            in the Versioning window and choosing Properties. </li>
+        </ul>
+
+        <table>
+            <tr>
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr>
+                <td width="23"></td>
+                <td>
+                    <a href="vcs_repositorysetup.html">Setting Up Version Control</a><br>
+                    <a href="vcs_usingvcs.html">Using Version Control with the IDE</a><br>
+                    <a href="vcs_cvs.html">Using CVS in the IDE</a> 
+                </td>
+            </tr>
+        </table>
+        <hr>
+        <small><a href="../credits.html">Legal Notices</a></small>
+        <table border="0" cellpadding="20">
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    </body>
+</html>

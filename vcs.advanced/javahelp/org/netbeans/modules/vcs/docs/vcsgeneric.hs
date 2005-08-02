@@ -11,11 +11,11 @@
 <!-- last updated 08feb02-->
 
   <!-- title -->
-  <title>VCS</title>
+  <title>Generic Version Ccontrol System Help</title>
   
   <!-- maps -->
   <maps>
-     <homeID>ctx_vcsgenericintro</homeID>
+     <homeID>vcs.about</homeID>
      <mapref location="vcsgeneric.jhm" />
   </maps>
   

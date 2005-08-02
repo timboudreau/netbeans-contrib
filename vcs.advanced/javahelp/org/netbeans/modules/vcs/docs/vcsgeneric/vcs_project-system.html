@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+*     Copyright © 2005 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+<html>
+    <head>
+        <title>Using VCS with IDE Projects</title><!--Synchronizing Project Meta Data Using VCS-->
+        <link rel="stylesheet" href="../../../usersguide/ide.css" type="text/css">
+    </head>
+    <body>
+        <h2>Using VCS with IDE Projects</h2>
+        <p><small><a href="#seealso">See Also</a></small>
+        <p>The IDE's VCS support enables developer groups to synchronize project-specific 
+        metadata as well as the source files that make up their applications. Using 
+        VCS, you can place project metadata, such as project properties files and Ant 
+        build scripts, under version control.</p>
+
+        <ul class="note">
+            <li>The physical location of each project in relationship
+            to the location of projects and libraries on its classpath must be exactly
+            the same on every machine the project is checked out to. If any references
+            are broken, the IDE displays a warning when you open the project. To avoid
+            broken references, it is advisable to  ensure that the location of projects
+            in the VCS repository  matches their location when they are checked
+            out to a local working directory.</li>
+        </ul>
+
+        <h3>IDE Project Metadata Files</h3>
+        <p>Depending on project type, the IDE generates different metadata files and stores 
+        them in the <tt>nbproject</tt> directory. The types of project metadata files 
+        in the IDE include: 
+        <ul>
+            <li><tt>nbproject</tt> directory 
+            <ul>
+                <li><tt>project.xml</tt> 
+                <li><tt>build-impl.xml</tt> (standard projects only) 
+                <li><tt>genfiles.properties</tt> (standard projects only)
+                <li><tt>project.properties</tt> (standard projects only)
+                <li><tt>private</tt> directory (standard projects only)
+            </ul>
+  
+            <li><tt>build.xml</tt>
+        </ul>
+        <ul class="note">
+            <li>You should not place your <tt>private</tt> directory
+            into the VCS repository, as it contains information that is specific
+            to your system's IDE installation. The IDE automatically
+            ignores the <tt>private</tt> directory
+            when running VCS commands. In addition, you should  not put your 
+            <tt>dist</tt> or <tt>build</tt> directories
+            into the repository.</li>
+        </ul>
+        <p><b>To place IDE project metadata under version control: </b> </p>
+        <ol>
+            <li>Register the directory that contains the project as a VCS working directory. 
+            For more information, see <a href="vcs_repositorysetup.html">Setting 
+            Up VCS</a>. 
+            <li>In the Projects window, right-click your project's node and choose Clean 
+            Project to delete the <tt>build</tt> and <tt>dist</tt> directories.
+            <li>Add the project metadata to the VCS repository. If you are using CVS, for 
+            example, open the Files window (Ctrl-2), right-click the application's topmost 
+            node, and choose CVS > Add.
+            <li>In the Add dialog box, select Add All Local Files in Folder Contents and 
+            select Add the Folder Contents Recursively. Click OK.
+            <p><b>Note:</b> the IDE automatically ignores the <tt>private</tt> directory
+            and any files that are already in the CVS repository. 
+            <li>Commit the project metadata to the VCS repository. If you are using
+            CVS, right-click the topmost application node in the Files window and choose
+            CVS > Commit.    
+            <li>Enter a message 
+            describing your changes to the repository in the Commit dialog and click
+            OK.
+            <p>The IDE uploads the new files to the repository and the  VCS Ouput window
+            opens to display the progress.
+        </ol>
+        <table>
+            <tr>
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr>
+                <td width="23"></td>
+                <td> <a href="vcs_usingvcs.html">Using Version Control with the IDE</a><br>
+                    <a href="vcs_overview.html">Working with VCS</a><br>
+                    <a href="vcs_about.html">About Version Control</a>
+                </td>
+            </tr>
+        </table>
+        <hr>
+        <font size=-2><a href="../credits.html">Legal Notices</a></font>
+        <table border="0" cellpadding="20">
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    </body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+ * 
+ *     Copyright © 2005 Sun Microsystems, Inc. All rights reserved.
+ *     Use is subject to license terms.
+ *
+ *
+-->
+<html>
+    <head>
+        <title>CVS Command Reference</title>
+        <link rel="stylesheet" href="../../../usersguide/ide.css" type="text/css">
+    </head>
+    <body>
+        <h2>CVS Command Reference</h2>
+        <p><small><a href="#seealso">See Also</a></small></p>
+        <p>The following table describes the commands available when using the IDE's
+        built-in or other command line CVS client with the included profile.</p>
+        <h3> Main Menu Commands</h3>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <tr>
+                <th scope="col"><b>CVS Command</b></th>
+                <th scope="col"><b>Description</b></th>
+            </tr>
+            <tr>
+                <td valign=top>Init Local Repository </td>
+                <td valign=top>Initializes a CVS repository. Initialization is only necessary
+                after creation of a new directory within which to store the repository.</td>
+            </tr>
+            <tr>
+                <td valign=top>Check Out</td>
+                <td valign=top>Checks out a CVS modules from the CVS repository into your
+                working directory. </td>
+            </tr>
+            <tr>
+                <td valign=top>Import</td>
+                <td valign=top>Copies the whole working directory structure to the CVS repository.
+                After using this command, delete the original sources in your system and
+                check out the imported directory structure from the repository.</td>
+            </tr>
+        </table>
+        <h3>Contextual Menu Commands</h3>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <tr>
+                <th scope="col"><b>CVS Command</b></th>
+                <th scope="col"><b>Description</b></th>
+            </tr>
+            <tr>
+                <td valign=top>Refresh </td>
+                <td valign=top>Refreshes the status of the files in the selected folder.</td>
+            </tr>
+            <tr>
+                <td valign=top>Refresh Recursively</td>
+                <td valign=top>Refreshes the status of all files in the selected folder,
+                including those in all of the folder's subdirectories.</td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr align="center" width="80%">
+                </td>
+            </tr>
+            <tr>
+                <td valign=top><a href="vcs_commit.html">Commit</a></td>
+                <td valign=top>Incorporates your changes to the CVS repository. When you
+                choose this command, a dialog box prompts you to enter a log message describing
+                the changes. When a template is present, it is added to the reason text
+                area.</td>
+            </tr>
+            <tr>
+                <td valign=top>Update</td>
+                <td valign=top>Updates the local version of the file with changes that other
+                developers have committed to the CVS repository and, if necessary, merges
+                local changes.</td>
+            </tr>
+            <tr>
+                <td valign=top>Add</td>
+                <td valign=top>Adds local files to the CVS repository. This command is only
+                available on files and directories whose CVS status is currently local.
+                Following use of the Add command, the Commit command must be run in order
+                to actually incorporate the file into the CVS repository.</td>
+            </tr>
+            <tr>
+                <td valign=top>Remove</td>
+                <td valign=top>Removes the file from the CVS repository. The file is deleted
+                locally and is scheduled for removal from the repository. The file is not
+                removed from the repository until you run the Commit command. </td>
+                <!--QUESTION(tm) : "and its status changes to Locally Removed."-->
+            </tr>
+            <tr>
+                <td colspan="2"><hr align="center" width="80%">
+                </td>
+            </tr>
+            <tr>
+                <td valign=top>Status</td>
+                <td valign=top>Displays a window with the file's status information.</td>
+            </tr>
+            <tr>
+                <td valign=top>History > Log</td>
+                <td valign=top>Displays a window with a full list of the file's revisions,
+                tags, and commit history. You can also view revision history for a file
+                in the Versioning window by right-clicking the file and choosing Show Versions.</td>
+            </tr>
+            <tr>
+                <td valign=top>History > History</td>
+                <td valign=top> Displays information about the use of the checkout, commit,
+                rtag, update, and release commands on the files in your working directory
+                (command-line only). </td>
+            </tr>
+            <tr>
+                <td valign=top>History > Annotate</td>
+                <td valign=top>Displays the file in a window where each line is annotated
+                noting the revision in which it was last changed and who changed it. </td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr align="center" width="80%">
+                </td>
+            </tr>
+            <tr>
+                <td valign=top><a href="vcs_checkout.html">Check Out</a></td>
+                <td valign=top>Checks out a CVS modules from the CVS repository into your
+                working directory. </td>
+            </tr>
+            <tr>
+                <td valign=top>Export</td>
+                <td valign=top>Exports local copies of version-controlled files to a designated
+                directory without the CVS administrative directories.</td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr align="center" width="80%">
+                </td>
+            </tr>
+            <tr>
+                <td valign=top>Editing > Edit</td>
+                <td valign=top>Enables the local copy of a file to be editable. Also sends
+                notification to users who have requested edit notification for this file
+                (command-line only). </td>
+            </tr>
+            <tr>
+                <td valign=top>Editing > Undo
+                Edit</td>
+                <td valign=top>Abandons changes to the working file and reverts to the repository
+                version on which the file is based (command-line only). </td>
+            </tr>
+            <tr>
+                <td valign=top>Editing > Editors</td>
+                <td valign=top>Lists the users currently working on the file (command-line
+                only). </td>
+            </tr>
+            <tr>
+                <td valign=top>Watches > Watch
+                On</td>
+                <td valign=top>Enables developer notification of the need to run the Edit
+                command prior to editing files (command-line only). By default, the IDE
+                calls the Edit command automatically when you start editing a watched file.</td>
+            </tr>
+            <tr>
+                <td valign=top>Watches > Watch
+                Off </td>
+                <td valign=top>Disables developer notification about work on files. Working
+                files created by CVS are given read/write attributes (command-line only).</td>
+            </tr>
+            <tr>
+                <td valign=top>Watches > Set
+                Watch</td>
+                <td valign=top>Displays a list of available watch actions and adds the current
+                user to the list of people to receive notification of work done on the
+                files (command-line only).</td>
+            </tr>
+            <tr>
+                <td valign=top>Watches > Watchers</td>
+                <td valign=top>Lists the users currently watching changes to files (command-line
+                only). </td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr align="center" width="80%">
+                </td>
+            </tr>
+            <tr>
+                <td valign=top>Locking > Lock</td>
+                <td valign=top>Locks the file so that only you can edit it (command-line
+                only).</td>
+            </tr>
+            <tr>
+                <td valign=top>Locking > Unlock</td>
+                <td valign=top>Unlocks the file to allow other users to edit it (command-line
+                only).</td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr align="center" width="80%">
+                </td>
+            </tr>
+            <tr>
+                <td valign=top>Branching and Tagging > Remove
+                Tag</td>
+                <td valign=top>Removes a symbolic tag from the repository. This also updates
+                your file with the HEAD revision. </td>
+            </tr>
+            <tr>
+                <td valign=top>Branching and Tagging > Add
+                Tag</td>
+                <td valign=top>Adds a symbolic tag or a branch tag to the file. The desired
+                revision number and tag type can be specified in the dialog box.</td>
+            </tr>
+            <tr>
+                <td valign=top>Branching and Tagging > View
+                Branches </td>
+                <td valign=top>Displays a graphical hierarchy of all the revisions and branches
+                for a file. Click Diff to view differences between any two revisions. </td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr align="center" width="80%">
+                </td>
+            </tr>
+            <tr>
+                <td valign=top><a href="vcs_diff.html#graphically">Diff Graphical</a></td>
+                <td valign=top>Displays the differences between your working file and the
+                repository version on which it is based. You can also specify two file
+                versions to compare. The two versions are displayed next to each other
+                with the differences highlighted. </td>
+            </tr>
+            <tr>
+                <td valign=top><a href="vcs_diff.html#textually">Diff Textual</a></td>
+                <td valign=top>Displays the differences between your working file and the
+                repository version on which it is based. You can also specify two file
+                versions to compare. The differences between the two versions are output
+                as text. </td>
+            </tr>
+            <tr>
+                <td valign=top><a href="vcs_patch.html#CreatePatch">Patch</a></td>
+                <td valign=top>Genereates a patch from the differences of two or more sources
+                (command-line only).</td>
+            </tr>
+            <tr>
+                <td valign=top><a href="vcs_patch.html#ApplyPatch">Apply Patch</a></td>
+                <td valign=top>Applies a patch from the differences of two or more sources
+                (command-line only).</td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr align="center" width="80%">
+                </td>
+            </tr>
+            <tr>
+                <td valign=top>List Modules</td>
+                <td valign=top>Provides a list of modules available in the CVS repository.</td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr align="center" width="80%">
+                </td>
+            </tr>
+            <tr>
+                <td valign=top>Login</td>
+                <td valign=top>Logs you in to the CVS repository. </td>
+            </tr>
+            <tr>
+                <td valign=top>Logout</td>
+                <td valign=top>Logs you out of the CVS repository. </td>
+            </tr>
+            <!--<tr>
+            <td valign=top>Release</td>
+            <td valign=top>Reverses a checkout by locally removing directories and files,
+            but retains CVS history for the files (command-line only). </td>
+            </tr>-->
+        </table>
+        <table>
+            <tr>
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr>
+                <td width="23"></td>
+                <td>
+                    <a href="vcs_cvs.html">Using CVS in the IDE</a><br>
+                    <a href="vcs_usingvcs.html">Using Version Control with the IDE</a><br>
+                    <a href="vcs_overview.html">Working with Version Control</a>
+                </td>
+            </tr>
+        </table>
+        <hr>
+        <small><a href="../credits.html">Legal Notices</a></small>
+        <table border="0" cellpadding="20">
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    </body>
+</html>

@@ -9,7 +9,91 @@
 
 <index version="2.0">
 
-   <indexitem text="----- D -----" />
-	<indexitem text="versioning" target="ctx_vcsgenericintro" />
+    <indexitem text="backup files" >
+        <indexitem text="in VCS directories" target="vcs.about" />
+    </indexitem>
+
+    <indexitem text="configuring IDE" >
+        <indexitem text="VCS working directories" target="vcs.about" />
+        <indexitem text="global VCS settings" target="vcs.configure" />
+    </indexitem>
+
+    <indexitem text="CVS (Concurrent Versioning System)" >
+        <!-- Concurrent Versions System, See me -->
+        <indexitem text="(See also VCS)" />
+        <indexitem text="about" target="vcs.cvs"/>           
+        <indexitem text="arguments" target="vcs.usingvcs"/>
+        <!--<index item text="binary files" target="vcs.binary" />-->      
+        <indexitem text="built-in client" target="vcs.cvs" />
+        <indexitem text="command-line client support" target="vcs.cvs" />
+        <indexitem text="commands, defined" target="vcs.cvscommands" /> 
+        <indexitem text="commands, calling" target="vcs.usingvcs" /> 
+        <indexitem text="command options" target="vcs.usingvcs" />
+        <indexitem text="command status" target="vcs.usingvcs" /><!--TODO(tm) : add mention about output window-->
+        <indexitem text="comparing versions" target="vcs.diff" /> 
+        <indexitem text="diffs" target="vcs.diff" />
+        <indexitem text="working directory properties" target="vcs.configure" />
+        <indexitem text="working directories, creating" target="vcs.repositorysetup" />
+        <indexitem text="local repositories, setting up" target="vcs.repositorysetup" />
+        <indexitem text="merging" target="vcs.merge" />
+        <indexitem text="output" target="vcs.usingvcs" />
+        <indexitem text="revision history, viewing" target="vcs.usingvcs" />    
+        <indexitem text="server settings" target="vcs.configure" />   
+        <indexitem text="settings, global for VCS working directories" target="vcs.configure" /> 
+        <indexitem text="status, changing display of" target="vcs.usingvcs" /><!--TODO(tm) : add mention of annotation to vcs_usingvcs.html & vcs_quickref.html-->
+        <indexitem text="status, searching by" target="files.search" />
+        <indexitem text="Versioning window" target="vcs.usingvcs" /> 
+        <indexitem text="wizard, New VCS working directory" target="vcs.repositorysetup" />
+    </indexitem>
+
+    <indexitem text="conflicts, merging files" target="vcs.mergeresolve" />
+
+    <indexitem text="merge conflicts, resolving" target="vcs.mergeresolve" />
+
+    <indexitem text="merging, CVS" >
+        <indexitem text="(See CVS, merging)" />
+    </indexitem>
+    
+    <indexitem text="merging file revisions" target="vcs.merge"></indexitem>
+
+    <indexitem text="Output window" >
+        <indexitem text="VCS output" target="vcs.usingvcs" />
+    </indexitem>
+
+    <indexitem text="VCS groups" >
+        <indexitem text="about" target="vcs.groups" />
+    </indexitem>
+   
+    <indexitem text="VCS (version control software)" ><!-- version control system, See me-->
+        <indexitem text="(See also CVS)" />
+        <indexitem text="about" target="vcs.about"/>
+        <indexitem text="backup files, disabling" target="vcs.configure" /> 
+        <indexitem text="commands, calling" target="vcs.usingvcs" />
+        <indexitem text="command status" target="vcs.usingvcs" />
+        <indexitem text="comparing file versions" target="vcs.diff" /> 
+        <indexitem text="CVS server settings" target="vcs.cvs" />
+        <indexitem text="diffs, creating" target="vcs.diff" /> 
+        <indexitem text="diffs, saving" target="vcs.patch" /> 
+        <indexitem text="home directory, setting" target="vcs.repositorysetup" />
+        <indexitem text="nodes representing multiple files" target="tbd" /><!--was targeting vcs.binary-->
+        <indexitem text="patch file" target="vcs.patch" /> 
+        <indexitem text="profiles" target="vcs.about" />
+        <indexitem text="output" target="vcs.usingvcs" />
+        <indexitem text="revision history, viewing" target="vcs.usingvcs" /> 
+        <indexitem text="setting up" target="vcs.repositorysetup" />
+        <indexitem text="settings, by VCS working directory" target="vcs.configure" /> 
+        <indexitem text="settings, global for VCS working directories" target="vcs.configure" />      
+        <indexitem text="Versioning window" target="vcs.usingvcs" />
+    </indexitem>
+   
+    <indexitem text="version control software" >
+        <indexitem text="(See VCS)" />
+    </indexitem>
+
+    <indexitem text="Versioning window" target="vcs.usingvcs" />
+
+    <indexitem text="Visual Source Safe" >
+        <indexitem text="(See VCS)" />
+    </indexitem>
 
 </index>

@@ -8,15 +8,36 @@
          "http://java.sun.com/products/javahelp/map_2_0.dtd">
 <map version="2.0">
 
-<!-- last updated 12Feb04 -->
-
-<!-- 
-help\
-    vcsgeneric\
-
-*JavaHelp metadata files*
--->
 	<mapID target="credits" url="credits.html" />
 
-	<mapID target="ctx_vcsgenericintro" url="vcsgeneric/ctx_vcsgenericintro.html" />
+	<mapID target="vcs.about" url="vcsgeneric/vcs_about.html" />
+	<mapID target="vcs.overview" url="vcsgeneric/vcs_overview.html" />
+	<mapID target="vcs.quickref" url="vcsgeneric/vcs_quickref.html" />
+	<mapID target="vcs.usingvcs" url="vcsgeneric/vcs_usingvcs.html" />
+	<mapID target="vcs.project-system" url="vcsgeneric/vcs_project-system.html" />
+	<mapID target="vcs.repositorysetup" url="vcsgeneric/vcs_repositorysetup.html" />
+	<mapID target="vcs.checkout" url="vcsgeneric/vcs_checkout.html" />
+	<mapID target="vcs.diff" url="vcsgeneric/vcs_diff.html" />
+	<mapID target="vcs.commit" url="vcsgeneric/vcs_commit.html" />
+	<mapID target="vcs.merge" url="vcsgeneric/vcs_merge.html" />
+	<mapID target="vcs.mergeresolve" url="vcsgeneric/vcs_mergeresolve.html" />
+	<mapID target="vcs.patch" url="vcsgeneric/vcs_patch.html" />
+	<mapID target="vcs.groups" url="vcsgeneric/vcs_groups.html" />
+	<mapID target="vcs.configure" url="vcsgeneric/vcs_configure.html" />
+	<mapID target="vcs.cvs" url="vcsgeneric/vcs_cvs.html" />
+	<mapID target="vcs.cvscommands" url="vcsgeneric/vcs_cvscommands.html" />
+	
+	<!--CSH map IDs -->
+	
+	<!-- merge conflict resolver and diff viewer -->
+	<mapID target="org.netbeans.modules.merge.Merge.visualizers" url="vcsgeneric/vcs_mergeresolve.html" />
+	<mapID target="org.netbeans.modules.merge.builtin.visualizer.GraphicalMergeVisualizer" url="vcsgeneric/vcs_mergeresolve.html" />
+
+	<!-- node in options window -->
+	<mapID target="org.netbeans.modules.vcscore.settings.GeneralVcsSettingsNode" url="vcsgeneric/vcs_configure.html" />
+	<!-- Versioning Window:-->
+	<mapID target="org.netbeans.modules.diff.PatchAction" url="vcsgeneric/vcs_diff.html" />
+	<!--csh for versioning menu items:-->
+	<mapID target="org.netbeans.modules.vcscore.grouping.VcsGroupMenuAction" url="vcsgeneric/vcs_groups.html" />
+
 </map>
