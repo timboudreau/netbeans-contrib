@@ -2283,6 +2283,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (len == 0/* || name.indexOf(getRootDirectory().toString()) >= 0*/) {
             return icon;
         }
+        if (!shouldAnnotate(oo)) return icon;
 
         if (oo.length == 1) {
             FileObject fileObject = (FileObject)oo[0];
@@ -2337,6 +2338,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return mergedStatus;
     }
 
+    /**
+     * Fixes issue #60970: do not annotate folders (compound statuses not welcome).
+     *  
+     * @param files files to check
+     * @return true if supplies array contains only regular files, false otherwise
+     */ 
+    private boolean shouldAnnotate(Object [] files) {
+        for (int i = 0; i < files.length; i++) {
+            FileObject o = (FileObject) files[i];
+            if (o.isFolder()) return false;
+        }
+        return true;
+    }
+    
     public String annotateNameHtml (String name, java.util.Set files) {
         String result = name;
         if (result == null)
@@ -2353,6 +2368,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Object[] oo = files.toArray();
         oo = getSharableFiles(oo);
         len = oo.length;
+        if (!shouldAnnotate(oo)) return result;
         if (len == 0) {
             // result not changed - the name
         } else if (len == 1) {
@@ -2410,6 +2426,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Object[] oo = files.toArray();
         oo = getSharableFiles(oo);
         len = oo.length;
+        if (!shouldAnnotate(oo)) return result;
         if (len == 0) {
             // result not changed - the name
         } else if (len == 1) {
