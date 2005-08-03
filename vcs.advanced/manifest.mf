@@ -3,4 +3,5 @@ OpenIDE-Module: org.netbeans.modules.vcs.advanced/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/vcs/advanced/config/Bundle.properties
 OpenIDE-Module-Requires: org.openide.windows.IOProvider
 OpenIDE-Module-Layer: org/netbeans/modules/vcs/advanced/config/mf-layer.xml
+OpenIDE-Module-Install: org/netbeans/modules/vcs/advanced/ModuleLifecycleManager.class
 
