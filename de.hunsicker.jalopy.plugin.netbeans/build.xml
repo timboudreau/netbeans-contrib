@@ -25,9 +25,7 @@ Microsystems, Inc. All Rights Reserved.
         <copy todir="${cluster}/modules/ext">
             <fileset dir="external">
                 <include name="${jalopy}"/>
-                <include name="${jdom}"/>
                 <include name="${log4j}"/>
-                <include name="${oro}"/>
             </fileset>
         </copy>
     </target>
@@ -48,12 +46,8 @@ Microsystems, Inc. All Rights Reserved.
                 <text>The Jalopy NetBeans Plugin module is under SPL.</text>
                 <text>For the Jalopy Source Code Formatter code itself:</text>
                 <file location="external/jalopy-bsd-license.txt"/>
-                <text>For the bundled Oro Regular Expressions Library:</text>
-                <file location="external/oro-apache-license.txt"/>
                 <text>For the bundled Log4j Logging Toolkit:</text>
                 <file location="external/log4j-apache-license.txt"/>
-                <text>For the bundled JDOM XML API:</text>
-                <file location="external/jdom-apache-license.txt"/>
             </license>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
