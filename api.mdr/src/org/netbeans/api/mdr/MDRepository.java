@@ -119,8 +119,8 @@ public interface MDRepository extends MDRChangeSource {
      * the last (i.e. outermost) <code>endTrans</code> call (no matter what will be the
      * value of <code>rollback</code> parameter for this last call).
      * If this call is not nested (i.e. it is outermost) the whole transaction is
-     * commited if <code>true</code> was passed to this call and all the nested
-     * <code>endTrans</code> calls. Otherwise (if <code>false</code> was passed to this
+     * commited if <code>false</code> was passed to this call and all the nested
+     * <code>endTrans</code> calls. Otherwise (if <code>true</code> was passed to this
      * call or any nested <code>endTrans</code> call) the transaction is rolled back.
      */
     public void endTrans(boolean rollback);
