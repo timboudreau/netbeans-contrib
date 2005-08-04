@@ -18,7 +18,6 @@ import de.hunsicker.jalopy.plugin.AbstractAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
-import org.apache.oro.text.regex.MatchResult;
 import org.openide.cookies.LineCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -38,6 +37,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 
 
 /**
@@ -48,9 +48,8 @@ import java.util.StringTokenizer;
  */
 final class NbAppender extends AbstractAppender {
 
-	private static final String TYPE_ERROR = "error" /* NOI18N */;
-	private static final String TYPE_WARN = "warn" /* NOI18N */;
-	private static final String INDENT = "        ";
+	private static final String TYPE_ERROR = "error";
+	private static final String TYPE_WARN = "warn";
 	private InputOutput _sink;
 	private OutputWriter _errors;
 	private OutputWriter _infos;
@@ -59,7 +58,7 @@ final class NbAppender extends AbstractAppender {
 	 * Creates a new NbAppender object.
 	 */
 	public NbAppender() {
-		_sink = IOProvider.getDefault().getIO("Jalopy" /* NOI18N */, false);
+		_sink = IOProvider.getDefault().getIO("Jalopy", false);
 		_infos = _sink.getOut();
 		_errors = _sink.getErr();
 		_sink.setErrSeparated(false);
@@ -74,7 +73,7 @@ final class NbAppender extends AbstractAppender {
 	public void append(LoggingEvent ev) {
 
 		// check for Emacs-style messages
-		MatchResult result = parseMessage(ev);
+		Matcher result = parseMessage(ev);
 
 		// parsing failed, so we issue a standard-message
 		if (result == null) {
@@ -147,10 +146,11 @@ final class NbAppender extends AbstractAppender {
 		if (text.indexOf('\n') > -1) {
 
 			// then the message first
-			StringTokenizer tokens =
-				new StringTokenizer(text, "\n" /* NOI18N */);
+			StringTokenizer tokens = new StringTokenizer(text, "\n"
+				/* NOI18N */ );
 
-			buf.append(INDENT /* NOI18N */);
+			buf.append("        "
+			/* NOI18N */ );
 			buf.append(tokens.nextToken());
 			buf.append('\n');
 
@@ -159,19 +159,18 @@ final class NbAppender extends AbstractAppender {
 
 				String line = tokens.nextToken();
 
-				// only add the line with the stack trace information, but
-				// skip the exception message (to avoid duplication)
-				if ((line != null) &&
-							line.trim().startsWith("at" /* NOI18N */)) {
-					//					buf.append(line);
-					//					buf.append('\n');
+				if ((line != null) && line.trim().startsWith("at"
+						/* NOI18N */ )) {
+					buf.append(line);
+					buf.append('\n');
 				}
 			}
 
 			buf.deleteCharAt(buf.length() - 1); // remove the last '\n'
 		}
 		else {
-			buf.append(INDENT /* NOI18N */);
+			buf.append("        "
+			/* NOI18N */ );
 			buf.append(text);
 		}
 
@@ -185,31 +184,39 @@ final class NbAppender extends AbstractAppender {
 			if (lineno == 0) {
 				switch (level.toInt()) {
 					case Level.WARN_INT:
-						out.print("[WARN] " /* NOI18N */);
+						out.print("[WARN] "
+						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println(INDENT /* NOI18N */ + text);
+						out.println("        "
+						/* NOI18N */  + text);
 						out.flush();
 
 						break;
 					case Level.FATAL_INT:
 					case Level.ERROR_INT:
-						out.print("[ERROR] " /* NOI18N */);
+						out.print("[ERROR] "
+						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println(INDENT /* NOI18N */ + text);
+						out.println("        "
+						/* NOI18N */  + text);
 						out.flush();
 
 						break;
 					case Level.DEBUG_INT:
-						out.print("[DEBUG] " /* NOI18N */);
+						out.print("[DEBUG] "
+						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println(INDENT /* NOI18N */ + text);
+						out.println("        "
+						/* NOI18N */  + text);
 						out.flush();
 
 						break;
 					case Level.INFO_INT:default:
-						out.print("[INFO] " /* NOI18N */);
+						out.print("[INFO] "
+						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println(INDENT /* NOI18N */ + text);
+						out.println("        "
+						/* NOI18N */  + text);
 						out.flush();
 
 						break;
@@ -218,18 +225,21 @@ final class NbAppender extends AbstractAppender {
 			else {
 				switch (level.toInt()) {
 					case Level.WARN_INT:
-						out.print("[WARN] " /* NOI18N */);
+						out.print("[WARN] " 
+						/* NOI18N */);
 						out.println(
 							formatFilename(filename, lineno),
 							new OutputHandler(
 								TYPE_WARN, filename, lineno, text));
-						out.println(INDENT /* NOI18N */ + text);
+						out.println("        "
+						/* NOI18N */  + text);
 						out.flush();
 
 						break;
 					case Level.FATAL_INT:
 					case Level.ERROR_INT:
-						out.print("[ERROR] " /* NOI18N */);
+						out.print("[ERROR] "
+						/* NOI18N */ );
 
 						int linebreakPos = text.indexOf('\n'); // multiline message?
 
@@ -244,9 +254,11 @@ final class NbAppender extends AbstractAppender {
 
 						break;
 					case Level.INFO_INT:default:
-						out.print("[INFO] " /* NOI18N */);
+						out.print("[INFO] "
+						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println(INDENT /* NOI18N */ + text);
+						out.println("        "
+						/* NOI18N */  + text);
 						out.flush();
 
 						break;
@@ -265,8 +277,8 @@ final class NbAppender extends AbstractAppender {
 
 		public LineAnnotation(String message, String type) {
 			this.message = message;
-			this.type =
-				"de-hunsicker-jalopy-plugin-netbeans-" /* NOI18N */ + type;
+			this.type = "de-hunsicker-jalopy-plugin-netbeans-"
+				/* NOI18N */  + type;
 		}
 
 		public String getAnnotationType() {
@@ -305,25 +317,22 @@ final class NbAppender extends AbstractAppender {
 				FileObject file =
 					FileUtil.toFileObject(new File(this.filename));
 
-				if (file != null) {
-					try {
+				try {
 
-						DataObject objWithError = DataObject.find(file);
-						LineCookie cookie =
-							(LineCookie) objWithError.getCookie(
-								LineCookie.class);
-						Line.Set lineSet = cookie.getLineSet();
-						final Line line = lineSet.getOriginal(this.lineno - 1);
+					DataObject objWithError = DataObject.find(file);
+					LineCookie cookie =
+						(LineCookie) objWithError.getCookie(LineCookie.class);
+					Line.Set lineSet = cookie.getLineSet();
+					final Line line = lineSet.getOriginal(this.lineno - 1);
 
-						this.ann = new LineAnnotation(this.text, this.type);
-						line.addPropertyChangeListener(this);
-						this.ann.attach(line);
-						this.ann.moveToFront();
-						line.show(Line.SHOW_GOTO); // open the editor if necessary
-					}
-					catch (DataObjectNotFoundException ex) {
-						ex.printStackTrace();
-					}
+					this.ann = new LineAnnotation(this.text, this.type);
+					line.addPropertyChangeListener(this);
+					this.ann.attach(line);
+					this.ann.moveToFront();
+					line.show(Line.SHOW_GOTO); // open the editor if necessary
+				}
+				catch (DataObjectNotFoundException ex) {
+					ex.printStackTrace();
 				}
 			}
 		}
@@ -360,27 +369,29 @@ final class NbAppender extends AbstractAppender {
 	}
 
 	/**
-	 * MISSING_JAVADOC
+	 * Returns the standard output writer of the I/O connection to the Jalopy
+	 * output tab
 	 *
-	 * @return MISSING_JAVADOC
+	 * @return the standard output writer of the I/O connection
 	 */
 	public OutputWriter getOut() {
 		return _infos;
 	}
 
 	/**
-	 * MISSING_JAVADOC
+	 * Returns the error output writer of the I/O connection to the Jalopy
+	 * output tab
 	 *
-	 * @return MISSING_JAVADOC
+	 * @return the error output writer of the I/O connection
 	 */
 	public OutputWriter getErr() {
 		return _errors;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Returns the I/O connection to the Jalopy output tab
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the I/O connection to the Jalopy output tab
 	 */
 	public InputOutput getIO() {
 		return _sink;
