@@ -18,8 +18,9 @@ Microsystems, Inc. All Rights Reserved.
             <code-name-base>org.netbeans.modules.extraupdatecenters</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.autoupdate/1</code-name-base>
+                    <code-name-base>org.netbeans.modules.autoupdate</code-name-base>
                     <run-dependency>
+                        <release-version>1</release-version>
                         <specification-version>2.13</specification-version>
                     </run-dependency>
                 </dependency>

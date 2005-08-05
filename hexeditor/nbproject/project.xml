@@ -56,11 +56,11 @@ Microsystems, Inc. All Rights Reserved.
                     <run-dependency/>
                 </dependency>
             </module-dependencies>
+            <public-packages/>
             <class-path-extension>
                 <runtime-relative-path>ext/hexedit.jar</runtime-relative-path>
                 <binary-origin>../hexedit/dist/hexedit.jar</binary-origin>
             </class-path-extension>
-            <public-packages/>
         </data>
     </configuration>
 </project>
