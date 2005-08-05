@@ -52,7 +52,7 @@ public class ModuleLifecycleManager extends ModuleInstall implements ErrorHandle
     private void disableNewModules() {
         Runnable runnable = new Runnable() {
             public void run() {
-                for (int i = 0; i < newModules.length; i++) {
+                outter: for (int i = 0; i < newModules.length; i++) {
                     FileLock lock = null;
                     OutputStream os = null;
                     try {
@@ -73,7 +73,7 @@ public class ModuleLifecycleManager extends ModuleInstall implements ErrorHandle
                                     text.setNodeValue("false");
                                     break;
                                 } else {
-                                    continue;
+                                    continue outter;
                                 }
                             }
                         }
