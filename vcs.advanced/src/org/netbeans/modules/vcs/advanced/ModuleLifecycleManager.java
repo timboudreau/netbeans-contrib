@@ -21,9 +21,7 @@ import org.openide.ErrorManager;
 import org.openide.xml.XMLUtil;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
+import org.xml.sax.*;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,13 +31,14 @@ import javax.swing.*;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 
 /**
  * Ensures that new versioning modules (New CVS, etc.) are disabled when this module installs.
  * 
  * @author Maros Sandor
  */
-public class ModuleLifecycleManager extends ModuleInstall implements ErrorHandler {
+public class ModuleLifecycleManager extends ModuleInstall implements ErrorHandler, EntityResolver {
     
     static final String [] newModules = {
         "org.netbeans.modules.versioning.system.cvss",
@@ -101,11 +100,16 @@ public class ModuleLifecycleManager extends ModuleInstall implements ErrorHandle
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setValidating(false);
         DocumentBuilder parser = dbf.newDocumentBuilder();
+        parser.setEntityResolver(this);
         parser.setErrorHandler(this);
         InputStream is = fo.getInputStream();
         Document document = parser.parse(is);
         is.close();
         return document;
+    }
+
+    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+        return new InputSource(new ByteArrayInputStream(new byte[0]));
     }
     
     public void error(SAXParseException exception) throws SAXException {
