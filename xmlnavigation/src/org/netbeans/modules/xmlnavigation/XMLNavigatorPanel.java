@@ -42,8 +42,10 @@ import javax.xml.parsers.SAXParserFactory;
 import org.netbeans.api.xml.services.UserCatalog;
 import org.netbeans.spi.navigator.NavigatorPanel;
 import org.netbeans.spi.xml.cookies.DataObjectAdapters;
+import org.openide.ErrorManager;
 import org.openide.awt.MouseUtils;
 import org.openide.cookies.LineCookie;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.util.Lookup;
@@ -155,7 +157,8 @@ public final class XMLNavigatorPanel implements NavigatorPanel {
                             }
                         });
                     } catch (Exception e) { // IOException, SAXParseException
-                        // ignore for now
+                        ErrorManager.getDefault().log(ErrorManager.WARNING,
+                            "Could not parse " + FileUtil.getFileDisplayName(d.getPrimaryFile()) + ": " + e.toString());
                     }
                 }
             });
@@ -204,6 +207,8 @@ public final class XMLNavigatorPanel implements NavigatorPanel {
         SAXParser parser = factory.newSAXParser();
         class Handler extends DefaultHandler {
             private Locator locator;
+            // XXX besides line, need to know file: if a complex doc includes others w/
+            // entity refs, need to jump to subfiles!
             private int line = -1;
             private String element = null;
             private StringBuffer text = null;
