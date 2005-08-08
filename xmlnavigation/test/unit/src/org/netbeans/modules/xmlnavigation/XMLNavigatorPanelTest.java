@@ -13,10 +13,18 @@
 
 package org.netbeans.modules.xmlnavigation;
 
+import java.io.IOException;
 import java.io.StringReader;
+import junit.framework.Assert;
+import org.netbeans.api.xml.services.UserCatalog;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.xmlnavigation.XMLNavigatorPanel.Item;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ProxyLookup;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Test functionality of {@link XMLNavigatorPanel}.
@@ -24,8 +32,36 @@ import org.xml.sax.InputSource;
  */
 public class XMLNavigatorPanelTest extends NbTestCase {
     
+    static {
+        System.setProperty("org.openide.util.Lookup", Lkp.class.getName());
+        Assert.assertEquals(Lkp.class, Lookup.getDefault().getClass());
+    }
+    public static final class Lkp extends ProxyLookup {
+        private static Lkp DEFAULT;
+        public Lkp() {
+            Assert.assertNull(DEFAULT);
+            DEFAULT = this;
+            setLookup(new Object[0]);
+        }
+        public static void setLookup(Object[] instances) {
+            ClassLoader l = Lkp.class.getClassLoader();
+            DEFAULT.setLookups(new Lookup[] {
+                Lookups.fixed(instances),
+                Lookups.metaInfServices(l),
+                Lookups.singleton(l),
+            });
+        }
+    }
+    
     public XMLNavigatorPanelTest(String name) {
         super(name);
+    }
+    
+    protected void setUp() throws Exception {
+        super.setUp();
+        Lkp.setLookup(new Object[] {
+            new TestCatalog(),
+        });
     }
     
     public void testParse() throws Exception {
@@ -84,6 +120,37 @@ public class XMLNavigatorPanelTest extends NbTestCase {
         // as well as <section id="section"><title>Title here...</title>...</section>
     }
     
+    public void testParseWithUnresolvedEntityRefs() throws Exception {
+        assertEquals("handles unref'd entities when we have a DOCTYPE",
+            "1[section/title]First\n" +
+            "4[section/title]Second\n",
+            itemsSummary(parse(
+                "<!DOCTYPE article PUBLIC 'whatever' 'http://wherever/'> <article>\n" + // 0
+                " <section><title>First</title>\n" + // 1
+                "  <para>&whatever;</para>\n" + // 2
+                " </section>\n" + // 3
+                " <section><title>Second</title>\n" + // 4
+                "  <para>Stuff...</para>\n" + // 5
+                " </section>\n" + // 6
+                "</article>\n" // 17
+                )));
+        /*XXX cannot figure out how to make this pass; even http://apache.org/xml/features/continue-after-fatal-error does not work!
+        assertEquals("handles unref'd entities when we have no DOCTYPE",
+            "1[section/title]First\n" +
+            "4[section/title]Second\n",
+            itemsSummary(parse(
+                "<article>\n" + // 0
+                " <section><title>First</title>\n" + // 1
+                "  <para>&whatever;</para>\n" + // 2
+                " </section>\n" + // 3
+                " <section><title>Second</title>\n" + // 4
+                "  <para>Stuff...</para>\n" + // 5
+                " </section>\n" + // 6
+                "</article>\n" // 17
+                )));
+         */
+    }
+    
     private static Item[] parse(String xml) throws Exception {
         return XMLNavigatorPanel.parse(new InputSource(new StringReader(xml)), null);
     }
@@ -101,6 +168,16 @@ public class XMLNavigatorPanelTest extends NbTestCase {
             b.append('\n');
         }
         return b.toString();
+    }
+    
+    private static final class TestCatalog extends UserCatalog implements EntityResolver {
+        public TestCatalog() {}
+        public EntityResolver getEntityResolver() {
+            return this;
+        }
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+            return null;
+        }
     }
     
 }
