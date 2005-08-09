@@ -32,12 +32,13 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -72,7 +73,8 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     private boolean currentDirectoryChanging;
     private JButton approve;
     private JPanel buttons;
-    
+    private boolean historyChanging;
+
     public ChooserComponentUI(JFileChooser jfc) {
         super(jfc);
     }
@@ -92,10 +94,12 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         JPanel histPanel = new JPanel();
         histPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
         box = new JComboBox(hist);
-        
+    
+        // XXX this is not so good, since moving arrow keys in box changes selection *before* it is closed:
         box.addActionListener(new HAL());
         histPanel.setLayout(new BorderLayout());
         JLabel histInstructions = new JLabel(getBundle().getString("LBL_History"));
+        histInstructions.setDisplayedMnemonic(getBundle().getString("MNEM_History").charAt(0));
         histInstructions.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
         histInstructions.setLabelFor(box);
         histPanel.add(box, BorderLayout.CENTER);
@@ -129,13 +133,20 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             }
             public void changedUpdate(DocumentEvent e) {}
         });
-        JPanel pnl = new JPanel();
+        JPanel pnl = new JPanel() {
+            // XXX crude but I'm not sure how else to give text focus before box:
+            public void addNotify() {
+                super.addNotify();
+                text.requestFocus();
+            }
+        };
         pnl.setLayout(new BorderLayout());
         pnl.add(text, BorderLayout.CENTER);
         JLabel instructions = new JLabel(getBundle().getString("LBL_TextField"));
+        instructions.setDisplayedMnemonic(getBundle().getString("MNEM_TextField").charAt(0));
         instructions.setLabelFor(text);
         instructions.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
-        histPanel.add(instructions, BorderLayout.SOUTH); //NOI18N
+        histPanel.add(instructions, BorderLayout.SOUTH);
         pnl.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
         pnl.add(histPanel, BorderLayout.NORTH);
         
@@ -171,7 +182,6 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         if (x != null) {
             getAccessoryPanel().add(x);
         }
-        box.setFocusable(false);
         updateButtons();
     }
     
@@ -207,6 +217,9 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     
     private class HAL implements ActionListener {
         public void actionPerformed(ActionEvent ae) {
+            if (historyChanging) {
+                return;
+            }
             updateFromHistory();
         }
     }
@@ -234,6 +247,23 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     }
     
     private static String normalizeFile(String text) {
+        // See #21690 for background.
+        // XXX what are legal chars for var names? bash manual says only:
+        // "The braces are required when PARAMETER [...] is followed by a
+        // character that is not to be interpreted as part of its name."
+        Pattern p = Pattern.compile("(^|[^\\\\])\\$([a-zA-Z_0-9.]+)");
+        Matcher m;
+        while ((m = p.matcher(text)).find()) {
+            // Have an env var to subst...
+            // XXX handle ${PATH} too? or don't bother
+            String var = System.getenv(m.group(2));
+            if (var == null) {
+                // Try Java system props too, and fall back to "".
+                var = System.getProperty(m.group(2), "");
+            }
+            // XXX full readline compat would mean vars were also completed with TAB...
+            text = text.substring(0, m.end(1)) + var + text.substring(m.end(2));
+        }
         if (text.equals("~")) {
             return System.getProperty("user.home");
         } else if (text.startsWith("~" + File.separatorChar)) {
@@ -416,55 +446,53 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         return new ProxyApproveSelectionAction(super.getApproveSelectionAction());
     }
     
+    private static final int HISTORY_MAX_SIZE = 25;
+    
     private static void updateHistory(JFileChooser jfc) {
         File f = jfc.getSelectedFile();
         String pth = f.getParent();
         if (history == null) {
             history = new ArrayList();
         }
-        if (!history.contains(pth)) {
-            history.add(pth);
-            StringBuffer buf = new StringBuffer();
-            for (Iterator i=new HashSet(history).iterator(); i.hasNext();) {
-                buf.append(i.next());
-                if (i.hasNext()) {
-                    buf.append(File.pathSeparatorChar);
-                }
-            }
-            Preferences prefs = Preferences.userNodeForPackage(ChooserComponentUI.class);
-            prefs.put(KEY, buf.toString());
+        // Always put the new entry at the front:
+        history.remove(pth);
+        history.add(0, pth);
+        if (history.size() > HISTORY_MAX_SIZE) {
+            history.subList(HISTORY_MAX_SIZE, history.size()).clear();
         }
+        StringBuffer buf = new StringBuffer();
+        for (Iterator i = history.iterator(); i.hasNext();) {
+            buf.append((String) i.next());
+            if (i.hasNext()) {
+                buf.append(File.pathSeparatorChar);
+            }
+        }
+        Preferences prefs = Preferences.userNodeForPackage(ChooserComponentUI.class);
+        prefs.put(KEY, buf.toString());
     }
     
     private static final String KEY = "recentFolders";
     
-    private static List/*<File>*/ history = null;
+    private static List/*<String>*/ history = null;
     private static String[] getHistory() {
         if (history == null) {
             loadHistory();
         }
-        if (history != null) {
-            String[] result = (String[]) history.toArray(new String[history.size()]);
-            Arrays.sort(result);
-            return result;
-        } else {
-            return new String[0];
-        }
+        return (String[]) history.toArray(new String[history.size()]);
     }
     
     private static void loadHistory() {
         Preferences prefs = Preferences.userNodeForPackage(ChooserComponentUI.class);
         String hist = prefs.get(KEY, "");
-        List h = new ArrayList();
+        history = new ArrayList();
         if (hist.length() > 0) {
             for (StringTokenizer tok = new StringTokenizer(hist, File.pathSeparator); tok.hasMoreTokens();) {
                 String f = tok.nextToken();
                 if ((new File(f)).exists()) {
-                    h.add(f);
+                    history.add(f);
                 }
             }
         }
-        history = h;
     }
     
     private class ProxyApproveSelectionAction implements Action, PropertyChangeListener {
@@ -531,6 +559,9 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             int idx = jl.locationToIndex(me.getPoint());
             if (idx != -1) {
                 text.setText(jl.getModel().getElementAt(idx).toString());
+                if (me.getClickCount() == 2) {
+                    getApproveSelectionAction().actionPerformed(new ActionEvent(approve, ActionEvent.ACTION_PERFORMED, null));
+                }
             }
         }
     }
@@ -541,6 +572,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             this.up = up;
         }
         public void actionPerformed(ActionEvent ae) {
+            updateFromHistory();
             int sz = box.getModel().getSize();
             int sel = box.getSelectedIndex();
             if (up) {
@@ -553,8 +585,14 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             } else if (sel >= box.getModel().getSize()) {
                 sel = 0;
             }
-            box.setSelectedIndex(sel);
-            updateFromHistory();
+            // setSelectedIndex will fire an action event on box, so suppress it for a moment:
+            assert !historyChanging;
+            historyChanging = true;
+            try {
+                box.setSelectedIndex(sel);
+            } finally {
+                historyChanging = false;
+            }
         }
         public boolean isEnabled() {
             return box.getModel().getSize() > 0;
