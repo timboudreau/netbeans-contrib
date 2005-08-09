@@ -271,7 +271,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             FileLock lock = fo.lock();
             OutputStream out = fo.getOutputStream(lock);
             try {
-                org.openide.xml.XMLUtil.write(doc, out, null);
+                org.openide.xml.XMLUtil.write(doc, out, "UTF-8"); // NOI18N
             } finally {
                 out.close();
                 lock.releaseLock();
@@ -903,7 +903,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 java.io.OutputStream out = null;
                 try {
                     out = fo.getOutputStream(lock);
-                    XMLUtil.write(doc, out, null);
+                    XMLUtil.write(doc, out, "UTF-8"); // NOI18N
                     //System.out.println("  written to "+fo+", File = "+org.openide.filesystems.FileUtil.toFile(fo));
                 } finally {
                     try {
