@@ -32,10 +32,12 @@ public class Demo {
         chooser.setFileView(new FileView() {
             public Icon getIcon(File f) {
                 if (f.getName().endsWith(".gif") || f.getName().endsWith(".png")) {
-                    return new ImageIcon(f.getAbsolutePath());
-                } else {
-                    return null;
+                    Icon icon = new ImageIcon(f.getAbsolutePath());
+                    if (icon.getIconWidth() == 16 && icon.getIconHeight() == 16) {
+                        return icon;
+                    }
                 }
+                return null;
             }
         });
         //chooser.setControlButtonsAreShown(false);
