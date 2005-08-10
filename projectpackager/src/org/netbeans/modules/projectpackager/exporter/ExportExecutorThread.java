@@ -71,7 +71,7 @@ public class ExportExecutorThread extends Thread {
             try {
                 ExecutorTask et = ActionUtils.runTarget(script, target, props);
                 if (et.result()!=0) {
-                    System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Task_execution_error_during_")+target[0]+java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("."));
+                    System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Task_execution_error_during_")+target[0]+".");
                     status.put(target[0], new Boolean(false));
                 } else {
                     if (status.get(target[0])==null) {
