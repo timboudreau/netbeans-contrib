@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+                 Sun Public License Notice
+ 
+ The contents of this file are subject to the Sun Public License
+ Version 1.0 (the "License"). You may not use this file except in
+ compliance with the License. A copy of the License is available at
+ http://www.sun.com/
+ 
+ The Original Code is NetBeans. The Initial Developer of the Original
+ Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ Microsystems, Inc. All Rights Reserved.
+
+-->
+<project name="ZipExporter" default="" basedir=".">       
+    <target name="zip-project">
+        <zip destfile="${target_dir}/${zip_name}.zip"
+            basedir="${src_dir}"
+            excludes="nbproject/private/**, build/**, dist/**" />        
+    </target>
+    
+    <target name="mail-zips">
+        <mail from="projectpackager@netbeans.org"
+            subject="Zipped NetBeans projects"
+            message="Your projects are attached. Thank you for using NetBeans."
+            tolist="${to_addr}"
+            mailhost="${smtp_server}"
+            user="${smtp_username}"
+            password="${smtp_password}"
+            files="${file_list}"
+            />
+    </target>
+    
+    <target name="delete-zip">
+        <delete file="${file_to_delete}"/>
+    </target>
+</project>
