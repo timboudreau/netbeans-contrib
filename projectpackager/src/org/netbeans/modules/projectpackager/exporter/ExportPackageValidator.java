@@ -15,6 +15,7 @@ package org.netbeans.modules.projectpackager.exporter;
 
 import java.io.File;
 import org.netbeans.modules.projectpackager.tools.Constants;
+import org.netbeans.modules.projectpackager.tools.NotifyDescriptorInputPassword;
 import org.netbeans.modules.projectpackager.tools.ProjectPackagerSettings;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -94,14 +95,14 @@ public class ExportPackageValidator {
                 DialogDisplayer.getDefault().notify(d2);
                 ExportPackageInfo.setSmtpUsername(d2.getInputText());
                 pps.setSmtpUsername(d2.getInputText());
-                NotifyDescriptor.InputLine d3 = new NotifyDescriptor.InputLine(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Password_(optional):"), java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_enter_password_for_SMTP_server"));
+                NotifyDescriptorInputPassword d3 = new NotifyDescriptorInputPassword(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Password_(optional):"), java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_enter_password_for_SMTP_server"));
                 DialogDisplayer.getDefault().notify(d3);
                 ExportPackageInfo.setSmtpPassword(d3.getInputText());
                 // do not save password to settings from security reasons
             }        
         
             if (!ExportPackageInfo.getSmtpUsername().equals("") && ExportPackageInfo.getSmtpPassword().equals("")) {
-                NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_password:"), java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_enter_password_for_SMTP_server"));
+                NotifyDescriptorInputPassword d = new NotifyDescriptorInputPassword(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_password:"), java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_enter_password_for_SMTP_server"));
                 DialogDisplayer.getDefault().notify(d);
                 ExportPackageInfo.setSmtpPassword(d.getInputText());
             }
