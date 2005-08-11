@@ -98,7 +98,7 @@ public class ExportPackageScheduler {
                 String excludes = "";
                 for (int k = 0; k<unsharableFiles.size(); k++) {
                     excludes+=(String)unsharableFiles.get(k);
-                    if (k<unsharableFiles.size()-1) excludes+=", ";
+                    if (k<unsharableFiles.size()-1) excludes+=",";
                 }
                 props.setProperty("exclude_list", excludes);
                 
@@ -111,15 +111,24 @@ public class ExportPackageScheduler {
     /**
      * Creates a list of files for exclude in zip target.
      */
-    private static void traverseDirForSharability(String topDir, File f) {
-        if (SharabilityQuery.getSharability(f)!=SharabilityQuery.SHARABLE) {
-            unsharableFiles.add(f.getAbsolutePath().replace(topDir+File.separator, ""));
-        }        
-        if (f.isDirectory()) {
+    private static void traverseDirForSharability(String topDir, File f) {        
+        if (SharabilityQuery.getSharability(f)==SharabilityQuery.NOT_SHARABLE) {
+            if (f.isDirectory()) {
+                // ignore NOT_SHARABLE directory, add "/" to ignore subdirectories as well
+                unsharableFiles.add(f.getAbsolutePath().replace(
+                        topDir+File.separator, "")+File.separator);
+            } else {
+                // ignore NOT_SHARABLE file
+                unsharableFiles.add(f.getAbsolutePath().replace(
+                        topDir+File.separator, ""));                
+            }
+        } else if (SharabilityQuery.getSharability(f)==SharabilityQuery.MIXED) {
+            // MIXED means directory contains some NOT_SHARABLEs, traverse it
             for (int i=0; i<f.listFiles().length; i++) {
                 traverseDirForSharability(topDir, f.listFiles()[i]);
             }
         }
+        // files or directories with status SHARABLE or UNKNOWN are accepted
     }
     
     /**
