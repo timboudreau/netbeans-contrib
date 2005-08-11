@@ -59,7 +59,8 @@ public class ImportPackageScheduler {
         Properties props = new Properties();
         props.setProperty("zip_file", ImportPackageInfo.getZip());
         props.setProperty("unzip_dir", ImportPackageInfo.getUnzipDir());
-        props.setProperty("project_name", ImportPackageInfo.getProjectName());
+        // not supported at the moment, taken from zip - rename would be nice though
+        // props.setProperty("project_name", ImportPackageInfo.getProjectName());
         et.schedule(script, new String[] {"unzip-project"}, props);
     }
     
