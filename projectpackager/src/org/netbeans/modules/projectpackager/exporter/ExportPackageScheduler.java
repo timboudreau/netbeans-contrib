@@ -27,7 +27,6 @@ import org.openide.filesystems.FileObject;
 public class ExportPackageScheduler {
     
     private static FileObject script;
-    private static Properties props;
     private static ArrayList fileList;
     private static ExportExecutorThread et;
 
@@ -59,11 +58,11 @@ public class ExportPackageScheduler {
         if (!initialized) return;
         
         String[] paths;
-        fileList = new ArrayList();
+        fileList = new ArrayList();        
         
         for (int i = 0; i<ProjectInfo.getProjectCount(); i++) {
             if (!ProjectInfo.isSelected(i)) continue;
-            props = new Properties();
+            Properties props = new Properties();
             props.setProperty("target_dir", ExportPackageInfo.getTargetDir());
             props.setProperty("zip_name", ProjectInfo.getName(i));
             fileList.add(ExportPackageInfo.getTargetDir()+File.separator+ProjectInfo.getName(i)+".zip");
@@ -82,7 +81,7 @@ public class ExportPackageScheduler {
     public static void sendMail(ExportExecutorThread et) {
         if (!initialized || fileList==null) return;
         
-        props = new Properties();
+        Properties props = new Properties();
         props.setProperty("to_addr", ExportPackageInfo.getEmail());
         String fileListText = "";
         for (int i = 0; i<fileList.size(); i++) {
@@ -106,7 +105,7 @@ public class ExportPackageScheduler {
         if (!initialized || fileList==null) return;
         
         for (int i = 0; i<fileList.size(); i++) {
-            props = new Properties();
+            Properties props = new Properties();
             props.setProperty("file_to_delete", (String) fileList.get(i));
             et.schedule(script, new String[] {"delete-zip"}, props);
         }        

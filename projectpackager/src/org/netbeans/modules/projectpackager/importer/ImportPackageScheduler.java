@@ -26,7 +26,6 @@ import org.openide.filesystems.FileObject;
 public class ImportPackageScheduler {
     
     private static FileObject script;
-    private static Properties props;
     private static ArrayList fileList;
     private static ImportExecutorThread et;
 
@@ -57,7 +56,7 @@ public class ImportPackageScheduler {
     public static void unZipProject(ImportExecutorThread et) {
         if (!initialized) return;
                 
-        props = new Properties();
+        Properties props = new Properties();
         props.setProperty("zip_file", ImportPackageInfo.getZip());
         props.setProperty("unzip_dir", ImportPackageInfo.getUnzipDir());
         props.setProperty("project_name", ImportPackageInfo.getProjectName());
@@ -70,7 +69,7 @@ public class ImportPackageScheduler {
      */
     public static void deleteZip(ImportExecutorThread et) {
         if (!initialized) return;
-        props = new Properties();
+        Properties props = new Properties();
         props.setProperty("file_to_delete", ImportPackageInfo.getZip());
         et.schedule(script, new String[] {"delete-zip"}, props);        
     }
