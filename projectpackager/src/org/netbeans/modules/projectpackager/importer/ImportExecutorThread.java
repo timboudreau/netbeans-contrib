@@ -114,10 +114,10 @@ public class ImportExecutorThread extends Thread {
         
         String errorMsg = "";
         if (scheduledTasks.get("unzip-project")!=null && !((Boolean) status.get("unzip-project")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_unzip_project._Disk_error?\n");
+            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_unzip_project._Disk_error?");
         }
         if (scheduledTasks.get("delete-zip")!=null && !((Boolean) status.get("delete-zip")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_delete_zip.__Disk_not_writable?\n");
+            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_delete_zip.__Disk_not_writable?");
         }
         if (!errorMsg.equals("")) {
             NotifyDescriptor d = new NotifyDescriptor.Message(errorMsg, NotifyDescriptor.ERROR_MESSAGE);

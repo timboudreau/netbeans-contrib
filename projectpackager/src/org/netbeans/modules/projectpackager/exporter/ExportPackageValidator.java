@@ -64,7 +64,7 @@ public class ExportPackageValidator {
             if (ProjectInfo.isSelected(i)) {
                 File f = new File(ExportPackageInfo.getTargetDir()+File.separator+ProjectInfo.getName(i)+".zip");
                 if (f.exists()) {
-                    NotifyDescriptor.Confirmation d = new NotifyDescriptor.Confirmation(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Archive_")+f.getName()+java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("_already_exists._Should_I_append_project_files_to_the_archive?"), NotifyDescriptor.ERROR_MESSAGE);
+                    NotifyDescriptor.Confirmation d = new NotifyDescriptor.Confirmation(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Archive_")+f.getName()+" "+java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("_already_exists._Should_I_append_project_files_to_the_archive?"), NotifyDescriptor.ERROR_MESSAGE);
                     d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_file_already_exists"));
                     if (!DialogDisplayer.getDefault().notify(d).equals(NotifyDescriptor.YES_OPTION)) return false;
                 }
