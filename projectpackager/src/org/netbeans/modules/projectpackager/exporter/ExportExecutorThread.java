@@ -95,16 +95,16 @@ public class ExportExecutorThread extends Thread {
         
         String errorMsg = "";
         if (scheduledTasks.get("zip-project")!=null && !((Boolean) status.get("zip-project")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_zip_projects._Disk_not_writable?\n");
+            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_zip_projects._Disk_not_writable?");
         }
         if (scheduledTasks.get("mail-zips")!=null && !((Boolean) status.get("mail-zips")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_send_e-mail._Check_SMTP_server_settings.\n");
+            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_send_e-mail._Check_SMTP_server_settings.");
             ExportPackageInfo.setSmtpServer("");
             ExportPackageInfo.setSmtpUsername("");
             ExportPackageInfo.setSmtpPassword("");
         }
         if (scheduledTasks.get("delete-zip")!=null && !((Boolean) status.get("delete-zip")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_delete_projects._Disk_not_writable?\n");
+            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_delete_projects._Disk_not_writable?");
         }
         if (!errorMsg.equals("")) {
             NotifyDescriptor d = new NotifyDescriptor.Message(errorMsg, NotifyDescriptor.ERROR_MESSAGE);
