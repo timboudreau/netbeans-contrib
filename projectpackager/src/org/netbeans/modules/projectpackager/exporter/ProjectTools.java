@@ -18,7 +18,7 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.ui.OpenProjects;
-import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileObject;
 
 /**
  * Tools class for working with projects
@@ -40,12 +40,20 @@ public class ProjectTools {
             Sources sources = ProjectUtils.getSources(openProjects[i]);
             SourceGroup[] sourceGroups
                     = sources.getSourceGroups(Sources.TYPE_GENERIC);
-            ProjectInfo.setName(i, ProjectUtils.getInformation(openProjects[i]).getName());
-            String[] sourceDirs = new String[sourceGroups.length];
+            ProjectInfo.setName(i, ProjectUtils.getInformation(openProjects[i]).getName());            
+            FileObject[] sourceDirs = new FileObject[sourceGroups.length];
+            Boolean[] isExternal = new Boolean[sourceGroups.length];
             for (int j = 0; j < sourceGroups.length; j++) {
-                sourceDirs[j] = (FileUtil.toFile(sourceGroups[j].getRootFolder())).getAbsolutePath();
+                sourceDirs[j] = sourceGroups[j].getRootFolder();
+                String projectPath = openProjects[i].getProjectDirectory().getPath();
+                if (!projectPath.contains(sourceGroups[j].getRootFolder().getPath())) {
+                    isExternal[j] = Boolean.TRUE;
+                } else {
+                    isExternal[j] = Boolean.FALSE;                    
+                }
             }
             ProjectInfo.setSourceRootPaths(i, sourceDirs);
+            ProjectInfo.setIsExternal(i, isExternal);
         }
     }    
     

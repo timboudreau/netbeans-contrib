@@ -13,8 +13,8 @@
 
 package org.netbeans.modules.projectpackager.exporter;
 
-import java.util.HashMap;
 import java.util.Vector;
+import org.openide.filesystems.FileObject;
 
 /**
  * Serves as storage of data related to projects
@@ -24,6 +24,7 @@ public class ProjectInfo {
     
     private static Vector names;
     private static Vector sourceRootPaths;
+    private static Vector isExternal;
     private static Vector selected;
     
     /** Creates a new instance of ProjectInfo */
@@ -53,8 +54,8 @@ public class ProjectInfo {
      * @param index index of project
      * @return source roots
      */
-    public static String[] getSourceRootPaths(int index) {
-        return (String[]) sourceRootPaths.get(index);
+    public static FileObject[] getSourceRootPaths(int index) {
+        return (FileObject[]) sourceRootPaths.get(index);
     }
 
     /**
@@ -62,7 +63,7 @@ public class ProjectInfo {
      * @param index index of project
      * @param aSourceRootPaths source roots
      */
-    public static void setSourceRootPaths(int index, String[] aSourceRootPaths) {
+    public static void setSourceRootPaths(int index, FileObject[] aSourceRootPaths) {
         sourceRootPaths.add(index, aSourceRootPaths);
     }    
 
@@ -103,14 +104,24 @@ public class ProjectInfo {
         }
         if (sourceRootPaths==null) {
             sourceRootPaths = new Vector();
+            isExternal = new Vector();
         } else {
             sourceRootPaths.clear();
+            isExternal.clear();
         }
         if (selected==null) {
             selected = new Vector();
         } else {
             selected.clear();
         }
+    }
+
+    public static Boolean[] getIsExternal(int index) {
+        return (Boolean[]) isExternal.get(index);
+    }
+
+    public static void setIsExternal(int index, Boolean[] aIsExternal) {
+        isExternal.add(index, aIsExternal);
     }
     
 }

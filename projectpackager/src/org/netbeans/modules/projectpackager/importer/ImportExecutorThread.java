@@ -99,7 +99,11 @@ public class ImportExecutorThread extends Thread {
                 File projectDir = new File(ImportPackageInfo.getUnzipDir() + File.separator + ImportPackageInfo.getProjectName());
                 try {
                     Project project = (Project) ProjectManager.getDefault().findProject(FileUtil.toFileObject(FileUtil.normalizeFile(projectDir)));
-                    OpenProjects.getDefault().open(new Project[] { project },false);
+                    
+                    // project is null for external source roots
+                    if (project!=null) {
+                        OpenProjects.getDefault().open(new Project[] { project },false);
+                    }
                 } catch (IOException e) {
                     System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
                 }
