@@ -13,9 +13,12 @@
 
 package org.netbeans.modules.projectpackager.importer;
 
+import java.util.Enumeration;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 import javax.swing.JFileChooser;
-import org.netbeans.modules.projectpackager.tools.Constants;
 import org.netbeans.modules.projectpackager.tools.DirectoryFilter;
 import org.netbeans.modules.projectpackager.tools.ZipFilter;
 
@@ -54,7 +57,16 @@ public class ImportZipUITools {
         }        
         izd.setZip(zip);
         if (fc.getSelectedFile()!=null) {
-            izd.setProjectName(fc.getSelectedFile().getName().split("\\.zip")[0]);
+//            izd.setProjectName(fc.getSelectedFile().getName().split("\\.zip")[0]);
+            String name = "";
+            try {
+                ZipFile zf = new ZipFile(fc.getSelectedFile());
+                Enumeration zipEntries = zf.entries();
+                name = ((ZipEntry)zipEntries.nextElement()).getName().split("/")[0];
+            } catch (Exception e) {
+                // something's wrong so we just won't show the name
+            }
+            izd.setProjectName(name);
         }
     }    
     
