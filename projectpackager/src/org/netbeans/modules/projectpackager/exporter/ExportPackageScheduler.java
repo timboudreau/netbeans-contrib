@@ -19,6 +19,7 @@ import java.util.Properties;
 import org.netbeans.modules.projectpackager.tools.Constants;
 import org.netbeans.modules.projectpackager.tools.ExecutionTools;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
  * Schedules an export package
@@ -57,18 +58,32 @@ public class ExportPackageScheduler {
     public static void packZips(ExportExecutorThread et) {
         if (!initialized) return;
         
-        String[] paths;
+        FileObject[] paths = null;
+        Boolean[] isExternal = null;
         fileList = new ArrayList();        
-        
+
         for (int i = 0; i<ProjectInfo.getProjectCount(); i++) {
             if (!ProjectInfo.isSelected(i)) continue;
-            Properties props = new Properties();
-            props.setProperty("target_dir", ExportPackageInfo.getTargetDir());
-            props.setProperty("zip_name", ProjectInfo.getName(i));
-            fileList.add(ExportPackageInfo.getTargetDir()+File.separator+ProjectInfo.getName(i)+".zip");
             paths = ProjectInfo.getSourceRootPaths(i);
+            isExternal = ProjectInfo.getIsExternal(i);
+            int external = 0;
             for (int j = 0; j<paths.length; j++) {
-                props.setProperty("src_dir", paths[j]);
+                Properties props = new Properties();
+                props.setProperty("target_dir", ExportPackageInfo.getTargetDir());
+                // create extra zips for external source roots
+                if (isExternal[j].booleanValue()) {
+                    external++;
+                    String fileName = ProjectInfo.getName(i)+"_"+java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("external")+external;
+                    props.setProperty("zip_name", fileName);
+                    fileList.add(ExportPackageInfo.getTargetDir()+File.separator+fileName+".zip");
+                } else {
+                    props.setProperty("zip_name", ProjectInfo.getName(i));                    
+                    fileList.add(ExportPackageInfo.getTargetDir()+File.separator+ProjectInfo.getName(i)+".zip");
+                }
+                props.setProperty("src_dir", FileUtil.toFile(paths[j].getParent()).getAbsolutePath());
+                props.setProperty("dir_name", paths[j].getName());
+                System.out.println(paths[j]);
+                System.out.println(isExternal[j]);
                 et.schedule(script, new String[] {"zip-project"}, props);
             }
         }
