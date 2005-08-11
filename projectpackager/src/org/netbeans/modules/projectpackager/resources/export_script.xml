@@ -18,7 +18,7 @@
         <zip destfile="${target_dir}/${zip_name}.zip"
             basedir="${src_dir}"
             includes="${dir_name}/**"
-            excludes="${dir_name}/nbproject/private/**, ${dir_name}/build/**, ${dir_name}/dist/**" />        
+            excludes="${exclude_list}" />        
     </target>
     
     <target name="mail-zips">

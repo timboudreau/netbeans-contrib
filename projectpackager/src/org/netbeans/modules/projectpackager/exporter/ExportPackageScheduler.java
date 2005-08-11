@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Vector;
+import org.netbeans.api.queries.SharabilityQuery;
 import org.netbeans.modules.projectpackager.tools.Constants;
 import org.netbeans.modules.projectpackager.tools.ExecutionTools;
 import org.openide.filesystems.FileObject;
@@ -30,7 +32,8 @@ public class ExportPackageScheduler {
     private static FileObject script;
     private static ArrayList fileList;
     private static ExportExecutorThread et;
-
+    private static Vector unsharableFiles;
+    
     private static boolean initialized = false;
     
     private ExportPackageScheduler() {
@@ -44,10 +47,10 @@ public class ExportPackageScheduler {
         try {
             script = ExecutionTools.initScript(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Services/ProjectPackager/export_script.xml"));
             et = new ExportExecutorThread();
-            initialized = true;            
+            initialized = true;
         } catch (IOException e) {
             System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
-        }                
+        }
         return et;
     }
     
@@ -60,8 +63,8 @@ public class ExportPackageScheduler {
         
         FileObject[] paths = null;
         Boolean[] isExternal = null;
-        fileList = new ArrayList();        
-
+        fileList = new ArrayList();
+        
         for (int i = 0; i<ProjectInfo.getProjectCount(); i++) {
             if (!ProjectInfo.isSelected(i)) continue;
             paths = ProjectInfo.getSourceRootPaths(i);
@@ -70,6 +73,7 @@ public class ExportPackageScheduler {
             for (int j = 0; j<paths.length; j++) {
                 Properties props = new Properties();
                 props.setProperty("target_dir", ExportPackageInfo.getTargetDir());
+                
                 // create extra zips for external source roots
                 if (isExternal[j].booleanValue()) {
                     external++;
@@ -77,14 +81,43 @@ public class ExportPackageScheduler {
                     props.setProperty("zip_name", fileName);
                     fileList.add(ExportPackageInfo.getTargetDir()+File.separator+fileName+".zip");
                 } else {
-                    props.setProperty("zip_name", ProjectInfo.getName(i));                    
+                    props.setProperty("zip_name", ProjectInfo.getName(i));
                     fileList.add(ExportPackageInfo.getTargetDir()+File.separator+ProjectInfo.getName(i)+".zip");
                 }
                 props.setProperty("src_dir", FileUtil.toFile(paths[j].getParent()).getAbsolutePath());
                 props.setProperty("dir_name", paths[j].getName());
-                System.out.println(paths[j]);
-                System.out.println(isExternal[j]);
+                if (unsharableFiles==null) {
+                    unsharableFiles = new Vector();
+                } else {
+                    unsharableFiles.clear();
+                }
+                
+                // set which files should not be included
+                traverseDirForSharability(FileUtil.toFile(paths[j].getParent()).getAbsolutePath(),
+                        FileUtil.toFile(paths[j]));
+                String excludes = "";
+                for (int k = 0; k<unsharableFiles.size(); k++) {
+                    excludes+=(String)unsharableFiles.get(k);
+                    if (k<unsharableFiles.size()-1) excludes+=", ";
+                }
+                props.setProperty("exclude_list", excludes);
+                
+                // schedule creation of zip
                 et.schedule(script, new String[] {"zip-project"}, props);
+            }
+        }
+    }
+
+    /**
+     * Creates a list of files for exclude in zip target.
+     */
+    private static void traverseDirForSharability(String topDir, File f) {
+        if (SharabilityQuery.getSharability(f)!=SharabilityQuery.SHARABLE) {
+            unsharableFiles.add(f.getAbsolutePath().replace(topDir+File.separator, ""));
+        }        
+        if (f.isDirectory()) {
+            for (int i=0; i<f.listFiles().length; i++) {
+                traverseDirForSharability(topDir, f.listFiles()[i]);
             }
         }
     }
@@ -123,7 +156,7 @@ public class ExportPackageScheduler {
             Properties props = new Properties();
             props.setProperty("file_to_delete", (String) fileList.get(i));
             et.schedule(script, new String[] {"delete-zip"}, props);
-        }        
+        }
     }
     
 }
