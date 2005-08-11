@@ -15,7 +15,7 @@
 -->
 <project name="ZipImporter" default="" basedir=".">
     <target name="unzip-project">
-        <unzip src="${zip_file}" dest="${unzip_dir}/${project_name}" />        
+        <unzip src="${zip_file}" dest="${unzip_dir}" />        
     </target>
     
     <target name="delete-zip">
