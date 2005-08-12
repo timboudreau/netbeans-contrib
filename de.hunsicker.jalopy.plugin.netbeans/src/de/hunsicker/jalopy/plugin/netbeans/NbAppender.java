@@ -47,9 +47,9 @@ import java.util.regex.Matcher;
  * @author Frank-Michael Moser
  */
 final class NbAppender extends AbstractAppender {
-
 	private static final String TYPE_ERROR = "error";
 	private static final String TYPE_WARN = "warn";
+	private static final String INDENT = "        ";
 	private InputOutput _sink;
 	private OutputWriter _errors;
 	private OutputWriter _infos;
@@ -71,7 +71,6 @@ final class NbAppender extends AbstractAppender {
 	 * @param ev DOCUMENT ME!
 	 */
 	public void append(LoggingEvent ev) {
-
 		// check for Emacs-style messages
 		Matcher result = parseMessage(ev);
 
@@ -121,7 +120,6 @@ final class NbAppender extends AbstractAppender {
 	}
 
 	private String formatFilename(String filename, int lineno) {
-
 		StringBuffer buf = new StringBuffer(100);
 
 		// first the filename and location
@@ -139,24 +137,21 @@ final class NbAppender extends AbstractAppender {
 	}
 
 	private String formatMessage(String text) {
-
 		StringBuffer buf = new StringBuffer(text.length());
 
 		// is this a multiline message?
 		if (text.indexOf('\n') > -1) {
-
 			// then the message first
 			StringTokenizer tokens = new StringTokenizer(text, "\n"
 				/* NOI18N */ );
 
-			buf.append("        "
+			buf.append(INDENT
 			/* NOI18N */ );
 			buf.append(tokens.nextToken());
 			buf.append('\n');
 
 			// and the stack trace after
 			while (tokens.hasMoreElements()) {
-
 				String line = tokens.nextToken();
 
 				if ((line != null) && line.trim().startsWith("at"
@@ -169,7 +164,7 @@ final class NbAppender extends AbstractAppender {
 			buf.deleteCharAt(buf.length() - 1); // remove the last '\n'
 		}
 		else {
-			buf.append("        "
+			buf.append(INDENT
 			/* NOI18N */ );
 			buf.append(text);
 		}
@@ -187,7 +182,7 @@ final class NbAppender extends AbstractAppender {
 						out.print("[WARN] "
 						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println("        "
+						out.println(INDENT
 						/* NOI18N */  + text);
 						out.flush();
 
@@ -197,7 +192,7 @@ final class NbAppender extends AbstractAppender {
 						out.print("[ERROR] "
 						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println("        "
+						out.println(INDENT
 						/* NOI18N */  + text);
 						out.flush();
 
@@ -206,7 +201,7 @@ final class NbAppender extends AbstractAppender {
 						out.print("[DEBUG] "
 						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println("        "
+						out.println(INDENT
 						/* NOI18N */  + text);
 						out.flush();
 
@@ -215,7 +210,7 @@ final class NbAppender extends AbstractAppender {
 						out.print("[INFO] "
 						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println("        "
+						out.println(INDENT
 						/* NOI18N */  + text);
 						out.flush();
 
@@ -225,13 +220,13 @@ final class NbAppender extends AbstractAppender {
 			else {
 				switch (level.toInt()) {
 					case Level.WARN_INT:
-						out.print("[WARN] " 
-						/* NOI18N */);
+						out.print("[WARN] "
+						/* NOI18N */ );
 						out.println(
 							formatFilename(filename, lineno),
 							new OutputHandler(
 								TYPE_WARN, filename, lineno, text));
-						out.println("        "
+						out.println(INDENT
 						/* NOI18N */  + text);
 						out.flush();
 
@@ -240,7 +235,6 @@ final class NbAppender extends AbstractAppender {
 					case Level.ERROR_INT:
 						out.print("[ERROR] "
 						/* NOI18N */ );
-
 						int linebreakPos = text.indexOf('\n'); // multiline message?
 
 						out.println(
@@ -257,7 +251,7 @@ final class NbAppender extends AbstractAppender {
 						out.print("[INFO] "
 						/* NOI18N */ );
 						out.println(formatFilename(filename, 0));
-						out.println("        "
+						out.println(INDENT
 						/* NOI18N */  + text);
 						out.flush();
 
@@ -271,7 +265,6 @@ final class NbAppender extends AbstractAppender {
 	}
 
 	private static class LineAnnotation extends Annotation {
-
 		final String message;
 		final String type;
 
@@ -290,12 +283,12 @@ final class NbAppender extends AbstractAppender {
 		}
 	}
 
+
 	/**
 	 * The click-handler which marks lines for errors and warnings.
 	 */
 	private static class OutputHandler implements OutputListener,
 		PropertyChangeListener {
-
 		Annotation ann;
 		String filename;
 		String text;
@@ -313,12 +306,10 @@ final class NbAppender extends AbstractAppender {
 		public void outputLineAction(org.openide.windows.OutputEvent ev) {
 			// don't add the same annotation twice
 			if (this.ann == null) {
-
 				FileObject file =
 					FileUtil.toFileObject(new File(this.filename));
 
 				try {
-
 					DataObject objWithError = DataObject.find(file);
 					LineCookie cookie =
 						(LineCookie) objWithError.getCookie(LineCookie.class);
@@ -346,7 +337,6 @@ final class NbAppender extends AbstractAppender {
 
 		public void propertyChange(PropertyChangeEvent ev) {
 			if (this.ann != null) {
-
 				String property = ev.getPropertyName();
 
 				if (
