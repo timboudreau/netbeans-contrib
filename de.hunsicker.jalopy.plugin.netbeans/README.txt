@@ -10,7 +10,7 @@ http://jalopy.sourceforge.net/plugin-netbeans.html
 It is mainly based on the original code of Marco Hunsicker. Beside fixing
 compilation problems under NetBeans 4.1 major changes include
 
-- updated to bundled BeanShell version 2.0b2
+- updated to bundled Jalopy version 1.5b1 developer snapshot Aug 12 2005
 - arranged the folder structure and file layout to form a NetBeans 4.1 
   conformous module project
 - some minor improvements
