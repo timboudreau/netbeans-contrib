@@ -57,7 +57,6 @@ public class ImportZipUITools {
         }        
         izd.setZip(zip);
         if (fc.getSelectedFile()!=null) {
-//            izd.setProjectName(fc.getSelectedFile().getName().split("\\.zip")[0]);
             String name = "";
             try {
                 ZipFile zf = new ZipFile(fc.getSelectedFile());
@@ -66,6 +65,7 @@ public class ImportZipUITools {
             } catch (Exception e) {
                 // something's wrong so we just won't show the name
             }
+            ImportPackageInfo.setOriginalName(name);
             izd.setProjectName(name);
         }
     }    

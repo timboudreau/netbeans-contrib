@@ -49,9 +49,16 @@ public class ImportPackageValidator {
 
         File projectDir = new File(ImportPackageInfo.getUnzipDir()+File.separator+ImportPackageInfo.getProjectName());
         if (projectDir.exists()) {
-            NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_directory_already_exists._Please_choose_a_different_directory."), NotifyDescriptor.ERROR_MESSAGE);
-            d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_project_directory_exists"));
+            NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_directory_already_exists._Please_choose_a_different_directory."),
+                    java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_project_directory_exists"));
+            d.setInputText(ImportPackageInfo.getOriginalName());
             DialogDisplayer.getDefault().notify(d);
+            // new project folder name
+            if (!d.getInputText().equals("")) {
+                ImportPackageInfo.setProjectName(d.getInputText());
+                // revalidate
+                if (validate()) return true;
+            }            
             return false;            
         }
         

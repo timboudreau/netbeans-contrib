@@ -24,7 +24,8 @@ public class ImportPackageInfo {
     private static String unzipDir = "";
     private static String projectName = "";
     private static boolean deleteZip = false;
-    private static boolean processed = false;
+    private static String originalName = "";
+    private static boolean processed = false;      
     
     /** Creates a new instance of PackageInfo */
     private ImportPackageInfo() {        
@@ -108,6 +109,22 @@ public class ImportPackageInfo {
      */
     public static void setDeleteZip(boolean aDeleteZip) {
         deleteZip = aDeleteZip;
+    }
+
+    /**
+     * Get original name
+     * @return original name
+     */
+    public static String getOriginalName() {
+        return originalName;
+    }
+
+    /**
+     * Set the original folder name for comparison
+     * @param aOriginalName original name
+     */
+    public static void setOriginalName(String aOriginalName) {
+        originalName = aOriginalName;
     }
 
 }

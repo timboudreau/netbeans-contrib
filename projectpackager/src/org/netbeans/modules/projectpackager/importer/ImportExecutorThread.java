@@ -128,7 +128,15 @@ public class ImportExecutorThread extends Thread {
             d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error_during_processing_zips"));
             DialogDisplayer.getDefault().notify(d);
         } else {
-            if (scheduledTasks.get("delete-zip")==null && ((Boolean) scheduledTasks.get("unzip-project")).booleanValue()) {
+            if (scheduledTasks.get("delete-zip")==null && scheduledTasks.get("unzip-project")!=null && 
+                    ((Boolean) scheduledTasks.get("unzip-project")).booleanValue()) {
+                NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_imported_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
+                d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip_importer_finished"));
+                DialogDisplayer.getDefault().notify(d);
+                return;
+            }
+            if (scheduledTasks.get("delete-zip")==null && scheduledTasks.get("unzip-renamed-project")!=null && 
+                    ((Boolean) scheduledTasks.get("unzip-renamed-project")).booleanValue()) {
                 NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_imported_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
                 d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip_importer_finished"));
                 DialogDisplayer.getDefault().notify(d);

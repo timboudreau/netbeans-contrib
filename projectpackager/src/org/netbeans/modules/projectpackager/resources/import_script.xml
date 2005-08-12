@@ -18,6 +18,13 @@
         <unzip src="${zip_file}" dest="${unzip_dir}" />        
     </target>
     
+    <target name="unzip-renamed-project">
+        <unzip src="${zip_file}" dest="${unzip_dir}/${project_name}" />
+        <move todir="${unzip_dir}/${project_name}">
+            <fileset dir="${unzip_dir}/${project_name}/${orig_project_name}" />
+        </move>
+    </target>
+    
     <target name="delete-zip">
         <delete file="${file_to_delete}"/>
     </target>    

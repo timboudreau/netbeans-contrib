@@ -55,13 +55,20 @@ public class ImportPackageScheduler {
      */
     public static void unZipProject(ImportExecutorThread et) {
         if (!initialized) return;
-                
-        Properties props = new Properties();
-        props.setProperty("zip_file", ImportPackageInfo.getZip());
-        props.setProperty("unzip_dir", ImportPackageInfo.getUnzipDir());
-        // not supported at the moment, taken from zip - rename would be nice though
-        // props.setProperty("project_name", ImportPackageInfo.getProjectName());
-        et.schedule(script, new String[] {"unzip-project"}, props);
+
+        if (ImportPackageInfo.getOriginalName().equals(ImportPackageInfo.getProjectName())) {
+            Properties props = new Properties();
+            props.setProperty("zip_file", ImportPackageInfo.getZip());
+            props.setProperty("unzip_dir", ImportPackageInfo.getUnzipDir());
+            et.schedule(script, new String[] {"unzip-project"}, props);
+        } else {
+            Properties props = new Properties();
+            props.setProperty("zip_file", ImportPackageInfo.getZip());
+            props.setProperty("unzip_dir", ImportPackageInfo.getUnzipDir());
+            props.setProperty("orig_project_name", ImportPackageInfo.getOriginalName());
+            props.setProperty("project_name", ImportPackageInfo.getProjectName());
+            et.schedule(script, new String[] {"unzip-renamed-project"}, props);
+        }
     }
     
     /**

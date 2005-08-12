@@ -70,7 +70,6 @@
         <Component class="javax.swing.JTextField" name="projectNameField">
           <Properties>
             <Property name="columns" type="int" value="18"/>
-            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">

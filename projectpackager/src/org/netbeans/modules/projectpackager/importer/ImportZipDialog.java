@@ -92,7 +92,6 @@ public class ImportZipDialog extends javax.swing.JFrame {
         ZipProjectPanel.add(projectZipField, gridBagConstraints);
 
         projectNameField.setColumns(18);
-        projectNameField.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
