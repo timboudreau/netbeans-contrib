@@ -41,7 +41,11 @@ public class ProjectPackagerSettings extends SystemOption {
      * SMTP password property
      */
     public static final String PROP_SMTP_PASSWORD = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Password");
-    
+    /**
+     * Use SSL for SMTP property
+     */    
+    public static final String PROP_SMTP_USE_SSL = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Use_SSL");
+            
     /**
      * Version property
      */
@@ -64,6 +68,7 @@ public class ProjectPackagerSettings extends SystemOption {
         putProperty(PROP_SMTP_SERVER, "", true);
         putProperty(PROP_SMTP_USERNAME, "", true);
         putProperty(PROP_SMTP_PASSWORD, "", true);
+        putProperty(PROP_SMTP_USE_SSL, Boolean.FALSE, true);
     }
 
     /**
@@ -76,6 +81,7 @@ public class ProjectPackagerSettings extends SystemOption {
         out.writeObject(getProperty(PROP_SMTP_SERVER));
         out.writeObject(getProperty(PROP_SMTP_USERNAME));
         out.writeObject(getProperty(PROP_SMTP_PASSWORD));
+        out.writeObject(getProperty(PROP_SMTP_USE_SSL));
     }
     
     /**
@@ -110,6 +116,7 @@ public class ProjectPackagerSettings extends SystemOption {
         putProperty(PROP_SMTP_SERVER, in.readObject(), true);
         putProperty(PROP_SMTP_USERNAME, in.readObject(), true);
         putProperty(PROP_SMTP_PASSWORD, in.readObject(), true);
+        putProperty(PROP_SMTP_USE_SSL, in.readObject(), true);
     }
     
     /**
@@ -184,4 +191,20 @@ public class ProjectPackagerSettings extends SystemOption {
     public String getSmtpPassword() {
         return (String) getProperty(PROP_SMTP_PASSWORD);
     }    
+    
+    /**
+     * Set Use SSL
+     * @param newVal Use SSL
+     */
+    public void setUseSSL(Boolean newVal) {
+        putProperty(PROP_SMTP_USE_SSL, newVal, true);
+    }
+    
+    /**
+     * Return Uses SSL?
+     * @return Uses SSL?
+     */
+    public Boolean getUseSSL() {
+        return (Boolean) getProperty(PROP_SMTP_USE_SSL);
+    }        
 }

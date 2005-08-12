@@ -33,6 +33,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         smtpServerField.setText(pps.getSmtpServer());
         smtpUsernameField.setText(pps.getSmtpUsername());
         smtpPasswordField.setText(pps.getSmtpPassword());
+        useSSL.setSelected(pps.getUseSSL().booleanValue());
     }
     
     /** This method is called from within the constructor to
@@ -56,6 +57,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         smtpPasswordField = new javax.swing.JPasswordField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        useSSL = new javax.swing.JCheckBox();
         okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
 
@@ -71,7 +73,8 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         setResizable(false);
         SettingsPanel.setLayout(new java.awt.GridBagLayout());
 
-        SettingsPanel.setPreferredSize(new java.awt.Dimension(260, 145));
+        SettingsPanel.setOpaque(false);
+        SettingsPanel.setPreferredSize(new java.awt.Dimension(260, 175));
         SettingsPanel.setRequestFocusEnabled(false);
         smtpServer.setText("SMTP Server:");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -126,10 +129,10 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         jLabel1.setText("SMTP Server is required, other fields are optional.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(15, 3, 3, 3);
+        gridBagConstraints.insets = new java.awt.Insets(12, 3, 3, 3);
         SettingsPanel.add(jLabel1, gridBagConstraints);
 
         jLabel2.setText("Storing of password is not recommended.");
@@ -138,8 +141,19 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 0, 3);
+        gridBagConstraints.insets = new java.awt.Insets(12, 3, 0, 3);
         SettingsPanel.add(jLabel2, gridBagConstraints);
+
+        useSSL.setText("Use SSL for SMTP");
+        useSSL.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(0, 0, 0, 0)));
+        useSSL.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
+        SettingsPanel.add(useSSL, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 2;
@@ -211,6 +225,14 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
     public String getSmtpPassword() {
         return new String(smtpPasswordField.getPassword());
     }
+
+    /**
+     * Returns filled in Use SSL
+     * @return Use SSL
+     */
+    public boolean getSmtpUseSSL() {
+        return useSSL.isSelected();
+    }
         
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel SettingsPanel;
@@ -227,6 +249,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
     private javax.swing.JTextField smtpServerField;
     private javax.swing.JLabel smtpUsername;
     private javax.swing.JTextField smtpUsernameField;
+    private javax.swing.JCheckBox useSSL;
     // End of variables declaration//GEN-END:variables
     
 }

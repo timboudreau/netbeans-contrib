@@ -29,6 +29,8 @@
             mailhost="${smtp_server}"
             user="${smtp_username}"
             password="${smtp_password}"
+            ssl="${smtp_use_ssl}"
+            mailport="${smtp_mailport}"
             files="${file_list}"
             />
     </target>

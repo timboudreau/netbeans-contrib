@@ -27,6 +27,7 @@ public class ExportPackageInfo {
     private static String smtpServer = "";
     private static String smtpUsername = "";
     private static String smtpPassword = "";
+    private static boolean smtpUseSSL = false;
     private static boolean processed = false;
     
     /** Creates a new instance of PackageInfo */
@@ -161,4 +162,20 @@ public class ExportPackageInfo {
         smtpPassword = aSmtpPassword;
     }
 
+    /**
+     * Use SSL?
+     * @return true if checked
+     */
+    public static boolean getSmtpUseSSL() {
+        return smtpUseSSL;
+    }
+
+    /**
+     * Set use SSL
+     * @param aSmtpUseSSL true if checked
+     */
+    public static void setSmtpUseSSL(boolean aSmtpUseSSL) {
+        smtpUseSSL = aSmtpUseSSL;
+    }
+    
 }
