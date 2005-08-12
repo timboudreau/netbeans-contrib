@@ -82,7 +82,7 @@ public class ExportZipDialog extends javax.swing.JFrame {
         setResizable(false);
         ZipProjectPanel.setLayout(new java.awt.GridBagLayout());
 
-        ZipProjectPanel.setPreferredSize(new java.awt.Dimension(305, 280));
+        ZipProjectPanel.setPreferredSize(new java.awt.Dimension(305, 260));
         ZipProjectPanel.setRequestFocusEnabled(false);
         targetDirectory.setText("Target Directory:");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -154,7 +154,7 @@ public class ExportZipDialog extends javax.swing.JFrame {
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
-        jPanel1.setPreferredSize(new java.awt.Dimension(300, 120));
+        jPanel1.setPreferredSize(new java.awt.Dimension(300, 100));
         jPanel1.setRequestFocusEnabled(false);
         chooseProjects.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         chooseProjects.setText("Choose Project(s):");
@@ -166,10 +166,12 @@ public class ExportZipDialog extends javax.swing.JFrame {
         jPanel1.add(chooseProjects, gridBagConstraints);
 
         jScrollPane2.setBackground(new java.awt.Color(255, 255, 255));
-        jScrollPane2.setPreferredSize(new java.awt.Dimension(198, 96));
-        projectList.setOpaque(false);
-        projectList.setPreferredSize(new java.awt.Dimension(196, 8));
-        projectList.setVisibleRowCount(6);
+        projectList.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "project" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        projectList.setVisibleRowCount(5);
         jScrollPane2.setViewportView(projectList);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
