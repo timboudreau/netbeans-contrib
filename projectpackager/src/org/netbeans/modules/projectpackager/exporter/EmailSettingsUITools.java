@@ -51,7 +51,7 @@ public class EmailSettingsUITools {
         pps.setSmtpServer(esd.getSmtpServer());
         pps.setSmtpUsername(esd.getSmtpUsername());
         pps.setSmtpPassword(esd.getSmtpPassword());
-        pps.setUseSSL(new Boolean(esd.getSmtpUseSSL()));
+        pps.setSmtpUseSSL(new Boolean(esd.getSmtpUseSSL()));
         esd.dispose();
     }
 }

@@ -20,6 +20,7 @@ import java.util.Vector;
 import org.netbeans.api.queries.SharabilityQuery;
 import org.netbeans.modules.projectpackager.tools.Constants;
 import org.netbeans.modules.projectpackager.tools.ExecutionTools;
+import org.netbeans.modules.projectpackager.tools.ProjectPackagerSettings;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
@@ -160,6 +161,10 @@ public class ExportPackageScheduler {
             props.setProperty("smtp_use_ssl", "false");
             props.setProperty("smtp_mailport", "25");            
         }
+        final ProjectPackagerSettings pps = ProjectPackagerSettings.getDefault();        
+        props.setProperty("mail_from", pps.getMailFrom());
+        props.setProperty("mail_subject", pps.getMailSubject());
+        props.setProperty("mail_body", pps.getMailBody());
         et.schedule(script, new String[] {"mail-zips"}, props);
     }
     

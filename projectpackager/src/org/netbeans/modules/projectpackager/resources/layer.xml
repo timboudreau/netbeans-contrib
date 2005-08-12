@@ -35,7 +35,7 @@
             </file>
         </folder>
     </folder>
-    
+            
     <folder name="Services">
     	<file name="org-netbeans-modules-projectpackager-resources-ProjectPackagerSettings.settings" url="ProjectPackagerSettings.xml" />
         <folder name="ProjectPackager">
@@ -43,5 +43,17 @@
             <file name="import_script.xml" url="import_script.xml"/>                
         </folder>
     </folder>
+    
+    <folder name="UI">
+        <folder name="Services">
+          <folder name="IDEConfiguration">
+            <folder name="ServerAndExternalToolSettings">
+              <file name="org-netbeans-modules-projectpackager-resources-ProjectPackagerSettings.shadow">
+                <attr name="originalFile" stringvalue="Services/org-netbeans-modules-projectpackager-resources-ProjectPackagerSettings.settings"/>
+              </file>
+            </folder>
+          </folder>
+        </folder>
+      </folder>
     
 </filesystem>

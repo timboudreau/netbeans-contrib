@@ -33,7 +33,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         smtpServerField.setText(pps.getSmtpServer());
         smtpUsernameField.setText(pps.getSmtpUsername());
         smtpPasswordField.setText(pps.getSmtpPassword());
-        useSSL.setSelected(pps.getUseSSL().booleanValue());
+        useSSL.setSelected(pps.getSmtpUseSSL().booleanValue());
     }
     
     /** This method is called from within the constructor to

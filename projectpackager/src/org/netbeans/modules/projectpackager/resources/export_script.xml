@@ -22,9 +22,9 @@
     </target>
     
     <target name="mail-zips">
-        <mail from="projectpackager@netbeans.org"
-            subject="Zipped NetBeans projects"
-            message="Your projects are attached. Thank you for using NetBeans."
+        <mail from="${mail_from}"
+            subject="${mail_subject}"
+            message="${mail_body}"
             tolist="${to_addr}"
             mailhost="${smtp_server}"
             user="${smtp_username}"

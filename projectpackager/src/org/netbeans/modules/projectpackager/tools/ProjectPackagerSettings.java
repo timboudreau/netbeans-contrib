@@ -45,7 +45,20 @@ public class ProjectPackagerSettings extends SystemOption {
      * Use SSL for SMTP property
      */    
     public static final String PROP_SMTP_USE_SSL = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Use_SSL");
+    /**
+     * Mail From
+     */
+    public static final String PROP_MAIL_FROM = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Mail_From");
+    /**
+     * Mail Subject
+     */
+    public static final String PROP_MAIL_SUBJECT = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Mail_Subject");
+    /**
+     * Mail Body
+     */
+    public static final String PROP_MAIL_BODY = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Mail_Body");
             
+    
     /**
      * Version property
      */
@@ -69,6 +82,12 @@ public class ProjectPackagerSettings extends SystemOption {
         putProperty(PROP_SMTP_USERNAME, "", true);
         putProperty(PROP_SMTP_PASSWORD, "", true);
         putProperty(PROP_SMTP_USE_SSL, Boolean.FALSE, true);
+        putProperty(PROP_MAIL_FROM, java.util.ResourceBundle.getBundle(
+                Constants.BUNDLE).getString("Mail_From_Default"), true);
+        putProperty(PROP_MAIL_SUBJECT, java.util.ResourceBundle.getBundle(
+                Constants.BUNDLE).getString("Mail_Subject_Default"), true);
+        putProperty(PROP_MAIL_BODY, java.util.ResourceBundle.getBundle(
+                Constants.BUNDLE).getString("Mail_Body_Default"), true);
     }
 
     /**
@@ -82,6 +101,9 @@ public class ProjectPackagerSettings extends SystemOption {
         out.writeObject(getProperty(PROP_SMTP_USERNAME));
         out.writeObject(getProperty(PROP_SMTP_PASSWORD));
         out.writeObject(getProperty(PROP_SMTP_USE_SSL));
+        out.writeObject(getProperty(PROP_MAIL_FROM));
+        out.writeObject(getProperty(PROP_MAIL_SUBJECT));
+        out.writeObject(getProperty(PROP_MAIL_BODY));
     }
     
     /**
@@ -117,6 +139,9 @@ public class ProjectPackagerSettings extends SystemOption {
         putProperty(PROP_SMTP_USERNAME, in.readObject(), true);
         putProperty(PROP_SMTP_PASSWORD, in.readObject(), true);
         putProperty(PROP_SMTP_USE_SSL, in.readObject(), true);
+        putProperty(PROP_MAIL_FROM, in.readObject(), true);
+        putProperty(PROP_MAIL_SUBJECT, in.readObject(), true);
+        putProperty(PROP_MAIL_BODY, in.readObject(), true);
     }
     
     /**
@@ -196,7 +221,7 @@ public class ProjectPackagerSettings extends SystemOption {
      * Set Use SSL
      * @param newVal Use SSL
      */
-    public void setUseSSL(Boolean newVal) {
+    public void setSmtpUseSSL(Boolean newVal) {
         putProperty(PROP_SMTP_USE_SSL, newVal, true);
     }
     
@@ -204,7 +229,55 @@ public class ProjectPackagerSettings extends SystemOption {
      * Return Uses SSL?
      * @return Uses SSL?
      */
-    public Boolean getUseSSL() {
+    public Boolean getSmtpUseSSL() {
         return (Boolean) getProperty(PROP_SMTP_USE_SSL);
     }        
+    
+    /**
+     * Set Mail From
+     * @param newVal Mail From
+     */
+    public void setMailFrom(String newVal) {
+        putProperty(PROP_MAIL_FROM, newVal, true);
+    }
+    
+    /**
+     * Return Mail From
+     * @return Mail From
+     */
+    public String getMailFrom() {
+        return (String) getProperty(PROP_MAIL_FROM);
+    }         
+    
+    /**
+     * Set Mail Subject
+     * @param newVal Mail Subject
+     */
+    public void setMailSubject(String newVal) {
+        putProperty(PROP_MAIL_SUBJECT, newVal, true);
+    }
+    
+    /**
+     * Return Mail Subject
+     * @return Mail Subject
+     */
+    public String getMailSubject() {
+        return (String) getProperty(PROP_MAIL_SUBJECT);
+    }         
+    
+    /**
+     * Set Mail Body
+     * @param newVal Mail Body
+     */
+    public void setMailBody(String newVal) {
+        putProperty(PROP_MAIL_BODY, newVal, true);
+    }
+    
+    /**
+     * Return Mail Body
+     * @return Mail Body
+     */
+    public String getMailBody() {
+        return (String) getProperty(PROP_MAIL_BODY);
+    }         
 }
