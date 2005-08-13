@@ -157,7 +157,7 @@ public class ExportZipDialog extends javax.swing.JFrame {
         jPanel1.setPreferredSize(new java.awt.Dimension(300, 100));
         jPanel1.setRequestFocusEnabled(false);
         chooseProjects.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        chooseProjects.setText("Choose Project(s):");
+        chooseProjects.setText("Project(s) to Zip:");
         chooseProjects.setFocusable(false);
         chooseProjects.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
         gridBagConstraints = new java.awt.GridBagConstraints();
