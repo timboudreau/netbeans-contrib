@@ -262,6 +262,13 @@ public class ImportZipDialog extends javax.swing.JFrame {
     public String getProjectName() {
         return projectNameField.getText();
     }
+    
+    /**
+     * Set project name label (used if it's a source root)
+     */
+    public void setProjectNameLabel(String label) {
+        projectName.setText(label);
+    }
         
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ZipProjectPanel;

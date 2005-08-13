@@ -16,9 +16,9 @@ package org.netbeans.modules.projectpackager.importer;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import javax.swing.JFileChooser;
+import org.netbeans.modules.projectpackager.tools.Constants;
 import org.netbeans.modules.projectpackager.tools.DirectoryFilter;
 import org.netbeans.modules.projectpackager.tools.ZipFilter;
 
@@ -56,14 +56,20 @@ public class ImportZipUITools {
             zip = fc.getSelectedFile().getAbsolutePath();
         }        
         izd.setZip(zip);
+        boolean isProject = false;
         if (fc.getSelectedFile()!=null) {
             String name = "";
             try {
                 ZipFile zf = new ZipFile(fc.getSelectedFile());
                 Enumeration zipEntries = zf.entries();
                 name = ((ZipEntry)zipEntries.nextElement()).getName().split("/")[0];
+                if (zf.getEntry(name+"/nbproject")!=null) isProject = true;
             } catch (Exception e) {
                 // something's wrong so we just won't show the name
+            }            
+            if (!isProject) {
+                // seems to be a source root, change projectName
+                izd.setProjectNameLabel(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Source_Root_Folder_Name"));
             }
             ImportPackageInfo.setOriginalName(name);
             izd.setProjectName(name);
