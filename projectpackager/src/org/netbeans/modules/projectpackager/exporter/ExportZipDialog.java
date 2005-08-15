@@ -82,7 +82,7 @@ public class ExportZipDialog extends javax.swing.JFrame {
         setResizable(false);
         ZipProjectPanel.setLayout(new java.awt.GridBagLayout());
 
-        ZipProjectPanel.setPreferredSize(new java.awt.Dimension(305, 260));
+        ZipProjectPanel.setPreferredSize(new java.awt.Dimension(335, 260));
         ZipProjectPanel.setRequestFocusEnabled(false);
         targetDirectory.setText("Target Directory:");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -103,11 +103,11 @@ public class ExportZipDialog extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         ZipProjectPanel.add(chooseButton, gridBagConstraints);
 
-        targetDirectoryField.setColumns(27);
+        targetDirectoryField.setPreferredSize(new java.awt.Dimension(260, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -132,7 +132,7 @@ public class ExportZipDialog extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         ZipProjectPanel.add(mailCheckBox, gridBagConstraints);
 
-        mailAddress.setColumns(27);
+        mailAddress.setPreferredSize(new java.awt.Dimension(260, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -154,7 +154,7 @@ public class ExportZipDialog extends javax.swing.JFrame {
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
-        jPanel1.setPreferredSize(new java.awt.Dimension(300, 100));
+        jPanel1.setPreferredSize(new java.awt.Dimension(330, 100));
         jPanel1.setRequestFocusEnabled(false);
         chooseProjects.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         chooseProjects.setText("Project(s) to Zip:");
@@ -166,8 +166,9 @@ public class ExportZipDialog extends javax.swing.JFrame {
         jPanel1.add(chooseProjects, gridBagConstraints);
 
         jScrollPane2.setBackground(new java.awt.Color(255, 255, 255));
+        projectList.setFont(new java.awt.Font("Dialog", 0, 11));
         projectList.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "project" };
+            String[] strings = { "project", "project2", "project3", "project4", "org.netbeans.modules.projectpackager" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
@@ -240,26 +241,26 @@ public class ExportZipDialog extends javax.swing.JFrame {
     }
     // </editor-fold>//GEN-END:initComponents
 
-    private void emailSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailSettingsActionPerformed
-        ExportZipUITools.showEmailSettings();
-    }//GEN-LAST:event_emailSettingsActionPerformed
-    
-    private void chooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseButtonActionPerformed
-        ExportZipUITools.showFileChooser();
-    }//GEN-LAST:event_chooseButtonActionPerformed
-    
-    private void mailCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mailCheckBoxActionPerformed
-        processMailCheckbox();
-    }//GEN-LAST:event_mailCheckBoxActionPerformed
-    
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         ExportZipUITools.processCancelButton();
     }//GEN-LAST:event_cancelButtonActionPerformed
-    
+
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         ExportZipUITools.processOkButton();
     }//GEN-LAST:event_okButtonActionPerformed
-    
+
+    private void chooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseButtonActionPerformed
+        ExportZipUITools.showFileChooser();
+    }//GEN-LAST:event_chooseButtonActionPerformed
+
+    private void emailSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailSettingsActionPerformed
+        ExportZipUITools.showEmailSettings();
+    }//GEN-LAST:event_emailSettingsActionPerformed
+
+    private void mailCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mailCheckBoxActionPerformed
+        processMailCheckbox();
+    }//GEN-LAST:event_mailCheckBoxActionPerformed
+                    
     /**
      * Set target directory
      * @param targetDir target directory
