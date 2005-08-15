@@ -83,7 +83,7 @@ public class ImportZipDialog extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         ZipProjectPanel.add(zipChooseButton, gridBagConstraints);
 
-        projectZipField.setColumns(27);
+        projectZipField.setPreferredSize(new java.awt.Dimension(230, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -128,7 +128,7 @@ public class ImportZipDialog extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         ZipProjectPanel.add(unzipToDirectory, gridBagConstraints);
 
-        unzipToDirectoryField.setColumns(27);
+        unzipToDirectoryField.setPreferredSize(new java.awt.Dimension(230, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;

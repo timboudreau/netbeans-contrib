@@ -74,7 +74,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         SettingsPanel.setLayout(new java.awt.GridBagLayout());
 
         SettingsPanel.setOpaque(false);
-        SettingsPanel.setPreferredSize(new java.awt.Dimension(260, 175));
+        SettingsPanel.setPreferredSize(new java.awt.Dimension(330, 175));
         SettingsPanel.setRequestFocusEnabled(false);
         smtpServer.setText("SMTP Server:");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -84,7 +84,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         SettingsPanel.add(smtpServer, gridBagConstraints);
 
-        smtpUsernameField.setColumns(12);
+        smtpUsernameField.setPreferredSize(new java.awt.Dimension(160, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -108,7 +108,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         SettingsPanel.add(smtpPassword, gridBagConstraints);
 
-        smtpServerField.setColumns(18);
+        smtpServerField.setPreferredSize(new java.awt.Dimension(202, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -116,9 +116,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         SettingsPanel.add(smtpServerField, gridBagConstraints);
 
-        smtpPasswordField.setColumns(9);
-        smtpPasswordField.setMaximumSize(new java.awt.Dimension(107, 18));
-        smtpPasswordField.setMinimumSize(new java.awt.Dimension(11, 18));
+        smtpPasswordField.setPreferredSize(new java.awt.Dimension(160, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
