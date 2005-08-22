@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.java3d
+OpenIDE-Module-Layer: org/netbeans/modules/java3d/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/java3d/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

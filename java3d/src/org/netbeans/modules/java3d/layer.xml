@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Templates">
+
+        <attr name="Classes/Java3D" boolvalue="true" />
+        <attr name="Java3D/GUIForms" boolvalue="true" />
+
+        <folder name="Java3D">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.java3d.Bundle"/>
+
+            <file name="Behavior.java" url="resources/templates/BehaviorClass.template">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.java3d.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java3d/resources/templates/Icon_BehaviorClass.gif"/>
+                <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.java.ui.wizard.JavaWizardIterator.singleton" />
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/java3d/resources/templates/Desc_BehaviorClass.html"/>
+            </file>
+            
+            <file name="Main3D.java" url="resources/templates/Main3DClass.template">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.java3d.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java3d/resources/templates/Icon_Main3D.gif"/>
+                <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.java.ui.wizard.JavaWizardIterator.singleton" />
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/java3d/resources/templates/Desc_Main3D.html"/>
+            </file>
+            <file name="Main3D.form" url="resources/templates/Main3DForm.template">
+                <attr name="template" boolvalue="true"/>
+            </file>
+
+        </folder>
+
+    </folder></filesystem>
+
