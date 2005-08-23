@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.examples.debugger.jpda.smartstepping/1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/examples/debugger/jpda/smartstepping1/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.00
