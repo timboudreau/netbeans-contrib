@@ -30,12 +30,10 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import org.netbeans.Events;
-import org.netbeans.FixedModule;
 import org.netbeans.InvalidException;
 import org.netbeans.Module;
 import org.netbeans.ModuleFactory;
 import org.netbeans.ModuleManager;
-import org.netbeans.StandardModule;
 import org.netbeans.core.startup.ModuleSystem;
 import org.openide.ErrorManager;
 
@@ -316,5 +314,7 @@ public class JNLPModuleFactory extends ModuleFactory {
         return classpathDelegateClassLoader;
     }
     
-   
+    public boolean removeBaseClassLoader() {
+        return true;
+    }
 }
