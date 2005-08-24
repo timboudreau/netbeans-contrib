@@ -36,7 +36,7 @@ import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eePlatform;
 import org.netbeans.modules.j2ee.ejbfreeform.EJBProjectGenerator;
-import org.netbeans.modules.j2ee.ejbjarproject.ui.customizer.EjbJarProjectProperties;
+import org.netbeans.modules.j2ee.ejbfreeform.EjbFreeformProperties;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.HelpCtx;
@@ -104,8 +104,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             EJBProjectGenerator.EJBModule wm = (EJBProjectGenerator.EJBModule)l.get(0);
             String configFiles = getLocationDisplayName(projectEvaluator, baseFolder, wm.configFiles);
             String classpath = getLocationDisplayName(projectEvaluator, baseFolder, wm.classpath);
-            String resourceFiles = getLocationDisplayName(projectEvaluator, baseFolder, projectEvaluator.getProperty(EjbJarProjectProperties.RESOURCE_DIR));
-            String serverID = projectEvaluator.getProperty(EjbJarProjectProperties.J2EE_SERVER_TYPE);
+            String resourceFiles = getLocationDisplayName(projectEvaluator, baseFolder, projectEvaluator.getProperty(EjbFreeformProperties.RESOURCE_DIR));
+            String serverID = projectEvaluator.getProperty(EjbFreeformProperties.J2EE_SERVER_TYPE);
             jTextFieldConfigFiles.setText(configFiles);
             resourcesTextField.setText(resourceFiles);
             

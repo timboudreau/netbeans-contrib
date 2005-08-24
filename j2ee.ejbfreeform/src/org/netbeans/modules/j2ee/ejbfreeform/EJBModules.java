@@ -26,6 +26,7 @@ import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarFactory;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarImplementation;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarProvider;
+import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarsInProject;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.w3c.dom.Element;
 import org.openide.filesystems.FileUtil;
@@ -52,7 +53,7 @@ import org.netbeans.spi.project.support.ant.PropertyUtils;
  *
  * @author  Pavel Buzek
  */
-public class EJBModules implements EjbJarProvider, AntProjectListener, ClassPathProvider {
+public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectListener, ClassPathProvider {
     
     private ArrayList modules = new ArrayList ();
     private HashMap cache = new HashMap ();
@@ -66,11 +67,6 @@ public class EJBModules implements EjbJarProvider, AntProjectListener, ClassPath
         this.helper = helper;
         this.evaluator = evaluator;
         helper.addAntProjectListener(this);
-    }
-    
-    public EjbJarImplementation getEjbJarImplementation() {
-        readAuxData();
-        return (EjbJarImplementation) modules.get(0);
     }
     
     public synchronized EjbJar findEjbJar (FileObject file) {
@@ -181,6 +177,9 @@ public class EJBModules implements EjbJarProvider, AntProjectListener, ClassPath
             for (int j = 0; j < srcForBin.length; j++) {
                 srcRootSet.add (srcForBin [j]);
             }
+            if (srcForBin.length == 0) {
+                srcRootSet.add(FileUtil.toFileObject(entryFile));
+            }
         }
         SourceGroup sg [] = ProjectUtils.getSources (project).getSourceGroups (JavaProjectConstants.SOURCES_TYPE_JAVA);
         Set filteredSources = new HashSet ();
@@ -234,6 +233,24 @@ public class EJBModules implements EjbJarProvider, AntProjectListener, ClassPath
     
     public void propertiesChanged(AntProjectEvent ev) {
         // ignore
+    }
+
+    public EjbJar[] getEjbJars() {
+        if (modules.isEmpty()) {
+            readAuxData ();
+        }
+        EjbJar results [] = new EjbJar[modules.size()];
+        int i = 0;
+        for (Iterator iter = modules.iterator (); iter.hasNext ();) {
+            FFEJBModule ejbm = (FFEJBModule) iter.next ();
+            if (cache.get (ejbm) == null) {
+                results[i] = EjbJarFactory.createEjbJar (ejbm);
+                cache.put (ejbm, results[i]);
+            } else {
+                results[i] = (EjbJar) cache.get(ejbm);
+            }
+        }
+        return results;
     }
     
     private final class FFEJBModule implements EjbJarImplementation {

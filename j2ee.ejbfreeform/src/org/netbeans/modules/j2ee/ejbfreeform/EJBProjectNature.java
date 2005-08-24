@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.j2ee.ejbfreeform;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,14 +22,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.ant.freeform.spi.ProjectNature;
 import org.netbeans.modules.ant.freeform.spi.ProjectPropertiesPanel;
 import org.netbeans.modules.ant.freeform.spi.TargetDescriptor;
+import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
+import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
 import org.netbeans.modules.j2ee.ejbfreeform.ui.EJBLocationsPanel;
-import org.netbeans.modules.j2ee.ejbjarproject.EnterpriseReferenceContainerImpl;
-import org.netbeans.modules.j2ee.ejbjarproject.ui.logicalview.LogicalViewChildren;
-import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarImplementation;
+import org.netbeans.modules.j2ee.spi.ejbjar.support.J2eeProjectView;
+import org.netbeans.modules.j2ee.spi.ejbjar.support.EjbEnterpriseReferenceContainerSupport;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectEvent;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
@@ -36,6 +40,7 @@ import org.netbeans.spi.project.support.ant.AntProjectListener;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.ui.PrivilegedTemplates;
 import org.netbeans.spi.project.ui.RecommendedTemplates;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
@@ -102,12 +107,23 @@ public class EJBProjectNature implements ProjectNature {
     
     public Node createSourceFolderView(Project project, FileObject folder, String style, String name, String displayName) throws IllegalArgumentException {
         if (style.equals(STYLE_CONFIG_FILES)) {
-            return new LogicalViewChildren(project, null, null, null).createNodes(LogicalViewChildren.KEY_DOC_BASE)[0];
+            EjbJar ejbJar = EjbJar.getEjbJar(folder);
+            assert ejbJar != null;
+            return J2eeProjectView.createConfigFilesView(ejbJar.getMetaInf());
         } else if (style.equals(STYLE_EJBS)) {
-            return new LogicalViewChildren(project, null, null, null).createNodes(LogicalViewChildren.KEY_EJBS)[0];
-        } else {
-            throw new IllegalArgumentException();
+            EjbJar ejbJar = EjbJar.getEjbJar(folder);
+            assert ejbJar != null;
+            FileObject ddFile = ejbJar.getDeploymentDescriptor();
+            org.netbeans.modules.j2ee.dd.api.ejb.EjbJar model;
+            try {
+                model = DDProvider.getDefault().getDDRoot(ddFile);
+                ClassPath cp = org.netbeans.spi.java.classpath.support.ClassPathSupport.createClassPath(ejbJar.getJavaSources());
+                return J2eeProjectView.createEjbsView(model, cp, ddFile, project);
+            } catch (IOException ex) {
+                ErrorManager.getDefault().notify(ex);
+            }
         }
+        throw new IllegalArgumentException();
     }
 
     public Node findSourceFolderViewPath(Project project, Node root, Object target) {
@@ -129,49 +145,11 @@ public class EJBProjectNature implements ProjectNature {
         
         return Lookups.fixed(new Object[] {
             new EJBFreeformProvider(project, projectHelper, projectEvaluator),
-            new ProxyEjbJarImplementation(project, projectHelper, projectEvaluator),
             new EJBModules(project, projectHelper, projectEvaluator), // EJBModuleProvider, ClassPathProvider
             new PrivilegedTemplatesImpl(), // List of templates in New action popup
-            new EnterpriseReferenceContainerImpl(project, projectHelper),
+            EjbEnterpriseReferenceContainerSupport.createEnterpriseReferenceContainer(project, projectHelper),
             new EjbFreeFormActionProvider(project, projectHelper, aux),
         });
-    }
-    
-    public static final class ProxyEjbJarImplementation implements EjbJarImplementation {
-        
-        private Project project;
-        private AntProjectHelper helper;
-        private PropertyEvaluator evaluator;
-        private EjbJarImplementation ejbJarImplementation;
-        
-        public ProxyEjbJarImplementation(Project project, AntProjectHelper helper, PropertyEvaluator evaluator) {
-            this.project = project;
-            this.helper = helper;
-            this.evaluator = evaluator;
-        }
-        
-        private EjbJarImplementation getEjbjarImplementation() {
-            if (ejbJarImplementation == null) {
-                ejbJarImplementation = new EJBModules(project, helper, evaluator).getEjbJarImplementation();
-            }
-            return ejbJarImplementation;
-        }
-
-        public FileObject getMetaInf() {
-            return getEjbjarImplementation().getMetaInf();
-        }
-
-        public String getJ2eePlatformVersion() {
-            return getEjbjarImplementation().getJ2eePlatformVersion();
-        }
-
-        public FileObject getDeploymentDescriptor() {
-            return getEjbjarImplementation().getDeploymentDescriptor();
-        }
-        
-        public FileObject[] getJavaSources() {
-            return getEjbjarImplementation().getJavaSources();
-        }
     }
     
     private static final class ProjectLookup extends ProxyLookup implements AntProjectListener {

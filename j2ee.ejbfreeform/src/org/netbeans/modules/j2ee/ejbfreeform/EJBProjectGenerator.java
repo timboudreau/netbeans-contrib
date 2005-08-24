@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.netbeans.modules.ant.freeform.FreeformProjectType;
 import org.netbeans.modules.ant.freeform.spi.support.Util;
-import org.netbeans.modules.j2ee.ejbjarproject.ui.customizer.EjbJarProjectProperties;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.w3c.dom.Document;
@@ -160,28 +159,28 @@ public class EJBProjectGenerator {
         Element data = helper.getPrimaryConfigurationData(true);
         Document doc = data.getOwnerDocument();
         String value = (String)resources.get(0) != null ? (String)resources.get(0) : ""; // NOI18N
-        putProperty(doc, data, EjbJarProjectProperties.RESOURCE_DIR, value);
+        putProperty(doc, data, EjbFreeformProperties.RESOURCE_DIR, value);
         helper.putPrimaryConfigurationData(data, true);
     }
     
     public static void putServerInstanceID(AntProjectHelper helper, String instanceID) {
         Element data = helper.getPrimaryConfigurationData(true);
         Document doc = data.getOwnerDocument();
-        putProperty(doc, data, EjbJarProjectProperties.J2EE_SERVER_INSTANCE, instanceID);
+        putProperty(doc, data, EjbFreeformProperties.J2EE_SERVER_INSTANCE, instanceID);
         helper.putPrimaryConfigurationData(data, true);
     }
     
     public static void putServerID(AntProjectHelper helper, String serverID) {
         Element data = helper.getPrimaryConfigurationData(true);
         Document doc = data.getOwnerDocument();
-        putProperty(doc, data, EjbJarProjectProperties.J2EE_SERVER_TYPE, serverID);
+        putProperty(doc, data, EjbFreeformProperties.J2EE_SERVER_TYPE, serverID);
         helper.putPrimaryConfigurationData(data, true);
     }
     
     public static void putJ2EELevel(AntProjectHelper helper, String j2eeLevel) {
         Element data = helper.getPrimaryConfigurationData(true);
         Document doc = data.getOwnerDocument();
-        putProperty(doc, data, EjbJarProjectProperties.J2EE_PLATFORM, j2eeLevel);
+        putProperty(doc, data, EjbFreeformProperties.J2EE_PLATFORM, j2eeLevel);
         helper.putPrimaryConfigurationData(data, true);
     }
     

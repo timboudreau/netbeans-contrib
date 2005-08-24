@@ -34,7 +34,6 @@ import org.netbeans.modules.j2ee.dd.api.ejb.EjbJar;
 import org.netbeans.modules.java.freeform.spi.support.NewJavaFreeformProjectSupport;
 import org.netbeans.modules.j2ee.ejbfreeform.EJBProjectGenerator;
 import org.netbeans.modules.j2ee.ejbfreeform.EJBProjectNature;
-import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarImplementation;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
@@ -107,9 +106,9 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
                     
                     Project p = ProjectManager.getDefault().findProject(helper.getProjectDirectory());
                     
-                    EjbJarImplementation imp = (EjbJarImplementation)p.getLookup().lookup(EjbJarImplementation.class);
-                    if (imp != null) {
-                        FileObject ejbJarFile = imp.getDeploymentDescriptor();
+                    org.netbeans.modules.j2ee.api.ejbjar.EjbJar ejbModule = org.netbeans.modules.j2ee.api.ejbjar.EjbJar.getEjbJars(p)[0];
+                    if (ejbModule != null) {
+                        FileObject ejbJarFile = ejbModule.getDeploymentDescriptor();
                         EjbJar dd = DDProvider.getDefault().getDDRoot(ejbJarFile);
                         boolean write = false;
                         // set the DD display name if there is none

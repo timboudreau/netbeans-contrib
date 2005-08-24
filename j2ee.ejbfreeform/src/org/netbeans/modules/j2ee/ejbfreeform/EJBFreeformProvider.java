@@ -19,11 +19,11 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
 import org.netbeans.modules.j2ee.deployment.common.api.EjbChangeDescriptor;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.ModuleChangeReporter;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
-import org.netbeans.modules.j2ee.ejbjarproject.ui.customizer.EjbJarProjectProperties;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.filesystems.FileObject;
@@ -57,13 +57,13 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
     
     
     public File getDeploymentConfigurationFile(String name) {
-        FileObject moduleFolder = ejbModules.getEjbJarImplementation().getMetaInf();
+        FileObject moduleFolder = EjbJar.getEjbJars(project)[0].getMetaInf();
         File configFolder = FileUtil.toFile(moduleFolder);
         return new File(configFolder, name);
     }
     
     public FileObject findDeploymentConfigurationFile(String name) {
-        return ejbModules.getEjbJarImplementation().getMetaInf().getFileObject(name);
+        return EjbJar.getEjbJars(project)[0].getMetaInf().getFileObject(name);
     }
     
     public ModuleChangeReporter getModuleChangeReporter() {
@@ -95,7 +95,7 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
     }
     
     public File getEnterpriseResourceDirectory() {
-        return getFile(EjbJarProjectProperties.RESOURCE_DIR);
+        return getFile(EjbFreeformProperties.RESOURCE_DIR);
     }
     
     public boolean useDefaultServer() {
@@ -106,7 +106,7 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
         Sources sources = ProjectUtils.getSources(project);
         SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         FileObject[] roots = new FileObject[groups.length+1];
-        roots[0] = ejbModules.getEjbJarImplementation().getMetaInf();
+        roots[0] = EjbJar.getEjbJars(project)[0].getMetaInf();
         for (int i=0; i < groups.length; i++) {
             roots[i+1] = groups[i].getRootFolder();
         }
@@ -119,11 +119,11 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
     }
     
     public String getServerInstanceID() {
-        return evaluator.getProperty(EjbJarProjectProperties.J2EE_SERVER_INSTANCE);
+        return evaluator.getProperty(EjbFreeformProperties.J2EE_SERVER_INSTANCE);
     }
     
     public String getServerID() {
-        return evaluator.getProperty(EjbJarProjectProperties.J2EE_SERVER_TYPE);
+        return evaluator.getProperty(EjbFreeformProperties.J2EE_SERVER_TYPE);
     }
     
     // private methods

@@ -38,14 +38,23 @@ public class EJBFreeformModule implements J2eeModule {
     private Project project;
     private AntProjectHelper helper;
     private PropertyEvaluator evaluator;
-    private EJBProjectNature.ProxyEjbJarImplementation ejbImpl;
+    private org.netbeans.modules.j2ee.api.ejbjar.EjbJar ejbImpl;
     
     /** Creates a new instance of EJBFreeformModule */
     public EJBFreeformModule(Project project, AntProjectHelper helper, PropertyEvaluator evaluator) {
         this.project = project;
         this.helper = helper;
         this.evaluator = evaluator;
-        this.ejbImpl = new EJBProjectNature.ProxyEjbJarImplementation(project, helper, evaluator);
+    }
+    
+    private org.netbeans.modules.j2ee.api.ejbjar.EjbJar getEjbModule () {
+        if (ejbImpl == null) {
+            org.netbeans.modules.j2ee.api.ejbjar.EjbJar modules[] = org.netbeans.modules.j2ee.api.ejbjar.EjbJar.getEjbJars(project);
+            if (modules.length > 0) {
+                ejbImpl = modules[0];
+            }
+        }
+        return ejbImpl;
     }
     
     public void setUrl(String url) {
@@ -102,7 +111,7 @@ public class EJBFreeformModule implements J2eeModule {
     
     private EjbJar getEjbJar() {
         try {
-            return DDProvider.getDefault().getDDRoot(ejbImpl.getDeploymentDescriptor());
+            return DDProvider.getDefault().getDDRoot(getEjbModule().getDeploymentDescriptor());
         } catch (java.io.IOException e) {
             org.openide.ErrorManager.getDefault().log(e.getLocalizedMessage());
         }
@@ -123,14 +132,14 @@ public class EJBFreeformModule implements J2eeModule {
     }
     
     public FileObject getDD() {
-        FileObject metaInfFo = ejbImpl.getMetaInf();
+        FileObject metaInfFo = getEjbModule().getMetaInf();
         if (metaInfFo==null) {
             DialogDisplayer.getDefault().notify(
                     new NotifyDescriptor.Message(NbBundle.getMessage(EJBFreeformModule.class,"MSG_ConfigFilesCorrupted"),
                     NotifyDescriptor.ERROR_MESSAGE));
             return null;
         }
-        return ejbImpl.getMetaInf().getFileObject(WebServicesConstants.WEBSERVICES_DD, "xml");
+        return getEjbModule().getMetaInf().getFileObject(WebServicesConstants.WEBSERVICES_DD, "xml");
     }
     
     private FileObject getFileObject(String propname) {

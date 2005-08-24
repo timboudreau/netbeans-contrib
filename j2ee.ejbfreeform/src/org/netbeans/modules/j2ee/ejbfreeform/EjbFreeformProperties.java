@@ -20,6 +20,10 @@ package org.netbeans.modules.j2ee.ejbfreeform;
  */
 public class EjbFreeformProperties {
     
+    public static final String RESOURCE_DIR = "resource.dir"; // NOI18N
+    public static final String J2EE_SERVER_INSTANCE = "j2ee.server.instance"; // NOI18N
+    public static final String J2EE_SERVER_TYPE = "j2ee.server.type"; // NOI18N
+    public static final String J2EE_PLATFORM = "j2ee.platform"; // NOI18N
     /**
      * JPDA debug session name
      */
