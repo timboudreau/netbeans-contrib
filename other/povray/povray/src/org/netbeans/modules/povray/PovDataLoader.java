@@ -35,7 +35,7 @@ public class PovDataLoader extends UniFileLoader {
     
     /** Creates a new instance of PovDataLoader */
     public PovDataLoader() {
-        super ("org.netbeans.modules.PovRayDataObject"); //NOI18N
+        super ("org.netbeans.modules.povray.PovRayDataObject"); //NOI18N
         ExtensionList list = new ExtensionList();
         list.addExtension("pov"); //NOI18N
         list.addExtension("inc"); //NOI18N
