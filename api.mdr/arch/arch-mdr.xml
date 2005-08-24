@@ -207,6 +207,8 @@ JRE is enough.
         </question>
 -->
 <answer id="dep-nb">
+    <defaultanswer generate="none"/>
+
     <api group="java" name="openide" type="import" category="official">Lookup, filesystems API, modules API.</api>
 </answer>
 
