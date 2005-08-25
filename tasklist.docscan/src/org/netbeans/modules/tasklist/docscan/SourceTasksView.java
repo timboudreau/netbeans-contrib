@@ -12,9 +12,7 @@
  */
 
 package org.netbeans.modules.tasklist.docscan;
-
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -31,37 +29,28 @@ import javax.swing.border.CompoundBorder;
 import javax.accessibility.AccessibleContext;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.Lookup;
 import org.openide.util.UserCancelException;
-import org.openide.util.lookup.Lookups;
 import org.openide.util.actions.SystemAction;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.netbeans.modules.tasklist.suggestions.*;
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
 import org.netbeans.modules.tasklist.core.filter.FiltersPanel;
-import org.netbeans.spi.project.ui.LogicalViewProvider;
-import org.netbeans.api.project.Sources;
-import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.ui.OpenProjects;
+import org.openide.util.Cancellable;
+
 
 
 /**
@@ -84,7 +73,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     final static String CATEGORY = "sourcetasks"; // NOI18N
 
     // keep consistent with SourceTasksAction icon
-    private final static String ICON_PATH = "org/netbeans/modules/tasklist/docscan/todosAction.gif"; // NOI18N
+    private final static String ICON_PATH = "org/netbeans/modules/tasklist/docscan/todosAction.png"; // NOI18N
 
     private final int MAIN_COLUMN_UID = 2352;
     private final int PRIORITY_COLUMN_UID = 7896;
@@ -129,9 +118,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     //#45006 save action key that was registered by WS
     private Object windowSystemESCActionKey;
-
-    // our private ESC action key
-    private static final Object STOP_ACTION_KEY = new Object();
 
     /**
      * Externalization entry point (readExternal).
@@ -182,10 +168,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         putClientProperty("TabPolicy", "HideWhenAlone"); // NOI18N
 
         InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        KeyStroke stop = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-        inputMap.put(stop, STOP_ACTION_KEY);
-        getActionMap().put(STOP_ACTION_KEY, new StopAction());
 
         KeyStroke refresh = KeyStroke.getKeyStroke(KeyEvent.VK_R, 0);
         inputMap.put(refresh, refresh);
@@ -510,33 +492,25 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     // North component ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private JProgressBar progress;
+    private ProgressHandle progress;
     private JButton stop;
     private AbstractButton refresh;
     private JComponent prev;
     private JComponent next;
 
-    private JProgressBar getProgress() {
-        if (progress == null) {
-            progress = new ScanProgressBar();
-            progress.setVisible(job == null);
-            progress.setMinimum(0);
-            // adjustHeight(progress); it removes bevel effect
+    private Cancellable cancellable = new Cancellable(){
+        public boolean cancel(){
+            handleStop();
+            return true;
+        }
+    };
+    
+    private ProgressHandle getProgress() {
+        if (progress == null) {                          
+            progress = ProgressHandleFactory.createHandle(Util.getString("searching"), cancellable);
+            progress.start();            
         }
         return progress;
-    }
-
-    private class ScanProgressBar extends JProgressBar {
-
-        private static final long serialVersionUID = 1;
-
-        public String getToolTipText() {
-            if (scannedFolder != null) {
-                return createLabel(scannedFolder);
-            } else {
-                return super.getToolTipText();
-            }
-        }
     }
 
     // Misiatus shows selected folder, limit info
@@ -561,20 +535,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         getMiniStatus().setText(msg.toString());
     }
 
-    private JButton getStop() {
-        if (stop == null) {
-            stop = new JButton(Util.getString("stop"));
-            stop.setToolTipText(Util.getString("stop_hint") + " (ESC)");  // NOI18N
-            stop.setVisible(job == null);
-            stop.addActionListener(dispatcher);
-            adjustToobarButton(stop);
-        }
-        return stop;
-    }
-
     /*package*/ AbstractButton getRefresh() {
         if (refresh == null) {
-            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/refresh.gif");  // NOI18N
+            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/refresh.png");  // NOI18N
             JButton button = new JButton(new ImageIcon(image));
             button.setToolTipText(Util.getString("rescan_hint") + " (r)");  // NOI18N
             button.setEnabled(job == null);
@@ -796,7 +759,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private AbstractButton getGoto() {
         if (gotoPresenter == null) {
-            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/gotosource.gif"); // NOI18N
+            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/gotosource.png"); // NOI18N
             JButton button = new JButton(new ImageIcon(image));
             button.setToolTipText(Util.getString("goto_hint") + " (e)");  // NOI18N
             button.addActionListener(dispatcher);
@@ -825,8 +788,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 handleCurrentFile();
             } else if (obj == getOpenedFiles()) {
                 handleOpenedFiles();
-            } else if (obj == getStop()) {
-                handleStop();
             } else if (obj == getFolderSelector()) {
                 if (recentFolders.size() > 0 || selectedFolder != null) {
                     showFolderSelectorPopup();
@@ -972,9 +933,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         JPanel separator2 = new JPanel();
         separator2.setOpaque(false);   // Ocean L&F toolbars use gradients
         toolbar.add(separator2);
-        toolbar.add(getMiniStatus());
-        toolbar.add(getProgress());
-        toolbar.add(getStop());
+        toolbar.add(getMiniStatus());        
 
         // Eliminates double height toolbar on Metal L&F
         toolbar.setPreferredSize(new Dimension(Integer.MAX_VALUE, getToolbarHeight()));
@@ -1047,41 +1006,31 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public void estimate(final int estimate) {
         scannedFolder = null;
+        estimatedFolders = estimate;
+        
+        if (estimate == -1) {            
+            getProgress().switchToIndeterminate ();
+        } else {
+            getProgress().switchToDeterminate(estimatedFolders);                    
+        }
+                
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                estimatedFolders = estimate;
+            public void run() {                
                 if (estimate == -1) {
-                    getProgress().setVisible(true);
-                    getStop().setVisible(true);
-                    getProgress().setIndeterminate(true);
-
-                    getMiniStatus().setVisible(false);
-                    getMiniStatus().setText(Util.getString("estimating"));
-                    getMiniStatus().setHorizontalAlignment(SwingConstants.RIGHT);
-                    getMiniStatus().setVisible(true);
-
-                    Cache.load(); // hide this possibly long operation here
-                } else {
-                    getProgress().setIndeterminate(false);
-                    getProgress().setMaximum(estimatedFolders);
+                    Cache.load(); // hide this possibly long operation here                    
                 }
             }
         });
     }
 
     public void scanStarted() {
+        
+        realFolders = 0;
+        reasonMsg = null;
+                
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                realFolders = 0;
-                reasonMsg = null;
-                getProgress().setVisible(true);
-                getStop().setVisible(true);
+            public void run() {                                
                 getRefresh().setEnabled(false);
-
-                getMiniStatus().setVisible(false);
-                getMiniStatus().setText(Util.getString("searching"));
-                getMiniStatus().setHorizontalAlignment(SwingConstants.RIGHT);
-                getMiniStatus().setVisible(true);
             }
         });
 
@@ -1089,15 +1038,16 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public void folderEntered(final FileObject folder) {
         scannedFolder = folder;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                if (estimatedFolders >0) {
-                    realFolders++;
-                    getProgress().setValue(realFolders);
-                }
+               
+        if (estimatedFolders > 0) {
+            realFolders++;
+            if(realFolders > estimatedFolders){
+                estimatedFolders = realFolders;
+                getProgress().switchToDeterminate(estimatedFolders);
             }
-        });
-
+            getProgress().progress(realFolders);
+        }
+        
         handlePendingAWTEvents();
     }
 
@@ -1120,17 +1070,23 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     public void scanFinished() {
+        
+        estimatedFolders = -1;
+        progressFinished();
+        
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                estimatedFolders = -1;
-                getProgress().setVisible(false);
-                getStop().setVisible(false);
+            public void run() {                
                 getRefresh().setEnabled(job == null);
                 updateMiniStatus();
             }
         });
     }
 
+    private void progressFinished(){
+        getProgress().finish();
+        progress = null;                            
+    }
+    
     public void statistics(final int todos) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -1144,21 +1100,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private void handleStop() {
         background.interrupt();
         getMiniStatus().setText(Util.getString("stopping"));
-    }
-
-    private class StopAction extends AbstractAction {
-
-        private static final long serialVersionUID = 1;
-
-        public void actionPerformed(ActionEvent e) {
-            if (getStop().isVisible()) {
-                handleStop();
-            }
-        }
-
-        public boolean isEnabled() {
-            return getStop().isVisible();
-        }
     }
 
     /** Programatically invokes action retaining UI effect as it was done by user. */
@@ -1574,7 +1515,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private AbstractButton getFilterIconButton() {
       if (filterIconButton == null) {
-            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filter.gif")); // NOI18N
+            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filter.png")); // NOI18N
 	    filterIconButton = new JButton(icon);
 	    adjustToobarButton(filterIconButton);
             filterIconButton.setToolTipText(Util.getString("filter_hint") + " (shift+f)");  // NOI18N
