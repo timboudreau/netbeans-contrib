@@ -123,10 +123,10 @@ public class MDRManagerImpl extends MDRManager implements FileChangeListener, NB
     
     //=== Progress suppport ===
     
-    private ShutDownProgressListener progress = null;
+    private ProgressListener progress = null;
     private boolean stopFired = false;
     
-    boolean setProgressListener(ShutDownProgressListener pl) {
+    public boolean setProgressListener(ProgressListener pl) {
         boolean shutdownListenerRegistered = false;
         if (progress == null) {
             progress = pl;
@@ -139,6 +139,12 @@ public class MDRManagerImpl extends MDRManager implements FileChangeListener, NB
         if (progress == null)
             return;
         progress.start(count);
+    }
+        
+    private void fireProgressListenerInitialize() {
+        if (progress == null)
+            return;
+        progress.init();
     }
         
     public void fireProgressListenerStep() {
@@ -228,6 +234,10 @@ public class MDRManagerImpl extends MDRManager implements FileChangeListener, NB
     public void fileAttributeChanged(FileAttributeEvent fe) {
         refreshChildren();
     }
+
+    void preShutdownAll() {
+        fireProgressListenerInitialize();
+    }
     
     private static class CLProviderImpl implements ClassLoaderProvider {
         public ClassLoader getClassLoader() {
@@ -246,5 +256,15 @@ public class MDRManagerImpl extends MDRManager implements FileChangeListener, NB
         public Class defineClass(String className, byte[] classFile) {
             return null;
         }
+    }
+    
+    public interface ProgressListener {
+        // called from AWT
+        public void init();
+        
+        // called from RP
+        public void start(final int count);
+        public void step();
+        public void stop();
     }
 }

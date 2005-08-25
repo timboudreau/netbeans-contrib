@@ -35,18 +35,13 @@ public class MdrModule extends ModuleInstall {
      * @return True if the close is O.K.
      */
     public void close () {
-        final MDRManager manager = MDRManager.getDefault();
-        if (manager instanceof MDRManagerImpl) {
-            ((MDRManagerImpl) manager).setProgressListener(new ShutDownProgressListener());
-        }
+        final MDRManagerImpl manager = (MDRManagerImpl) MDRManager.getDefault();
         Task task = RequestProcessor.getDefault().post(new Runnable () {
             public void run() {
                 manager.shutdownAll();
             }
         });
-        if (manager instanceof MDRManagerImpl) {
-            ShutDownProgressPanel.getDefault().setVisible(true);
-        }
+        manager.preShutdownAll();
         task.waitFinished();
     }
 }
