@@ -108,9 +108,14 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             box.setEnabled(false);
         }
         
-        text = new JTextField(100);
-        text.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
-                Collections.singleton(AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_TAB, KeyEvent.CTRL_DOWN_MASK)));
+        text = new JTextField(100) {
+            public void addNotify() {
+                super.addNotify();
+                // #62761: need to set this up on the focus cycle root, not the text field:
+                getFocusCycleRootAncestor().setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
+                        Collections.singleton(AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_TAB, KeyEvent.CTRL_DOWN_MASK)));
+            }
+        };
         text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), "complete");
         text.getActionMap().put("complete", new CompleteAction());
         text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, InputEvent.CTRL_DOWN_MASK), "delete-path-component");
