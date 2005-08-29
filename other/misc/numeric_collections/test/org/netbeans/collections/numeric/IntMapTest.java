@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 /*
@@ -175,6 +175,7 @@ public class IntMapTest extends TestCase {
     }
     
     public void testGetKeys() {
+        System.out.println("testGetKeys");
         IntMap map = new IntMap();
         
         int[] indices = new int [] { 5, 12, 23, 62, 247, 375, 489, 5255};
@@ -189,6 +190,100 @@ public class IntMapTest extends TestCase {
 
         int[] keys = map.getKeys();
         assertTrue ("Keys returned should match those written.  Expected: " + i2s(indices) + " Got: " + i2s(keys), Arrays.equals(keys, indices));
+    }
+    
+    public void testIter() {
+        System.out.println("testIter");
+        IntMap map = new IntMap();
+        
+        int[] indices = new int [] { 5, 12, 23, 62, 247, 375, 489, 5255};
+        
+        Object[] values = new Object[] {
+            "zeroth", "first", "second", "third", "fourth", "fifth", "sixth", 
+            "seventh"};
+            
+        for (int i=0; i < indices.length; i++) {
+            map.put (indices[i], values[i]);
+        }
+        
+        IntMap.Iter iter = map.iter();
+        int x = 0;
+        while (iter.hasNext()) {
+            Object o = iter.current();
+            int key = iter.next();
+            assertEquals (indices[x], key);
+            assertEquals (values[x], o);
+            x++;
+        }
+        
+        iter = map.nearestIter(7, false);
+        assertEquals (12, iter.next());
+        
+        iter = map.nearestIter (7, true);
+        assertEquals (5, iter.next());
+    }
+    
+    public void testSortingBehavior() {
+        System.out.println("testSortingBehavior");
+        IntMap map = new IntMap();
+        int[] indices = new int [] { 23, 5, 17, 100, 12, 23, 62, 6, 247, 375, 2, 489, 5255 };
+        
+        String[] values = new String[indices.length];
+        for (int i=0; i < indices.length; i++) {
+            values[i] = Integer.toString(indices[i]) + " val";
+            map.put (indices[i], values[i]);
+        }
+        
+        int[] sorted = new int[indices.length];
+        System.arraycopy (indices, 0, sorted, 0, sorted.length);
+        Arrays.sort (sorted);
+        
+        IntMap.Iter iter = map.iter();
+        int x = 0;
+        while (iter.hasNext()) {
+            Object o = iter.current();
+            int test = iter.next();
+            assertEquals (sorted[x], test);
+            String value = Integer.toString(sorted[x]) + " val";
+            assertEquals (value, o);
+            x++;
+        }
+    }
+    
+    public void testRemove() {
+        System.out.println("testRemove");
+        IntMap map = new IntMap();
+        int[] indices = new int [] { 23, 5, 17, 100, 12, 23, 62, 6, 247, 375, 2, 489, 5255 };
+        
+        IntMap map2 = new IntMap();
+        
+        String[] values = new String[indices.length];
+        for (int i=0; i < indices.length; i++) {
+            values[i] = Integer.toString(indices[i]) + " val";
+            map.put (indices[i], values[i]);
+            map2.put (indices[i], values[i]);
+        }
+        
+        int[] sorted = new int[indices.length];
+        
+        assertTrue (map.containsKey(5));
+        assertTrue (map.containsKey(247));
+        
+        System.err.println("Old map " + map2);
+        
+        map.remove (5);
+        map.remove (247);
+        String s = map.toString();
+        assertFalse (s, map.containsKey(5));
+        assertFalse (s, map.containsKey(247));
+        
+        for (IntMap.Iter i=map.iter(); i.hasNext();) {
+            Object o = i.current();
+            int key = i.next();
+            assertFalse (247 == key);
+            assertFalse (5 == key);
+            assertEquals (map2.get(key), o);
+        }
     }
     
     private static String i2s (int[] a) {
