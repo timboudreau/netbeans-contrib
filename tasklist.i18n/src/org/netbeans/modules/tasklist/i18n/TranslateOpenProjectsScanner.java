@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.ui.OpenProjects;
@@ -120,17 +121,15 @@ public class TranslateOpenProjectsScanner implements Runnable {
      */
     private void scan(Project p) {
         TranslateSuggestionProvider.LOGGER.fine("search in prj " + p);
-        Sources s = (Sources) p.getLookup().lookup(Sources.class);
-        if (s != null) {
-            SourceGroup[] sgs = s.getSourceGroups(
-                JavaProjectConstants.SOURCES_TYPE_JAVA);
-            for (int j = 0; j < sgs.length; j++) {
-                if (stopScanning)
-                    return;
+        Sources s = ProjectUtils.getSources(p);
+        SourceGroup[] sgs = s.getSourceGroups(
+            JavaProjectConstants.SOURCES_TYPE_JAVA);
+        for (int j = 0; j < sgs.length; j++) {
+            if (stopScanning)
+                return;
 
-                SourceGroup sg = sgs[j];
-                scan(sgs[j].getRootFolder());
-            }
+            SourceGroup sg = sgs[j];
+            scan(sgs[j].getRootFolder());
         }
     }
     

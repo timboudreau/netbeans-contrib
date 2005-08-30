@@ -283,20 +283,18 @@ public class PackagerProject implements Project {
      * the jnlp descriptor.  XXX needs some work.
      */
     private static String findJarFor (Project proj, AntArtifact art, String className) {
-        Sources sources = (Sources) proj.getLookup().lookup (Sources.class);
+        Sources sources = ProjectUtils.getSources(proj);
         String toFind = Utilities.replaceString(className, ".", "/");
-        if (sources != null) {
-            System.err.println("Scanning " + sources + " from " + proj.getProjectDirectory().getPath() + " for " + toFind);
-            SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-            for (int i=0; i < groups.length; i++) {
-                FileObject fob = groups[i].getRootFolder().getFileObject(toFind);
-                File f = new File(File.separator + groups[i].getRootFolder().getPath() + File.separator + toFind + ".java");
-                System.err.println("Check exists " + f.getPath());
-                if (f.exists()) {
-                    String jarname = art.getArtifactLocation().toString(); //XXX probably wrong
-                    System.err.println("Found " + f.getPath() + " jar is " + jarname);
-                    return jarname;
-                }
+        System.err.println("Scanning " + sources + " from " + proj.getProjectDirectory().getPath() + " for " + toFind);
+        SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+        for (int i=0; i < groups.length; i++) {
+            FileObject fob = groups[i].getRootFolder().getFileObject(toFind);
+            File f = new File(File.separator + groups[i].getRootFolder().getPath() + File.separator + toFind + ".java");
+            System.err.println("Check exists " + f.getPath());
+            if (f.exists()) {
+                String jarname = art.getArtifactLocation().toString(); //XXX probably wrong
+                System.err.println("Found " + f.getPath() + " jar is " + jarname);
+                return jarname;
             }
         }
         return null;
