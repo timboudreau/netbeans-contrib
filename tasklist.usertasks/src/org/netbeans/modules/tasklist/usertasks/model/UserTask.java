@@ -41,6 +41,7 @@ import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.*;
+import org.netbeans.modules.tasklist.usertasks.annotations.UTAnnotation;
 
 
 /**
@@ -222,6 +223,7 @@ ObjectList.Owner {
     public static final String PROP_OWNER = "owner"; // NOI18N
     public static final String PROP_COMPLETED_DATE = "completedDate"; // NOI18N
     public static final String PROP_WORK_PERIODS = "workPeriods"; // NOI18N
+    public static final String PROP_START = "start"; // NOI18N
     
     // ATTENTION: if you add new fields here do not forget to update copyFrom
     
@@ -311,9 +313,9 @@ ObjectList.Owner {
     
     private PropertyChangeListener lineListener;
 
-    // SECTION The following 4 attributes should be used/updated together.
+    // <editor-fold defaultstate="collapsed" desc="These 4 attributes should be used/updated together: url, annotation, line, linenumber">
     /** annotation for this task. != null if line != null */
-    private UserTaskAnnotation annotation = null;
+    private UTAnnotation annotation = null;
     
     /** URL associated with this task. */
     private URL url = null;
@@ -326,11 +328,17 @@ ObjectList.Owner {
      * -1 = no line information 
      */
     private int linenumber = -1;
-    // END SECTION The following 4 attributes should be used/updated together.
+    // </editor-fold>                        
     
     private List dependencies = new ArrayList();
     private String owner = ""; // NOI18N
     private long completedDate = 0;
+    
+    /** 
+     * Start date/time for the task as returned by System.currentTimeMillis or -1
+     * if undefined
+     */
+    private long start = -1;
     
     // <WorkPeriod>
     private ObjectList workPeriods = new ObjectList();
@@ -693,7 +701,8 @@ ObjectList.Owner {
     
     /**
      * Get the "Deadline" for this task
-     * @return the "deadline"
+     *
+     * @return the "deadline" or null
      */
     public Date getDueDate() {
         return dueDate;
@@ -1101,7 +1110,7 @@ ObjectList.Owner {
      *
      * @return annotation
      */
-    public UserTaskAnnotation getAnnotation() {
+    public UTAnnotation getAnnotation() {
         return annotation;
     }
     
@@ -1205,8 +1214,7 @@ ObjectList.Owner {
         
         setSummary(from.getSummary());
         setPriority(from.getPriority());
-        setIcon(from.getIcon());
-        setType(from.getType());
+
         setDetails(from.getDetails());
         setDueDate(from.getDueDate());
         setDueAlarmSent(from.isDueAlarmSent());
@@ -1243,6 +1251,8 @@ ObjectList.Owner {
         dependencies.addAll(from.dependencies);
         owner = from.owner;
         completedDate = from.completedDate;
+        start = from.start;
+        
         workPeriods.clear();
         for (int i = 0; i < from.workPeriods.size(); i++) {
             WorkPeriod wp = (WorkPeriod) from.workPeriods.get(i);
@@ -1601,56 +1611,6 @@ ObjectList.Owner {
     }
 
     /**
-     * Set the icon for the task. May be null; if so the default icon will
-     * be shown.
-     * <p>
-     *
-     * @param icon The icon to be shown with the task.
-     *
-     * @deprecated use SuggestionAgent#setIcon
-     */
-    protected void setIcon(final Image icon) {
-        Image old = getIcon();
-        if (old == icon) return;
-        this.icon = icon;
-        firePropertyChange(PROP_ICON, old, icon);
-    }
-
-    /**
-     * Get the icon for the task. May be null if no icon
-     * has been specified; if so the default will be used.
-     * <p>
-     *
-     * @return The icon for the task.
-     */
-    public Image getIcon() {
-        return icon;
-    }
-
-    /**
-     * Set the type associated with this suggestion.
-     * Should not be null.
-     * <p>
-     *
-     * @param type The type name for this suggestion
-     *
-     * @deprecated should be constant since contruction time
-     */
-    protected void setType(final String type) {
-        this.type = type;
-    }
-
-    /**
-     * Get the type associated with this suggestion.
-     * <p>
-     *
-     * @return The type name for this suggestion
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
      * Listen to changes in bean properties.
      * @param l listener to be notified of changes
      *
@@ -1697,8 +1657,8 @@ ObjectList.Owner {
      *
      * @return created annotation
      */
-    private UserTaskAnnotation createAnnotation() {
-        UserTaskAnnotation ann = new UserTaskAnnotation(this, false);
+    private UTAnnotation createAnnotation() {
+        UTAnnotation ann = new UTAnnotation(this, false);
         return ann;
     }
 
@@ -1764,5 +1724,51 @@ ObjectList.Owner {
             }
         }
         return sum;
+    }
+
+    /**
+     * Returns the start time for this task.
+     *
+     * @return start time as returned by System.currentTimeMillis or -1 if
+     * undefined
+     */
+    public long getStart() {
+        return start;
+    }
+
+    /**
+     * Returns the start time for this task.
+     *
+     * @return start time or null if undefined
+     */
+    public Date getStartDate() {
+        if (start == -1)
+            return null;
+        else
+            return new Date(start);
+    }
+    
+    /**
+     * Sets the start time for this task.
+     *
+     * @param start time as returned by System.currentTimeMillis or -1 if
+     * undefined
+     */
+    public void setStart(long start) {
+        long old = this.start;
+        this.start = start;
+        firePropertyChange("start", new Long(old), new Long(start)); // NOI18N
+    }
+
+    /**
+     * Sets the start time for this task.
+     *
+     * @param start time or null if undefined
+     */
+    public void setStartDate(Date start) {
+        if (start == null)
+            setStart(-1);
+        else
+            setStart(start.getTime());
     }
 }

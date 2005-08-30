@@ -231,6 +231,10 @@ public class XmlExportFormat implements ExportImportFormat {
         
         if (task.getOwner().length() != 0)
             node.setAttribute("owner", task.getOwner()); // NOI18N
+        
+        if (task.getStart() != -1)
+            node.setAttribute("start", // NOI18N
+                dateToString(new Date(task.getStart())));
 
         Element summary = doc.createElement("summary"); // NOI18N
         node.appendChild(summary);

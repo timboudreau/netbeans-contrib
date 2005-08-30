@@ -33,41 +33,56 @@ appears to the right of the table headers,
 straight above the vertical scrollbar (see image below). You may select
 multiple tasks and change some properties of the selected tasks at
 once. The view also remembers selected tasks and scrollbar positions.
+Different icons are used for undone (<img
+ src="file:///C:/tasklist/trunk/tasklist/usertasks/javahelp/org/netbeans/modules/tasklist/usertasks/docs/content/task.gif"
+ title="" alt="Task" style="width: 16px; height: 16px;">) and done (<img
+ src="file:///C:/tasklist/trunk/tasklist/usertasks/javahelp/org/netbeans/modules/tasklist/usertasks/docs/content/doneItem.gif"
+ title="" alt="Done item" style="width: 16px; height: 16px;">) tasks.
+The same icons are used in
+the editor if a line is associated with the task.
 <p><img src="table.gif" title="" alt="Table"><br>
 </p>
-<h3>Summary column</h3>
-<p>Different icons are used for undone (<img src="task.gif" title=""
- alt="Task" style="width: 16px; height: 16px;">) and done (<img
- src="doneItem.gif" title="" alt="Done item"
- style="width: 16px; height: 16px;">) tasks. The same icons are used in
-the editor if a line is associated with the task.<br>
-</p>
-<h3>Effort column</h3>
-Effort cells are painted
+<h3>Available columns:</h3>
+<ul>
+  <li>Summary - Summary for
+the task.</li>
+  <li>Priority - Contains the
+priority of the task.</li>
+  <li>Done - Shows whether
+a&nbsp; particular task is done. A task is done when it's percent
+complete value is 100%.</li>
+  <li>Percent Complete - Shows
+completion status of a task.</li>
+  <li>Effort - Effort cells are
+painted
 in red using a bold font if the sum of the spent time and the remaining
 effort exceeds
-the planed effort.<br>
-<h3>Completed column</h3>
-This columns contains the date when a particular task was completed. It
-will be filled automatically if you mark a task as done.<br>
-<h3>Associating a line with a task</h3>
-You can <a href="addTask.html">associate</a> a line in a file with a
-task. Selected task will also be highlighted in the editor with the
-yellow
-background:<br>
-<p><img src="editor.gif" title="" alt="Selected task in the editor"
- style="width: 686px; height: 92px;"><br>
-</p>
-<h3>Starting/stopping a task</h3>
-A task can be started by choosing "<a href="actions.html">Start</a>"
-from the local menu or by clicking on the icon in the local toolbar (<img
- src="startTask.gif" title="" alt="Start a task"
- style="width: 16px; height: 16px;">). The small icon (<img
- src="startedBadge.gif" title="" alt="Started"
- style="width: 8px; height: 8px;">) marks the
-task that you are currently working on. Started task will remain
-started after a NetBeans restart. The owner of a started task will be
-set to the name of the current user if it was empty.<br>
+the planed effort.</li>
+  <li>Rem. Effort - Remaining
+effort. This value is computed as Effort * (1 - Percent Complete)</li>
+  <li>Spent Time - Shows the
+time that was spent working on this task.</li>
+  <li>Details - Here you can
+write a longer description of the task</li>
+  <li>File - Contains URL
+associated with the task.</li>
+  <li>Line - Contains the line
+number in the associated file.</li>
+  <li>Category - A possible
+category for the task. </li>
+  <li>Created - The date when
+the task was created. </li>
+  <li>Edited - The date when
+the task was last edited. </li>
+  <li>Completed - This columns
+contains the date when a particular task was completed. It
+will be filled automatically if you mark a task as done.</li>
+  <li>Due date - Due date is
+painted in red if the deadline was not met.</li>
+  <li>Start - Planned start
+date for the task.<br>
+  </li>
+</ul>
 <hr>Comments &amp; requests to <a
  href="mailto:dev@tasklist.netbeans.org"><code>dev@tasklist.netbeans.org</code></a>.
 Further information at <a href="http://tasklist.netbeans.org/"><code>http://tasklist.netbeans.org</code></a>.

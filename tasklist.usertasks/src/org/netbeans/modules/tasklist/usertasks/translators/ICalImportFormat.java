@@ -276,7 +276,8 @@ public class ICalImportFormat implements ExportImportFormat {
         
         boolean done = false;
         while (!done) {
-            processContentLine();
+            if (!processContentLine())
+                break;
             name = getTagName();
             if (name == null) {
                 break;
@@ -313,10 +314,9 @@ public class ICalImportFormat implements ExportImportFormat {
     
     /** Read (doing all the ical unfolding) the next content line.
      * Side effects the reader object and the lineno.
-     * @return The next content line, or null if there is some
-     * I/O problem preventing us from continuing (e.g. EOF).
+     * @return true if something was read. false for EOF.
      */
-    private void processContentLine() throws IOException {
+    private boolean processContentLine() throws IOException {
         // ignore it - and locate the next field
         
         // Reuse string buffers for improved efficiency
@@ -339,7 +339,7 @@ public class ICalImportFormat implements ExportImportFormat {
             int ci = reader.read();
             if (ci == -1) {
                 // End of stream
-                return;
+                return nsb.length() != 0;
             }
             char c = (char)ci;
             // See section 4.3.11 in rfc 2445
@@ -422,7 +422,7 @@ public class ICalImportFormat implements ExportImportFormat {
                         } else { // includes case where prevChar==-1: EOF
                             // No, this is a new content line so
                             // consider ourselves done with this line
-                            return;
+                            return true;
                         }
                     default:
                         sb.append(c);
@@ -495,6 +495,13 @@ public class ICalImportFormat implements ExportImportFormat {
             } else if (name.equals("COMPLETED")) { // NOI18N
                 try {
                     completed = formatter.parse(value).getTime();
+                } catch (ParseException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            } else if (name.equals("DTSTART")) { // NOI18N
+                try {
+                    Date d = formatter.parse(value);
+                    task.setStart(d.getTime());
                 } catch (ParseException e) {
                     ErrorManager.getDefault().notify(e);
                 }

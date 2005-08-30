@@ -25,6 +25,7 @@ import org.openide.util.actions.CookieAction;
  * task.
  *
  * @author Tor Norbye
+ * @author tl
  */
 public class GoToUserTaskAction extends CookieAction {
 

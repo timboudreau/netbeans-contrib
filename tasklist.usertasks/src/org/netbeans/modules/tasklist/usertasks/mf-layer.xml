@@ -96,6 +96,14 @@ Microsystems, Inc. All Rights Reserved.
 	  <attr name="hint.originalPublicID"
 	    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.0//EN"/>
 	</file>
+	<file name="DTD_User_Tasks_1_1" url="translators/usertasks-1_1.dtd">
+	  <attr name="hint.originalPublicID"
+	    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.1//EN"/>
+	</file>
+	<file name="DTD_User_Tasks_1_2" url="translators/usertasks-1_2.dtd">
+	  <attr name="hint.originalPublicID"
+	    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.2//EN"/>
+	</file>
       </folder>
       <folder name="NetBeans_org_netbeans_modules_tasklist">
 	<file name="DTD_UserTaskFilter_1_0" url="filter/utfilter-1_0.dtd">
@@ -140,27 +148,29 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Editors">
         <folder name="AnnotationTypes">
-            <file name="DoneTaskAnnotation.xml" url="DoneTaskAnnotation.xml"/>
-            <file name="DoneTaskNoHighlightAnnotation.xml" url="DoneTaskNoHighlightAnnotation.xml"/>
+            <file name="UTDoneAnnotation.xml" url="annotations/UTDoneAnnotation.xml"/>
+            <file name="UTDoneNoHighlightAnnotation.xml" url="annotations/UTDoneNoHighlightAnnotation.xml"/>
+            <file name="UTAnnotation.xml" url="annotations/UTAnnotation.xml"/>
+            <file name="UTNoHighlightAnnotation.xml" url="annotations/UTNoHighlightAnnotation.xml"/>
             <folder name="StatusForAnnotationType">
-                <file name="org.netbeans.modules.tasklist.usertasks.UserTaskDone">
+                <file name="org-netbeans-modules-tasklist-usertasks-UserTaskDone">
                     <attr name="status" stringvalue="ok" />
-                    <attr name="color" stringvalue="65280" />
+                    <attr name="color" stringvalue="0x00FF00" />
                     <attr name="browseable" boolvalue="true" />
                 </file>
-                <file name="org.netbeans.modules.tasklist.usertasks.UserTaskDoneNoHighlight">
+                <file name="org-netbeans-modules-tasklist-usertasks-UTDoneNoHighlight">
                     <attr name="status" stringvalue="ok" />
-                    <attr name="color" stringvalue="65280" />
+                    <attr name="color" stringvalue="0x00FF00" />
                     <attr name="browseable" boolvalue="true" />
                 </file>
-                <file name="Task">
+                <file name="org-netbeans-modules-tasklist-usertasks-UT">
                     <attr name="status" stringvalue="ok" />
-                    <attr name="color" stringvalue="16711680" />
+                    <attr name="color" stringvalue="0xFF0000" />
                     <attr name="browseable" boolvalue="true" />
                 </file>
-                <file name="TaskNoHighlight">
+                <file name="org-netbeans-modules-tasklist-usertasks-UTNoHighlight">
                     <attr name="status" stringvalue="ok" />
-                    <attr name="color" stringvalue="16711680" />
+                    <attr name="color" stringvalue="0xFF0000" />
                     <attr name="browseable" boolvalue="true" />
                 </file>
             </folder>

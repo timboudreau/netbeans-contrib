@@ -47,8 +47,9 @@ public class UserTaskListTest extends NbTestCase {
         super (name);
     }
     
-    public static void main (String args []) {
-        junit.textui.TestRunner.run (UserTaskListTest.class);
+    public static void main (String args []) throws Exception {
+        openList("C:\\Dokumente und Einstellungen\\tim\\Desktop\\drmtasks.ics");
+        //junit.textui.TestRunner.run (UserTaskListTest.class);
     }
     
     public static Test suite () {
@@ -306,8 +307,8 @@ public class UserTaskListTest extends NbTestCase {
     // TODO: xCal test - run output out and back in through xCal, then
     // do a second check
     
-    private UserTaskList openList(String name) throws Exception {
-        File data = new File(getClass().getResource("data").getFile()); // NOI18N
+    private static UserTaskList openList(String name) throws Exception {
+        File data = new File(UserTaskListTest.class.getResource("data").getFile()); // NOI18N
         LocalFileSystem lfs = new LocalFileSystem();
         lfs.setRootDirectory(data);
         Repository.getDefault().addFileSystem(lfs);

@@ -25,6 +25,8 @@ import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 
 /**
  * Filter for user tasks
+ *
+ * @author tl
  */
 public class UserTaskFilter extends Filter {
     private static final SuggestionProperty[] PROPS = new SuggestionProperty[] {
@@ -42,7 +44,8 @@ public class UserTaskFilter extends Filter {
         UserTaskProperties.PROP_EFFORT,
         UserTaskProperties.PROP_REMAINING_EFFORT,
         UserTaskProperties.PROP_SPENT_TIME,
-        UserTaskProperties.PROP_OWNER
+        UserTaskProperties.PROP_OWNER,
+        UserTaskProperties.PROP_START
     };
     
     /** 
@@ -55,14 +58,14 @@ public class UserTaskFilter extends Filter {
     }
   
     public UserTaskFilter(UserTaskFilter rhs) {
-      super(rhs);
+        super(rhs);
     }
 
     private UserTaskFilter() { // for deconvertization
     }
 
     public Object clone() {
-      return new UserTaskFilter(this);
+        return new UserTaskFilter(this);
     }
 
     public SuggestionProperty[] getProperties() {
@@ -102,6 +105,8 @@ public class UserTaskFilter extends Filter {
             return applyConditions(property, DurationFilterCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_OWNER)) {
             return applyConditions(property, StringFilterCondition.createConditions());
+        } else if (property.equals(UserTaskProperties.PROP_START)) {
+            return applyConditions(property, DateFilterCondition.createConditions());
         } else {
             throw new InternalError("Wrong index"); // NOI18N
         }

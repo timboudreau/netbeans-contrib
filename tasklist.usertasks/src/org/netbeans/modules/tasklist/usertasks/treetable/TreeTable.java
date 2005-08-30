@@ -771,7 +771,8 @@ public class TreeTable extends JTable {
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
         if (renderer instanceof TreeTableRenderer) {
             Object node = getNodeForRow(row);
-            Object value = getTreeTableModel().getValueAt(node, column);
+            Object value = getTreeTableModel().getValueAt(node, 
+                convertColumnIndexToModel(column));
             boolean isSelected = isCellSelected(row, column);
             boolean rowIsAnchor = (selectionModel.getAnchorSelectionIndex() == row);
             boolean colIsAnchor =

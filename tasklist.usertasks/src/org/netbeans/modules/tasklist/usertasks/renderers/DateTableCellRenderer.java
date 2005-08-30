@@ -22,6 +22,8 @@ import org.netbeans.modules.tasklist.usertasks.DateSelectionPanel;
 
 /** 
  * A table cell renderer for the Date class. 
+ *
+ * @author tl
  */
 public class DateTableCellRenderer extends DefaultTableCellRenderer {
     private static SimpleDateFormat format = new SimpleDateFormat();
@@ -49,14 +51,17 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
         int row, int column) {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, 
             row, column);
-        if (value == null)
-            setText(""); // NOI18N
-        else {
+        
+        if (value instanceof Date) {
+            setText(format.format((Date) value));
+        } else if (value instanceof Long) {
             long v = ((Long) value).longValue();
             if (v == 0)
                 setText(""); // NOI18N
             else
                 setText(format.format(new Date(v)));
+        } else {
+            setText(""); // NOI18N
         }
         return this;
     }    

@@ -208,7 +208,11 @@ public class ICalExportFormat implements ExportImportFormat {
         writer.write(datestring);
         writer.write("\r\n"); // NOI18N
 
-        // dtstart -- not yet implemented
+        if (task.getStart() != -1) {
+            writer.write("DTSTART:"); // NOI18N
+            writer.write(sdf.format(new Date(task.getStart())));
+            writer.write("\r\n"); // NOI18N
+        }
 
         // due -- not yet implemented
 
@@ -248,7 +252,7 @@ public class ICalExportFormat implements ExportImportFormat {
         // attendee -- not implemented
 
         // Others not implemented:
-        // dtstart, geo, location, organizer, percent, recurid, seq, status,
+        // geo, location, organizer, percent, recurid, seq, status,
         // due, duration (both cannot occur)
 
         // Optional ones not implemented:
@@ -389,6 +393,7 @@ public class ICalExportFormat implements ExportImportFormat {
                 writer.write("X-NETBEANS-DUE-SIGNALED:true\r\n"); // NOI18N                    
             }                
         }
+        
 //            AssociatedTime associatedTime = task.getAssociatedTime();
 //            if (associatedTime != null) {
 //                Date d = associatedTime.getStartTime();

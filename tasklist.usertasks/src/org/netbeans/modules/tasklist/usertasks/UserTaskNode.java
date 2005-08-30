@@ -386,6 +386,13 @@ public final class UserTaskNode extends AbstractNode {
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_ownerProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_ownerProperty")); // NOI18N
             ss.put(p);
+
+            p = new PropertySupport.Reflection(item, Date.class, "getStartDate", "setStartDate"); // NOI18N
+            p.setPropertyEditorClass(DateEditor.class);
+            p.setName(UserTask.PROP_START);
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_startProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_startProperty")); // NOI18N
+            ss.put(p);
         } catch (NoSuchMethodException nsme) {
             ErrorManager.getDefault().notify(nsme);
         }

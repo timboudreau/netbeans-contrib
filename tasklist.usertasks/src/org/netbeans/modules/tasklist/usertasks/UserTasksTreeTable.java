@@ -40,6 +40,7 @@ import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.renderers.CategoryTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.DueDateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.EffortTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
@@ -64,6 +65,8 @@ import org.netbeans.modules.tasklist.usertasks.renderers.OwnerTableCellRenderer;
 
 /**
  * TT for user tasks
+ *
+ * @author tl
  */
 public class UserTasksTreeTable extends NodesTreeTable {
     private UserTask selected;
@@ -221,6 +224,11 @@ public class UserTasksTreeTable extends NodesTreeTable {
             setCellEditor(new OwnerTableCellEditor());
         tcm.getColumn(UserTasksTreeTableModel.OWNER).
             setCellRenderer(new OwnerTableCellRenderer());
+        
+        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellRenderer(
+            new DueDateTableCellRenderer());
+        
+        tcm.getColumn(UserTasksTreeTableModel.START).setCellRenderer(dcr);
     }
 
     /**
@@ -290,6 +298,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
 
             if (node instanceof UserTaskTreeTableNode) {
                 result = ((UserTaskTreeTableNode) node).getUserTask().getDetails();
+                result = UTUtils.prepareForTooltip(result);
                 if (result.length() == 0)
                     result = null;
             } else if (node instanceof UserTaskListTreeTableNode) {
