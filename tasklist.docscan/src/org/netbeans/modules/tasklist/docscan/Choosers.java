@@ -7,30 +7,33 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
-
 package org.netbeans.modules.tasklist.docscan;
 
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.util.lookup.Lookups;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.netbeans.api.project.*;
-import org.netbeans.api.project.ui.OpenProjects;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Image;
+import java.awt.Panel;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Collections;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.filesystems.FileObject;
+import org.openide.util.lookup.Lookups;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 
 /**
  * Utility class defining project chooser.
@@ -136,28 +139,15 @@ class Choosers {
         }
 
         public String getDisplayName() {
-            ProjectInformation pi = getProjectInformation();
-            return pi != null ? pi.getDisplayName() : FileUtil.getFileDisplayName(project.getProjectDirectory());
+            return ProjectUtils.getInformation(project).getDisplayName();
         }
 
         public Image getIcon(int type) {
-            ProjectInformation pi = getProjectInformation();
-            if (pi != null) {
-                return convertIconToImage(pi.getIcon());
-            }
-            if (icons != null) {
-                return icons.getIcon(type);
-            } else {
-                return super.getIcon(type);
-            }
+            return convertIconToImage(ProjectUtils.getInformation(project).getIcon());
         }
 
         public Image getOpenedIcon(int type) {
             return getIcon(type);
-        }
-
-        private ProjectInformation getProjectInformation() {
-            return (ProjectInformation) project.getLookup().lookup(ProjectInformation.class);
         }
 
     }
