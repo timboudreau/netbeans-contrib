@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore;
 
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
+import org.netbeans.modules.vcscore.grouping.VcsGroupMenuAction;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -34,6 +35,7 @@ public final class VcsModule extends ModuleInstall {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 VersioningExplorer.getRevisionExplorer().close();
+                VcsGroupMenuAction.GroupExplorerPanel.getDefault().close();
             }
         });
     }
