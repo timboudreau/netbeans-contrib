@@ -14,6 +14,7 @@
 package org.netbeans.modules.vcscore;
 
 import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -27,5 +28,13 @@ public final class VcsModule extends ModuleInstall {
 
     public void close() {
         Turbo.shutdown();
+    }
+
+    public void uninstalled() {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                VersioningExplorer.getRevisionExplorer().close();
+            }
+        });
     }
 }
