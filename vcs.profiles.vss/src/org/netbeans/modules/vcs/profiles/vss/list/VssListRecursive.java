@@ -499,7 +499,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         } else if (gettingFolders && file.startsWith("$")) { // A folder
             String folder = file.substring(1);
             folder = folder.replace(File.separatorChar, '/');
-            folder = (lastFilesCont.getPath().length() > 0) ? (lastFilesCont.getPath() + '/' + folder) : folder;
+            folder = (lastFilesCont != null && lastFilesCont.getPath().length() > 0) ? (lastFilesCont.getPath() + '/' + folder) : folder;
             VcsDirContainer subDir = lastFilesCont.addSubdir(folder);
             readLocalFiles(folder, subDir);
         } else if (file.startsWith(AGAINST) && diffingPathFollows) {
