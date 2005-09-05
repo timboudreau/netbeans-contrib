@@ -2244,8 +2244,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private Object[] getSharableFiles(Object[] fos) {
         java.util.List sharable = null;
         for (int i = 0; i < fos.length; i++) {
+            int sharability;
             File file = FileUtil.toFile((FileObject) fos[i]);
-            int sharability = SharabilityQuery.getSharability(file);
+            if (file == null) {
+                // We can not share files withot java.io.File
+                sharability = SharabilityQuery.NOT_SHARABLE;
+            } else {
+                sharability = SharabilityQuery.getSharability(file);
+            }
             if (sharability == SharabilityQuery.NOT_SHARABLE) {
                 if (sharable == null) {
                     sharable = new ArrayList(Arrays.asList(fos));
