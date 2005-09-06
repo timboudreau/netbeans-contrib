@@ -52,7 +52,7 @@ Microsystems, Inc. All Rights Reserved.
                source="1.4" includeantruntime="false" />
     </target>
     
-    <!-- Unscramble and unzip blueprints-solutions-catalog.zip into build -->
+    <!-- Unzip blueprints-solutions-catalog.zip into build -->
     <target name="extra-solutions">
         <property name="examples" location="${build.classes.dir}/org/netbeans/modules/j2ee/blueprints"/>
         <unzip dest="${examples}" src="../external/blueprints-solutions-catalog.zip"/>

@@ -14,11 +14,7 @@ Microsystems, Inc. All Rights Reserved.
 <project basedir="." default="netbeans" name="mdr/jmi">
     <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <target name="unscramble">
-        <ant dir="${external.dir}" target="unscramble"/>
-    </target>
-
-    <target name="release" depends="init,unscramble">
+    <target name="release" depends="init">
         <mkdir dir="${cluster}/modules/ext"/>
         <copy todir="${cluster}/modules/ext">
             <fileset dir="${external.dir}">

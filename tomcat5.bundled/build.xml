@@ -18,7 +18,6 @@ Microsystems, Inc. All Rights Reserved.
   <property name="tomcat.filename" value="jakarta-tomcat-5.5.7"/>
 
   <target name="init" depends="default.init">
-    <ant dir="${nb_all}/tomcatint/external" target="unscramble"/>
     <patternset id="tomcatint/tomcat5/bundled.files">
       <include name="modules/eager/tomcat5-bundled.jar"/>
       <include name="${tomcat.filename}/**"/>
