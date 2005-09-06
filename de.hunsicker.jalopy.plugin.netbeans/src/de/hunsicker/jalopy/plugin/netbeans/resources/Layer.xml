@@ -19,30 +19,21 @@
 
     <folder name="Menu">
 
-	<folder name="BuildProject">
-	    <attr name="org-netbeans-modules-project-ui-CompileSingle.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true" />
+	<folder name="Source">
+	    <attr name="org-netbeans-modules-editor-MainMenuAction$FormatAction.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true" />
 	    <file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
 		<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance" />
 	    </file>
-	</folder>    <!--folder name="BuildProject"-->
+	</folder>    <!--folder name="Source"-->
 
 	<folder name="Tools">
-	    <attr name="org-netbeans-core-actions-OptionsAction.instance/de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow" boolvalue="true" />
+	    <attr name="org-netbeans-modules-options-OptionsWindowAction.instance/de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow" boolvalue="true" />
 	    <file name="de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow">
 		<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-SettingsAction.instance" />
 	    </file>
 	</folder>    <!--folder name="Tools"-->
 
     </folder>  <!--folder name="Menu"-->
-
-    <!-- ##################################################################### -->
-
-    <!--folder name="System">
-  
-    <file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance" />
-    <file name="de-hunsicker-jalopy-plugin-netbeans-SettingsAction.instance" />
-  
-    </folder-->
 
     <!-- ##################################################################### -->
 
