@@ -55,18 +55,6 @@ Microsystems, Inc. All Rights Reserved.
     <!-- Unscramble and unzip blueprints-solutions-catalog.zip into build -->
     <target name="extra-solutions">
         <property name="examples" location="${build.classes.dir}/org/netbeans/modules/j2ee/blueprints"/>
-        <taskdef name="unscramble" classname="org.netbeans.nbbuild.Unscramble" classpath="${extnl}/scrambler.jar"/>
-        <unscramble logfile="${extnl}/unscrambling.log">
-            <binary clear="../external/blueprints-solutions-catalog.zip" scrambled="../external/blueprints-solutions-catalog.zip.scrambled" license="../external/blueprints-license.txt"/>
-        </unscramble>
         <unzip dest="${examples}" src="../external/blueprints-solutions-catalog.zip"/>
     </target>    
-
-    <!-- Rescramble blueprints-solutions-catalog.zip for commit -->
-    <target name="scramble" depends="init,netbeans" description="create scrambled archive.">
-       <taskdef name="scramble" classname="org.netbeans.nbbuild.Scramble" classpath="${extnl}/scrambler.jar"/>
-       <scramble>
-           <binary clear="../external/blueprints-solutions-catalog.zip" scrambled="../external/blueprints-solutions-catalog.zip.scrambled" license="../external/blueprints-license.txt"/>
-       </scramble>
-    </target> 
 </project>

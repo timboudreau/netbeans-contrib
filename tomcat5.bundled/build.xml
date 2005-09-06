@@ -87,7 +87,7 @@ Microsystems, Inc. All Rights Reserved.
         <text>For the integration module:</text>
         <file location="${license.file}"/>
         <text>For Tomcat:</text>
-        <file location="${nb_all}/nbbuild/external/apache-license.txt"/>
+        <file location="${nb_all}/tomcatint/external/jakarta-tomcat-5.5.7-license.txt"/>
       </license>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
