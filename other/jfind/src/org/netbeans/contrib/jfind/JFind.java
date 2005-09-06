@@ -14,7 +14,8 @@
 package org.netbeans.contrib.jfind;
 
 import java.io.*;
-import java.util.*;
+import java.util.Properties;
+import java.util.jar.*;
 import java.util.zip.*;
 
 /**
@@ -70,21 +71,42 @@ public class JFind implements Runnable {
 		find(new File(f, files[i]));
 	}
 	else {
-	    ZipFile zipFile = null;
+	    JarFile jarFile = null;
 	    try {
-		zipFile = new ZipFile(f, ZipFile.OPEN_READ);
-		ZipEntry entry = zipFile.getEntry(classname);
+		jarFile = new JarFile(f);
+		ZipEntry entry = jarFile.getEntry(classname);
 		if (entry != null) {
+                    String name = getModuleName(jarFile);
+                    if (name != null)
+                        System.out.print(name + ": ");
 		    System.out.println(f.getPath());
 		    return;
 		}
 	    } catch (ZipException e) {
-		// not a zip file, so skip it
+		// not a jar file, so skip it
 	    } finally {
-		if (zipFile != null)
-		    zipFile.close();
+		if (jarFile != null)
+		    jarFile.close();
 	    }
 	}
+    }
+    
+    private static String getModuleName(JarFile jar) {
+        try {
+            Attributes attrs = jar.getManifest().getMainAttributes();
+            String bundleName = attrs.getValue("OpenIDE-Module-Localizing-Bundle");
+            if (bundleName == null)
+                // check if old-style name spec was used; returns null if not
+                return attrs.getValue("OpenIDE-Module-Name");
+            ZipEntry entry = jar.getEntry(bundleName);
+            if (entry == null)
+                return null; // missing resource bundle or bad manifest specification
+            Properties props = new Properties();
+            props.load(jar.getInputStream(entry));
+            return props.getProperty("OpenIDE-Module-Name");
+        } catch (IOException ex) {
+            return null;
+        }
     }
 
     static void fatal(String msg) {
