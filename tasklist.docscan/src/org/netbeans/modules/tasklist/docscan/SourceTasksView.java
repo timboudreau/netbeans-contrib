@@ -31,6 +31,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.util.HelpCtx;
 
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -226,6 +227,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return TopComponent.PERSISTENCE_ONLY_OPENED;
     }
 
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx(SourceTasksView.class);
+    }
+    
     protected Node createRootNode() {
       // we need to provide a specialized node factory because we need
       // SourceTaskNodes for SuggestionImpls and don't want to
