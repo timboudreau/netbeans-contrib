@@ -16,11 +16,10 @@ Microsystems, Inc. All Rights Reserved.
     <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="build-init" depends="projectized.build-init">
-        <ant dir="external"/>
+        <property file="build.properties"/>
     </target>
 
     <target name="release" depends="init">
-        <property file="build.properties"/>
         <mkdir dir="${cluster}/modules/ext"/>
         <copy todir="${cluster}/modules/ext">
             <fileset dir="external">
@@ -45,16 +44,12 @@ Microsystems, Inc. All Rights Reserved.
             <license name="org-netbeans-modules-javacore.txt">
                 <text>The Jalopy NetBeans Plugin module is under SPL.</text>
                 <text>For the Jalopy Source Code Formatter code itself:</text>
-                <file location="external/jalopy-bsd-license.txt"/>
+                <file location="external/${jalopy.license}"/>
                 <text>For the bundled Log4j Logging Toolkit:</text>
-                <file location="external/log4j-apache-license.txt"/>
+                <file location="external/${log4j.license}"/>
             </license>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
-    </target>
-
-    <target name="clean-all" depends="clean">
-        <ant antfile="build.xml" target="clean" inheritAll="false" dir="external"/>
     </target>
 
 </project>
