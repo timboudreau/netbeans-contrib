@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities;
  * @author Frank-Michael Moser
  */
 public final class SettingsAction extends CallableSystemAction {
-
+	
 	/**
 	 * DOCUMENT ME!
 	 *
@@ -41,11 +41,11 @@ public final class SettingsAction extends CallableSystemAction {
 	 */
 	public HelpCtx getHelpCtx() {
 		return HelpCtx.DEFAULT_HELP;
-
+		
 		// If you will provide context help then use:
 		// return new HelpCtx (Callable_actionAction.class);
 	}
-
+	
 	/**
 	 * DOCUMENT ME!
 	 *
@@ -53,27 +53,34 @@ public final class SettingsAction extends CallableSystemAction {
 	 */
 	public String getName() {
 		return NbBundle.getMessage(
-			SettingsAction.class, "LBL_SettingsAction" /* NOI18N */);
+				SettingsAction.class, "LBL_SettingsAction" /* NOI18N */);
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean asynchronous() {
+		return false;
+	}
+	
 	/**
 	 * DOCUMENT ME!
 	 */
 	public void performAction() {
 		SwingUtilities.invokeLater(
-			new Runnable() {
-				public void run() {
-
-					Frame frame = WindowManager.getDefault().getMainWindow();
-					SettingsDialog dialog = SettingsDialog.create(frame);
-
-					dialog.pack();
-					dialog.setLocationRelativeTo(frame);
-					dialog.setVisible(true);
-				}
-			});
+				new Runnable() {
+			public void run() {
+				
+				Frame frame = WindowManager.getDefault().getMainWindow();
+				SettingsDialog dialog = SettingsDialog.create(frame);
+				
+				dialog.pack();
+				dialog.setLocationRelativeTo(frame);
+				dialog.setVisible(true);
+			}
+		});
 	}
-
+	
 //	/**
 //	 * DOCUMENT ME!
 //	 *
@@ -83,15 +90,15 @@ public final class SettingsAction extends CallableSystemAction {
 //		return NbBundle.getMessage(
 //			SettingsAction.class, "ICON_Settings" /* NOI18N */);
 //	}
-
+	
 	/**
 	 * DOCUMENT ME!
 	 */
 	protected void initialize() {
 		super.initialize();
 		putProperty(
-			Action.SHORT_DESCRIPTION,
-			NbBundle.getMessage(
+				Action.SHORT_DESCRIPTION,
+				NbBundle.getMessage(
 				SettingsAction.class, "HINT_SettingsAction" /* NOI18N */));
 	}
 }
