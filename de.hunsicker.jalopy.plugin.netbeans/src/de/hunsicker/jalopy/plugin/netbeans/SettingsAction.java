@@ -74,15 +74,15 @@ public final class SettingsAction extends CallableSystemAction {
 			});
 	}
 
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	protected String iconResource() {
-		return NbBundle.getMessage(
-			SettingsAction.class, "ICON_Settings" /* NOI18N */);
-	}
+//	/**
+//	 * DOCUMENT ME!
+//	 *
+//	 * @return DOCUMENT ME!
+//	 */
+//	protected String iconResource() {
+//		return NbBundle.getMessage(
+//			SettingsAction.class, "ICON_Settings" /* NOI18N */);
+//	}
 
 	/**
 	 * DOCUMENT ME!
