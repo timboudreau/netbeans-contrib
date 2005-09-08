@@ -83,9 +83,9 @@ Microsystems, Inc. All Rights Reserved.
                 <text>For the module itself:</text>
                 <file location="${license.file}"/>
                 <text>For the included DocBook stylesheets and Slides DTD:</text>
-                <file location="${nb_all}/libs/external/docbook-sf-net-license.txt"/>
+                <file location="${nb_all}/libs/external/docbook-xsl-${libs.docbook-xsl.version}-license.txt"/>
                 <text>For the included DocBook XML DTD:</text>
-                <file location="${nb_all}/libs/external/docbook-xml-license.txt"/>
+                <file location="${nb_all}/libs/external/docbook-xml-${libs.docbook-xml.version}-license.txt"/>
             </license>
         </makenbm>
     </target>
