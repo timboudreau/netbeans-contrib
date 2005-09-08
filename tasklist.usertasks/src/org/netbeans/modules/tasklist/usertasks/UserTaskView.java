@@ -405,7 +405,7 @@ FilteredTopComponent {
             String uid = (String) objectInput.readObject();
             
             // started task
-            if (StartedUserTask.getStarted() == null && uid != null) {
+            if (StartedUserTask.getInstance().getStarted() == null && uid != null) {
                 UserTask ut = tasklist.findItem(
                     tasklist.getSubtasks().iterator(), uid);
                 if (ut != null)
@@ -516,10 +516,11 @@ FilteredTopComponent {
         objectOutput.writeObject(null);
         
         // started task
-        if (StartedUserTask.getStarted() != null && 
-            StartedUserTask.getStarted().getList() == tasklist) {
-            objectOutput.writeObject(StartedUserTask.getStarted().getUID());
-            StartedUserTask.start(null);
+        if (StartedUserTask.getInstance().getStarted() != null && 
+            StartedUserTask.getInstance().getStarted().getList() == tasklist) {
+            objectOutput.writeObject(StartedUserTask.getInstance().
+                getStarted().getUID());
+            StartedUserTask.getInstance().start(null);
         } else {
             objectOutput.writeObject(null);
         }

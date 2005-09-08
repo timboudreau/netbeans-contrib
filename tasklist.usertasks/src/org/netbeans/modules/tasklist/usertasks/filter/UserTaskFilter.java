@@ -44,6 +44,7 @@ public class UserTaskFilter extends Filter {
         UserTaskProperties.PROP_EFFORT,
         UserTaskProperties.PROP_REMAINING_EFFORT,
         UserTaskProperties.PROP_SPENT_TIME,
+        UserTaskProperties.PROP_SPENT_TIME_TODAY,
         UserTaskProperties.PROP_OWNER,
         UserTaskProperties.PROP_START
     };
@@ -107,6 +108,8 @@ public class UserTaskFilter extends Filter {
             return applyConditions(property, StringFilterCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_START)) {
             return applyConditions(property, DateFilterCondition.createConditions());
+        } else if (property.equals(UserTaskProperties.PROP_SPENT_TIME_TODAY)) {
+            return applyConditions(property, DurationFilterCondition.createConditions());
         } else {
             throw new InternalError("Wrong index"); // NOI18N
         }

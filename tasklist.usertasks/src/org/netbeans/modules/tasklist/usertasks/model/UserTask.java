@@ -50,6 +50,7 @@ import org.netbeans.modules.tasklist.usertasks.annotations.UTAnnotation;
  *
  * @author Tor Norbye
  * @author Trond Norbye
+ * @author tl
  */
 public final class UserTask implements Cloneable, Cookie, PropertyChangeListener,
 ObjectList.Owner {
@@ -91,6 +92,15 @@ ObjectList.Owner {
          */
         public int getDuration() {
             return duration;
+        }
+        
+        /**
+         * Changes the duration.
+         *
+         * @param dur new duration in minutes
+         */
+        public void setDuration(int dur) {
+            this.duration = dur;
         }
         
         /**
@@ -224,7 +234,8 @@ ObjectList.Owner {
     public static final String PROP_COMPLETED_DATE = "completedDate"; // NOI18N
     public static final String PROP_WORK_PERIODS = "workPeriods"; // NOI18N
     public static final String PROP_START = "start"; // NOI18N
-    
+    public static final String PROP_SPENT_TIME_TODAY = "spentTimeToday"; // NOI18N
+
     // ATTENTION: if you add new fields here do not forget to update copyFrom
     
     /** <UserTaskListener> */
@@ -249,9 +260,6 @@ ObjectList.Owner {
     
     /** Used to create uid's. Assign unique id's for this session. */
     private static int unique = 0; 
-
-    /** The icon to be used for this task - or null to use the default */
-    private Image icon = null;
     
     /** A summary (one-line description) of the task */
     private String summary = null;
@@ -261,13 +269,6 @@ ObjectList.Owner {
     
     /** The priority of this suggestion, defaults to SuggestionPriority.MEDIUM */
     private int priority = UserTask.MEDIUM;
-    
-    /** 
-     * The type of task; for example source errors and import warnings are
-     * different types of tasks. This should be a user-readable (localized)
-     * string.
-     */
-    private String type = null;
 
     /** 
      * this value is used by ICalImport/ExportFormat to store additional
@@ -658,7 +659,7 @@ ObjectList.Owner {
      * Start to work on this task
      */
     public void start() {
-        StartedUserTask.start(this);
+        StartedUserTask.getInstance().start(this);
     }
     
     /**
@@ -666,7 +667,7 @@ ObjectList.Owner {
      */
     public void stop() {
         assert isStarted();
-        StartedUserTask.start(null);
+        StartedUserTask.getInstance().start(null);
     }
     
     /**
@@ -675,7 +676,7 @@ ObjectList.Owner {
      * @return true = this is the currently running task
      */
     public boolean isStarted() {
-        return StartedUserTask.getStarted() == this;
+        return StartedUserTask.getInstance().getStarted() == this;
     }
     
     /**
@@ -1770,5 +1771,17 @@ ObjectList.Owner {
             setStart(-1);
         else
             setStart(start.getTime());
+    }
+    
+    /**
+     * Clears all work periods with duration = 0.
+     */
+    public void clearEmptyWorkPeriods() {
+        Iterator it = workPeriods.iterator();
+        while (it.hasNext()) {
+            WorkPeriod wp = (WorkPeriod) it.next();
+            if (wp.getDuration() == 0)
+                it.remove();
+        }
     }
 }

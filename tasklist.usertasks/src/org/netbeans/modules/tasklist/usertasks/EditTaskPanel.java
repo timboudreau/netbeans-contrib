@@ -318,9 +318,19 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             task.setEffort(durationPanel.getDuration());
         }
 
-        task.setSpentTimeComputed(jRadioButtonComputeSpent.isSelected());
-        if (!task.isSpentTimeComputed()) {
-            task.setSpentTime(durationPanelSpent.getDuration());
+        boolean spentTimeComputed = jRadioButtonComputeSpent.isSelected();
+        int spentTime = durationPanelSpent.getDuration();
+        if (spentTime != task.getSpentTime() || 
+            spentTimeComputed != task.isSpentTimeComputed()) {
+            boolean started = task.isStarted();
+            if (started)
+                task.stop();
+            task.setSpentTimeComputed(spentTimeComputed);
+            if (!task.isSpentTimeComputed()) {
+                task.setSpentTime(spentTime);
+            }
+            if (started && !spentTimeComputed)
+                task.start();
         }
         
         dp.fillObject();

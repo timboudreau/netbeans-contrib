@@ -229,6 +229,8 @@ public class UserTasksTreeTable extends NodesTreeTable {
             new DueDateTableCellRenderer());
         
         tcm.getColumn(UserTasksTreeTableModel.START).setCellRenderer(dcr);
+
+        tcm.getColumn(UserTasksTreeTableModel.SPENT_TIME_TODAY).setCellRenderer(dr);
     }
 
     /**

@@ -38,6 +38,7 @@ public class UserTaskProperties extends TaskProperties {
     public static final String PROPID_OWNER = "owner"; // NOI18N
     public static final String PROPID_COMPLETED_DATE = "completedDate"; // NOI18N
     public static final String PROPID_START = "start"; // NOI18N
+    public static final String PROPID_SPENT_TIME_TODAY = "spentTimeToday"; // NOI18N
 
   public static SuggestionProperty PROP_SUMMARY = 
     new SuggestionProperty(PROPID_SUMMARY, String.class) { 
@@ -144,6 +145,13 @@ public class UserTaskProperties extends TaskProperties {
             }
         };
 
+    public static final SuggestionProperty PROP_SPENT_TIME_TODAY =
+        new SuggestionProperty(PROPID_SPENT_TIME_TODAY, Integer.class) {
+            public Object getValue(Object obj) {
+                return new Integer(((UserTask) obj).getSpentTimeToday());
+            }
+        };
+
     public static final SuggestionProperty PROP_OWNER =
         new SuggestionProperty(PROPID_OWNER, String.class) {
             public Object getValue(Object obj) {
@@ -199,6 +207,8 @@ public class UserTaskProperties extends TaskProperties {
             return PROP_DETAILS;
         } else if (propID.equals(PROPID_START)) { 
             return PROP_START;
+        } else if (propID.equals(PROPID_SPENT_TIME_TODAY)) {
+            return PROP_SPENT_TIME_TODAY;
         } else {
             throw new IllegalArgumentException("Unresolved property id " + propID); // NOI18N
         }

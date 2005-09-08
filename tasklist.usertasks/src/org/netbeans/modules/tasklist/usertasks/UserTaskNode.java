@@ -281,6 +281,13 @@ public final class UserTaskNode extends AbstractNode {
             p.setShortDescription(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "HNT_spentTimeComputed")); // NOI18N
             ss.put(p);
             
+            p = new PropertySupport.Reflection(item, Integer.TYPE, "getSpentTimeToday", null); // NOI18N
+            p.setName("spentTimeToday"); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_spentTimeTodayProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_spentTimeTodayProperty")); // NOI18N
+            p.setPropertyEditorClass(DurationPropertyEditor.class);
+            ss.put(p);
+
             p = new PropertySupport.Reflection(item, String.class, "getDetails", "setDetails"); // NOI18N
             p.setName(UserTask.PROP_DETAILS);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_detailsProperty")); // NOI18N
