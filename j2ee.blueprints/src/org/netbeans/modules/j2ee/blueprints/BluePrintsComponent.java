@@ -136,12 +136,6 @@ class BluePrintsComponent extends TopComponent{
         panel.requestFocus();
     }
     
-    public boolean requestFocusInWindow(){
-        return super.requestFocusInWindow();
-        //return panel.requestFocusInWindow();
-    }
-    
-
     /**
      * #38900 - lazy addition of GUI components
      */    
