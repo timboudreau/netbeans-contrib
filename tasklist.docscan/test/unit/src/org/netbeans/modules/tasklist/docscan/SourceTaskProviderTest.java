@@ -7,26 +7,24 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.netbeans.modules.tasklist.docscan.Settings;
-import junit.framework.*;
-import org.netbeans.junit.*;
-import org.openide.filesystems.*;
+import java.io.File;
 import org.openide.loaders.DataObject;
 import org.openide.filesystems.Repository;
-
-import java.io.*;
-import java.util.*;
 import java.net.URL;
-
-import org.netbeans.modules.tasklist.docscan.*;
+import java.util.List;
+import junit.framework.TestCase;
+import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.tasklist.providers.SuggestionContexts;
 import org.netbeans.modules.tasklist.suggestions.Types;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.LocalFileSystem;
 
 /**
  * Test the source scanner list functionality
@@ -39,14 +37,6 @@ public class SourceTaskProviderTest extends TestCase {
         super (name);
     }
     
-    public static void main (String args []) {
-        junit.textui.TestRunner.run (SourceTaskProviderTest.class);
-    }
-    
-    public static Test suite () {
-        return new TestSuite(SourceTaskProviderTest.class);
-    }
-
     /** NB filesytem initialized during setUp. */
     private FileSystem dataFS;
 

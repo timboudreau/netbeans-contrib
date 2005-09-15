@@ -149,6 +149,4 @@ public abstract class MDRTestCase extends NbTestCase {
         return new File(System.getProperty("work.dir") + '/' + fileName);
     }
     
-    protected void tearDown() {        
-    }
 }

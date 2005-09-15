@@ -34,12 +34,6 @@ public class TextPositionsMapperTest extends NbTestCase {
         return new NbTestSuite(TextPositionsMapperTest.class);
     }
 
-    protected void setUp () throws Exception {
-    }
-
-    protected void tearDown () throws Exception {
-    }
-
     /**
      * Tests the class
      */

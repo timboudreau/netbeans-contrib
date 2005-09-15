@@ -7,29 +7,17 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.core;
 
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import junit.framework.*;
-import org.netbeans.modules.tasklist.client.Suggestion;
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.providers.SuggestionProvider;
-import org.openide.ErrorManager;
-import org.openide.nodes.Node;
-import org.openide.util.NbBundle;
+import java.util.ArrayList;
+import java.util.List;
+import junit.framework.TestCase;
 
 /**
  *
@@ -37,13 +25,8 @@ import org.openide.util.NbBundle;
  */
 public class TaskTest extends TestCase {
     
-    public TaskTest(java.lang.String testName) {
+    public TaskTest(String testName) {
         super(testName);
-    }
-    
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TaskTest.class);
-        return suite;
     }
     
     /**
@@ -481,10 +464,5 @@ public class TaskTest extends TestCase {
         // TODO add your test code below by replacing the default call to fail.
 
     }
-    
-    // TODO add test methods here, they have to start with 'test' name.
-    // for example:
-    // public void testHello() {}
-    
     
 }

@@ -54,10 +54,6 @@ public class ElementRecognitionTest extends NbTestCase {
         assertNotNull(clazz);
     }
     
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-    
     public void testClass() {
         assertEquals(clazz.getName().getName(), "ClazzTest");
         assertEquals(clazz.getName().getFullName(), "org.netbeans.test.ClazzTest");

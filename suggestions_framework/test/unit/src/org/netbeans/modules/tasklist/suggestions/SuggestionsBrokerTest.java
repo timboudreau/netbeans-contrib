@@ -7,17 +7,15 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.suggestions;
 
-import junit.framework.*;
-
 import javax.swing.event.ChangeListener;
 import java.beans.PropertyChangeListener;
-
+import junit.framework.TestCase;
 import org.openide.windows.TopComponent;
 
 /**
@@ -27,13 +25,8 @@ import org.openide.windows.TopComponent;
  */
 public class SuggestionsBrokerTest extends TestCase {
 
-    public SuggestionsBrokerTest(java.lang.String testName) {
+    public SuggestionsBrokerTest(String testName) {
         super(testName);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(SuggestionsBrokerTest.class);
-        return suite;
     }
 
     protected void setUp() throws Exception {

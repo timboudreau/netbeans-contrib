@@ -73,14 +73,9 @@ public class ClazzNodeTest extends JellyTestCase {
         //junit.textui.TestRunner.run(new BeansTemplates("testJavaBean"));
     }
     
-    /** setUp method  */
     public void setUp() {
         System.out.println("########  "+getName()+"  #######"); //NOI18N
         RepositoryTabOperator.invoke();
-    }
-    
-    /** tearDown method */
-    public void tearDown() {
     }
     
     public void testCopyPasteCopy() {
