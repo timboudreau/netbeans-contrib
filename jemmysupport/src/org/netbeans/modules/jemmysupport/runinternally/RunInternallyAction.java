@@ -13,24 +13,26 @@
 
 package org.netbeans.modules.jemmysupport.runinternally;
 
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-
 import org.netbeans.api.queries.FileBuiltQuery;
 import org.netbeans.modules.jemmysupport.Utils;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.ErrorManager;
+import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.SourceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -42,12 +44,17 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
 
 /** Used to run jemmy test internally in the same JVM as IDE.
  * @author Jiri.Skrivanek@sun.com
  */
 public class RunInternallyAction extends NodeAction {
-    
+
+    private InputOutput io;
+    private boolean started = false;
+
     /** method performing the action
      * @param nodes selected nodes
      */
@@ -84,6 +91,9 @@ public class RunInternallyAction extends NodeAction {
      * @return true if a main class is selected
      */
     public boolean enable(Node[] node) {
+        if(started) {
+            return false;
+        }
         Lookup context = Utilities.actionsGlobalContext();
         if(getSelectedMainClass(context) != null) {
             DataObject dObj = getSelectedDataObject(context);
@@ -141,6 +151,7 @@ public class RunInternallyAction extends NodeAction {
             ap.invokeAction(ActionProvider.COMMAND_COMPILE_SINGLE, context);
 
             //wait until compilation finishes
+            // TODO - possibly wait for status text (failed or finished)
             try {
                 synchronized (compileLock) {
                     // wait max. 30 seconds
@@ -218,6 +229,7 @@ public class RunInternallyAction extends NodeAction {
      * @throws BuildException when something's wrong
      */
     private void execute(FileObject fObj, String classname) {
+        String displayName = classname.substring(classname.lastIndexOf('.')+1)+" (run-internally)";
         try {
             URL[] urls = classpathToURL(fObj);
             URLClassLoader testClassLoader = new Utils.TestClassLoader(urls, Utils.getSystemClassLoader());
@@ -228,14 +240,68 @@ public class RunInternallyAction extends NodeAction {
             }
             System.out.println("CLASSLOADER="+systemClassloader);
              */
+            redirectOutput(displayName, testClassLoader);
             Class classToRun = testClassLoader.loadClass(classname);
             Method method = classToRun.getDeclaredMethod("main", new Class[] {String[].class}); // NOI18N
+            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(
+                    RunInternallyAction.class, "LBL_Running", displayName));
+            started = true;
+            enableAction(false);
             method.invoke(null, new Object[] {null});
         } catch (ClassNotFoundException cnfe) {
             // compilation probably failed and we ignore it because I don't know
             // how to check the result of compilation for workaround 43609
         } catch (Exception e) {
-            ErrorManager.getDefault().notify(e);
+            if(e.getCause() != null) {
+                e.getCause().printStackTrace(io.getErr());
+            } else {
+                e.printStackTrace(io.getErr());
+            }
+        } finally {
+            started = false;
+            enableAction(true);
+            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(
+                    RunInternallyAction.class, "LBL_Finished", displayName));
+        }
+    }
+
+    /** Get output tab and redirect jemmy outputs to that tab.
+     * @param displayName display name of output tab
+     * @param testClassLoader classloader to used
+     */
+    private void redirectOutput(String displayName, URLClassLoader testClassLoader) throws Exception {
+        InputOutput ioNew = IOProvider.getDefault().getIO(displayName, false);
+        if(io != null && io != ioNew) {
+            // close previous tab if has different display name
+            io.closeInputOutput();
+        }
+        io = ioNew;
+        io.getOut().reset();
+        io.getErr().reset();
+        io.select();
+        // Do the following using reflection and system classloader
+        // JemmyProperties.setCurrentOutput(new TestOut(null, (PrintWriter)io.getOut(), (PrintWriter)io.getErr()));
+        Class testOutClass = testClassLoader.loadClass("org.netbeans.jemmy.TestOut");  // NOI18N
+        Constructor constr = testOutClass.getDeclaredConstructor(new Class[] {InputStream.class, PrintWriter.class, PrintWriter.class});
+        Object testOut = constr.newInstance(new Object[] {null, (PrintWriter)io.getOut(), (PrintWriter)io.getErr()});
+
+        Class jemmyPropClass = testClassLoader.loadClass("org.netbeans.jemmy.JemmyProperties");  //NOI18N
+        Method setCurrentOutputMethod = jemmyPropClass.getDeclaredMethod("setCurrentOutput", new Class[] {testOutClass}); // NOI18N
+        setCurrentOutputMethod.invoke(null, new Object[] {testOut});
+    }
+
+    /** Helper method to enable or disable this action.
+     * @param state true or false
+     */
+    private void enableAction(final boolean state) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            setEnabled(state);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    setEnabled(state);
+                }
+            });
         }
     }
     
