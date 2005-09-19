@@ -55,7 +55,7 @@ public abstract class CommandSupport extends Object implements Cloneable {
     
     /**
      * Creates a new instance of CommandSupport.
-     * @param commandClass The class of the command, that is implemented.
+     * @param commandClasses The classes of the commands, that are implemented.
      */
     public CommandSupport(Class[] commandClasses) {
         this.commandClasses = commandClasses;

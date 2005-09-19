@@ -165,8 +165,8 @@ is the proper place.
 
 <h1>Introduction</h1>
 
-<p>This document lists changes made to the <a href="http://diff.netbeans.org/">Diff
-APIs</a>. Please ask on the <code>nbdev@netbeans.org</code> mailing list
+<p>This document lists changes made to the VCS APIs.
+Please ask on the <code>nbdev@netbeans.org</code> mailing list
 if you have any questions about the details of a
 change, or are wondering how to convert existing code to be compatible.</p>
 

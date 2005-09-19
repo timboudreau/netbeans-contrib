@@ -27,11 +27,9 @@
 The VCS Core module provides basic structure and libraries on which support modules
 for various version control systems can be based. The modules, that integrate concrete
 version control systems into NetBeans IDE, depend on the VCS Core module.
-See <a href="http://vcscore.netbeans.org/">vcscore.netbeans.org</a>
-for more information.<p>List of the main features:</p>
+<p>List of the main features:</p>
 <ul>
-  <li>Simple VCS API (See <a href="http://vcscore.netbeans.org/doc/VCSAPI.html">
-      http://vcscore.netbeans.org/doc/VCSAPI.html</a> for details).</li>
+  <li>Simple VCS API.</li>
   <li>Versioning main menu.</li>
   <li>Generic mount action for VCS integrations.</li>
   <li>Provides VcsFileSystem, that can be used as a base for VCS integration.</li>
@@ -148,8 +146,8 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="dep-nb">
-    <api group="java" name="OpenAPIs" type="import" category="official" url="http://openide.netbeans.org/"/> 
-    <api group="java" name="OpenAPIsExtensions" type="import" category="devel" url="http://openidex.netbeans.org/"/>
+    <api group="java" name="OpenAPIs" type="import" category="official"/> 
+    <api group="java" name="OpenAPIsExtensions" type="import" category="devel"/>
 </answer>
 
 
@@ -247,8 +245,7 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="deploy-packages">
-    All public packages are accessible, no restriction applied. Vcscore module contains
-    <api group="java" name="VCSAPI" type="export" category="official" url="http://www.netbeans.org/download/dev/javadoc/VCSAPI/index.html"/>.
+    All public packages are accessible, no restriction applied. Vcscore module contains public API.
     VcsGeneric module can use semi-private API <api group="java" name="VcsCoreImplementationAPI" type="export" category="friend"/>.
 </answer>
 
