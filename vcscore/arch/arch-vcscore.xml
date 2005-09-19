@@ -781,4 +781,211 @@ version control systems into NetBeans IDE, depend on the VCS Core module.
 
 
 
+
+
+
+<!--
+        <question id="arch-overall" when="init">
+            Describe the overall architecture. 
+            <hint>
+            What will be API for 
+            <a href="http://openide.netbeans.org/tutorial/api-design.html#design.apiandspi" shape="rect">
+                clients and what support API</a>? 
+            What parts will be pluggable?
+            How will plug-ins be registered? Please use <code>&lt;api type="export"/&gt;</code>
+            to describe your general APIs.
+            If possible please provide 
+            simple diagrams. 
+            </hint>
+        </question>
+-->
+ <answer id="arch-overall">
+  <p>
+   The API for accessing and plugging of the VCS functionality.<br></br>
+   <big><b>Deprecated. This API is no longer supported.</b></big>
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="arch-quality" when="init">
+            How will the <a href="http://www.netbeans.org/community/guidelines/q-evangelism.html" shape="rect">quality</a>
+            of your code be tested and 
+            how are future regressions going to be prevented?
+            <hint>
+            What kind of testing do
+            you want to use? How much functionality, in which areas,
+            should be covered by the tests? 
+            </hint>
+        </question>
+-->
+ <answer id="arch-quality">
+  <p>
+   The API contains mostly interfaces. Unit tests are written for the turbo cache
+   implementation.
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="arch-time" when="init">
+            What are the time estimates of the work?
+            <hint>
+            Please express your estimates of how long the design, implementation,
+            stabilization are likely to last. How many people will be needed to
+            implement this and what is the expected milestone by which the work should be 
+            ready?
+            </hint>
+        </question>
+-->
+ <answer id="arch-time">
+  <p>
+   N/A
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="arch-usecases" when="init">
+            <hint>
+                Content of this answer will be displayed as part of page at
+                http://www.netbeans.org/download/dev/javadoc/usecases.html 
+                You can use tags &lt;usecase name="name&gt; regular html description &lt;/usecase&gt;
+                and if you want to use an URL you can prefix if with @TOP@ to begin
+                at the root of your javadoc
+            </hint>
+        
+            Describe the main <a href="http://openide.netbeans.org/tutorial/api-design.html#usecase" shape="rect">
+            use cases</a> of the new API. Who will use it under
+            what circumstances? What kind of code would typically need to be written
+            to use the module?
+        </question>
+-->
+ <answer id="arch-usecases">
+  <p>
+   TBD.
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="arch-where" when="init">
+            Where one can find sources for your module?
+            <hint>
+                Please provide link to the CVS web client at
+                http://www.netbeans.org/download/source_browse.html
+                or just use tag defaultanswer generate='here'
+            </hint>
+        </question>
+-->
+ <answer id="arch-where">
+  <defaultanswer generate='here' />
+ </answer>
+
+
+
+<!--
+        <question id="exec-ant-tasks" when="impl">
+            Do you define or register any ant tasks that other can use?
+            
+            <hint>
+            If you provide an ant task that users can use, you need to be very
+            careful about its syntax and behaviour, as it most likely forms an
+	          API for end users and as there is a lot of end users, their reaction
+            when such API gets broken can be pretty strong.
+            </hint>
+        </question>
+-->
+ <answer id="exec-ant-tasks">
+  <p>
+   No.
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="exec-threading" when="impl">
+            What threading models, if any, does your module adhere to?
+            <hint>
+                If your module calls foreign APIs which have a specific threading model,
+                indicate how you comply with the requirements for multithreaded access
+                (synchronization, mutexes, etc.) applicable to those APIs.
+                If your module defines any APIs, or has complex internal structures
+                that might be used from multiple threads, declare how you protect
+                data against concurrent access, race conditions, deadlocks, etc.,
+                and whether such rules are enforced by runtime warnings, errors, assertions, etc.
+                Examples: a class might be non-thread-safe (like Java Collections); might
+                be fully thread-safe (internal locking); might require access through a mutex
+                (and may or may not automatically acquire that mutex on behalf of a client method);
+                might be able to run only in the event queue; etc.
+                Also describe when any events are fired: synchronously, asynchronously, etc.
+                Ideas: <a href="http://core.netbeans.org/proposals/threading/index.html#recommendations" shape="rect">Threading Recommendations</a> (in progress)
+            </hint>
+        </question>
+-->
+ <answer id="exec-threading">
+  <p>
+   The API implementation is thread-safe. Multiple VCS commands can be run in parallel
+   whithout any issues.
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="perf-spi" when="init">
+            How the performance of the plugged in code will be enforced?
+            <hint>
+            If you allow foreign code to be plugged into your own module, how
+            do you enforce that it will behave correctly and quickly and will not
+            negatively influence the performance of your own module?
+            </hint>
+        </question>
+-->
+ <answer id="perf-spi">
+  <p>
+   We are not able to enforce performance of plugged in code.
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="security-grant" when="final">
+            Does your code grant additional rights to some other code?
+            <hint>Avoid using a class loader that adds extra
+            permissions to loaded code unless really necessary.
+            Also note that your API implementation
+            can also expose unneeded permissions to enemy code by
+            calling AccessController.doPrivileged().</hint>
+        </question>
+-->
+ <answer id="security-grant">
+  <p>
+   No.
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="security-policy" when="final">
+            Does your functionality require modifications to the standard policy file?
+            <hint>Your code might pass control to third-party code not
+            coming from trusted domains. This could be code downloaded over the
+            network or code coming from libraries that are not bundled
+            with NetBeans. Which permissions need to be granted to which domains?</hint>
+        </question>
+-->
+ <answer id="security-policy">
+  <p>
+   No.
+  </p>
+ </answer>
+
 </api-answers>

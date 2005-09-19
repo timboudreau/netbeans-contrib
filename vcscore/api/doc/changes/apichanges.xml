@@ -141,6 +141,19 @@ is the proper place.
       </description>
     </change>
 
+    <change>
+      <api name="vcs"/>
+      <summary>The VCS APIs deprecated.</summary>
+      <version major="1" minor="16"/>            
+      <date day="9" month="8" year="2005"/>
+      <author login="mentlicher"/>
+      <compatibility/>
+      <description>
+        The module was removed from the standard distribution, the APIs will not
+        be developed any further.
+      </description>
+    </change>
+
   </changes>
 
   <!-- Now the surrounding HTML text and document structure: -->
