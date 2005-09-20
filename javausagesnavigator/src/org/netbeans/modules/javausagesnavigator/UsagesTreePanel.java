@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.jmi.reflect.InvalidObjectException;
 import javax.jmi.reflect.RefObject;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -57,6 +58,7 @@ import org.netbeans.modules.javacore.api.JavaModel;
 import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
 import org.netbeans.modules.javacore.jmiimpl.javamodel.UsageFinder;
 import org.netbeans.spi.navigator.NavigatorPanel;
+import org.openide.ErrorManager;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
@@ -119,7 +121,6 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
     public void panelDeactivated () {
         curContext.removeLookupListener(this);
         curContext = null;
-//        curModel.removeNotify();
         curModel = null;
         curData = null;
         panelUI.componentDeactivated();
@@ -205,7 +206,7 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
     private static class UsagesRoot extends AbstractNode {
         final JavaDataObject jdo;
         UsagesRoot (JavaDataObject jdo) {
-            super (new UC (jdo));
+            super (new UC (jdo), jdo.getNodeDelegate().getLookup());
             this.jdo = jdo;
             setDisplayName (jdo.getName());
             setIconBaseWithExtension (iconFor(jdo));
@@ -221,14 +222,17 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
     
     private static class UC extends Children.Keys implements Runnable {
         private final JavaDataObject jdo;
+        private boolean top;
         public UC (JavaDataObject jdo) {
             this.jdo = jdo;
+            top = true;
         }
         
         private ClassDefinition clazz;
         public UC (ClassDefinition clazz, JavaDataObject jdo) {
             this(jdo);
             this.clazz = clazz;
+            top = false;
         }
         
         Task task = null;
@@ -259,7 +263,7 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
                 return new Node[] { new UsagesRoot ((ClassDefinition) key, jdo) };
             } else {
                 ClassMember mem = (ClassMember) key;
-                return new Node[] {new MemberNode (mem, jdo)};
+                return new Node[] {new MemberNode (mem, clazz, jdo, top)};
             }
         }
         
@@ -269,6 +273,7 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
                 ClassDefinition[] cl = clazz == null ? classFor (jdo) : new ClassDefinition[] { clazz };
                 List keys;
                 if (cl.length == 1) {
+                    clazz = cl[0];
                     List l = cl[0].getChildren();
                     keys = new ArrayList(l.size());
                     for (Iterator i=l.iterator();i.hasNext();) {
@@ -297,12 +302,24 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
     
     private static class MemberNode extends AbstractNode {
         private final ClassMember member;
-        public MemberNode (ClassMember member, JavaDataObject dob) {
-            super (new MemberChildren (member, dob));
+        public MemberNode (ClassMember member, ClassDefinition clazz, JavaDataObject dob, boolean top) {
+            super (new MemberChildren (member, clazz, dob, top), dob.getNodeDelegate().getLookup());
             this.member = member;
-            setDisplayName(displayNameFor (member, dob));
-            setName (member.getName());
-            setIconBaseWithExtension (iconFor(member));
+            try {
+                setDisplayName(displayNameFor (member, clazz, dob));
+                setName (member.getName());
+                setIconBaseWithExtension (iconFor(member));
+            } catch (InvalidObjectException exe) {
+                setDisplayName ("Invalid...");
+            }
+
+            Children kids = getChildren();
+            if (kids instanceof MemberChildren) {
+                //Theoretically possible for the thread to be started from
+                //member children constructor and already be set to something
+                //else here.  But pretty unlikely.
+                ((MemberChildren) kids).node = this;
+            }
         }
         
         public Action[] getActions(boolean context) {
@@ -314,11 +331,203 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
         public Action getPreferredAction() {
             return getActions(false)[0];
         }
-    } 
+        
+        boolean knownLeaf = false;
+        void becomeLeaf () {
+            setChildren (Children.LEAF);
+            knownLeaf = true;
+            String s = getDisplayName();
+            fireDisplayNameChange(getDisplayName(), "<font color='gray'>" + getDisplayName());
+        }
+        
+        public String getHtmlDisplayName() {
+            return knownLeaf ?
+                "<font color=\"!controlShadow\">" + getDisplayName() : null;
+        }
+    }
     
-    private static String displayNameFor (ClassMember member, JavaDataObject dob) {
-        String base = member instanceof Constructor ? ((JavaClass)member.getDeclaringClass()).getSimpleName() : member.getName();
-        return getDataObject(member) == dob ? base : ((ClassDefinition) member.refImmediateComposite()).getName() + "." + base;
+    private static RequestProcessor rp2 = new RequestProcessor ();
+    private static void enqueue (MemberChildren children) {
+        synchronized (children) {
+            if (children.task == null) {
+                children.setQueueTask (rp2.post (children));
+            }
+        }
+    }
+    
+    private static class MemberChildren extends Children.Keys implements Runnable {
+        private final ClassMember member;
+        private final JavaDataObject editing;
+        private final ClassDefinition on;
+        public MemberChildren (ClassMember member, ClassDefinition clazz, JavaDataObject jdo, boolean top) {
+            this.member = member;
+            editing = jdo;
+            on = clazz;
+            if (top) {
+                enqueue (this);
+            }
+        }
+        MemberNode node = null;
+        
+        private Task queueTask = null;
+        synchronized void setQueueTask (Task task) {
+            queueTask = task;
+        }
+
+        private volatile boolean active = false;
+        private Task task = null;
+        public void addNotify() {
+            setKeys (Collections.singleton (new WaitNode()));
+            if (cachedKeys != null) {
+                setKeys (cachedKeys);
+            } else {
+                if (!active) {
+                    synchronized (this) {
+                        if (task == null) {
+                            task = rp.post (this);
+                        }
+                    }
+                }
+            }
+        }
+
+        private volatile boolean alive = false;
+        public void removeNotify() {
+            active = false;
+            alive = false;
+            synchronized (this) {
+                if (task != null) {
+                    task.cancel();
+                    task = null;
+                }
+                if (queueTask != null) {
+                    queueTask.cancel();
+                    queueTask = null;
+                }
+            }
+        }
+
+        protected Node[] createNodes(Object key) {
+            if (key instanceof WaitNode) {
+                return new Node[] { (Node) key };
+            } else {
+                return new Node[] { new MemberNode ((ClassMember) key, on, editing, true) };
+            }
+        }
+
+        private Collection cachedKeys = null;
+        public void run() {
+            try {
+                alive = true;
+                synchronized (this) {
+                    if (rp.isRequestProcessorThread() && queueTask != null) {
+                        queueTask.cancel();
+                        queueTask = null;
+                    }
+                }
+                if (!alive) {
+                    return;
+                }
+                JavaMetamodel.getDefaultRepository().beginTrans(false);
+                Set l = new HashSet();
+                try {
+                    //Getting some InvalidObjectExceptions despite the transaction lock,
+                    //from the usagesfinder iterator.  Try to reduce by pre-cooking a new
+                    //collection
+                    Collection c;
+                    try {
+                        c = new ArrayList (findDependencies(member, true, false, false));
+                    } catch (InvalidObjectException ioe) {
+                        try {
+                            //UsagesFinder bug - give it another shot
+                            c = new ArrayList (findDependencies(member, true, false, false));
+                            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+                        } catch (InvalidObjectException ioe2) {
+                            c = Collections.EMPTY_LIST;
+                            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe2);
+                        }
+                    }
+                    for (Iterator it = c.iterator(); it.hasNext();) {
+                        Object elem = (Object) it.next();
+                        elem = findClassMember (elem);
+                        if (elem != null && (elem instanceof Method || elem instanceof Field || elem instanceof Constructor)) {
+                            l.add (elem);
+                        }
+                        if (!alive) {
+                            return;
+                        }
+                    }
+                } finally {
+                    JavaMetamodel.getDefaultRepository().endTrans();
+                }
+                if (l.isEmpty() && node != null) {
+                    node.becomeLeaf ();
+                } else {
+                    cachedKeys = l;
+                    setKeys (l);
+                }
+            } finally {
+                active = true;
+                synchronized (this) {
+                    task = null;
+                    queueTask = null;
+                }
+            }
+        }
+    }
+    
+    private static void recurseDisplayNameFor (JavaClass def, ClassDefinition last, StringBuffer s) {
+        if (def == null) {
+            return;
+        }
+        String cname = def.getSimpleName();
+        
+        s.insert (0, cname + ".");
+        if (def.getDeclaringClass() != null) {
+            JavaClass owner = (JavaClass) def.getDeclaringClass();
+            if (owner != last) {
+                recurseDisplayNameFor (owner, last, s);
+            }
+        }
+    }
+    
+    private static String displayNameFor (ClassMember member, ClassDefinition expectedOn, JavaDataObject dob) {
+        if (member instanceof ClassDefinition || !(member.getDeclaringClass() instanceof JavaClass)) {
+            //What is a ClassDefinition$Impl, anyway?
+            return member.getName();
+        }
+        JavaClass declaring = (JavaClass) member.getDeclaringClass();
+        String base = member instanceof Constructor ? (
+                (JavaClass)member.getDeclaringClass()).getSimpleName() : 
+                member.getName();
+        
+        boolean differentFile = dob != getDataObject(member);
+        if (differentFile || declaring != expectedOn) {
+            StringBuffer sb = new StringBuffer(base);
+            recurseDisplayNameFor (declaring, expectedOn, sb);
+            return sb.toString();
+        }
+        return base;
+    }
+    
+    private static String minimize (String name) {
+        if (name == null) {
+            return "?";
+        }
+        if (name.length() <= 4) {
+            return name;
+        }
+        char[] c = name.toCharArray();
+        StringBuffer sb = new StringBuffer();
+        for (int i=0; i < c.length; i++) {
+            if (Character.isUpperCase(c[i])) {
+                sb.append (c[i]);
+            }
+        }
+        if (sb.length() == 0) {
+            return name;
+        }
+        return sb.toString();
     }
         
     private static final class OC extends AbstractAction {
@@ -356,65 +565,6 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
             }
         }
         return null;
-    }
-    
-    
-    
-    private static class MemberChildren extends Children.Keys implements Runnable {
-        private final ClassMember member;
-        private final JavaDataObject editing;
-        public MemberChildren (ClassMember member, JavaDataObject jdo) {
-            this.member = member;
-            editing = jdo;
-        }
-        
-        private volatile boolean active = false;
-        private Task task = null;
-        public void addNotify() {
-            setKeys (Collections.singleton (new WaitNode()));
-            synchronized (this) {
-                if (task == null) {
-                    task = rp.post (this);
-                }
-            }
-            active = true;
-        }
-        
-        public void removeNotify() {
-            synchronized (this) {
-                if (task != null) {
-                    task.cancel();
-                }
-            }
-            active = false;
-        }
-        
-        protected Node[] createNodes(Object key) {
-            if (key instanceof WaitNode) {
-                return new Node[] { (Node) key };
-            } else {
-                return new Node[] { new MemberNode ((ClassMember) key, editing) };
-            }
-        }
-
-        public void run() {
-            try {
-                Collection c = findDependencies(member, true, false, false);
-                Set l = new HashSet(c.size());
-                for (Iterator it = c.iterator(); it.hasNext();) {
-                    Object elem = (Object) it.next();
-                    elem = findClassMember (elem);
-                    if (elem != null && (elem instanceof Method || elem instanceof Field || elem instanceof Constructor)) {
-                        l.add (elem);
-                    }
-                }
-                setKeys (l);
-            } finally {
-                synchronized (this) {
-                    task = null;
-                }
-            }
-        }
     }
     
     private static class WaitNode extends AbstractNode {
@@ -590,6 +740,7 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
     //Everything from here is copied from CallableFeatureImpl
     
     public static Collection findDependencies(ClassMember member, boolean findUsages, boolean fromBaseClass, boolean findOverridingMethods) {
+        
         Resource[] res = findReferencedResources(member, true);
         
         if (!fromBaseClass || (fromBaseClass && member instanceof CallableFeature && !isOverriden((CallableFeature)member))) {
