@@ -236,7 +236,9 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
         public void addNotify() {
             setKeys (Collections.singleton(new WaitNode()));
             synchronized (this) {
-                task = rp.post(this);
+                if (task == null) {
+                    task = rp.post(this);
+                }
             }
         }
         
@@ -371,7 +373,9 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
         public void addNotify() {
             setKeys (Collections.singleton (new WaitNode()));
             synchronized (this) {
-                Task task = rp.post (this);
+                if (task == null) {
+                    task = rp.post (this);
+                }
             }
             active = true;
         }
@@ -694,5 +698,5 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
             }
         }
         return false;
-    }   
+    }
 }
