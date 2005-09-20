@@ -16,7 +16,9 @@ package org.netbeans.modules.vcscore;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 import org.netbeans.modules.vcscore.grouping.VcsGroupMenuAction;
+import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
 import org.openide.modules.ModuleInstall;
+import org.openide.windows.TopComponent;
 
 /**
  * Redistributes notifications about module lifetime.
@@ -34,9 +36,18 @@ public final class VcsModule extends ModuleInstall {
     public void uninstalled() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                VersioningExplorer.getRevisionExplorer().close();
-                VcsGroupMenuAction.GroupExplorerPanel.getDefault().close();
+                close(VersioningExplorer.getRevisionExplorer());
+                close(VcsGroupMenuAction.GroupExplorerPanel.getDefault());
+                close(CommandOutputTopComponent.getDefault());
             }
         });
+    }
+
+    private void close(TopComponent component) {
+        try {
+            component.close();
+        } catch (Exception e) {
+            // ignore exceptions from dead components
+        }
     }
 }
