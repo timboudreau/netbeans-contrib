@@ -85,9 +85,12 @@ public class GeneralCommandAction extends NodeAction {
     private static transient HashMap suppMap;
     
     private static transient WeakReference nodesRef;
+    
+    private ThreadLocal creation = new ThreadLocal();
 
     
     protected GeneralCommandAction() {
+        creation.set(Boolean.TRUE);
     }
     
     
@@ -319,7 +322,12 @@ public class GeneralCommandAction extends NodeAction {
                 }
             } else {
                 boolean isFSAction = false;
-                javax.swing.Action[] actions = nodes[i].getActions(true);
+                javax.swing.Action[] actions;
+                if (creation.get() == Boolean.TRUE) {
+                    actions = new javax.swing.Action[] {};
+                } else {
+                    actions = nodes[i].getActions(true);
+                }
                 for (int a = 0; a < actions.length; a++) {
                     if (actions[a] instanceof FileSystemAction) {
                         isFSAction = true;
