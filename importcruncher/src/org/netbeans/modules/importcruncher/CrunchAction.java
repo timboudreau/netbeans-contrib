@@ -29,6 +29,7 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.jmi.javamodel.ArrayReference;
+import org.netbeans.jmi.javamodel.ClassDefinition;
 import org.netbeans.jmi.javamodel.Element;
 import org.netbeans.jmi.javamodel.Import;
 import org.netbeans.jmi.javamodel.JavaClass;
@@ -137,7 +138,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
     private boolean eliminateFQNs = true;
     private boolean sort = true;
     private boolean breakUp = true;
-
+    private boolean allowImportInners = true; //XXX
 
     private void process(final Document d, final ProgressHandle ph) {
         if (!(d instanceof BaseDocument)) {
@@ -213,6 +214,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
         private Set elementsImportedByWildcard = null;
         private Set referencedClassesInSource = null;
         private Set fqnsInSource = new HashSet();
+        private Set innerNamesInSource = new HashSet();
         private void buildInfo() {
             if (wildcardImports != null) {
                 return;
@@ -235,7 +237,33 @@ public final class CrunchAction extends CookieAction implements Comparator {
                     }
                 }
             }
+            
+            for (Iterator i=r.getClassifiers().iterator(); i.hasNext();) {
+                ClassDefinition def = (ClassDefinition) i.next();
+                iterClasses (def);
+            }
         }
+        
+        private void iterClasses (ClassDefinition def) {
+            for (Iterator j=def.getFeatures().iterator(); j.hasNext();) {
+                Object o = j.next();
+                if (o instanceof ClassDefinition) {
+                    iterClasses ((ClassDefinition) o);
+                }
+            }
+            innerNamesInSource.add (simpleName(def));
+        }
+        
+        private String simpleName (ClassDefinition def) {
+            if (def instanceof JavaClass) {
+                return ((JavaClass) def).getSimpleName();
+            } else {
+                String nm = def.getName();
+                int ix = nm.lastIndexOf(".");
+                return nm.substring(ix+1);
+            }
+        }
+        
         public static final int ELIMINATE_WILDCARDS = 1;
         public static final int REPLACE_IMPORTS = 2;
         public static final int ELIMINATE_FQNS = 3;
@@ -280,7 +308,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                 cd = (JavaClass) el;
             }
             return cd;
-        }
+        }       
         
         public void eliminateWildcards() {
             if (!wildcardImports.isEmpty()) {
@@ -348,6 +376,17 @@ public final class CrunchAction extends CookieAction implements Comparator {
             }
         }
         
+        private String semiSimpleName (JavaClass type) {
+            StringBuffer sb = new StringBuffer (type.getSimpleName());
+            JavaClass par = (JavaClass) type.getDeclaringClass();
+            while (par != null) {
+                sb.insert(0, '.');
+                sb.insert(0, par.getSimpleName());
+                par = (JavaClass) par.getDeclaringClass();
+            }
+            return sb.toString();
+        }
+        
        public void eliminateFqns() {
            buildInfo();
            List changes = new ArrayList(20);
@@ -356,7 +395,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                MultipartId id = (MultipartId) i.next();
                if (id.getType() instanceof JavaClass) {  //Skip unresolved classes
                    JavaClass type = (JavaClass) id.getType();
-                   if (!ambiguous(type)) {
+                    if (!ambiguous(type)) {
                        MultipartId startId = id;
                        while (startId.getParent() != null) {
                            MultipartId old = startId;
@@ -364,9 +403,22 @@ public final class CrunchAction extends CookieAction implements Comparator {
                            old.setParent(null);
                        }
                        if (startId != id) {
-                           startId.setName(type.getSimpleName());
-                           Data dta = new Data (0, 0, type.getSimpleName(), (JavaClass) id.getType());
-                           changes.add (dta);
+                            Data data;
+                            JavaClass toImport = outermost(type);
+                            if (!allowImportInners) {
+                                String replaceWith = semiSimpleName(type);
+                                System.err.println("REPLACE " + id.getName() + " with " + replaceWith);
+
+                                startId.setName(replaceWith);
+                                data = new Data (replaceWith, 
+                                        toImport);
+                            } else {
+                                System.err.println("For " + type.getName() + " IMPORT " + toImport.getName());
+                                startId.setName (type.getSimpleName());
+                                data = new Data (type.getSimpleName(), 
+                                        (JavaClass) id.getType());
+                            }
+                           changes.add (data);
                            i.remove();
                        }
                    }
@@ -374,13 +426,15 @@ public final class CrunchAction extends CookieAction implements Comparator {
            }
            if (!changes.isEmpty()) {
                dtas = (Data[]) changes.toArray(new Data[0]);
-               Arrays.sort(dtas);
            }
         }  
 
         private boolean ambiguous (JavaClass clazz) {
             //XXX handle static imports too
             String simple = clazz.getSimpleName();
+            if (innerNamesInSource.contains(simple)) {
+                return true;
+            }
             for (Iterator i=elementsImportedByWildcard.iterator(); i.hasNext();) {
                 Object o = i.next();
                 if (o instanceof JavaClass) { //May be a method or field if static import
@@ -400,25 +454,16 @@ public final class CrunchAction extends CookieAction implements Comparator {
         }       
     }
    
-    private static final class Data implements Comparable {
-        final int start, end;
+    private static final class Data {
         final String nue;
         final JavaClass type;
-        public Data (int start, int end, String nue, JavaClass type) {
-            this.start = start;
-            this.end = end;
+        public Data (String nue, JavaClass type) {
             this.nue = nue;
             this.type = type;
         }
 
-        public int compareTo(Object o) {
-            Data dta = (Data) o;
-            //reverse sort
-            return dta.start - start;
-        }
-        
         public String toString() {
-            return type.getName() + " " + start + ":" + end + " -> '" + nue + "'";
+            return type.getName() + " -> '" + nue + "'";
         }
     }
     
@@ -590,6 +635,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
             if (max <= 1) {
                 return;
             }
+            String src = r.getSourceText();
             Import prev = (Import) nue.get(max + 1);
             //First iterate the imports backward and build a
             //list of all imports where the next import's first
@@ -614,35 +660,37 @@ public final class CrunchAction extends CookieAction implements Comparator {
                     break;
                 }
                 if (nuline) {
+                    int newlineCount;
+                    String s;
+                    int pos = curr.getEndOffset();
+                    int end = Math.min (src.length()-1, pos + 30);
                     try {
-                        int newlineCount;
-
-                        int end = curr.getEndOffset();
-                        String s = d.getText(end-1, Math.min (d.getLength(), end + 25));
-                        //Make sure there's only 1 \n before the next line
-                        //We don't want to double the blank spaces each
-                        //time
-                        if (s.indexOf("\n") != -1) { //NOI18N
-                            newlineCount = 1;
-                            char[] c = s.toCharArray();
-                            for (int j=s.indexOf("\n") + 1; j < c.length; j++) {
-                                if (c[j] == '\n') {
-                                    newlineCount++;
-                                    if (newlineCount >= 2) {
-                                        break;
-                                    }
-                                } else if (!Character.isWhitespace(c[j])) {
+                        s = src.substring(pos-1, end);
+                    } catch (StringIndexOutOfBoundsException sioobe) {
+                        IllegalStateException e = new IllegalStateException(
+                                "Bad offsets length " + src.length() + " start " 
+                                + pos + " end " + end,sioobe);
+                        throw e;
+                    }
+                    //Make sure there's only 1 \n before the next line
+                    //We don't want to double the blank spaces each
+                    //time
+                    if (s.indexOf("\n") != -1) { //NOI18N
+                        newlineCount = 1;
+                        char[] c = s.toCharArray();
+                        for (int j=s.indexOf("\n") + 1; j < c.length; j++) {
+                            if (c[j] == '\n') {
+                                newlineCount++;
+                                if (newlineCount >= 2) {
                                     break;
                                 }
-                            }
-                            if (newlineCount <= 1) {
-                                positions.add (new Integer(end));
+                            } else if (!Character.isWhitespace(c[j])) {
+                                break;
                             }
                         }
-                    } catch (BadLocationException ble) {
-                        //Harmless, just one line we won't modify.  But
-                        //should never happen
-                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ble);
+                        if (newlineCount <= 1) {
+                            positions.add (new Integer(pos));
+                        }
                     }
                 }
                 prev = curr;
@@ -652,8 +700,6 @@ public final class CrunchAction extends CookieAction implements Comparator {
             Integer[] ints = new Integer[positions.size()];
             ints = (Integer[]) positions.toArray(ints);
             Arrays.sort (ints);
-            //positions array is already in reverse order
-//            for (int i=ints.length-1; i >= 0; i--) {
              for (int i=0; i < ints.length; i++) {
                  int pos = ints[i].intValue();
                  DiffElement diff = new DiffElement (pos, pos, "\n");
