@@ -298,14 +298,22 @@ public final class CrunchAction extends CookieAction implements Comparator {
             }
         }
         
-        private JavaClass outermost (JavaClass cd) {
+        private JavaClass outermost (JavaClass cd, List inners) {
             while (cd != null && cd.isInner()) {
+                if (inners != null) {
+                    inners.add(0, cd);
+                }
                 //Parent may be a method if it's a class defined in a method
+                //We shouldn't ever try to import one, but we can get one.
                 Element el = (Element) cd.refImmediateComposite();
                 while (el != null && !(el instanceof JavaClass)) {
                     el = (Element) el.refImmediateComposite();
                 }
                 cd = (JavaClass) el;
+                if (inners != null && cd != null && !cd.isInner()) {
+                    //Add the base one to the list of inners, for id generation
+                    inners.add(0, cd);
+                }
             }
             return cd;
         }       
@@ -325,7 +333,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                         } else {
                             importString = null;
                         }
-                        if (classesInSource.contains(cd) || (cd.isInner() && classesInSource.contains(outermost(cd)))) {
+                        if (classesInSource.contains(cd) || (cd.isInner() && classesInSource.contains(outermost(cd, null)))) {
                             importString = null;
                         }
                         if (importString != null && !explicitImports.contains(importString)) {
@@ -361,6 +369,9 @@ public final class CrunchAction extends CookieAction implements Comparator {
                     pkgName = typeName.substring(0, typeName.length() - type.getSimpleName().length()-1);
                 } else {
                     pkgName = ""; //name == simplename : default package
+                }
+                if (type.refImmediatePackage().equals(r.refImmediatePackage()) && (!type.isInner() || !allowImportInners)) {
+                    continue;
                 }
                     
                 String typeStr = type.getName();
@@ -401,6 +412,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                    }
                     if (!ambiguous(type)) {
                        MultipartId startId = id;
+                       Element context = (Element) startId.refImmediateComposite();
                        while (startId.getParent() != null) {
                            MultipartId old = startId;
                            startId = startId.getParent();
@@ -409,15 +421,38 @@ public final class CrunchAction extends CookieAction implements Comparator {
                        if (startId != id) {
                             Data data;
                             if (!allowImportInners) {
-                                JavaClass toImport = outermost(type);
+                                List inners = new ArrayList();
+                                JavaClass toImport = outermost(type, inners);
+                                if (!inners.isEmpty()) {
+                                    MultipartId nue = jpkg.getMultipartId().createMultipartId();
+                                    MultipartId base = nue;
+                                    nue.setName(type.getSimpleName());
+                                    StringBuffer sb = new StringBuffer();
+                                    for (Iterator it = inners.iterator(); it.hasNext();) {
+                                        JavaClass elem = (JavaClass) it.next();
+                                        nue.setName(elem.getSimpleName());
+                                        sb.append (elem.getSimpleName());
+                                        if (i.hasNext()) {
+                                            sb.append ('.');
+                                            MultipartId prev = nue;
+                                            nue = jpkg.getMultipartId().createMultipartId();
+                                            nue.setParent(prev);
+                                        }
+                                    }
+                                    System.err.println("ONE ELEMENT: " + sb);
+                                    //UGH!  Creating a tree of MultipartIds doesn't work
+                                    //either - you still just get one.  How the heck do
+                                    //you do this?!
+//                                    context.replaceChild(startId, base);
+                                    startId.setName (sb.toString());
+                                } else {
+                                    startId.setName(type.getSimpleName());
+                                }
+                                
                                 String replaceWith = semiSimpleName(type);
-                                System.err.println("REPLACE " + id.getName() + " with " + replaceWith);
-
-                                startId.setName(replaceWith);
                                 data = new Data (replaceWith, 
                                         toImport);
                             } else {
-                                System.err.println("For " + type.getName() + " IMPORT " + type.getName());
                                 startId.setName (type.getSimpleName());
                                 data = new Data (type.getSimpleName(), 
                                         (JavaClass) id.getType());
