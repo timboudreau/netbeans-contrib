@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-<!--    <folder name="Menu">
-        <folder name="Source">
-            <file name="org-netbeans-modules-importcruncher-CrunchAction.instance"/>
-        </folder>
-    </folder>-->
-    
-    
     <folder name="Actions">
         <folder name="Refactoring">
             <file name="org-netbeans-modules-importcruncher-CrunchAction.instance">
@@ -19,11 +12,11 @@
         <folder name="text">
             <folder name="x-java">
                 <folder name="Popup">
-                    <attr name="org-netbeans-modules-refactoring-ui-RSMEditorAction.instance/org-netbeans-modules-importcruncher-CrunchAction.shadow" boolvalue="true"/>
+                    <attr name="fix-imports/org-netbeans-modules-importcruncher-CrunchAction.shadow" boolvalue="true"/>
                     <file name="org-netbeans-modules-importcruncher-CrunchAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-importcruncher-CrunchAction.instance"/>
                     </file>
-                    <attr name="org-netbeans-modules-importcruncher-CrunchAction.shadow/goto-help" boolvalue="true"/>
+                    <attr name="org-netbeans-modules-importcruncher-CrunchAction.shadow/try-catch" boolvalue="true"/>
                 </folder>
             </folder>
         </folder>
@@ -38,7 +31,7 @@
         </folder>
         <folder name="Tools">
             <file name="org-netbeans-modules-importcruncher-PrefsAction.instance"/>
-            <attr name="org-netbeans-modules-options-OptionsWindowAction.shadow/org-netbeans-modules-importcruncher-PrefsAction.instance"/>
+            <attr name="org-netbeans-modules-options-OptionsWindowAction.shadow/org-netbeans-modules-importcruncher-PrefsAction.instance" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="Shortcuts">
