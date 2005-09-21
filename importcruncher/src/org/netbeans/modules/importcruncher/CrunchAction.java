@@ -395,6 +395,10 @@ public final class CrunchAction extends CookieAction implements Comparator {
                MultipartId id = (MultipartId) i.next();
                if (id.getType() instanceof JavaClass) {  //Skip unresolved classes
                    JavaClass type = (JavaClass) id.getType();
+                   if (type.refImmediatePackage().equals(r.refImmediatePackage()) && !type.isInner()) {
+                       //Don't import from same package
+                       continue;
+                   }
                     if (!ambiguous(type)) {
                        MultipartId startId = id;
                        while (startId.getParent() != null) {
@@ -404,8 +408,8 @@ public final class CrunchAction extends CookieAction implements Comparator {
                        }
                        if (startId != id) {
                             Data data;
-                            JavaClass toImport = outermost(type);
                             if (!allowImportInners) {
+                                JavaClass toImport = outermost(type);
                                 String replaceWith = semiSimpleName(type);
                                 System.err.println("REPLACE " + id.getName() + " with " + replaceWith);
 
@@ -413,7 +417,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                                 data = new Data (replaceWith, 
                                         toImport);
                             } else {
-                                System.err.println("For " + type.getName() + " IMPORT " + toImport.getName());
+                                System.err.println("For " + type.getName() + " IMPORT " + type.getName());
                                 startId.setName (type.getSimpleName());
                                 data = new Data (type.getSimpleName(), 
                                         (JavaClass) id.getType());
