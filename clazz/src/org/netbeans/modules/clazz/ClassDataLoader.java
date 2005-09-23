@@ -53,23 +53,9 @@ public final class ClassDataLoader extends MultiFileLoader {
         return NbBundle.getMessage (ClassDataLoader.class, "PROP_ClassLoader_Name");
     }
     
-    protected synchronized SystemAction[] defaultActions() {
-        return new SystemAction [] {
-            SystemAction.get(OpenAction.class),
-            SystemAction.get(FileSystemAction.class),
-            null,
-            SystemAction.get(CutAction.class),
-            SystemAction.get(CopyAction.class),
-            SystemAction.get(PasteAction.class),
-            null,
-            SystemAction.get(DeleteAction.class),
-            null,
-            SystemAction.get(SaveAsTemplateAction.class),
-            null,
-            SystemAction.get(ToolsAction.class),
-            SystemAction.get(PropertiesAction.class),
-        };
-    }
+     protected String actionsContext () {
+        return "Loaders/application/x-java-class/Actions/";               //NOI18N
+     }    
 
     /** For a given file finds a primary file.
     * @param fo the file to find primary file for
