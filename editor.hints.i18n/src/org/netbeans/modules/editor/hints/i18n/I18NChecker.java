@@ -24,7 +24,6 @@ import org.netbeans.modules.i18n.HardCodedString;
 import org.netbeans.modules.i18n.I18nString;
 import org.netbeans.modules.i18n.java.JavaI18nSupport;
 import org.netbeans.modules.properties.BundleStructure;
-import org.netbeans.modules.properties.Element;
 import org.netbeans.modules.properties.Element.ItemElem;
 import org.netbeans.modules.properties.PropertiesDataObject;
 import org.netbeans.modules.properties.PropertiesStructure;
@@ -32,6 +31,7 @@ import org.netbeans.spi.editor.hints.ChangeInfo;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.Fix;
+import org.netbeans.spi.editor.hints.ProvidersList;
 import org.netbeans.spi.editor.hints.support.ErrorParserSupport;
 import org.openide.ErrorManager;
 import org.openide.cookies.LineCookie;
@@ -53,9 +53,16 @@ public class I18NChecker extends ErrorParserSupport {
     }
 
     public List parseForErrors(final Document doc) {
+        if (!ProvidersList.isProviderEnabled(I18NProviderDescription.I18N_ERROR_PROVIDER))
+            return Collections.EMPTY_LIST;
+        
         //TODO: generate unique 
         try {
             final DataObject od = (DataObject) doc.getProperty(Document.StreamDescriptionProperty);
+            
+            if (od == null)
+                return Collections.EMPTY_LIST;
+            
             final JavaI18nSupport support = new JavaI18nSupport(od);
             final HardCodedString[] hcs = support.getFinder().findAllHardCodedStrings();
             final List result = new ArrayList();
@@ -130,7 +137,10 @@ public class I18NChecker extends ErrorParserSupport {
                             return null;
                         }
                     };
-                    result.add(ErrorDescriptionFactory.createErrorDescription(ErrorDescription.SEVERITY_VERIFIER, "Hardcoded String", Arrays.asList(new Object[] {addToBundle, addNOI18N}), getLinePart(doc, od, hcs[cntr])));
+                    
+                    int severity = ProvidersList.getErrorSeverity(I18NProviderDescription.I18N_ERROR_PROVIDER, I18NProviderDescription.HARDCODED_STRINGS);
+
+                    result.add(ErrorDescriptionFactory.createErrorDescription(severity, "Hardcoded String", Arrays.asList(new Object[] {addToBundle, addNOI18N}), getLinePart(doc, od, hcs[cntr])));
                 }
             }
             
