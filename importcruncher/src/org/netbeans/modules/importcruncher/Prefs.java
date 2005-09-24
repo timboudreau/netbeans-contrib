@@ -44,6 +44,7 @@ class Prefs {
     private static final String BREAKUP = "breakup"; //NOI18N
     private static final String NO_FQNS = "eliminateFqns"; //NOI18N
     private static final String SORT = "sort"; //NOI18N
+    private static final String IMPORT_INNERS = "importInners";
     private static final String NO_WILDCARDS = "eliminateWildcards"; //NOI18N
     private static final String SHOW_DIALOG = "showDialog"; //NOI18N
     
@@ -51,6 +52,7 @@ class Prefs {
        BREAKUP,
        NO_FQNS,
        SORT,
+       IMPORT_INNERS,
        NO_WILDCARDS,
        SHOW_DIALOG,
     };
@@ -74,6 +76,10 @@ class Prefs {
     
     public boolean isSort() {
         return get(SORT);
+    }
+    
+    public boolean isImportInners() {
+        return get(IMPORT_INNERS);
     }
     
     public boolean isBreakup() {

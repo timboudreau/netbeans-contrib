@@ -66,6 +66,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                 eliminateFQNs = prefs.isEliminateFqns();
                 eliminateWildcards = prefs.isEliminateWildcards();
                 sort = prefs.isSort();
+                allowImportInners = prefs.isImportInners();
             } else {
                 return;
             }
@@ -138,7 +139,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
     private boolean eliminateFQNs = true;
     private boolean sort = true;
     private boolean breakUp = true;
-    private boolean allowImportInners = true; //XXX
+    private boolean allowImportInners = false; //XXX
 
     private void process(final Document d, final ProgressHandle ph) {
         if (!(d instanceof BaseDocument)) {
@@ -152,53 +153,48 @@ public final class CrunchAction extends CookieAction implements Comparator {
             Toolkit.getDefaultToolkit().beep();
             return;
         }
-
         process (resource, d, ph);
     }
     
-    private void process(Resource r, Document d, ProgressHandle ph) {
-        ImportProcessor ip = new ImportProcessor (r, d, ph);
-        ph.progress(1);
-        if (eliminateWildcards) {
-            JavaMetamodel.getDefaultRepository().beginTrans(true);
-            ip.setMode (ImportProcessor.ELIMINATE_WILDCARDS);
-            try {
-                ((BaseDocument) d).runAtomic(ip);
-            } finally {
-                JavaMetamodel.getDefaultRepository().endTrans();
+    private void process (final Resource r, final Document d, final ProgressHandle ph) {
+        final ImportProcessor ip = new ImportProcessor (r, d, ph);
+        JavaMetamodel.getDefaultRepository().beginTrans(true);
+        RuntimeException exc = null;
+        try {
+            ((BaseDocument) d).runAtomicAsUser(ip);
+        } catch (RuntimeException e) {
+            exc = e;
+            ErrorManager.getDefault().notify(exc);
+        } finally {
+            JavaMetamodel.getDefaultRepository().endTrans(exc != null);
+        }
+        //breakup() must run in its own transaction - we have moved things 
+        //around, so the model no longer has file positions for imports.
+        //Ending the transaction and starting another triggers a reparse,
+        //so this info will be there.
+
+        //Unfortunately no way to do all this as one undoable action - 
+        //the document lock must come after the repository is locked,
+        //so we can't wrap all of this in one runAtomicAsUser() :-(
+        try {
+            if (exc == null && breakUp) {
+                JavaMetamodel.getDefaultRepository().beginTrans(true);
+                try {
+                    breakup (r, d, ph);
+                } catch (RuntimeException e2) {
+                    exc = e2;
+                    ErrorManager.getDefault().notify(exc);
+                } finally {
+                    JavaMetamodel.getDefaultRepository().endTrans(exc != null);
+                }
             }
+        } finally {
+            ph.finish();
         }
-        ph.progress (20);
-        if (eliminateFQNs) {
-            ip.setMode(ImportProcessor.ELIMINATE_FQNS);
-            JavaMetamodel.getDefaultRepository().beginTrans(true);
-            try {
-                ((BaseDocument) d).runAtomic(ip);
-            } finally {
-                JavaMetamodel.getDefaultRepository().endTrans();
-            }
-            ph.progress (40);
-            ip.setMode(ImportProcessor.REPLACE_IMPORTS);
-            JavaMetamodel.getDefaultRepository().beginTrans(true);
-            try {
-                ((BaseDocument) d).runAtomic(ip);
-            } finally {
-                JavaMetamodel.getDefaultRepository().endTrans();
-            }
-        }
-        ph.progress(80);
-        if (sort) {
-            sort (r, d, ph);
-        }
-        ph.progress(90);
-        if (breakUp) {
-            breakup (r, d, ph);
-        }
-        ph.finish();
     }
     
     private class ImportProcessor implements Runnable {
-        private Data[] dtas;
+//        private Data[] dtas;
         private final Resource r;
         private final BaseDocument d;
         private final ProgressHandle ph;
@@ -209,11 +205,35 @@ public final class CrunchAction extends CookieAction implements Comparator {
             this.d = (BaseDocument) d;
         }
         
+        public void run() {
+            ph.progress(10);
+            JavaModel.setClassPath(r);
+            buildInfo();
+            ph.progress(20);
+            if (eliminateWildcards) {
+                createExplicitImportsForWildcardImports();
+                ph.progress(30);
+                deleteAllWildcardImports();
+            }
+            ph.progress(40);
+            if (eliminateFQNs) {
+                List /* <JavaClass> */ toImport = eliminateFqns();
+                ph.progress(60);
+                createExplicitImports(toImport);
+            }
+            ph.progress(80);
+            if (sort) {
+                sort (r, d, ph);
+            }
+            ph.progress(90);
+        }        
+        
         private Set wildcardImports = null;
         private Set explicitImports = null;
         private Set elementsImportedByWildcard = null;
         private Set referencedClassesInSource = null;
-        private Set fqnsInSource = new HashSet();
+        private Set /* <MultipartId> */ qualifiedNamesInSource = new HashSet();
+        private Set /* <MultipartId> */ unqualifiedNamesInSource = new HashSet();
         private Set innerNamesInSource = new HashSet();
         private void buildInfo() {
             if (wildcardImports != null) {
@@ -223,7 +243,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
             explicitImports = new HashSet();
             wildcardImports = new HashSet();
             elementsImportedByWildcard = new HashSet();
-            referencedClassesInSource = getAllReferencedClasses (r, d, fqnsInSource);
+            referencedClassesInSource = getAllReferencedClasses (r, d, qualifiedNamesInSource, unqualifiedNamesInSource);
             for (Iterator it = imps.iterator(); it.hasNext();) {
                 Import elem = (Import) it.next();
                 if (!elem.isStatic()) {
@@ -240,69 +260,48 @@ public final class CrunchAction extends CookieAction implements Comparator {
             
             for (Iterator i=r.getClassifiers().iterator(); i.hasNext();) {
                 ClassDefinition def = (ClassDefinition) i.next();
-                iterClasses (def);
+                buildListOfInnerClassNamesForAmbiguityCheck (def);
             }
         }
         
-        private void iterClasses (ClassDefinition def) {
+        private void buildListOfInnerClassNamesForAmbiguityCheck (ClassDefinition def) {
             for (Iterator j=def.getFeatures().iterator(); j.hasNext();) {
                 Object o = j.next();
                 if (o instanceof ClassDefinition) {
-                    iterClasses ((ClassDefinition) o);
+                    buildListOfInnerClassNamesForAmbiguityCheck ((ClassDefinition) o);
                 }
             }
-            innerNamesInSource.add (simpleName(def));
+            innerNamesInSource.add (getSimpleName(def));
         }
         
-        private String simpleName (ClassDefinition def) {
+        private String getSimpleName (ClassDefinition def) {
             if (def instanceof JavaClass) {
                 return ((JavaClass) def).getSimpleName();
             } else {
+                //Handle UnresolvedClass as best as possible
                 String nm = def.getName();
                 int ix = nm.lastIndexOf(".");
                 return nm.substring(ix+1);
             }
         }
         
-        public static final int ELIMINATE_WILDCARDS = 1;
-        public static final int REPLACE_IMPORTS = 2;
-        public static final int ELIMINATE_FQNS = 3;
-        private int mode = 0;
-        public void setMode (int mode) {
-            switch (mode) {
-                case ELIMINATE_WILDCARDS:
-                case REPLACE_IMPORTS:
-                case ELIMINATE_FQNS:
-                    break;
-                default:
-                    throw new IllegalArgumentException (Integer.toString(mode));
+        private String getPackageName (MultipartId id) {
+            if (!(id.getType() instanceof JavaClass)) {
+                return null;
             }
-            this.mode = mode;
-        }
-        
-        public void run() {
-            JavaModel.setClassPath(r);
-            buildInfo();
-            switch (mode) {
-                case REPLACE_IMPORTS :
-                    replaceImports();
-                    break;
-                case ELIMINATE_FQNS :
-                    eliminateFqns();
-                    break;
-                case ELIMINATE_WILDCARDS:
-                    eliminateWildcards();
-                    break;
-                default :
-                    throw new IllegalArgumentException (Integer.toString(mode));
+            JavaClass jc = (JavaClass) id.getType();
+            JavaClass out = getOutermostClass (jc);
+            String nm = out.getName();
+            int minus = out.getSimpleName().length() + 1;
+            if (nm.length() - minus <= 0) {
+                return "";
+            } else {
+                return nm.substring (0, nm.length() - minus);
             }
         }
         
-        private JavaClass outermost (JavaClass cd, List inners) {
+        private JavaClass getOutermostClass (JavaClass cd) {
             while (cd != null && cd.isInner()) {
-                if (inners != null) {
-                    inners.add(0, cd);
-                }
                 //Parent may be a method if it's a class defined in a method
                 //We shouldn't ever try to import one, but we can get one.
                 Element el = (Element) cd.refImmediateComposite();
@@ -310,15 +309,27 @@ public final class CrunchAction extends CookieAction implements Comparator {
                     el = (Element) el.refImmediateComposite();
                 }
                 cd = (JavaClass) el;
-                if (inners != null && cd != null && !cd.isInner()) {
-                    //Add the base one to the list of inners, for id generation
-                    inners.add(0, cd);
-                }
             }
             return cd;
-        }       
+        }
         
-        public void eliminateWildcards() {
+        private boolean isJavaLang (ClassDefinition cd) {
+            return cd.getName().startsWith("java.lang") && cd.getName().lastIndexOf('.') == "java.lang.".lastIndexOf('.');
+        }
+        
+        private Import createImportFor (JavaClass cd, JavaModelPackage pkg, List outerClassesInSource) {
+            if (
+                !pkg.equals(cd.refImmediatePackage()) && //It is not in the same package as the file we're chewing on
+                !outerClassesInSource.contains(cd) &&  //It is not a class defined in this file
+                !outerClassesInSource.contains(getOutermostClass(cd)) &&  //It is not a child of a class defined in this file
+                !isJavaLang(cd)) { //it is not in the java.lang.* namespace
+                return pkg.getImport().createImport(cd.getName(), null, false, false);
+            } else {
+                return null;
+            }
+        }        
+        
+        public void createExplicitImportsForWildcardImports() {
             if (!wildcardImports.isEmpty()) {
                 List imps = r.getImports();
                 List classesInSource = r.getClassifiers();
@@ -327,25 +338,20 @@ public final class CrunchAction extends CookieAction implements Comparator {
                     Object o = i.next();
                     if (o instanceof JavaClass) {
                         JavaClass cd = (JavaClass) o;
-                        String importString;
-                        if (!pkg.equals(cd.refImmediatePackage())) {
-                            importString = cd.getName();
-                        } else {
-                            importString = null;
-                        }
-                        if (classesInSource.contains(cd) || (cd.isInner() && classesInSource.contains(outermost(cd, null)))) {
-                            importString = null;
-                        }
-                        if (importString != null && !explicitImports.contains(importString)) {
-                            if (importString.startsWith("java.lang.") && importString.lastIndexOf(".") == "java.lang.".lastIndexOf(".")) {
-                                continue;
-                            }
+                        Import imp = createImportFor (cd, pkg, classesInSource);
+                        if (imp != null && !explicitImports.contains(imp.getName())) {
+                            String importString = imp.getName();
                             explicitImports.add(importString);
-                            Import imp=pkg.getImport().createImport(importString, null, false, false);
-                            imps.add (imp);
+                            imps.add(imp);
                         }
                     }
                 }
+            }
+        }
+        
+        public void deleteAllWildcardImports() {
+            if (!wildcardImports.isEmpty()) {
+                List imps = r.getImports();
                 for (Iterator i=imps.iterator();i.hasNext();) {
                     Import imp = (Import) i.next();
                     if (imp.isOnDemand() && !imp.isStatic()) {
@@ -356,19 +362,19 @@ public final class CrunchAction extends CookieAction implements Comparator {
             }
         }
         
-        public void replaceImports() {
+        public void createExplicitImports(List /* <JavaClass> */ classesToExplicitlyImport) {
             JavaModelPackage pkg = (JavaModelPackage) r.refImmediatePackage();
-            if (dtas == null) {
+            if (classesToExplicitlyImport == null) {
                 return;
             }
-            for (int i=0; i < dtas.length; i++) {
-                JavaClass type = dtas[i].type;
+            for (Iterator i=classesToExplicitlyImport.iterator(); i.hasNext();) {
+                JavaClass type = (JavaClass) i.next();
                 String typeName = type.getName();
                 String pkgName;
                 if (typeName != type.getSimpleName()) {
                     pkgName = typeName.substring(0, typeName.length() - type.getSimpleName().length()-1);
                 } else {
-                    pkgName = ""; //name == simplename : default package
+                    pkgName = ""; //default package
                 }
                 if (type.refImmediatePackage().equals(r.refImmediatePackage()) && (!type.isInner() || !allowImportInners)) {
                     continue;
@@ -387,86 +393,107 @@ public final class CrunchAction extends CookieAction implements Comparator {
             }
         }
         
-        private String semiSimpleName (JavaClass type) {
-            StringBuffer sb = new StringBuffer (type.getSimpleName());
-            JavaClass par = (JavaClass) type.getDeclaringClass();
-            while (par != null) {
-                sb.insert(0, '.');
-                sb.insert(0, par.getSimpleName());
-                par = (JavaClass) par.getDeclaringClass();
-            }
-            return sb.toString();
-        }
+       /**
+        * Get a qualified name for an inner class, or the simple name for an
+        * outer class. 
+        */
+       private String getQualifiedNameWithoutPackage (JavaClass type) {
+           StringBuffer sb = new StringBuffer (type.getSimpleName());
+           JavaClass par = (JavaClass) type.getDeclaringClass();
+           while (par != null) {
+               sb.insert(0, '.');
+               sb.insert(0, par.getSimpleName());
+               par = (JavaClass) par.getDeclaringClass();
+           }
+           return sb.toString();
+       }
+       
+       private boolean isSiblingOfResource (JavaClass type) {
+           //XXX handle case of inner siblings?  Don't see a need, but might be a corner case.
+           return type.refImmediatePackage().equals(r.refImmediatePackage()) && !type.isInner();
+       }
         
-       public void eliminateFqns() {
+       public List /* <JavaClass> */ eliminateFqns() {
            buildInfo();
            List changes = new ArrayList(20);
            JavaModelPackage jpkg = (JavaModelPackage) r.refImmediatePackage();
-           for (Iterator i=fqnsInSource.iterator(); i.hasNext();) {
+           for (Iterator i=qualifiedNamesInSource.iterator(); i.hasNext();) {
                MultipartId id = (MultipartId) i.next();
                if (id.getType() instanceof JavaClass) {  //Skip unresolved classes
-                   JavaClass type = (JavaClass) id.getType();
-                   if (type.refImmediatePackage().equals(r.refImmediatePackage()) && !type.isInner()) {
-                       //Don't import from same package
-                       continue;
-                   }
+                    JavaClass type = (JavaClass) id.getType();
+                    if (isSiblingOfResource(type)) {
+                        convertToUnqualifiedId (id, type);
+                        //Don't import from same package - skip adding this to the list of things to
+                        //import
+                        continue;
+                    }
                     if (!ambiguous(type)) {
-                       MultipartId startId = id;
-                       Element context = (Element) startId.refImmediateComposite();
-                       while (startId.getParent() != null) {
-                           MultipartId old = startId;
-                           startId = startId.getParent();
-                           old.setParent(null);
-                       }
-                       if (startId != id) {
-                            Data data;
+                       Element context = (Element) id.refImmediateComposite();
+                       if (id.getParent() != null) {  //Probably an FQN
+                            JavaClass addToList = null;
                             if (!allowImportInners) {
-                                List inners = new ArrayList();
-                                JavaClass toImport = outermost(type, inners);
-                                if (!inners.isEmpty()) {
-                                    MultipartId nue = jpkg.getMultipartId().createMultipartId();
-                                    MultipartId base = nue;
-                                    nue.setName(type.getSimpleName());
-                                    StringBuffer sb = new StringBuffer();
-                                    for (Iterator it = inners.iterator(); it.hasNext();) {
-                                        JavaClass elem = (JavaClass) it.next();
-                                        nue.setName(elem.getSimpleName());
-                                        sb.append (elem.getSimpleName());
-                                        if (i.hasNext()) {
-                                            sb.append ('.');
-                                            MultipartId prev = nue;
-                                            nue = jpkg.getMultipartId().createMultipartId();
-                                            nue.setParent(prev);
-                                        }
+                                JavaClass toImport = getOutermostClass(type);
+                                if (type.isInner()) {  //Not an FQN, a QN of an inner class Outer.Inner
+                                    MultipartId myId = convertToQualifiedIdForInnerClass(id, type);
+                                    if (myId != id) {
+                                        context.replaceChild(myId, id);
                                     }
-                                    System.err.println("ONE ELEMENT: " + sb);
-                                    //UGH!  Creating a tree of MultipartIds doesn't work
-                                    //either - you still just get one.  How the heck do
-                                    //you do this?!
-//                                    context.replaceChild(startId, base);
-                                    startId.setName (sb.toString());
-                                } else {
-                                    startId.setName(type.getSimpleName());
+                                } else {  //We're just stripping package names
+                                    convertToUnqualifiedId(id, type);
                                 }
-                                
-                                String replaceWith = semiSimpleName(type);
-                                data = new Data (replaceWith, 
-                                        toImport);
+                                String replaceWith = getQualifiedNameWithoutPackage(type);
+                                addToList = toImport;
                             } else {
-                                startId.setName (type.getSimpleName());
-                                data = new Data (type.getSimpleName(), 
-                                        (JavaClass) id.getType());
+                               if (isAlreadyUnqualifiedId(id, type)) {
+                                   //Nothing to do, save some time here
+                                   continue;
+                               }
+                               convertToUnqualifiedId(id, type);
+                               addToList = type;
                             }
-                           changes.add (data);
+                           changes.add (addToList);
                            i.remove();
                        }
                    }
-               }
-           }
+                }
+            }
            if (!changes.isEmpty()) {
-               dtas = (Data[]) changes.toArray(new Data[0]);
+               return changes;
+           } else {
+               return null;
            }
         }  
+       
+        private boolean isAlreadyUnqualifiedId (MultipartId id, JavaClass type) {
+            return idToName(id).equals(type.getSimpleName()) && !type.isInner();
+        }
+
+        private void convertToUnqualifiedId(final MultipartId id, final JavaClass type) {
+            stripParents (id);
+            id.setName(type.getSimpleName());
+        }
+
+        private MultipartId convertToQualifiedIdForInnerClass(final MultipartId id, final JavaClass type) {
+            MultipartId myId = id;
+            //Isolate it
+            for (Iterator j=id.getChildren().iterator(); j.hasNext();) {
+                MultipartId mid = (MultipartId) j.next();
+                mid.setParent(null);
+            }
+            myId = stripParents(myId);
+            //Set its name to the QN it should use.
+            id.setName (getQualifiedNameWithoutPackage(type));
+            return myId;
+        }
+
+        private MultipartId stripParents(MultipartId myId) {
+            while (myId.getParent() != null) {
+                MultipartId old = myId;
+                myId = myId.getParent();
+                old.setParent(null);
+            }
+            return myId;
+        }
 
         private boolean ambiguous (JavaClass clazz) {
             //XXX handle static imports too
@@ -493,19 +520,6 @@ public final class CrunchAction extends CookieAction implements Comparator {
         }       
     }
    
-    private static final class Data {
-        final String nue;
-        final JavaClass type;
-        public Data (String nue, JavaClass type) {
-            this.nue = nue;
-            this.type = type;
-        }
-
-        public String toString() {
-            return type.getName() + " -> '" + nue + "'";
-        }
-    }
-    
     private String nameOf (Import im) {
         NamedElement nm = im.getImportedNamespace();
         if (nm != null) {
@@ -534,10 +548,11 @@ public final class CrunchAction extends CookieAction implements Comparator {
         }
         return amt;
     }
-    private Set getAllReferencedClasses (Resource r, Document d, Set fqns) {
+    
+    private Set getAllReferencedClasses (Resource r, Document d, Set fqns, Set nonFqns) {
         HashSet unresolved = new HashSet();
         HashSet resolved = new HashSet();
-        findPotentialClassNames(r, unresolved, resolved, fqns, d);
+        findPotentialClassNames(r, unresolved, resolved, fqns, nonFqns, d);
         HashSet result = new HashSet();
         result.addAll(resolved);
 //        result.addAll(unresolved);
@@ -551,7 +566,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                 !id.getType().getName().equals(id.getName());
     }
     
-    private void findPotentialClassNames(Set set, Set resolved, Set fqns, Element elem, Set checkedElements, int level, Document doc) {
+    private void findPotentialClassNames(Set set, Set resolved, Set fqns, Set nonFqns, Element elem, Set checkedElements, int level, Document doc) {
         //borrowed from JavaFixAllImports
         Iterator iterator;
         level++;
@@ -565,6 +580,8 @@ public final class CrunchAction extends CookieAction implements Comparator {
 
             if (isFQN (id)) {
                 fqns.add(id);
+            } else {
+                nonFqns.add(id);
             }
             while (id.getParent() != null) {
                 id = id.getParent();
@@ -584,7 +601,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
             Element usedElem = (Element)iterator.next();
             if (!checkedElements.contains(usedElem)) {
                 checkedElements.add(usedElem);
-                findPotentialClassNames(set, resolved, fqns, usedElem, checkedElements, level, doc);
+                findPotentialClassNames(set, resolved, fqns, nonFqns, usedElem, checkedElements, level, doc);
             }
         }
     }
@@ -598,7 +615,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
         return "";
     }
     
-    private void findPotentialClassNames(Resource resource, Set unresolved, Set resolved, Set fqns, Document doc) {
+    private void findPotentialClassNames(Resource resource, Set unresolved, Set resolved, Set fqns, Set nonFqns, Document doc) {
         //borrowed from JavaFixAllImports
         HashSet checkedElements = new HashSet();
         Iterator iter = resource.getClassifiers().iterator();
@@ -609,7 +626,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
         }
         iter = resource.getClassifiers().iterator();
         while (iter.hasNext()) {
-            findPotentialClassNames(unresolved, resolved, fqns, (Element)iter.next(), 
+            findPotentialClassNames(unresolved, resolved, fqns, nonFqns, (Element)iter.next(), 
                     checkedElements, 0, doc);
         }
     }    
@@ -627,8 +644,8 @@ public final class CrunchAction extends CookieAction implements Comparator {
         StringBuffer buffer = new StringBuffer();
         idToName(buffer, id);
         return buffer.toString();
-    }    
-
+    }   
+    
     private void sort(Resource r, Document d, ProgressHandle ph) {
         final List l = r.getImports();
         if (l.size() == 0) {
@@ -639,27 +656,16 @@ public final class CrunchAction extends CookieAction implements Comparator {
         final boolean[] b = new boolean [imps.length];
         Arrays.sort (imps, this);
         final ArrayList copy = new ArrayList (l);
-        Runnable run = new Runnable() {
-            public void run() {
-                try {
-                    l.clear();
-                    l.addAll (Arrays.asList(imps));
-                } catch (Exception e) {
-                    if (!new HashSet(l).equals(new HashSet(copy))) {
-                        l.clear();
-                        l.addAll(copy);
-                        ErrorManager.getDefault().notify(e);
-                        return;
-                    }
-                } finally {
-                }
-            }
-        };
-        JavaMetamodel.getDefaultRepository().beginTrans(true);
         try {
-            ((BaseDocument) d).runAtomic(run);
-        } finally {
-            JavaMetamodel.getDefaultRepository().endTrans();
+            l.clear();
+            l.addAll (Arrays.asList(imps));
+        } catch (Exception e) {
+            if (!new HashSet(l).equals(new HashSet(copy))) {
+                l.clear();
+                l.addAll(copy);
+                ErrorManager.getDefault().notify(e);
+                return;
+            }
         }
     }
 
@@ -748,9 +754,9 @@ public final class CrunchAction extends CookieAction implements Comparator {
     };
     JavaMetamodel.getDefaultRepository().beginTrans(true);
     try {
-        ((BaseDocument) d).runAtomic(run);
+        ((BaseDocument) d).runAtomicAsUser(run);
     } finally {
-            JavaMetamodel.getDefaultRepository().endTrans();
+        JavaMetamodel.getDefaultRepository().endTrans();
     }
     }
 }
