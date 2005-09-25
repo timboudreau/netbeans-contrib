@@ -428,7 +428,9 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
                 if (!alive) {
                     return;
                 }
-                JavaMetamodel.getDefaultRepository().beginTrans(false);
+                //XXX cannot use the transaction lock here, it will deadlock
+                //with the editor
+//                JavaMetamodel.getDefaultRepository().beginTrans(false);
                 Set l = new HashSet();
                 try {
                     //Getting some InvalidObjectExceptions despite the transaction lock,
@@ -458,7 +460,7 @@ public final class UsagesTreePanel implements NavigatorPanel, LookupListener {
                         }
                     }
                 } finally {
-                    JavaMetamodel.getDefaultRepository().endTrans();
+//                    JavaMetamodel.getDefaultRepository().endTrans();
                 }
                 if (l.isEmpty() && node != null) {
                     node.becomeLeaf ();
