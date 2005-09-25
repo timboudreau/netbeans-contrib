@@ -714,7 +714,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                     } catch (StringIndexOutOfBoundsException sioobe) {
                         IllegalStateException e = new IllegalStateException(
                                 "Bad offsets length " + src.length() + " start " 
-                                + pos + " end " + end,sioobe);
+                                + pos + " end " + end);
                         throw e;
                     }
                     //Make sure there's only 1 \n before the next line
