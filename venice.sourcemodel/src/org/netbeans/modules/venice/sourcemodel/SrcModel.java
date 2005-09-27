@@ -255,7 +255,16 @@ public class SrcModel implements Model, Decorator {
 			break;
 		}
 		synchronized (kids) {
-		    kids.put (childrenType, result);
+		    //Another thread could have entered between the 
+		    //synch blocks;  rare, but double check it
+		    Object o2 = kids.get(childrenType);
+		    if (o2 instanceof Decorator.ChildrenHandle) {
+			result = (Decorator.ChildrenHandle) o;
+		    } else if (o2 instanceof List) {
+			result = new Decorator.ChildrenHandle.Fixed (obj, (List) o2, childrenType);
+		    } else {
+			kids.put (childrenType, result);
+		    }
 		}
 		return result;
 	    }
