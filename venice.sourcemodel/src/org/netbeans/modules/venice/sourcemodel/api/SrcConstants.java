@@ -20,14 +20,17 @@ package org.netbeans.modules.venice.sourcemodel.api;
  * @author Tim Boudreau
  */
 public interface SrcConstants {
-    public static final String CHILDREN_USAGES = "usages";
-    public static final String CHILDREN_CLOSURE = "closure";
-    public static final String CHILDREN_METHODS = "methods";
+    public static final String CHILDREN_USAGES = "usages"; //NOI18N
+    public static final String CHILDREN_CLOSURE = "closure"; //NOI18N
+    public static final String CHILDREN_MEMBERS = "members"; //NOI18N
+    public static final String CHILDREN_PARENTCLASS = "parentClass"; //NOI18N
     
-    public static final String KEY_KIND = "kind";
+    public static final String KEY_KIND = "kind"; //NOI18N
     
-    public static final String VAL_CLASS = "class";
-    public static final String VAL_METHOD = "method";
-    public static final String VAL_FIELD = "field";
-    public static final String VAL_CONSTRUCTOR = "constructor";
+    public static final String VAL_CLASS = "class"; //NOI18N
+    public static final String VAL_METHOD = "method"; //NOI18N
+    public static final String VAL_FIELD = "field"; //NOI18N
+    public static final String VAL_CONSTRUCTOR = "constructor"; //NOI18N
+    
+    public static final String MODEL_KIND_JAVA_SOURCE = "javaSource"; //NOI18N
 }

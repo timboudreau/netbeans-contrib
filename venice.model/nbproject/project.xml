@@ -5,7 +5,9 @@
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.venice.model</code-name-base>
             <module-dependencies/>
-            <public-packages/>
+            <public-packages>
+                <package>org.netbeans.modules.venice.model</package>
+            </public-packages>
         </data>
     </configuration>
 </project>

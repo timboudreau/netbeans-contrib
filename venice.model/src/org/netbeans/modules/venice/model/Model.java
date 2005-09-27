@@ -30,4 +30,5 @@ package org.netbeans.modules.venice.model;
 public interface Model {
     public Object getRoot();
     public Decorator getDecorator (Object o);
+    public String getModelKind();
 }

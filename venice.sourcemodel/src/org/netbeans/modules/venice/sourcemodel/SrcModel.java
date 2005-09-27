@@ -12,23 +12,38 @@
  */
 
 package org.netbeans.modules.venice.sourcemodel;
-
+import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.jmi.model.Feature;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.netbeans.jmi.javamodel.ClassDefinition;
+import org.netbeans.jmi.javamodel.ClassMember;
 import org.netbeans.jmi.javamodel.Constructor;
+import org.netbeans.jmi.javamodel.Element;
+import org.netbeans.jmi.javamodel.ElementReference;
 import org.netbeans.jmi.javamodel.Field;
+import org.netbeans.jmi.javamodel.Import;
 import org.netbeans.jmi.javamodel.Method;
 import org.netbeans.jmi.javamodel.NamedElement;
+import org.netbeans.jmi.javamodel.VariableAccess;
 import org.netbeans.modules.venice.model.Decorator;
+import org.netbeans.modules.venice.model.Decorator.ChildrenHandle;
 import org.netbeans.modules.venice.model.Model;
 import org.netbeans.modules.venice.sourcemodel.api.SrcConstants;
-/**
+import org.openide.util.RequestProcessor;
+import org.openide.util.RequestProcessor.Task;/**
  * SrcModel is a
  *
  * @author Tim Boudreau
@@ -38,6 +53,10 @@ public class SrcModel implements Model, Decorator {
     
     public SrcModel(NamedElement root) {
 	this.root = new JMIObjectWrapper(root);
+    }
+    
+    public String getModelKind() {
+	return SrcConstants.MODEL_KIND_JAVA_SOURCE;
     }
 
     public Object getRoot() {
@@ -106,11 +125,11 @@ public class SrcModel implements Model, Decorator {
     }
     
     private void startListeningTo (Object o) {
-	
+	//do nothing for now
     }
     
     private void stopListeningTo (Object o) {
-	
+	//do nothing for now
     }
     
     private JMIObjectWrapper toWrapper (Object o) {
@@ -123,7 +142,7 @@ public class SrcModel implements Model, Decorator {
     private class JMIObjectWrapper implements SrcConstants {
 	private final NamedElement obj;
 	private final String displayName;
-	private Map kids = null;
+	private Map kids = new HashMap(); //XXX make lazy
 	public JMIObjectWrapper (NamedElement obj) {
 	    this.obj = obj;
 	    if (obj instanceof Constructor) {
@@ -133,6 +152,10 @@ public class SrcModel implements Model, Decorator {
 	    } else {
 		displayName = obj.getName();
 	    }
+	}
+	
+	NamedElement getElement() {
+	    return obj;
 	}
 
         public String getDisplayName() {
@@ -165,15 +188,266 @@ public class SrcModel implements Model, Decorator {
 	    return obj.isValid();
         }
 
+	private String[] kidTypes = new String[] { CHILDREN_CLOSURE, CHILDREN_MEMBERS, CHILDREN_USAGES, CHILDREN_PARENTCLASS };
         public ChildrenHandle getChildren(String childrenType, boolean calculate) {
-	    List l = kids == null ? null : (List) kids.get(childrenType);
 	    if (!isValid()) {
 		return new Decorator.ChildrenHandle.Fixed (obj, childrenType);
-	    } else if (children != null) {
-		return new Decorator.ChildrenHandle.Fixed (obj, children, childrenType);
+	    }
+	    
+	    Object o;
+	    synchronized (kids) {
+		o = kids == null ? null : kids.get(childrenType);
+	    }
+	    
+	    List l = kids == null ? null : (List) kids.get(childrenType);
+	    
+	    if (o instanceof Decorator.ChildrenHandle) {
+		return (Decorator.ChildrenHandle) o;
+	    } else if (o instanceof List) {
+		return new Decorator.ChildrenHandle.Fixed (obj, (List) o, childrenType);
 	    } else {
-		//do something
+		int ix = Arrays.asList(kidTypes).indexOf(childrenType);
+		ChildrenHandle result = null;
+		switch (ix) {
+		    case 0 :
+			result = new MemberClosureChildrenHandle (this, CHILDREN_CLOSURE, true);
+			break;
+		    case 2 :
+			result = new UsagesChildrenHandle (this, CHILDREN_USAGES);
+			break;
+		    case 3 :
+			result = new ParentClassChildrenHandle (this, CHILDREN_PARENTCLASS);
+			break;
+		    case 1 :
+		    default :
+			if (obj instanceof ClassDefinition) {
+			    result = new MembersChildrenHandle (this, CHILDREN_MEMBERS);
+			} else {
+			    result = new Decorator.ChildrenHandle.Fixed (obj, childrenType);
+			}
+			break;
+		}
+		synchronized (kids) {
+		    kids.put (childrenType, result);
+		}
+		return result;
 	    }
         }
+	
     }
+    
+    private abstract static class AsynchChildren implements Decorator.ChildrenHandle, Runnable {
+	protected final JMIObjectWrapper w;
+	private final String type;
+	protected volatile boolean done = false;
+	protected AsynchChildren (JMIObjectWrapper w, String type) {
+	    this.w = w;
+	    this.type = type;
+	}
+	
+	public void run() {
+	    if (!EventQueue.isDispatchThread()) {
+		List l = getList();
+		synchronized (w.kids) {
+		    w.kids.put (type, getList());
+		}
+		EventQueue.invokeLater(this);
+		done = true;
+		notifyAll();
+	    } else {
+		fire();
+	    }
+	}
+	
+	void fire() {
+	    if (clis != null) {
+		clis.stateChanged(new ChangeEvent(this));
+	    }
+	}
+
+        public int getState() {
+	    return done ? STATE_COLLECTING_CHILDREN : STATE_CHILDREN_COLLECTED;
+        }
+
+	private ChangeListener clis = null;
+	private Task task = null;
+        public void addChangeListener(ChangeListener cl) {
+	    if (this.clis != cl && this.clis != null) {
+		throw new IllegalStateException (clis + " is already listening");
+	    }
+	    this.clis = cl;
+	    synchronized (this) {
+		task = rp.post(this);
+	    }
+        }
+
+        public void removeChangeListener(ChangeListener cl) {
+	    if (clis != cl) {
+		throw new IllegalStateException("Removed a listener not present:" + cl);
+	    }
+	    this.clis = null;
+	    Task task = null;
+	    synchronized (this) {
+		task = this.task;
+	    }
+	    if (task != null) {
+		task.cancel();
+		synchronized(this) {
+		    notifyAll();
+		}
+	    }
+        }
+
+        public Object getModelObject() {
+	    return w;
+        }
+
+        public List getChildren() {
+	    if (!done) {
+		return Collections.EMPTY_LIST;
+	    } else {
+		Object o;
+		synchronized (w.kids) {
+		    o = w.kids.get(type);
+		}
+		assert o == null || o instanceof List || o == this;
+		if (o instanceof List) {
+		    return (List) o;
+		}
+		return Collections.EMPTY_LIST;
+	    }
+        }
+
+        public String getKind() {
+	    return type;
+        }
+	
+	protected abstract List getList();
+    }
+    
+    private static class MemberClosureChildrenHandle extends AsynchChildren {
+	private final boolean returnClassMembers;
+	protected MemberClosureChildrenHandle (JMIObjectWrapper w, String type, boolean useMethods) {
+	    super (w, type);
+	    this.returnClassMembers = useMethods;
+	}
+	
+        protected List getList() {
+	    return childrenOf (w.getElement());
+        }
+	
+	List childrenOf (Element e) {
+	    List l = new ArrayList();
+	    childrenOf (e, l);
+	    List result = new ArrayList();
+	    for (Iterator i=l.iterator(); i.hasNext();) {
+		Element curr = (Element) i.next();
+		if (curr instanceof ElementReference) {
+		    ElementReference me = (ElementReference) curr;
+		    Feature meth = (Feature) me.getElement();
+		    ClassDefinition clazz = meth instanceof Method ? ((Method) meth).getDeclaringClass() :
+			meth instanceof Field ? ((Field) meth).getDeclaringClass() : null;
+		    if (returnClassMembers || clazz != null) {
+			result.add (returnClassMembers ? (NamedElement) meth : (NamedElement) clazz);
+		    }
+		}
+	    }
+	    
+	    return result;
+	}
+	
+	void childrenOf (Element e, Collection c) {
+	    Collection kids = e.getChildren();
+	    c.addAll (kids);
+	    for (Iterator i=kids.iterator(); i.hasNext();) {
+		Object o = i.next();
+		if (o instanceof Element) {
+		    childrenOf ((Element) o, c);
+		}
+	    }
+	}
+    }
+    
+    private static class ClassClosureChildrenHandle extends AsynchChildren {
+	protected ClassClosureChildrenHandle (JMIObjectWrapper w, String type) {
+	    super (w, type);
+	}
+	
+        protected List getList() {
+	    List /* <Import> */ imports = w.getElement().getResource().getImports();
+	    List result = new ArrayList();
+	    //XXX this gets it for the whole file, not just the class in question
+	    for (Iterator i=imports.iterator(); i.hasNext();) {
+		//XXX handle wildcard imports
+		result.addAll(((Import) i.next()).getImportedElements());
+	    }
+	    
+	    return result.isEmpty() ? Collections.EMPTY_LIST : result;
+        }
+    }    
+    
+    private static class MembersChildrenHandle extends AsynchChildren {
+	protected MembersChildrenHandle (JMIObjectWrapper w, String type) {
+	    super (w, type);
+	}
+	
+        protected List getList() {
+	    ArrayList /* <NamedElement> */ result = new ArrayList();
+	    if (w.getElement() instanceof ClassDefinition) {
+		ClassDefinition cd = (ClassDefinition) w.getElement();
+		for (Iterator i=cd.getFeatures().iterator(); i.hasNext();) {
+		    Object o = i.next();
+		    if (o instanceof Method || o instanceof Field || o instanceof ClassDefinition) {
+			result.add (o);
+		    }
+		}
+	    }
+	    return result.isEmpty() ? Collections.EMPTY_LIST : result;
+        }
+    }
+    
+    private static class UsagesChildrenHandle extends AsynchChildren {
+	protected UsagesChildrenHandle (JMIObjectWrapper w, String type) {
+	    super (w, type);
+	}
+	
+        protected List getList() {
+	    Set results = new HashSet();
+	    Collection c = w.getElement().getReferences();
+	    for (Iterator i=c.iterator(); i.hasNext();) {
+		ClassMember f = findEnclosingFeature((Element) i.next());
+		if (f != null) {
+		    results.add(f);
+		}
+	    }
+	    return new ArrayList(results);
+        }
+	
+	protected ClassMember findEnclosingFeature (Element e) {
+	    while (!(e instanceof ClassMember) && e != null) {
+		e = (Element) e.refImmediateComposite();
+	    }
+	    return (ClassMember) e;
+	}
+    }
+    
+    private static class ParentClassChildrenHandle extends AsynchChildren {
+	protected ParentClassChildrenHandle (JMIObjectWrapper w, String type) {
+	    super (w, type);
+	}
+
+        protected List getList() {
+	    NamedElement el  = w.getElement();
+	    if (el instanceof ClassDefinition) {
+		Collections.singletonList( ((ClassDefinition) el).getSuperClass() );
+	    } else if (el instanceof ClassMember) {
+		return Collections.singletonList( ((ClassMember) el).getDeclaringClass() );
+	    }
+	    //???
+	    return Collections.EMPTY_LIST;
+        }
+    }
+    
+    
+    private static RequestProcessor rp = new RequestProcessor();
 }
