@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.jmi.model.Feature;
+import javax.jmi.reflect.InvalidObjectException;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,11 +38,11 @@ import org.netbeans.jmi.javamodel.Field;
 import org.netbeans.jmi.javamodel.Import;
 import org.netbeans.jmi.javamodel.Method;
 import org.netbeans.jmi.javamodel.NamedElement;
-import org.netbeans.jmi.javamodel.VariableAccess;
 import org.netbeans.modules.venice.model.Decorator;
 import org.netbeans.modules.venice.model.Decorator.ChildrenHandle;
 import org.netbeans.modules.venice.model.Model;
 import org.netbeans.modules.venice.sourcemodel.api.SrcConstants;
+import org.openide.ErrorManager;
 import org.openide.util.RequestProcessor;
 import org.openide.util.RequestProcessor.Task;/**
  * SrcModel is a
@@ -141,16 +142,21 @@ public class SrcModel implements Model, Decorator {
     
     private class JMIObjectWrapper implements SrcConstants {
 	private final NamedElement obj;
-	private final String displayName;
+	private String displayName;
 	private Map kids = new HashMap(); //XXX make lazy
 	public JMIObjectWrapper (NamedElement obj) {
 	    this.obj = obj;
-	    if (obj instanceof Constructor) {
-		//Constructors return nothing for their name, so handle
-		//specially
-		displayName = ((Constructor) obj).getType().getName();
-	    } else {
-		displayName = obj.getName();
+	    try {
+		if (obj instanceof Constructor) {
+		    //Constructors return nothing for their name, so handle
+		    //specially
+		    displayName = ((Constructor) obj).getType().getName();
+		} else {
+		    displayName = obj.getName();
+		}
+	    } catch (InvalidObjectException e) {
+		ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+		displayName = "Invalid object";
 	    }
 	}
 	
