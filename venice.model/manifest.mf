@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.venice.model
+OpenIDE-Module-Layer: org/netbeans/modules/venice/model/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/venice/model/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
