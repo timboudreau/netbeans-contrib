@@ -100,8 +100,17 @@ public class ExportPackageValidator {
                 ExportPackageInfo.setSmtpPassword(d3.getInputText());
                 // do not save password to settings from security reasons
             }        
-        
-            if (!ExportPackageInfo.getSmtpUsername().equals("") && ExportPackageInfo.getSmtpPassword().equals("")) {
+
+            if (ExportPackageInfo.getSmtpUsername().equals("") && ExportPackageInfo.getSmtpPassword().equals("")) {
+                NotifyDescriptor.InputLine d2 = new NotifyDescriptor.InputLine(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Username_(optional):"), java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_enter_username_for_SMTP_server"));
+                DialogDisplayer.getDefault().notify(d2);
+                ExportPackageInfo.setSmtpUsername(d2.getInputText());
+                pps.setSmtpUsername(d2.getInputText());
+                NotifyDescriptorInputPassword d = new NotifyDescriptorInputPassword(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_password:"), java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_enter_password_for_SMTP_server"));
+                DialogDisplayer.getDefault().notify(d);
+                ExportPackageInfo.setSmtpPassword(d.getInputText());
+                // do not save password to settings from security reasons
+            } else if (!ExportPackageInfo.getSmtpUsername().equals("") && ExportPackageInfo.getSmtpPassword().equals("")) {
                 NotifyDescriptorInputPassword d = new NotifyDescriptorInputPassword(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_password:"), java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_enter_password_for_SMTP_server"));
                 DialogDisplayer.getDefault().notify(d);
                 ExportPackageInfo.setSmtpPassword(d.getInputText());

@@ -94,10 +94,16 @@ public class ExportZipUITools {
         if (smtpPassword!=null && !smtpPassword.equals("")) {
             ExportPackageInfo.setSmtpPassword(smtpPassword);
         } else {
-            smtpPassword = System.getProperty("org.netbeans.modules.projectpackager.smtp_password");
+            smtpPassword = System.getProperty("smtp_password");
             if (smtpPassword!=null && !smtpPassword.equals("")) ExportPackageInfo.setSmtpPassword(smtpPassword);
         }
-        
+        Boolean smtpUseSSL = pps.getSmtpUseSSL();
+        if (smtpUseSSL!=null && !smtpUseSSL.equals("")) {
+            ExportPackageInfo.setSmtpUseSSL(smtpUseSSL.booleanValue());
+        } else {
+            smtpUseSSL = Boolean.valueOf(System.getProperty("smtp_use_ssl"));
+            if (smtpUseSSL!=null && !smtpUseSSL.equals("")) ExportPackageInfo.setSmtpUseSSL(smtpUseSSL.booleanValue());
+        }        
         if (!ExportPackageValidator.validate()) {
             zpd.requestFocus();
             return;
