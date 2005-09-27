@@ -42,6 +42,14 @@ public interface SrcConstants {
     /** return value for getValue(KEY_KIND) */
     public static final String VAL_CONSTRUCTOR = "constructor"; //NOI18N
     
+    /** Pass to getValue() to get a URL to a source file.
+     * Value will be java.net.URL */
+    public static final String KEY_URL = "url";
+    
+    /** Pass to getValue() to get the offsets of the element in its source file.
+     * Value type will be int[2] { start, end } */
+    public static final String KEY_OFFSET = "offsets";
+    
     /** Model kind returned by Model.getKind() for a java source model */
     public static final String MODEL_KIND_JAVA_SOURCE = "javaSource"; //NOI18N
 }

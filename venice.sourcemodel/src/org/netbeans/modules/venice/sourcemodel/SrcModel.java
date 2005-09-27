@@ -38,6 +38,7 @@ import org.netbeans.jmi.javamodel.Field;
 import org.netbeans.jmi.javamodel.Import;
 import org.netbeans.jmi.javamodel.Method;
 import org.netbeans.jmi.javamodel.NamedElement;
+import org.netbeans.modules.javacore.jmiimpl.javamodel.ResourceImpl;
 import org.netbeans.modules.venice.model.Decorator;
 import org.netbeans.modules.venice.model.Decorator.ChildrenHandle;
 import org.netbeans.modules.venice.model.Model;
@@ -181,6 +182,26 @@ public class SrcModel implements Model, Decorator {
 		} else {
 		    throw new IllegalStateException ("What is this? " + obj);
 		}
+	    } else if (KEY_URL.equals(key)) {
+		try {
+		    ResourceImpl r = (ResourceImpl) obj.getResource();
+		    return r.getFileObject().getURL();
+		} catch (Exception e) {
+		    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, 
+			    e);
+		    return null;
+		}
+	    } else if (KEY_OFFSET.equals(key)) {
+		int[] result = new int[2];
+		if (obj.isValid()) {
+		    try {
+			result[0] = obj.getStartOffset();
+			result[1] = obj.getEndOffset();
+		    } catch (Exception e) {
+			ErrorManager.getDefault().notify (ErrorManager.INFORMATIONAL, e);
+		    }
+		}
+		return result;
 	    } else {
 		return null;
 	    }
