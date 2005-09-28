@@ -157,9 +157,11 @@ public class J2eeSampleProjectGenerator {
             throw new IOException(e.toString());
         }
         
-        // 1. for J2SE type : should be "dist.jar=${dist.dir}/PROJECT.jar"
-        if (props.getProperty(DIST_JAR) != null) {
-            props.setProperty(DIST_JAR, DIST_DIR + prjName + ".jar");  // NOI18N
+        String distJar = props.getProperty(DIST_JAR);
+        // 1. for J2SE/EAR type : should be "dist.jar=${dist.dir}/PROJECT.[jar, ear]"
+        if (distJar != null) {
+            props.setProperty(DIST_JAR, DIST_DIR + prjName + 
+                    distJar.substring(distJar.lastIndexOf('.')));  // NOI18N
             //2. for EJB type : should be "dist.ear.jar=${dist.dir}/PROJECT.[jar, ear]"
             currentProp = props.getProperty(DIST_EAR_JAR);
             if (currentProp != null) {
