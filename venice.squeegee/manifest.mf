@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.venice.squeegee
+OpenIDE-Module-Layer: org/netbeans/modules/venice/squeegee/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/venice/squeegee/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
