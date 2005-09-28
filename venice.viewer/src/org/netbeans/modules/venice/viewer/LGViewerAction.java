@@ -23,7 +23,7 @@ public class LGViewerAction extends AbstractAction {
         TopComponent win = WindowManager.getDefault().findTopComponent("LGViewerTopComponent");
         if (win == null) {
             ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find LGViewer component.");
-            return;
+            win = LGViewerTopComponent.getDefault();
         }
         win.open();
         win.requestActive();

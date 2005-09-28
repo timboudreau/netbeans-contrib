@@ -141,7 +141,7 @@ public class SrcModel implements Model, Decorator {
     private Map listenersToObjects = new HashMap();
     private Map listeningTo = new HashMap();
     
-    private class JMIObjectWrapper implements SrcConstants {
+    private static class JMIObjectWrapper implements SrcConstants {
 	private final NamedElement obj;
 	private String displayName;
 	private Map kids = new HashMap(); //XXX make lazy
@@ -223,16 +223,14 @@ public class SrcModel implements Model, Decorator {
 	    
 	    Object o;
 	    synchronized (kids) {
-		o = kids == null ? null : kids.get(childrenType);
+		o = kids.get (childrenType);
 	    }
-	    
-	    List l = kids == null ? null : (List) kids.get(childrenType);
 	    
 	    if (o instanceof Decorator.ChildrenHandle) {
 		return (Decorator.ChildrenHandle) o;
 	    } else if (o instanceof List) {
 		return new Decorator.ChildrenHandle.Fixed (obj, (List) o, childrenType);
-	    } else {
+	    } else if (calculate) {
 		int ix = Arrays.asList(kidTypes).indexOf(childrenType);
 		ChildrenHandle result = null;
 		switch (ix) {
@@ -259,7 +257,7 @@ public class SrcModel implements Model, Decorator {
 		    //synch blocks;  rare, but double check it
 		    Object o2 = kids.get(childrenType);
 		    if (o2 instanceof Decorator.ChildrenHandle) {
-			result = (Decorator.ChildrenHandle) o;
+			result = (Decorator.ChildrenHandle) o2;
 		    } else if (o2 instanceof List) {
 			result = new Decorator.ChildrenHandle.Fixed (obj, (List) o2, childrenType);
 		    } else {
@@ -267,9 +265,10 @@ public class SrcModel implements Model, Decorator {
 		    }
 		}
 		return result;
+	    } else {
+		return null;
 	    }
         }
-	
     }
     
     private abstract static class AsynchChildren implements Decorator.ChildrenHandle, Runnable {
@@ -284,12 +283,15 @@ public class SrcModel implements Model, Decorator {
 	public void run() {
 	    if (!EventQueue.isDispatchThread()) {
 		List l = getList();
+		System.err.println(this + " found " + l.size() + " items");
 		synchronized (w.kids) {
-		    w.kids.put (type, getList());
+		    w.kids.put (type, toWrappers(l));
 		}
-		EventQueue.invokeLater(this);
 		done = true;
-		notifyAll();
+		EventQueue.invokeLater(this);
+		synchronized (this) {
+		    notifyAll();
+		}
 	    } else {
 		fire();
 	    }
@@ -297,21 +299,28 @@ public class SrcModel implements Model, Decorator {
 	
 	void fire() {
 	    if (clis != null) {
+		System.err.println(this + " firing");
 		clis.stateChanged(new ChangeEvent(this));
 	    }
 	}
+	
+	public String toString() {
+	    return super.getClass() + " " + type + " done=" + done;
+	}
 
         public int getState() {
-	    return done ? STATE_COLLECTING_CHILDREN : STATE_CHILDREN_COLLECTED;
+	    return !done ? STATE_COLLECTING_CHILDREN : STATE_CHILDREN_COLLECTED;
         }
 
 	private ChangeListener clis = null;
 	private Task task = null;
         public void addChangeListener(ChangeListener cl) {
+	    System.err.println("Add change listener " + cl);
 	    if (this.clis != cl && this.clis != null) {
 		throw new IllegalStateException (clis + " is already listening");
 	    }
 	    this.clis = cl;
+	    System.err.println("Post read task for " + this);
 	    synchronized (this) {
 		task = rp.post(this);
 	    }
@@ -328,6 +337,7 @@ public class SrcModel implements Model, Decorator {
 	    }
 	    if (task != null) {
 		task.cancel();
+		task = null;
 		synchronized(this) {
 		    notifyAll();
 		}
@@ -350,6 +360,7 @@ public class SrcModel implements Model, Decorator {
 		if (o instanceof List) {
 		    return (List) o;
 		}
+		System.err.println(" got no children from map");
 		return Collections.EMPTY_LIST;
 	    }
         }
@@ -359,6 +370,15 @@ public class SrcModel implements Model, Decorator {
         }
 	
 	protected abstract List getList();
+    }
+    
+    private static List toWrappers (Collection c) {
+	List result = new ArrayList (c.size());
+	for (Iterator i=c.iterator(); i.hasNext();) {
+	    NamedElement ne = (NamedElement) i.next();
+	    result.add (new JMIObjectWrapper(ne));
+	}
+	return result;
     }
     
     private static class MemberClosureChildrenHandle extends AsynchChildren {
@@ -380,11 +400,16 @@ public class SrcModel implements Model, Decorator {
 		Element curr = (Element) i.next();
 		if (curr instanceof ElementReference) {
 		    ElementReference me = (ElementReference) curr;
-		    Feature meth = (Feature) me.getElement();
-		    ClassDefinition clazz = meth instanceof Method ? ((Method) meth).getDeclaringClass() :
-			meth instanceof Field ? ((Field) meth).getDeclaringClass() : null;
-		    if (returnClassMembers || clazz != null) {
-			result.add (returnClassMembers ? (NamedElement) meth : (NamedElement) clazz);
+		    Element el = me.getElement();
+		    if (el instanceof ClassMember) {
+			ClassMember meth = (ClassMember) me.getElement();
+			ClassDefinition clazz = meth instanceof Method ? ((Method) meth).getDeclaringClass() :
+			    meth instanceof Field ? ((Field) meth).getDeclaringClass() : null;
+			if (returnClassMembers || clazz != null) {
+			    result.add (returnClassMembers ? (NamedElement) meth : (NamedElement) clazz);
+			}
+		    } else {
+			System.err.println("Got a mystery thing " + el.getClass() + " - " + el);
 		    }
 		}
 	    }
@@ -393,7 +418,12 @@ public class SrcModel implements Model, Decorator {
 	}
 	
 	void childrenOf (Element e, Collection c) {
-	    Collection kids = e.getChildren();
+	    Collection kids;
+	    try {
+		kids = e.getChildren();
+	    } catch (NullPointerException npe) { //JavaCore bug for some kinds of elements
+		return;
+	    }
 	    c.addAll (kids);
 	    for (Iterator i=kids.iterator(); i.hasNext();) {
 		Object o = i.next();
