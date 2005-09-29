@@ -78,10 +78,30 @@ public class ProjectPackagerSettings extends SystemOption {
         super.initialize();
         
         putProperty(PROP_VERSION, CURRENT_VERSION, true);
-        putProperty(PROP_SMTP_SERVER, "", true);
-        putProperty(PROP_SMTP_USERNAME, "", true);
-        putProperty(PROP_SMTP_PASSWORD, "", true);
-        putProperty(PROP_SMTP_USE_SSL, Boolean.FALSE, true);
+        String smtpServer = System.getProperty("smtp_server");
+        if (smtpServer!=null && !smtpServer.equals("")) {
+            putProperty(PROP_SMTP_SERVER, smtpServer, true);
+        } else {
+            putProperty(PROP_SMTP_SERVER, "", true);
+        }
+        String smtpUsername = System.getProperty("smtp_username");
+        if (smtpUsername!=null && !smtpUsername.equals("")) {
+            putProperty(PROP_SMTP_USERNAME, smtpUsername, true);
+        } else {
+            putProperty(PROP_SMTP_USERNAME, "", true);
+        }
+        String smtpPassword = System.getProperty("smtp_password");
+        if (smtpPassword!=null && !smtpPassword.equals("")) {
+            putProperty(PROP_SMTP_PASSWORD, smtpPassword, true);
+        } else {
+            putProperty(PROP_SMTP_PASSWORD, "", true);
+        }
+        Boolean smtpUseSSL = Boolean.valueOf(System.getProperty("smtp_use_ssl"));        
+        if (smtpUseSSL!=null) {
+            putProperty(PROP_SMTP_USE_SSL, smtpUseSSL, true);
+        } else {
+            putProperty(PROP_SMTP_USE_SSL, Boolean.FALSE, true);
+        }
         putProperty(PROP_MAIL_FROM, java.util.ResourceBundle.getBundle(
                 Constants.BUNDLE).getString("Mail_From_Default"), true);
         putProperty(PROP_MAIL_SUBJECT, java.util.ResourceBundle.getBundle(
