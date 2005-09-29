@@ -137,7 +137,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
 
         jLabel6.setText("SMTP server is required, username and password is optional.");
 
-        smtpPasswordField.setPreferredSize(new java.awt.Dimension(11, 20));
+        smtpPasswordField.setPreferredSize(new java.awt.Dimension(11, 18));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

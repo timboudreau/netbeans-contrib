@@ -172,7 +172,7 @@
     <Component class="javax.swing.JPasswordField" name="smtpPasswordField">
       <Properties>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[11, 20]"/>
+          <Dimension value="[11, 18]"/>
         </Property>
       </Properties>
     </Component>
