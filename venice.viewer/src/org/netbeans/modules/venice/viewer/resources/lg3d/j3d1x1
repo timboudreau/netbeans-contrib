@@ -1,0 +1,47 @@
+/*
+ ************************************************************************
+ *  
+ * Java 3D Calibration file for single-screen desktop configuration with
+ * neither head tracking nor 6DOF sensor tracking.
+ *  
+ ************************************************************************
+ */
+
+// Create a new screen object and associate it with a logical name and a
+// number.  This number is used as an index to retrieve the AWT GraphicsDevice
+// from the array that GraphicsEnvironment.getScreenDevices() returns.
+// 
+(NewScreen center 0)
+
+// Set the available image area for a full screen.  This is important when
+// precise scaling between objects in the virtual world and their projections
+// into the physical world is desired through use of an explicit ScreenScale
+// view attribute.  The defaults are 0.365 meters for width and 0.292 meters
+// for height.
+// 
+(ScreenAttribute center	PhysicalScreenWidth  0.360)
+(ScreenAttribute center	PhysicalScreenHeight 0.288)
+//(ScreenAttribute center	WindowSize           NoBorderFullScreen)
+(ScreenAttribute center	WindowSize           (800 600))
+
+
+// Create a view using the defined screen.
+// 
+(NewView view0)
+(ViewAttribute view0 Screen center)
+(ViewAttribute        view0   FrontClipDistance       0.01)
+(ViewAttribute        view0   BackClipDistance        10.0)
+(ViewAttribute view0 WindowEyepointPolicy RELATIVE_TO_COEXISTENCE)
+(ViewAttribute view0 WindowMovementPolicy VIRTUAL_WORLD)
+(ViewAttribute view0 WindowResizePolicy VIRTUAL_WORLD)
+(ViewAttribute view0 ScreenScalePolicy SCALE_EXPLICIT)
+
+// For debugging this will give us the standard scale world and view
+// but in a window. Obviously if the window is reduced in size less of 
+// the world is visible.
+(ViewAttribute view0 CoexistenceCenteringEnable true)
+(ViewAttribute view0 WindowEyepointPolicy RELATIVE_TO_WINDOW)
+(ViewAttribute view0 WindowMovementPolicy PHYSICAL_WORLD)
+
+// Enable stereo viewing if desired
+// (ViewAttribute  view0   StereoEnable            true)

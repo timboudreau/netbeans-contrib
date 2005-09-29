@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<java version="1.4.2_04" class="java.beans.XMLDecoder"> 
+ <object class="org.jdesktop.lg3d.displayserver.LgConfig"> 
+  <void property="x11IntegrationEnabled"> 
+   <boolean>false</boolean>
+  </void> 
+  <void property="clientServer"> 
+   <boolean>false</boolean>
+  </void> 
+  <void property="foundationWinSys"> 
+   <string>org.jdesktop.lg3d.displayserver.fws.awt.WinSysAWT</string>
+  </void> 
+ </object> 
+</java> 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<java version="1.5.0" class="java.beans.XMLDecoder"> 
+ <!-- Advanced Scene manager and Taskbar-->
+<!-- <object class="org.jdesktop.lg3d.scenemanager.advanced.AdvancedSceneManagerConfig"/>
+ <object class="org.jdesktop.lg3d.scenemanager.utils.plugin.SceneManagerPluginConfig"> 
+  <void property="pluginClass"> 
+   <string>org.jdesktop.lg3d.scenemanager.utils.taskbar.AdvancedGlassyTaskbar</string> 
+  </void> 
+  <void property="singletonPlugin"> 
+   <boolean>false</boolean> 
+  </void> 
+ </object> 
+-->
+ <!-- Glassy Scene manager and Taskbar -->
+
+ <object class="org.jdesktop.lg3d.scenemanager.glassy.GlassySceneManagerConfig"/> 
+ <object class="org.jdesktop.lg3d.scenemanager.utils.plugin.SceneManagerPluginConfig"> 
+  <void property="pluginClass"> 
+   <string>org.jdesktop.lg3d.apps.callviewer.VeniceTaskbar</string> 
+  </void> 
+  <void property="singletonPlugin"> 
+   <boolean>true</boolean> 
+  </void> 
+ </object> 
+ 
+ <!-- Start menu -->
+<!-- <object class="org.jdesktop.lg3d.scenemanager.utils.plugin.SceneManagerPluginConfig"> 
+  <void property="pluginClass"> 
+   <string>org.jdesktop.lg3d.apps.startmenu.StartMenu</string> 
+  </void> 
+  <void property="singletonPlugin"> 
+   <boolean>true</boolean> 
+  </void> 
+ </object> 
+-->
+ <!-- Taskbar Items -->
+<object class="org.jdesktop.lg3d.scenemanager.config.ApplicationDescription"> 
+  <void property="exec"> 
+   <string>java org.jdesktop.lg3d.apps.test.SpringTest</string> 
+  </void> 
+  <void property="iconFilename"> 
+   <string>resources/images/icon/system.png</string> 
+  </void> 
+  <void property="name"> 
+   <string>SpringTest</string> 
+  </void> 
+ </object> 
+
+</java> 
