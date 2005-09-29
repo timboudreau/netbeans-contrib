@@ -36,38 +36,22 @@ public class ImportZipDialog extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
-
-        ZipProjectPanel = new javax.swing.JPanel();
         projectZip = new javax.swing.JLabel();
-        zipChooseButton = new javax.swing.JButton();
         projectZipField = new javax.swing.JTextField();
-        projectNameField = new javax.swing.JTextField();
-        deleteCheckBox = new javax.swing.JCheckBox();
-        projectName = new javax.swing.JLabel();
+        zipChooseButton = new javax.swing.JButton();
         unzipToDirectory = new javax.swing.JLabel();
         unzipToDirectoryField = new javax.swing.JTextField();
         dirChooseButton = new javax.swing.JButton();
-        okButton = new javax.swing.JButton();
+        projectName = new javax.swing.JLabel();
+        projectNameField = new javax.swing.JTextField();
+        deleteCheckBox = new javax.swing.JCheckBox();
         cancelButton = new javax.swing.JButton();
-
-        getContentPane().setLayout(new java.awt.GridBagLayout());
+        okButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Import Project from Zip");
         setResizable(false);
-        ZipProjectPanel.setLayout(new java.awt.GridBagLayout());
-
-        ZipProjectPanel.setPreferredSize(new java.awt.Dimension(305, 180));
-        ZipProjectPanel.setRequestFocusEnabled(false);
         projectZip.setText("Project Zip:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        ZipProjectPanel.add(projectZip, gridBagConstraints);
 
         zipChooseButton.setText("...");
         zipChooseButton.addActionListener(new java.awt.event.ActionListener() {
@@ -76,101 +60,20 @@ public class ImportZipDialog extends javax.swing.JFrame {
             }
         });
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        ZipProjectPanel.add(zipChooseButton, gridBagConstraints);
-
-        projectZipField.setPreferredSize(new java.awt.Dimension(230, 19));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 20, 3, 3);
-        ZipProjectPanel.add(projectZipField, gridBagConstraints);
-
-        projectNameField.setColumns(18);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 20, 3, 3);
-        ZipProjectPanel.add(projectNameField, gridBagConstraints);
-
-        deleteCheckBox.setText("Delete Zip after Import");
-        deleteCheckBox.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(0, 0, 0, 0)));
-        deleteCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(8, 3, 3, 3);
-        ZipProjectPanel.add(deleteCheckBox, gridBagConstraints);
-
-        projectName.setText("Project Folder Name:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        ZipProjectPanel.add(projectName, gridBagConstraints);
-
         unzipToDirectory.setText("Unzip to Directory:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        ZipProjectPanel.add(unzipToDirectory, gridBagConstraints);
-
-        unzipToDirectoryField.setPreferredSize(new java.awt.Dimension(230, 19));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 20, 3, 3);
-        ZipProjectPanel.add(unzipToDirectoryField, gridBagConstraints);
 
         dirChooseButton.setText("...");
-        dirChooseButton.setHorizontalAlignment(javax.swing.SwingConstants.LEADING);
         dirChooseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dirChooseButtonActionPerformed(evt);
             }
         });
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(1, 3, 3, 3);
-        ZipProjectPanel.add(dirChooseButton, gridBagConstraints);
+        projectName.setText("Project Folder Name:");
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        getContentPane().add(ZipProjectPanel, gridBagConstraints);
-
-        okButton.setText("Ok");
-        okButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okButtonActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 10, 3);
-        getContentPane().add(okButton, gridBagConstraints);
+        deleteCheckBox.setText("Delete Zip After Import");
+        deleteCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        deleteCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         cancelButton.setText("Cancel");
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -179,34 +82,100 @@ public class ImportZipDialog extends javax.swing.JFrame {
             }
         });
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 10, 10);
-        getContentPane().add(cancelButton, gridBagConstraints);
+        okButton.setText("Ok");
+        okButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okButtonActionPerformed(evt);
+            }
+        });
 
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(projectZip))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(unzipToDirectory))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .addContainerGap()
+                                .add(unzipToDirectoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 225, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .add(24, 24, 24)
+                                .add(projectZipField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 225, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 17, Short.MAX_VALUE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(zipChooseButton)
+                            .add(dirChooseButton)))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(projectName))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(24, 24, 24)
+                        .add(projectNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 174, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(deleteCheckBox))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(okButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelButton)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(projectZip)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(zipChooseButton)
+                    .add(projectZipField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(unzipToDirectory)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(unzipToDirectoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(dirChooseButton))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(projectName)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(projectNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(deleteCheckBox)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 23, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cancelButton)
+                    .add(okButton))
+                .addContainerGap())
+        );
         pack();
     }
     // </editor-fold>//GEN-END:initComponents
 
-    private void dirChooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dirChooseButtonActionPerformed
-        ImportZipUITools.showDirectoryChooser();
-
-    }//GEN-LAST:event_dirChooseButtonActionPerformed
-    
-    private void zipChooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zipChooseButtonActionPerformed
-        ImportZipUITools.showFileChooser();
-    }//GEN-LAST:event_zipChooseButtonActionPerformed
-        
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        ImportZipUITools.processCancelButton();
-    }//GEN-LAST:event_cancelButtonActionPerformed
-    
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         ImportZipUITools.processOkButton();
     }//GEN-LAST:event_okButtonActionPerformed
 
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+	ImportZipUITools.processCancelButton();
+    }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void dirChooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dirChooseButtonActionPerformed
+        ImportZipUITools.showDirectoryChooser();
+    }//GEN-LAST:event_dirChooseButtonActionPerformed
+
+    private void zipChooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zipChooseButtonActionPerformed
+        ImportZipUITools.showFileChooser();
+    }//GEN-LAST:event_zipChooseButtonActionPerformed
+                
     /**
      * Set zip file
      * @param zip zip file
@@ -271,7 +240,6 @@ public class ImportZipDialog extends javax.swing.JFrame {
     }
         
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel ZipProjectPanel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JCheckBox deleteCheckBox;
     private javax.swing.JButton dirChooseButton;

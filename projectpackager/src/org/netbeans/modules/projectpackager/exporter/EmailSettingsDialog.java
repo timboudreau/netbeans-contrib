@@ -43,121 +43,35 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
-
         jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        SettingsPanel = new javax.swing.JPanel();
-        smtpServer = new javax.swing.JLabel();
-        smtpUsernameField = new javax.swing.JTextField();
-        smtpUsername = new javax.swing.JLabel();
-        smtpPassword = new javax.swing.JLabel();
-        smtpServerField = new javax.swing.JTextField();
-        smtpPasswordField = new javax.swing.JPasswordField();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        useSSL = new javax.swing.JCheckBox();
-        okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
+        okButton = new javax.swing.JButton();
+        smtpServer = new javax.swing.JLabel();
+        smtpServerField = new javax.swing.JTextField();
+        smtpUsername = new javax.swing.JLabel();
+        smtpUsernameField = new javax.swing.JTextField();
+        smtpPassword = new javax.swing.JLabel();
+        useSSL = new javax.swing.JCheckBox();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        smtpPasswordField = new javax.swing.JPasswordField();
 
         jLabel3.setText("jLabel3");
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
-        getContentPane().setLayout(new java.awt.GridBagLayout());
-
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("E-mail Settings");
         setResizable(false);
-        SettingsPanel.setLayout(new java.awt.GridBagLayout());
-
-        SettingsPanel.setOpaque(false);
-        SettingsPanel.setPreferredSize(new java.awt.Dimension(330, 175));
-        SettingsPanel.setRequestFocusEnabled(false);
-        smtpServer.setText("SMTP Server:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        SettingsPanel.add(smtpServer, gridBagConstraints);
-
-        smtpUsernameField.setPreferredSize(new java.awt.Dimension(160, 19));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        SettingsPanel.add(smtpUsernameField, gridBagConstraints);
-
-        smtpUsername.setText("SMTP Username:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        SettingsPanel.add(smtpUsername, gridBagConstraints);
-
-        smtpPassword.setText("SMTP Password:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        SettingsPanel.add(smtpPassword, gridBagConstraints);
-
-        smtpServerField.setPreferredSize(new java.awt.Dimension(202, 19));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        SettingsPanel.add(smtpServerField, gridBagConstraints);
-
-        smtpPasswordField.setPreferredSize(new java.awt.Dimension(160, 19));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        SettingsPanel.add(smtpPasswordField, gridBagConstraints);
-
-        jLabel1.setText("SMTP Server is required, other fields are optional.");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(12, 3, 3, 3);
-        SettingsPanel.add(jLabel1, gridBagConstraints);
-
-        jLabel2.setText("Storing of password is not recommended.");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(12, 3, 0, 3);
-        SettingsPanel.add(jLabel2, gridBagConstraints);
-
-        useSSL.setText("Use SSL for SMTP");
-        useSSL.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(0, 0, 0, 0)));
-        useSSL.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        SettingsPanel.add(useSSL, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        getContentPane().add(SettingsPanel, gridBagConstraints);
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
 
         okButton.setText("Ok");
         okButton.addActionListener(new java.awt.event.ActionListener() {
@@ -166,40 +80,90 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
             }
         });
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 10, 3);
-        getContentPane().add(okButton, gridBagConstraints);
+        smtpServer.setText("SMTP Server:");
 
-        cancelButton.setText("Cancel");
-        cancelButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
-            }
-        });
+        smtpUsername.setText("SMTP Username:");
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 10, 10);
-        getContentPane().add(cancelButton, gridBagConstraints);
+        smtpPassword.setText("SMTP Password:");
 
+        useSSL.setText("Use SSL for SMTP");
+        useSSL.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useSSL.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jLabel5.setText("Storing of passwords is not recommended.");
+
+        jLabel6.setText("SMTP server is required, username and password is optional.");
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(useSSL)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(okButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 63, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                    .add(jLabel6)
+                    .add(jLabel5)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(smtpServer)
+                            .add(smtpUsername)
+                            .add(smtpPassword))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 47, Short.MAX_VALUE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, smtpServerField)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, smtpPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
+                                    .add(smtpUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 144, Short.MAX_VALUE))
+                                .add(87, 87, 87)))))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(smtpServer)
+                    .add(smtpServerField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(smtpUsername)
+                    .add(smtpUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(smtpPassword)
+                        .add(10, 10, 10)
+                        .add(useSSL))
+                    .add(smtpPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(17, 17, 17)
+                .add(jLabel5)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jLabel6)
+                .add(20, 20, 20)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(okButton)
+                    .add(cancelButton))
+                .addContainerGap())
+        );
         pack();
     }
     // </editor-fold>//GEN-END:initComponents
-            
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        EmailSettingsUITools.processCancelButton();
-    }//GEN-LAST:event_cancelButtonActionPerformed
-    
+
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        EmailSettingsUITools.processOkButton();
+        EmailSettingsUITools.processCancelButton();
     }//GEN-LAST:event_okButtonActionPerformed
-       
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        EmailSettingsUITools.processOkButton();
+    }//GEN-LAST:event_cancelButtonActionPerformed
+                       
     /**
      * Returns filled in SMTP server
      * @return SMTP server
@@ -233,11 +197,10 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
     }
         
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel SettingsPanel;
     private javax.swing.JButton cancelButton;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JButton okButton;

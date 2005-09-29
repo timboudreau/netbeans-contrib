@@ -58,40 +58,27 @@ public class ExportZipDialog extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
-
-        ZipProjectPanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         targetDirectory = new javax.swing.JLabel();
-        chooseButton = new javax.swing.JButton();
         targetDirectoryField = new javax.swing.JTextField();
+        chooseButton = new javax.swing.JButton();
         mailCheckBox = new javax.swing.JCheckBox();
         mailAddress = new javax.swing.JTextField();
         deleteCheckBox = new javax.swing.JCheckBox();
-        jPanel1 = new javax.swing.JPanel();
-        chooseProjects = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        projectList = new javax.swing.JList();
         emailSettings = new javax.swing.JButton();
-        okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
-
-        getContentPane().setLayout(new java.awt.GridBagLayout());
+        okButton = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        projectList = new javax.swing.JList();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Export Project(s) as Zip");
         setResizable(false);
-        ZipProjectPanel.setLayout(new java.awt.GridBagLayout());
+        jLabel1.setText("Project(s) to Zip:");
 
-        ZipProjectPanel.setPreferredSize(new java.awt.Dimension(335, 260));
-        ZipProjectPanel.setRequestFocusEnabled(false);
         targetDirectory.setText("Target Directory:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        ZipProjectPanel.add(targetDirectory, gridBagConstraints);
+
+        targetDirectoryField.setText(" ");
 
         chooseButton.setText("...");
         chooseButton.addActionListener(new java.awt.event.ActionListener() {
@@ -100,23 +87,8 @@ public class ExportZipDialog extends javax.swing.JFrame {
             }
         });
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        ZipProjectPanel.add(chooseButton, gridBagConstraints);
-
-        targetDirectoryField.setPreferredSize(new java.awt.Dimension(260, 19));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 20, 3, 3);
-        ZipProjectPanel.add(targetDirectoryField, gridBagConstraints);
-
         mailCheckBox.setText("Send Zip(s) to E-mail Address:");
-        mailCheckBox.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(0, 0, 0, 0)));
+        mailCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         mailCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         mailCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -124,68 +96,9 @@ public class ExportZipDialog extends javax.swing.JFrame {
             }
         });
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        ZipProjectPanel.add(mailCheckBox, gridBagConstraints);
-
-        mailAddress.setPreferredSize(new java.awt.Dimension(260, 19));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 20, 3, 3);
-        ZipProjectPanel.add(mailAddress, gridBagConstraints);
-
-        deleteCheckBox.setText("Delete Zip(s) after Sending");
-        deleteCheckBox.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(0, 0, 0, 0)));
+        deleteCheckBox.setText("Delete Zip(s) After Sending");
+        deleteCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         deleteCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        ZipProjectPanel.add(deleteCheckBox, gridBagConstraints);
-
-        jPanel1.setLayout(new java.awt.GridBagLayout());
-
-        jPanel1.setPreferredSize(new java.awt.Dimension(330, 100));
-        jPanel1.setRequestFocusEnabled(false);
-        chooseProjects.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        chooseProjects.setText("Project(s) to Zip:");
-        chooseProjects.setFocusable(false);
-        chooseProjects.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(4, 3, 3, 3);
-        jPanel1.add(chooseProjects, gridBagConstraints);
-
-        jScrollPane2.setBackground(new java.awt.Color(255, 255, 255));
-        projectList.setFont(new java.awt.Font("Dialog", 0, 11));
-        projectList.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "project", "project2", "project3", "project4", "org.netbeans.modules.projectpackager" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
-        projectList.setVisibleRowCount(5);
-        jScrollPane2.setViewportView(projectList);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        jPanel1.add(jScrollPane2, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        ZipProjectPanel.add(jPanel1, gridBagConstraints);
 
         emailSettings.setText("E-mail Settings...");
         emailSettings.addActionListener(new java.awt.event.ActionListener() {
@@ -194,19 +107,12 @@ public class ExportZipDialog extends javax.swing.JFrame {
             }
         });
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
-        ZipProjectPanel.add(emailSettings, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        getContentPane().add(ZipProjectPanel, gridBagConstraints);
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
 
         okButton.setText("Ok");
         okButton.addActionListener(new java.awt.event.ActionListener() {
@@ -215,51 +121,93 @@ public class ExportZipDialog extends javax.swing.JFrame {
             }
         });
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 10, 3);
-        getContentPane().add(okButton, gridBagConstraints);
+        jScrollPane1.setViewportView(projectList);
 
-        cancelButton.setText("Cancel");
-        cancelButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 10, 10);
-        getContentPane().add(cancelButton, gridBagConstraints);
-
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(mailCheckBox)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(12, 12, 12)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(mailAddress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 281, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .add(targetDirectoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 286, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 28, Short.MAX_VALUE)
+                                .add(chooseButton))))
+                    .add(deleteCheckBox)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailSettings)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(okButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelButton))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(jLabel1)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 256, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(targetDirectory)
+                        .add(12, 12, 12)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(jLabel1)
+                        .add(103, 103, 103)
+                        .add(targetDirectory))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 108, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(12, 12, 12)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(targetDirectoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(mailCheckBox)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(mailAddress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(deleteCheckBox))
+                    .add(chooseButton))
+                .add(9, 9, 9)
+                .add(emailSettings)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 14, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cancelButton)
+                    .add(okButton))
+                .addContainerGap())
+        );
         pack();
     }
     // </editor-fold>//GEN-END:initComponents
 
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        ExportZipUITools.processCancelButton();
-    }//GEN-LAST:event_cancelButtonActionPerformed
+    private void mailCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mailCheckBoxActionPerformed
+        processMailCheckbox();
+    }//GEN-LAST:event_mailCheckBoxActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         ExportZipUITools.processOkButton();
     }//GEN-LAST:event_okButtonActionPerformed
 
-    private void chooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseButtonActionPerformed
-        ExportZipUITools.showFileChooser();
-    }//GEN-LAST:event_chooseButtonActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        ExportZipUITools.processCancelButton();
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void emailSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailSettingsActionPerformed
         ExportZipUITools.showEmailSettings();
     }//GEN-LAST:event_emailSettingsActionPerformed
 
-    private void mailCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mailCheckBoxActionPerformed
-        processMailCheckbox();
-    }//GEN-LAST:event_mailCheckBoxActionPerformed
+    private void chooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseButtonActionPerformed
+        ExportZipUITools.showFileChooser();
+    }//GEN-LAST:event_chooseButtonActionPerformed
                     
     /**
      * Set target directory
@@ -323,14 +271,12 @@ public class ExportZipDialog extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel ZipProjectPanel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton chooseButton;
-    private javax.swing.JLabel chooseProjects;
     private javax.swing.JCheckBox deleteCheckBox;
     private javax.swing.JButton emailSettings;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField mailAddress;
     private javax.swing.JCheckBox mailCheckBox;
     private javax.swing.JButton okButton;
