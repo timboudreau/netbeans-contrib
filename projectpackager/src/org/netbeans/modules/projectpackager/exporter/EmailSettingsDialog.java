@@ -114,13 +114,13 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
                             .add(smtpServer)
                             .add(smtpUsername)
                             .add(smtpPassword))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 47, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 13, Short.MAX_VALUE)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, smtpServerField)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                    .add(org.jdesktop.layout.GroupLayout.LEADING, smtpPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
-                                    .add(smtpUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 144, Short.MAX_VALUE))
+                                    .add(smtpPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 178, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(smtpUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 178, Short.MAX_VALUE))
                                 .add(87, 87, 87)))))
                 .addContainerGap())
         );
@@ -137,11 +137,10 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
                     .add(smtpUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .add(smtpPassword)
-                        .add(10, 10, 10)
-                        .add(useSSL))
+                    .add(smtpPassword)
                     .add(smtpPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(useSSL)
                 .add(17, 17, 17)
                 .add(jLabel5)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -157,11 +156,11 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
     // </editor-fold>//GEN-END:initComponents
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        EmailSettingsUITools.processCancelButton();
+        EmailSettingsUITools.processOkButton();
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        EmailSettingsUITools.processOkButton();
+        EmailSettingsUITools.processCancelButton();
     }//GEN-LAST:event_cancelButtonActionPerformed
                        
     /**

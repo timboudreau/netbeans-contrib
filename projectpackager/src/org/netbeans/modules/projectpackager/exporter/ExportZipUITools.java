@@ -98,7 +98,7 @@ public class ExportZipUITools {
             if (smtpPassword!=null && !smtpPassword.equals("")) ExportPackageInfo.setSmtpPassword(smtpPassword);
         }
         Boolean smtpUseSSL = pps.getSmtpUseSSL();
-        if (smtpUseSSL!=null && !smtpUseSSL.equals("")) {
+        if (smtpUseSSL!=null) {
             ExportPackageInfo.setSmtpUseSSL(smtpUseSSL.booleanValue());
         } else {
             smtpUseSSL = Boolean.valueOf(System.getProperty("smtp_use_ssl"));
