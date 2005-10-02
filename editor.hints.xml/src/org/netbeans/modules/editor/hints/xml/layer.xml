@@ -25,5 +25,10 @@ Microsystems, Inc. All Rights Reserved.
             </folder>
         </folder>
     </folder>
+    
+    <folder name="EditorHints">
+        <file name="org-netbeans-modules-editor-hints-xml-XMLProviderDescription.instance" />
+    </folder>
+    
 </filesystem>
 
