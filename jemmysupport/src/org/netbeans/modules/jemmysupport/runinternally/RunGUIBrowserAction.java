@@ -24,7 +24,12 @@ import org.openide.util.NbBundle;
  * @author Jiri.Skrivanek@sun.com
  */
 public class RunGUIBrowserAction extends NodeAction {
-    
+
+    /** Not to show icon in main menu. */
+    public RunGUIBrowserAction() {
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
+    }
+
     /** method performing the action
      * @param nodes selected nodes
      */

@@ -55,6 +55,11 @@ public class RunInternallyAction extends NodeAction {
     private InputOutput io;
     private boolean started = false;
 
+    /** Not to show icon in main menu. */
+    public RunInternallyAction() {
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
+    }
+
     /** method performing the action
      * @param nodes selected nodes
      */

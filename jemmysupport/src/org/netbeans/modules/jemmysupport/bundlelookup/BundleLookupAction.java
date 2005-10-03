@@ -13,12 +13,14 @@
 
 package org.netbeans.modules.jemmysupport.bundlelookup;
 
+import javax.swing.ImageIcon;
 import javax.swing.JEditorPane;
 import org.openide.cookies.EditorCookie;
 import org.openide.util.actions.NodeAction;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 /** Resource Bundle Lookup action class
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -27,6 +29,11 @@ import org.openide.util.NbBundle;
 public class BundleLookupAction extends NodeAction {
     
     private static final long serialVersionUID = 2491826043823675616L;
+
+    /** Not to show icon in main menu. */
+    public BundleLookupAction() {
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
+    }
     
     private String tryGetText(Node[] nodes) {
         for (int i=0; nodes!=null && i<nodes.length; i++) {

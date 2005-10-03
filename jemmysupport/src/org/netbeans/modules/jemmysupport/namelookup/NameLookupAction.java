@@ -7,14 +7,11 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.jemmysupport.namelookup;
-
-import javax.swing.JEditorPane;
-import org.openide.cookies.EditorCookie;
 import org.openide.util.actions.NodeAction;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -27,6 +24,11 @@ public class NameLookupAction extends NodeAction {
     
     private static final long serialVersionUID = 2491826043823675616L;
     
+    /** Not to show icon in main menu. */
+    public NameLookupAction() {
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
+    }
+
     /** method performing the action
      * @param nodes selected nodes
      */    
