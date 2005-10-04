@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-stripwhitespace-StripWhitespaceAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.stripwhitespace.StripWhitespaceAction"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Edit">
+            <attr name="SeparatorAfterFindPrevious.instance/org-netbeans-modules-stripwhitespace-separatorBefore.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-stripwhitespace-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-modules-stripwhitespace-separatorBefore.instance/org-netbeans-modules-stripwhitespace-StripWhitespaceAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-stripwhitespace-StripWhitespaceAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-stripwhitespace-StripWhitespaceAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-stripwhitespace-StripWhitespaceAction.shadow/org-netbeans-modules-stripwhitespace-separatorAfter.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-stripwhitespace-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-modules-stripwhitespace-separatorAfter.instance/SeparatorAfterProjectsSearch.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="CA-W.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-stripwhitespace-StripWhitespaceAction.instance"/>
+        </file>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Edit">
+            <attr name="org-openide-actions-FindAction.instance/org-netbeans-modules-stripwhitespace-StripWhitespaceAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-stripwhitespace-StripWhitespaceAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-stripwhitespace-StripWhitespaceAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
