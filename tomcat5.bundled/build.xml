@@ -15,7 +15,7 @@ Microsystems, Inc. All Rights Reserved.
 <project name="tomcatint-tomcat5-bundled" basedir="." default="netbeans">
   <import file="../../../nbbuild/default.xml"/> 
 
-  <property name="tomcat.filename" value="jakarta-tomcat-5.5.7"/>
+  <property name="tomcat.filename" value="jakarta-tomcat-5.5.9"/>
 
   <target name="init" depends="default.init">
     <patternset id="tomcatint/tomcat5/bundled.files">
@@ -41,9 +41,9 @@ Microsystems, Inc. All Rights Reserved.
     <unzip src="../../external/${tomcat.filename}.zip" dest="${cluster}" />
     <!-- monitor -->
     <copy file="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" 
-          tofile="${cluster}/jakarta-tomcat-5.5.7/common/lib/org-netbeans-modules-schema2beans.jar"/>
+          tofile="${cluster}/jakarta-tomcat-5.5.9/common/lib/org-netbeans-modules-schema2beans.jar"/>
     <copy file="${monitor.dir}/modules/ext/org-netbeans-modules-web-httpmonitor.jar"
-          tofile="${cluster}/jakarta-tomcat-5.5.7/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
+          tofile="${cluster}/jakarta-tomcat-5.5.9/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
     <chmod perm="ugo+x">
       <fileset dir="${cluster}/${tomcat.filename}/bin">
         <include name="*.sh"/>
@@ -86,7 +86,7 @@ Microsystems, Inc. All Rights Reserved.
         <text>For the integration module:</text>
         <file location="${license.file}"/>
         <text>For Tomcat:</text>
-        <file location="${nb_all}/tomcatint/external/jakarta-tomcat-5.5.7-license.txt"/>
+        <file location="${nb_all}/tomcatint/external/jakarta-tomcat-5.5.9-license.txt"/>
       </license>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
