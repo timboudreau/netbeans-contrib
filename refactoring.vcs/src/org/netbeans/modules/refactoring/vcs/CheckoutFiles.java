@@ -35,6 +35,7 @@ public class CheckoutFiles implements ProblemDetailsImplementation {
     private Command editCmd;
     private static String CHECKOUT_OPTION;
     private static final String CANCEL_OPTION = NbBundle.getMessage(CheckoutFiles.class, "LBL_Cancel");
+    private Cancellable parent;
     /** Creates a new instance of CheckoutFiles */
     public CheckoutFiles(Collection files, Command editCmd) {
         this.setFiles(files);
@@ -42,6 +43,7 @@ public class CheckoutFiles implements ProblemDetailsImplementation {
     }
     
     public void showDetails(Action rerunRefactoringAction, Cancellable parent) {
+        this.parent = parent;
         CHECKOUT_OPTION = MessageFormat.format(NbBundle.getMessage(CheckoutFiles.class, "LBL_Checkout_And_Rerun"), new Object[]{rerunRefactoringAction.getValue(Action.NAME)});
         DialogDescriptor desc = new DialogDescriptor(new CheckoutPanel(getFiles()), NbBundle.getMessage(CheckoutFiles.class, "LBL_Title_Update_Files"), true, new String[]{CHECKOUT_OPTION, CANCEL_OPTION}, CHECKOUT_OPTION, DialogDescriptor.DEFAULT_ALIGN, null, null);
         Object retval = DialogDisplayer.getDefault().notify(desc);
@@ -65,8 +67,7 @@ public class CheckoutFiles implements ProblemDetailsImplementation {
     }
     
     private void rerunRefactoring(Action rerunRefactoringAction) {
-        Runnable close = (Runnable) rerunRefactoringAction.getValue("doCloseParent"); //NOI18N
-        close.run();
+        parent.close();
         rerunRefactoringAction.actionPerformed(null);
     }
 
