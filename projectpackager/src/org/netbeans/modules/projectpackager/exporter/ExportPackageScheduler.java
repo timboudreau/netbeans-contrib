@@ -118,11 +118,11 @@ public class ExportPackageScheduler {
         if (SharabilityQuery.getSharability(f)==SharabilityQuery.NOT_SHARABLE) {
             if (f.isDirectory()) {
                 // ignore NOT_SHARABLE directory, add "/" to ignore subdirectories as well
-                unsharableFiles.add(f.getAbsolutePath().replace(
+                unsharableFiles.add(f.getAbsolutePath().replaceFirst(
                         topDir+File.separator, "")+File.separator);
             } else {
                 // ignore NOT_SHARABLE file
-                unsharableFiles.add(f.getAbsolutePath().replace(
+                unsharableFiles.add(f.getAbsolutePath().replaceFirst(
                         topDir+File.separator, ""));                
             }
         } else if (SharabilityQuery.getSharability(f)==SharabilityQuery.MIXED) {
