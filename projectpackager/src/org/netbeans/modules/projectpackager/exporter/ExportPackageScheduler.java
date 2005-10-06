@@ -122,6 +122,8 @@ public class ExportPackageScheduler {
                 // ignore NOT_SHARABLE directory, add "/" to ignore subdirectories as well
                 if (path.indexOf(projectDir)>-1) {
                     unsharableFiles.add(f.getAbsolutePath().substring(projectDir.length())+File.separator);
+                } else {
+                    assert false : "Incorrect project path: "+projectDir;
                 }
             } else {
                 // ignore NOT_SHARABLE file
