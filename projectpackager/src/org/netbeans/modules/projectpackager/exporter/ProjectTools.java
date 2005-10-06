@@ -46,7 +46,7 @@ public class ProjectTools {
             for (int j = 0; j < sourceGroups.length; j++) {
                 sourceDirs[j] = sourceGroups[j].getRootFolder();
                 String projectPath = openProjects[i].getProjectDirectory().getPath();
-                if (!projectPath.matches(sourceGroups[j].getRootFolder().getPath())) {
+                if (projectPath.indexOf(sourceGroups[j].getRootFolder().getPath()) == -1) {
                     isExternal[j] = Boolean.TRUE;
                 } else {
                     isExternal[j] = Boolean.FALSE;                    
