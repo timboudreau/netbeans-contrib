@@ -117,19 +117,15 @@ public class ExportPackageScheduler {
     private static void traverseDirForSharability(String topDir, File f) {        
         if (SharabilityQuery.getSharability(f)==SharabilityQuery.NOT_SHARABLE) {
             String path = f.getAbsolutePath();
-            System.out.println("Path: "+path);
-            String projectDir = topDir + File.separator;
-            System.out.println("projectDir: "+projectDir);
+            String projectDir = topDir + File.separator;            
             if (f.isDirectory()) {
                 // ignore NOT_SHARABLE directory, add "/" to ignore subdirectories as well
                 if (path.indexOf(projectDir)>-1) {
                     unsharableFiles.add(f.getAbsolutePath().substring(projectDir.length())+File.separator);
-                    System.out.println("Ignoring: "+f.getAbsolutePath().substring(projectDir.length())+File.separator);
                 }
             } else {
                 // ignore NOT_SHARABLE file
                 unsharableFiles.add(f.getAbsolutePath().substring(projectDir.length()));
-                System.out.println("Ignoring: "+f.getAbsolutePath().substring(projectDir.length()));
             }
         } else if (SharabilityQuery.getSharability(f)==SharabilityQuery.MIXED) {
             // MIXED means directory contains some NOT_SHARABLEs, traverse it
