@@ -14,35 +14,35 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Actions">
-	<folder name="View">
+        <folder name="View">
             <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" />
             <!--<file name="org-netbeans-modules-tasklist-usertasks-actions-ShowScheduleViewAction.instance" />-->
         </folder>
-	<folder name="Edit">
+        <folder name="Edit">
             <file name="org-netbeans-modules-tasklist-usertasks-actions-NewTaskAction.instance" />
         </folder>
     </folder>        
 
-  <folder name="Shortcuts">
-    <file name="INSERT.shadow">
-        <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-tasklist-usertasks-actions-NewTaskAction.instance"/>
-    </file>
-  </folder>
-      
-  <folder name="Menu">
-    <folder name="Window">
-        <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" />
-        <!--<file name="org-netbeans-modules-tasklist-usertasks-actions-ShowScheduleViewAction.instance" />-->
-        <attr name="org-netbeans-core-actions-EditorViewAction.instance/org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" boolvalue="true" />
-        <attr name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
-        <!--<attr name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance/org-netbeans-modules-tasklist-usertasks-actions-ShowScheduleViewAction.instance" boolvalue="true" />-->
+    <folder name="Shortcuts">
+        <file name="INSERT.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-tasklist-usertasks-actions-NewTaskAction.instance"/>
+        </file>
     </folder>
-  </folder>
+      
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" />
+            <!--<file name="org-netbeans-modules-tasklist-usertasks-actions-ShowScheduleViewAction.instance" />-->
+            <attr name="org-netbeans-core-actions-EditorViewAction.instance/org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" boolvalue="true" />
+            <attr name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
+            <!--<attr name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance/org-netbeans-modules-tasklist-usertasks-actions-ShowScheduleViewAction.instance" boolvalue="true" />-->
+        </folder>
+    </folder>
 
-  <folder name="Services">
+    <folder name="Services">
         <folder name="Hidden">
-           <file name="org-netbeans-modules-tasklist-usertasks-UserTaskTransfer.instance"/>
-	</folder>
+            <file name="org-netbeans-modules-tasklist-usertasks-UserTaskTransfer.instance"/>
+        </folder>
         <folder name="JavaHelp">
             <!-- Merge after Core IDE Help: -->
             <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-tasklist-usertasks-helpsetref.xml" boolvalue="true"/>
@@ -53,31 +53,21 @@ Microsystems, Inc. All Rights Reserved.
             <attr name="org-netbeans-modules-tasklist-usertasks-helpsetref.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
         </folder>
         
-    <file name="org-netbeans-modules-tasklist-usertasks-Settings.settings" url="Settings.settings">
-        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
-	<attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/core/task.gif"/>
-    </file>
-  </folder>
+        <file name="org-netbeans-modules-tasklist-usertasks-Settings.settings" url="Settings.settings">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/core/task.gif"/>
+        </file>
+    </folder>
 
-  <folder name="UI">
-    <folder name="Services">
-	 <folder name="Editing">
-	      <file name="org-netbeans-modules-tasklist-usertasks-Settings.shadow">
-                  <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-usertasks-Settings.settings"/>
-		</file>
-	    </folder>
-	</folder>
-   </folder>
-
-   <folder name="Templates">
-     <folder name="Other">
-       <file name="tasklist.ics" url="tasklist.ics">
-           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
-           <attr name="template" boolvalue="true"/>
-           <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/emptyicalendar.html" />
-       </file>
-     </folder>
-   </folder>
+    <folder name="Templates">
+        <folder name="Other">
+            <file name="tasklist.ics" url="tasklist.ics">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/emptyicalendar.html" />
+            </file>
+        </folder>
+    </folder>
 
     <folder name="TaskList">
         <folder name="usertasks">
@@ -88,63 +78,63 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
 
 
-  <folder name="xml">
-    <folder name="entities">
-      <!--Entity registration-->
-      <folder name="NetBeans_org_netbeans_modules_tasklist_usertasks">
-	<file name="DTD_User_Tasks_1_0" url="translators/usertasks-1_0.dtd">
-	  <attr name="hint.originalPublicID"
-	    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.0//EN"/>
-	</file>
-	<file name="DTD_User_Tasks_1_1" url="translators/usertasks-1_1.dtd">
-	  <attr name="hint.originalPublicID"
-	    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.1//EN"/>
-	</file>
-	<file name="DTD_User_Tasks_1_2" url="translators/usertasks-1_2.dtd">
-	  <attr name="hint.originalPublicID"
-	    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.2//EN"/>
-	</file>
-      </folder>
-      <folder name="NetBeans_org_netbeans_modules_tasklist">
-	<file name="DTD_UserTaskFilter_1_0" url="filter/utfilter-1_0.dtd">
-	  <attr name="hint.originalPublicID"
-	    stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD UserTaskFilter 1.0//EN"/>
-	</file>
+    <folder name="xml">
+        <folder name="entities">
+            <!--Entity registration-->
+            <folder name="NetBeans_org_netbeans_modules_tasklist_usertasks">
+                <file name="DTD_User_Tasks_1_0" url="translators/usertasks-1_0.dtd">
+                    <attr name="hint.originalPublicID"
+                    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.0//EN"/>
+                </file>
+                <file name="DTD_User_Tasks_1_1" url="translators/usertasks-1_1.dtd">
+                    <attr name="hint.originalPublicID"
+                    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.1//EN"/>
+                </file>
+                <file name="DTD_User_Tasks_1_2" url="translators/usertasks-1_2.dtd">
+                    <attr name="hint.originalPublicID"
+                    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.2//EN"/>
+                </file>
+            </folder>
+            <folder name="NetBeans_org_netbeans_modules_tasklist">
+                <file name="DTD_UserTaskFilter_1_0" url="filter/utfilter-1_0.dtd">
+                    <attr name="hint.originalPublicID"
+                    stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD UserTaskFilter 1.0//EN"/>
+                </file>
 
-      </folder>
-    </folder>
+            </folder>
+        </folder>
 
-    <folder name="lookups">
-      <folder name="NetBeans_org_netbeans_modules_tasklist">
-	<file name="DTD_UserTaskFilter_1_0.instance">
-	  <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
-	  <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter$Convertor.create"/>
-	  <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter"/>
-	  <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter"/>
-	</file>
-      </folder>
-    </folder>
+        <folder name="lookups">
+            <folder name="NetBeans_org_netbeans_modules_tasklist">
+                <file name="DTD_UserTaskFilter_1_0.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter"/>
+                </file>
+            </folder>
+        </folder>
 
-    <folder name="memory">
-      <folder name="org">
-	<folder name="netbeans">
-	  <folder name="modules">
-	    <folder name="tasklist">
-	      <folder name="usertasks">
-                <folder name="filter">
-                    <file name="UserTaskFilter">
-                      <attr name="settings.providerPath"
-                        stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_UserTaskFilter_1_0.instance"/>
-                    </file>
+        <folder name="memory">
+            <folder name="org">
+                <folder name="netbeans">
+                    <folder name="modules">
+                        <folder name="tasklist">
+                            <folder name="usertasks">
+                                <folder name="filter">
+                                    <file name="UserTaskFilter">
+                                        <attr name="settings.providerPath"
+                                        stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_UserTaskFilter_1_0.instance"/>
+                                    </file>
+                                </folder>
+                            </folder>
+                        </folder>
+                    </folder>
                 </folder>
-	      </folder>
-	    </folder>
-	  </folder>
-	</folder>
-      </folder>
-    </folder>
+            </folder>
+        </folder>
 
-  </folder>
+    </folder>
 
     <folder name="Editors">
         <folder name="AnnotationTypes">
@@ -177,4 +167,12 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
 
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-tasklist-usertasks-Options.instance">
+                <attr name="instanceClass"
+                stringvalue="org.netbeans.modules.tasklist.usertasks.options.UTAdvancedOption"/>
+            </file>
+        </folder>
+    </folder>
 </filesystem>

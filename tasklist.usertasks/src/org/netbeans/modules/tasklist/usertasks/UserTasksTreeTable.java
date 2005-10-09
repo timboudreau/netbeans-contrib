@@ -33,7 +33,6 @@ import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
-import org.netbeans.modules.tasklist.usertasks.actions.NewTaskListAction;
 import org.netbeans.modules.tasklist.usertasks.editors.CategoryTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.OwnerTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
@@ -62,7 +61,6 @@ import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.renderers.OwnerTableCellRenderer;
-
 /**
  * TT for user tasks
  *
@@ -259,7 +257,6 @@ public class UserTasksTreeTable extends NodesTreeTable {
     public javax.swing.Action[] getFreeSpaceActions() {
         return new Action[] {
             SystemAction.get(NewTaskAction.class),
-            SystemAction.get(NewTaskListAction.class),
             null,
             SystemAction.get(FilterAction.class),
             null,

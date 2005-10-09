@@ -28,35 +28,18 @@ Microsystems, Inc. All Rights Reserved.
                 <style type="text/css">
                     th { text-align : center; background-color : #222288; color : white }
                     tr.data { background-color: #eeeeee }
-                    td.priority { text-align : center }
-                    td.category { text-align : center }
                     td.effort { text-align : right }
-                    td.due { text-align : right }
-                    td.file { text-align : center }
-                    td.line { text-align : right }
                 </style>
             </head>
             <body style="font-family : sans-serif">
                 <h1>Task List</h1>
                 <table width="100%" border="0" cellpadding="0" cellspacing="1">
-                    <col width="45%"/>
+                    <col width="90%"/>
                     <col width="10%"/>
-                    <col width="10%"/>
-                    <col width="10%"/>
-                    <col width="10%"/>
-                    <col width="5%"/>
-                    <col width="5%"/>
-                    <col width="5%"/>
                     <thead>
                         <tr>
                             <th>Summary</th>
-                            <th>Priority</th>
-                            <th>Category</th>
-                            <th>Progress</th>
                             <th>Effort</th>
-                            <th>Due</th>
-                            <th>File</th>
-                            <th>Line</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,11 +68,6 @@ Microsystems, Inc. All Rights Reserved.
                             </td>
                             <td>&#x2022; 
                                 <span title="{details}">
-                                    <xsl:if test="@progress = 100">
-                                        <xsl:attribute name="style">
-                                            text-decoration : line-through
-                                        </xsl:attribute>
-                                    </xsl:if>
                                     <xsl:value-of select="summary"/>
                                     <xsl:text> </xsl:text>
                                     <xsl:if test="details != ''">
@@ -101,54 +79,11 @@ Microsystems, Inc. All Rights Reserved.
                     </tbody>
                 </table>
             </td>
-            <td class="priority">
-                <xsl:choose>
-                    <xsl:when test="@priority = 'high'">
-                        <div style="color : #DD0000">high</div>
-                    </xsl:when>
-                    <xsl:when test="@priority = 'medium-high'">
-                        <div style="color : #FF8000">medium-high</div>
-                    </xsl:when>
-                    <xsl:when test="@priority = 'medium'">
-                        <div style="color : black">medium</div>
-                    </xsl:when>
-                    <xsl:when test="@priority = 'medium-low'">
-                        <div style="color : #00BB00">medium-low</div>
-                    </xsl:when>
-                    <xsl:when test="@priority = 'low'">
-                        <div style="color : #008000">low</div>
-                    </xsl:when>
-                </xsl:choose>
-            </td>
-            <td class="category"><xsl:value-of select="@category"/></td>
-            <td>
-                <xsl:call-template name="progress-bar">
-                    <xsl:with-param name="progress" select="@progress"/>
-                </xsl:call-template>
-            </td>
             <td class="effort">
                 <xsl:call-template name="effort">
                     <xsl:with-param name="effort" select="@effort"/>
                 </xsl:call-template>
             </td>
-            <td class="due">
-                <xsl:call-template name="format-date">
-                    <xsl:with-param name="date" select="@due"/>
-                </xsl:call-template>
-            </td>
-            <td class="file">
-                <xsl:if test='@file'>
-                    <a>
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="@file"/>
-                        </xsl:attribute>
-                        <span title="{@file}:{@line}">
-                            open
-                        </span>
-                    </a>
-                </xsl:if>
-            </td>
-            <td class="line"><xsl:value-of select="@line"/></td>
         </tr>
         <xsl:apply-templates select="task">
             <xsl:with-param name="level" select="$level + 1"/>
@@ -203,26 +138,5 @@ Microsystems, Inc. All Rights Reserved.
         <xsl:if test="$m != 0">
             <xsl:value-of select="$m"/> m
         </xsl:if>
-    </xsl:template>
-    
-    <xsl:template name="progress-bar">
-        <xsl:param name="progress"/>
-        <table cellspacing="0" cellpadding="0" 
-            style="width : 100%; height : 10">
-            <tbody>
-                <tr>
-                    <td style="background-color : #222288; color: white; text-align : right; width : {$progress}%">
-                        <xsl:if test="$progress &gt; 50">
-                            <xsl:value-of select="$progress"/>%
-                        </xsl:if>
-                    </td>
-                    <td style="background-color : #cccccc; color: black; text-align : left; width : {100 - $progress}%">
-                        <xsl:if test="$progress &lt;= 50">
-                            <xsl:value-of select="$progress"/>%
-                        </xsl:if>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
     </xsl:template>
 </xsl:stylesheet> 

@@ -11,23 +11,26 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-
 package org.netbeans.modules.tasklist.usertasks;
 
-import org.openide.loaders.DataNode;
-import org.openide.nodes.Children;
+import java.util.Comparator;
 
-/** A node to represent this object.
+
+/**
+ * Compares priority values
  *
- * @author Tor Norbye
+ * @author tl
  */
-public class TaskListDataNode extends DataNode {
-
-    public TaskListDataNode(TaskListDataObject obj) {
-	super(obj, Children.LEAF);
-        setIconBaseWithExtension(ICON);
+public class PriorityComparator implements Comparator {
+    public int compare(java.lang.Object o1, java.lang.Object o2) {
+        if (o1 == null && o2 == null)
+           return 0;
+        if (o1 == null)
+           return -1;
+        if (o2 == null)
+          return 1;
+        int p1 = ((Integer) o1).intValue();
+        int p2 = ((Integer) o2).intValue();
+        return p2 - p1;
     }
-
-    private static final String ICON =
-        "org/netbeans/modules/tasklist/usertasks/tasklistfile.gif";  // NOI18N
 }

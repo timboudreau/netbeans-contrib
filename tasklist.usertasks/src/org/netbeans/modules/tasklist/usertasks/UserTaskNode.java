@@ -40,7 +40,6 @@ import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
-import org.netbeans.modules.tasklist.usertasks.actions.NewTaskListAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
@@ -74,7 +73,6 @@ import org.openide.util.datatransfer.PasteType;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.openide.nodes.Node;
-
 /**
  * Node for a user task
  */
@@ -136,9 +134,11 @@ public final class UserTaskNode extends AbstractNode {
     protected void updateIcon() {
         UserTask uitem = (UserTask)item;
         if (uitem.isDone()) {
-            setIconBase("org/netbeans/modules/tasklist/core/doneItem"); // NOI18N
+            setIconBaseWithExtension(
+                "org/netbeans/modules/tasklist/core/doneItem.gif"); // NOI18N
         } else {
-            setIconBase("org/netbeans/modules/tasklist/core/task"); // NOI18N
+            setIconBaseWithExtension(
+                "org/netbeans/modules/tasklist/core/task.gif"); // NOI18N
         }
     }
     
@@ -146,7 +146,6 @@ public final class UserTaskNode extends AbstractNode {
         if (empty) {
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
-                SystemAction.get(NewTaskListAction.class),
                 null,
                 SystemAction.get(PauseAction.class),
                 null,
@@ -164,7 +163,6 @@ public final class UserTaskNode extends AbstractNode {
         } else {
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
-                SystemAction.get(NewTaskListAction.class),
                 //SystemAction.get(ShowScheduleViewAction.class),
                 null,
                 SystemAction.get(StartTaskAction.class),

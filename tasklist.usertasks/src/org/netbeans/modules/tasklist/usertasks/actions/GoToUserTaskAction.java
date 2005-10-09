@@ -61,7 +61,7 @@ public class GoToUserTaskAction extends CookieAction {
     }
     
     protected String iconResource() {
-        return "org/netbeans/modules/tasklist/core/showSource.gif"; // NOI18N
+        return "org/netbeans/modules/tasklist/usertasks/actions/gotosource.png"; // NOI18N
     }
     
     public HelpCtx getHelpCtx() {

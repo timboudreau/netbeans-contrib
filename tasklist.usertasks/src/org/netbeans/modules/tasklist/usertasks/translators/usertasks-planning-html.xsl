@@ -70,15 +70,10 @@ Microsystems, Inc. All Rights Reserved.
                 <table style="width : 100%">
                     <tbody>
                         <tr>
-                            <td style="width : {$level * 30}px">
+                            <td style="width : {$level * 30 + 1}px">
                             </td>
                             <td>&#x2022; 
                                 <span title="{details}">
-                                    <xsl:if test="@progress = 100">
-                                        <xsl:attribute name="style">
-                                            text-decoration : line-through
-                                        </xsl:attribute>
-                                    </xsl:if>
                                     <xsl:value-of select="summary"/>
                                     <xsl:text> </xsl:text>
                                     <xsl:if test="details != ''">
