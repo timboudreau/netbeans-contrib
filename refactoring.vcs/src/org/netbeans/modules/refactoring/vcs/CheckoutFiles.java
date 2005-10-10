@@ -67,7 +67,7 @@ public class CheckoutFiles implements ProblemDetailsImplementation {
     }
     
     private void rerunRefactoring(Action rerunRefactoringAction) {
-        parent.close();
+        parent.cancel();
         rerunRefactoringAction.actionPerformed(null);
     }
 
