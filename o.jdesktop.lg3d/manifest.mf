@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.jdesktop.lg3d
+OpenIDE-Module-Layer: org/jdesktop/lg3d/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/jdesktop/lg3d/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
