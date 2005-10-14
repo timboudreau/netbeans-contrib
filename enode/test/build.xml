@@ -13,7 +13,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
 <project name="openidex/enode/test" basedir="." default="all" >
     <!-- build tested modules  -->
-    <property name="testmodules" location="${basedir}/unit"/>
+    <property name="testmodules" location="${basedir}/../testmodule"/>
 
     <!-- Name of tested module -->
     <property name="xtest.module" value="openidex/enode"/>
