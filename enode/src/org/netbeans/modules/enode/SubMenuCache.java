@@ -15,9 +15,11 @@ package org.netbeans.modules.enode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JSeparator;
@@ -67,6 +69,13 @@ class SubMenuCache {
      */
     private boolean listenersAttached = false;
 
+    /**
+     * To prevent garbage collection of context where we attached
+     * listeners. We just add items to the set and never do anything
+     * with them. But that is the reason why it is here - to hold
+     * strong references to the Context objects.
+     */
+    private Set listenersAttachedTo = new HashSet();
     
     /** Creates a new instance of SubMenuCache */
     private SubMenuCache() {
@@ -108,6 +117,7 @@ class SubMenuCache {
         if (!listenersAttached) {
             ContextListener l1 = getContextListener(con);
             con.addContextListener(l1);
+            listenersAttachedTo.add(con);
         }
         MenuEntry rootMenu = scanFolder(root, null);
         getPathToEntryMap().put("", rootMenu);

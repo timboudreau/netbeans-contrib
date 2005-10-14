@@ -432,6 +432,24 @@ public class ExtensibleActionsTest extends NbTestCase {
         assertTrue("The 2nd component should be separator", jm2.getMenuComponent(1) instanceof javax.swing.JSeparator);
         assertTrue("The 4nd component should be separator", jm2.getMenuComponent(3) instanceof javax.swing.JSeparator);
     }
+    
+    /**
+     *
+     */
+    public void testfindExistingContext() throws Exception {
+        try {
+            String baseFolder = ExtensibleNode.E_NODE_ACTIONS.substring(1, ExtensibleNode.E_NODE_ACTIONS.length()-1);
+            Context test = root.createSubcontext("test");
+            Context res = ExtensibleLookupImpl.findExistingContext(baseFolder + "/test/ahoj");
+            String s = res.getAbsoluteContextName();
+            assertEquals("Should find the test folder ", ExtensibleNode.E_NODE_ACTIONS+"test", s);
+            Context res2 = ExtensibleLookupImpl.findExistingContext(baseFolder + "/test/ahoj/booooom/ba");
+            String s2 = res2.getAbsoluteContextName();
+            assertEquals("Should find the test folder ", ExtensibleNode.E_NODE_ACTIONS+"test", s2);
+        } finally {
+            root.destroySubcontext("test");
+        }
+    }
 }
     
 

@@ -14,11 +14,13 @@
 package org.netbeans.modules.enode;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Iterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 
@@ -62,6 +64,13 @@ public class ExtensibleIconsImpl extends ExtensibleIcons {
      */
     private boolean listenersAttached = false;
     
+    /**
+     * To prevent garbage collection of context where we attached
+     * listeners. We just add items to the set and never do anything
+     * with them. But that is the reason why it is here - to hold
+     * strong references to the Context objects.
+     */
+    private Set listenersAttachedTo = new HashSet();
     
     /**
      * Just remember the parameter enode.
@@ -177,12 +186,13 @@ public class ExtensibleIconsImpl extends ExtensibleIcons {
                 boolean exists = true;
                 Context con = Context.getDefault().getSubcontext(path);
                 if (con == null) {
-                    con = Context.getDefault();
+                    con = ExtensibleLookupImpl.findExistingContext(path);
                     exists = false;
                 }
                 if (!listenersAttached) {
                     ContextListener l1 = getContextListener(con);
                     con.addContextListener(l1);
+                    listenersAttachedTo.add(con);
                 }
                 if (! exists) {
                     if (LOGGABLE) log.log("getIconSet() path " + path + " does not exist.");

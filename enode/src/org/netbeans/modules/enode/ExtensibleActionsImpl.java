@@ -41,7 +41,7 @@ import org.netbeans.api.registry.*;
  * @author David Strupl
  */
 public class ExtensibleActionsImpl extends ExtensibleActions {
-    
+
     private static ErrorManager log = ErrorManager.getDefault().getInstance(ExtensibleActionsImpl.class.getName());
     private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
     
@@ -65,6 +65,14 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
      * Prevent the listeners to be attached more than once.
      */
     private boolean listenersAttached = false;
+    
+    /**
+     * To prevent garbage collection of context where we attached
+     * listeners. We just add items to the set and never do anything
+     * with them. But that is the reason why it is here - to hold
+     * strong references to the Context objects.
+     */
+    private Set listenersAttachedTo = new HashSet();
     
     /**
      * 
@@ -180,11 +188,12 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
         Context con = Context.getDefault().getSubcontext(path);
         if (con == null) {
             exists = false;
-            con = Context.getDefault();
+            con = ExtensibleLookupImpl.findExistingContext(path);
         }
         if (!listenersAttached) {
             ContextListener l1 = getContextListener(con);
             con.addContextListener(l1);
+            listenersAttachedTo.add(con);
         }
 
         if (! exists) {
@@ -239,11 +248,12 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
         Context con = Context.getDefault().getSubcontext(path);
         if (con == null) {
             exists = false;
-            con = Context.getDefault();
+            con = ExtensibleLookupImpl.findExistingContext(path);
         }
         if (!listenersAttached) {
             ContextListener l1 = getContextListener(con);
             con.addContextListener(l1);
+            listenersAttachedTo.add(con);
         }
 
         if (! exists) {
@@ -355,12 +365,13 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
                 boolean exists = true;
                 Context con = Context.getDefault().getSubcontext(path);
                 if (con == null) {
-                    con = Context.getDefault();
+                    con = ExtensibleLookupImpl.findExistingContext(path);
                     exists = false;
                 }
                 if (!listenersAttached) {
                     ContextListener l1 = getContextListener(con);
                     con.addContextListener(l1);
+                    listenersAttachedTo.add(con);
                 }
                 if (exists) {
                     Collection objects = con.getBindingNames();
@@ -410,6 +421,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
         if (listener == null) {
             listener = new Listener();
         }
+        if (LOGGABLE) log.log(this + " adding context listener to " + source);
         return (ContextListener)WeakListeners.create(ContextListener.class, listener, source);
     }
     

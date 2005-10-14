@@ -14,9 +14,11 @@
 package org.netbeans.modules.enode;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
@@ -68,6 +70,14 @@ public class ExtensibleLookupImpl extends ProxyLookup {
      * Prevent the listeners to be attached more than once.
      */
     private boolean listenersAttached = false;
+    
+    /**
+     * To prevent garbage collection of context where we attached
+     * listeners. We just add items to the set and never do anything
+     * with them. But that is the reason why it is here - to hold
+     * strong references to the Context objects.
+     */
+    private Set listenersAttachedTo = new HashSet();
     
     /**
      * setExtensibleNode has to be called shortly after using this
@@ -207,12 +217,13 @@ public class ExtensibleLookupImpl extends ProxyLookup {
             boolean exists = true;
             Context con = Context.getDefault().getSubcontext(path);
             if (con == null) {
-                con = Context.getDefault();
+                con = findExistingContext(path);
                 exists = false;
             }
             if (!listenersAttached) {
                 ContextListener l1 = getContextListener(con);
                 con.addContextListener(l1);
+                listenersAttachedTo.add(con);
             }
             if (exists) {
                 List objects = con.getOrderedObjects();
@@ -264,5 +275,25 @@ public class ExtensibleLookupImpl extends ProxyLookup {
         public void subcontextChanged(SubcontextEvent evt) {
             changeContent();
         }
+    }
+    
+    /**
+     * Tries to find an existing context that is created from given path.
+     * If context with given path does not exist this method tries to walk
+     * up to the parent until an existing one is found.
+     */
+    static Context findExistingContext(String path) {
+        String result = path;
+        Context con = Context.getDefault().getSubcontext(result);
+        while (con == null) {
+            int slash = result.lastIndexOf('/');
+            if (slash < 0) {
+                if (LOGGABLE) log.log("Cound not find proper context for " + path); // NOI18N
+                return Context.getDefault();
+            }
+            result = result.substring(0, slash);
+            con = Context.getDefault().getSubcontext(result);
+        }
+        return con;
     }
 }
