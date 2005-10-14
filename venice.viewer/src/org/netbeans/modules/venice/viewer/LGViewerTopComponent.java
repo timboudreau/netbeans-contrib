@@ -13,7 +13,9 @@ import javax.media.j3d.RotationInterpolator;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.vecmath.Point3d;
+import org.netbeans.modules.venice.viewer.lg3d.VeniceUniverseFactory;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
@@ -32,6 +34,7 @@ final class LGViewerTopComponent extends TopComponent {
         setName(NbBundle.getMessage(LGViewerTopComponent.class, "CTL_LGViewerTopComponent"));
         setToolTipText(NbBundle.getMessage(LGViewerTopComponent.class, "HINT_LGViewerTopComponent"));
         setIcon(Utilities.loadImage("org/netbeans/modules/venice/viewer/setting-inherited.gif", true));
+	setLayout(new BorderLayout());
     }
 
     /** This method is called from within the constructor to
@@ -67,9 +70,13 @@ final class LGViewerTopComponent extends TopComponent {
     }
 
     public void componentOpened() {
-        // TODO add custom code on component opening
-        init();
-        System.err.println("Returning ******************************");
+        // Start lg3d from within it's own thread because it will lock until the canvas3d is
+        // displayed.
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                startLG3D();
+            }
+        });  
     }
 
     public void componentClosed() {
@@ -92,67 +99,24 @@ final class LGViewerTopComponent extends TopComponent {
         }
         super.open();
     }
-
-    private SimpleUniverse u = null;
     
-    public BranchGroup createSceneGraph() {
-	// Create the root of the branch graph
-	BranchGroup objRoot = new BranchGroup();
-
-	// Create the TransformGroup node and initialize it to the
-	// identity. Enable the TRANSFORM_WRITE capability so that
-	// our behavior code can modify it at run time. Add it to
-	// the root of the subgraph.
-	TransformGroup objTrans = new TransformGroup();
-	objTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-	objRoot.addChild(objTrans);
-
-	// Create a simple Shape3D node; add it to the scene graph.
-	objTrans.addChild(new ColorCube(0.4));
-
-	// Create a new Behavior object that will perform the
-	// desired operation on the specified transform and add
-	// it into the scene graph.
-	Transform3D yAxis = new Transform3D();
-	Alpha rotationAlpha = new Alpha(-1, 4000);
-
-	RotationInterpolator rotator =
-	    new RotationInterpolator(rotationAlpha, objTrans, yAxis,
-				     0.0f, (float) Math.PI*2.0f);
-	BoundingSphere bounds =
-	    new BoundingSphere(new Point3d(0.0,0.0,0.0), 100.0);
-	rotator.setSchedulingBounds(bounds);
-	objRoot.addChild(rotator);
-
-        // Have Java 3D perform optimizations on this scene graph.
-        objRoot.compile();
-
-	return objRoot;
-    }
-
-    public void init() {
-	setLayout(new BorderLayout());
-        GraphicsConfiguration config =
-           SimpleUniverse.getPreferredConfiguration();
-
-	Canvas3D c = new Canvas3D(config);
-	add("Center", c);
-
-	// Create a simple scene and attach it to the virtual universe
-	BranchGroup scene = createSceneGraph();
-	u = new SimpleUniverse(c);
-
-        // This will move the ViewPlatform back a bit so the
-        // objects in the scene can be viewed.
-        u.getViewingPlatform().setNominalViewingTransform();
+    private void startLG3D() {
+        //String projectDir = "file:///c:/paulby/code/netbeans/nb_all/java3d/venice/viewer/src/org/netbeans/modules/venice/viewer/";
+        String projectDir = "resource:/org/netbeans/modules/venice/viewer/";
         
-        u.getViewer().getView().setMinimumFrameCycleTime(1000/30);
+        System.setProperty("lg.universeFactory", "org.netbeans.modules.venice.viewer.lg3d.VeniceUniverseFactory");
+        System.setProperty("lg.configurl",projectDir+"resources/lg3d/lgconfig_1p_nox.xml");
+        System.setProperty("lg.etcdir",projectDir+"resources/");
+        
+        System.setProperty("j3d.sortShape3DBounds", "true");
 
-	u.addBranchGraph(scene);
-    }
-
-    public void destroy() {
-	u.cleanup();
+        VeniceUniverseFactory.addUniverseListener( new VeniceUniverseFactory.UniverseListener() {
+           public void universeCreated( Canvas3D c3d ) {
+               LGViewerTopComponent.this.add("Center",c3d);
+           } 
+        });
+        
+        org.jdesktop.lg3d.displayserver.Main.main(null);
     }
     
     final static class ResolvableHelper implements Serializable {
@@ -161,7 +125,5 @@ final class LGViewerTopComponent extends TopComponent {
             return LGViewerTopComponent.getDefault();
         }
     }
-    
-    
 
 }
