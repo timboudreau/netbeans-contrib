@@ -13,7 +13,9 @@
 
 package org.netbeans.modules.enode;
 
+import java.util.Arrays;
 import javax.swing.Action;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import junit.textui.TestRunner;
@@ -22,15 +24,14 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 
 import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.FileSystem;
 import org.openide.modules.ModuleInfo;
-import org.openide.nodes.Node;
+import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
+import org.openide.util.actions.SystemAction;
 
 import org.netbeans.api.enode.ExtensibleNode;
+import org.netbeans.api.registry.*;
 
 /** 
  * This test should verify that the functionality of methods
@@ -38,10 +39,14 @@ import org.netbeans.api.enode.ExtensibleNode;
  * @author David Strupl
  */
 public class ExtensibleActionsTest extends NbTestCase {
-    /** root folder FileObject */
-    private FileObject root;
-    /** root folder FileObject for the lookup tests*/
-    private FileObject rootLookup;
+    /** root Context */
+    private Context root;
+    /** root Context for the lookup tests*/
+    private Context rootLookup;
+    /** submenu Context for the lookup tests*/
+    private Context submenu;
+    
+    private int i = 0;
 
     public ExtensibleActionsTest(String name) {
         super(name);
@@ -57,31 +62,18 @@ public class ExtensibleActionsTest extends NbTestCase {
      */
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
-        FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
         String baseFolder = ExtensibleNode.E_NODE_ACTIONS.substring(1, ExtensibleNode.E_NODE_ACTIONS.length()-1);
-        root = dfs.findResource(baseFolder);
-        if (root == null) {
-            String s1 = baseFolder.substring(0, baseFolder.lastIndexOf('/'));
-            FileObject f1 = dfs.findResource(s1);
-            if (f1 == null) {
-                f1 = dfs.getRoot().createFolder(s1);
-            } 
-            root = f1.createFolder(baseFolder.substring(baseFolder.lastIndexOf('/')+1));
-        }
-        
+        root = Context.getDefault().createSubcontext(baseFolder);
         String baseFolderLookup = ExtensibleNode.E_NODE_LOOKUP.substring(1, ExtensibleNode.E_NODE_LOOKUP.length()-1);
-        rootLookup = Repository.getDefault().getDefaultFileSystem().findResource(baseFolderLookup);
-        if (rootLookup == null) {
-            rootLookup = root.getParent().createFolder(baseFolderLookup.substring(baseFolderLookup.lastIndexOf('/')+1));
-        }
+        rootLookup = Context.getDefault().createSubcontext(baseFolderLookup);
+        String submenuFolder = ExtensibleNode.E_NODE_SUBMENUS.substring(1, ExtensibleNode.E_NODE_SUBMENUS.length()-1);
+        submenu = Context.getDefault().createSubcontext(submenuFolder);
     }
     
     /**
      * Deletes the folders created in method setUp().
      */
     protected void tearDown() throws Exception {
-        root.getParent().delete();
-        rootLookup.getParent().delete();
     }
     
     /**
@@ -99,17 +91,20 @@ public class ExtensibleActionsTest extends NbTestCase {
      * </OL>
      */
     public void testCreateAndDeleteAction() throws Exception {
-        ExtensibleNode en1 = new ExtensibleNode("test", false);
-        assertEquals("No actions at the start", 0, en1.getActions(false).length);
-        FileObject test = root.getFileObject("test");
-        if (test == null) {
-            test = root.createFolder("test");
+        try {
+            ExtensibleNode en1 = new ExtensibleNode("test", false);
+            assertEquals("No actions at the start " + i, 0, en1.getActions(false).length);
+            Context test = root.createSubcontext("test");
+
+            SystemAction sa = SystemAction.get(org.openide.actions.PropertiesAction.class);
+            test.putObject("ttt", sa);
+            Action [] res = en1.getActions(false);
+            assertEquals("There should be exactly one action. " + i , 1, res.length);
+            test.putObject("ttt", null);
+            assertEquals("No actions after deleting " + i, 0, en1.getActions(false).length);
+        } finally {
+            root.destroySubcontext("test");
         }
-        FileObject a1 = test.createData("org-openide-actions-PropertiesAction.instance");
-        Action [] res = en1.getActions(false);
-        assertEquals("There should be exactly one action.", 1, res.length);
-        a1.delete();
-        assertEquals("No actions after deleting", 0, en1.getActions(false).length);
     }
     
     /**
@@ -133,27 +128,28 @@ public class ExtensibleActionsTest extends NbTestCase {
      * </OL>
      */
     public void testHierarchicalBehaviour() throws Exception {
-        ExtensibleNode en1 = new ExtensibleNode("test/t1", true);
-        assertEquals("No actions at the start", 0, en1.getActions(false).length);
-        FileObject test = root.getFileObject("test");
-        if (test == null) {
-            test = root.createFolder("test");
+        try {
+            ExtensibleNode en1 = new ExtensibleNode("test/t1", true);
+            assertEquals("No actions at the start", 0, en1.getActions(false).length);
+            Context test = root.createSubcontext("test");
+
+            SystemAction sa = SystemAction.get(org.openide.actions.PropertiesAction.class);
+            test.putObject("ttt", sa);
+            Action [] res = en1.getActions(false);
+            assertEquals("There should be exactly one action.", 1, res.length);
+            Context t1 = test.createSubcontext("t1");
+            SystemAction a2 = SystemAction.get(org.openide.actions.CutAction.class);
+            t1.putObject("t2", sa);
+            assertEquals("There should 2 actions.", 2, en1.getActions(false).length);
+
+            test.putObject("ttt", null);
+            assertEquals("There should be one after first delete.", 1, en1.getActions(false).length);
+
+            t1.putObject("t2", null);
+            assertEquals("No actions after deleting both", 0, en1.getActions(false).length);
+        } finally {
+            root.destroySubcontext("test");
         }
-        FileObject a1 = test.createData("org-openide-actions-PropertiesAction.instance");
-        Action [] res = en1.getActions(false);
-        assertEquals("There should be exactly one action.", 1, res.length);
-        FileObject t1 = test.getFileObject("t1");
-        if (t1 == null) {
-            t1 = test.createFolder("t1");
-        }
-        FileObject a2 = t1.createData("org-openide-actions-CutAction.instance");
-        assertEquals("There should 2 actions.", 2, en1.getActions(false).length);
-        
-        a1.delete();
-        assertEquals("There should be one after first delete.", 1, en1.getActions(false).length);
-        
-        a2.delete();
-        assertEquals("No actions after deleting both", 0, en1.getActions(false).length);
     }
     
     /**
@@ -161,8 +157,9 @@ public class ExtensibleActionsTest extends NbTestCase {
      * the <code>testCreateAndDeleteAction</code> 100 times.
      */
     public void testRepetitiveDeleting() throws Exception {
-        for (int i = 0; i < 100; i++) {
+        for (i = 0; i < 100; i++) {
             testCreateAndDeleteAction();
+            Thread.sleep(100);
         }
     }
     
@@ -172,15 +169,16 @@ public class ExtensibleActionsTest extends NbTestCase {
      * The testing object is of type Integer (instead of javax.swing.Action).
      */
     public void testWrongActionObjectInConfig() throws Exception {
-        ExtensibleNode en1 = new ExtensibleNode("test", false);
-        assertEquals("No actions at the start", 0, en1.getActions(false).length);
-        FileObject test = root.getFileObject("test");
-        if (test == null) {
-            test = root.createFolder("test");
+        try {
+            ExtensibleNode en1 = new ExtensibleNode("test", false);
+            assertEquals("No actions at the start", 0, en1.getActions(false).length);
+            Context test = root.createSubcontext("test");
+            test.putObject("ttt", "foobar");
+            Action [] res = en1.getActions(false);
+            assertEquals("There should be zero actions.", 0, res.length);        
+        } finally {
+            root.destroySubcontext("test");
         }
-        FileObject a1 = test.createData("java-lang-String.instance");
-        Action [] res = en1.getActions(false);
-        assertEquals("There should be zero actions.", 0, res.length);        
     }
     
     /**
@@ -197,21 +195,28 @@ public class ExtensibleActionsTest extends NbTestCase {
      * </OL>
      */
     public void testAddingSeparators() throws Exception {
-        ExtensibleNode en1 = new ExtensibleNode("test", false);
-        assertEquals("No actions at the start", 0, en1.getActions(false).length);
-        FileObject test = root.getFileObject("test");
-        if (test == null) {
-            test = root.createFolder("test");
+        try {
+            ExtensibleNode en1 = new ExtensibleNode("test", false);
+            assertEquals("No actions at the start", 0, en1.getActions(false).length);
+            Context test = root.createSubcontext("test");
+
+            SystemAction a1 = SystemAction.get(org.openide.actions.PropertiesAction.class);
+            Object sep = new javax.swing.JSeparator();
+            SystemAction a2 = SystemAction.get(org.openide.actions.CutAction.class);
+            test.putObject("a1", a1);
+            test.putObject("sep", sep);
+            test.putObject("a2", a2);
+            test.orderContext(Arrays.asList(new String[] { "a1", "sep", "a2" } ));
+
+            javax.swing.Action[] actions = en1.getActions(false);
+            assertEquals("Actions array should contain 3 elements", 3, actions.length);
+            assertNull("separator should create null element in the array but created 1." + actions[0] + " 2. " + actions[1] + " 3. " + actions[2], actions[1]);
+            JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.singleton(en1));
+            assertEquals("Popup should contain 3 components", 3, jp.getComponentCount());
+            assertTrue("Separator should be second", jp.getComponent(1) instanceof javax.swing.JSeparator);
+        } finally {
+            root.destroySubcontext("test");
         }
-        FileObject a1 = test.createData("1[org-openide-actions-PropertiesAction].instance");
-        FileObject sep = test.createData("2[javax-swing-JSeparator].instance");
-        FileObject a2 = test.createData("3[org-openide-actions-CutAction].instance");
-        javax.swing.Action[] actions = en1.getActions(false);
-        assertEquals("Actions array should contain 3 elements", 3, actions.length);
-        assertNull("separator should create null element in the array", actions[1]);
-        JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.singleton(en1));
-        assertEquals("Popup should contain 3 components", 3, jp.getComponentCount());
-        assertTrue("Separator should be second", jp.getComponent(1) instanceof javax.swing.JSeparator);
     }
     
     /**
@@ -230,27 +235,45 @@ public class ExtensibleActionsTest extends NbTestCase {
      * </OL>
      */
     public void testSubMenuBehaviour() throws Exception {
-        ExtensibleNode en1 = new ExtensibleNode("test", false);
-        assertEquals("No actions at the start", 0, en1.getActions(false).length);
-        FileObject test = root.getFileObject("test");
-        if (test == null) {
-            test = root.createFolder("test");
-        }
-        FileObject sub = test.getFileObject("SubMenuSub Menu");
-        if (sub == null) {
-            sub = test.createFolder("SubMenuSub Menu");
-        }
-        FileObject a1 = sub.createData("org-openide-actions-PropertiesAction.instance");
-        FileObject a2 = sub.createData("org-openide-actions-CutAction.instance");
+            ExtensibleNode en1 = new ExtensibleNode("test1", false);
+            Action[] actions = en1.getActions(false);
+            if (actions.length == 1) {
+                fail("actions only contains " + actions[0]);
+            }
+            assertEquals("Actions array should contain 2 elements ", 2, actions.length);
+            JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.singleton(en1));
+            assertEquals("Popup should contain 2 components", 2, jp.getComponentCount());
+            assertTrue("The first component should be menu", jp.getComponent(0) instanceof javax.swing.JMenu);
+            javax.swing.JMenu jm = (javax.swing.JMenu)jp.getComponent(0);
+            assertEquals("Submenu should contain two elements", 2, jm.getMenuComponentCount());
+            assertEquals("Submenu should have correct name", "Sub Menu1", jm.getText());
+    }
+
+    /**
+     * This test checks whether the JSeparator added from the configuration
+     * file is reflected in the resulting popup.
+     * The tests performs following steps:
+     * <OL><LI> Create an instance of ExtensibleNode with folder set to "test"
+     *     <LI> No actions should be returned by getActions since the "test" folder
+     *          is not there
+     *     <LI> Create two actions in the testing folder separated by JSeparator
+     *     <LI> getActions should return 1 elements - the submenu
+     *     <LI> Popup is created from the actions array - the separator should
+     *          come second according to the order.
+     * </OL>
+     */
+    public void testAddingSeparatorsToSubMenu() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test2", false);
         javax.swing.Action[] actions = en1.getActions(false);
         assertEquals("Actions array should contain 1 element", 1, actions.length);
         JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.singleton(en1));
         assertEquals("Popup should contain 1 component", 1, jp.getComponentCount());
         assertTrue("The component should be menu", jp.getComponent(0) instanceof javax.swing.JMenu);
         javax.swing.JMenu jm = (javax.swing.JMenu)jp.getComponent(0);
-        assertEquals("Submenu should contain two elements", 2, jm.getMenuComponentCount());
-        assertEquals("Submenu should have correct name", "Sub Menu", jm.getText());
+        assertEquals("Submenu should contain 3 elements", 3, jm.getMenuComponentCount());
+        assertTrue("Separator should be second", jm.getMenuComponent(1) instanceof javax.swing.JSeparator);
     }
+
     
     /**
      * This test tests the presence of declarative actions from
@@ -268,21 +291,147 @@ public class ExtensibleActionsTest extends NbTestCase {
      * </OL>
      */
     public void testCreateAndDeleteActionForCookie() throws Exception {
-        ExtensibleNode en1 = new ExtensibleNode("test", false);
-        assertEquals("No actions at the start", 0, en1.getActions(false).length);
-        FileObject test = rootLookup.getFileObject("test");
-        if (test == null) {
-            test = rootLookup.createFolder("test");
+        try {
+            ExtensibleNode en1 = new ExtensibleNode("test", false);
+            assertEquals("No actions at the start", 0, en1.getActions(false).length);
+            Context test = rootLookup.createSubcontext("test");
+            Context cFolder = root.createSubcontext("Cookie");
+
+            SystemAction a1 = SystemAction.get(org.openide.actions.PropertiesAction.class);
+            cFolder.putObject("a1", a1);
+            test.putObject("Cookie", "brumbrum");
+
+            Action [] res = en1.getActions(false);
+            assertEquals("There should be exactly one action.", 1, res.length);
+            test.putObject("Cookie", null);
+            assertEquals("No actions after deleting cookie", 0, en1.getActions(false).length);
+        } finally {
+            rootLookup.destroySubcontext("test");
+            root.destroySubcontext("Cookie");
         }
-        FileObject cFolder = root.getFileObject("Cookie");
-        if (cFolder == null) {
-            cFolder = root.createFolder("Cookie");
-        }
-        FileObject ck = test.createData("Cookie.instance");
-        FileObject a1 = cFolder.createData("org-openide-actions-PropertiesAction.instance");
-        Action [] res = en1.getActions(false);
-        assertEquals("There should be exactly one action.", 1, res.length);
-        ck.delete();
-        assertEquals("No actions after deleting cookie", 0, en1.getActions(false).length);
+    }
+    
+    /**
+     * This test should ensure that when the user selects more nodes in the explorer
+     * that share common submenu the resulting submenu is really shown.
+     * The tests performs following steps:
+     * <OL><LI> Create two instances of ExtensibleNode with folder set to "test"
+     *     <LI> No actions should be returned by getActions since the "test" folder
+     *          is not there
+     *     <LI> Create a subfolder of the config folder containing two acitons files
+     *     <LI> Check whether the folder is represented by an action when both nodes
+     *          are selected
+     *     <LI> Convert the action to popup
+     *     <LI> The popup should contain one element (JMenu)
+     * </OL>
+     */
+    public void testSubMenuOnMoreSelectedNodes() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test2", false);
+        ExtensibleNode en2 = new ExtensibleNode("test2", false);
+
+        Action[] actions = NodeOp.findActions(new Node[] { en1, en2 });
+        assertEquals("Actions array should contain 1 element", 1, actions.length);
+        JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.singleton(en1));
+        assertEquals("Popup should contain 1 component", 1, jp.getComponentCount());
+        assertTrue("The component should be menu", jp.getComponent(0) instanceof javax.swing.JMenu);
+        javax.swing.JMenu jm = (javax.swing.JMenu)jp.getComponent(0);
+        assertEquals("Submenu should contain 3 elements", 3, jm.getMenuComponentCount());
+    }
+    
+    /**
+     * This test checks whether adding folder from the configuration
+     * file is reflected in the resulting popup as a submenu.
+     * The tests performs following steps:
+     * <OL><LI> Create an instance of ExtensibleNode with folder set to "Foo"
+     *     <LI> Check whether the folder is represented by an action
+     *     <LI> Convert the action to popup
+     *     <LI> The popup should contain one element (JMenu)
+     *     <LI> The nested JMenu should have one subelements
+     * </OL>
+     */
+    public void testOrderOfActions() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode(Children.LEAF,"TPFVWC_View/View", true);
+        javax.swing.Action[] actions = NodeOp.findActions(new Node[] { en1 });
+        assertEquals("Actions array should contain 2 elements ", 2, actions.length);
+        JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.singleton(en1));
+        assertEquals("Popup should contain 2 components", 2, jp.getComponentCount());
+        assertEquals("The second component should be Delete", "Delete", ((JMenuItem)jp.getComponent(1)).getText());
+        
+        ExtensibleNode en2 = new ExtensibleNode(Children.LEAF,"TPFVWC_View/ViewFolder", true);
+        javax.swing.Action[] actions2 = NodeOp.findActions(new Node[] { en2 });
+        assertEquals("Actions array should contain 2 elements ", 2, actions2.length);
+        JPopupMenu jp2 = Utilities.actionsToPopup(actions2, org.openide.util.lookup.Lookups.singleton(en2));
+        assertEquals("Popup should contain 2 components", 2, jp2.getComponentCount());
+        assertEquals("The second component should be Delete", "Delete", ((JMenuItem)jp2.getComponent(1)).getText());
+    }
+    /**
+     * This test checks whether the JSeparator added from the configuration
+     * file is reflected in the resulting popup.
+     * The tests performs following steps:
+     * <OL><LI> Create an instance of ExtensibleNode with folder set to "test3"
+     *     <LI> Create two actions in the testing folder separated by JSeparator
+     *     <LI> getActions should return 1 elements - the submenu
+     *     <LI> Popup is created from the actions array - the separator should
+     *          come second according to the order.
+     * </OL>
+     */
+    public void testSubSubMenu() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test3", false);
+        javax.swing.Action[] actions = en1.getActions(false);
+        assertEquals("Actions array should contain 1 element", 1, actions.length);
+        JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.singleton(en1));
+        assertEquals("Popup should contain 1 component", 1, jp.getComponentCount());
+        assertTrue("The component should be menu", jp.getComponent(0) instanceof javax.swing.JMenu);
+        javax.swing.JMenu jm = (javax.swing.JMenu)jp.getComponent(0);
+        assertEquals("Menu should have display name Nice", "Nice", jm.getText());
+        
+        assertEquals("Menu should contain 1 component", 1, jm.getMenuComponentCount());
+        assertTrue("The component should be menu", jm.getMenuComponent(0) instanceof javax.swing.JMenu);
+        javax.swing.JMenu jm2 = (javax.swing.JMenu)jm.getMenuComponent(0);
+        assertEquals("Menu should have display name Localized", "Localized", jm2.getText());
+        
+        assertEquals("Menu2 should contain 1 component", 1, jm2.getMenuComponentCount());
+        assertTrue("The component should be menu", jm2.getMenuComponent(0) instanceof javax.swing.JMenu);
+        javax.swing.JMenu jm3 = (javax.swing.JMenu)jm2.getMenuComponent(0);
+        assertEquals("Menu should have display name Menu", "Menu", jm3.getText());
+        
+        assertEquals("Submenu should contain 3 elements", 3, jm3.getMenuComponentCount());
+        assertTrue("Separator should be second", jm3.getMenuComponent(1) instanceof javax.swing.JSeparator);
+    }
+
+    /**
+     * This test checks whether the JSeparator added from the configuration
+     * file is reflected in the resulting popup.
+     * The tests performs following steps:
+     * <OL><LI> Create an instance of ExtensibleNode with folder set to "test3"
+     *     <LI> Create two actions in the testing folder separated by JSeparator
+     *     <LI> getActions should return 1 elements - the submenu
+     *     <LI> Popup is created from the actions array - the separator should
+     *          come second according to the order.
+     * </OL>
+     */
+    public void testMoreSeparators() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test4", false);
+        javax.swing.Action[] actions = en1.getActions(false);
+        assertEquals("Actions array should contain 6 elements", 6, actions.length);
+        JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.singleton(en1));
+        assertEquals("Popup should contain 6 components", 6, jp.getComponentCount());
+        assertTrue("The 2nd component should be separator", jp.getComponent(1) instanceof javax.swing.JSeparator);
+        assertTrue("The 5nd component should be separator", jp.getComponent(4) instanceof javax.swing.JSeparator);
+        
+        assertTrue("The 3rd component should be menu", jp.getComponent(2) instanceof javax.swing.JMenu);
+        javax.swing.JMenu jm = (javax.swing.JMenu)jp.getComponent(2);
+        
+        assertEquals("Menu should contain 6 components", 6, jm.getMenuComponentCount());
+        assertTrue("The 2nd component should be separator", jm.getMenuComponent(1) instanceof javax.swing.JSeparator);
+        assertTrue("The 5nd component should be separator", jm.getMenuComponent(4) instanceof javax.swing.JSeparator);
+        assertTrue("The 3rd component should be menu", jm.getMenuComponent(2) instanceof javax.swing.JMenu);
+        javax.swing.JMenu jm2 = (javax.swing.JMenu)jm.getMenuComponent(2);
+        
+        assertEquals("Menu2 should contain 5 components", 5, jm2.getMenuComponentCount());
+        assertTrue("The 2nd component should be separator", jm2.getMenuComponent(1) instanceof javax.swing.JSeparator);
+        assertTrue("The 4nd component should be separator", jm2.getMenuComponent(3) instanceof javax.swing.JSeparator);
     }
 }
+    
+

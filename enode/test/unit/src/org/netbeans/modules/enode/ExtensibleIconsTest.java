@@ -21,14 +21,12 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 
 import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.FileSystem;
 import org.openide.modules.ModuleInfo;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 
 import org.netbeans.api.enode.ExtensibleNode;
+import org.netbeans.api.registry.*;
 
 /**
  * This class should test the setting icons in the
@@ -36,8 +34,8 @@ import org.netbeans.api.enode.ExtensibleNode;
  * @author David Strupl
  */
 public class ExtensibleIconsTest extends NbTestCase {
-    /** root folder FileObject */
-    private FileObject root;
+    /** root Context */
+    private Context root;
 
     public ExtensibleIconsTest(String name) {
         super(name);
@@ -54,66 +52,29 @@ public class ExtensibleIconsTest extends NbTestCase {
      */
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
-        FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
         String baseFolder = ExtensibleNode.E_NODE_ICONS.substring(1, ExtensibleNode.E_NODE_ICONS.length()-1);
-        root = dfs.findResource(baseFolder);
-        if (root == null) {
-            String s1 = baseFolder.substring(0, baseFolder.lastIndexOf('/'));
-            FileObject f1 = dfs.findResource(s1);
-            if (f1 == null) {
-                f1 = dfs.getRoot().createFolder(s1);
-            } 
-            root = f1.createFolder(baseFolder.substring(baseFolder.lastIndexOf('/')+1));
-        }
+        root = Context.getDefault().createSubcontext(baseFolder);
     }
     
     /**
      * Deletes the folders created in method setUp().
      */
     protected void tearDown() throws Exception {
-        root.getParent().delete();
     }
 
     /**
-     * This test verifies that the code in ExtensibleNode calls method 
-     * <code>AbstractNode.setIconBase()</code> with correct arguments in
-     * correct time. However it does not test whether the icon specified
-     * is displayed or not - that is job of AbstractNode.<p>
-     * Also there is an accessible method setIconBase in AbstractNode but there
-     * is no way to get the value of the iconBase. So this test uses
-     * reflection to access the private field from AbstractNode.<p>
-     * The test does following:
-     * <OL><LI> Creates an ExtensibleNode with patch "a/b/c"
-     *     <LI> Because the configuration folders are empty (or not present) at this
-     *     moment the getIconBase should be null
-     *     <LI> A String object is created in folder "a/b" containing the value base1
-     *     <LI> "base1" should be the value of the iconBase since the ExtensibleNode
-     *     was created to use the hierarchical search and so the file in folder "a/b"
-     *     should be taken into account
-     *     <LI> A String object with value "base2" is created in folder "a/b/c"
-     *     <LI> Now the value of the iconBase should be "base2" since the value in folder
-     *     "a/b/c" should override the value in "a/b"
-     *  </OL>
      */
-    public void testSettingTheIconBase() throws Exception {
+    public void test1() throws Exception {
         ExtensibleNode en1 = new ExtensibleNode("a/b/c", true);
         java.lang.reflect.Method getIconManagerMethod = ExtensibleNode.class.getDeclaredMethod("getIconManager", new Class[0]);
         getIconManagerMethod.setAccessible(true);
         Object iconMan = getIconManagerMethod.invoke(en1, new Object[0]);
-        java.lang.reflect.Method getIconBaseMethod = iconMan.getClass().getMethod("getIconBase", new Class[0]);
-        assertNull("No files - no dirs", getIconBaseMethod.invoke(iconMan, new Object[0]));
-        FileObject a = root.getFileObject("a");
-        FileObject b = a.getFileObject("b");
-        FileObject c = b.getFileObject("c");
-        String base1 = "base1";
-        org.openide.loaders.InstanceDataObject.create(
-            org.openide.loaders.DataFolder.findFolder(b), 
-            "i1", base1, null);
-        assertEquals("i1 in dir b", base1, getIconBaseMethod.invoke(iconMan, new Object[0]));
-        String base2 = "base2";
-        org.openide.loaders.InstanceDataObject.create(
-            org.openide.loaders.DataFolder.findFolder(c),
-            "i2", base2, null);
-        assertEquals("i2 in dir c", base2, getIconBaseMethod.invoke(iconMan, new Object[0]));
+        
+        Context b = root.createSubcontext("a/b");
+        Context c = root.createSubcontext("a/b/c");
+        
+//         b.putObject("i1", base1);
+        
+        root.destroySubcontext("a");
     }
 }

@@ -19,15 +19,10 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 
 import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.*;
 import org.openide.modules.ModuleInfo;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.InstanceDataObject;
-import org.openide.cookies.InstanceCookie;
 
 import org.netbeans.api.enode.ExtensibleNode;
 import org.netbeans.spi.enode.LookupContentFactory;
@@ -74,7 +69,7 @@ public class ExtensibleLookupTest extends NbTestCase {
      * Deletes the folders created in method setUp().
      */
     protected void tearDown() throws Exception {
-        root.getParent().delete();
+//        root.getParent().delete();
     }
     
     /**
@@ -95,6 +90,9 @@ public class ExtensibleLookupTest extends NbTestCase {
         ExtensibleNode en1 = new ExtensibleNode("test", false);
         assertNull("No objects at the start", en1.getLookup().lookup(MONodeEnhancer.class));
         FileObject test = root.getFileObject("test");
+        if (test == null) {
+            test = root.createFolder("test");
+        }
         FileObject a1 = test.createData("cookie1.instance");
         a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
         a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
@@ -114,6 +112,9 @@ public class ExtensibleLookupTest extends NbTestCase {
         ExtensibleNode en1 = new ExtensibleNode("test/t2", true);
         assertNull("No objects at the start", en1.getLookup().lookup(MONodeEnhancer.class));
         FileObject test = root.getFileObject("test");
+        if (test == null) {
+            test = root.createFolder("test");
+        }
         FileObject a1 = test.createData("cookie1.instance");
         a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
         a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");

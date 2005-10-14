@@ -1,8 +1,4 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.enode/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/enode/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.registry/1
-OpenIDE-Module-Public-Packages: org.netbeans.api.enode.**, org.netbeans.spi.enode.**
 
