@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.ant.freeform.spi.ProjectNature;
 import org.netbeans.modules.ant.freeform.spi.ProjectPropertiesPanel;
 import org.netbeans.modules.ant.freeform.spi.TargetDescriptor;
@@ -42,7 +41,12 @@ import org.netbeans.spi.project.ui.PrivilegedTemplates;
 import org.netbeans.spi.project.ui.RecommendedTemplates;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeNotFoundException;
+import org.openide.nodes.NodeOp;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.Lookups;
@@ -127,8 +131,37 @@ public class EJBProjectNature implements ProjectNature {
     }
 
     public Node findSourceFolderViewPath(Project project, Node root, Object target) {
-        // XXX #56978
-        return null;
+        // handle the Configuration Files node
+        
+        DataObject rootDO = (DataObject)root.getLookup().lookup(DataObject.class);
+        if (rootDO == null) {
+            return null;
+        }
+        
+        DataObject targetDO = null;
+        
+        if (target instanceof DataObject) {
+            targetDO = (DataObject)target;
+        } else if (target instanceof FileObject) {
+            try {
+                targetDO = DataObject.find((FileObject)target);
+            } catch (DataObjectNotFoundException ex) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+        
+        if (!FileUtil.isParentOf(rootDO.getPrimaryFile(), targetDO.getPrimaryFile())) {
+            // target is not under root
+            return null;
+        }
+        
+        try {
+            return NodeOp.findPath(root, new String[] { targetDO.getNodeDelegate().getName() });
+        } catch (NodeNotFoundException ex) {
+            return null;
+        }
     }
 
     private static boolean isMyProject(AuxiliaryConfiguration aux) {
