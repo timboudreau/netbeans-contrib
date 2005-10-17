@@ -14,6 +14,7 @@ package org.netbeans.modules.bookmarks;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import javax.swing.Action;
@@ -23,7 +24,7 @@ import org.openide.ErrorManager;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.RequestProcessor;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.api.bookmarks.*;
 import org.netbeans.api.registry.*;
@@ -63,12 +64,6 @@ public class BookmarkServiceImpl extends BookmarkService {
     private static final String SHORTCUTS_FOLDER = "Shortcuts";
     
     /**
-     * We hold a reference to the listener for preventing
-     * the garbage collection.
-     */
-    private Listener listener;
-
-    /**
      * We hold a reference to the context for preventing
      * the garbage collection.
      */
@@ -81,11 +76,6 @@ public class BookmarkServiceImpl extends BookmarkService {
     private Context bookmarksToolbarContext;
     
     /**
-     * Prevent the listeners to be attached more than once.
-     */
-    private boolean listenersAttached = false;
-    
-    /**
      * Keeps track of the task spawned from the constructor.
      */
     private RequestProcessor.Task initTask = null;
@@ -94,7 +84,6 @@ public class BookmarkServiceImpl extends BookmarkService {
      * to be able to instantiate this service
      */
     public BookmarkServiceImpl() {
-        checkActionsFolder();
         
         // we run this in a separate thread because the
         // code checking the bookmarks might use BookmarkServiceImpl
@@ -105,6 +94,7 @@ public class BookmarkServiceImpl extends BookmarkService {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         checkTopComponentsFolder();
+                        checkActionsFolder();
                     }
                 });
             }
@@ -144,6 +134,9 @@ public class BookmarkServiceImpl extends BookmarkService {
             }
             // following line will save the bookmark to the system file system
             targetFolder.putObject(safeName, b);
+            // the following will save the bookmark action to the actions folder
+            // to be usable for shortcuts
+            saveBookmarkActionImpl(targetFolder, safeName);
         } catch (ContextException x) {
             ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(x); // NOI18N
         }
@@ -157,6 +150,9 @@ public class BookmarkServiceImpl extends BookmarkService {
      */
     public Bookmark createDefaultBookmark(TopComponent tc) {
         BookmarkProvider bp = (BookmarkProvider)tc.getLookup().lookup(BookmarkProvider.class);
+        if ( (bp == null) && (tc instanceof BookmarkProvider) ) {
+            bp = (BookmarkProvider)tc;
+        }
         Bookmark b = null;
         if (bp != null) {
             b = bp.createBookmark();
@@ -172,10 +168,29 @@ public class BookmarkServiceImpl extends BookmarkService {
      * trying to append a number to the specified name.
      */
     public static String findUnusedName(Context targetFolder, String name) {
-        String result = name;
+        String s = name;
+        // first, get rid of "strange" characters in the name
+        StringBuffer sb = new StringBuffer(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if ( ((ch >= 'a') && (ch <= 'z')) ||
+            ((ch >= 'A') && (ch <= 'Z')) ||
+            ((ch >= '0') && (ch <= '9')) ||
+            (ch == '-') || (ch == '_') ) {
+                sb.append(ch);
+            }
+        }
+        if (sb.length() == 0) {
+            sb.append(Long.toString(System.currentTimeMillis()));
+        }
+        
+        s = sb.toString();
+        String result = s;
+        
+        // now make it unique
         int i = 0;
         while (targetFolder.getObject(result, null) != null) {
-            result = name + i++;
+            result = s + i++;
         }
         return result;
     }
@@ -194,17 +209,6 @@ public class BookmarkServiceImpl extends BookmarkService {
         return null;
     }
     
-    /** The meat of this method is in checkActionsFolderNow. This
-     * one is here only for replanning for a bit later.
-     */
-    private void checkActionsFolder() {
-        RequestProcessor.getDefault().post(new Runnable() {
-            public void run() {
-                checkActionsFolderNow();
-            }
-        });
-    }
-    
     /**
      * This method scans the BOOKMARKS_ACTIONS folder and tries to
      * delete unused actions. The unused actions are those that
@@ -214,19 +218,12 @@ public class BookmarkServiceImpl extends BookmarkService {
      * bookmarks in the BOOKMARKS_FOLDER and BOOKMARKS_TOOLBAR 
      * have action in BOOKMARKS_ACTIONS.
      */
-    private void checkActionsFolderNow() {
+    private void checkActionsFolder() {
         try {
             bookmarksFolderContext = Context.getDefault().createSubcontext(BOOKMARKS_FOLDER);
             bookmarksToolbarContext = Context.getDefault().createSubcontext(BOOKMARKS_TOOLBAR);
-            if (!listenersAttached) {
-                ContextListener l1 = getContextListener(bookmarksFolderContext);
-                ContextListener l2 = getContextListener(bookmarksToolbarContext);
-                bookmarksFolderContext.addContextListener(l1); 
-                bookmarksToolbarContext.addContextListener(l2); // NOI18N
-                listenersAttached = true;
-            }
-            
             ArrayList toDelete = new ArrayList();
+            ArrayList actionsCache = new ArrayList();
             
             Context con3 = Context.getDefault().createSubcontext(BOOKMARKS_ACTIONS);
             Iterator it = con3.getOrderedNames().iterator();
@@ -234,7 +231,9 @@ public class BookmarkServiceImpl extends BookmarkService {
                 String name = (String)it.next();
                 Object obj = con3.getObject(name, null);
                 if (obj instanceof BookmarkActionImpl) {
-                    if ( ! checkBookmarkAction((BookmarkActionImpl)obj)) {
+                    if (checkBookmarkAction((BookmarkActionImpl)obj)) {
+                        actionsCache.add(obj);
+                    } else {
                         toDelete.add(name);
                     }
                 }
@@ -244,8 +243,8 @@ public class BookmarkServiceImpl extends BookmarkService {
                 con3.putObject((String)i.next(), null);
             }
             // create new items in the Actions/Bookmarks folder
-            ensureAllBookmarksHaveActions(bookmarksFolderContext);
-            ensureAllBookmarksHaveActions(bookmarksToolbarContext);
+            ensureAllBookmarksHaveActions(bookmarksFolderContext, actionsCache);
+            ensureAllBookmarksHaveActions(bookmarksToolbarContext, actionsCache);
             // after the action has been updated force the reload
             // of active shortcuts
             refreshShortcutsFolder();
@@ -279,25 +278,15 @@ public class BookmarkServiceImpl extends BookmarkService {
      * actions are also in BOOKMARKS_ACTIONS folder. If the action
      * is not there it is added (to the BOOKMARKS_ACTIONS folder).
      */
-    private void ensureAllBookmarksHaveActions(Context con) {
+    private void ensureAllBookmarksHaveActions(Context con, Collection actionsCache) {
         Iterator it = con.getBindingNames().iterator();
         while (it.hasNext()) {
             String name = (String)it.next();
             Object obj = con.getObject(name, null);
             if (obj instanceof Bookmark) {
                 Bookmark b = (Bookmark)obj;
-                if (! isThereActionForBookmark(b)) {
-                    // the following will save the bookmark to the actions folder
-                    // to be usable for shortcuts
-                    try {
-                        Context targetFolder = Context.getDefault().createSubcontext(BOOKMARKS_ACTIONS);
-                        String safeName = findUnusedName(targetFolder, name);
-                        String path1 = con.getAbsoluteContextName() + "/" + name;  // NOI18N
-                        path1 = path1.substring(1);
-                        targetFolder.putObject(safeName, new BookmarkActionImpl(path1, b));
-                    } catch (ContextException ne) {
-                        ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
-                    }
+                if (! isThereActionForBookmark(b, actionsCache)) {
+                    saveBookmarkActionImpl(con, name);
                 }
             }
         }
@@ -307,26 +296,21 @@ public class BookmarkServiceImpl extends BookmarkService {
             String name = (String)it2.next();
             Context c = con.getSubcontext(name);
             if (c != null) {
-                ensureAllBookmarksHaveActions(c);
+                ensureAllBookmarksHaveActions(c, actionsCache);
             }
         }
     }
     
-    private boolean isThereActionForBookmark(Bookmark b) {
-        try {
-            Context targetFolder = Context.getDefault().createSubcontext(BOOKMARKS_ACTIONS);
-            Iterator it = targetFolder.getOrderedObjects().iterator();
-            while (it.hasNext()) {
-                Object obj = it.next();
-                if (obj instanceof BookmarkActionImpl) {
-                    BookmarkActionImpl bai = (BookmarkActionImpl)obj;
-                    if (b.equals(bai.getBookmark())) {
-                        return true;
-                    }
+    private boolean isThereActionForBookmark(Bookmark b, Collection actionsCache) {
+        Iterator it = actionsCache.iterator();
+        while (it.hasNext()) {
+            Object obj = it.next();
+            if (obj instanceof BookmarkActionImpl) {
+                BookmarkActionImpl bai = (BookmarkActionImpl)obj;
+                if (b.equals(bai.getBookmark())) {
+                    return true;
                 }
             }
-        } catch (ContextException ne) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
         }
         return false;
     }
@@ -356,8 +340,7 @@ public class BookmarkServiceImpl extends BookmarkService {
             Context c2 = Context.getDefault().createSubcontext(BOOKMARKS_TOOLBAR);
             for (Iterator it = al.iterator(); it.hasNext(); ) {
                 String s = (String)it.next();
-                TopComponent tc = (TopComponent)targetFolder.getObject(s, null);
-                if (isTopComponentUsed(c1, tc) || isTopComponentUsed(c2 , tc)) {
+                if (isTopComponentUsed(c1, s) || isTopComponentUsed(c2 , s)) {
                     it.remove();
                 }
             }
@@ -377,20 +360,20 @@ public class BookmarkServiceImpl extends BookmarkService {
      * @returns true if the given top component is referenced from
      *        the context c
      */
-    private boolean isTopComponentUsed(Context c, TopComponent tc) {
+    private boolean isTopComponentUsed(Context c, String tcFileName) {
         Iterator it = c.getOrderedNames().iterator();
         while (it.hasNext()) {
             String name = (String)it.next();
             Object obj = c.getObject(name, null);
             if (obj instanceof BookmarkImpl) {
                 BookmarkImpl bimpl = (BookmarkImpl)obj;
-                if (tc.getName().equals(bimpl.getName())) {
+                if (tcFileName.equals(bimpl.getTopComponentFileName())) {
                     return true;
                 }
             }
             Context c1 = c.getSubcontext(name);
             if (c1 != null) {
-                if (isTopComponentUsed(c1, tc)) {
+                if (isTopComponentUsed(c1, tcFileName)) {
                     return true;
                 }
             }
@@ -399,46 +382,53 @@ public class BookmarkServiceImpl extends BookmarkService {
     }
 
     /**
+     * the following will save the bookmark to the actions folder
+     * to be usable for shortcuts.
+     * @param name of the bookmark
+     * @param con context containing the bookmark
+     */
+    static void saveBookmarkActionImpl(Context con, String name) {
+        try {
+            Context targetFolder = Context.getDefault().createSubcontext(BOOKMARKS_ACTIONS);
+            String safeName = findUnusedName(targetFolder, name);
+            String path1 = con.getAbsoluteContextName() + "/" + name;  // NOI18N
+            path1 = path1.substring(1);
+            targetFolder.putObject(safeName, new BookmarkActionImpl(path1, safeName));
+            refreshShortcutsFolder();
+        } catch (ContextException ne) {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
+        }
+    }
+    
+    /**
      * In order for the global shortcuts to be refreshed
      * we need to tell core that something has changed
      * in the shortcuts folder.
      */
-    private void refreshShortcutsFolder() {
+    static void refreshShortcutsFolder() {
         try {
             Context c = Context.getDefault().createSubcontext(SHORTCUTS_FOLDER);
-            // TODO: what to do?
+            // This is a hack! It forces the core's impl to refresh the list of shortcuts.
+            c.putObject("dummy", new java.io.Serializable() { // NOI18N
+                static final long serialVersionUID = 1L;
+            } );
         } catch (ContextException ce)  {
             ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce); // NOI18N
         }
     }
     
     /**
-     * Lazy initialization of the listener variable. 
-     * @param source Object source object
+     * Static utility method for cloning bookmarks. If the cloning process is
+     * not successfull it returns the original object.
      */
-    private ContextListener getContextListener(Object source) {
-        if (listener == null) {
-            listener = new Listener();
+    static Bookmark cloneBookmark(Bookmark b) {
+        try {
+            Class bClass = b.getClass();
+            Method cloneMethod = bClass.getMethod("clone", new Class[0]);
+            return (Bookmark)cloneMethod.invoke(b, new Object[0]);
+        } catch (Exception x) {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ErrorManager.INFORMATIONAL, x); // NOI18N
         }
-        return (ContextListener)WeakListener.create(ContextListener.class, listener, source);
-    }
-    
-    /**
-     * Listener for updating bookmarks in the BOOKMARKS_ACTIONS
-     * folder.
-     */
-    private class Listener implements ContextListener {
-        
-        public void attributeChanged(AttributeEvent evt) {
-            checkActionsFolder();
-        }
-        
-        public void bindingChanged(BindingEvent evt) {
-            checkActionsFolder();
-        }
-        
-        public void subcontextChanged(SubcontextEvent evt) {
-            checkActionsFolder();
-        }
+        return b;
     }
 }

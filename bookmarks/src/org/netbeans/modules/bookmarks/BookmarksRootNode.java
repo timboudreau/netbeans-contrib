@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.bookmarks;
 
+import javax.swing.Action;
 import org.openide.actions.*;
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
@@ -33,7 +34,7 @@ public class BookmarksRootNode extends AbstractNode {
      */
     public BookmarksRootNode() {
         super(new RootChildren());
-        setIconBase("org/netbeans/modules/bookmarks/resources/BookmarksRootNodeIcon");
+        setIconBaseWithExtension("org/netbeans/modules/bookmarks/resources/BookmarksRootNodeIcon.gif");
         // Set FeatureDescriptor stuff:
         setName("BookmarksRoot"); // NOI18N
         setDisplayName(NbBundle.getMessage(BookmarksRootNode.class, "LBL_BookmarksRoot"));
@@ -41,7 +42,7 @@ public class BookmarksRootNode extends AbstractNode {
     }
     
     /** Nothing can be done with this node. */
-    protected SystemAction[] createActions() {
+    public Action[] getActions(boolean context) {
         return new SystemAction[] {
         };
     }

@@ -21,7 +21,7 @@ import javax.swing.event.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.util.Utilities;
 
 import org.netbeans.api.bookmarks.*;
@@ -45,7 +45,7 @@ public class BackAction extends AbstractAction implements ChangeListener, HelpCt
         putValue(Action.NAME, getName());
         putValue("iconBase", "org/netbeans/modules/bookmarks/resources/back.gif");
         navigationService.addChangeListener(
-            WeakListener.change(this, navigationService));
+            WeakListeners.change(this, navigationService));
         setEnabled(navigationService.canNavigateBackward());
     }
     

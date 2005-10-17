@@ -12,12 +12,18 @@
  */
 package org.netbeans.modules.bookmarks;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.Externalizable;
 import java.util.Properties;
 import java.util.Iterator;
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
+import java.lang.ref.WeakReference;
+import javax.swing.SwingUtilities;
 
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDisplayer;
@@ -26,13 +32,23 @@ import org.netbeans.api.bookmarks.*;
 import org.netbeans.api.registry.*;
 
 /**
- * Action used for shortcuts to bookmarks.
- * Storing is achieved using core/settings module properties convertor - 
- * see methods readProperties, writeProperties.
+ * Action used for shortcuts to bookmarks. Storing is achieved using
+ * serialization - see methods readExternal, writeExternal.
+ *
+ * Please note that serialization must me used in this case since
+ * two different APIs (Registry, Loaders) are trying to access
+ * the same instance. Registry does not support settings (core/settings)
+ * and Loaders don't support openide/convertor. So serialization
+ * is the only common format that can be used here.
+ *
  * @author David Strupl
  */
-public class BookmarkActionImpl extends AbstractAction {
+public class BookmarkActionImpl extends AbstractAction implements Externalizable, PropertyChangeListener {
     
+    static {
+        BookmarkService.getDefault();
+    }
+
     private static final long serialVersionUID = 1L;
     
     /** Name of the property used from readProperties, writeProperties.
@@ -40,25 +56,44 @@ public class BookmarkActionImpl extends AbstractAction {
      */
     private static final String PROP_PATH = "path";
     
+    /** Name of the property used from readProperties, writeProperties.
+     * The path is path to this object.
+     */
+    private static final String PROP_MY_PATH = "myPath";
+    
     /** Path to the bookmark */
     private String path;
     
-//    private transient Bookmark bookmark;
+    /** Name of this object in the actions folder. */
+    private String myBindingName;
     
-    /** 
+    /** Caching "my" bookmark reference */
+    private WeakReference bookmark;
+    
+    /**
+     * Constructor used by the serialization mechanism.
      */
     public BookmarkActionImpl() {
     }
     
-    /** Creates the bookmark with the associated TopComponent.
-     * If you use this constructor the bookmark is able to be
-     * saved after the call to setTopComponentFileName.
+    /**
+     * Creates the action pointing to the original bookmark
+     * object stored on path p.
      */
-    public BookmarkActionImpl(String p) {
+    public BookmarkActionImpl(String p, String myBindingName) {
         this.path = p;
+        this.myBindingName = myBindingName;
         if (path.length() > 0 && path.charAt(0) == '/') {
             path = path.substring(1);
         }
+        updateName();
+    }
+
+    /**
+     * Updates name of this action. The name is taken from
+     * the bookmark object.
+     */
+    private void updateName() {
         Bookmark b = getBookmark();
         if (b != null) {
             String name = b.getName();
@@ -68,22 +103,17 @@ public class BookmarkActionImpl extends AbstractAction {
         }
     }
     
-    public BookmarkActionImpl(String p, Bookmark b) {
-        this.path = p;
-        if (path.length() > 0 && path.charAt(0) == '/') {
-            path = path.substring(1);
-        }
-        String name = b.getName();
-        putValue(NAME, name);
-    }
-    
     /**
      * Implementing the javax.swing.Action interface.
      */
     public void actionPerformed(ActionEvent e) {
-        Bookmark b = getBookmark();
+        final Bookmark b = getBookmark();
         if (b != null) {
-            b.invoke();
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    b.invoke();
+                }
+            });
         } else {
             NotifyDescriptor.Message warning = 
                 new NotifyDescriptor.Message(
@@ -92,7 +122,10 @@ public class BookmarkActionImpl extends AbstractAction {
             DialogDisplayer.getDefault().notify(warning);
         }
     }
-   
+    
+    /**
+     * Returns path in the registry where the original Bookmark object is stored.
+     */
     public String getPath() {
         return path;
     }
@@ -102,22 +135,47 @@ public class BookmarkActionImpl extends AbstractAction {
      * is not found returns null.
      */
     Bookmark getBookmark() {
+        if (bookmark != null) {
+            Object cachedValue = bookmark.get();
+            if (cachedValue != null) {
+                return (Bookmark)cachedValue;
+            }
+        }
         int lastSlash = path.lastIndexOf('/');
         Object obj = null;
         if (lastSlash >= 0) {
             Context c = Context.getDefault().getSubcontext(path.substring(0, lastSlash));
             if (c == null) {
-                throw new IllegalStateException("Bookmark not found, context does not exist for path " + path); // NOI18N
+                return null;
             }
             obj = c.getObject(path.substring(lastSlash+1), null);
         } else {
             obj = Context.getDefault().getObject(path, null);
         }
         if (obj instanceof Bookmark) {
-            return (Bookmark)obj;
+            Bookmark b = (Bookmark)obj;
+            b.removePropertyChangeListener(this);
+            b.addPropertyChangeListener(this);
+            bookmark = new WeakReference(b);
+            return b;
         }
-//        throw new IllegalStateException("Bookmark not found with path " + path + " object == " + obj); // NOI18N
         return null;
+    }
+    
+    /**
+     * As we listen only on the bookmark this method tries
+     * to always update the name from the bookmark.
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(BookmarksNode.PROP_DESTROYED)) {
+            Context targetFolder = Context.getDefault().getSubcontext(BookmarkServiceImpl.BOOKMARKS_ACTIONS);
+            if (targetFolder != null) {
+                targetFolder.putObject(myBindingName, null);
+                BookmarkServiceImpl.refreshShortcutsFolder();
+            }
+            return;
+        }
+        updateName();
     }
     
     /**
@@ -128,29 +186,22 @@ public class BookmarkActionImpl extends AbstractAction {
         return "BookmarkActionImpl [path==" + path + "]";
     }
     
-    // readProperties/writeProperties called by XMLPropertiesConvertor
-    
     /**
-     * Called by XMLPropertiesConvertor to restore the state
-     * of this object after calling the default constructor.
+     * Reads only the path variable and tries to load
+     * the bookmark object.
      */
-    private void readProperties(Properties p) {
-        path = p.getProperty(PROP_PATH);
-        Bookmark b = getBookmark();
-        if (b != null) {
-            String name = b.getName();
-            putValue(NAME, name);
-        } else {
-            putValue(NAME, NbBundle.getBundle(BookmarkActionImpl.class).getString("LBL_Invalid_Bookmark"));
-        }
+    public void readExternal(java.io.ObjectInput in) throws java.io.IOException, ClassNotFoundException {
+        path = (String)in.readObject();
+        myBindingName = (String)in.readObject();
+        updateName();
     }
     
     /**
-     * XMLPropertiesConvertor calls this method when it wants
-     * to persist this object.
+     * We store only the path.
      */
-    private void writeProperties(Properties p) {
-        p.setProperty(PROP_PATH, path);
+    public void writeExternal(java.io.ObjectOutput out) throws java.io.IOException {
+        out.writeObject(path);
+        out.writeObject(myBindingName);
     }
     
 }

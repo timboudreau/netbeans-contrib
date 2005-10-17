@@ -14,10 +14,12 @@ package org.netbeans.modules.bookmarks.actions;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import org.openide.awt.Mnemonics;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.ErrorManager;
+import org.openide.awt.Actions;
 import org.openide.util.actions.Presenter;
 
 import org.netbeans.modules.bookmarks.*;
@@ -50,12 +52,16 @@ public class BookmarksMenu implements Presenter.Toolbar, HelpCtx.Provider {
      * of this menu is created dynamically by MenuFromFolder.
      */
     public java.awt.Component getToolbarPresenter() {
+        JMenuItem addBookmarkItem = new JMenuItem();
+        Actions.connect(addBookmarkItem, new AddBookmarkAction(), false);
+        JMenuItem manageBookmarkItem = new JMenuItem();
+        Actions.connect(manageBookmarkItem, new ManageBookmarksAction(), false);
         JMenuItem[] fixed = new JMenuItem[] {
-            new JMenuItem(new AddBookmarkAction()),
-            new JMenuItem(new ManageBookmarksAction()),
+            addBookmarkItem,
+            manageBookmarkItem,
         };
         JMenu jm = new MenuFromFolder(BookmarkServiceImpl.BOOKMARKS_FOLDER, fixed).getMenu();
-        jm.setText(getName());
+        Mnemonics.setLocalizedText(jm, getName());
         return jm;
     }    
 }

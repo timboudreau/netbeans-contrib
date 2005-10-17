@@ -13,15 +13,18 @@
 
 package org.netbeans.modules.bookmarks;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import javax.swing.*;
+import org.netbeans.api.bookmarks.BookmarkService;
 
 import org.openide.ErrorManager;
 import org.openide.util.actions.Presenter;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.filesystems.Repository;
 
 import org.netbeans.api.registry.*;
+import org.openide.util.RequestProcessor;
 
 /**
  * Creates a menu with submenus from a content of folder
@@ -66,6 +69,21 @@ public class MenuFromFolder implements Runnable {
     private boolean listenersAttached = false;
     
     /**
+     * Keeps track of the task spawned from refreshMenuContents.
+     */
+    private RequestProcessor.Task refreshTask = null;
+    
+    /**
+     * Should we read the values from the storage?
+     */
+    private boolean refreshNeeded = true;
+    
+    /**
+     * Map: path (String) --> WeakReference(MenuFromFolder)
+     */
+    private static Map instanceCache = new HashMap();
+    
+    /**
      * Parameter path is path in the JNDI root context.
      * fixedItems are items that are not changing with the content
      * of the folder. They are put at the top of the menu.
@@ -78,16 +96,18 @@ public class MenuFromFolder implements Runnable {
     /**
      * Parameter path is path in the JNDI root context.
      */
-    public MenuFromFolder(String path) {
+    private MenuFromFolder(String path) {
         this.path = path;
     }
     
-    /** Reads actions from a JNDI context. Also adds a listener
+    /**
+     * Reads actions from a context. Also adds a listener
      * to the context.
-     * @param name of the context.
-     * @return array of actions
      */
     public JMenu getMenu() {
+        if ((! refreshNeeded) && (menu != null)) {
+            return menu;
+        }
         if ((path.length() > 0) && (path.charAt(0) == '/')) {
             path = path.substring(1);
         }
@@ -100,6 +120,7 @@ public class MenuFromFolder implements Runnable {
             menu = new MyMenu(s);
         } else {
             menu.removeAll();
+            menu.setText(s);
         }
         if (fixedItems != null) {
             for (int i = 0; i < fixedItems.length; i++) {
@@ -108,14 +129,12 @@ public class MenuFromFolder implements Runnable {
             menu.addSeparator();
         }
         ArrayList arr = new ArrayList ();
-        try {
-            scanContext(path, arr);
+        if (scanContext(path, arr)) {
             listenersAttached = true; // after successfull scan
             for (Iterator i = arr.iterator(); i.hasNext();) {
                 menu.add((JMenuItem)i.next());
             }
-        } catch (ContextException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            refreshNeeded = false;
         }
         return menu;
     }
@@ -123,8 +142,19 @@ public class MenuFromFolder implements Runnable {
     /**
      * Adds objects from the context with path to the list arr.
      */
-    private void scanContext(String path, ArrayList arr) throws ContextException {
-        context = Context.getDefault().createSubcontext(path);
+    private boolean scanContext(String path, ArrayList arr) {
+        if (listenersAttached) {
+            context = Context.getDefault().getSubcontext(path);
+        } else {
+            try {
+                context = Context.getDefault().createSubcontext(path);
+            } catch (ContextException ce) {
+                ErrorManager.getDefault().notify(ce);
+            }
+        }
+        if (context == null) {
+            return false;
+        }
         if (!listenersAttached) {
             ContextListener l1 = getContextListener(context);
             context.addContextListener(l1);
@@ -141,11 +171,12 @@ public class MenuFromFolder implements Runnable {
             //
             Context c = context.getSubcontext(n);
             if (c != null) {
-                MenuFromFolder mff = new MenuFromFolder(path + "/" + n);
+                MenuFromFolder mff = instance(path + "/" + n);
                 arr.add(mff.getMenu());
                 continue;
             }
         }
+        return true;
     }
     
     /**
@@ -158,10 +189,10 @@ public class MenuFromFolder implements Runnable {
         if (listener == null) {
             listener = new Listener();
         }
-        return (ContextListener)WeakListener.create(ContextListener.class, listener, source);
+        return (ContextListener)WeakListeners.create(ContextListener.class, listener, source);
     }
     
-    private void refreshMenuContents() {
+    private void refreshMenuContents(int time) {
         if (menu == null) {
             return;
         }
@@ -169,7 +200,16 @@ public class MenuFromFolder implements Runnable {
         //   and if invoked directly caused neverending loops
         //   from core (probably due to the fact that we
         //   possibly retrigger refreshing from the listener
-       java.awt.EventQueue.invokeLater(this);
+        if (refreshTask == null) {
+            refreshTask = RequestProcessor.getDefault().create(
+                new Runnable() {
+                    public void run() {
+                        java.awt.EventQueue.invokeLater(MenuFromFolder.this);
+                    }
+                }
+            );
+        }
+        refreshTask.schedule(time);
     }
     
     /*
@@ -177,7 +217,25 @@ public class MenuFromFolder implements Runnable {
      * replan for later.
      */
     public void run() {
+        refreshNeeded = true;
         menu = getMenu();
+    }
+    
+    /**
+     * Factory method preventing excessive creation of instances of this
+     * class.
+     */
+    public static MenuFromFolder instance(String path) {
+        WeakReference wr = (WeakReference)instanceCache.get(path);
+        if (wr != null) {
+            MenuFromFolder cachedValue = (MenuFromFolder)wr.get();
+            if (cachedValue != null) {
+                return cachedValue;
+            }
+        }
+        MenuFromFolder newValue = new MenuFromFolder(path);
+        instanceCache.put(path, new WeakReference(newValue));
+        return newValue;
     }
     
     /**
@@ -186,15 +244,15 @@ public class MenuFromFolder implements Runnable {
      */
     private class Listener implements ContextListener {
         public void attributeChanged(AttributeEvent evt) {
-            refreshMenuContents();
+            refreshMenuContents(200);
         }
         
         public void bindingChanged(BindingEvent evt) {
-            refreshMenuContents();
+            refreshMenuContents(200);
         }
         
         public void subcontextChanged(SubcontextEvent evt) {
-            refreshMenuContents();
+            refreshMenuContents(200);
         }
         
     }

@@ -115,6 +115,11 @@ public abstract class NavigationService {
      */
     public abstract void storeNavigationEvent(NavigationEvent ev);
     
+    /**
+     * For a given top component this method clears its navigation state.
+     */
+    public abstract void resetNavigation(TopComponent tc);
+    
     // ------------------------------------------------------
     
     /**

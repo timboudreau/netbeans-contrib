@@ -69,7 +69,8 @@ public class NavigationServiceTest extends NbTestCase {
             }
         });
         ns.storeNavigationEvent(new NavigationEvent() {
-            public void restoreState() {
+            public boolean restoreState() {
+                return true;
             }
             public TopComponent getTopComponent() {
                 return new TopComponent();
@@ -96,8 +97,9 @@ public class NavigationServiceTest extends NbTestCase {
         final boolean []restored = new boolean[1];
         // the initial event
         ns.storeNavigationEvent(new NavigationEvent() {
-            public void restoreState() {
+            public boolean restoreState() {
                 restored[0] = true;
+                return true;
             }
             public TopComponent getTopComponent() {
                 return tc;
@@ -109,7 +111,8 @@ public class NavigationServiceTest extends NbTestCase {
             WindowManager.getDefault().getRegistry().getActivated(), tc);
 
         ns.storeNavigationEvent(new NavigationEvent() {
-            public void restoreState() {
+            public boolean restoreState() {
+                return true;
             }
             public TopComponent getTopComponent() {
                 return tc;
@@ -144,7 +147,8 @@ public class NavigationServiceTest extends NbTestCase {
         NavigationService ns = NavigationService.getDefault();
         // the initial event
         ns.storeNavigationEvent(new NavigationEvent() {
-            public void restoreState() {
+            public boolean restoreState() {
+                return true;
             }
             public TopComponent getTopComponent() {
                 return tc;
@@ -157,8 +161,9 @@ public class NavigationServiceTest extends NbTestCase {
         
         final boolean []restored = new boolean[1];
         ns.storeNavigationEvent(new NavigationEvent() {
-            public void restoreState() {
+            public boolean restoreState() {
                 restored[0] = true;
+                return true;
             }
             public TopComponent getTopComponent() {
                 return tc;
@@ -193,7 +198,8 @@ public class NavigationServiceTest extends NbTestCase {
         NavigationService ns = NavigationService.getDefault();
         // the initial event
         ns.storeNavigationEvent(new NavigationEvent() {
-            public void restoreState() {
+            public boolean restoreState() {
+                return true;
             }
             public TopComponent getTopComponent() {
                 return tc;
@@ -205,7 +211,8 @@ public class NavigationServiceTest extends NbTestCase {
             WindowManager.getDefault().getRegistry().getActivated(), tc);
 
         ns.storeNavigationEvent(new NavigationEvent() {
-            public void restoreState() {
+            public boolean restoreState() {
+                return true;
             }
             public TopComponent getTopComponent() {
                 return tc;
@@ -236,8 +243,9 @@ public class NavigationServiceTest extends NbTestCase {
         final boolean []restored = new boolean[1];
         // the initial event
         ns.storeNavigationEvent(new NavigationEvent() {
-            public void restoreState() {
+            public boolean restoreState() {
                 restored[0] = true;
+                return true;
             }
             public TopComponent getTopComponent() {
                 return tc;
@@ -247,7 +255,8 @@ public class NavigationServiceTest extends NbTestCase {
             WindowManager.getDefault().getRegistry().getActivated() != tc);
 
         ns.storeNavigationEvent(new NavigationEvent() {
-            public void restoreState() {
+            public boolean restoreState() {
+                return true;
             }
             public TopComponent getTopComponent() {
                 return tc;

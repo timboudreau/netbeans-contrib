@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <!--
                  Sun Public License Notice
 
@@ -11,12 +12,12 @@
  Code is Nokia. Portions Copyright 2003 Nokia.
  All Rights Reserved.
 -->
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+
 <filesystem>
     <folder name="Menu">
         
-        <attr boolvalue="true" name="View/BookmarksMenu.instance"/>
-        <attr boolvalue="true" name="BookmarksMenu.instance/Tools"/>
+        <attr boolvalue="true" name="Tools/BookmarksMenu.instance"/>
+        <attr boolvalue="true" name="BookmarksMenu.instance/Window"/>
         <file name="BookmarksMenu.instance">
             <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.BookmarksMenu"/>
         </file>
@@ -28,13 +29,34 @@
     </folder>
     
     <folder name="Actions">
-        <attr boolvalue="true" name="Bookmarks/System"/>
-        <folder name="Bookmarks"/>
+        <attr boolvalue="true" name="Tools/Bookmarks"/>
+        <folder name="Bookmarks">
+            <file name="ManageBookmarks.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.ManageBookmarksAction"/>
+            </file>
+            <file name="org-netbeans-modules-bookmarks-actions-AddBookmarkAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.AddBookmarkAction"/>
+            </file>
+            <attr name="org-netbeans-modules-bookmarks-actions-AddBookmarkAction.instance/ManageBookmarks.instance" boolvalue="true"/>
+        </folder>
+        <attr boolvalue="true" name="Bookmarks/Navigation"/>
+        <folder name="Navigation">
+            <file name="org-netbeans-modules-bookmarks-actions-BackAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.BackAction"/>
+            </file>
+            <file name="org-netbeans-modules-bookmarks-actions-ForwardAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.ForwardAction"/>
+            </file>
+        </folder>
+        <attr boolvalue="true" name="Navigation/Window"/>
     </folder>
     
     <folder name="Toolbars">
     
         <folder name="Bookmarks">
+            <file name="org-netbeans-modules-bookmarks-actions-AddBookmarkAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.AddBookmarkAction"/>
+            </file>
             <!-- We store the bookmarks for the toolbar in this folder -->
         </folder>
         
@@ -45,11 +67,7 @@
             <file name="org-netbeans-modules-bookmarks-actions-ForwardAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.ForwardAction"/>
             </file>
-            <file name="org-netbeans-modules-bookmarks-actions-AddBookmarkAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.AddBookmarkAction"/>
-            </file>
             <attr boolvalue="true" name="org-netbeans-modules-bookmarks-actions-BackAction.instance/org-netbeans-modules-bookmarks-actions-ForwardAction.instance"/>
-            <attr boolvalue="true" name="org-netbeans-modules-bookmarks-actions-ForwardAction.instance/org-netbeans-modules-bookmarks-actions-AddBookmarkAction.instance"/>
         </folder>
         <attr boolvalue="true" name="Edit/Navigation"/>
         <attr boolvalue="true" name="View/Navigation"/>

@@ -12,6 +12,7 @@
  */
 package org.netbeans.api.bookmarks;
 
+import java.beans.PropertyChangeListener;
 import org.openide.util.actions.Presenter;
 
 /**
@@ -33,6 +34,14 @@ public interface Bookmark extends Presenter.Menu, Presenter.Toolbar {
     public String getName();
     
     /**
+     * The name identifes the bookmark. It does not have to be unique.
+     * The name can be used in the visual representation. This setter
+     * will be called e.g. when the user will try to rename the
+     * stored bookmark.
+     */
+    public void setName(String newName);
+    
+    /**
      * Main action method called when the user selects the bookmark.
      * This method is called after the user
      * selects the bookmark from the menu or toolbar. So calling this method
@@ -40,4 +49,21 @@ public interface Bookmark extends Presenter.Menu, Presenter.Toolbar {
      * presenters for the bookmark.
      */
     public void invoke();
+    
+    /**
+     * The bookmark should fire property change when the the internal state
+     * (e.g. name) is changed.
+     */
+    public void addPropertyChangeListener(PropertyChangeListener pcl);
+    
+    /**
+     * The bookmark should fire property change when the the internal state
+     * (e.g. name) is changed.
+     */
+    public void removePropertyChangeListener(PropertyChangeListener pcl);
+    
+    /**
+     * This method is used to fire the PropertyChangeEvents.
+     */
+    public void firePropertyChange(String propertyName, Object oldValue, Object newValue);
 }

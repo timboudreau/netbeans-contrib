@@ -1,13 +1,9 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 0.2
+OpenIDE-Module-Specification-Version: 0.4
 OpenIDE-Module-Layer: org/netbeans/modules/bookmarks/resources/layer.x
  ml
-OpenIDE-Module-Public-Packages: org.netbeans.api.bookmarks.**
 Created-By: Nokia
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.registry/1 , org.netbeans.modules.convertor/1, org.netbeans.modules.settings/1
-OpenIDE-Module: org.netbeans.modules.bookmarks/1
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.20
 OpenIDE-Module-Display-Category: Infrastructure
-OpenIDE-Module-Name: bookmarks
-
+OpenIDE-Module: org.netbeans.modules.bookmarks
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/bookmarks/resources/Bundle.properties
 

@@ -16,6 +16,7 @@ package org.netbeans.modules.bookmarks;
 import java.awt.datatransfer.*;
 import java.util.*;
 import java.io.IOException;
+import javax.swing.Action;
 
 import org.openide.actions.*;
 import org.openide.nodes.*;
@@ -45,7 +46,7 @@ public class BookmarksToolbarNode extends AbstractNode {
      */
     public BookmarksToolbarNode() {
         this(null, null);
-        setIconBase("org/netbeans/modules/bookmarks/resources/toolbars");
+        setIconBaseWithExtension("org/netbeans/modules/bookmarks/resources/toolbars.gif");
         // Set FeatureDescriptor stuff:
         setName("BookmarksToolbar");
         setDisplayName(NbBundle.getMessage(BookmarksToolbarNode.class, "LBL_BookmarksToolbar"));
@@ -64,7 +65,7 @@ public class BookmarksToolbarNode extends AbstractNode {
     /**
      * Adds actoin to the popup menu for this noce.
      */
-    protected SystemAction[] createActions() {
+    public Action[] getActions(boolean context) {
         return new SystemAction[] {
            SystemAction.get(ReorderAction.class),
            null,
@@ -122,9 +123,16 @@ public class BookmarksToolbarNode extends AbstractNode {
                         if (b != null) {
                             Context targetFolder = getContext();
                             String safeName = BookmarkServiceImpl.findUnusedName(targetFolder, b.getName());
-
+                            Collection childrenNames = context.getOrderedNames();
+                            Bookmark b1 = BookmarkServiceImpl.cloneBookmark(b);
                             // following line will save the bookmark to the system file system
-                            targetFolder.putObject(safeName, b);
+                            targetFolder.putObject(safeName, b1);
+                            // make sure the added item ended at the end
+                            ArrayList al = new ArrayList(childrenNames);
+                            al.add(safeName);
+                            context.orderContext(al);
+                            putOldOrderAttribute(al);
+                            BookmarkServiceImpl.saveBookmarkActionImpl(targetFolder, safeName);
                         }
                         if (move) {
                             if ( (b != null) && (whereToDelete != null)) {
@@ -138,6 +146,7 @@ public class BookmarksToolbarNode extends AbstractNode {
                                 } else {
                                     Context.getDefault().putObject(whereToDelete, null);
                                 }
+                                b.firePropertyChange(BookmarksNode.PROP_DESTROYED, null, null);
                             }
                         }
                         return ExTransferable.EMPTY;
@@ -175,12 +184,27 @@ public class BookmarksToolbarNode extends AbstractNode {
             }
             String[] nue = new String[perm.length];
             for (int i = 0; i < perm.length; i++) {
-                nue[i] = items[perm[i]];
+                nue[perm[i]] = items[i];
             }
             // Should trigger an automatic child node update because the children
             // should be listening:
             getContext().orderContext(Arrays.asList(nue));
+            putOldOrderAttribute(Arrays.asList(nue));
         }
+    }
+    
+    /**
+     * Hack for the old data systems API that can read the order
+     */
+    private void putOldOrderAttribute(List names) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < names.size(); i++) {
+            if (i != 0) {
+                sb.append('/');
+            }
+            sb.append(names.get(i) + ".xml");
+        }
+        getContext().setAttribute(null, "OpenIDE-Folder-Order", sb.toString());
     }
     
     /** Lazy init of the context BOOKMARKS_TOOLBAR */

@@ -50,5 +50,14 @@ public class TestBookmark extends AbstractAction implements Bookmark, java.io.Se
     public void actionPerformed(java.awt.event.ActionEvent e) {
     }    
     
+    public void setName(String newName) {
+        String oldValue = this.name;
+        this.name = newName;
+        firePropertyChange("name", oldValue, newName);
+    }
+
+    public void firePropertyChange(String name, Object oldValue, Object newValue) {
+        super.firePropertyChange(name, oldValue, newValue);
+    }    
 }
 

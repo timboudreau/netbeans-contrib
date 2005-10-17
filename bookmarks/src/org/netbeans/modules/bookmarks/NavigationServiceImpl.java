@@ -31,12 +31,11 @@ public class NavigationServiceImpl extends NavigationService implements Property
     /** 
      * Maps TopComponent --> List (of NavigationEvent)
      * Stores all NavigationEvents in this service.
-     * PENDING: the lists should have limited lenght (memory leak)
      */
     private Map navigationEvents;
     
     /**
-     * Maps TopComponent --> NavigationEvent 
+     * Maps TopComponent --> Integer (index to the list for a given tc). 
      * Keeps track of current navigation event for the TopComponent.
      */
     private Map currentNavigationState;
@@ -72,17 +71,26 @@ public class NavigationServiceImpl extends NavigationService implements Property
             list = new LimitedSizeList(80, 120);
             navigationEvents.put(tc, list);
         }
-        NavigationEvent current = (NavigationEvent)currentNavigationState.get(tc);
-        if (current != null) {
-            int index = list.indexOf(current);
+        Integer currentIndex = (Integer)currentNavigationState.get(tc);
+        if (currentIndex != null) {
+            int index = currentIndex.intValue();
             if (index >= 0) {
                 for (int i = list.size()-1; i > index; i--) {
                     list.remove(i);
                 }
             }
         }
-        currentNavigationState.put(tc, ev);
+        currentNavigationState.put(tc, new Integer(list.size()));
         list.add(ev);
+        fireChangeEvent();
+    }
+
+    /**
+     * For a given top component this method clears its navigation state.
+     */
+    public void resetNavigation(TopComponent tc) {
+        navigationEvents.remove(tc);
+        currentNavigationState.remove(tc);
         fireChangeEvent();
     }
     
@@ -95,18 +103,19 @@ public class NavigationServiceImpl extends NavigationService implements Property
     public void forward() {
         TopComponent tc = WindowManager.getDefault().getRegistry().getActivated();
         List list = (List)navigationEvents.get(tc);
-        NavigationEvent current = (NavigationEvent)currentNavigationState.get(tc);
-        if ((list == null) || (current == null)) {
+        Integer currentIndex = (Integer)currentNavigationState.get(tc);
+        if ((list == null) || (currentIndex == null)) {
             return;
         }
-        int index = list.indexOf(current);
+        int index = currentIndex.intValue();
         if (index + 1 >= list.size()) {
             return;
         }
         NavigationEvent ev = (NavigationEvent)list.get(index+1);
-        currentNavigationState.put(tc, ev);
-        ev.restoreState();
-        fireChangeEvent();
+        if (ev.restoreState()) {
+            currentNavigationState.put(tc, new Integer(index+1));
+            fireChangeEvent();
+        }
     }
     
     /**
@@ -118,18 +127,19 @@ public class NavigationServiceImpl extends NavigationService implements Property
     public void backward() {
         TopComponent tc = WindowManager.getDefault().getRegistry().getActivated();
         List list = (List)navigationEvents.get(tc);
-        NavigationEvent current = (NavigationEvent)currentNavigationState.get(tc);
-        if ((list == null) || (current == null)) {
+        Integer currentIndex = (Integer)currentNavigationState.get(tc);
+        if ((list == null) || (currentIndex == null)) {
             return;
         }
-        int index = list.indexOf(current);
+        int index = currentIndex.intValue();
         if (index - 1 < 0) {
             return;
         }
         NavigationEvent ev = (NavigationEvent)list.get(index-1);
-        currentNavigationState.put(tc, ev);
-        ev.restoreState();
-        fireChangeEvent();
+        if (ev.restoreState()) {
+            currentNavigationState.put(tc, new Integer(index-1));
+            fireChangeEvent();
+        }
     }
     
     /**
@@ -142,11 +152,11 @@ public class NavigationServiceImpl extends NavigationService implements Property
     public boolean canNavigateBackward() {
         TopComponent tc = WindowManager.getDefault().getRegistry().getActivated();
         List list = (List)navigationEvents.get(tc);
-        NavigationEvent current = (NavigationEvent)currentNavigationState.get(tc);
-        if ((list == null) || (current == null)) {
+        Integer currentIndex = (Integer)currentNavigationState.get(tc);
+        if ((list == null) || (currentIndex == null)) {
             return false;
         }
-        int index = list.indexOf(current);
+        int index = currentIndex.intValue();
         return index > 0;
     }
     
@@ -160,11 +170,11 @@ public class NavigationServiceImpl extends NavigationService implements Property
     public boolean canNavigateForward() {
         TopComponent tc = WindowManager.getDefault().getRegistry().getActivated();
         List list = (List)navigationEvents.get(tc);
-        NavigationEvent current = (NavigationEvent)currentNavigationState.get(tc);
-        if ((list == null) || (current == null)) {
+        Integer currentIndex = (Integer)currentNavigationState.get(tc);
+        if ((list == null) || (currentIndex == null)) {
             return false;
         }
-        int index = list.indexOf(current);
+        int index = currentIndex.intValue();
         return index+1 < list.size();
     }
 

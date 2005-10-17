@@ -13,11 +13,14 @@
 
 package org.netbeans.modules.bookmarks;
 
+import java.awt.Cursor;
 import java.awt.datatransfer.*;
 import java.awt.Image;
 import java.io.IOException;
 import java.util.*;
+import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 
 import org.openide.ErrorManager;
 import org.openide.nodes.*;
@@ -30,18 +33,23 @@ import org.openide.util.datatransfer.*;
 import org.openide.actions.*;
 
 import org.netbeans.api.bookmarks.Bookmark;
+import org.netbeans.api.bookmarks.BookmarkService;
 import org.netbeans.api.registry.*;
+import org.openide.windows.WindowManager;
 
 /**
- * The nodes that serve for the bookmarks customization
- * are 
+ * The nodes that serve for the bookmarks customization.
  * @author David Strupl
  */
 public class BookmarksFolderNode extends AbstractNode {
     
     /** Should be either Context or Bookmark*/
     private Context context;
-    
+ 
+    /**
+     * Nested folders are deletable, but the top level
+     * ones are not (at least not from this GUI).
+     */
     private boolean deletable;
     
     /**
@@ -52,7 +60,7 @@ public class BookmarksFolderNode extends AbstractNode {
         this(c, d, null);
         this.context = c;
         this.deletable = d;
-        setIconBase("org/netbeans/modules/bookmarks/resources/defaultFolder"); // NOI18N
+        setIconBaseWithExtension("org/netbeans/modules/bookmarks/resources/defaultFolder.gifr"); // NOI18N
     }
  
     /** This private constructor is here because of the trick with
@@ -62,6 +70,16 @@ public class BookmarksFolderNode extends AbstractNode {
         super(new BookmarksChildren(c), new AbstractLookup(ac = new InstanceContent()));
         ac.add(c);
         ac.add(new ReorderSupport());
+        c.addContextListener(new ContextListener() {
+            public void attributeChanged(AttributeEvent evt) {
+                fireNameChange(null, null);
+                fireDisplayNameChange(null, null);
+            }
+            public void bindingChanged(BindingEvent evt) {
+            }
+            public void subcontextChanged(SubcontextEvent evt) {
+            }
+        });
     }
     
     /**
@@ -93,7 +111,7 @@ public class BookmarksFolderNode extends AbstractNode {
             throw new IOException("Cannot delete " + context);
         }
         try {
-            context.getParentContext().destroySubcontext(context.getContextName());
+            deleteBookmarksFolder(context);
         } catch (ContextException ce) {
             IOException e = new IOException();
             ErrorManager.getDefault().annotate(e, ce);
@@ -115,7 +133,7 @@ public class BookmarksFolderNode extends AbstractNode {
      * The list of the actions returned by this method contains
      * only those that should be provided when customizing bookmarks.
      */
-    public SystemAction[] getActions () {
+    public Action[] getActions(boolean context) {
         if (deletable) {
             return new SystemAction[] {
                 SystemAction.get(NewAction.class),
@@ -137,6 +155,10 @@ public class BookmarksFolderNode extends AbstractNode {
         };
     }
     
+    /**
+     * The name is stored in a speical attribute. If the attribute
+     * is not present, context name is returned instead.
+     */
     public String getName() {
         String storedDisplayName = context.getAttribute(null, PROP_DISPLAY_NAME, null);
         if (storedDisplayName != null) {
@@ -145,12 +167,47 @@ public class BookmarksFolderNode extends AbstractNode {
         return context.getContextName();
     }
     
-    public void setName(String newName) {
-        context.setAttribute(null, PROP_DISPLAY_NAME, newName);
-        super.setName(newName);
+    /**
+     * Since contexts do not support renaming, change of the name
+     * is implemented as a move operation on the whole context.
+     */
+    public void setName(final String newName) {
+        final String oldName = getName();
+        WindowManager.getDefault().getMainWindow().setCursor(
+            Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                try {
+                    String newContextName = "Folder_" + newName.hashCode();
+                    Context parent = context.getParentContext();
+                    try {
+                        RegistryUtil.copy(context, parent, newContextName);
+                        destroy();
+                    } catch (ContextException x) {
+                        ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(x);
+                    } catch (IOException ioe) {
+                        ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ioe);
+                    }
+                    Context newlyCreated = parent.getSubcontext(newContextName);
+                    if (newlyCreated != null) {
+                        newlyCreated.setAttribute(null, PROP_DISPLAY_NAME, newName);
+                    }
+                } finally {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            WindowManager.getDefault().getMainWindow().setCursor(
+                                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        }
+                    });
+                }
+            }
+        });
     }
     
-    /* List new types that can be created in this node.
+    /**
+     * List new types that can be created in this node.
+     * This implementaion allows creating new subfolders (subcontexts).
      * @return new types
      */
     public NewType[] getNewTypes () {
@@ -160,26 +217,30 @@ public class BookmarksFolderNode extends AbstractNode {
                     return NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder");
                 }
                 public void create () throws IOException {
-                    String name = NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder");
-                    
-                    // find an unique name
-                    String resName = "Folder"; // NOI18N
-                    Collection childrenNames = context.getBindingNames();
+                    String baseName = "Folder"; // NOI18N
+                    // find an unique name to resName
+                    String resName = baseName + "/"; // NOI18N
+                    Collection childrenNames = context.getOrderedNames();
                     int i = 0;
                     while (childrenNames.contains(resName)) {
-                        resName = name + "_" + i++; // NOI18N
+                        resName = baseName + "_" + i++ + "/"; // NOI18N
                     }
                     // create the folder with the found name
                     try {
                         Context c = context.createSubcontext(resName);
-                        c.setAttribute(null, PROP_DISPLAY_NAME, name);
+                        c.setAttribute(null, PROP_DISPLAY_NAME, 
+                            NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder_Number", new Integer(i)));
                     } catch (ContextException ce) {
                         ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce); // NOI18N
                     }
+                    ArrayList al = new ArrayList(childrenNames);
+                    al.add(resName);
+                    context.orderContext(al);
                 }
             }
         };
     }
+    
     /**
      * Allows pasting bookmark nodes to the bookmark toolbar.
      * First computes whether the node we are trying to paste has
@@ -208,20 +269,33 @@ public class BookmarksFolderNode extends AbstractNode {
             final String whereToDelete = bookmarkLocation;
             final Context con = c;
             final boolean move = moving;
-            if (b != null) {
+            if ((b != null) || (con != null)) {
                 l.add(new PasteType() {
                     public String getName() {
                         return NbBundle.getMessage(BookmarksToolbarNode.class, "LBL_PasteType");
                     }
                     public Transferable paste() throws IOException {
-//                        try {
+                        try {
                             if (b != null) {
                                 String safeName = BookmarkServiceImpl.findUnusedName(context, b.getName());
-
+                                Collection childrenNames = context.getOrderedNames();
+                                Bookmark b1 = BookmarkServiceImpl.cloneBookmark(b);
                                 // following line will save the bookmark to the system file system
-                                context.putObject(safeName, b);
+                                context.putObject(safeName, b1);
+                                // make sure the added item ended at the end
+                                ArrayList al = new ArrayList(childrenNames);
+                                al.add(safeName);
+                                context.orderContext(al);
+                                BookmarkServiceImpl.saveBookmarkActionImpl(context, safeName);
                             }
                             if (con != null) {
+                                try {
+                                    RegistryUtil.copy(con, context, con.getContextName());
+                                } catch (ContextException x) {
+                                    IOException ioe = new IOException();
+                                    ErrorManager.getDefault().annotate(ioe, x);
+                                    throw ioe;
+                                }
                             }
                             if (move) {
                                 if ( (b != null) && (whereToDelete != null)) {
@@ -235,26 +309,57 @@ public class BookmarksFolderNode extends AbstractNode {
                                     } else {
                                         Context.getDefault().putObject(whereToDelete, null);
                                     }
+                                    b.firePropertyChange(BookmarksNode.PROP_DESTROYED, null, null);
                                 }
                                 
                                 if (con != null) {
-                                    // moving folder
+                                    // moving folder - delete the original
+                                    Context parent = con.getParentContext();
+                                    String conName = con.getContextName();
+                                    deleteBookmarksFolder(con);
+                                    if (parent.getSubcontext(conName) != null) {
+                                        throw new IOException(conName + " was not deleted!");
+                                    }
                                 }
                             }
                             return ExTransferable.EMPTY;
-//                        } catch (ContextException x) {
-//                            IOException ioe =  new IOException();
-//                            ErrorManager.getDefault().annotate(ioe, x);
-//                            throw ioe;
-//                        }
+                        } catch (ContextException x) {
+                            IOException ioe =  new IOException();
+                            ErrorManager.getDefault().annotate(ioe, x);
+                            throw ioe;
+                        }
                     }
                 });
             }
         }
     }
 
+    /**
+     * Carefullly recursivelly deletes given context.
+     */
+    private static void deleteBookmarksFolder(Context con) throws ContextException {
+        Iterator it = con.getSubcontextNames().iterator();
+        while (it.hasNext()) {
+            String subName = (String)it.next();
+            Context sub = con.getSubcontext(subName);
+            if (sub != null) {
+                deleteBookmarksFolder(sub);
+            }
+        }
+        Iterator it2 = con.getBindingNames().iterator();
+        while (it2.hasNext()) {
+            String bindingName = (String)it2.next();
+            Object obj = con.getObject(bindingName, null);
+            con.putObject(bindingName, null);
+            if (obj instanceof Bookmark) {
+                Bookmark impl = (Bookmark)obj;
+                impl.firePropertyChange(BookmarksNode.PROP_DESTROYED, null, null);
+            }
+        }
+        con.getParentContext().destroySubcontext(con.getContextName());
+    }
 
-    /**  */
+    /** Serializable handle. */
     private static class BookmarksFolderHandle implements Node.Handle {
         private static final long serialVersionUID = 1L;
         private String name;
@@ -276,21 +381,28 @@ public class BookmarksFolderNode extends AbstractNode {
      * The children of the bookmarks folder.
      */
     private static class BookmarksChildren extends Children.Keys implements ContextListener, Runnable {
-        
+
+        /** Our context - the context from where the children are created. */
         private Context context;
         
+        /**
+         * Simply remember the param.
+         */
         public BookmarksChildren(Context c) {
             context = c;
         }
-        
+
+        /** Implementing ContextListener. Just update the keys. */
         public void attributeChanged(AttributeEvent evt) {
             updateKeys();
         }
         
+        /** Implementing ContextListener. Just update the keys. */
         public void bindingChanged(BindingEvent evt) {
             updateKeys();
         }
         
+        /** Implementing ContextListener. Just update the keys. */
         public void subcontextChanged(SubcontextEvent evt) {
             updateKeys();
         }
@@ -309,12 +421,12 @@ public class BookmarksFolderNode extends AbstractNode {
         /**
          * Computes new children.
          */
-        private void updateKeys() {
+        public void updateKeys() {
             // posting asynchronously since while setting the order
             // this method would be called to update the state of the children.
             // But it tries to access the list of children so it would either
             // loop or deadlock.
-            RequestProcessor.getDefault().post(this);
+            RequestProcessor.getDefault().post(this, 100);
         }
 
         /**
@@ -357,6 +469,9 @@ public class BookmarksFolderNode extends AbstractNode {
         }
     }
     
+    /**
+     * Class supporting reorder operation on current node.
+     */
     private class ReorderSupport extends Index.Support {
         
         public Node[] getNodes() {
@@ -385,12 +500,11 @@ public class BookmarksFolderNode extends AbstractNode {
             }
             String[] nue = new String[perm.length];
             for (int i = 0; i < perm.length; i++) {
-                nue[i] = items[perm[i]];
+                nue[perm[i]] = items[i];
             }
             // Should trigger an automatic child node update because the children
             // should be listening:
             context.orderContext(Arrays.asList(nue));
         }
-        
     }
 }

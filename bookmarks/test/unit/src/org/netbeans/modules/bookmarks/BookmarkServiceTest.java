@@ -34,6 +34,7 @@ import org.openide.windows.*;
 import org.openide.loaders.DataObject;
 
 import org.netbeans.api.bookmarks.*;
+import org.netbeans.api.registry.Context;
 import org.netbeans.modules.bookmarks.test.TestBookmark;
 
 /** 
@@ -227,15 +228,15 @@ public class BookmarkServiceTest extends NbTestCase {
                 super.open();
                 res[0] = true;
             }
-            public void requestFocus() {
-                super.requestFocus();
+            public void requestActive() {
+                super.requestActive();
                 res[1] = true;
             }
         };
         Bookmark b = BookmarkService.getDefault().createDefaultBookmark(tc);
         b.invoke();
         assertTrue("Open has not been called", res[0]);
-        assertTrue("requestFocus has not been called", res[1]);
+        assertTrue("requestActive has not been called", res[1]);
         
         // clean up
         tc.close();
@@ -282,24 +283,11 @@ public class BookmarkServiceTest extends NbTestCase {
         Bookmark b = new TestBookmark("test1");
         BookmarkService.getDefault().storeBookmark(b);
 
-        Context c = BookmarkServiceImpl.getInitialContext();
-        Object folder = c.lookup(BookmarkServiceImpl.BOOKMARKS_ACTIONS);
+        Context folder = Context.getDefault().getSubcontext(BookmarkServiceImpl.BOOKMARKS_ACTIONS);
         assertTrue("BOOKMARKS_ACTIONS not found", folder instanceof Context);
-        Context c1 = (Context)folder;
-        try {
-            Object obj = c1.lookup("test1");
-            assertNotNull("action should be there ", obj);
-        } catch (NameNotFoundException nnfe) {
-            fail("test1 should be found in the Actions/Bookmarks folder now");
-        }
+        Object obj = folder.getObject("test1", null);
+        assertNotNull("action should be there ", obj);
 
         assertTrue("Stored item could not be deleted", deleteFromBookmarksFolder("test1"));
-        
-        try {
-            Object obj1 = c1.lookup("test1");
-            fail("action should be gone now also from the Actions/Bookmarks folder");
-        } catch (NameNotFoundException nnfe) {
-            // this is the rigth pass for execution
-        }
     }
 }

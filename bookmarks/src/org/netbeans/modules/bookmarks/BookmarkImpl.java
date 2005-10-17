@@ -16,15 +16,17 @@ import java.beans.PropertyChangeListener;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Externalizable;
+import java.io.IOException;
 import javax.swing.JMenuItem;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.AbstractAction;
+import javax.swing.SwingUtilities;
 
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.windows.Mode;
-import org.openide.windows.Workspace;
 import org.openide.util.actions.Presenter;
 import org.openide.util.Utilities;
 import org.openide.util.NbBundle;
@@ -33,6 +35,7 @@ import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 
 import org.netbeans.api.bookmarks.*;
+import org.netbeans.spi.convertor.SimplyConvertible;
 
 /**
  * The default bookmark implementation is created for a TopComponent
@@ -49,7 +52,10 @@ import org.netbeans.api.bookmarks.*;
  * see methods readProperties, writeProperties.
  * @author David Strupl
  */
-public class BookmarkImpl extends AbstractAction implements Bookmark {
+public class BookmarkImpl extends AbstractAction
+                implements Bookmark, Externalizable, SimplyConvertible, Cloneable {
+    
+    static final long serialVersionUID = 1L;
     
     /** Name of the property used from readProperties, writeProperties */
     private static final String PROP_TC_NAME = "topComponentName";
@@ -65,6 +71,9 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
     
     /** Name of the bookmark */
     private String name;
+    
+    /** Chache our menu item */
+    private JMenuItem menuItem;
     
     /** Default constructor used by the persistence mechanism.
      * This constructor does not fill vital variables, so its
@@ -82,7 +91,7 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
      */
     public BookmarkImpl(TopComponent tc) {
         this.topComponent = tc;
-        name = tc.getName();
+        name = tc.getDisplayName();
         putValue(NAME, name);
     }
     
@@ -92,16 +101,19 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
      * the associated top component.
      */
     public JMenuItem getMenuPresenter() {
-        JMenuItem jmi = new JMenuItem(getName());
-        jmi.addActionListener(new InvokeBookmarkListener());
+        if (menuItem != null) {
+            return menuItem;
+        }
+        menuItem = new JMenuItem(getName());
+        menuItem.addActionListener(new InvokeBookmarkListener());
         TopComponent tc = getTopComponent();
         if (tc != null) {
             Image icon = tc.getIcon();
             if (icon != null) {
-                jmi.setIcon(new ImageIcon(icon));
+                menuItem.setIcon(new ImageIcon(icon));
             }
         }
-        return jmi;
+        return menuItem;
     }
     
     /** Method implementing interface Presenter.Toolbar. The
@@ -143,6 +155,19 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
      */
     public String getName() {
         return name;
+    }
+    
+    public void setName(final String newName) {
+        String oldValue = this.name;
+        this.name = newName;
+        firePropertyChange(PROP_NAME, oldValue, newName);
+        if (menuItem != null) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    menuItem.setText(newName);
+                }
+            });
+        }
     }
     
     /**
@@ -204,7 +229,8 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
             if (! tc.isOpened()) {
                 tc.open();
             }
-            tc.requestFocus();
+            
+            tc.requestActive();
         } else {
             // warn
             NotifyDescriptor.Message warning = 
@@ -222,6 +248,13 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
         invoke();
     }
     
+    public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        super.firePropertyChange(propertyName, oldValue, newValue);
+    }
+    
+    /**
+     * Based on name and tcFileName.
+     */
     public boolean equals(Object another) {
         boolean res = super.equals(another);
         if ( ! (another instanceof BookmarkImpl)) {
@@ -249,7 +282,10 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
         
         return true;
     }
-    
+
+    /**
+     * Combine the hascode from name and tcFileName.
+     */
     public int hashCode() {
         int res = 29;
         if (name != null) {
@@ -274,6 +310,9 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
     /**
      * Called by XMLPropertiesConvertor to restore the state
      * of this object after calling the default constructor.
+     *
+     * It can be private = XMLPropertiesConvertor from core/settings
+     * module is able to invoke it anyway.
      */
     private void readProperties(java.util.Properties p) {
         tcFileName = p.getProperty(PROP_TC_NAME);
@@ -284,10 +323,50 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
     /**
      * XMLPropertiesConvertor calls this method when it wants
      * to persist this object.
+     *
+     * It can be private = XMLPropertiesConvertor from core/settings
+     * module is able to invoke it anyway.
      */
     private void writeProperties(java.util.Properties p) {
         p.setProperty(PROP_TC_NAME, tcFileName);
         p.setProperty(PROP_NAME, name);
     }
     
+    /**
+     * Serialization method - overriden to make sure this
+     * class is not serialized.
+     */
+    public void readExternal(java.io.ObjectInput in) throws IOException, ClassNotFoundException {
+        throw new IOException("This class should not be serialized."); // NOI18N
+    }
+    
+    /**
+     * Serialization method - overriden to make sure this
+     * class is not serialized.
+     */
+    public void writeExternal(java.io.ObjectOutput out) throws IOException {
+        throw new IOException("This class should not be serialized."); // NOI18N
+    }
+    
+    /**
+     * Implementing interface SimplyConvertible.
+     */
+    public void read(java.util.Properties p) {
+        readProperties(p);
+    }
+    
+    /**
+     * Implementing interface SimplyConvertible.
+     */
+    public void write(java.util.Properties p) {
+        writeProperties(p);
+    }
+    
+    public Object clone() throws CloneNotSupportedException {
+        BookmarkImpl res = new BookmarkImpl();
+        res.topComponent = topComponent;
+        res.tcFileName = tcFileName;
+        res.name = name;
+        return res;
+    }
 }

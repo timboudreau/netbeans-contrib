@@ -30,8 +30,10 @@ public interface NavigationEvent {
      * When the user invokes backward/forward navigation this
      * method is called to bring the TopComponents to the remembered
      * state.
+     * @returns true if the state of the TopComponent was successfully restored
+     *   or false if the state cannot be changed
      */
-    public void restoreState();
+    public boolean restoreState();
     
     /**
      * Each NavigationEvent is bound to one TopComponent. The

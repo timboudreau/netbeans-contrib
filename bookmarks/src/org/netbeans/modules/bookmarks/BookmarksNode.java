@@ -16,7 +16,10 @@ package org.netbeans.modules.bookmarks;
 import java.awt.Image;
 import java.io.IOException;
 import java.util.*;
+import javax.swing.Action;
 import javax.swing.Icon;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 import org.openide.ErrorManager;
 import org.openide.nodes.*;
@@ -25,9 +28,11 @@ import org.openide.util.RequestProcessor;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.lookup.Lookups;
+import org.openide.util.WeakListeners;
 import org.openide.actions.*;
 
 import org.netbeans.api.bookmarks.Bookmark;
+import org.netbeans.api.bookmarks.BookmarkService;
 import org.netbeans.api.registry.*;
 
 /**
@@ -35,7 +40,9 @@ import org.netbeans.api.registry.*;
  * are 
  * @author David Strupl
  */
-public class BookmarksNode extends AbstractNode {
+public class BookmarksNode extends AbstractNode implements PropertyChangeListener {
+    
+    public static final String PROP_DESTROYED = "destroyed";
     
     /** Should be either Context or Bookmark*/
     private Bookmark bookmark;
@@ -50,8 +57,10 @@ public class BookmarksNode extends AbstractNode {
     public BookmarksNode(Bookmark b, String path) {
         super(Children.LEAF, Lookups.fixed(new Object[] { b, path } ));
         this.bookmark = b;
+        bookmark.addPropertyChangeListener(
+            WeakListeners.propertyChange(this, bookmark));
         this.path = path;
-        setIconBase("org/netbeans/modules/bookmarks/resources/BookmarksRootNodeIcon.gif"); // NOI18N
+        setIconBaseWithExtension("org/netbeans/modules/bookmarks/resources/BookmarksRootNodeIcon.gif"); // NOI18N
     }
  
     /**
@@ -88,33 +97,35 @@ public class BookmarksNode extends AbstractNode {
         } else {
             Context.getDefault().putObject(path, null);
         }
+        bookmark.firePropertyChange(PROP_DESTROYED, null, null);
         
         super.destroy();
     }
 
+    /**
+     *
+     */
     public String getName() {
-        int lastSlash = path.lastIndexOf('/');
-        if (lastSlash >= 0) {
-            Context c = Context.getDefault().getSubcontext(path.substring(0, lastSlash));
-            if (c != null) {
-                String storedDisplayName = c.getAttribute(path.substring(lastSlash+1), PROP_DISPLAY_NAME, null);
-                if (storedDisplayName != null) {
-                    return storedDisplayName;
-                }
-            }
-        }
         return bookmark.getName();
     }
     
+    /**
+     * 
+     */
     public void setName(String newName) {
+        bookmark.setName(newName);
+        super.setName(newName);
+        
+        // now store the change to the registry:
         int lastSlash = path.lastIndexOf('/');
         if (lastSlash >= 0) {
             Context c = Context.getDefault().getSubcontext(path.substring(0, lastSlash));
             if (c != null) {
-                c.setAttribute(path.substring(lastSlash+1), PROP_DISPLAY_NAME, newName);
+                c.putObject(path.substring(lastSlash+1), bookmark);
             }
+        } else {
+            Context.getDefault().putObject(path, bookmark);
         }
-        super.setName(newName);
     }
     
     /**
@@ -125,12 +136,21 @@ public class BookmarksNode extends AbstractNode {
         return new PropertySet[0];
     }
 
+    /**
+     * We are attached as a weak property change listener
+     * to the bookmark object. Bookmarks should fire name
+     * changes.
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        firePropertyChange(PROP_NAME, null, null);
+        firePropertyChange(PROP_DISPLAY_NAME, null, null);
+    }
     
     /**
      * The list of the actions returned by this method contains
      * only those that should be provided when customizing bookmarks.
      */
-    public SystemAction[] getActions () {
+    public Action[] getActions(boolean context) {
         return new SystemAction[] {
             SystemAction.get(CutAction.class),
             SystemAction.get(CopyAction.class),
@@ -207,4 +227,5 @@ public class BookmarksNode extends AbstractNode {
         return buffImage;
     }
 
+    
 }

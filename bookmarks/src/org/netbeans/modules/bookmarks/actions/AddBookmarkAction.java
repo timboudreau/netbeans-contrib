@@ -42,7 +42,7 @@ public class AddBookmarkAction extends AbstractAction implements HelpCtx.Provide
         putValue("iconBase", base);
         TopComponent.Registry reg = WindowManager.getDefault().getRegistry();
         reg.addPropertyChangeListener(
-            WeakListener.propertyChange(this, reg));
+            WeakListeners.propertyChange(this, reg));
         TopComponent tc = reg.getActivated();
         setEnabled(tc != null);
     }
