@@ -66,7 +66,7 @@ class TrivialWizardFactory extends WizardDisplayer {
         inner.setLayout (new BorderLayout());
         
         final JLabel problem = new JLabel("  ");
-        Color fg = UIManager.getColor ("nb.errorColor");
+        Color fg = UIManager.getColor ("nb.errorForeground");
         problem.setForeground (fg == null ? Color.BLUE : fg);
         inner.add (problem, BorderLayout.SOUTH);
         problem.setPreferredSize (new Dimension (20,20));
