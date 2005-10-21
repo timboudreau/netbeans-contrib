@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Specification-Version: 0.3
+Created-By: Nokia
+OpenIDE-Module: org.netbeans.modules.tableview/1
+OpenIDE-Module-Display-Category: Infrastructure
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tableview/resources/Bundle.properties
+

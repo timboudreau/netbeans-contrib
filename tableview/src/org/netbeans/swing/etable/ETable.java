@@ -14,6 +14,10 @@ package org.netbeans.swing.etable;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.ContainerOrderFocusTraversalPolicy;
+import java.awt.Event;
+import java.awt.EventQueue;
+import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -21,27 +25,43 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -56,12 +76,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
+import javax.swing.table.*;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 
 /**
  * <UL>Extended JTable (ETable) adds these features to JTable:
@@ -83,6 +99,9 @@ import javax.swing.table.TableModel;
  */
 public class ETable extends JTable {
     
+    /** Action key for up/down focus action */
+    private static final String ACTION_FOCUS_NEXT = "focusNext"; //NOI18N
+
     /** Possible value for editing property */
     private final static int FULLY_EDITABLE = 1;
     /** Possible value for editing property */
@@ -90,6 +109,9 @@ public class ETable extends JTable {
     /** Possible value for editing property */
     private final static int DEFAULT = 3;
 
+    /** Key for storing the currently searched column's index. */
+    private static final String SEARCH_COLUMN = "SearchColumn";
+    
     // icon of column button
     private static final String DEFAULT_COLUMNS_ICON = "columns.gif"; // NOI18N
     
@@ -125,27 +147,42 @@ public class ETable extends JTable {
     /** */
     private String maxPrefix;
     /** */
-    int SEARCH_FIELD_PREFERRED_SIZE = 160;
+    int SEARCH_FIELD_PREFERRED_SIZE = 260;
     /** */
     int SEARCH_FIELD_SPACE = 3;
     /** */
     final private JTextField searchTextField = new SearchTextField();
     /** */
     final private int heightOfTextField = searchTextField.getPreferredSize().height;
-            
     
+    /** */
+    private JPanel searchPanel = null;
+    
+    /** */
+    private JComboBox searchCombo = null;
+    
+    /** */
+    private ETableColumn searchColumn = null;
     
     /**
-     * If the table data model is changed we reset (and then recompute)
-     * the sorting permutation and the row count.
+     * This text can be customized using setSelectVisibleColumnsLabel(...) method.
      */
-    private TableModelListener tableModelListener = new TableModelListener() {
-        public void tableChanged(TableModelEvent e) {
-            sortingPermutation = null;
-            filteredRowCount = -1;
-        }
-    };
+    private String selectVisibleColumnsLabel = "Select visible columns";
 
+    private boolean inEditRequest = false;
+    private boolean inEditorChangeRequest=false;
+    private boolean inRemoveRequest=false;
+
+    /**
+     * Default formatting strings for the Quick Filter feature.
+     * Can be customized by setQuickFilterFormatStrings(...) method.
+     */
+    private String[] quickFilterFormatStrings = new String [] {
+        "{0} == {1}", "{0} <> {1}", "{0} > {1}", 
+        "{0} < {1}", "{0} >= {1}", "{0} <= {1}",
+        "No Filter"
+    };
+    
     /**
      * Listener reacting to the user clicks on the header.
      */
@@ -294,22 +331,24 @@ public class ETable extends JTable {
         return super.isCellEditable(modelRow, column);
     }
 
+    /**
+     * Overriden to call convertRowIndexToModel(...).
+     * @see javax.swing.JTable#getCellRenderer(int, int)
+     */
     public TableCellRenderer getCellRenderer(int row, int column) {
         int modelRow = convertRowIndexToModel(row);
-//        if (modelRow != row) {
-//            System.err.println("getCellRenderer using converted value [" + row + "] --> " + modelRow);
-//        }
         return super.getCellRenderer(modelRow, column);
     }
-    
+
+    /**
+     * Overriden to call convertRowIndexToModel(...).
+     * @see javax.swing.JTable#getCellEditor(int, int)
+     */
     public TableCellEditor getCellEditor(int row, int column) {
         int modelRow = convertRowIndexToModel(row);
-//        if (modelRow != row) {
-//            System.err.println("getCellEditor using converted value [" + row + "] --> " + modelRow);
-//        }
         return super.getCellEditor(modelRow, column);
     }
-    
+
     /**
      * Sets all the cells in the <code>ETable</code> to be editable if
      * <code>fullyEditable</code> is true.
@@ -319,7 +358,7 @@ public class ETable extends JTable {
      * @param   fullyEditable   true if the table is meant to be fully editable.
      *                          false if the table is meant to take the defalut
      *                          state for editing.
-     * @see #isFullyEditable
+     * @see #getFullyEditable()
      */
     public void setFullyEditable(boolean fullyEditable) {
         if (fullyEditable) {
@@ -356,10 +395,10 @@ public class ETable extends JTable {
      * If <code>fullyNonEditable</code> is false, sets the table cells into
      * their default state as in <code>JTable</code>.
      *
-     * @param   fullyNonEditable   true if the table is meant to be fully non-editable.
+     * @param   fullyEditable   true if the table is meant to be fully non-editable.
      *                          false if the table is meant to take the defalut
      *                          state for editing.
-     * @see #isFullyNonEditable
+     * @see #getFullyNonEditable
      */
     public void setFullyNonEditable(boolean fullyNonEditable) {
         if (fullyNonEditable) {
@@ -426,7 +465,7 @@ public class ETable extends JTable {
      * @param   row        the row, the custom cell corresponds to
      * @param   column     the column, the custom cell corresponds to
      */
-    public void setNETCellBackground(Component renderer, boolean isSelected,
+    public void setCellBackground(Component renderer, boolean isSelected,
             int row, int column) {
         Color c = null;
         if (row%2 == 0) { //Background 2
@@ -449,6 +488,7 @@ public class ETable extends JTable {
 
     /**
      * Overriden to use ETableColumns instead of the original TableColumns.
+     * @see javax.swing.JTable#createDefaultColumnModel()
      */
     public void createDefaultColumnsFromModel() {
         TableModel model = getModel();
@@ -462,6 +502,10 @@ public class ETable extends JTable {
             while (columnModel.getColumnCount() > 0) {
                 columnModel.removeColumn(columnModel.getColumn(0));
             }
+            if (columnModel instanceof ETableColumnModel) {
+                ETableColumnModel etcm = (ETableColumnModel)columnModel;
+                etcm.hiddenColumns = new ArrayList();
+            }
             for (int i = 0; i < newColumns.length; i++) {
                 addColumn(newColumns[i]);
             }
@@ -469,29 +513,67 @@ public class ETable extends JTable {
     }
 
     /**
+     * Returns string used to delimit entries when
+     * copying into clipboard. The default implementation
+     * returns new line character ("\n") if the line
+     * argument is true. If it is false the
+     * tab character ("\t") is returned.
+     */
+    public String getTransferDelimiter(boolean line) {
+        if (line) {
+            return "\n";
+        }
+        return "\t";
+    }
+    
+    /**
+     * Used when copying into clipboard. The value
+     * passed to this method is obtained by calling
+     * getValueAt(...). The resulting string is put
+     * into clipboard. The default implementation returns
+     * an empty string ("") if the value is <code>null</code>
+     * and value.toString() otherwise. The method
+     * <code> transformValue(value)</code> is called prior
+     * to the string conversion.
+     */
+    public String convertValueToString(Object value) {
+        value = transformValue(value);
+        if (value == null) {
+            return "";
+        }
+        return value.toString();
+    }
+    
+    /**
      * Allow to plug own TableColumn implementation.
      * This implementation returns ETableColumn.
      * Called from createDefaultColumnsFromModel().
      */
     protected TableColumn createColumn(int modelIndex) {
-        return new ETableColumn(modelIndex);
+        return new ETableColumn(modelIndex, this);
     }
    
     /**
      * Overriden to use ETableColumnModel as TableColumnModel.
+     * @see javax.swing.JTable#createDefaultColumnModel()
      */
     protected TableColumnModel createDefaultColumnModel() {
         return new ETableColumnModel();
     }
 
+    /**
+     * Overriden to call convertRowIndexToModel(...).
+     * @see javax.swing.JTable#getValueAt(int, int)
+     */
     public Object getValueAt(int row, int column) {
         int modelRow = convertRowIndexToModel(row);
-//        if (modelRow != row) {
-//            System.err.println("getValueAt using converted value [" + row + "] --> " + modelRow);
-//        }
         return super.getValueAt(modelRow, column);
     }
 
+    /**
+     * Overriden to call convertRowIndexToModel(...).
+     * @see javax.swing.JTable#setValueAt(Object, int, int)
+     */
     public void setValueAt(Object aValue, int row, int column) {
         int modelRow = convertRowIndexToModel(row);
         super.setValueAt(aValue, modelRow, column);
@@ -529,6 +611,7 @@ public class ETable extends JTable {
         quickFilterColumn = column;
         quickFilterObject = filterObject;
         sortingPermutation = null;
+        filteredRowCount = -1; // force to recompute the rowCount
         super.tableChanged(new TableModelEvent(getModel()));
     }
     
@@ -547,13 +630,9 @@ public class ETable extends JTable {
     /**
      * Overriden to update the header listeners and also to adjust the
      * preferred width of the collumns.
+     * @see javax.swing.JTable#setModel(TableModel)
      */
     public void setModel(TableModel dataModel) {
-        TableModel oldModel = getModel();
-        if (oldModel != null) {
-            oldModel.removeTableModelListener(tableModelListener);
-        }
-        
         super.setModel(dataModel);
         
         // force recomputation
@@ -562,8 +641,6 @@ public class ETable extends JTable {
         quickFilterColumn = -1;
         quickFilterObject = null;
         
-        dataModel.addTableModelListener(tableModelListener);
-        
         updateMouseListener();
         if (defaultRenderersByColumnClass != null) {
             updatePreferredWidths();
@@ -571,15 +648,70 @@ public class ETable extends JTable {
     }
     
     /**
-     * Overriden to set the initial column widths.
+     * Overriden to do additional initialization.
+     * @see javax.swing.JTable#initializeLocalVars()
      */
     protected void initializeLocalVars() {
         super.initializeLocalVars();
         updatePreferredWidths();
+        setSurrendersFocusOnKeystroke(true);
+        setFocusCycleRoot(true);
+        setFocusTraversalPolicy(new STPolicy());
+        putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        putClientProperty("JTable.autoStartsEdit", Boolean.FALSE);
+
+        setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
+        Collections.EMPTY_SET);
+        setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,
+        Collections.EMPTY_SET);
+        //Next two lines do not work using inputmap/actionmap, but do work
+        //using the older API.  We will process ENTER to skip to next row,
+        //not next cell
+        unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
+        unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK));
+
+        InputMap imp = getInputMap(WHEN_FOCUSED);
+        InputMap imp2 = getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        ActionMap am = getActionMap();
+        
+        //Issue 37919, reinstate support for up/down cycle focus transfer.
+        //being focus cycle root mangles this in some dialogs
+        imp.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB,
+            KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK, false), ACTION_FOCUS_NEXT);
+        imp.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB,
+            KeyEvent.CTRL_MASK, false), ACTION_FOCUS_NEXT);
+        
+        Action ctrlTab = new CTRLTabAction();
+        am.put(ACTION_FOCUS_NEXT, ctrlTab);
+        
+        
+        imp.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0,
+        false), "beginEdit");
+        getActionMap().put("beginEdit", new EditAction());
+        
+        imp.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0,
+        false), "cancelEdit");
+        getActionMap().put("cancelEdit", new CancelEditAction());
+        
+        imp.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0,
+        false), "enter");
+        getActionMap().put("enter", new EnterAction());
+        
+        imp.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), "next");
+        
+        imp.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB,
+            KeyEvent.SHIFT_DOWN_MASK), "previous");
+        
+        am.put("next", new NavigationAction(true));
+        am.put("previous", new NavigationAction(false));
+        
+        setTransferHandler(new ETableTransferHandler());
     }
     
     /**
-     * Overriden to implement CTRL-+ for resizing of all columns.
+     * Overriden to implement CTRL-+ for resizing of all columns and
+     * CTRL-- for clearing the quick filter.
+     * @see javax.swing.JTable#processKeyBinding(KeyStroke, KeyEvent, int, boolean)
      */
     protected boolean processKeyBinding(KeyStroke ks, KeyEvent e,
 					int condition, boolean pressed) {
@@ -593,12 +725,48 @@ public class ETable extends JTable {
             if (e.getKeyChar() == '+' && ( (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK)) {
                 updatePreferredWidths();
             }
+            if (e.getKeyChar() == '-' && ( (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK)) {
+                unsetQuickFilter();
+            }
         }
         return retValue;
     }
+    
+    /**
+     * Make the column sorted. Value of columnIndex is in the model coordinates.
+     * <strong>Be carefull</strong> with the columnIndes parameter: again, it
+     * is in the <strong>model</strong> coordinates.
+     */
+    public void setColumnSorted(int columnIndex, boolean ascending, int rank) {
+        int ii = convertColumnIndexToView(columnIndex);
+        if (ii < 0) {
+            return;
+        }
+        TableColumnModel tcm = getColumnModel();
+        if (tcm instanceof ETableColumnModel) {
+            ETableColumnModel etcm = (ETableColumnModel)tcm;
+            TableColumn tc = tcm.getColumn(ii);
+            if (tc instanceof ETableColumn) {
+                ETableColumn etc = (ETableColumn)tc;
+                if (! etc.isSortingAllowed()) {
+                    return;
+                }
+                int wasSelectedRows[] = getSelectedRowsInModel();
+                int wasSelectedColumn = getSelectedColumn();
+                etcm.setColumnSorted(etc, ascending, rank);
+                sortingPermutation = null;
+                ETable.super.tableChanged(new TableModelEvent(getModel(), 0, getRowCount()));
+                if (wasSelectedRows.length > 0) {
+                    changeSelectionInModel(wasSelectedRows, wasSelectedColumn);
+                }
 
+            }
+        }
+    }
+    
     /**
      * Overriden to install special button into the upper right hand corner.
+     * @see javax.swing.JTable#configureEnclosingScrollPane()
      */
     protected void configureEnclosingScrollPane() {
         super.configureEnclosingScrollPane();
@@ -636,7 +804,35 @@ public class ETable extends JTable {
                         }
                     }
                 });
+                b.setFocusable(false);
                 scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, b);
+            }
+        }
+    }
+    
+    /**
+     * Convert indices of selected rows to model.
+     */
+    private int[] getSelectedRowsInModel() {
+        int inView[] = getSelectedRows();
+        int result[] = new int[inView.length];
+        for (int i = 0; i < inView.length; i++) {
+            result[i] = convertRowIndexToModel(inView[i]);
+        }
+        return result;
+    }
+    
+    /**
+     * Selects given rows (the rows coordinates are the model's space).
+     */
+    private void changeSelectionInModel(int selectedRows[], int selectedColumn) {
+        for (int i = 0; i < selectedRows.length; i++) {
+            if ((selectedRows[i] < 0) || (selectedRows[i] >= getModel().getRowCount())) {
+                continue;
+            }
+            int viewIndex = convertRowIndexToView(selectedRows[i]);
+            if ((viewIndex >= 0) && (viewIndex < getRowCount())) {
+                changeSelection(viewIndex, selectedColumn, true, false );
             }
         }
     }
@@ -657,8 +853,9 @@ public class ETable extends JTable {
         for (Iterator it = columns.iterator(); it.hasNext(); ) {
             final ETableColumn etc = (ETableColumn)it.next();
             final JCheckBoxMenuItem checkBox = new JCheckBoxMenuItem();
-            checkBox.setText(etc.getHeaderValue().toString());
+            checkBox.setText(getColumnDisplayName(etc.getHeaderValue().toString()));
             checkBox.setSelected(! etcm.isColumnHidden(etc));
+            checkBox.setEnabled(etc.isHidingAllowed());
             checkBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     etcm.setColumnHidden(etc,! checkBox.isSelected());
@@ -669,7 +866,106 @@ public class ETable extends JTable {
         }
         popup.show(c, 8, 8);
     }
-    
+
+    /**
+     * If the table data model is changed we reset (and then recompute)
+     * the sorting permutation and the row count. The selection is restored
+     * when needed.
+     */
+    public void tableChanged(TableModelEvent e) {
+        boolean needsTotalRefresh = true;
+        if (e == null || e.getFirstRow() == TableModelEvent.HEADER_ROW) {
+            sortingPermutation = null;
+            filteredRowCount = -1;
+            super.tableChanged(e);
+            return;
+        }
+
+        if (e.getType() == TableModelEvent.INSERT) {
+            int wasSelectedRows[] = getSelectedRowsInModel();
+            int wasSelectedColumn = getSelectedColumn();
+            clearSelection();
+            sortingPermutation = null;
+            filteredRowCount = -1;
+            super.tableChanged(e);
+            if (wasSelectedRows.length > 0) {
+                int first = e.getFirstRow();
+                int count = e.getLastRow() - e.getFirstRow() + 1;
+                if (count >= 0) {
+                    for (int i = 0; i < wasSelectedRows.length; i++) {
+                        if (wasSelectedRows[i] >= first) {
+                            wasSelectedRows[i] += count;
+                        }
+                    }
+                }
+                changeSelectionInModel(wasSelectedRows, wasSelectedColumn);
+            }
+            return;
+        }
+
+        if (e.getType() == TableModelEvent.DELETE) {
+            int wasSelectedRows[] = getSelectedRowsInModel();
+            int wasSelectedColumn = getSelectedColumn();
+            clearSelection();
+            sortingPermutation = null;
+            filteredRowCount = -1;
+            super.tableChanged(e);
+            if (wasSelectedRows.length > 0) {
+                int first = e.getFirstRow();
+                int count = e.getLastRow() - e.getFirstRow() + 1;
+                int last = e.getLastRow();
+                if (count >= 0) {
+                    for (int i = 0; i < wasSelectedRows.length; i++) {
+                        if (wasSelectedRows[i] >= first) {
+                            if (wasSelectedRows[i] <= last) {
+                                wasSelectedRows[i] = -1;
+                            } else {
+                                wasSelectedRows[i] -= count;
+                            }
+                        }
+                    }
+                }
+                changeSelectionInModel(wasSelectedRows, wasSelectedColumn);
+            }
+            return;
+        }
+
+        int modelColumn = e.getColumn();
+        int start = e.getFirstRow();
+        int end = e.getLastRow();
+
+        if (modelColumn != TableModelEvent.ALL_COLUMNS) {
+            Enumeration enumeration = getColumnModel().getColumns();
+            TableColumn aColumn;
+            int index = 0;
+            while (enumeration.hasMoreElements()) {
+                aColumn = (TableColumn)enumeration.nextElement();
+                if (aColumn.getModelIndex() == modelColumn) {
+                    ETableColumn etc = (ETableColumn)aColumn;
+                    if ((! etc.isSorted()) && (quickFilterColumn != modelColumn)){
+                        needsTotalRefresh = false;
+                    }
+                }
+            }
+        }
+        if (needsTotalRefresh) { // update the whole table
+            int wasSelectedRows[] = getSelectedRowsInModel();
+            int wasSelectedColumn = getSelectedColumn();
+        
+            sortingPermutation = null;
+            filteredRowCount = -1;
+            super.tableChanged(new TableModelEvent(getModel()));
+            if (wasSelectedRows.length > 0) {
+                changeSelectionInModel(wasSelectedRows, wasSelectedColumn);
+            }
+        } else { // update only one column
+            TableModelEvent tme = new TableModelEvent(
+                (TableModel)e.getSource(), 
+                0, getModel().getRowCount(), modelColumn);
+            super.tableChanged(tme);
+        }
+    }
+
     /**
      * When the user clicks the header this method returns either
      * the column that should be resized or null.
@@ -714,7 +1010,7 @@ public class ETable extends JTable {
     }
     
     /**
-     *
+     * Updates the value of filteredRowCount variable.
      */
     private void computeFilteredRowCount() {
         if ((quickFilterColumn == -1) || (quickFilterObject == null) ) {
@@ -735,14 +1031,233 @@ public class ETable extends JTable {
      * Helper method converting the row index according to the active sorting
      * columns.
      */
-    int convertRowIndexToModel(int row) {
+    public int convertRowIndexToModel(int row) {
         if (sortingPermutation == null) {
             sortAndFilter();
         }
-        if ((sortingPermutation != null) && (row >= 0) && (row < sortingPermutation.length)){
-            return sortingPermutation[row];
+        if (sortingPermutation != null) {
+            if ((row >= 0) && (row < sortingPermutation.length)) {
+                return sortingPermutation[row];
+            }
+            return -1;
         }
         return row;
+    }
+    
+    /**
+     * Helper method converting the row index according to the active sorting
+     * columns.
+     */
+    public int convertRowIndexToView(int row) {
+        if (sortingPermutation == null) {
+            sortAndFilter();
+        }
+        if (sortingPermutation != null) {
+            for (int i = 0; i < sortingPermutation.length; i++) {
+                if (sortingPermutation[i] == row) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        return row;
+    }
+    
+    /**
+     * Allows customization of the text appearing in the column
+     * customization dialog.
+     */
+    public void setSelectVisibleColumnsLabel(String localizedLabel) {
+        selectVisibleColumnsLabel = localizedLabel;
+    }
+    
+    /**
+     * Replaces the quickFilterFormatStrings by the given array. The
+     * new array must have the same length as the old one.
+     */
+    public void setQuickFilterFormatStrings(String []newFormats) {
+        if ((newFormats == null) || (newFormats.length != quickFilterFormatStrings.length)) {
+            return;
+        }
+        quickFilterFormatStrings = newFormats;
+    }
+
+    /**
+     * Allows subclasses to localize the column headers. This method
+     * is called by the header renderer. The default implementation just
+     * returns passed in columnName.
+     */
+    public String getColumnDisplayName(String columnName) {
+        return columnName;
+    }
+    
+    /**
+     * Allows subclasses to transform the value (usually obtained by calling
+     * getValueAt(...)) to another object that is used for
+     * sorting, comparison via quick filters etc. The default implementation
+     * just returns the original value.
+     */
+    public Object transformValue(Object value) {
+        return value;
+    }
+    
+    /**
+     * Creates a menu item usable in a popup that will trigger
+     * QuickFilter functionality for given column and value of the
+     * cell it was invoked on (returned from 
+     * transformValue(getValueAt(column, row))).<p> <strong>Note:</strong> do not
+     * forget to call transformValue before passing the value to this method
+     * otherwise the quickfilters will not work.<p>
+     * The label should be localized version of the string the user will
+     * see in the popup menu, e.g. "Filter Column".
+     */
+    public JMenuItem getQuickFilterPopup(int column, Object value, String label) {
+        JMenu menu = new JMenu(label);
+        String columnDisplayName = getColumnDisplayName(getColumnName(column));
+        JMenuItem equalsItem = getQuickFilterEqualsItem(column, value, 
+                columnDisplayName, quickFilterFormatStrings[0], true);
+        menu.add(equalsItem);
+        JMenuItem notequalsItem = getQuickFilterEqualsItem(column, value, 
+                columnDisplayName, quickFilterFormatStrings[1], false);
+        menu.add(notequalsItem);
+        JMenuItem greaterItem = getQuickFilterCompareItem(column, value, 
+                columnDisplayName, quickFilterFormatStrings[2], true, false);
+        menu.add(greaterItem);
+        JMenuItem lessItem = getQuickFilterCompareItem(column, value, 
+                columnDisplayName, quickFilterFormatStrings[3], false, false);
+        menu.add(lessItem);
+        JMenuItem greaterEqualsItem = getQuickFilterCompareItem(column, value,
+                columnDisplayName, quickFilterFormatStrings[4], true, true);
+        menu.add(greaterEqualsItem);
+        JMenuItem lessEqualsItem = getQuickFilterCompareItem(column, value,
+                columnDisplayName, quickFilterFormatStrings[5], false, true);
+        menu.add(lessEqualsItem);
+        JMenuItem noFilterItem = getQuickFilterNoFilterItem(quickFilterFormatStrings[6]);
+        menu.add(noFilterItem);
+        return menu;
+    }
+
+    /**
+     * Creates the menu item for setting the quick filter that filters
+     * the objects using equality (or non-equality).
+     */
+    public JMenuItem getQuickFilterEqualsItem(final int column, Object value,
+            String columnName, String text, boolean equals) {
+        
+        String s = MessageFormat.format(text, new Object[] { columnName, value});
+        JMenuItem res = new JMenuItem(s);
+        res.addActionListener(new EqualsQuickFilter(column, value, equals));
+        return res;
+    }
+    
+    /**
+     * Private implementation of the equality quick filter.
+     */
+    private class EqualsQuickFilter implements ActionListener, QuickFilter {
+        private int column;
+        private Object value;
+        private boolean equals;
+        public EqualsQuickFilter(int column, Object value, boolean equals) {
+            this.column = column;
+            this.value = value;
+            this.equals = equals;
+        }
+        public boolean accept(Object aValue) {
+            if ((value == null) && (aValue == null)) {
+                return equals;
+            }
+            if ((value == null) || (aValue == null)) {
+                return ! equals;
+            }
+            if (equals) {
+                return value.equals(aValue);
+            } else {
+                return ! value.equals(aValue);
+            }
+        }
+
+        public void actionPerformed(ActionEvent actionEvent) {
+            setQuickFilter(column, this);
+        }
+    }
+    
+    /**
+     * Creates the menu item for resetting the quick filter (to no filter).
+     */
+    public JMenuItem getQuickFilterNoFilterItem(String label) {
+        JMenuItem res = new JMenuItem(label);
+        res.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                unsetQuickFilter();
+            }
+        });
+        return res;
+    }
+    
+    /**
+     * Creates the menu item for setting the quick filter that filters
+     * the objects using Comparable interface.
+     */
+    public JMenuItem getQuickFilterCompareItem(
+            final int column, Object value, String columnName, 
+            String text, boolean greater, boolean equalsCounts) {
+        
+        String s = MessageFormat.format(text, new Object[] { columnName, value});
+        JMenuItem res = new JMenuItem(s);
+        res.addActionListener(new CompareQuickFilter(column, value, greater, equalsCounts));
+        return res;
+    }
+    
+    /**
+     * Private quick filter implementation using Comparable interface.
+     */
+    private class CompareQuickFilter implements ActionListener, QuickFilter {
+        private int column;
+        private Object value;
+        private boolean greater;
+        private boolean equalsCounts;
+        public CompareQuickFilter(int column, Object value, boolean greater, boolean equalsCounts) {
+            this.column = column;
+            this.value = value;
+            this.greater = greater;
+            this.equalsCounts = equalsCounts;
+        }
+        public boolean accept(Object aValue) {
+            if (equalsCounts) {
+                if (greater) {
+                    return doCompare(value, aValue) <= 0;
+                } else {
+                    return doCompare(value, aValue) >= 0;
+                }
+            } else {
+                if (greater) {
+                    return doCompare(value, aValue) < 0;
+                } else {
+                    return doCompare(value, aValue) > 0;
+                }
+            }
+        }
+
+        private int doCompare(Object obj1, Object obj2) {
+            if (obj1 == null && obj2 == null) {
+                return 0;
+            }
+            if (obj1 == null) {
+                return -1;
+            }
+            if (obj2 == null) {
+                return 1;
+            }
+            if ((obj1 instanceof Comparable) && (obj1.getClass().isAssignableFrom(obj2.getClass()))){
+                Comparable c1 = (Comparable) obj1;
+                return c1.compareTo(obj2);
+            }
+            return obj1.toString().compareTo(obj2.toString());
+        }
+        
+        public void actionPerformed(ActionEvent actionEvent) {
+            setQuickFilter(column, this);
+        }
     }
     
     /**
@@ -774,13 +1289,14 @@ public class ETable extends JTable {
     }
     
     /**
-     *
+     * Determines whether the given row should be displayed or not.
      */
     private boolean acceptByQuickFilter(TableModel model, int row) {
         if ((quickFilterColumn == -1) || (quickFilterObject == null) ) {
             return true;
         }
         Object value = model.getValueAt(row, quickFilterColumn);
+        value = transformValue(value);
         if (quickFilterObject instanceof QuickFilter) {
             QuickFilter filter = (QuickFilter) quickFilterObject;
             return filter.accept(value);
@@ -814,9 +1330,28 @@ public class ETable extends JTable {
      * in the same way after restart.
      */
     public void readSettings(Properties p, String propertyPrefix) {
-        ETableColumnModel etcm = new ETableColumnModel();
-        etcm.readSettings(p, propertyPrefix);
+        ETableColumnModel etcm = (ETableColumnModel)createDefaultColumnModel();
+        etcm.readSettings(p, propertyPrefix, this);
         setColumnModel(etcm);
+        
+        String scs = p.getProperty(propertyPrefix + SEARCH_COLUMN);
+        if (scs != null) {
+            try {
+                int index = Integer.parseInt(scs);
+                for (int i = 0; i < etcm.getColumnCount(); i++) {
+                    TableColumn tc = etcm.getColumn(i);
+                    if (tc.getModelIndex() == index) {
+                        searchColumn = (ETableColumn)tc;
+                        break;
+                    }
+                }
+            } catch (NumberFormatException nfe) {
+                nfe.printStackTrace();
+            }
+        }
+        filteredRowCount = -1;
+        sortingPermutation = null;
+        super.tableChanged(new TableModelEvent(getModel()));
     }
 
     /**
@@ -831,6 +1366,11 @@ public class ETable extends JTable {
         if (tcm instanceof ETableColumnModel) {
             ETableColumnModel etcm = (ETableColumnModel) tcm;
             etcm.writeSettings(p, propertyPrefix);
+        }
+        if (searchColumn != null) {
+            p.setProperty(
+                propertyPrefix + SEARCH_COLUMN,
+                Integer.toString(searchColumn.getModelIndex()));
         }
     }
     
@@ -862,7 +1402,10 @@ public class ETable extends JTable {
             }
         }
     }
-    
+
+    /**
+     * Searches the rows by comparing the values with the given prefix.
+     */
     private List doSearch(String prefix) {
         List results = new ArrayList();
         
@@ -876,11 +1419,16 @@ public class ETable extends JTable {
             return results;
         }
         
+        int column = 0;
+        if (searchColumn != null) {
+            column = convertColumnIndexToView(searchColumn.getModelIndex());
+        }
+        
         while (startIndex < size) {
-            Object val = getValueAt(startIndex, 0);
+            Object val = getValueAt(startIndex, column);
             String s = null;
             if (val != null) {
-                s = val.toString();    
+                s = convertValueToString(val);
             }   
             if ((s != null) && (s.toUpperCase().startsWith(prefix.toUpperCase()))) {
                 results.add(new Integer(startIndex));
@@ -899,6 +1447,9 @@ public class ETable extends JTable {
         return results;
     }
     
+    /**
+     * Finds maximum common prefix of 2 strings.
+     */
     private static String findMaxPrefix(String str1, String str2) {
         int i = 0;
         while (str1.regionMatches(true, 0, str2, 0, i)) {
@@ -910,7 +1461,10 @@ public class ETable extends JTable {
         }
         return null;
     }
-    
+
+    /**
+     * Shows the search text field.
+     */
     private void setupSearch() {
         // Remove the default key listeners
         KeyListener keyListeners[] = (KeyListener[]) (getListeners(KeyListener.class));
@@ -951,7 +1505,10 @@ public class ETable extends JTable {
         searchTextField.addFocusListener(searchFieldListener);
         searchTextField.getDocument().addDocumentListener(searchFieldListener);
     }
-    
+
+    /**
+     * Listener showing and operating the search box.
+     */
     private class SearchFieldListener extends KeyAdapter
             implements DocumentListener, FocusListener {
         
@@ -1035,39 +1592,164 @@ public class ETable extends JTable {
         }
         
         public void focusLost(FocusEvent e) {
-            removeSearchField();
+            Component c = e.getOppositeComponent();
+            if (c != searchCombo) {
+                removeSearchField();
+            }
         }
     }
     
+    /**
+     * Listener showing and operating the search box.
+     */
+    private class SearchComboListener extends KeyAdapter
+            implements FocusListener, ItemListener {
+        
+        /**
+         * Default constructor.
+         */
+        SearchComboListener() {
+        }
+        
+        public void itemStateChanged(java.awt.event.ItemEvent itemEvent) {
+            Object selItem = searchCombo.getSelectedItem();
+            for (Enumeration en = getColumnModel().getColumns(); en.hasMoreElements(); ) {
+                Object column = en.nextElement();
+                if (column instanceof ETableColumn) {
+                    ETableColumn etc = (ETableColumn)column;
+                    Object value = etc.getHeaderValue();
+                    String valueString = "";
+                    if (value != null) {
+                        valueString = value.toString();
+                    }
+                    valueString = getColumnDisplayName(valueString);
+                    if (valueString.equals(selItem)) {
+                        searchColumn = etc;
+                    }
+                }
+            }
+
+            String text = searchTextField.getText();
+            searchTextField.setText("");
+            searchTextField.setText(text);
+            searchTextField.requestFocus();
+        }
+        
+        public void keyPressed(KeyEvent e) {
+            int keyCode = e.getKeyCode();
+            if (keyCode == KeyEvent.VK_ESCAPE) {
+                removeSearchField();
+                ETable.this.requestFocus();
+            }
+        }
+        
+        public void focusGained(FocusEvent e) {
+            // Do nothing
+        }
+        
+        public void focusLost(FocusEvent e) {
+            Component c = e.getOppositeComponent();
+            if (c != searchTextField) {
+                removeSearchField();
+            }
+        }
+
+    }
+    
+    private void prepareSearchPanel() {
+        if (searchPanel == null) {
+            searchPanel = new JPanel();
+            String s = UIManager.getString("LBL_QUICKSEARCH");
+            if (s == null) {
+                s = "Quick search in";
+            }
+            JLabel lbl = new JLabel(s); //NOI18N
+            searchPanel.setLayout (
+                new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+            searchPanel.add (lbl);
+            searchCombo = new JComboBox(getSearchComboModel());
+            
+            SearchComboListener scl = new SearchComboListener();
+            searchCombo.addItemListener(scl);
+            searchCombo.addFocusListener(scl);
+            searchCombo.addKeyListener(scl);
+            if (searchColumn != null) {
+                Object value = searchColumn.getHeaderValue();
+                String valueString = "";
+                if (value != null) {
+                    valueString = value.toString();
+                }
+                valueString = getColumnDisplayName(valueString);
+                searchCombo.setSelectedItem(valueString);
+            }
+            searchPanel.add(searchCombo);
+            searchPanel.add (searchTextField);
+            lbl.setLabelFor(searchTextField);
+            searchPanel.setBorder (BorderFactory.createRaisedBevelBorder());
+            lbl.setBorder (BorderFactory.createEmptyBorder (0, 0, 0, 5));
+        }
+    }
+    
+    private ComboBoxModel getSearchComboModel() {
+        DefaultComboBoxModel result = new DefaultComboBoxModel();
+        for (Enumeration en = getColumnModel().getColumns(); en.hasMoreElements(); ) {
+            Object column = en.nextElement();
+            if (column instanceof ETableColumn) {
+                ETableColumn etc = (ETableColumn)column;
+                Object value = etc.getHeaderValue();
+                String valueString = "";
+                if (value != null) {
+                    valueString = value.toString();
+                }
+                valueString = getColumnDisplayName(valueString);
+                result.addElement(valueString);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Shows the search field.
+     */
     private void displaySearchField() {
         if (!searchTextField.isDisplayable()) {
             searchTextField.setFont(ETable.this.getFont());
-            add(searchTextField);
+            prepareSearchPanel();
+            add(searchPanel);
             doLayout();
             searchTextField.repaint();
-            // bugfix #28501, avoid the chars duplicated on jdk1.3
+            searchCombo.repaint();
+            searchPanel.repaint();
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     searchTextField.requestFocus();
+                    searchTextField.repaint();
+                    searchCombo.repaint();
+                    searchPanel.repaint();
+                    repaint();
                 }
             });
         }
     }
-    
+
+    /**
+     * Overriden to place the search text field.
+     * @see javax.swing.JTable#doLayout()
+     */
     public void doLayout() {
         super.doLayout();
         Rectangle visibleRect = getVisibleRect();
-        if (searchTextField.isDisplayable()) {
-            int width = Math.min(
-                    getPreferredSize().width - SEARCH_FIELD_SPACE * 2,
-                    SEARCH_FIELD_PREFERRED_SIZE - SEARCH_FIELD_SPACE);
-            
-            searchTextField.setBounds(
-                    Math.max(SEARCH_FIELD_SPACE,
-                    visibleRect.x + visibleRect.width - width),
-                    visibleRect.y + SEARCH_FIELD_SPACE,
-                    Math.min(visibleRect.width, width) - SEARCH_FIELD_SPACE,
-                    heightOfTextField);
+        if (searchPanel != null && searchPanel.isDisplayable()) {
+             int width = Math.min (
+                getPreferredSize ().width - SEARCH_FIELD_SPACE * 2,
+                SEARCH_FIELD_PREFERRED_SIZE - SEARCH_FIELD_SPACE);
+
+             searchPanel.setBounds(
+                Math.max (SEARCH_FIELD_SPACE, 
+                visibleRect.x + visibleRect.width - width),
+                visibleRect.y + SEARCH_FIELD_SPACE,
+                Math.min (visibleRect.width, width) - SEARCH_FIELD_SPACE,
+                heightOfTextField);
         }
     }
     
@@ -1075,9 +1757,9 @@ public class ETable extends JTable {
      * Removes the search field from the table.
      */
     private void removeSearchField() {
-        if (searchTextField.isDisplayable()) {
-            remove(searchTextField);
-            Rectangle r = searchTextField.getBounds();
+        if (searchPanel.isDisplayable()) {
+            remove(searchPanel);
+            Rectangle r = searchPanel.getBounds();
             this.repaint(r);
         }
     }
@@ -1085,7 +1767,7 @@ public class ETable extends JTable {
     /**
      * Item to the collection when doing the sorting of table rows.
      */
-    protected final static class RowMapping {
+    public final static class RowMapping {
         // index (of the row) in the TableModel
         private int originalIndex;
         // table model of my table
@@ -1123,8 +1805,8 @@ public class ETable extends JTable {
      */
     private void showColumnSelectionDialog() {
         // right click will open the column visibility dialog
-        ColumnSelectionPanel panel = new ColumnSelectionPanel(getColumnModel());
-        int res = JOptionPane.showConfirmDialog(ETable.this, panel, "Select visible columns", JOptionPane.OK_CANCEL_OPTION);
+        ColumnSelectionPanel panel = new ColumnSelectionPanel(getColumnModel(), this);
+        int res = JOptionPane.showConfirmDialog(null, panel, selectVisibleColumnsLabel, JOptionPane.OK_CANCEL_OPTION);
         if (res == JOptionPane.OK_OPTION) {
             panel.changeColumnVisibility();
         }
@@ -1151,10 +1833,19 @@ public class ETable extends JTable {
                     TableColumn tc = tcm.getColumn(column);
                     if (tc instanceof ETableColumn) {
                         ETableColumn etc = (ETableColumn)tc;
+                        if (! etc.isSortingAllowed()) {
+                            return;
+                        }
+                        int wasSelectedRows[] = getSelectedRowsInModel();
+                        int wasSelectedColumn = getSelectedColumn();
+                        clearSelection();
                         boolean clear = ((me.getModifiers() & InputEvent.SHIFT_MASK) != InputEvent.SHIFT_MASK);
                         etcm.toggleSortedColumn(etc, clear);
                         sortingPermutation = null;
-                        ETable.super.tableChanged(new TableModelEvent(getModel(), 0, getModel().getRowCount()));
+                        ETable.super.tableChanged(new TableModelEvent(getModel(), 0, getRowCount()));
+                        if (wasSelectedRows.length > 0) {
+                            changeSelectionInModel(wasSelectedRows, wasSelectedColumn);
+                        }
                     }
                 }
             }
@@ -1164,6 +1855,345 @@ public class ETable extends JTable {
                     ETableColumn etc = (ETableColumn)resColumn;
                     etc.updatePreferredWidth(ETable.this, true);
                 }
+            }
+        }
+    }
+
+    /**
+     * Overriden to force requesting the focus after the user starts editing.
+     * @see javax.swing.JTable#editCellAt(int, int, EventObject)
+     */
+    public boolean editCellAt(int row, int column, EventObject e) {
+        inEditRequest = true;
+        if (editingRow == row && editingColumn == column && isEditing()) {
+            //discard edit requests if we're already editing that cell
+            inEditRequest = false;
+            return false;
+        }
+        
+        if (isEditing()) {
+            inEditorChangeRequest = true;
+            try {
+                removeEditor();
+                changeSelection(row, column, false, false);
+            } finally {
+                inEditorChangeRequest = false;
+            }
+        }
+        
+        try {
+            boolean ret = super.editCellAt(row, column, e);
+            if (ret) {
+                editorComp.requestFocus();
+            }
+
+            return ret;
+        } finally {
+            inEditRequest = false;
+        }
+    }
+
+    /**
+     * Overriden to track whether the remove request is in progress.
+     * @see javax.swing.JTable#removeEditor()
+     */
+    public void removeEditor() {
+        inRemoveRequest = true;
+        try {
+            synchronized (getTreeLock()) {
+                super.removeEditor();
+            }
+        } finally {
+            inRemoveRequest = false;
+        }
+    }    
+    
+    /**
+     * Checks whether the given component is "our".
+     */
+    private boolean isKnownComponent(Component c) {
+        if (c == null) return false;
+        if (isAncestorOf (c)) {
+            return true;
+        }
+        if (c == editorComp) {
+            return true;
+        }
+        if (editorComp != null && (editorComp instanceof Container) &&
+            ((Container) editorComp).isAncestorOf(c)) {
+                return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Focus transfer policy that retains focus after closing an editor.
+     * Copied wholesale from org.openide.explorer.view.TreeTable.
+     */
+    private class STPolicy extends ContainerOrderFocusTraversalPolicy {
+        
+        public Component getComponentAfter(Container focusCycleRoot,
+        Component aComponent) {
+            
+            if (inRemoveRequest) {
+                return ETable.this;
+            } else {
+                Component result = super.getComponentAfter(focusCycleRoot, aComponent);
+                return result;
+            }
+        }
+        
+        public Component getComponentBefore(Container focusCycleRoot,
+        Component aComponent) {
+            if (inRemoveRequest) {
+                return ETable.this;
+            } else {
+                return super.getComponentBefore(focusCycleRoot, aComponent);
+            }
+        }
+        
+        public Component getFirstComponent(Container focusCycleRoot) {
+            if (!inRemoveRequest && isEditing()) {
+                return editorComp;
+            } else {
+                return ETable.this;
+            }
+        }
+        
+        public Component getDefaultComponent(Container focusCycleRoot) {
+            if (inRemoveRequest && isEditing() && editorComp.isShowing()) {
+                return editorComp;
+            } else {
+                return ETable.this;
+            }
+        }
+        
+        protected boolean accept(Component aComponent) {
+            //Do not allow focus to go to a child of the editor we're using if
+            //we are in the process of removing the editor
+            if (isEditing() && inEditRequest) {
+                return isKnownComponent (aComponent);
+            }
+            return super.accept(aComponent) && aComponent.isShowing();
+        }
+    }
+    
+    /**
+     * Enables tab keys to navigate between rows but also exit the table
+     * to the next focusable component in either direction.
+     */
+    private final class NavigationAction extends AbstractAction {
+        
+        /** true is forward direction */
+        private boolean direction;
+        
+        public NavigationAction(boolean direction) {
+            this.direction = direction;
+        }
+        
+        public void actionPerformed(ActionEvent e) {
+            if (isEditing()) {
+                removeEditor();
+            }
+            int targetRow;
+            int targetColumn;
+            if (direction) {
+                if (getSelectedColumn() == getColumnCount()-1) {
+                    targetColumn=0;
+                    targetRow = getSelectedRow()+1;
+                } else {
+                    targetColumn = getSelectedColumn()+1;
+                    targetRow = getSelectedRow();
+                }
+            } else {
+                if (getSelectedColumn() == 0) {
+                    targetColumn = getColumnCount()-1;
+                    targetRow = getSelectedRow()-1;
+                } else {
+                    targetRow = getSelectedRow();
+                    targetColumn = getSelectedColumn() -1;
+                }
+            }
+            
+            //if we're off the end, try to find a sibling component to pass
+            //focus to
+            if (targetRow >= getRowCount() || targetRow < 0) {
+                //This code is a bit ugly, but works
+                Container ancestor = getFocusCycleRootAncestor();
+                //Find the next component in our parent's focus cycle
+                Component sibling = direction ?
+                ancestor.getFocusTraversalPolicy().getComponentAfter(ancestor,
+                ETable.this.getParent()) :
+                    ancestor.getFocusTraversalPolicy().getComponentBefore(ancestor,
+                    ETable.this);
+                    
+
+                //Often LayoutFocusTranferPolicy will return ourselves if we're
+                //the last.  First try to find a parent focus cycle root that
+                //will be a little more polite
+                if (sibling == ETable.this) {
+                    Container grandcestor = ancestor.getFocusCycleRootAncestor();
+                    if (grandcestor != null) {
+                        sibling = direction ? grandcestor.getFocusTraversalPolicy().getComponentAfter(grandcestor, ancestor) :
+                            grandcestor.getFocusTraversalPolicy().getComponentBefore(grandcestor, ancestor);
+                        ancestor = grandcestor;
+                    }
+                }
+                 
+                //Okay, we still ended up with ourselves, or there is only one focus
+                //cycle root ancestor.  Try to find the first component according to
+                //the policy
+                if (sibling == ETable.this) {
+                    if (ancestor.getFocusTraversalPolicy().getFirstComponent(ancestor) != null) {
+                        sibling = ancestor.getFocusTraversalPolicy().getFirstComponent(ancestor);
+                    }
+                }
+                
+                //If we're *still* getting ourselves, find the default button and punt
+                if (sibling == ETable.this) {
+                    JRootPane rp = getRootPane();
+                    JButton jb = rp.getDefaultButton();
+                    if (jb != null) {
+                        sibling = jb;
+                    }
+                }
+                    
+                //See if it's us, or something we know about, and if so, just
+                //loop around to the top or bottom row - there's noplace
+                //interesting for focus to go to
+                if (sibling != null) {
+                    if (sibling == ETable.this) {
+                        //set the selection if there's nothing else to do
+                        changeSelection(direction ? 0 : getRowCount()-1, 
+                            direction ? 0 : getColumnCount()-1,false,false);
+                    } else {
+                        //Request focus on the sibling
+                        sibling.requestFocus();
+                    }
+                    return;
+                }
+            }
+            changeSelection (targetRow, targetColumn, false, false);
+        }
+    }
+
+    /** Used to explicitly invoke editing from the keyboard */
+    private class EditAction extends AbstractAction {
+        
+        public void actionPerformed(ActionEvent e) {
+            int row = getSelectedRow();
+            int col = getSelectedColumn();
+            editCellAt(row, col, null);
+        }
+        
+        public boolean isEnabled() {
+            return getSelectedRow() != -1 && getSelectedColumn() != -1 && !isEditing();
+        }
+    }
+    
+    /**
+     * Either cancels an edit, or closes the enclosing dialog if present.
+     */
+    private class CancelEditAction extends AbstractAction {
+        
+        public void actionPerformed(ActionEvent e) {
+            if (isEditing() || editorComp != null) {
+                removeEditor();
+                return;
+            } else {
+                Component c = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+                
+                InputMap imp = getRootPane().getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+                ActionMap am = getRootPane().getActionMap();
+                
+                KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+                Object key = imp.get(escape);
+                if (key == null) {
+                    //Default for NbDialog
+                    key = "Cancel";
+                }
+                if (key != null) {
+                    Action a = am.get(key);
+                    if (a != null) {
+                        String commandKey = (String)a.getValue(Action.ACTION_COMMAND_KEY);
+                        if (commandKey == null) {
+                            commandKey = key.toString();
+                        }
+                        a.actionPerformed(new ActionEvent(this,
+                        ActionEvent.ACTION_PERFORMED, commandKey)); //NOI18N
+                    }
+                }
+            }
+        }
+        
+        public boolean isEnabled() {
+            //            return isEditing();
+            return true;
+        }
+    }
+    
+    /**
+     * Action for the keyboard event of hitting the Enter key.
+     */
+    private class EnterAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            JRootPane jrp = getRootPane();
+            if (jrp != null) {
+                JButton b = getRootPane().getDefaultButton();
+                if (b != null && b.isEnabled()) {
+                    b.doClick();
+                }
+            }
+        }
+        
+        public boolean isEnabled() {
+            return !isEditing() && !inRemoveRequest;
+        }
+    }
+    
+    /**
+     * CTRL-Tab transfers focus up.
+     */
+    private class CTRLTabAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            setFocusCycleRoot(false);
+            try {
+                Container con = ETable.this.getFocusCycleRootAncestor();
+                if (con != null) {
+                    Component target = ETable.this;
+                    if (getParent() instanceof JViewport) {
+                        target = getParent().getParent();
+                        if (target == con) {
+                            target = ETable.this;
+                        }
+                    }
+
+                    EventObject eo = EventQueue.getCurrentEvent();
+                    boolean backward = false;
+                    if (eo instanceof KeyEvent) {
+                        backward = 
+                            (((KeyEvent) eo).getModifiers() 
+                            & KeyEvent.SHIFT_MASK) 
+                            != 0 && (((KeyEvent) eo).getModifiersEx() & 
+                            KeyEvent.SHIFT_DOWN_MASK) != 0;
+                    }
+
+                    Component to = backward ? 
+                        con.getFocusTraversalPolicy().getComponentAfter(
+                        con, ETable.this) 
+                        : con.getFocusTraversalPolicy().getComponentAfter(
+                        con, ETable.this);
+
+                        
+                    if (to == ETable.this) {
+                        to = backward ? 
+                            con.getFocusTraversalPolicy().getFirstComponent(con) : 
+                            con.getFocusTraversalPolicy().getLastComponent(con);
+                    }
+                    to.requestFocus();
+                }
+            } finally {
+                setFocusCycleRoot(true);
             }
         }
     }

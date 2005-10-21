@@ -61,24 +61,31 @@ public class ETableColumnModel extends DefaultTableColumnModel {
      * the initialization code because the initialization code can be run
      * in the same way after restart.
      */
-    public void readSettings(Properties p, String propertyPrefix) {
+    public void readSettings(Properties p, String propertyPrefix, ETable table) {
         tableColumns = new Vector();
         sortedColumns = new ArrayList();
         String s = p.getProperty(propertyPrefix + NUMBER_OF_COLUMNS);
         int numColumns = Integer.parseInt(s);
         for (int i = 0; i < numColumns; i++) {
-            ETableColumn etc = new ETableColumn();
+            ETableColumn etc = (ETableColumn)table.createColumn(i);
             etc.readSettings(p, i, propertyPrefix);
             addColumn(etc);
             if (etc.getComparator() != null) {
-                sortedColumns.add(etc);
+                int j = 0;
+                for ( ; j < sortedColumns.size(); j++) {
+                    ETableColumn setc = (ETableColumn)sortedColumns.get(j);
+                    if (setc.getSortRank() > etc.getSortRank()) {
+                        break;
+                    }
+                }
+                sortedColumns.add(j, etc);
             }
         }
         hiddenColumns = new ArrayList();
         String sh = p.getProperty(propertyPrefix + NUMBER_OF_HIDDEN_COLUMNS);
         int numHiddenColumns = Integer.parseInt(sh);
         for (int i = 0; i < numHiddenColumns; i++) {
-            ETableColumn etc = new ETableColumn();
+            ETableColumn etc = new ETableColumn(table);
             etc.readSettings(p, i, propertyPrefix + PROP_HIDDEN_PREFIX);
             hiddenColumns.add(etc);
         }
@@ -128,7 +135,32 @@ public class ETableColumnModel extends DefaultTableColumnModel {
     /**
      *
      */
+    void setColumnSorted(ETableColumn etc, boolean ascending, int newRank) {
+        if (! etc.isSortingAllowed()) {
+            return;
+        }
+        
+        // TODO: check the implementation!
+        
+         boolean wasSorted = sortedColumns.contains(etc);
+         boolean wasAscending = false;
+         if (wasSorted) {
+             etc.setAscending(ascending);
+             etc.setSortRank(newRank);
+             sortedColumns.remove(etc);
+         } else {
+            etc.setSorted(newRank, ascending);
+         }
+         sortedColumns.add(newRank-1, etc);
+    }
+    
+    /**
+     *
+     */
     void toggleSortedColumn(ETableColumn etc, boolean cleanAll) {
+        if (! etc.isSortingAllowed()) {
+            return;
+        }
         boolean wasSorted = sortedColumns.contains(etc);
         if (cleanAll) {
             clearSortedColumns(etc);
@@ -138,11 +170,11 @@ public class ETableColumnModel extends DefaultTableColumnModel {
                 etc.setAscending(false);
             } else {
                 sortedColumns.remove(etc);
-                etc.setSorted(0, null);
+                etc.setSorted(0, false);
             }
             updateRanks();
         } else {
-            etc.setSorted(sortedColumns.size()+1, etc.getRowComparator(etc.getModelIndex()));
+            etc.setSorted(sortedColumns.size()+1, true);
             sortedColumns.add(etc);
         }
     }
@@ -154,13 +186,17 @@ public class ETableColumnModel extends DefaultTableColumnModel {
     public void setColumnHidden(TableColumn column, boolean hidden) {
         if (hidden) {
             if (! hiddenColumns.contains(column)) {
-                removeColumn(column);
-                hiddenColumns.add(column);
+                if (tableColumns.contains(column)) {
+                    removeColumn(column);
+                    hiddenColumns.add(column);
+                }
             }
         } else {
             if (! tableColumns.contains(column)) {
-                hiddenColumns.remove(column);
-                addColumn(column);
+                if (hiddenColumns.contains(column)) {
+                    hiddenColumns.remove(column);
+                    addColumn(column);
+                }
             }
         }
     }
@@ -177,7 +213,7 @@ public class ETableColumnModel extends DefaultTableColumnModel {
             Object o = it.next();
             if (o instanceof ETableColumn) {
                 ETableColumn etc = (ETableColumn)o;
-                etc.setSorted(0, null);
+                etc.setSorted(0, false);
             }
         }
         sortedColumns = new ArrayList();
@@ -192,7 +228,7 @@ public class ETableColumnModel extends DefaultTableColumnModel {
             Object o = it.next();
             if ((o instanceof ETableColumn) && (o != notThisOne)) {
                 ETableColumn etc = (ETableColumn)o;
-                etc.setSorted(0, null);
+                etc.setSorted(0, false);
             }
         }
         sortedColumns = new ArrayList();
@@ -223,6 +259,10 @@ public class ETableColumnModel extends DefaultTableColumnModel {
      * list.
      */
     private class CompoundComparator implements Comparator {
+        private Comparator original;
+        public CompoundComparator() {
+            original = new ETable.OriginalRowComparator();
+        }
         public int compare(Object o1, Object o2) {
             for (Iterator it = sortedColumns.iterator(); it.hasNext(); ) {
                 Object o = it.next();
@@ -237,8 +277,7 @@ public class ETableColumnModel extends DefaultTableColumnModel {
                     }
                 }
             }
-            // TODO: revisit this:
-            return o1.toString().compareTo(o2.toString());
+            return original.compare(o1, o2);
         }
     }
 }

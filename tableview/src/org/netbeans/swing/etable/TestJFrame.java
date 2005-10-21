@@ -32,7 +32,7 @@ public class TestJFrame extends javax.swing.JFrame {
     public TestJFrame() {
         initComponents();
 //        eTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-        eTable1.setFullyNonEditable(true);
+//        eTable1.setFullyNonEditable(true);
     }
     
     /** This method is called from within the constructor to

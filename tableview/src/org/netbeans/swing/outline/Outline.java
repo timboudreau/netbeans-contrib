@@ -10,12 +10,6 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-/*
- * Outline.java
- *
- * Created on January 27, 2004, 6:59 PM
- */
-
 package org.netbeans.swing.outline;
 
 import java.awt.Font;
@@ -30,6 +24,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
 import javax.swing.JScrollBar;
@@ -43,9 +38,12 @@ import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.tree.AbstractLayoutCache;
 import javax.swing.tree.TreePath;
+import org.netbeans.swing.etable.ETable;
+import org.netbeans.swing.etable.ETableColumn;
 
 /** An Outline, or tree-table component.  Takes an instance of OutlineModel,
  * an interface which merges TreeModel and TableModel.
@@ -158,7 +156,7 @@ import javax.swing.tree.TreePath;
  *
  * @author  Tim Boudreau
  */
-public final class Outline extends JTable {
+public class Outline extends ETable {
     //XXX plenty of methods missing here - add/remove tree expansion listeners,
     //better path info/queries, etc.
     
@@ -183,8 +181,9 @@ public final class Outline extends JTable {
     
     /** Always returns the default renderer for Object.class for the tree column */
     public TableCellRenderer getCellRenderer(int row, int column) {
+        int c = convertColumnIndexToModel(column);
         TableCellRenderer result;
-        if (column == 0) {
+        if (c == 0) {
             result = getDefaultRenderer(Object.class);
         } else {
             result = super.getCellRenderer(row, column);
@@ -230,7 +229,7 @@ public final class Outline extends JTable {
      * be propagated into the table model, and will leave the model and
      * its layout in inconsistent states.  Any calls that affect expanded
      * state must go through <code>getTreePathSupport()</code>.</strong> */
-    AbstractLayoutCache getLayoutCache () {
+    public final AbstractLayoutCache getLayoutCache () {
         OutlineModel mdl = getOutlineModel();
         if (mdl != null) {
             return mdl.getLayout();
@@ -240,8 +239,8 @@ public final class Outline extends JTable {
     }
     
     boolean isTreeColumnIndex (int column) {
-        //XXX fixme - this is not true if columns have been dragged
-        return column == 0;
+        int c = convertColumnIndexToModel(column);
+        return c == 0;
     }
     
     public boolean isVisible (TreePath path) {
@@ -279,6 +278,97 @@ public final class Outline extends JTable {
                 cachedRootVisible.booleanValue() : true;
         } else {
             return getLayoutCache().isRootVisible();
+        }
+    }
+
+    /**
+     */
+    protected TableColumn createColumn(int modelIndex) {
+        return new OutlineColumn(modelIndex);
+    }
+
+    protected class OutlineColumn extends ETableColumn {
+        public OutlineColumn(int modleIndex) {
+            super(modleIndex, Outline.this);
+        }
+        protected Comparator getRowComparator(int column, boolean ascending) {
+            return new OutlineRowComparator(column, ascending);
+        }
+        public boolean isHidingAllowed() {
+            return getModelIndex() != 0;
+        }
+        public boolean isSortingAllowed() {
+            return getModelIndex() != 0;
+        }
+        /**
+         * Comparator used for sorting the rows according to value in
+         * a given column. Operates on the RowMapping objects.
+         */
+        protected class OutlineRowComparator extends RowComparator {
+            private boolean ascending = true;
+            public OutlineRowComparator(int column, boolean ascending) {
+                super(column);
+                this.ascending = ascending;
+            }
+            public int compare(Object o1, Object o2) {
+                RowMapping rm1 = (RowMapping)o1;
+                RowMapping rm2 = (RowMapping)o2;
+                int index1 = rm1.getModelRowIndex();
+                int index2 = rm2.getModelRowIndex();
+                if (index1 == index2) {
+                    return 0;
+                }
+                TreePath tp1 = getLayoutCache().getPathForRow(index1);
+                TreePath tp2 = getLayoutCache().getPathForRow(index2);
+                if (tp1.isDescendant(tp2)) {
+                    return -1;
+                }
+                if (tp2.isDescendant(tp1)) {
+                    return 1;
+                }
+                TreePath parent1 = tp1.getParentPath();
+                TreePath parent2 = tp2.getParentPath();
+                if (parent1 != null && parent2 != null && parent1.equals(parent2) &&
+                        getOutlineModel().isLeaf(tp1.getLastPathComponent()) &&
+                        getOutlineModel().isLeaf(tp2.getLastPathComponent())) {
+                    return ascending ? super.compare(o1, o2) : - super.compare(o1, o2);
+                }
+                while (tp1.getPathCount() < tp2.getPathCount()) {
+                    tp2 = tp2.getParentPath();
+                }
+                while (tp1.getPathCount() > tp2.getPathCount()) {
+                    tp1 = tp1.getParentPath();
+                }
+                parent1 = tp1.getParentPath();
+                parent2 = tp2.getParentPath();
+                while (parent1 != null && parent2 != null && !parent1.equals(parent2)) {
+                    tp1 = parent1;
+                    tp2 = parent2;
+                    parent1 = tp1.getParentPath();
+                    parent2 = tp2.getParentPath();
+                }
+                int r1 = getLayoutCache().getRowForPath(tp1);
+                int r2 = getLayoutCache().getRowForPath(tp2);
+                
+                Object obj1 = getModel().getValueAt(r1, column);
+                Object obj2 = getModel().getValueAt(r2, column);
+                obj1 = transformValue(obj1);
+                obj2 = transformValue(obj2);
+                if (obj1 == null && obj2 == null) {
+                    return 0;
+                }
+                if (obj1 == null) {
+                    return -1;
+                }
+                if (obj2 == null) {
+                    return 1;
+                }
+                if ((obj1 instanceof Comparable) && (obj1.getClass().isAssignableFrom(obj2.getClass()))){
+                    Comparable c1 = (Comparable) obj1;
+                    return ascending ? c1.compareTo(obj2) : - c1.compareTo(obj2);
+                }
+                return 0;
+            }
         }
     }
     
@@ -361,13 +451,16 @@ public final class Outline extends JTable {
         //node - check for that first.
         if (isTreeColumnIndex (column) && e instanceof MouseEvent) {
             MouseEvent me = (MouseEvent) e;
-            TreePath path = getLayoutCache().getPathClosestTo(me.getX(), me.getY());
+            TreePath path = getLayoutCache().getPathForRow(convertRowIndexToModel(row));
             if (!getOutlineModel().isLeaf(path.getLastPathComponent())) {
                 int handleWidth = DefaultOutlineCellRenderer.getExpansionHandleWidth();
                 Insets ins = getInsets();
-                int handleStart = ins.left + ((path.getPathCount() - 1) * DefaultOutlineCellRenderer.getNestingWidth());
+                int nd = path.getPathCount() - (isRootVisible() ? 1 : 2);
+                if (nd < 0) {
+                    nd = 0;
+                }
+                int handleStart = ins.left + (nd * DefaultOutlineCellRenderer.getNestingWidth());
                 int handleEnd = ins.left + handleStart + handleWidth;
-
                 //TODO: Translate x/y to position of column if non-0
                 
                 if ((me.getX() > ins.left && me.getX() >= handleStart && me.getX() <= handleEnd) ||
@@ -376,6 +469,17 @@ public final class Outline extends JTable {
                     boolean expanded = getLayoutCache().isExpanded(path);
                     if (!expanded) {
                         getTreePathSupport().expandPath(path);
+                        
+                        Object ourObject = path.getLastPathComponent();
+                        int cCount = getOutlineModel().getChildCount(ourObject);
+                        if (cCount > 0) {
+                            Object lastChild = getOutlineModel().getChild(ourObject, cCount - 1);
+                            TreePath lastChildPath = path.pathByAddingChild(lastChild);
+                            int lastRow = getLayoutCache().getRowForPath(lastChildPath);
+                            Rectangle rect = getCellRect(lastRow, 0, true);
+                            scrollRectToVisible(rect);
+                        }
+                        
                     } else {
                         getTreePathSupport().collapsePath(path);
                     }
@@ -386,12 +490,16 @@ public final class Outline extends JTable {
             
         return super.editCellAt(row, column, e);
     }
+    
+    /** Computes row height ...
+     */
+    public void addNotify () {
+        super.addNotify ();
+        calcRowHeight();
+    }
 
-    private boolean needCalcRowHeight = true;
-    /** Calculate the height of rows based on the current font.  This is
-     *  done when the first paint occurs, to ensure that a valid Graphics
-     *  object is available.  */
-    private void calcRowHeight(Graphics g) {
+    /** Calculate the height of rows based on the current font. */
+    private void calcRowHeight() {
         //Users of themes can set an explicit row height, so check for it
         Integer i = (Integer) UIManager.get("netbeans.outline.rowHeight"); //NOI18N
         
@@ -401,12 +509,10 @@ public final class Outline extends JTable {
         } else {
             //Derive a row height to accomodate the font and expando icon
             Font f = getFont();
-            FontMetrics fm = g.getFontMetrics(f);
+            FontMetrics fm = getFontMetrics(f);
             rowHeight = Math.max(fm.getHeight()+3,
                 DefaultOutlineCellRenderer.getExpansionHandleHeight());
         }
-        //Clear the flag
-        needCalcRowHeight = false;
         //Set row height.  If displayable, this will generate a new call
         //to paint()
         setRowHeight(rowHeight);
@@ -416,15 +522,6 @@ public final class Outline extends JTable {
 //        System.err.println("Table got tableChanged " + e);
         super.tableChanged(e);
 //        System.err.println("row count is " + getRowCount());
-    }
-    
-    public void paint(Graphics g) {
-        if (needCalcRowHeight) {
-            calcRowHeight(g);
-            //CalcRowHeight will trigger a repaint
-            return;
-        }
-        super.paint(g);
     }
     
     /** Create a component listener to handle size changes if the table model
@@ -455,7 +552,6 @@ public final class Outline extends JTable {
         
         public Rectangle getNodeDimensions(Object value, int row, int depth, 
             boolean expanded, Rectangle bounds) {
-                
                 int wid = Outline.this.getColumnModel().getColumn(0).getPreferredWidth();
                 bounds.setBounds (0, row * getRowHeight(), wid, getRowHeight());
                 return bounds;

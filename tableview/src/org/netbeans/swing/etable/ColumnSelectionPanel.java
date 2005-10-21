@@ -42,7 +42,7 @@ class ColumnSelectionPanel extends JPanel {
     private ETableColumnModel columnModel;
     
     /** Creates a new instance of ColumnSelectionPanel */
-    public ColumnSelectionPanel(TableColumnModel columnModel) {
+    public ColumnSelectionPanel(TableColumnModel columnModel, ETable table) {
         setLayout(new GridBagLayout());
         if (! (columnModel instanceof ETableColumnModel)) {
             return;
@@ -53,13 +53,13 @@ class ColumnSelectionPanel extends JPanel {
         columns.addAll(etcm.hiddenColumns);
         Collections.sort(columns);
         int width = columns.size() / 10 + 1;
-        layoutPanel(columns, width);
+        layoutPanel(columns, width, table);
     }
     
     /**
      * Adds checkbox for each ETableColumn contained in the columns parameter.
      */
-    private void layoutPanel(List columns, int width) {
+    private void layoutPanel(List columns, int width, ETable table) {
         int i = 0;
         int j = 0;
         int rows = columns.size() / width;
@@ -71,8 +71,10 @@ class ColumnSelectionPanel extends JPanel {
             ETableColumn etc = (ETableColumn)it.next();
             JCheckBox checkBox = new JCheckBox();
             checkBoxes.put(etc, checkBox);
-            checkBox.setText(etc.getHeaderValue().toString());
+            checkBox.setText(
+                    table.getColumnDisplayName(etc.getHeaderValue().toString()));
             checkBox.setSelected(! columnModel.isColumnHidden(etc));
+            checkBox.setEnabled(etc.isHidingAllowed());
             GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = j;
             gridBagConstraints.gridy = i;

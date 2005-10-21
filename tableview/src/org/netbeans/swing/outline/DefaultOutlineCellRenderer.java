@@ -10,12 +10,6 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-/*
- * DefaultOutlineTreeCellRenderer.java
- *
- * Created on January 28, 2004, 7:49 PM
- */
-
 package org.netbeans.swing.outline;
 
 import java.awt.Color;
@@ -144,14 +138,18 @@ public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
         Outline tbl = (Outline) table;
         if (tbl.isTreeColumnIndex(column)) {
             AbstractLayoutCache layout = tbl.getLayoutCache();
-            
+            row = tbl.convertRowIndexToModel(row);
             boolean leaf = tbl.getOutlineModel().isLeaf(value);
             setLeaf(leaf);
             setShowHandle(true);
             TreePath path = layout.getPathForRow(row);
             boolean expanded = !layout.isExpanded(path);
             setExpanded (expanded);
-            setNestingDepth (path.getPathCount() - 1);
+            int nd = path.getPathCount() - (tbl.isRootVisible() ? 1 : 2);
+            if (nd < 0) {
+                nd = 0;
+            }
+            setNestingDepth (nd );
             RenderDataProvider rendata = tbl.getRenderDataProvider();
             Icon icon = null;
             if (rendata != null) {
@@ -180,15 +178,17 @@ public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
                 if (!leaf) {
                     if (expanded) {
                         setIcon (getDefaultClosedIcon());
-                    } else {
+                    } else { // ! expanded
                         setIcon (getDefaultOpenIcon());
                     }
-                } else {
+                } else { // leaf
                     setIcon (getDefaultLeafIcon());
                 }
+            } else { // icon != null
+                setIcon(icon);
             }
         
-        } else {
+        } else { // ! tbl.isTreeColumnIndex(column)
             setIcon(null);
             setShowHandle(false);
         }

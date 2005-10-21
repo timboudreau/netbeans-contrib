@@ -10,12 +10,6 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-/*
- * OutlineTableModel.java
- *
- * Created on January 27, 2004, 6:53 PM
- */
-
 package org.netbeans.swing.outline;
 
 import javax.swing.table.TableModel;

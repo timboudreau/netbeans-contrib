@@ -10,12 +10,6 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-/*
- * ExtTreeExpansionListener.java
- *
- * Created on February 1, 2004, 6:59 PM
- */
-
 package org.netbeans.swing.outline;
 
 import javax.swing.event.TreeExpansionEvent;

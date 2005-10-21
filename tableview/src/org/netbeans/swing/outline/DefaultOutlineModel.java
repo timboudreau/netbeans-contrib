@@ -10,12 +10,6 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-/*
- * DefaultOutlineModel.java
- *
- * Created on January 27, 2004, 6:58 PM
- */
-
 package org.netbeans.swing.outline;
 
 import java.util.ArrayList;
@@ -93,6 +87,7 @@ public class DefaultOutlineModel implements OutlineModel {
     private AbstractLayoutCache layout;
     private TreePathSupport treePathSupport;
     private EventBroadcaster broadcaster;
+    private String nodesColumnLabel = "Nodes";
     //Some constants we use to have a single method handle all translated
     //event firing
     private static final int NODES_CHANGED = 0;
@@ -112,23 +107,31 @@ public class DefaultOutlineModel implements OutlineModel {
      *  on the tree node in that row in the tree model
      */
     public static OutlineModel createOutlineModel(TreeModel treeModel, RowModel rowModel) {
-        return createOutlineModel (treeModel, rowModel, false);
+        return createOutlineModel (treeModel, rowModel, false, null);
     }
 
     /** Create an OutlineModel using the supplied tree model and row model,
      * specifying if it is a large-model tree */
     public static OutlineModel createOutlineModel(TreeModel treeModel, RowModel rowModel, boolean isLargeModel) {
+        return createOutlineModel (treeModel, rowModel, false, null);
+    }
+    /** Create an OutlineModel using the supplied tree model and row model,
+     * specifying if it is a large-model tree */
+    public static OutlineModel createOutlineModel(TreeModel treeModel, RowModel rowModel, boolean isLargeModel, String nodesColumnLabel) {
         TableModel tableModel = new ProxyTableModel(rowModel);
-        return new DefaultOutlineModel (treeModel, tableModel, isLargeModel);
+        return new DefaultOutlineModel (treeModel, tableModel, isLargeModel, nodesColumnLabel);
     }
     
     /** Creates a new instance of DefaultOutlineModel.  <strong><b>Note</b> 
      * Do not fire table structure changes from the wrapped TableModel (value
      * changes are okay).  Changes that affect the number of rows must come
      * from the TreeModel.   */
-    protected DefaultOutlineModel(TreeModel treeModel, TableModel tableModel, boolean largeModel) {
+    protected DefaultOutlineModel(TreeModel treeModel, TableModel tableModel, boolean largeModel, String nodesColumnLabel) {
         this.treeModel = treeModel;
         this.tableModel = tableModel;
+        if (nodesColumnLabel != null) {
+            this.nodesColumnLabel = nodesColumnLabel;
+        }
         
         layout = largeModel ? (AbstractLayoutCache) new FixedHeightLayoutCache() 
             : (AbstractLayoutCache) new VariableHeightLayoutCache();
@@ -193,7 +196,7 @@ public class DefaultOutlineModel implements OutlineModel {
     
     public String getColumnName(int columnIndex) {
         if (columnIndex == 0) {
-            return "Nodes"; //XXX
+            return nodesColumnLabel;
         } else {
             return tableModel.getColumnName(columnIndex-1);
         }

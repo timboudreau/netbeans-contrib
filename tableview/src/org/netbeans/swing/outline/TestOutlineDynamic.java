@@ -7,29 +7,49 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
+ */
+/*
+ * TestOutlineDynamic.java
+ *
+ * Created on February 1, 2004, 12:53 PM
  */
 
 package org.netbeans.swing.outline;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 /** Another Outline test app - this one allows dynamic adding and removal of
  * nodes and provides an editable column called "comment".
@@ -157,7 +177,7 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         setBounds (20, 20, 700, 400);
     }
 
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(java.awt.event.ActionEvent e) {
         JButton b = (JButton) e.getSource();
         DefaultMutableTreeNode n = getSelectedNode();
         DefaultTreeModel mdl = (DefaultTreeModel) treeMdl;
@@ -210,7 +230,7 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
                 sels[i] *= -1;
             }
 
-            //System.err.println("Going to remove " + Arrays.asList(Utilities.toObjectArray(sels)));
+//            System.err.println("Going to remove " + Arrays.asList(Utilities.toObjectArray(sels)));
             
             ArrayList nodes = new ArrayList();
             int[] indices = new int[sels.length];
@@ -223,7 +243,7 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
                 indices[i] = parent.getIndex(aNode);
             }
             
-            //System.err.println("Will really remove indices " + Arrays.asList(Utilities.toObjectArray(indices)));
+//            System.err.println("Will really remove indices " + Arrays.asList(Utilities.toObjectArray(indices)));
             
             for (int i=0; i < nodes.size(); i++) {
                 aNode = (DefaultMutableTreeNode) nodes.get(i);
@@ -254,11 +274,13 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
                 al.add (new Integer(i));
             }
         }
-        int[] ints = new int[al.size()];
-        for (int i = 0; i < ints.length; i++) {
-            ints[i] = ((Integer) al.get(i)).intValue();
+        Integer[] ints = (Integer[]) al.toArray(new Integer[0]);
+//        return (int[]) Utilities.toPrimitiveArray(ints);
+        int []res = new int[ints.length];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = ints[i].intValue();
         }
-        return ints;
+        return res;
     }
     
     public DefaultMutableTreeNode getSelectedNode() {
@@ -276,7 +298,7 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
     
     public static void main(String[] ignored) {
         try {
-           //UIManager.setLookAndFeel (new MetalLookAndFeel());
+           //UIManager.setLookAndFeel (new javax.swing.plaf.metal.MetalLookAndFeel());
         } catch (Exception e) {}
         
         new TestOutlineDynamic().show();

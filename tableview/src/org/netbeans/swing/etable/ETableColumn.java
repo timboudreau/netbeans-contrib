@@ -16,10 +16,12 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.util.Comparator;
 import java.util.Properties;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
@@ -40,7 +42,7 @@ import javax.swing.table.TableModel;
 public class ETableColumn extends TableColumn implements Comparable {
     
     /** Used as a key or part of a key by the persistence mechanism. */
-    private static final String PROP_PREFIX = "ETableColumn:";
+    private static final String PROP_PREFIX = "ETableColumn-";
     
     /** Used as a key or part of a key by the persistence mechanism. */
     private static final String PROP_WIDTH = "Width";
@@ -71,28 +73,36 @@ public class ETableColumn extends TableColumn implements Comparable {
     private boolean ascending = true;
     /** */
     private boolean headerRendererSetExternally = false;
+    /** */
+    private ETable table;
+    /** */
+    private Icon customIcon;
     
     /** Header renderer created by createDefaultHeaderRenderer. */
     private TableCellRenderer headerRenderer;
     
     /** Creates a new instance of ETableColumn */
-    public ETableColumn() {
+    public ETableColumn(ETable table) {
         super();
+        this.table = table;
     }
     
     /** Creates a new instance of ETableColumn */
-    public ETableColumn(int modelIndex) {
+    public ETableColumn(int modelIndex, ETable table) {
         super(modelIndex);
+        this.table = table;
     }
     
     /** Creates a new instance of ETableColumn */
-    public ETableColumn(int modelIndex, int width) {
+    public ETableColumn(int modelIndex, int width, ETable table) {
         super(modelIndex, width);
+        this.table = table;
     }
     
     /** Creates a new instance of ETableColumn */
-    public ETableColumn(int modelIndex, int width, TableCellRenderer cellRenderer, TableCellEditor cellEditor) {
+    public ETableColumn(int modelIndex, int width, TableCellRenderer cellRenderer, TableCellEditor cellEditor, ETable table) {
         super(modelIndex, width, cellRenderer, cellEditor);
+        this.table = table;
     }
     
     /**
@@ -102,10 +112,17 @@ public class ETableColumn extends TableColumn implements Comparable {
      *        column, number 2 means second etc.
      * @param comparator operates over ETable.RowMapping objects
      */
-    void setSorted(int rank, Comparator comparator) {
-        ascending = true;
+    void setSorted(int rank, boolean ascending) {
+        if (!isSortingAllowed() && (rank != 0 || comparator != null)) {
+            throw new IllegalStateException("Cannot sort an unsortable column.");
+        }
+        this.ascending = ascending;
         sortRank = rank;
-        this.comparator = comparator;
+        if (rank != 0) {
+            comparator = getRowComparator(getModelIndex(), ascending);
+        } else {
+            comparator = null;
+        }
     }
     
     /**
@@ -120,6 +137,9 @@ public class ETableColumn extends TableColumn implements Comparable {
      * (with respect to the table sort), value 2 means second etc.
      */
     void setSortRank(int newRank) {
+        if (!isSortingAllowed() && newRank != 0) {
+            throw new IllegalStateException("Cannot sort an unsortable column.");
+        }
         sortRank = newRank;
     }
     
@@ -155,18 +175,21 @@ public class ETableColumn extends TableColumn implements Comparable {
      * is thrown.
      */
     void setAscending(boolean ascending) {
+        if (!isSortingAllowed()) {
+            throw new IllegalStateException("Cannot sort an unsortable column.");
+        }
+        if (! isSorted()) {
+            return;
+        }
         if (this.ascending == ascending) {
             return;
         }
-        if (comparator == null) {
-            throw new IllegalStateException("The column must be sorted when changing the sort order."); // NOI18N
+        Comparator c = getRowComparator(getModelIndex(), ascending);
+        if (c == null) {
+            throw new IllegalStateException("getRowComparator returned null for " + this); // NOI18N
         }
         this.ascending = ascending;
-        if (comparator instanceof FlippingComparator){
-            comparator = ((FlippingComparator)comparator).getOriginalComparator();
-        } else {
-            comparator = new FlippingComparator(comparator);
-        }
+        this.comparator = c;
     }
     
     /**
@@ -190,6 +213,27 @@ public class ETableColumn extends TableColumn implements Comparable {
 	return createDefaultHeaderRenderer();
     }
 
+    /**
+     * The column can be hidden if this method returns true.
+     */
+    public boolean isHidingAllowed() {
+        return true;
+    }
+    
+    /**
+     * The column can be sorted if this method returns true.
+     */
+    public boolean isSortingAllowed() {
+        return true;
+    }
+    
+    /**
+     * Allows setting a custom icon for this column.
+     */
+    public void setCustomIcon(Icon i) {
+        customIcon = i;
+    }
+    
     /**
      * Computes preferred width of the column by checking all the
      * data in the given column. If the resize parameter is true
@@ -301,7 +345,7 @@ public class ETableColumn extends TableColumn implements Comparable {
      * in the same way after restart.
      */
     public void readSettings(Properties p, int index, String propertyPrefix) {
-        String myPrefix = propertyPrefix + PROP_PREFIX + Integer.toString(index) + ":";
+        String myPrefix = propertyPrefix + PROP_PREFIX + Integer.toString(index) + "-";
         String s0 = p.getProperty(myPrefix + PROP_MODEL_INDEX);
         if (s0 != null) {
             modelIndex = Integer.parseInt(s0);
@@ -314,19 +358,19 @@ public class ETableColumn extends TableColumn implements Comparable {
         if (s2 != null) {
             setPreferredWidth(Integer.parseInt(s2));
         }
+        ascending = true;
+        String s4 = p.getProperty(myPrefix + PROP_ASCENDING);
+        if ("false".equals(s4)) {
+            ascending = false;
+        }
         String s3 = p.getProperty(myPrefix + PROP_SORT_RANK);
         if (s3 != null) {
             sortRank = Integer.parseInt(s3);
             if (sortRank > 0) {
-                comparator = getRowComparator(modelIndex);
+                comparator = getRowComparator(modelIndex, ascending);
             }
         }
         headerValue = p.getProperty(myPrefix + PROP_HEADER_VALUE);
-        ascending = true;
-        String s4 = p.getProperty(myPrefix + PROP_ASCENDING);
-        if ("false".equals(s4)) {
-            setAscending(false);
-        }
     }
 
     /**
@@ -337,7 +381,7 @@ public class ETableColumn extends TableColumn implements Comparable {
      * in the same way after restart.
      */
     public void writeSettings(Properties p, int index, String propertyPrefix) {
-        String myPrefix = propertyPrefix + PROP_PREFIX + Integer.toString(index) + ":";
+        String myPrefix = propertyPrefix + PROP_PREFIX + Integer.toString(index) + "-";
         p.setProperty(myPrefix + PROP_MODEL_INDEX, Integer.toString(modelIndex));
         p.setProperty(myPrefix + PROP_WIDTH, Integer.toString(width));
         p.setProperty(myPrefix + PROP_PREFERRED_WIDTH, Integer.toString(getPreferredWidth()));
@@ -365,16 +409,21 @@ public class ETableColumn extends TableColumn implements Comparable {
     /**
      * Allow subclasses to supply special row comparator object.
      */
-    protected Comparator getRowComparator(int column) {
-        return new RowComparator(column);
+    protected Comparator getRowComparator(int column, boolean ascending) {
+        if (ascending) {
+            return new RowComparator(column);
+        } else {
+            return new FlippingComparator(new RowComparator(column));
+        }
     }
     
     /**
      * Overriden to return our special header renderer.
+     * @see javax.swing.table.TableColumn#createDefaultHeaderRenderer()
      */
     protected TableCellRenderer createDefaultHeaderRenderer() {
         if (headerRenderer == null) {
-            headerRenderer = new ETableCellRenderer();
+            headerRenderer = new ETableHeaderRenderer();
         }
         return headerRenderer;
     }
@@ -452,7 +501,7 @@ public class ETableColumn extends TableColumn implements Comparable {
      * Special renderer painting sorting icons and also special icon
      * for the QuickFilter columns.
      */
-    private class ETableCellRenderer extends DefaultTableCellRenderer implements UIResource {
+    private class ETableHeaderRenderer extends DefaultTableCellRenderer implements UIResource {
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
             if (table != null) {
@@ -463,26 +512,56 @@ public class ETableColumn extends TableColumn implements Comparable {
                     setFont(header.getFont());
                 }
             }
-            
+            String valueString = "";
+            if (value != null) {
+                valueString = value.toString();
+            }
+            if (table instanceof ETable) {
+                ETable et = (ETable)table;
+                valueString = et.getColumnDisplayName(valueString);
+            }
             setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+            Icon sortIcon = null;
             if (sortRank != 0) {
-                setText((value == null) ? ""+sortRank : sortRank+" "+value.toString());
+                setText((value == null) ? 
+                    Integer.toString(sortRank) : 
+                    sortRank+" "+valueString);
                 if (ascending) {
-                    Icon icon = UIManager.getIcon("ETableHeader.ascendingIcon");
-                    if (icon == null) {
-                        icon = new SortUpIcon();
+                    sortIcon = UIManager.getIcon("ETableHeader.ascendingIcon");
+                    if (sortIcon == null) {
+                        sortIcon = new SortUpIcon();
                     }
-                    setIcon(icon);
                 } else {
-                    Icon icon = UIManager.getIcon("ETableHeader.descendingIcon");
-                    if (icon == null) {
-                        icon = new SortDownIcon();
+                    sortIcon = UIManager.getIcon("ETableHeader.descendingIcon");
+                    if (sortIcon == null) {
+                        sortIcon = new SortDownIcon();
                     }
-                    setIcon(icon);
                 }
             } else { // sortRank == 0
-                setText((value == null) ? "" : value.toString());
-                setIcon(null);
+                setText(valueString);
+            }
+            if (sortIcon == null) {
+                if (customIcon == null) {
+                    Icon dummy = new Icon() {
+                        public void paintIcon(Component c, Graphics g, int x, int y) {
+                        }
+                        public int getIconWidth() {
+                            return 0;
+                        }
+                        public int getIconHeight() {
+                            return 0;
+                        }
+                    };
+                    setIcon(dummy);
+                } else {
+                    setIcon(customIcon);
+                }
+            } else {
+                if (customIcon == null) {
+                    setIcon(sortIcon);
+                } else {
+                    setIcon(mergeIcons(customIcon, sortIcon, 16, 0, this));
+                }
             }
             return this;
         }
@@ -492,8 +571,8 @@ public class ETableColumn extends TableColumn implements Comparable {
      * Comparator used for sorting the rows according to value in
      * a given column. Operates on the RowMapping objects.
      */
-    public static class RowComparator implements Comparator {
-        private int column;
+    public class RowComparator implements Comparator {
+        protected int column;
         public RowComparator(int column) {
             this.column = column;
         }
@@ -502,6 +581,8 @@ public class ETableColumn extends TableColumn implements Comparable {
             ETable.RowMapping rm2 = (ETable.RowMapping)o2;
             Object obj1 = rm1.getModelObject(column);
             Object obj2 = rm2.getModelObject(column);
+            obj1 = table.transformValue(obj1);
+            obj2 = table.transformValue(obj2);
             if (obj1 == null && obj2 == null) {
                 return 0;
             }
@@ -518,4 +599,39 @@ public class ETableColumn extends TableColumn implements Comparable {
             return obj1.toString().compareTo(obj2.toString());
         }
     }
+    
+    /**
+     * Utility method merging 2 icons.
+     */
+    private static final Icon mergeIcons(Icon icon1, Icon icon2, int x, int y, Component c) {
+        int w = 0, h = 0;
+        if (icon1 != null) {
+            w = icon1.getIconWidth();
+            h = icon1.getIconHeight();
+        }
+        if (icon2 != null) {
+            w = icon2.getIconWidth()  + x > w ? icon2.getIconWidth()   + x : w;
+            h = icon2.getIconHeight() + y > h ? icon2.getIconHeight()  + y : h;
+        }
+        if (w < 1) w = 16;
+        if (h < 1) h = 16;
+        
+        java.awt.image.ColorModel model = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment ().
+                                          getDefaultScreenDevice ().getDefaultConfiguration ().
+                                          getColorModel (java.awt.Transparency.BITMASK);
+        java.awt.image.BufferedImage buffImage = new java.awt.image.BufferedImage (model,
+             model.createCompatibleWritableRaster (w, h), model.isAlphaPremultiplied (), null);
+        
+        java.awt.Graphics g = buffImage.createGraphics ();
+        if (icon1 != null) {
+            icon1.paintIcon(c, g, 0, 0);
+        }
+        if (icon2 != null) {
+            icon2.paintIcon(c, g, x, y);
+        }
+        g.dispose();
+        
+        return new ImageIcon(buffImage);
+    }
+
 }
