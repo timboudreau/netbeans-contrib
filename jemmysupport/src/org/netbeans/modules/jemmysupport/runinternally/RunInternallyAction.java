@@ -29,17 +29,17 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.queries.FileBuiltQuery;
+import org.netbeans.jmi.javamodel.JavaClass;
+import org.netbeans.jmi.javamodel.Resource;
+import org.netbeans.modules.javacore.api.JavaModel;
 import org.netbeans.modules.jemmysupport.Utils;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
-import org.openide.cookies.SourceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.util.actions.NodeAction;
 import org.openide.nodes.Node;
-import org.openide.src.ClassElement;
-import org.openide.src.SourceElement;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -194,21 +194,23 @@ public class RunInternallyAction extends NodeAction {
      */
     private String getSelectedMainClass(Lookup context) {
         DataObject dObj = getSelectedDataObject(context);
-        if(dObj ==null) {
+        if(dObj == null) {
             return null;
         }
-        SourceCookie cookie = (SourceCookie)dObj.getCookie(SourceCookie.class);
-        // from class org.netbeans.modules.java.j2seproject.ui.customizer.MainClassChooser
-        if (cookie == null) {
-            return null;
-        }
-        // check the main class
-        SourceElement source = cookie.getSource();
-        ClassElement[] classes = source.getClasses();
-        for (int i = 0; i < classes.length; i++) {
-            if (classes[i].hasMainMethod()) {
-                return classes[i].getName().getFullName();
+        FileObject fObj = dObj.getPrimaryFile();
+        // following code taken from org.netbeans.modules.java.j2seproject.J2SEProjectUtil.hasMainMethod()
+        JavaModel.getJavaRepository().beginTrans(false);
+        try {
+            JavaModel.setClassPath(fObj);
+            Resource res = JavaModel.getResource(fObj);
+            if(res == null) {
+                return null;
             }
+            if(!res.getMain().isEmpty()) {
+                return ((JavaClass)res.getMain().get(0)).getName();
+            }
+        } finally {
+            JavaModel.getJavaRepository ().endTrans ();
         }
         return null;
     }
@@ -245,7 +247,11 @@ public class RunInternallyAction extends NodeAction {
             }
             System.out.println("CLASSLOADER="+systemClassloader);
              */
-            redirectOutput(displayName, testClassLoader);
+            try {
+                redirectOutput(displayName, testClassLoader);
+            } catch (Exception e) {
+                // ignore exception (e.g. when jemmy not available)
+            }
             Class classToRun = testClassLoader.loadClass(classname);
             Method method = classToRun.getDeclaredMethod("main", new Class[] {String[].class}); // NOI18N
             StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(
