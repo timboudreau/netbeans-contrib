@@ -32,14 +32,17 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.EventObject;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 import javax.swing.AbstractAction;
@@ -75,7 +78,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.*;
 import javax.swing.table.TableCellRenderer;
 
@@ -167,7 +169,7 @@ public class ETable extends JTable {
     /**
      * This text can be customized using setSelectVisibleColumnsLabel(...) method.
      */
-    private String selectVisibleColumnsLabel = "Select visible columns";
+    private String selectVisibleColumnsLabel = "Select Visible Columns";
 
     private boolean inEditRequest = false;
     private boolean inEditorChangeRequest=false;
@@ -188,6 +190,12 @@ public class ETable extends JTable {
      */
     private MouseListener headerMouseListener = new HeaderMouseListener();
 
+    /**
+     * Listener reacting to the user clicks on the table invoking the
+     * column selection dialog.
+     */
+    private MouseListener columnSelectionMouseListener = new ColumnSelectionMouseListener();
+    
     /**
      * Constructs a default <code>JTable</code> that is initialized with a default
      * data model, a default column model, and a default selection
@@ -709,14 +717,13 @@ public class ETable extends JTable {
     }
     
     /**
-     * Overriden to implement CTRL-+ for resizing of all columns and
-     * CTRL-- for clearing the quick filter.
+     * Overriden to implement CTRL-+ for resizing of all columns,
+     * CTRL-- for clearing the quick filter and CTRL-* for invoking the
+     * column selection dialog.
      * @see javax.swing.JTable#processKeyBinding(KeyStroke, KeyEvent, int, boolean)
      */
     protected boolean processKeyBinding(KeyStroke ks, KeyEvent e,
 					int condition, boolean pressed) {
-	boolean retValue = super.processKeyBinding(ks, e, condition, pressed);
-        
         // This is here because the standard way using input map and action map
         // did not work since the event was "eaten" by the code in JTable that
         // forwards it to the CellEditor (the code resides in the
@@ -724,11 +731,21 @@ public class ETable extends JTable {
         if (pressed) {
             if (e.getKeyChar() == '+' && ( (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK)) {
                 updatePreferredWidths();
+                e.consume();
+                return true;
             }
             if (e.getKeyChar() == '-' && ( (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK)) {
                 unsetQuickFilter();
+                e.consume();
+                return true;
+            }
+            if (e.getKeyChar() == '*' && ( (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK)) {
+                showColumnSelectionDialog();
+                e.consume();
+                return true;
             }
         }
+	boolean retValue = super.processKeyBinding(ks, e, condition, pressed);
         return retValue;
     }
     
@@ -792,6 +809,7 @@ public class ETable extends JTable {
                     ii = new ImageIcon(ETable.class.getResource(DEFAULT_COLUMNS_ICON));
                 }
                 final JButton b = new JButton(ii);
+                b.setToolTipText(selectVisibleColumnsLabel);
                 b.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
                         showColumnSelectionPopup(b);
@@ -808,6 +826,7 @@ public class ETable extends JTable {
                 scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, b);
             }
         }
+        updateColumnSelectionMouseListener();
     }
     
     /**
@@ -826,6 +845,8 @@ public class ETable extends JTable {
      * Selects given rows (the rows coordinates are the model's space).
      */
     private void changeSelectionInModel(int selectedRows[], int selectedColumn) {
+        boolean wasAutoScroll = getAutoscrolls();
+        setAutoscrolls(false);
         for (int i = 0; i < selectedRows.length; i++) {
             if ((selectedRows[i] < 0) || (selectedRows[i] >= getModel().getRowCount())) {
                 continue;
@@ -834,6 +855,9 @@ public class ETable extends JTable {
             if ((viewIndex >= 0) && (viewIndex < getRowCount())) {
                 changeSelection(viewIndex, selectedColumn, true, false );
             }
+        }
+        if (wasAutoScroll) {
+            setAutoscrolls(true);
         }
     }
     
@@ -850,23 +874,100 @@ public class ETable extends JTable {
         List columns = Collections.list(etcm.getColumns());
         columns.addAll(etcm.hiddenColumns);
         Collections.sort(columns);
+        Map displayNameToCheckBox = new HashMap();
+        ArrayList displayNames = new ArrayList();
         for (Iterator it = columns.iterator(); it.hasNext(); ) {
             final ETableColumn etc = (ETableColumn)it.next();
             final JCheckBoxMenuItem checkBox = new JCheckBoxMenuItem();
-            checkBox.setText(getColumnDisplayName(etc.getHeaderValue().toString()));
+            String dName = getColumnDisplayName(etc.getHeaderValue().toString());
+            checkBox.setText(dName);
             checkBox.setSelected(! etcm.isColumnHidden(etc));
             checkBox.setEnabled(etc.isHidingAllowed());
             checkBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     etcm.setColumnHidden(etc,! checkBox.isSelected());
+                    updateColumnSelectionMouseListener();
                 }
             });
-
+            if (! displayNames.contains(dName)) {
+                // the expected case
+                displayNameToCheckBox.put(dName, checkBox);
+            } else {
+                // the same display name is used for more columns - fuj
+                ArrayList al = null;
+                Object theFirstOne = displayNameToCheckBox.get(dName);
+                if (theFirstOne instanceof JCheckBoxMenuItem) {
+                    JCheckBoxMenuItem firstCheckBox = (JCheckBoxMenuItem)theFirstOne;
+                    al = new ArrayList();
+                    al.add(firstCheckBox);
+                } else {
+                    // already a list there
+                    if (theFirstOne instanceof ArrayList) {
+                        al = (ArrayList)theFirstOne;
+                    } else {
+                        throw new IllegalStateException("Wrong object theFirstOne is " + theFirstOne);
+                    }
+                }
+                al.add(checkBox);
+                displayNameToCheckBox.put(dName, al);
+            }
+            displayNames.add(dName);
+        }
+        Collections.sort(displayNames, Collator.getInstance());
+        int index = 0;
+        for (Iterator it = displayNames.iterator(); it.hasNext(); ) {
+            String displayName = (String)it.next();
+            Object obj = displayNameToCheckBox.get(displayName);
+            JCheckBoxMenuItem checkBox = null;
+            if (obj instanceof JCheckBoxMenuItem) {
+                checkBox = (JCheckBoxMenuItem)obj;
+            } else {
+                // in case there are duplicate names we store ArrayLists
+                // of JCheckBoxes
+                if (obj instanceof ArrayList) {
+                    ArrayList al = (ArrayList)obj;
+                    if (index >= al.size()) {
+                        index = 0;
+                    }
+                    checkBox = (JCheckBoxMenuItem)al.get(index++);
+                } else {
+                    throw new IllegalStateException("Wrong object obj is " + obj);
+                }
+            }
             popup.add(checkBox);
         }
         popup.show(c, 8, 8);
     }
 
+    /**
+     * This method update mouse listener on the scrollPane if it is needed.
+     * It also recomputes the model of searchCombo. Both actions are needed after
+     * the set of visible columns is changed.
+     */
+    private void updateColumnSelectionMouseListener() {
+        Container p = getParent();
+        if (p instanceof JViewport) {
+            Container gp = p.getParent();
+            if (gp instanceof JScrollPane) {
+                JScrollPane scrollPane = (JScrollPane)gp;
+                // Make certain we are the viewPort's view and not, for
+                // example, the rowHeaderView of the scrollPane -
+                // an implementor of fixed columns might do this.
+                JViewport viewport = scrollPane.getViewport();
+                if (viewport == null || viewport.getView() != this) {
+                    return;
+                }
+                scrollPane.removeMouseListener(columnSelectionMouseListener);
+                if (getColumnModel().getColumnCount() == 0) {
+                    scrollPane.addMouseListener(columnSelectionMouseListener);
+                }
+            }
+        }
+        if (searchCombo != null) {
+            searchCombo.setModel(getSearchComboModel());
+        }
+    }
+    
     /**
      * If the table data model is changed we reset (and then recompute)
      * the sorting permutation and the row count. The selection is restored
@@ -1409,10 +1510,7 @@ public class ETable extends JTable {
     private List doSearch(String prefix) {
         List results = new ArrayList();
         
-        // do search forward the selected index
-        int rows[] = getSelectedRows();
-        int startIndex = (rows == null || rows.length == 0) ? 0 : rows[0];
-        
+        int startIndex = 0;
         int size = getRowCount();
         if ( (size == 0) || (getColumnCount() == 0)) {
             // Empty table; cannot match anything.
@@ -1423,7 +1521,10 @@ public class ETable extends JTable {
         if (searchColumn != null) {
             column = convertColumnIndexToView(searchColumn.getModelIndex());
         }
-        
+        if (column < 0) {
+            // wrong column
+            return results;
+        }
         while (startIndex < size) {
             Object val = getValueAt(startIndex, column);
             String s = null;
@@ -1432,18 +1533,17 @@ public class ETable extends JTable {
             }   
             if ((s != null) && (s.toUpperCase().startsWith(prefix.toUpperCase()))) {
                 results.add(new Integer(startIndex));
-            }
             
-            // initialize prefix
-            if (maxPrefix == null) {
-                maxPrefix = s;
-            }
+                // initialize prefix
+                if (maxPrefix == null) {
+                    maxPrefix = s;
+                }
 
-            maxPrefix = findMaxPrefix(maxPrefix, s);
+                maxPrefix = findMaxPrefix(maxPrefix, s);
+            }
             
             startIndex++;
         }
-        
         return results;
     }
     
@@ -1553,8 +1653,9 @@ public class ETable extends JTable {
                 // to the table too (which scrolls)
                 e.consume();
             } else if (keyCode == KeyEvent.VK_TAB) {
-                if (maxPrefix != null)
+                if (maxPrefix != null) {
                     searchTextField.setText(maxPrefix);
+                }
                 e.consume();
             } else if (keyCode == KeyEvent.VK_ENTER) {
                 removeSearchField();
@@ -1573,6 +1674,17 @@ public class ETable extends JTable {
             String text = searchTextField.getText().toUpperCase();
             if (text.length() > 0) {
                 results = doSearch(text);
+                // do search forward the selected index
+                int rows[] = getSelectedRows();
+                int selectedRowIndex = (rows == null || rows.length == 0) ? 0 : rows[0];
+                int r = 0;
+                for (Iterator it = results.iterator(); it.hasNext(); r++) {
+                    int curResult = ((Integer)it.next()).intValue();
+                    if (selectedRowIndex <= curResult) {
+                        currentSelectionIndex = r;
+                        break;
+                    }
+                }
                 displaySearchResult();
             }
         }
@@ -1580,8 +1692,17 @@ public class ETable extends JTable {
         private void displaySearchResult() {
             int sz = results.size();
             if (sz > 0) {
-                currentSelectionIndex = ((Integer)results.get(0)).intValue();
-                setRowSelectionInterval(currentSelectionIndex, currentSelectionIndex);
+                if (currentSelectionIndex < 0) {
+                    currentSelectionIndex = 0;
+                }
+                if (currentSelectionIndex >= sz) {
+                    currentSelectionIndex = sz - 1;
+                }
+                int selRow = ((Integer)results.get(currentSelectionIndex)).intValue();
+                setRowSelectionInterval(selRow, selRow);
+                Rectangle rect = getCellRect(selRow, 0, true);
+                scrollRectToVisible(rect);
+                displaySearchField();
             } else {
                 clearSelection();
             }
@@ -1653,7 +1774,6 @@ public class ETable extends JTable {
                 removeSearchField();
             }
         }
-
     }
     
     private void prepareSearchPanel() {
@@ -1669,10 +1789,6 @@ public class ETable extends JTable {
             searchPanel.add (lbl);
             searchCombo = new JComboBox(getSearchComboModel());
             
-            SearchComboListener scl = new SearchComboListener();
-            searchCombo.addItemListener(scl);
-            searchCombo.addFocusListener(scl);
-            searchCombo.addKeyListener(scl);
             if (searchColumn != null) {
                 Object value = searchColumn.getHeaderValue();
                 String valueString = "";
@@ -1682,6 +1798,10 @@ public class ETable extends JTable {
                 valueString = getColumnDisplayName(valueString);
                 searchCombo.setSelectedItem(valueString);
             }
+            SearchComboListener scl = new SearchComboListener();
+            searchCombo.addItemListener(scl);
+            searchCombo.addFocusListener(scl);
+            searchCombo.addKeyListener(scl);
             searchPanel.add(searchCombo);
             searchPanel.add (searchTextField);
             lbl.setLabelFor(searchTextField);
@@ -1716,20 +1836,12 @@ public class ETable extends JTable {
             searchTextField.setFont(ETable.this.getFont());
             prepareSearchPanel();
             add(searchPanel);
-            doLayout();
-            searchTextField.repaint();
-            searchCombo.repaint();
-            searchPanel.repaint();
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    searchTextField.requestFocus();
-                    searchTextField.repaint();
-                    searchCombo.repaint();
-                    searchPanel.repaint();
-                    repaint();
-                }
-            });
         }
+        doLayout();
+        invalidate();
+        validate();
+        repaint();
+        searchTextField.requestFocus();
     }
 
     /**
@@ -1741,7 +1853,7 @@ public class ETable extends JTable {
         Rectangle visibleRect = getVisibleRect();
         if (searchPanel != null && searchPanel.isDisplayable()) {
              int width = Math.min (
-                getPreferredSize ().width - SEARCH_FIELD_SPACE * 2,
+                visibleRect.width - SEARCH_FIELD_SPACE * 2,
                 SEARCH_FIELD_PREFERRED_SIZE - SEARCH_FIELD_SPACE);
 
              searchPanel.setBounds(
@@ -1809,9 +1921,22 @@ public class ETable extends JTable {
         int res = JOptionPane.showConfirmDialog(null, panel, selectVisibleColumnsLabel, JOptionPane.OK_CANCEL_OPTION);
         if (res == JOptionPane.OK_OPTION) {
             panel.changeColumnVisibility();
+            updateColumnSelectionMouseListener();
         }
     }
     
+    /**
+     * Mouse listener attached to the JTableHeader of this table. Single
+     * click on the table header should trigger sorting on that column.
+     * Double click on the column divider automatically resizes the column.
+     */
+    private class ColumnSelectionMouseListener extends MouseAdapter {
+        public void mouseClicked(MouseEvent me) {
+            if (me.getButton() == MouseEvent.BUTTON3) {
+                showColumnSelectionDialog();
+            }
+        }
+    }
     /**
      * Mouse listener attached to the JTableHeader of this table. Single
      * click on the table header should trigger sorting on that column.
@@ -1846,6 +1971,7 @@ public class ETable extends JTable {
                         if (wasSelectedRows.length > 0) {
                             changeSelectionInModel(wasSelectedRows, wasSelectedColumn);
                         }
+                        getTableHeader().resizeAndRepaint();
                     }
                 }
             }

@@ -45,6 +45,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.tree.AbstractLayoutCache;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import org.netbeans.swing.etable.ETable;
@@ -99,8 +100,9 @@ public class OutlineView extends JScrollPane {
     public OutlineView(String nodesColumnLabel) {
         treeModel = new NodeTreeModel();
         rowModel = new PropertiesRowModel();
-        model = DefaultOutlineModel.createOutlineModel(treeModel, rowModel, false, nodesColumnLabel);
+        model = createOutlineModel(treeModel, rowModel, nodesColumnLabel);
         outline = new OutlineViewOutline(model);
+        rowModel.setOutline(outline);
         outline.setRenderDataProvider(new NodeRenderDataProvider(outline));
         SheetCell tableCell = new SheetCell.OutlineSheetCell(outline);
         outline.setDefaultRenderer(Node.Property.class, tableCell);
@@ -119,6 +121,14 @@ public class OutlineView extends JScrollPane {
         }
         getActionMap().put("org.openide.actions.PopupAction", new PopupAction());
         popupFactory = new OutlinePopupFactory();
+    }
+
+    /**
+     * This method allows plugging own OutlineModel to the OutlineView.
+     * You can override it and create different model in the subclass.
+     */
+    protected OutlineModel createOutlineModel(TreeModel treeModel, RowModel rowModel, String label) {
+        return DefaultOutlineModel.createOutlineModel(treeModel, rowModel, false, label);
     }
     
     /** Requests focus for the tree component. Overrides superclass method. */
@@ -588,9 +598,16 @@ public class OutlineView extends JScrollPane {
             public boolean isSortingAllowed() {
                 boolean res = super.isSortingAllowed();
                 TableModel model = getModel();
-                if (model instanceof NodeTableModel) {
-                    NodeTableModel ntm = (NodeTableModel)model;
-                    return res && ntm.isComparableColumn(getModelIndex());
+                if (model.getRowCount() <= 0) {
+                    return res;
+                }
+                Object sampleValue = model.getValueAt(0, getModelIndex());
+                if (sampleValue instanceof Node.Property) {
+                    Node.Property prop = (Node.Property)sampleValue;
+                    Object sortableColumnProperty = prop.getValue("SortableColumn");
+                    if (sortableColumnProperty instanceof Boolean) {
+                        return ((Boolean)sortableColumnProperty).booleanValue();
+                    }
                 }
                 return res;
             }

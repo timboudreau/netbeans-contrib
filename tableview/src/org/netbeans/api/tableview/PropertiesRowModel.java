@@ -11,10 +11,20 @@
  */
 package org.netbeans.api.tableview;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.WeakHashMap;
+import javax.swing.event.TableModelEvent;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import org.netbeans.swing.outline.Outline;
 import org.netbeans.swing.outline.RowModel;
 import org.openide.ErrorManager;
 import org.openide.explorer.view.Visualizer;
 import org.openide.nodes.Node;
+import org.openide.util.WeakListeners;
 
 /**
  *
@@ -23,9 +33,52 @@ import org.openide.nodes.Node;
 class PropertiesRowModel implements RowModel {
    
     private Node.Property[] prop = new Node.Property[0];
+    private Outline outline;
+    private WeakHashMap/*<Node, PropertyChangeListener>*/ nodesListenersCache = new WeakHashMap();
+    
+    /** listener on node properties changes, recreates displayed data */
+    private PropertyChangeListener pcl = new PropertyChangeListener() {
+        public void propertyChange(PropertyChangeEvent evt) {
+            //fireTableDataChanged();
+            int row = rowForNode((Node)evt.getSource());
+            if (row == -1) {
+                return;
+            }
+
+            int column = columnForProperty(evt.getPropertyName());
+            if (column == -1) {
+                outline.tableChanged(new TableModelEvent(outline.getModel(), row, row,
+                             TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+            } else {
+                outline.tableChanged(new TableModelEvent(outline.getModel(), row, row,
+                             column+1, TableModelEvent.UPDATE));
+            }
+        }
+    };
     
     /** Creates a new instance of PropertiesRowModel */
     public PropertiesRowModel() {
+        
+    }
+    
+    public void setOutline(Outline outline) {
+        this.outline = outline;
+    }
+    
+    private int rowForNode(Node n) {
+        TreeNode tn = Visualizer.findVisualizer(n);
+        if (tn != null) {
+            ArrayList al = new ArrayList();
+            while (tn != null) {
+                al.add(tn);
+                tn = tn.getParent();
+            }
+            Collections.reverse(al);
+            TreePath tp = new TreePath(al.toArray());
+            int row = outline.getLayoutCache().getRowForPath(tp);
+            return row;
+        }
+        return -1;
     }
 
     public Class getColumnClass(int column) {
@@ -44,6 +97,12 @@ class PropertiesRowModel implements RowModel {
         Node n = Visualizer.findNode(node);
         if (n == null) {
             throw new IllegalStateException("TreeNode must be VisualizerNode but was: " + node + " of class " + node.getClass().getName());
+        }
+        PropertyChangeListener cacheEntry = (PropertyChangeListener)nodesListenersCache.get(n);
+        if (cacheEntry == null) {
+            PropertyChangeListener p = WeakListeners.propertyChange(pcl, n);
+            nodesListenersCache.put(n, p);
+            n.addPropertyChangeListener(p);
         }
         Node.Property theRealProperty = NodeTableModel.getPropertyFor(n, prop[column]);
         return theRealProperty;
@@ -90,6 +149,19 @@ class PropertiesRowModel implements RowModel {
             }
         }
         return null;
+    }
+    /**
+     * Search the properties for given property name.
+     * The returned value is the index of property: you
+     * have to add 1 to make it the column index because the
+     * column with index 0 is reserved for the tree!
+     */
+    private int columnForProperty(String propName) {
+        for (int i = 0; i < prop.length; i++) {
+            if (prop[i].getName().equals(propName))
+                return i;
+        }
+        return -1;
     }
 
     /**

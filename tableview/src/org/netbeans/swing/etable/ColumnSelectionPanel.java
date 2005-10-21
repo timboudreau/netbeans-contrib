@@ -14,6 +14,8 @@ package org.netbeans.swing.etable;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,21 +62,68 @@ class ColumnSelectionPanel extends JPanel {
      * Adds checkbox for each ETableColumn contained in the columns parameter.
      */
     private void layoutPanel(List columns, int width, ETable table) {
+        Map displayNameToCheckBox = new HashMap();
+        ArrayList displayNames = new ArrayList();
+        for (Iterator it = columns.iterator(); it.hasNext(); ) {
+            ETableColumn etc = (ETableColumn)it.next();
+            JCheckBox checkBox = new JCheckBox();
+            checkBoxes.put(etc, checkBox);
+            String dName = table.getColumnDisplayName(etc.getHeaderValue().toString());
+            checkBox.setText(dName);
+            checkBox.setSelected(! columnModel.isColumnHidden(etc));
+            checkBox.setEnabled(etc.isHidingAllowed());
+            if (! displayNames.contains(dName)) {
+                // the expected case
+                displayNameToCheckBox.put(dName, checkBox);
+            } else {
+                // the same display name is used for more columns - fuj
+                ArrayList al = null;
+                Object theFirstOne = displayNameToCheckBox.get(dName);
+                if (theFirstOne instanceof JCheckBox) {
+                    JCheckBox firstCheckBox = (JCheckBox)theFirstOne;
+                    al = new ArrayList();
+                    al.add(firstCheckBox);
+                } else {
+                    // already a list there
+                    if (theFirstOne instanceof ArrayList) {
+                        al = (ArrayList)theFirstOne;
+                    } else {
+                        throw new IllegalStateException("Wrong object theFirstOne is " + theFirstOne);
+                    }
+                }
+                al.add(checkBox);
+                displayNameToCheckBox.put(dName, al);
+            }
+            displayNames.add(dName);
+        }
+        Collections.sort(displayNames, Collator.getInstance());
         int i = 0;
         int j = 0;
+        int index = 0;
         int rows = columns.size() / width;
-        for (Iterator it = columns.iterator(); it.hasNext(); i++) {
+        for (Iterator it = displayNames.iterator(); it.hasNext(); i++) {
             if (i >= rows) {
                 i = 0;
                 j++;
             }
-            ETableColumn etc = (ETableColumn)it.next();
-            JCheckBox checkBox = new JCheckBox();
-            checkBoxes.put(etc, checkBox);
-            checkBox.setText(
-                    table.getColumnDisplayName(etc.getHeaderValue().toString()));
-            checkBox.setSelected(! columnModel.isColumnHidden(etc));
-            checkBox.setEnabled(etc.isHidingAllowed());
+            String displayName = (String)it.next();
+            Object obj = displayNameToCheckBox.get(displayName);
+            JCheckBox checkBox = null;
+            if (obj instanceof JCheckBox) {
+                checkBox = (JCheckBox)obj;
+            } else {
+                // in case there are duplicate names we store ArrayLists
+                // of JCheckBoxes
+                if (obj instanceof ArrayList) {
+                    ArrayList al = (ArrayList)obj;
+                    if (index >= al.size()) {
+                        index = 0;
+                    }
+                    checkBox = (JCheckBox)al.get(index++);
+                } else {
+                    throw new IllegalStateException("Wrong object obj is " + obj);
+                }
+            }
             GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = j;
             gridBagConstraints.gridy = i;
