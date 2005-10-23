@@ -26,13 +26,26 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
 import javax.swing.filechooser.FileSystemView;
+import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.CategoryList;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.Parameter;
+import net.fortuna.ical4j.model.ParameterList;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyList;
+import net.fortuna.ical4j.model.property.Categories;
+import net.fortuna.ical4j.model.property.DateProperty;
+import net.fortuna.ical4j.model.property.PercentComplete;
+import net.fortuna.ical4j.model.property.Priority;
 
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
@@ -72,17 +85,14 @@ import org.openide.util.NbBundle;
  *
  * @author Tor Norbye
  * @author Trond Norbye
+ * @author tl
  */
 public class ICalImportFormat implements ExportImportFormat {
     protected final static String 
         CHOOSE_FILE_PANEL_PROP = "ChooseFilePanel"; // NOI18N
     
-    // Format which includes the timezone at the end. This is the format
-    // used by the tasklist's own written files for example.
     private static final String DATEFORMATZ = "yyyyMMdd'T'HHmmss'Z'"; // NOI18N
-    
-    // Format used when the timezone is specified separetly, e.g. with TZ:PST
-    private static final String DATEFORMAT = "yyyyMMdd'T'HHmmss"; // NOI18N
+    private static final SimpleDateFormat formatter = new SimpleDateFormat(DATEFORMATZ);
     
     /** Used to read in dependencies */
     private static class Dep {
@@ -96,21 +106,50 @@ public class ICalImportFormat implements ExportImportFormat {
         public String dependsOn;
     }
     
-    /** <Dep> used for reading dependencies */
-    private List dependencies = new ArrayList();
-    
-    private Reader reader = null;
-    private int lineno = 0;
-    private int prevChar = -1;
-    
-    private StringBuffer nsb = new StringBuffer(400); // Name
-    private StringBuffer psb = new StringBuffer(400); // Param
-    private StringBuffer vsb = new StringBuffer(400); // Value
-    
     /**
      * Constructor
      */
     public ICalImportFormat() {
+    }
+    
+    /**
+     * Reads an .ics file from the specified stream.
+     *
+     * @param utl a task list
+     * @param is .ics
+     */
+    public static void read(UserTaskList utl, InputStream is) throws 
+        IOException, ParserException {
+        CalendarBuilder cb = new MyCalendarBuilder();
+        
+        // <Dep> used for reading dependencies
+        List dependencies = new ArrayList();
+    
+        UTUtils.LOGGER.fine("building calendar"); // NOI18N
+        Calendar cal = cb.build(is);
+        for (Iterator i = cal.getComponents().iterator(); i.hasNext();) {
+            Component component = (Component) i.next();
+            UTUtils.LOGGER.fine("component.name = " + component.getName()); // NOI18N
+            if (component.getName().equals(Component.VTODO)) {
+                readVTODO(utl, component, dependencies);
+            }
+        }
+
+        // Dependencies
+        UTUtils.LOGGER.finer("processing dependencies: " + dependencies.size()); // NOI18N
+        for (int i = 0; i < dependencies.size(); i++) {
+            Dep d = (Dep) dependencies.get(i);
+            UserTask ut = utl.findItem(
+                utl.getSubtasks().iterator(), d.dependsOn);
+            UTUtils.LOGGER.finer("found task " + ut); // NOI18N
+            if (ut != null) {
+                d.ut.getDependencies().add(new Dependency(ut, d.type));
+            }
+        }
+
+        dependencies.clear();
+
+        utl.userObject = cal;
     }
     
     public void doExportImport(ExportImportProvider provider, WizardDescriptor wd) {
@@ -136,469 +175,172 @@ public class ICalImportFormat implements ExportImportFormat {
             return;
         }
         
+        System.setProperty("ical4j.unfolding.relaxed", "true"); // NOI18N
+        CalendarBuilder cb = new MyCalendarBuilder();
+        
         try {
-            this.read(utl, is);
+            read(utl, is);
+        } catch (ParserException e) {
+            ErrorManager.getDefault().notify(e);
+            return;
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
-        } finally {
+            return;
+        }
+    }
+
+    /**
+     * Reads one VTODO.
+     *
+     * @param utl a user task list
+     * @param cmp VTODO
+     * @param dependencies <Dep> container for dependencies
+     */
+    private static void readVTODO(UserTaskList utl, Component cmp,
+        List dependencies) {
+        PropertyList pl = cmp.getProperties();
+        Property prop = pl.getProperty(Property.SUMMARY);
+        String summary = (prop == null) ? "" : prop.getValue(); // NOI18N
+        UserTask ut = new UserTask(summary, utl);
+        
+        prop = pl.getProperty(Property.CREATED);
+        if (prop != null)
+            ut.setCreatedDate(((DateProperty) prop).getDate().getTime());
+            
+        prop = pl.getProperty(Property.UID);
+        if (prop != null)
+            ut.setUID(prop.getValue());
+        
+        prop = pl.getProperty(Property.LAST_MODIFIED);
+        if (prop != null)
+            ut.setLastEditedDate(((DateProperty) prop).getDate().getTime());
+        
+        prop = pl.getProperty(Property.DTSTART);
+        if (prop != null)
+            ut.setStartDate(((DateProperty) prop).getDate());
+        
+        prop = pl.getProperty(Property.PERCENT_COMPLETE);
+        if (prop != null)
+            ut.setPercentComplete(((PercentComplete) prop).getPercentage());
+        
+        prop = pl.getProperty("X-NETBEANS-PROGRESS-COMPUTED"); // NOI18N
+        if (prop != null)
+            ut.setProgressComputed(prop.getValue().equals("yes"));
+        
+        prop = pl.getProperty("X-NETBEANS-OWNER"); // NOI18N
+        if (prop != null)
+            ut.setOwner(prop.getValue());
+        
+        prop = pl.getProperty(Property.PRIORITY);
+        if (prop != null) {
+            int level = ((Priority) prop).getLevel();
+            if (level < 0) 
+                level = UserTask.MEDIUM; // An error.
+            else if (level == 0)
+                level = UserTask.MEDIUM;
+            else if (level > UserTask.LOW)
+                level = UserTask.LOW;
+            ut.setPriority(level);
+        }
+        
+        prop = pl.getProperty("X-NETBEANS-EFFORT"); // NOI18N
+        if (prop != null) {
             try {
-                is.close();
-            } catch (IOException e) {
+                ut.setEffort(Integer.parseInt(prop.getValue()));
+            } catch (NumberFormatException e) {
                 ErrorManager.getDefault().notify(e);
             }
         }
-    }
-    
-    public String getName() {
-        return NbBundle.getMessage(ICalImportFormat.class, "iCalImp"); // NOI18N
-    }
-    
-    public org.openide.WizardDescriptor getWizard() {
-        OpenFilePanel chooseFilePanel = new OpenFilePanel();
-        SimpleWizardPanel chooseFileWP = new SimpleWizardPanel(chooseFilePanel);
-        chooseFilePanel.setWizardPanel(chooseFileWP);
-        chooseFilePanel.getFileChooser().addChoosableFileFilter(
-            new ExtensionFileFilter(
-                NbBundle.getMessage(XmlExportFormat.class, 
-                    "IcsFilter"), // NOI18N
-                new String[] {".ics"})); // NOI18N
-        chooseFilePanel.setFile(new File(
-            FileSystemView.getFileSystemView().
-            getDefaultDirectory(), "tasklist.ics")); // NOI18N
         
-        // create the wizard
-        WizardDescriptor.Iterator iterator = 
-            new WizardDescriptor.ArrayIterator(new WizardDescriptor.Panel[] {
-                chooseFileWP
-        });
-        WizardDescriptor d = new WizardDescriptor(iterator);
-        d.putProperty("WizardPanel_contentData", // NOI18N
-            new String[] {
-                NbBundle.getMessage(
-                    ICalImportFormat.class, "ChooseSource"), // NOI18N
-            }
-        ); // NOI18N
-        
-        String title;
-        title = NbBundle.getMessage(ICalImportFormat.class, "ImportICAL"); // NOI18N
-        d.setTitle(title); // NOI18N
-        d.putProperty(CHOOSE_FILE_PANEL_PROP, chooseFilePanel);
-        d.putProperty("WizardPanel_autoWizardStyle", Boolean.TRUE); // NOI18N
-        d.putProperty("WizardPanel_contentDisplayed", Boolean.TRUE); // NOI18N
-        d.putProperty("WizardPanel_contentNumbered", Boolean.TRUE); // NOI18N
-        d.setTitleFormat(new java.text.MessageFormat("{0}")); // NOI18N 
-        return d;
-    }
+        prop = pl.getProperty("X-NETBEANS-EFFORT-COMPUTED"); // NOI18N
+        if (prop != null)
+            ut.setEffortComputed(prop.getValue().equals("yes")); // NOI18N
 
-    /** Return most recently parsed value nextContentLine */
-    private String getValue() {
-        return vsb.toString();
-    }
-    
-    /** Return most recently parsed name nextContentLine */
-    private String getTagName() {
-        return nsb.toString();
-    }
-    
-    /** Return most recently parsed value nextContentLine */
-    private String getParamName() {
-        String name = nsb.toString();
-        if (name.length() == 0) {
-            return null;
-        } else {
-            return name;
-        }
-    }
-    
-    /**
-     * Write out a content line escaped according to the spec:
-     * break at 75 chars, add escapes to certain characters, etc.
-     *
-     * @param writer the writer used to write the data
-     * @param name the name of the tag to write (without the ':')
-     * @param param the param of the field
-     * @param value the value to write
-     */
-    private void writeEscaped(Writer writer, String name, String param, String value) throws IOException {
-        int col = name.length();
-        writer.write(name);
-        
-        if (param != null) {
-            col += param.length() + 1; // NOI18N
-            writer.write(" "); // NOI18N
-            writer.write(param);
-        }
-        ++col;
-        writer.write(":"); // NOI18N
-        
-        int n = value.length();
-        for (int i = 0; i < n; i++) {
-            char c = value.charAt(i);
-            switch (c) {
-                case '\n':
-                    writer.write("\\n"); // NOI18N
-                    col++; // One extra char expansion
-                    break;
-                case ';':
-                case ',':
-                case '\\':
-                    // Escape the character by preceding it by a "\"
-                    writer.write('\\');
-                    col++; // One extra char expansion
-                    // NOTE FALL THROUGH!
-                default:
-                    writer.write(c);
-                    break;
-            }
-            
-            col++;
-            if (col >= 75) {
-                col = 1; // for the space on the next line
-                writer.write("\r\n "); // NOI18N   note the space - important
+        prop = pl.getProperty("X-NETBEANS-SPENT-TIME"); // NOI18N
+        if (prop != null) {
+            try {
+                ut.setSpentTime(Integer.parseInt(prop.getValue()));
+            } catch (NumberFormatException e) {
+                ErrorManager.getDefault().notify(e);
             }
         }
-    }
-    
-    /**
-     * Stash away a bulk of data in the writer
-     * @param writer where to store data
-     * @param name the last name read from the stream
-     * @param param the last param read from the stream
-     * @param value the last value read from the stream
-     * @throws IOException if anything goes wrong...
-     */
-    private void stashBulk(Writer writer, String name, String param, 
-    String value) throws IOException {
-        int stack = 0;
         
-        writeEscaped(writer, name, param, value);
-        writer.write("\r\n"); // NOI18N
+        prop = pl.getProperty("X-NETBEANS-SPENT-TIME-COMPUTED"); // NOI18N
+        if (prop != null)
+            ut.setSpentTimeComputed(prop.getValue().equals("yes")); // NOI18N
         
-        boolean done = false;
-        while (!done) {
-            if (!processContentLine())
-                break;
-            name = getTagName();
-            if (name == null) {
-                break;
+        prop = pl.getProperty(Property.CATEGORIES);
+        if (prop != null) {
+            CategoryList cl = ((Categories) prop).getCategories();
+            Iterator it = cl.iterator();
+            StringBuffer category = new StringBuffer(ut.getCategory());
+            while (it.hasNext()) {
+                if (category.length() > 0)
+                    category.append(", "); // NOI18N
+                category.append((String) it.next());
             }
-            value = getValue();
-            param = getParam();
-            
-            if (name.equals("BEGIN")) { // NOI18N
-                ++stack;
-            } else if (name.equals("END")) { // NOI18N
-                if (stack == 0) {
-                    done = true;
-                } else {
-                    --stack;
-                }
-            }
-            
-            writeEscaped(writer, name, param, value);
-            writer.write("\r\n"); // NOI18N
-        }
-    }
-    
-    /**
-     * Get the most recently parsed parameter
-     */
-    private String getParam() {
-        String param = psb.toString();
-        if (param.length() == 0) {
-            return null;
-        } else {
-            return param;
-        }
-    }
-    
-    /** Read (doing all the ical unfolding) the next content line.
-     * Side effects the reader object and the lineno.
-     * @return true if something was read. false for EOF.
-     */
-    private boolean processContentLine() throws IOException {
-        // ignore it - and locate the next field
-        
-        // Reuse string buffers for improved efficiency
-        nsb.setLength(0);
-        psb.setLength(0);
-        vsb.setLength(0);
-        
-        if (prevChar != -1) {
-            nsb.append((char)prevChar);
+            ut.setCategory(category.toString());
         }
         
-        // Read in characters, doing substitutions as necessary
-        boolean escape = (prevChar == '\\');
-        prevChar = -1;
-        StringBuffer sb = nsb; // Processing name
-        boolean processingName = true; // may not need these flags anymore, use sb
-        boolean processingValue = false;
-        
-        while (true) {
-            int ci = reader.read();
-            if (ci == -1) {
-                // End of stream
-                return nsb.length() != 0;
-            }
-            char c = (char)ci;
-            // See section 4.3.11 in rfc 2445
-            if (escape) {
-                escape = false;
-                switch (c) {
-                    case '\\':
-                        sb.append('\\');
-                        break;
-                    case 'n':
-                        sb.append('\n');
-                        break;
-                    case 'N':
-                        sb.append('N');
-                        break;
-                    case ';':
-                        sb.append(';');
-                        break;
-                    case ',':
-                        sb.append(',');
-                        break;
-                    default:
-                        // Error - illegal input. For now I guess
-                        // we'll just pass the escape through...
-                        sb.append('\\');
-                        sb.append(c);
-                }
-            } else {
-                switch (c) {
-                    case '\\':
-                        escape = true;
-                        break;
-                    case ' ':
-                        if (processingName) {
-                            processingName = false;
-                            sb = psb;
-                        } else if (processingValue) {
-                            sb.append(c);
-                        }
-                        break;
-                    case ';':
-                        if (processingName) {
-                            processingName = false;
-                            sb = psb;
-                        } else if (processingValue) {
-                            sb.append(c);
-                        }
-                        break;
-                    case ':':
-                        if (processingValue) {
-                            // Error in input - I've seen Korganizer do this;
-                            // they're supposed to escape : but they didn't
-                            sb.append(c);
-                        } else {
-                            sb = vsb;
-                            processingValue = true;
-                            processingName = false;
-                        }
-                        break;
-                    case '\r':
-                        // The spec calls for lines to be terminated with \r\n
-                        // but internally we don't want \r's
-                        break;
-                    case '\n':
-                        // New line
-                        lineno++;
-                        prevChar = reader.read();
-                        while (prevChar == '\n') {
-                            // Skip blank lines
-                            prevChar = reader.read();
-                            lineno++;
-                        }
-                        
-                        // @TODO TROND: Si meg... dette stemmer vel ikke helt??
-                        // jeg skal jo ogs? godta HTAB (ASCII 9!!!)
-                        if (prevChar == ' ' || prevChar == '\t') {
-                            // Aha! Line continuation -- we've just
-                            // unfolded a line, keep processing
-                            break;
-                        } else { // includes case where prevChar==-1: EOF
-                            // No, this is a new content line so
-                            // consider ourselves done with this line
-                            return true;
-                        }
-                    default:
-                        sb.append(c);
-                }
-            }
-        }
-    }
-    
-    /**
-     * Read and parse a single VTODO entry.
-     * @param list The list of usertasks
-     * @param formatter A date formatter object used to parse dates.
-     * @return the complete VTODO entry or null
-     */
-    private UserTask readVTODO(UserTaskList list, UserTask prev, SimpleDateFormat formatter) throws IOException {
-        UserTask task = new UserTask("", list); // NOI18N
-        task.setLastEditedDate(System.currentTimeMillis());
-        StringWriter writer = null;
-        String related = null;
+        prop = pl.getProperty(Property.DESCRIPTION);
+        if (prop != null)
+            ut.setDetails(prop.getValue());
         
         String filename = null;
-        String url = null;
-        String lineNumber = null;
+        prop = pl.getProperty("X-NETBEANS-FILENAME"); // NOI18N
+        if (prop != null)
+            filename = prop.getValue();
         
-        long completed = 0;
-            
-        while (true) {
-            processContentLine();
-            String name = getParamName();
-            if (name == null) {
-                // incomplete entry, throw it away!!! @@@
-                // but what happens to the stream????
-                return null;
+        String lineNumber = null;
+        prop = pl.getProperty("X-NETBEANS-LINE"); // NOI18N
+        if (prop != null)
+            lineNumber = prop.getValue();
+        
+        String url = null;
+        prop = pl.getProperty(Property.URL);
+        if (prop != null)
+            url = prop.getValue();
+        
+        String related = null;
+        prop = pl.getProperty(Property.RELATED_TO);
+        if (prop != null)
+            related = prop.getValue();
+        
+        PropertyList deps = pl.getProperties("X-NETBEANS-DEPENDENCY"); // NOI18N
+        for (int i = 0; i < deps.size(); i++) {
+            prop = (Property) deps.get(i);
+            Dep d = new Dep();
+            d.type = Dependency.END_BEGIN;
+            d.ut = ut;
+            d.dependsOn = prop.getValue();
+            ParameterList parl = prop.getParameters();
+            Parameter p = parl.getParameter("X-NETBEANS-TYPE");
+            if (p != null) {
+                String t = p.getValue();
+                if (t.equals("BEGIN_BEGIN")) // NOI18N
+                    d.type = Dependency.BEGIN_BEGIN;
             }
-
-            String value = getValue();
-            String param = getParam();
-            
-            UTUtils.LOGGER.finer(name);
-            UTUtils.LOGGER.finer(value);
-            UTUtils.LOGGER.finer(param);
-            
-            if (name.equals("BEGIN")) { // NOI18N
-                if (writer == null) {
-                    writer = new StringWriter();
+            dependencies.add(d);
+        }
+        
+        PropertyList wps = pl.getProperties("X-NETBEANS-WORK-PERIOD"); // NOI18N
+        for (int i = 0; i < wps.size(); i++) {
+            prop = (Property) wps.get(i);
+            ParameterList parl = prop.getParameters();
+            Parameter p = parl.getParameter("X-NETBEANS-START");
+            if (p != null) {
+                try {
+                    int dur = Integer.parseInt(prop.getValue());
+                    long start = formatter.parse(p.getValue()).getTime();
+                    UserTask.WorkPeriod wp = new UserTask.WorkPeriod(start, dur);
+                    ut.getWorkPeriods().add(wp);
+                } catch (ParseException e) {
+                    ErrorManager.getDefault().notify(e);
+                } catch (NumberFormatException e) {
+                    ErrorManager.getDefault().notify(e);
                 }
-                stashBulk(writer, name, param, value);
             }
-            
-            // UTUtils.LOGGER.fine("processing " + name); // NOI18N
-            
-            if (name.equals("END")) { // NOI18N
-                break;  // @@@ Should I verify that this is the end of a VTODO???
-            } else if (name.equals("CREATED")) { // NOI18N
-                try {
-                    Date created = formatter.parse(value);
-                    task.setCreatedDate(created.getTime());
-                } catch (ParseException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if (name.equals("UID")) { // NOI18N
-                task.setUID(value);
-            } else if (name.equals("LAST-MODIFIED")) { // NOI18N
-                try {
-                    Date edited = formatter.parse(value);
-                    task.setLastEditedDate(edited.getTime());
-                } catch (ParseException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if (name.equals("COMPLETED")) { // NOI18N
-                try {
-                    completed = formatter.parse(value).getTime();
-                } catch (ParseException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if (name.equals("DTSTART")) { // NOI18N
-                try {
-                    Date d = formatter.parse(value);
-                    task.setStart(d.getTime());
-                } catch (ParseException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if (name.equals("PERCENT-COMPLETE")) { // NOI18N
-                try {
-                    int complete = Integer.parseInt(value);
-                    task.setPercentComplete(complete);
-                } catch (NumberFormatException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if (name.equals("X-NETBEANS-PROGRESS-COMPUTED")) { // NOI18N
-                if (value.equals("yes")) // NOI18N
-                    task.setProgressComputed(true);
-            } else if (name.equals("X-NETBEANS-OWNER")) { // NOI18N
-                task.setOwner(value);
-            } else if (name.equals("PRIORITY")) { // NOI18N
-                try {
-                    int prio = Integer.parseInt(value);
-                    if (prio < 0) 
-                        task.setPriority(UserTask.MEDIUM); // An error.
-                    else if (prio == 0)
-                        task.setPriority(UserTask.MEDIUM);
-                    else if (prio > UserTask.LOW)
-                        task.setPriority(UserTask.LOW);
-                    else
-                        task.setPriority(prio);
-                } catch (NumberFormatException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if (name.equals("X-NETBEANS-EFFORT-COMPUTED")) { // NOI18N
-                if (value.equals("yes")) // NOI18N
-                    task.setEffortComputed(true);
-            } else if (name.equals("X-NETBEANS-EFFORT")) { // NOI18N
-                try {
-                    int e = Integer.parseInt(value);
-                    task.setEffort(e);
-                } catch (NumberFormatException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if (name.equals("X-NETBEANS-SPENT-TIME-COMPUTED")) { // NOI18N
-                if (value.equals("yes")) // NOI18N
-                    task.setSpentTimeComputed(true);
-            } else if (name.equals("X-NETBEANS-SPENT-TIME")) { // NOI18N
-                try {
-                    int e = Integer.parseInt(value);
-                    task.setSpentTime(e);
-                } catch (NumberFormatException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if (name.equals("CATEGORIES")) { // NOI18N
-                String cat = value;
-                String oldcat = task.getCategory();
-                if ((oldcat != null) && (oldcat.length() > 0)) {
-                    // Multiple categories.
-                    // Just append
-                    cat = oldcat + "," + cat; // NOI18N
-                }
-                task.setCategory(cat);
-            } else if ("DESCRIPTION".equals(name)) { // NOI18N
-                task.setDetails(value);
-            } else if ("SUMMARY".equals(name)) { // NOI18N
-                task.setSummary(value);
-            } else if ("X-NETBEANS-FILENAME".equals(name)) { // NOI18N
-                filename = value;
-            } else if ("X-NETBEANS-LINE".equals(name)) { // NOI18N
-                lineNumber = value;
-            } else if ("URL".equals(name)) { // NOI18N
-                url = value;
-            } else if ("RELATED-TO".equals(name)) { // NOI18N
-                related = value;
-            } else if ("X-NETBEANS-DEPENDENCY".equals(name)) { // NOI18N
-                Dep d = new Dep();
-                d.type = Dependency.END_BEGIN;
-                d.ut = task;
-                d.dependsOn = value;
-                int pos = param.indexOf('=');
-                if (pos >= 0) {
-                    String t = param.substring(pos + 1);
-                    if (t.equals("BEGIN_BEGIN")) // NOI18N
-                        d.type = Dependency.BEGIN_BEGIN;
-                }
-                dependencies.add(d);
-            } else if ("X-NETBEANS-WORK-PERIOD".equals(name)) { // NOI18N
-                int pos = param.indexOf('=');
-                if (pos >= 0) {
-                    String t = param.substring(pos + 1);
-                    try {
-                        int dur = Integer.parseInt(value);
-                        long start = formatter.parse(t).getTime();
-                        UserTask.WorkPeriod wp = new UserTask.WorkPeriod(start, dur);
-                        task.getWorkPeriods().add(wp);
-                    } catch (ParseException e) {
-                        ErrorManager.getDefault().notify(e);
-                    } catch (NumberFormatException e) {
-                        ErrorManager.getDefault().notify(e);
-                    }
-                }
+        }
 //            } else if ("X-NETBEANS-STARTTIME".equals(name)) { // NOI18N  
 //                long start = Long.MAX_VALUE;
 //                try {
@@ -628,23 +370,27 @@ public class ICalImportFormat implements ExportImportFormat {
 //                    
 //                    associatedTime.setEndTime(new java.util.Date(end));
 //                }
-            } else if ("X-NETBEANS-DUETIME".equals(name)) { // NOI18N
-                Date d = null;
-                try {
-                    d = new Date(Long.parseLong(value));
-                    task.setDueDate(d);
-                } catch (NumberFormatException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if ("DUE".equals(name)) { // NOI18N
-                try {
-                    Date due = formatter.parse(value);
-                    task.setDueDate(due);
-                } catch (ParseException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-            } else if ("X-NETBEANS-DUE-SIGNALED".equals(name)) { // NOI18N
-                task.setDueAlarmSent(true);                
+        
+        prop = pl.getProperty("X-NETBEANS-DUETIME"); // NOI18N
+        if (prop != null) {
+            Date d = null;
+            try {
+                d = new Date(Long.parseLong(prop.getValue()));
+                ut.setDueDate(d);
+            } catch (NumberFormatException e) {
+                ErrorManager.getDefault().notify(e);
+            }
+        } 
+        
+        prop = pl.getProperty(Property.DUE);
+        if (prop != null) {
+            ut.setDueDate(((DateProperty) prop).getDate());
+        } 
+        
+        prop = pl.getProperty("X-NETBEANS-DUE-SIGNALED"); // NOI18N
+        if (prop != null) 
+            ut.setDueAlarmSent(true);
+            
 //            } else if ("X-NETBEANS-DUERECURRENT-INTERVAL".equals(name)) { // NOI18N
 //                int interval = 0;
 //                try {
@@ -675,18 +421,10 @@ public class ICalImportFormat implements ExportImportFormat {
 //                    associatedTime = new AssociatedTime();
 //                }
 //                associatedTime.setMeasurement(measurement);
-            } else {
-                // stash away the line!!!
-                if (writer == null) {
-                    writer = new StringWriter();
-                }
-                
-                writeEscaped(writer, name, param, value);
-                writer.write("\r\n"); // NOI18N
-            }
-        }
         
-        task.setCompletedDate(completed);
+        prop = pl.getProperty(Property.COMPLETED);
+        if (prop != null)
+            ut.setCompletedDate(((DateProperty) prop).getDate().getTime());
         
         int lineno = 1;
         if (lineNumber != null) {
@@ -719,12 +457,13 @@ public class ICalImportFormat implements ExportImportFormat {
                 line = UTUtils.getLineByFile(fo, 0);
             
             if (line != null) {
-                task.setLine(line);
+                ut.setLine(line);
             }
         } else if (url != null) {
             try {
-                task.setUrl(new URL(url));
-                task.setLineNumber(lineno - 1);
+                UTUtils.LOGGER.fine("setting url to " + url + " for " + ut); // NOI18N
+                ut.setUrl(new URL(url));
+                ut.setLineNumber(lineno - 1);
             } catch (MalformedURLException e) {
                 // ignore
             }
@@ -734,182 +473,73 @@ public class ICalImportFormat implements ExportImportFormat {
 //            task.setAssociatedTime(associatedTime);
 //        }
         
-        if (writer != null) {
-            task.userObject = writer.getBuffer();
-        }
-        
-        UserTask alreadyExists = list.findItem(list.getSubtasks().iterator(), task.getUID());
+        UserTask alreadyExists = utl.findItem(
+            utl.getSubtasks().iterator(), ut.getUID());
+        UserTask parent = null;
         if (alreadyExists != null) {
             // I should replace alreadyexists with task...
-            UserTask parent = alreadyExists.getParent();
+            parent = alreadyExists.getParent();
             if (parent != null) {
                 parent.getSubtasks().remove(alreadyExists);
-                parent.getSubtasks().add(task);
             } else {
-                list.getSubtasks().remove(alreadyExists);
-                list.getSubtasks().add(task);
+                utl.getSubtasks().remove(alreadyExists);
             }
             
             Iterator li = alreadyExists.getSubtasks().iterator();
             while (li.hasNext()) {
                 UserTask c = (UserTask)li.next();
                 alreadyExists.getSubtasks().remove(c);
-                task.getSubtasks().add(c);
+                ut.getSubtasks().add(c);
             }
         } else if (related != null) {
             // the parent setting !!
-            UserTask parent;
-            if (prev != null && prev.getUID().equals(related)) {
-                parent = prev;
-            } else {
-                parent = list.findItem(list.getSubtasks().iterator(), related);
-            }
-            
-            if (parent != null) {
-                parent.getSubtasks().add(task);
-            }
+            parent = utl.findItem(utl.getSubtasks().iterator(), related);
         }
-        
-        return task;
+            
+        if (parent != null)
+            parent.getSubtasks().add(ut);
+        else
+            utl.getSubtasks().add(ut);
     }
     
-    /**
-     * Read an iCalendar stream, and store all of the VTODOs inside the tasklist.
-     * Keep all unrecognized lines in otherItems...
-     * @param list where to store the list
-     * @param reader the reader to use on the input stream
-     * @throws IOException if a read error occurs
-     * @throws UnknownFileFormatException if I somehow believes that this is no
-     *         iCalendar format...
-     * @return true if success
-     */
-    public void read(UserTaskList list, InputStream reader) throws IOException 
-    {
-        this.reader = new InputStreamReader(reader, "UTF-8"); // NOI18N
-        UserTaskList ulist = (UserTaskList)list;
-        UserTask prev = null;
+    public String getName() {
+        return NbBundle.getMessage(ICalImportFormat.class, "iCalImp"); // NOI18N
+    }
+    
+    public org.openide.WizardDescriptor getWizard() {
+        OpenFilePanel chooseFilePanel = new OpenFilePanel();
+        SimpleWizardPanel chooseFileWP = new SimpleWizardPanel(chooseFilePanel);
+        chooseFilePanel.setWizardPanel(chooseFileWP);
+        chooseFilePanel.getFileChooser().addChoosableFileFilter(
+            new ExtensionFileFilter(
+                NbBundle.getMessage(XmlExportFormat.class, 
+                    "IcsFilter"), // NOI18N
+                new String[] {".ics"})); // NOI18N
+        chooseFilePanel.setFile(new File(
+            FileSystemView.getFileSystemView().
+            getDefaultDirectory(), "tasklist.ics")); // NOI18N
         
-        StringWriter writer = new StringWriter();
-        
-        SimpleDateFormat formatter = null;
-        formatter = new SimpleDateFormat(DATEFORMATZ);
-        formatter.setTimeZone(new SimpleTimeZone(0, "GMT")); // NOI18N
-        
-        do {
-            processContentLine();
-            String name = getParamName();
-            if (name == null) {
-                break;
-            } else if (name.length() == 0 || name.equals("\r")) { // NOI18N
-                continue; // skip empty lines....
+        // create the wizard
+        WizardDescriptor.Iterator iterator = 
+            new WizardDescriptor.ArrayIterator(new WizardDescriptor.Panel[] {
+                chooseFileWP
+        });
+        WizardDescriptor d = new WizardDescriptor(iterator);
+        d.putProperty("WizardPanel_contentData", // NOI18N
+            new String[] {
+                NbBundle.getMessage(
+                    ICalImportFormat.class, "ChooseSource"), // NOI18N
             }
-            
-            String value = getValue();
-            String param = getParam();
-            
-            if (name.equals("BEGIN")) { // NOI18N
-                if (value == null) {
-                    // SYNTAX ERROR!! XXX What to do??
-                    throw new IOException(org.openide.util.NbBundle.getMessage(
-                        ICalImportFormat.class, "BeginExpected")); // NOI18N
-                }
-                
-                if (value.equals("VTODO")) { // NOI18N
-                    // Call a sub-function to process this line!!!
-                    UserTask task = readVTODO(ulist, prev, formatter);
-                    
-                    if (task != null) {
-                        if (task.getParent() == null) {
-                            ulist.getSubtasks().add(task);
-                        }
-                        prev = (UserTask)task;
-                    }
-                } else if (value.equals("VCALENDAR")) { // NOI18N
-                    // Just swallow
-                } else {
-                    // Stash away everything up to the corresponding END
-                    stashBulk(writer, name, param, value);
-                }
-            } else if (name.equals("PRODID")) { // NOI18N
-                // just swallow
-            } else if (name.equals("VERSION")) { // NOI18N
-                // just swallow
-            } else if (name.equals("END")) { // NOI18N
-                // Just swallow
-            } else if (name.equals("CALSCALE")) { // NOI18N
-                // Evolution (if not others) adds CALSCALE:GREGORIAN near
-                // the top of the file.
-                // Just swallow
-                // ...or make sure that value=GREGORIAN and if not, warn user?
-            } else if (name.equals("TZ")) { // NOI18N
-                formatter = new SimpleDateFormat(DATEFORMAT);
-                if (!value.equals("GMT")) { // NOI18N
-                    // Use a date format without a timezone at the end
-                    // of it, since they're probably not included now
-                    // that the timezone has been reported once and for
-                    // all. GnomeCal writes tasklists in this format.
-                    TimeZone tz = TimeZone.getTimeZone(value);
-                    if (tz != null) {
-                        formatter.setTimeZone(tz);
-                    } else {
-                        ErrorManager.getDefault().log(
-                            org.openide.util.NbBundle.getMessage(ICalImportFormat.class, "TimezoneUnknown")); // NOI18N
-                    } 
-                }
-            } else {
-                if (lineno <= 1) {
-                    // XXX Hmmm I should probably read the RFC and see
-                    // what I could XXX expect.. For now, just treat
-                    // it as an incorrect file format.
-                    //
-                    // See RFC 2446 chapter 5 - it specifies which
-                    // entries must be handled and which can be
-                    // ignored.
-                    //
-                    String msg = NbBundle.getMessage(ICalImportFormat.class, "ProbablyNotiCalFormat"); // NOI18N
-                    throw new IOException(msg);
-                } else {
-                    // Error on some other line: probably an
-                    // unsupported tag (For example, I discovered that
-                    // it claimed evolution-task files aren't in ics
-                    // format because it came across the tag CALSCALE
-                    // and bailed.)
-                    if (name.startsWith("X-")) { // NOI18N
-                        ErrorManager.getDefault().log(
-                           ErrorManager.WARNING, "WARNING: " + // NOI18N
-                           "Ignoring nonstandard entry (line " + lineno + // NOI18N
-                           "): name=" + name + ", value=" + value + ", param=" + // NOI18N
-                           param);
-                    } else {
-                        ErrorManager.getDefault().log(
-                           ErrorManager.WARNING, "WARNING: " + // NOI18N
-                           "Unsupported iCalendar file entry (line " + lineno + // NOI18N
-                           "): name=" + name + ", value=" + value + ", param=" + // NOI18N
-                           param);
-                    }
-                }
-            }
-        } while (true);
+        );
         
-        // Dependencies
-        UTUtils.LOGGER.finer("processing dependencies: " + dependencies.size()); // NOI18N
-        for (int i = 0; i < dependencies.size(); i++) {
-            Dep d = (Dep) dependencies.get(i);
-            UserTask ut = list.findItem(
-                list.getSubtasks().iterator(), d.dependsOn);
-            UTUtils.LOGGER.finer("found task " + ut); // NOI18N
-            if (ut != null) {
-                d.ut.getDependencies().add(new Dependency(ut, d.type));
-            }
-        }
-        
-        dependencies.clear();
-        
-        
-        String otherItems = writer.getBuffer().toString();
-        if (otherItems.length() == 0) {
-            otherItems = null;
-        }
-        list.userObject = otherItems;
+        String title;
+        title = NbBundle.getMessage(ICalImportFormat.class, "ImportICAL"); // NOI18N
+        d.setTitle(title); // NOI18N
+        d.putProperty(CHOOSE_FILE_PANEL_PROP, chooseFilePanel);
+        d.putProperty("WizardPanel_autoWizardStyle", Boolean.TRUE); // NOI18N
+        d.putProperty("WizardPanel_contentDisplayed", Boolean.TRUE); // NOI18N
+        d.putProperty("WizardPanel_contentNumbered", Boolean.TRUE); // NOI18N
+        d.setTitleFormat(new java.text.MessageFormat("{0}")); // NOI18N 
+        return d;
     }
 }

@@ -188,15 +188,14 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             descriptionTextField.setText(item.getSummary());
         }
         priorityComboBox.setSelectedItem(new Integer(item.getPriority()));
-        if (item.getLine() != null) {
-            URL url = item.getUrl();
-            if (url != null) {
-                fileTextField.setText(url.toExternalForm());
-                if (fileTextField.getText().length() > 0)
-                    fileTextField.setCaretPosition(fileTextField.getText().length()-1);
-                fileCheckBox.setSelected(true);
-                lineTextField.setText(Integer.toString(item.getLineNumber() + 1));
-            }
+        
+        URL url = item.getUrl();
+        if (url != null) {
+            fileTextField.setText(url.toExternalForm());
+            if (fileTextField.getText().length() > 0)
+                fileTextField.setCaretPosition(fileTextField.getText().length()-1);
+            fileCheckBox.setSelected(true);
+            lineTextField.setText(Integer.toString(item.getLineNumber() + 1));
         } else {
             fileCheckBox.setSelected(false);
         }

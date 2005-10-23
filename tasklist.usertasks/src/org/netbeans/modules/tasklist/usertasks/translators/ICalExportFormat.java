@@ -17,16 +17,41 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SimpleTimeZone;
 
 import javax.swing.filechooser.FileSystemView;
+import net.fortuna.ical4j.data.CalendarOutputter;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.ComponentList;
+import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyList;
+import net.fortuna.ical4j.model.ValidationException;
+import net.fortuna.ical4j.model.component.VToDo;
+import net.fortuna.ical4j.model.parameter.XParameter;
+import net.fortuna.ical4j.model.property.Categories;
+import net.fortuna.ical4j.model.property.Completed;
+import net.fortuna.ical4j.model.property.Created;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.DtStart;
+import net.fortuna.ical4j.model.property.LastModified;
+import net.fortuna.ical4j.model.property.PercentComplete;
+import net.fortuna.ical4j.model.property.Priority;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.RelatedTo;
+import net.fortuna.ical4j.model.property.Summary;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.model.property.Url;
+import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.XProperty;
 
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
@@ -41,12 +66,10 @@ import org.netbeans.modules.tasklist.usertasks.model.Dependency;
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
-
 /**
  * This class provides import/export capabilities for the iCalendar calendar
  * format (used by for example KDE's Konqueror calendar/todoitem tool)
  * as specified in RFC 2445 with the following exceptions:
- * @todo Write the exceptions to the RFC here!!
  *
  * @todo Store the alarm-part of the associated time as an VALARM field (but
  *       I guess I must hardcode some of the fields (the alarm action etc);)
@@ -57,6 +80,7 @@ import org.openide.util.NbBundle;
  *
  * @author Tor Norbye
  * @author Trond Norbye
+ * @author tl
  */
 public class ICalExportFormat implements ExportImportFormat {
     protected final static String 
@@ -65,9 +89,8 @@ public class ICalExportFormat implements ExportImportFormat {
     // Format which includes the timezone at the end. This is the format
     // used by the tasklist's own written files for example.
     private static final String DATEFORMATZ = "yyyyMMdd'T'HHmmss'Z'"; // NOI18N
-    
-    // Format used when the timezone is specified separetly, e.g. with TZ:PST
-    // private static final String DATEFORMAT = "yyyyMMdd'T'HHmmss"; // NOI18N
+    private static final SimpleDateFormat DATEFORMAT = 
+        new SimpleDateFormat(DATEFORMATZ);
     
     /**
      * Constructor
@@ -90,6 +113,12 @@ public class ICalExportFormat implements ExportImportFormat {
                     ErrorManager.getDefault().notify(e);
                 }
             }
+        } catch (ParseException e) {
+            ErrorManager.getDefault().notify(e);
+        } catch (URISyntaxException e) {
+            ErrorManager.getDefault().notify(e);
+        } catch (ValidationException e) {
+            ErrorManager.getDefault().notify(e);
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
         }
@@ -143,100 +172,155 @@ public class ICalExportFormat implements ExportImportFormat {
      * @param list The tasklist to store
      * @param out The output stream object to use
      */
-    public void writeList(UserTaskList list, OutputStream out) throws IOException {
-        // http://www.ietf.org/rfc/rfc2445.txt 4.1.4:
-        // There is not a property parameter to declare the character set used
-        // in a property value. The default character set for an iCalendar
-        // object is UTF-8 as defined in [RFC 2279].
-        Writer writer = new OutputStreamWriter(out, "UTF-8"); // NOI18N 
+    public void writeList(UserTaskList list, OutputStream out) 
+    throws IOException, ValidationException, URISyntaxException, ParseException {
+        Calendar cal = (Calendar) list.userObject;
+        if (cal == null)
+            cal = new Calendar();
+        
+        Property prop = cal.getProperties().getProperty(Property.PRODID); 
+        if (prop == null) {
+            prop = new ProdId("-//NetBeans tasklist//NONSGML 1.0//EN"); // NOI18N
+            cal.getProperties().add(prop);
+        } else {
+            prop.setValue("-//NetBeans tasklist//NONSGML 1.0//EN"); // NOI18N
+        }
 
-        // Write header
-        writer.write("BEGIN:VCALENDAR\r\n" + // NOI18N
-            "PRODID:-//NetBeans tasklist//NONSGML 1.0//EN\r\n" + // NOI18N
-            "VERSION:2.0\r\n"); // NOI18N
+        prop = cal.getProperties().getProperty(Property.VERSION);
+        if (prop != null)
+            cal.getProperties().remove(prop);
+        cal.getProperties().add(Version.VERSION_2_0);
         
-        //writer.write("TZ:GMT\r\n"); // NOI18N
-        
-        SimpleDateFormat formatter = new SimpleDateFormat(DATEFORMATZ);
-        // Dates in UTC
-        formatter.setTimeZone(new SimpleTimeZone(0, "GMT")); // NOI18N
-        
-        // Write out todo items
         Iterator it = list.getSubtasks().iterator();
         while (it.hasNext()) {
-            // Note: The previous try/catch block was superfluous (?) since
-            // no exceptions will we thrown inside this block (unless
-            // the listiterator contains something else than UserTask ;-)
-            UserTask item = (UserTask)it.next();
-            writeTask(writer, item, formatter);
+            UserTask item = (UserTask) it.next();
+            writeTask(cal, item);
         }
+        
+        final List uids = new ArrayList();
+        UserTaskList.processDepthFirst(
+            new UserTaskList.UserTaskProcessor() {
+                public void process(UserTask ut) {
+                    uids.add(ut.getUID());
+                }
+            }, list.getSubtasks()
+        );
+        removeUnusedVToDos(cal, uids);
 
-        // Store all non-vtodo's
-        if (list.userObject != null) {
-            // This might not be an elegant way to do this, but instead of
-            // having to restore everything, I have stored all other items
-            // in a (folded) string..
-            writer.write("\r\n" + list.userObject); // NOI18N
+        CalendarOutputter co = new CalendarOutputter();
+        co.output(cal, out);
+    }
+    
+    /**
+     * Removes all VTODOs from the calendar if their IDs are not in the list.
+     *
+     * @param cal a calendar
+     * @param uids &lt;String&gt; list of used uids.
+     */
+    private static void removeUnusedVToDos(Calendar cal, List uids) {
+        ComponentList cl = cal.getComponents();
+        Iterator it = cl.iterator();
+        while (it.hasNext()) {
+            Component c = (Component) it.next();
+            if (c.getName().equals(Component.VTODO)) {
+                Uid p = (Uid) c.getProperties().getProperty(Property.UID);
+                if (p == null || uids.indexOf(p.getValue()) < 0)
+                    it.remove();
+            }
         }
-
-        writer.write("\r\nEND:VCALENDAR\r\n"); // NOI18N
-        writer.flush();
+    }
+    
+    /**
+     * Searches for a VTODO with the given uid.
+     *
+     * @param cal a calendar object
+     * @param uid searching for this uid.
+     * @return found component or null
+     */
+    private static VToDo find(Calendar cal, String uid) {
+        ComponentList cl = cal.getComponents().getComponents(Component.VTODO);
+        for (int i = 0; i < cl.size(); i++) {
+            VToDo c = (VToDo) cl.get(i);
+            Uid p = (Uid) c.getProperties().getProperty(Property.UID);
+            if (p != null && p.getValue().equals(uid))
+                return c;
+        }
+        return null;
     }
     
     /**
      * Write out the given todo item to the given writer.
-     * @param writer The writer object to use
+     * @param cal calendar object
      * @param task The task/todo item to use
-     * @param sdf A "SimpleDateFormat-formatter" used to convert a date to string
      * @todo Finish all the unused fields
      */
-    private void writeTask(Writer writer, UserTask task, SimpleDateFormat sdf) 
-    throws IOException {
-        // Catch errors locally so that we don't botch the whole
-        // list if you run into an I/O error
-        writer.write("\r\nBEGIN:VTODO\r\n"); // NOI18N
-
-        // UID (Unique Identifier)  (see RFC 822 and RFC 2445)
-        writer.write("UID:"); // NOI18N
-        writer.write(task.getUID());
-        writer.write("\r\n"); // NOI18N
-
-        // Created date
-        long created = task.getCreatedDate();
-        String datestring = sdf.format(new Date(created));
-        writer.write("CREATED:"); // NOI18N
-        writer.write(datestring);
-        writer.write("\r\n"); // NOI18N
-
-        if (task.getStart() != -1) {
-            writer.write("DTSTART:"); // NOI18N
-            writer.write(sdf.format(new Date(task.getStart())));
-            writer.write("\r\n"); // NOI18N
+    private void writeTask(Calendar cal, UserTask task) 
+    throws IOException, URISyntaxException, ParseException, ValidationException {
+        VToDo vtodo = find(cal, task.getUID());
+        if (vtodo == null) {
+            vtodo = new VToDo();
+            vtodo.getProperties().add(new Uid(task.getUID()));
+            cal.getComponents().add(vtodo);
         }
 
-        // due -- not yet implemented
-
-        // organizer -- not yet implemented
+        PropertyList pl = vtodo.getProperties();
+        Property prop = pl.getProperty(Property.CREATED);
+        if (prop == null) {
+            prop = new Created();
+            pl.add(prop);
+        }
+        long created = task.getCreatedDate();
+        DateTime dt = new DateTime(created);
+        dt.setUtc(true);
+        ((Created) prop).setDate(dt);
+        prop.validate();
+            
+        prop = pl.getProperty(Property.DTSTART);
+        if (task.getStart() != -1) {
+            if (prop == null) {
+                prop = new DtStart();
+                pl.add(prop);
+            }
+            dt = new DateTime(task.getStart());
+            dt.setUtc(true);
+            ((DtStart) prop).setDate(dt);
+            prop.validate();
+        } else {
+            if (prop != null)
+                pl.remove(prop);
+        }
 
         // summary: (Description)
         String desc = task.getSummary();
+        prop = pl.getProperty(Property.SUMMARY);
         if (desc != null && desc.length() > 0) {
-            writeEscaped(writer, "SUMMARY", null, desc); // NOI18N
-            writer.write("\r\n"); // NOI18N
+            if (prop == null)
+                prop = new Summary();
+            prop.setValue(desc);
+        } else {
+            if (prop != null)
+                pl.remove(prop);
         }
 
         // description (details)
         String details = task.getDetails();
+        prop = pl.getProperty(Property.DESCRIPTION);
         if (details != null && details.length() > 0) {
-            writeEscaped(writer, "DESCRIPTION", null, details); // NOI18N
-            writer.write("\r\n"); // NOI18N
+            if (prop == null)
+                prop = new Description();
+            prop.setValue(details);
+        } else {
+            if (prop != null)
+                pl.remove(prop);
         }
 
         // Priority
+        prop = pl.getProperty(Property.PRIORITY);
+        if (prop != null)
+            pl.remove(prop);
         if (task.getPriority() != UserTask.MEDIUM) {
-            writer.write("PRIORITY:"); // NOI18N
-            writer.write(Integer.toString(task.getPriority()));
-            writer.write("\r\n"); // NOI18N
+            prop = new Priority(task.getPriority());
+            pl.add(prop);
         }
 
         // Class -- not implemented (always PRIVATE, right?) Also allowed:
@@ -261,138 +345,153 @@ public class ICalExportFormat implements ExportImportFormat {
         // xprop is special, we will have those)
 
 
-        writer.write("PERCENT-COMPLETE:"); // NOI18N
-        writer.write(Integer.toString(task.getPercentComplete()));
-        writer.write("\r\n"); // NOI18N
-
-        boolean computed = task.isProgressComputed();
-        if (computed) {
-            writeEscaped(writer, "X-NETBEANS-PROGRESS-COMPUTED",  // NOI18N
-                         null, "yes"); // NOI18N
-            writer.write("\r\n"); // NOI18N
+        prop = pl.getProperty(Property.PERCENT_COMPLETE);
+        if (prop == null) {
+            prop = new PercentComplete();
+            pl.add(prop);
         }
+        ((PercentComplete) prop).setPercentage(task.getPercentComplete());
 
-        writer.write("X-NETBEANS-EFFORT:"); // NOI18N
-        writer.write(Integer.toString(task.getEffort()));
-        writer.write("\r\n"); // NOI18N
+        setXProperty(pl, "X-NETBEANS-PROGRESS-COMPUTED", "yes",  // NOI18N
+            task.isProgressComputed());
+        
+        setXProperty(pl, "X-NETBEANS-EFFORT",  // NOI18N
+            Integer.toString(task.getEffort()), true);
 
-        computed = task.isEffortComputed();
-        if (computed) {
-            writeEscaped(writer, "X-NETBEANS-EFFORT-COMPUTED",  // NOI18N
-                         null, "yes"); // NOI18N
-            writer.write("\r\n"); // NOI18N
-        }
+        setXProperty(pl, "X-NETBEANS-EFFORT-COMPUTED", "yes",  // NOI18N
+            task.isEffortComputed());
 
-        writer.write("X-NETBEANS-SPENT-TIME:"); // NOI18N
-        writer.write(Integer.toString(task.getSpentTime()));
-        writer.write("\r\n"); // NOI18N
+        setXProperty(pl, "X-NETBEANS-SPENT-TIME",  // NOI18N
+            Integer.toString(task.getSpentTime()), true);
 
-        computed = task.isSpentTimeComputed();
-        if (computed) {
-            writeEscaped(writer, "X-NETBEANS-SPENT-TIME-COMPUTED",  // NOI18N
-                         null, "yes"); // NOI18N
-            writer.write("\r\n"); // NOI18N
-        }
+        setXProperty(pl, "X-NETBEANS-SPENT-TIME-COMPUTED", "yes",  // NOI18N
+            task.isSpentTimeComputed()); 
 
         // Category (XXX standard allows MULTIPLE categories, I must handle
         // that when I parse back)
         String category = task.getCategory();
+        prop = pl.getProperty(Property.CATEGORIES);
         if (category != null && category.length() > 0) {
             // TODO Write out multiple CATEGORIES lines instead
             // of a combined comma separated list which is what we're
             // doing here
-            writeEscaped(writer, "CATEGORIES", null, category); // NOI18N
-            writer.write("\r\n"); // NOI18N
+            if (prop == null) {
+                prop = new Categories();
+                pl.add(prop);
+            }
+            ((Categories) prop).setValue(category); // NOI18N
+        } else {
+            if (prop != null)
+                pl.remove(prop);
         }
 
         // Last modified
         // Last Edited Date, if different than created
         long edited = task.getLastEditedDate();
-
+        prop = pl.getProperty(Property.LAST_MODIFIED);
         if (edited != created) {
             // They differ
-            datestring = sdf.format(new Date(edited));
-            writer.write("LAST-MODIFIED:"); // NOI18N
-            writer.write(datestring);
-            writer.write("\r\n"); // NOI18N
+            if (prop == null) {
+                prop = new LastModified();
+                pl.add(prop);
+            }
+            dt = new DateTime(edited);
+            dt.setUtc(true);
+            ((LastModified) prop).setDate(dt);
+            prop.validate();
+        } else {
+            if (prop != null)
+                pl.remove(pl);
         }
 
         // completion date
-        writer.write("COMPLETED:"); // NOI18N
-        writer.write(sdf.format(new Date(task.getCompletedDate())));
-        writer.write("\r\n"); // NOI18N
+        long completed = task.getCompletedDate();
+        prop = pl.getProperty(Property.COMPLETED);
+        if (completed != 0) {
+            if (prop == null) {
+                prop = new Completed();
+                pl.add(prop);
+            }
+            dt = new DateTime(task.getCompletedDate());
+            dt.setUtc(true);
+            ((Completed) prop).setDate(dt);
+            prop.validate();
+        } else {
+            if (prop != null)
+                pl.remove(prop);
+        }
 
         // URL
         URL url = task.getUrl();
+        prop = pl.getProperty(Property.URL);
         if (url != null) {
-            writeEscaped(writer, "URL",  // NOI18N
-                null, url.toExternalForm());
-            writer.write("\r\n"); // NOI18N
+            if (prop == null) {
+                prop = new Url();
+                pl.add(prop);
+            }
+            prop.setValue(url.toExternalForm());
+        } else {
+            if (prop != null)
+                pl.remove(pl);
         }
         
         // Line number
         int lineno = task.getLineNumber();
-        if (lineno >= 0) {
-            writer.write("X-NETBEANS-LINE:"); // NOI18N
-            writer.write(Integer.toString(lineno + 1));
-            writer.write("\r\n"); // NOI18N
-        }
+        setXProperty(pl, "X-NETBEANS-LINE",  // NOI18N
+            Integer.toString(lineno + 1), lineno >= 0);
         
-        if (task.getOwner().length() != 0) {
-            writer.write("X-NETBEANS-OWNER:"); // NOI18N
-            writer.write(task.getOwner());
-            writer.write("\r\n"); // NOI18N
-        }
+        setXProperty(pl, "X-NETBEANS-OWNER", task.getOwner(), // NOI18N
+            task.getOwner().length() != 0);
 
         // Parent item
         // attribute reltype for related-to defaults to "PARENT" so we
         // don't need to specify it
+        prop = pl.getProperty(Property.RELATED_TO);
         if (task.getParent() != null) {
+            if (prop == null) {
+                prop = new RelatedTo();
+                pl.add(prop);
+            }
             String parentuid = ((UserTask)task.getParent()).getUID();
-            writer.write("RELATED-TO:"); // NOI18N
-            // XXX does it need to be escaped?
-            // Certainly my uids don't need to be, but other tools
-            // may be generating UIDs with characters that need to
-            // be escaped. Or does the spec forbid that?
-            writer.write(parentuid);
-            writer.write("\r\n"); // NOI18N
+            prop.setValue(parentuid);
+        } else {
+            if (prop != null)
+                pl.remove(prop);
         }
         
         List dep = task.getDependencies();
+        pl.removeAll(pl.getProperties("X-NETBEANS-DEPENDENCY")); // NOI18N
         for (int i = 0; i < dep.size(); i++) {
             Dependency d = (Dependency) dep.get(i);
-            writer.write("X-NETBEANS-DEPENDENCY;"); // NOI18N
-            writer.write("TYPE="); // NOI18N
-            if (d.getType() == Dependency.BEGIN_BEGIN)
-                writer.write("BEGIN_BEGIN"); // NOI18N
-            else
-                writer.write("END_BEGIN"); // NOI18N
-            writer.write(":"); // NOI18N
-            writer.write(d.getDependsOn().getUID());
-            writer.write("\r\n"); // NOI18N
+            prop = new XProperty("X-NETBEANS-DEPENDENCY"); // NOI18N
+            prop.setValue(d.getDependsOn().getUID());
+            String t = (d.getType() == Dependency.BEGIN_BEGIN) ?
+                "BEGIN_BEGIN" : "END_BEGIN"; // NOI18N
+            prop.getParameters().add(new XParameter("X-NETBEANS-TYPE", t)); // NOI18N
+            pl.add(prop);
         }
 
         ObjectList wks = task.getWorkPeriods();
+        pl.removeAll(pl.getProperties("X-NETBEANS-WORK-PERIOD")); // NOI18N
         for (int i = 0; i < wks.size(); i++) {
             UserTask.WorkPeriod wk = (UserTask.WorkPeriod) wks.get(i);
-            writer.write("X-NETBEANS-WORK-PERIOD;"); // NOI18N
-            writer.write("START="); // NOI18N
-            writer.write(sdf.format(new Date(wk.getStart())));
-            writer.write(":"); // NOI18N
-            writer.write(Integer.toString(wk.getDuration()));
-            writer.write("\r\n"); // NOI18N
+            prop = new XProperty("X-NETBEANS-WORK-PERIOD"); // NOI18N
+            prop.getParameters().add(new XParameter("X-NETBEANS-START",
+                DATEFORMAT.format(new Date(wk.getStart()))));
+            prop.setValue(Integer.toString(wk.getDuration()));
+            pl.add(prop);
         }
         
-        Date d = task.getDueDate();
-        if (d != null) {
-            writer.write("X-NETBEANS-DUETIME:"); // NOI18N
-            writer.write(Long.toString(d.getTime()));
-            writer.write("\r\n"); // NOI18N
-
-            if (task.isDueAlarmSent()) {
-                writer.write("X-NETBEANS-DUE-SIGNALED:true\r\n"); // NOI18N                    
-            }                
-        }
+        java.util.Date d = task.getDueDate();
+        if (d != null)
+            setXProperty(pl, "X-NETBEANS-DUETIME", Long.toString(d.getTime()), // NOI18N
+                true); 
+        else
+            setXProperty(pl, "X-NETBEANS-DUETIME", "", // NOI18N
+                false);
+        
+        setXProperty(pl, "X-NETBEANS-DUE-SIGNALED", "yes",  // NOI18N
+            task.isDueAlarmSent());
         
 //            AssociatedTime associatedTime = task.getAssociatedTime();
 //            if (associatedTime != null) {
@@ -438,69 +537,37 @@ public class ICalExportFormat implements ExportImportFormat {
 //                }
 //            }
 
-        // Write out unsupported tags on this VTODO
-        if (task.userObject != null) {
-            // The string is stored in folded format!
-            writer.write(task.userObject.toString());
-        }
-
-        writer.write("END:VTODO\r\n"); // NOI18N
-
         // Recurse over subtasks
         // XXX do the other tags here...
         Iterator it = task.getSubtasks().iterator();
         while (it.hasNext()) {
             UserTask subtask = (UserTask)it.next();
-            writeTask(writer, subtask, sdf);
+            writeTask(cal, subtask);
         }
     }
     
     /**
-     * Write out a content line escaped according to the spec:
-     * break at 75 chars, add escapes to certain characters, etc.
+     * Changes value of an X-property.
      *
-     * @param writer the writer used to write the data
-     * @param name the name of the tag to write (without the ':')
-     * @param param the param of the field
-     * @param value the value to write
+     * @param pl a list of properties
+     * @param name name for a X-property
+     * @param value new value for the property
+     * @param set true = the property will be created, false = the property
+     * will be deleted
      */
-    private void writeEscaped(Writer writer, String name, String param, String value) throws IOException {
-        int col = name.length();
-        writer.write(name);
-        
-        if (param != null) {
-            col += param.length() + 1; // NOI18N
-            writer.write(" "); // NOI18N
-            writer.write(param);
-        }
-        ++col;
-        writer.write(":"); // NOI18N
-        
-        int n = value.length();
-        for (int i = 0; i < n; i++) {
-            char c = value.charAt(i);
-            switch (c) {
-                case '\n':
-                    writer.write("\\n"); // NOI18N
-                    col++; // One extra char expansion
-                    break;
-                case ';':
-                case ',':
-                case '\\':
-                    // Escape the character by preceding it by a "\"
-                    writer.write('\\');
-                    col++; // One extra char expansion
-                    // NOTE FALL THROUGH!
-                default:
-                    writer.write(c);
-                    break;
+    private static void setXProperty(PropertyList pl, 
+        String name, String value, boolean set) throws IOException, 
+        URISyntaxException, ParseException {
+        Property prop = pl.getProperty(name);
+        if (set) {
+            if (prop == null) {
+                prop = new XProperty(name);
+                pl.add(prop);
             }
-            
-            col++;
-            if (col >= 75) {
-                col = 1; // for the space on the next line
-                writer.write("\r\n "); // NOI18N   note the space - important
-            }
-        }
+            prop.setValue(value);
+        } else {
+            if (prop != null)
+                pl.remove(prop);
+        }    
     }
 }

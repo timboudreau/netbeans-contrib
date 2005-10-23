@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +29,8 @@ import java.util.TimerTask;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.model.ValidationException;
 
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
@@ -308,6 +312,10 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
         ret.dontSave = true;
         try {
             io.read(ret, is);
+        } catch (ParserException e) {
+            // NOTE the exception text should be localized!
+            DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
+               NotifyDescriptor.ERROR_MESSAGE));
         } catch (IOException e) {
             // NOTE the exception text should be localized!
             DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
@@ -434,6 +442,15 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
             OutputStream fos = file.getOutputStream(lock);
             try {
                 io.writeList(this, fos);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new IOException(e.getMessage());
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                throw new IOException(e.getMessage());
+            } catch (ValidationException e) {
+                e.printStackTrace();
+                throw new IOException(e.getMessage());
             } finally {
                 try {
                     fos.close();

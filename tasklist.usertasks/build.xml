@@ -15,10 +15,6 @@ Microsystems, Inc. All Rights Reserved.
 
     <import file="../../nbbuild/templates/projectized.xml"/>
     
-    <target name="build-init" depends="projectized.build-init">
-        <ant dir="../external" target="unscramble"/>
-    </target>
-    
     <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
         <mkdir dir="build"/>
         <makenbm file="build/${nbm}"
@@ -32,6 +28,8 @@ Microsystems, Inc. All Rights Reserved.
                 <file location="${license.file}"/>
                 <text>For the bundled JCalendar runtime library:</text>
                 <file location="../external/jcalendar-license.txt"/>
+                <text>For the bundled iCal4j library:</text>
+                <file location="../external/ical4j-license.txt"/>
             </license>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
@@ -44,6 +42,7 @@ Microsystems, Inc. All Rights Reserved.
         <copy todir="${cluster}/modules/ext">
             <fileset dir="../external/">
                 <include name="jcalendar*.jar"/>
+                <include name="ical4j.jar"/>
             </fileset>
         </copy>
     </target>
