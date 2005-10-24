@@ -201,7 +201,7 @@ public abstract class PrefsNode extends AbstractNode {
             if (Integer.TYPE.equals(clazz)) {
                 result = new Integer (res);
             } else if (Boolean.TYPE.equals(clazz)) {
-                result = Boolean.parseBoolean(res) ? Boolean.TRUE : Boolean.FALSE;
+                result = Boolean.valueOf(res);
             } else if (!String.class.equals(clazz)) {
                 assert false : "Unsupported type " + clazz;
             }
