@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.j2ee.ejbfreeform;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
@@ -35,7 +37,8 @@ import org.openide.filesystems.FileUtil;
  *
  * @author Martin Adamek
  */
-public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleChangeReporter, EjbChangeDescriptor {
+public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleChangeReporter, 
+        EjbChangeDescriptor, PropertyChangeListener {
     
     private Project project;
     private AntProjectHelper helper;
@@ -50,6 +53,7 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
         this.evaluator = evaluator;
         ejbModules = new EJBModules(project, helper, evaluator);
         ejbModule = new EJBFreeformModule(project, helper, evaluator);
+        evaluator.addPropertyChangeListener(this);
     }
     
     // from J2eeModuleProvider
@@ -136,4 +140,17 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
         return null;
     }
     
+    public void propertyChange(PropertyChangeEvent evt) {
+//        if (EjbFreeformProperties.RESOURCE_DIR.equals(evt.getPropertyName())) {
+//            String oldValue = (String)evt.getOldValue();
+//            String newValue = (String)evt.getNewValue();
+//            firePropertyChange(
+//                    PROP_ENTERPRISE_RESOURCE_DIRECTORY, 
+//                    oldValue == null ? null : new File(oldValue),
+//                    newValue == null ? null : new File(newValue));
+//        }
+        // TODO: temporary fix to work-around the above code where evt.getPropertyName() 
+        //       always returns null
+        firePropertyChange(PROP_ENTERPRISE_RESOURCE_DIRECTORY, null, getEnterpriseResourceDirectory());
+    }
 }
