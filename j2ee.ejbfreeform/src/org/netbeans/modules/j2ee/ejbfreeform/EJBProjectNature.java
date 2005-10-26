@@ -29,6 +29,7 @@ import org.netbeans.modules.ant.freeform.spi.ProjectPropertiesPanel;
 import org.netbeans.modules.ant.freeform.spi.TargetDescriptor;
 import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
 import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.j2ee.ejbfreeform.ui.EJBLocationsPanel;
 import org.netbeans.modules.j2ee.spi.ejbjar.support.J2eeProjectView;
 import org.netbeans.modules.j2ee.spi.ejbjar.support.EjbEnterpriseReferenceContainerSupport;
@@ -38,6 +39,7 @@ import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.AntProjectListener;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.ui.PrivilegedTemplates;
+import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.netbeans.spi.project.ui.RecommendedTemplates;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
@@ -182,6 +184,7 @@ public class EJBProjectNature implements ProjectNature {
             new PrivilegedTemplatesImpl(), // List of templates in New action popup
             EjbEnterpriseReferenceContainerSupport.createEnterpriseReferenceContainer(project, projectHelper),
             new EjbFreeFormActionProvider(project, projectHelper, aux),
+            new ProjectOpenedHookImpl(project),
         });
     }
     
@@ -223,6 +226,24 @@ public class EJBProjectNature implements ProjectNature {
             // ignore
         }
         
+    }
+    
+    private static final class ProjectOpenedHookImpl extends ProjectOpenedHook {
+        
+        private Project project;
+        
+        public ProjectOpenedHookImpl(Project project) {
+            this.project = project;
+        }
+        
+        protected void projectOpened() {
+            // initialize the server configuration
+            J2eeModuleProvider j2eeModule = (J2eeModuleProvider)project.getLookup().lookup(J2eeModuleProvider.class);
+            j2eeModule.getConfigSupport().ensureConfigurationReady();
+        }
+
+        protected void projectClosed() {
+        }
     }
 
     private static final class PrivilegedTemplatesImpl implements PrivilegedTemplates, RecommendedTemplates {
