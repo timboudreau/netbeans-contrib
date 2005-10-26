@@ -69,23 +69,25 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
         helper.addAntProjectListener(this);
     }
     
-    public synchronized EjbJar findEjbJar (FileObject file) {
+    public EjbJar findEjbJar (FileObject file) {
         Project owner = FileOwnerQuery.getOwner (file);
-        if (project.equals (owner)) {
-            if (modules.isEmpty()) {
-                readAuxData ();
-            }
-            for (Iterator iter = modules.iterator (); iter.hasNext ();) {
-                FFEJBModule wm = (FFEJBModule) iter.next ();
-                if (wm.contais (file)) {
-                    if (cache.get (wm) == null) {
-                        cache.put (wm, EjbJarFactory.createEjbJar (wm));
+        synchronized (this) {
+            if (project.equals (owner)) {
+                if (modules.isEmpty()) {
+                    readAuxData ();
+                }
+                for (Iterator iter = modules.iterator (); iter.hasNext ();) {
+                    FFEJBModule wm = (FFEJBModule) iter.next ();
+                    if (wm.contais (file)) {
+                        if (cache.get (wm) == null) {
+                            cache.put (wm, EjbJarFactory.createEjbJar (wm));
+                        }
+                        return (EjbJar) cache.get (wm);
                     }
-                    return (EjbJar) cache.get (wm);
                 }
             }
+            return null;
         }
-        return null;
     }
 
     public ClassPath findClassPath (FileObject file, String type) {
