@@ -14,15 +14,16 @@
 package org.netbeans.modules.projectpackager.exporter;
 import java.io.File;
 import java.io.IOException;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Vector;
 import org.netbeans.api.queries.SharabilityQuery;
 import org.netbeans.modules.projectpackager.tools.Constants;
 import org.netbeans.modules.projectpackager.tools.ExecutionTools;
 import org.netbeans.modules.projectpackager.tools.ProjectPackagerSettings;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -36,6 +37,7 @@ public class ExportPackageScheduler {
     private static ArrayList fileList;
     private static ExportExecutorThread et;
     private static Vector unsharableFiles;
+    private static String timeStamp;
     
     private static boolean initialized = false;
     
@@ -66,6 +68,9 @@ public class ExportPackageScheduler {
         
         FileObject[] paths = null;
         Boolean[] isExternal = null;
+        Format formatter = new SimpleDateFormat("yyMMdd-HHmmss");
+        timeStamp = formatter.format(new Date());
+                
         fileList = new ArrayList();
         
         for (int i = 0; i<ProjectInfo.getProjectCount(); i++) {
@@ -80,12 +85,13 @@ public class ExportPackageScheduler {
                 // create extra zips for external source roots
                 if (isExternal[j].booleanValue()) {
                     external++;
-                    String fileName = ProjectInfo.getName(i)+"_"+java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("external")+external;
+                    String fileName = ProjectInfo.getName(i)+"_"+java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("external")+external+"_"+timeStamp;
                     props.setProperty("zip_name", fileName);
                     fileList.add(ExportPackageInfo.getTargetDir()+File.separator+fileName+".zip");
                 } else {
-                    props.setProperty("zip_name", ProjectInfo.getName(i));
-                    fileList.add(ExportPackageInfo.getTargetDir()+File.separator+ProjectInfo.getName(i)+".zip");
+                    String fileName = ProjectInfo.getName(i)+"_"+timeStamp;
+                    props.setProperty("zip_name", fileName);
+                    fileList.add(ExportPackageInfo.getTargetDir()+File.separator+fileName+".zip");
                 }
                 props.setProperty("src_dir", FileUtil.toFile(paths[j].getParent()).getAbsolutePath());
                 props.setProperty("dir_name", paths[j].getName());
@@ -147,14 +153,8 @@ public class ExportPackageScheduler {
         
         Properties props = new Properties();
         props.setProperty("to_addr", ExportPackageInfo.getEmail());
-        String fileListText = "";
-        for (int i = 0; i<fileList.size(); i++) {
-            fileListText+=fileList.get(i);
-            if (i<fileList.size()-1) {
-                fileListText+=",";
-            }
-        }
-        props.setProperty("file_list", fileListText);
+        props.setProperty("target_dir", ExportPackageInfo.getTargetDir());
+        props.setProperty("file_list", "*_"+timeStamp+".zip");
         props.setProperty("smtp_server", ExportPackageInfo.getSmtpServer());
         props.setProperty("smtp_username", ExportPackageInfo.getSmtpUsername());
         props.setProperty("smtp_password", ExportPackageInfo.getSmtpPassword());
