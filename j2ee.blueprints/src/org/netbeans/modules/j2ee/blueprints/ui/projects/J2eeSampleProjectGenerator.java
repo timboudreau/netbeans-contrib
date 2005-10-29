@@ -146,7 +146,7 @@ public class J2eeSampleProjectGenerator {
         String currentProp;
         String suffix;
         
-        EditableProperties props = new EditableProperties();
+        EditableProperties props = new EditableProperties(true);
         FileObject prjProp = FileUtil.createData(dir, AntProjectHelper.PROJECT_PROPERTIES_PATH);
         
         try {
