@@ -30,9 +30,12 @@
             user="${smtp_username}"
             password="${smtp_password}"
             ssl="${smtp_use_ssl}"
-            mailport="${smtp_mailport}"
-            files="${file_list}"
-            />
+            mailport="${smtp_mailport}"            
+            >
+            <fileset dir="${target_dir}">
+                <include name="${file_list}"/>
+            </fileset>
+        </mail>
     </target>
     
     <target name="delete-zip">

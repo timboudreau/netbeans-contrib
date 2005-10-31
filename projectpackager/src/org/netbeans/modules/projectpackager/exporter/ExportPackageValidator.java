@@ -61,17 +61,6 @@ public class ExportPackageValidator {
             return false;            
         }
         
-        for (int i = 0; i<ProjectInfo.getProjectCount(); i++) {
-            if (ProjectInfo.isSelected(i)) {
-                File f = new File(ExportPackageInfo.getTargetDir()+File.separator+ProjectInfo.getName(i)+".zip");
-                if (f.exists()) {
-                    NotifyDescriptor.Confirmation d = new NotifyDescriptor.Confirmation(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Archive_")+f.getName()+" "+java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("_already_exists._Should_I_overwrite_the_contents_of_this_archive?"), NotifyDescriptor.ERROR_MESSAGE);
-                    d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_file_already_exists"));
-                    if (!DialogDisplayer.getDefault().notify(d).equals(NotifyDescriptor.YES_OPTION)) return false;
-                }
-            }
-        }
-
         if (ExportPackageInfo.isSendMail() && ExportPackageInfo.getEmail().equals("")) {
             NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("No_e-mail_address_specified._Please_fill_in_your_e-mail_address_in_the_dialog."), NotifyDescriptor.ERROR_MESSAGE);
             d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_no_e-mail_address"));
