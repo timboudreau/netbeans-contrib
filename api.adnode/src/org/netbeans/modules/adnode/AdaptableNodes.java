@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.adnode;
 
+import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.Adaptor;
 import org.openide.nodes.Node;
 
@@ -36,7 +37,8 @@ public class AdaptableNodes {
      * @param o the object to display
      */
     public static Node create(Adaptor a, Object o) {
-        return null;
+        Adaptable aa = a.getAdaptable(o);
+        return new org.netbeans.modules.adnode.ANode(aa);
     }
     
 }
