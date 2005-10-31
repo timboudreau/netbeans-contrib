@@ -27,8 +27,6 @@ import org.openide.nodes.Node;
 import org.openide.nodes.BeanNode;
 import java.beans.IntrospectionException;
 import javax.swing.JTree;
-import javax.swing.ImageIcon;
-import java.io.InputStream;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.event.KeyEvent;
 import javax.swing.JPopupMenu;
@@ -44,25 +42,12 @@ import javax.swing.tree.TreeNode;
 import org.openide.ErrorManager;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
 /** class with panel used for edit found components before generation
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
  * @version 0.1
  */
 public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeListener {
-    
-    static ImageIcon rootIcon;
-    static ImageIcon nodeIcon;
-    
-    static {
-        try {
-            rootIcon = new ImageIcon(Utilities.loadImage("org/openide/resources/propertysheet/customize.gif")); // NOI18N
-            nodeIcon = new ImageIcon(Utilities.loadImage("org/openide/src/resources/sourceOptions.gif")); // NOI18N
-        } catch (Exception e) {
-            ErrorManager.getDefault().notify(e);
-        }
-    }
     
     Collection nodes;
     JPopupMenu popup;
@@ -95,13 +80,8 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
         initComponents();
         tree.getSelectionModel().setSelectionMode(javax.swing.tree.TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION); 
         tree.setModel(new DefaultTreeModel(rootNode));
-        if ((rootIcon!=null)&&(nodeIcon!=null)) {
-            MyCellRenderer rend = new MyCellRenderer();
-            rend.setClosedIcon(rootIcon);
-            rend.setOpenIcon(rootIcon);
-            rend.setLeafIcon(nodeIcon);
-            tree.setCellRenderer(rend);
-        }
+        MyCellRenderer rend = new MyCellRenderer();
+        tree.setCellRenderer(rend);
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
                 nodeChanged(tree.getSelectionPaths());
