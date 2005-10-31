@@ -12,8 +12,10 @@
  */
 package org.netbeans.modules.adnode;
 
+import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Method;
 import java.util.TooManyListenersException;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import junit.framework.*;
 import org.netbeans.api.adaptable.Adaptor;
@@ -21,13 +23,22 @@ import org.netbeans.spi.adaptable.Adaptors;
 import org.netbeans.spi.adaptable.Singletonizer;
 import org.netbeans.spi.adnode.Name;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeEvent;
+import org.openide.nodes.NodeListener;
+import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.NodeReorderEvent;
 
 /**
  *
  * @author Jaroslav Tulach
  */
 public class AdaptableNodesTest extends TestCase 
-implements org.netbeans.spi.adaptable.Singletonizer {
+implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
+    private ChangeListener l;
+
+    private String name;
+
+    private int cnt;
     
     public AdaptableNodesTest (String testName) {
         super (testName);
@@ -47,11 +58,31 @@ implements org.netbeans.spi.adaptable.Singletonizer {
 
     public void testCreate () {
         Adaptor a = Adaptors.singletonizer (new Class[] { Name.class }, this);
-        Object o = "Nothing";
+        class ToString {
+            String name = "Nothing";
+            
+            public String toString() {
+                return name;
+            }
+        }
+        ToString o = new ToString();
         
         Node result = AdaptableNodes.create(a, o);
         
         assertEquals("Name is toString", "Nothing", result.getName ());
+        assertNotNull("We have a listener", this.l);
+        
+        result.addNodeListener(this);
+        
+        o.name = "New";
+        this.l.stateChanged(new ChangeEvent(o));
+        
+        assertEquals("One change in the node", 1, cnt);
+        assertEquals("Name changed", Node.PROP_NAME, name);
+        
+        assertEquals("Name is toString", "New", result.getName ());
+        
+        
     }
     
     //
@@ -66,10 +97,31 @@ implements org.netbeans.spi.adaptable.Singletonizer {
         return obj.toString();
     }
 
-    public void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+    public synchronized void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+        assertNull("We support just one listener", this.l);
+        this.l = listener;
     }
 
-    public void removeChangeListener (ChangeListener listener) {
+    public synchronized void removeChangeListener (ChangeListener listener) {
+        assertEquals("We can remove just the registered listener", this.l, listener);
+        this.l = null;
+    }
+
+    public void childrenAdded(NodeMemberEvent ev) {
+    }
+
+    public void childrenRemoved(NodeMemberEvent ev) {
+    }
+
+    public void childrenReordered(NodeReorderEvent ev) {
+    }
+
+    public void nodeDestroyed(NodeEvent ev) {
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        name = evt.getPropertyName();
+        cnt++;
     }
     
 }

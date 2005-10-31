@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.adnode;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
 import org.openide.nodes.Children;
 
@@ -20,7 +22,8 @@ import org.openide.nodes.Children;
  *
  * @author Jaroslav Tulach
  */
-final class ANode extends org.openide.nodes.AbstractNode {
+final class ANode extends org.openide.nodes.AbstractNode 
+implements ChangeListener {
     private Adaptable a;
     
     /** Creates a new instance of ANode */
@@ -28,12 +31,15 @@ final class ANode extends org.openide.nodes.AbstractNode {
         super(Children.LEAF);
         
         this.a = a;
+        a.addChangeListener(this);
     }
 
     public String getName() {
         org.netbeans.spi.adnode.Name n = (org.netbeans.spi.adnode.Name)a.lookup(org.netbeans.spi.adnode.Name.class);
         return n == null ? "" : n.getName();
     }
-    
-    
+
+    public void stateChanged(ChangeEvent e) {
+        fireNameChange(null, null);
+    }
 }
