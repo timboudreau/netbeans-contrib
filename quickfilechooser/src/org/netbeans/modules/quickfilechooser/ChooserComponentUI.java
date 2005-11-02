@@ -377,7 +377,11 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         public void actionPerformed(ActionEvent e) {
             String name = getFileName();
             int slash = name.lastIndexOf(File.separatorChar);
-            assert slash != -1;
+            if (slash == -1) {
+                // #67972: maybe user is just starting to type a filename and pressed TAB.
+                // Harmless but we will not try to complete anything just yet.
+                return;
+            }
             String newname = maximalCompletion != null ? name.substring(0, slash + 1) + maximalCompletion : null;
             File newnameF = newname != null ? new File(newname) : null;
             if (newnameF != null && newnameF.isDirectory() && !newname.endsWith(File.separator)) {
