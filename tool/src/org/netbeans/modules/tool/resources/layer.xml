@@ -1,0 +1,98 @@
+<!--
+                 Sun Public License Notice
+
+ The contents of this file are subject to the Sun Public License
+ Version 1.0 (the "License"). You may not use this file except in
+ compliance with the License. A copy of the License is available at
+ http://www.sun.com/
+
+ The Original Code is NetBeans. The Initial Developer of the Original
+ Code is Nokia. Portions Copyright 2005 Nokia.
+ All Rights Reserved.
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Menu">
+        <folder name="File">
+            <attr name="org-openide-actions-SaveAction.instance/org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" boolvalue="true" />
+            <attr name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance/org-openide-actions-SaveAllAction.instance" boolvalue="true" />
+            <file name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" />
+        </folder>
+        <folder name="Edit">
+            <attr name="org-openide-actions-DeleteAction.instance/SelectAllSeparator.instance" boolvalue="true" />
+            <attr name="SelectAllSeparator.instance/org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" boolvalue="true" />
+            <file name="SelectAllSeparator.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+            </file>
+            <file name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" />
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="File">
+            <attr name="org-openide-actions-SaveAction.instance/org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" boolvalue="true" />
+            <attr name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance/org-openide-actions-SaveAllAction.instance" boolvalue="true" />
+            <file name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance_hidden" />
+        </folder>
+        <folder name="Edit1">
+            <attr name="org-openide-actions-DeleteAction.instance/org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" boolvalue="true" />
+            <file name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" />
+        </folder>
+    </folder>
+    <folder name="Actions">
+        <folder name="File">
+            <attr name="org-openide-actions-SaveAction.instance/org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" boolvalue="true" />
+            <attr name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance/org-openide-actions-SaveAllAction.instance" boolvalue="true" />
+            <file name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" />
+        </folder>
+        <folder name="Edit">
+            <attr name="org-openide-actions-DeleteAction.instance/org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" boolvalue="true" />
+            <file name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" />
+            <attr name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance/org-openide-actions-FindAction.instance" boolvalue="true" />
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="CS-S.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.modules.tool.actions.SaveAsSystemAction"/>
+        </file>
+        <file name="C-A.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.modules.tool.actions.SelectAllSystemAction"/>
+        </file>
+    </folder>
+    <folder name="xml">
+        <folder name="entities">
+            <!--the public identifier registration-->
+            <folder name="NetBeans_org_netbeans_modules_tool">
+                <file name="DTD_Tool_1_0" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.tool//DTD Tool 1.0//EN"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="lookups">
+            <folder name="NetBeans_org_netbeans_modules_tool">
+                <file name="DTD_Tool_1_0.instance">
+                    <!--env. provider-->
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
+                    <!--XMLProperties convertor provided by the settings module-->
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tool.XMLPropertiesConvertor.create"/> 
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tool.AbstractTool"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tool.AbstractTool, org.openide.windows.TopComponent"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="memory">
+            <folder name="org">
+                <folder name="netbeans">
+                    <folder name="modules">
+                        <folder name="tool">
+                            <!--allows to create .settings file from memory via InstanceDataObject.create-->
+                            <file name="AbstractTool">
+                                <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tool/DTD_Tool_1_0.instance" />
+                            </file>
+                        </folder> <!--tool-->
+                    </folder> <!--modules-->
+                </folder> <!--netbeans-->
+            </folder> <!--org-->
+        </folder> <!--memory-->
+    </folder>
+</filesystem>
