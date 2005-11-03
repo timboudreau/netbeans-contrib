@@ -31,6 +31,11 @@ public class ProfilesAction extends CallableSystemAction {
 
     public ProfilesAction() {
     }
+    
+    protected void initialize() {
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
+    }
+    
 
     public org.openide.util.HelpCtx getHelpCtx() {
         return org.openide.util.HelpCtx.DEFAULT_HELP;
