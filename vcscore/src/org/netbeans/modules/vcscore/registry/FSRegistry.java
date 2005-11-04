@@ -31,11 +31,13 @@ public class FSRegistry {
     
     private List registryListeners = new LinkedList();
     private List fsInfos = new LinkedList();
+    private boolean initialized = false; // whether fsInfos are initialized
     private Comparator fsInfoComparator = new FSInfoComparator();
     
     /** Creates a new instance of FSRegistry */
     private FSRegistry() {
-        fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+        // fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+        // initialized lazily due to the possibility of deadlocks.
     }
     
     /**
@@ -60,6 +62,10 @@ public class FSRegistry {
      */
     void register(FSInfo fsInfo, Object propagationId, boolean autoRecognized) {
         synchronized (fsInfos) {
+            if (!initialized) {
+                fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+                initialized = true;
+            }
             if (fsInfos.contains(fsInfo)) {
                 // Already registered
                 return ;
@@ -84,6 +90,10 @@ public class FSRegistry {
      */
     void unregister(FSInfo fsInfo, Object propagationId) {
         synchronized (fsInfos) {
+            if (!initialized) {
+                fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+                initialized = true;
+            }
             fsInfos.remove(fsInfo);
         }
         RecognizedFS.getDefault().removeRecognized(fsInfo);
@@ -97,6 +107,10 @@ public class FSRegistry {
     public FSInfo[] getRegistered() {
         FSInfo[] info;
         synchronized (fsInfos) {
+            if (!initialized) {
+                fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+                initialized = true;
+            }
             info = (FSInfo[]) fsInfos.toArray(new FSInfo[fsInfos.size()]);
         }
         Arrays.sort(info, fsInfoComparator);
@@ -110,6 +124,10 @@ public class FSRegistry {
      */
     public boolean isRegistered(FSInfo info) {
         synchronized (fsInfos) {
+            if (!initialized) {
+                fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+                initialized = true;
+            }
             return fsInfos.contains(info);
         }
     }
