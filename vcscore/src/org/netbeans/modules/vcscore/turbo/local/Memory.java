@@ -83,41 +83,45 @@ final class Memory {
     }
 
     /** Entry 'format' does not keep any strong ref to source file object. */
-    private static synchronized void putEntry(FileObjectKey key, String name, Object value, Map[] speculativePtr) {
+    private static void putEntry(FileObjectKey key, String name, Object value, Map[] speculativePtr) {
 
-        // update existing values
+        FileObject fo = key.fileObject;
+        File f = FileUtil.toFile(fo);
+        
+        synchronized (Memory.class) {
+            
+            // update existing values
+            Map attributes;
+            if (liveFileObjectsMap.containsKey(key)) {
+                attributes = (Map) liveFileObjectsMap.get(key);
+                if (value != null) {
+                    attributes.put(name, normalizeValue(value));
+                } else {
+                    attributes.remove(name);
+                }
+            } else {
+                // merge with speculative values
 
-        Map attributes;
-        if (liveFileObjectsMap.containsKey(key)) {
-            attributes = (Map) liveFileObjectsMap.get(key);
-            if (value != null) {
-                attributes.put(name, normalizeValue(value));
-            } else {
-                attributes.remove(name);
+                String absolutePath = f.getAbsolutePath();
+                attributes = (Map) speculativeCache.get(absolutePath);
+                boolean hadSpeculative = false;
+                if (attributes == null) {
+                    attributes = new HashMap(5);
+                } else {
+                    hadSpeculative = true;
+                }
+                if (value != null) {
+                    attributes.put(name, normalizeValue(value));
+                } else {
+                    attributes.remove(name);
+                }
+                liveFileObjectsMap.put(key, attributes);
+                if (hadSpeculative) {
+                    speculativeCache.remove(absolutePath);
+                    speculativePtr[0] = new HashMap(attributes);
+                }
+                key.makeWeak();
             }
-        } else {
-            // merge with speculative values
-            FileObject fo = key.fileObject;
-            File f = FileUtil.toFile(fo);
-            String absolutePath = f.getAbsolutePath();
-            attributes = (Map) speculativeCache.get(absolutePath);
-            boolean hadSpeculative = false;
-            if (attributes == null) {
-                attributes = new HashMap(5);
-            } else {
-                hadSpeculative = true;
-            }
-            if (value != null) {
-                attributes.put(name, normalizeValue(value));
-            } else {
-                attributes.remove(name);
-            }
-            liveFileObjectsMap.put(key, attributes);
-            if (hadSpeculative) {
-                speculativeCache.remove(absolutePath);
-                speculativePtr[0] = new HashMap(attributes);
-            }
-            key.makeWeak();
         }
 
     }
@@ -146,21 +150,23 @@ final class Memory {
         return value;
     }
 
-    public static synchronized Object getImpl(FileObject fo, String name, Map[] speculativePtr) {
-        Object key = new FileObjectKey(fo);
-        Map attributes = (Map) liveFileObjectsMap.get(key);
-        if (attributes != null) {
-            return attributes.get(name);
-        } else {
-            // try speculative results
-            File file = FileUtil.toFile(fo);
-            String skey = file.getAbsolutePath();
-            attributes = (Map) speculativeCache.get(skey);
+    public static Object getImpl(FileObject fo, String name, Map[] speculativePtr) {
+        File file = FileUtil.toFile(fo);
+        synchronized (Memory.class) {
+            Object key = new FileObjectKey(fo);
+            Map attributes = (Map) liveFileObjectsMap.get(key);
             if (attributes != null) {
-                liveFileObjectsMap.put(key, attributes);
-                speculativeCache.remove(skey);
-                speculativePtr[0] = new HashMap(attributes);
                 return attributes.get(name);
+            } else {
+                // try speculative results
+                String skey = file.getAbsolutePath();
+                attributes = (Map) speculativeCache.get(skey);
+                if (attributes != null) {
+                    liveFileObjectsMap.put(key, attributes);
+                    speculativeCache.remove(skey);
+                    speculativePtr[0] = new HashMap(attributes);
+                    return attributes.get(name);
+                }
             }
         }
         return null;
@@ -187,20 +193,21 @@ final class Memory {
      * Note that the entry can contain info that attribute
      * does not exist!
      */
-    public static synchronized boolean existsEntry(FileObject fo, String name) {
-        Object key = new FileObjectKey(fo);
-        Map attributes = (Map) liveFileObjectsMap.get(key);
-        if (attributes != null) {
-            return attributes.keySet().contains(name);
-        } else {
-            File file = FileUtil.toFile(fo);
-            key = file.getAbsolutePath();
-            attributes = (Map) speculativeCache.get(key);
+    public static boolean existsEntry(FileObject fo, String name) {
+        File file = FileUtil.toFile(fo);
+        synchronized (Memory.class) {
+            Object key = new FileObjectKey(fo);
+            Map attributes = (Map) liveFileObjectsMap.get(key);
             if (attributes != null) {
                 return attributes.keySet().contains(name);
+            } else {
+                key = file.getAbsolutePath();
+                attributes = (Map) speculativeCache.get(key);
+                if (attributes != null) {
+                    return attributes.keySet().contains(name);
+                }
             }
         }
-
         return false;
     }
 

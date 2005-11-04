@@ -385,11 +385,13 @@ public final class FileAttributeQuery {
                     String name = request.attribute;
                     Object value;
                     boolean fire;
+                    fo = (FileObject) fo.getAttribute("VCS-Native-FileObject");  // NOI18N
                     if (Memory.existsEntry(fo, name)) {
-
-                        synchronized(Memory.class) {
-                            fire = Memory.isLiveEntry(fo)  == false;
-                            value = Memory.get(fo, name);
+                        synchronized (fo) {
+                            synchronized(Memory.class) {
+                                fire = Memory.isLiveEntry(fo)  == false;
+                                value = Memory.get(fo, name);
+                            }
                         }
                         if (fire) {
                             Statistics.diskHit(); // from our perpective we achieved hit
@@ -397,12 +399,14 @@ public final class FileAttributeQuery {
                     } else {
                         value = loadAttribute(fo, name, null);
                         // possible thread switch, so atomic fire test must be used
-                        synchronized(Memory.class) {
-                            fire = Memory.isLiveEntry(fo)  == false;
-                            Object oldValue = Memory.get(fo, name);
-                            Memory.put(fo, name, value != null ? value : Memory.NULL);
-                            fire |= (oldValue != null && !oldValue.equals(value))
-                                 || (oldValue == null && value != null);
+                        synchronized (fo) {
+                            synchronized(Memory.class) {
+                                fire = Memory.isLiveEntry(fo)  == false;
+                                Object oldValue = Memory.get(fo, name);
+                                Memory.put(fo, name, value != null ? value : Memory.NULL);
+                                fire |= (oldValue != null && !oldValue.equals(value))
+                                     || (oldValue == null && value != null);
+                            }
                         }
                     }
 
