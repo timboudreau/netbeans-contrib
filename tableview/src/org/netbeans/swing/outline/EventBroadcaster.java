@@ -351,7 +351,7 @@ final class EventBroadcaster implements TableModelListener, TreeModelListener, E
     public void treeNodesRemoved(TreeModelEvent e) {
         assert SwingUtilities.isEventDispatchThread();
         
-        fireTreeChange (e, NODES_REMOVED);
+        fireTreeChange (translateEvent(e), NODES_REMOVED);
         
         TableModelEvent[] events = translateEvent(e, NODES_REMOVED);
         getLayout().treeNodesRemoved(e);
@@ -365,7 +365,7 @@ final class EventBroadcaster implements TableModelListener, TreeModelListener, E
         assert SwingUtilities.isEventDispatchThread();
         
         getLayout().treeStructureChanged(e);
-        fireTreeChange (e, STRUCTURE_CHANGED);
+        fireTreeChange (translateEvent(e), STRUCTURE_CHANGED);
         
         //If it's a structural change, we need to dump all our info about the
         //existing tree structure - it can be bogus now.  Similar to JTree,
