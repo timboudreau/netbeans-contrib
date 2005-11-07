@@ -23,15 +23,11 @@
     </folder>
     <folder name="Menu">
         <folder name="Source">
-            <attr name="org-netbeans-modules-editor-MainMenuAction$ShiftLineLeftAction.instance/org-netbeans-modules-importcruncher-CrunchAction.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-editor-java-JavaFixAllImports$MainMenuWrapper.instance/org-netbeans-modules-importcruncher-CrunchAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-importcruncher-CrunchAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-importcruncher-CrunchAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-importcruncher-CrunchAction.shadow/org-netbeans-modules-editor-MainMenuAction$ShiftLineRightAction.instance" boolvalue="true"/>
-        </folder>
-        <folder name="Tools">
-            <file name="org-netbeans-modules-importcruncher-PrefsAction.instance"/>
-            <attr name="org-netbeans-modules-options-OptionsWindowAction.shadow/org-netbeans-modules-importcruncher-PrefsAction.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-importcruncher-CrunchAction.shadow/org-netbeans-modules-editor-java-JavaKit$TryCatchAction$MainMenuWrapper.instance" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="Shortcuts">
@@ -42,5 +38,10 @@
         <file name="DAS-F.shadow">
             <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-importcruncher-CrunchAction.instance"/>
         </file>
+    </folder>
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-importcruncher-Option.instance"/>
+        </folder>
     </folder>
 </filesystem>

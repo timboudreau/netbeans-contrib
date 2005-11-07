@@ -10,12 +10,12 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
+
 package org.netbeans.modules.importcruncher;
 
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javax.swing.JEditorPane;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -51,36 +50,27 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 import org.openide.util.actions.CookieAction;
-import org.openide.windows.TopComponent;
-
 
 public final class CrunchAction extends CookieAction implements Comparator {
 
-    protected void performAction(Node[] n) {
-        Prefs prefs = new Prefs();
-        if (prefs.isShowDialog()) {
-            boolean proceed = prefs.showDialog(true);
-            if (proceed) {
-                breakUp = prefs.isBreakup();
-                eliminateFQNs = prefs.isEliminateFqns();
-                eliminateWildcards = prefs.isEliminateWildcards();
-                sort = prefs.isSort();
-                allowImportInners = prefs.isImportInners();
-            } else {
-                return;
+    protected void performAction(final Node[] n) {
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                // XXX I18N
+                ProgressHandle handle = ProgressHandleFactory.createHandle("Crunching imports...");
+                handle.start(100);
+                assert n.length == 1;
+                try {
+                    handle.progress(1);
+                    Document d = ((EditorCookie) n[0].getCookie(EditorCookie.class)).getDocument();
+                    process (d, handle);
+                } finally {
+                    handle.finish();
+                }
             }
-        }
-        ProgressHandle handle = ProgressHandleFactory.createHandle("Crunching imports...");
-        handle.start(100);
-        assert n.length == 1;
-        try {
-            handle.progress(1);
-            Document d = ((EditorCookie) n[0].getCookie(EditorCookie.class)).getDocument();
-            process (d, handle);
-        } finally {
-            handle.finish();
-        }
+        });
     }
 
     protected int mode() {
@@ -88,9 +78,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
     }
 
     public String getName() {
-        return new Prefs().isShowDialog() ?
-            NbBundle.getMessage(CrunchAction.class, "LBL_Action_Dlg") : //NOI18N
-            NbBundle.getMessage(CrunchAction.class, "LBL_Action"); //NOI18N
+        return NbBundle.getMessage(CrunchAction.class, "LBL_Action");
     }
 
     public String iconResource() {
@@ -101,45 +89,35 @@ public final class CrunchAction extends CookieAction implements Comparator {
         return HelpCtx.DEFAULT_HELP;
     }
     
-    public boolean isEnabled() {
-        if (super.isEnabled()) {
-            if (JavaMetamodel.getManager().isScanInProgress()) {
-                return false;
-            }
-            Node[] nn = TopComponent.getRegistry().getActivatedNodes();
-            if (nn.length != 1) {
-                return false;
-            }
-            Node n = nn[0];
-            JEditorPane[] panes = 
-                    ((EditorCookie) n.getCookie(EditorCookie.class)).getOpenedPanes();
-            if (panes != null && panes.length > 0) {
-                DataObject dob = (DataObject) n.getCookie(DataObject.class);
-                if (dob == null || !dob.isValid() || !dob.getPrimaryFile().canWrite()) {
-                    return false;
-                }
-                return true;
-            }
+    protected boolean enable(Node[] nn) {
+        if (!super.enable(nn)) {
+            return false;
         }
-        return false;
+        if (JavaMetamodel.getManager().isScanInProgress()) {
+            return false;
+        }
+        Node n = nn[0];
+        EditorCookie ec = (EditorCookie) n.getCookie(EditorCookie.class);
+        if (ec == null) {
+            return false;
+        }
+        JEditorPane[] panes = ec.getOpenedPanes();
+        if (ec.getOpenedPanes() == null) {
+            return false;
+        }
+        DataObject dob = (DataObject) n.getCookie(DataObject.class);
+        return dob != null && dob.isValid() && dob.getPrimaryFile().canWrite();
     }
-
+    
     protected Class[] cookieClasses() {
         return new Class[] {
             JavaDataObject.class,
-            EditorCookie.class
         };
     }
 
     protected boolean asynchronous() {
-        return true;
+        return false;
     }
-    
-    private boolean eliminateWildcards = true;
-    private boolean eliminateFQNs = true;
-    private boolean sort = true;
-    private boolean breakUp = true;
-    private boolean allowImportInners = false; //XXX
 
     private void process(final Document d, final ProgressHandle ph) {
         if (!(d instanceof BaseDocument)) {
@@ -177,7 +155,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
         //the document lock must come after the repository is locked,
         //so we can't wrap all of this in one runAtomicAsUser() :-(
         try {
-            if (exc == null && breakUp) {
+            if (exc == null && Prefs.get(Prefs.SORT) && Prefs.get(Prefs.BREAKUP)) {
                 JavaMetamodel.getDefaultRepository().beginTrans(true);
                 try {
                     breakup (r, d, ph);
@@ -210,20 +188,20 @@ public final class CrunchAction extends CookieAction implements Comparator {
             JavaModel.setClassPath(r);
             buildInfo();
             ph.progress(20);
-            if (eliminateWildcards) {
+            if (Prefs.get(Prefs.NO_WILDCARDS)) {
                 createExplicitImportsForWildcardImports();
                 ph.progress(30);
                 deleteAllWildcardImports();
             }
             ph.progress(40);
-            if (eliminateFQNs) {
+            if (Prefs.get(Prefs.NO_FQNS)) {
                 List /* <JavaClass> */ toImport = eliminateFqns();
                 ph.progress(60);
                 createExplicitImports(toImport);
             }
             ph.progress(80);
-            if (sort) {
-                sort (r, d, ph);
+            if (Prefs.get(Prefs.SORT)) {
+                sort(r, d, ph);
             }
             ph.progress(90);
         }        
@@ -376,7 +354,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                 } else {
                     pkgName = ""; //default package
                 }
-                if (type.refImmediatePackage().equals(r.refImmediatePackage()) && (!type.isInner() || !allowImportInners)) {
+                if (type.refImmediatePackage().equals(r.refImmediatePackage()) && (!type.isInner() || !Prefs.get(Prefs.IMPORT_NESTED_CLASSES))) {
                     continue;
                 }
                     
@@ -431,7 +409,7 @@ public final class CrunchAction extends CookieAction implements Comparator {
                        Element context = (Element) id.refImmediateComposite();
                        if (id.getParent() != null) {  //Probably an FQN
                             JavaClass addToList = null;
-                            if (!allowImportInners) {
+                            if (!Prefs.get(Prefs.IMPORT_NESTED_CLASSES)) {
                                 JavaClass toImport = getOutermostClass(type);
                                 if (type.isInner()) {  //Not an FQN, a QN of an inner class Outer.Inner
                                     MultipartId myId = convertToQualifiedIdForInnerClass(id, type);
@@ -760,4 +738,3 @@ public final class CrunchAction extends CookieAction implements Comparator {
     }
     }
 }
-
