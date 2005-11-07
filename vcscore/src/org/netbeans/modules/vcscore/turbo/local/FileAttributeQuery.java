@@ -385,7 +385,8 @@ public final class FileAttributeQuery {
                     String name = request.attribute;
                     Object value;
                     boolean fire;
-                    fo = (FileObject) fo.getAttribute("VCS-Native-FileObject");  // NOI18N
+                    FileObject nativeFO = (FileObject) fo.getAttribute("VCS-Native-FileObject");  // NOI18N
+                    if (nativeFO != null) fo = nativeFO;
                     if (Memory.existsEntry(fo, name)) {
                         synchronized (fo) {
                             synchronized(Memory.class) {
@@ -414,7 +415,7 @@ public final class FileAttributeQuery {
                     // our contract was to fire event once loading, stick to it. Note that get()
                     // silently populates stable memory area
 //                    if (fire) {   ALWAYS because of above loadAttribute(fo, name, null);
-                        fireAttributeChange(fo, name, value);  // notify as soon as available in memory
+                        fireAttributeChange(request.fileObject, name, value);  // notify as soon as available in memory
 //                    }
 
                 }
