@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="Samples">
+                <attr name="Web/Adventure" boolvalue="true"/>
+                <attr name="Standard/Adventure" boolvalue="true"/>
+                <attr name="Blueprints/Adventure" boolvalue="true"/>
+                    <folder name="Adventure">
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                        <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/category.html"/>
+                        <!-- Activity supplier app-->
+                        <file name="ActivitySupplier.zip" url="ActivitySupplier.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/activitysupplier.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                            <attr name="prjType" stringvalue="ear"/>
+                        </file>
+                        <!-- Airline supplier app-->
+                        <file name="AirlineSupplier.zip" url="AirlineSupplier.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/airlinesupplier.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                            <attr name="prjType" stringvalue="ear"/>
+                        </file>
+                        <!-- Bank app-->
+                        <file name="Bank.zip" url="Bank.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/bank.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                            <attr name="prjType" stringvalue="ear"/>
+                        </file>
+                        <!-- Consumer Website app-->
+                        <file name="ConsumerWebsite.zip" url="ConsumerWebsite.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/consumerwebsite.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                            <attr name="prjType" stringvalue="ear"/>
+                        </file>
+                        <!-- DAO Utils-->
+                        <file name="DAOutils.zip" url="DAOutils.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/daoutils.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java/j2seproject/ui/resources/j2seProject.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                        </file>
+                        <!-- Lodging supplier app-->
+                        <file name="LodgingSupplier.zip" url="LodgingSupplier.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/lodgingsupplier.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                            <attr name="prjType" stringvalue="ear"/>
+                        </file>
+                        <!-- OPC app-->
+                        <file name="OPC.zip" url="OPC.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/opc.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                            <attr name="prjType" stringvalue="ear"/>
+                        </file>
+                        <!-- Service locator-->
+                        <file name="ServiceLocator.zip" url="ServiceLocator.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/servicelocator.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java/j2seproject/ui/resources/j2seProject.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                        </file>
+                        <!-- tracer library-->
+                        <file name="Tracer.zip" url="Tracer.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/tracer.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java/j2seproject/ui/resources/j2seProject.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                        </file>
+                        <!-- Setup project -->
+                        <file name="setup.zip" url="setup.zip">
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/setup.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/resources/freeform-project.png"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
+                        </file>
+                    </folder>
+                </folder>
+        </folder>    
+    </folder>
+</filesystem>
+
