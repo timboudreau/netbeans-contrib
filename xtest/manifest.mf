@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.xtest/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/xtest/resources/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.5.42
+OpenIDE-Module-Specification-Version: 1.5.43
 OpenIDE-Module-Layer: org/netbeans/modules/xtest/resources/mf-layer.xml
 OpenIDE-Module-Install: org/netbeans/modules/xtest/XTestModule.class
