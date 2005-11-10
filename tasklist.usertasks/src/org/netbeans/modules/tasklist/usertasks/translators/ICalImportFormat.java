@@ -70,7 +70,6 @@ import org.openide.util.NbBundle;
  * This class provides import/export capabilities for the iCalendar calendar
  * format (used by for example KDE's Konqueror calendar/todoitem tool)
  * as specified in RFC 2445 with the following exceptions:
- * @todo Write the exceptions to the RFC here!!
  *
  * @todo Store the alarm-part of the associated time as an VALARM field (but
  *       I guess I must hardcode some of the fields (the alarm action etc);)
@@ -81,7 +80,7 @@ import org.openide.util.NbBundle;
  *
  * The iCalendar supports other "tags" for a VTODO item than Tasklist. In
  * order to avoid loosing such information, these unknown tags are stored
- * inside the UserTask object.
+ * inside the UserTaskList object.
  *
  * @author Tor Norbye
  * @author Trond Norbye

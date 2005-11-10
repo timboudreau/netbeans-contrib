@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.openide.nodes.Node;
@@ -28,6 +29,8 @@ public class StartTaskAction extends CookieAction {
     private static final long serialVersionUID = 1;
 
     protected void performAction(Node[] nodes) {
+        if (StartedUserTask.getInstance().getStarted() != null)
+            StartedUserTask.getInstance().start(null);
         UserTask ptsk = ((UserTaskNode) nodes[0]).getTask();
         if (ptsk.getOwner().length() == 0)
             ptsk.setOwner(System.getProperty("user.name")); // NOI18N

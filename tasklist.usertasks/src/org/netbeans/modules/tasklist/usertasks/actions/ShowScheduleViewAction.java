@@ -13,7 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
-import org.netbeans.modules.tasklist.usertasks.ScheduleTopComponent;
+import org.netbeans.modules.tasklist.usertasks.schedule.ScheduleTopComponent;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;

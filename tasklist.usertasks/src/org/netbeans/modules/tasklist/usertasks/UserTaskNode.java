@@ -55,7 +55,6 @@ import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
-import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.AbstractNode;
@@ -72,9 +71,13 @@ import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.openide.actions.DeleteAction;
 import org.openide.nodes.Node;
+
 /**
  * Node for a user task
+ *
+ * @author tl
  */
 public final class UserTaskNode extends AbstractNode {
     private UserTask item;
@@ -144,7 +147,7 @@ public final class UserTaskNode extends AbstractNode {
     
     public Action[] getActions(boolean empty) {
         if (empty) {
-            return new SystemAction[] {
+            return new Action[] {
                 SystemAction.get(NewTaskAction.class),
                 null,
                 SystemAction.get(PauseAction.class),
@@ -161,7 +164,7 @@ public final class UserTaskNode extends AbstractNode {
                 SystemAction.get(ExportAction.class),
             };
         } else {
-            return new SystemAction[] {
+            return new Action[] {
                 SystemAction.get(NewTaskAction.class),
                 //SystemAction.get(ShowScheduleViewAction.class),
                 null,

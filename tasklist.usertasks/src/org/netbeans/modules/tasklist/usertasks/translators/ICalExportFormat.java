@@ -36,6 +36,7 @@ import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.model.component.VToDo;
+import net.fortuna.ical4j.model.component.XComponent;
 import net.fortuna.ical4j.model.parameter.XParameter;
 import net.fortuna.ical4j.model.property.Categories;
 import net.fortuna.ical4j.model.property.Completed;
@@ -66,6 +67,7 @@ import org.netbeans.modules.tasklist.usertasks.model.Dependency;
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
+
 /**
  * This class provides import/export capabilities for the iCalendar calendar
  * format (used by for example KDE's Konqueror calendar/todoitem tool)
@@ -83,6 +85,8 @@ import org.openide.util.NbBundle;
  * @author tl
  */
 public class ICalExportFormat implements ExportImportFormat {
+    private final static String PRODID = 
+        "-//Netbeans User Tasks//NONSGML 1.0//EN"; // NOI18N
     protected final static String 
         CHOOSE_FILE_PANEL_PROP = "ChooseFilePanel"; // NOI18N
     
@@ -180,10 +184,10 @@ public class ICalExportFormat implements ExportImportFormat {
         
         Property prop = cal.getProperties().getProperty(Property.PRODID); 
         if (prop == null) {
-            prop = new ProdId("-//NetBeans tasklist//NONSGML 1.0//EN"); // NOI18N
+            prop = new ProdId(PRODID);
             cal.getProperties().add(prop);
         } else {
-            prop.setValue("-//NetBeans tasklist//NONSGML 1.0//EN"); // NOI18N
+            prop.setValue(PRODID);
         }
 
         prop = cal.getProperties().getProperty(Property.VERSION);
@@ -207,6 +211,15 @@ public class ICalExportFormat implements ExportImportFormat {
         );
         removeUnusedVToDos(cal, uids);
 
+        // an .ics file cannot be empty
+        if (cal.getComponents().size() == 0) {
+            VToDo td = new VToDo();
+
+            td.getProperties().add(
+                    new XComponent("X-NETBEANS-IGNORE")); // NOI18N
+            cal.getComponents().add(td);
+        }
+        
         CalendarOutputter co = new CalendarOutputter();
         co.output(cal, out);
     }
@@ -250,9 +263,9 @@ public class ICalExportFormat implements ExportImportFormat {
     
     /**
      * Write out the given todo item to the given writer.
+     *
      * @param cal calendar object
      * @param task The task/todo item to use
-     * @todo Finish all the unused fields
      */
     private void writeTask(Calendar cal, UserTask task) 
     throws IOException, URISyntaxException, ParseException, ValidationException {
@@ -294,8 +307,10 @@ public class ICalExportFormat implements ExportImportFormat {
         String desc = task.getSummary();
         prop = pl.getProperty(Property.SUMMARY);
         if (desc != null && desc.length() > 0) {
-            if (prop == null)
+            if (prop == null) {
                 prop = new Summary();
+                pl.add(prop);
+            }
             prop.setValue(desc);
         } else {
             if (prop != null)
@@ -306,8 +321,10 @@ public class ICalExportFormat implements ExportImportFormat {
         String details = task.getDetails();
         prop = pl.getProperty(Property.DESCRIPTION);
         if (details != null && details.length() > 0) {
-            if (prop == null)
+            if (prop == null) {
                 prop = new Description();
+                pl.add(prop);
+            }
             prop.setValue(details);
         } else {
             if (prop != null)
@@ -325,7 +342,7 @@ public class ICalExportFormat implements ExportImportFormat {
 
         // Class -- not implemented (always PRIVATE, right?) Also allowed:
         // PRIVATE, CONFIDENTIAL
-        /* XXX Don't bother with this yet... waste of diskspace
+        /* Don't bother with this yet... waste of diskspace
            and parsing time -- only needed when we either export
            to XCS, or directly interoperate. There's too much
            missing yet to add partial support
@@ -538,7 +555,6 @@ public class ICalExportFormat implements ExportImportFormat {
 //            }
 
         // Recurse over subtasks
-        // XXX do the other tags here...
         Iterator it = task.getSubtasks().iterator();
         while (it.hasNext()) {
             UserTask subtask = (UserTask)it.next();

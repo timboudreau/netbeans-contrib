@@ -19,6 +19,8 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 
 /**
  * TreeModel for user tasks
+ *
+ * @author tl
  */
 public class UserTaskTreeModel implements TreeModel {
     private UserTaskList utl;

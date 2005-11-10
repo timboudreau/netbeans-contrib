@@ -58,6 +58,7 @@ import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
 import org.netbeans.modules.tasklist.usertasks.translators.HtmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
+import org.netbeans.modules.tasklist.usertasks.translators.TextExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
@@ -83,16 +84,20 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.Lookups;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.ProxyLookup;
 
 /** 
  * View showing the user tasks.
  *
  * @author Tor Norbye
+ * @author tl
  */
 public class UserTaskView extends TopComponent implements
 ExplorerManager.Provider, ExportImportProvider, FileChangeListener,
@@ -658,6 +663,7 @@ FilteredTopComponent {
     
     public ExportImportFormat[] getExportFormats() {
         return new ExportImportFormat[] {
+            new TextExportFormat(),
             new XmlExportFormat(), 
             new HtmlExportFormat(),
             new ICalExportFormat()
@@ -684,31 +690,17 @@ FilteredTopComponent {
         
         setIcon(ICON);
         
-        manager = new ExplorerManager();
-        ActionMap map = getActionMap();
-        map.put(javax.swing.text.DefaultEditorKit.copyAction, 
-            ExplorerUtils.actionCopy(manager));
-        map.put(javax.swing.text.DefaultEditorKit.cutAction, 
-            ExplorerUtils.actionCut(manager));
-        map.put(javax.swing.text.DefaultEditorKit.pasteAction, 
-            ExplorerUtils.actionPaste(manager));
-        map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
-
-        // following line tells the top component which lookup should be associated with it
-        associateLookup(ExplorerUtils.createLookup(manager, map));
-        
-        FindAction find = (FindAction) FindAction.get(FindAction.class);
-        FilterAction filter = (FilterAction) 
-            FilterAction.get(FilterAction.class);
-        getActionMap().put(find.getActionMapKey(), filter);
-
         setLayout(new BorderLayout());
 
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BorderLayout());
         
+        manager = new ExplorerManager();
+        
         tt = new UserTasksTreeTable(
-            getExplorerManager(), getUserTaskList(), getFilter());
+            manager, getUserTaskList(), getFilter());
+
+        configureActions();
         
         scrollPane = new JScrollPane(tt,
             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
@@ -729,8 +721,6 @@ FilteredTopComponent {
         add(toolbar, BorderLayout.WEST);
 
         tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
-        
-        // map.put("delete", new UTDeleteAction(tt)); // NOI18N
     }
 
     public ExplorerManager getExplorerManager() {
@@ -955,4 +945,29 @@ FilteredTopComponent {
         }
     }
     */
+
+    /**
+     * Configures actions.
+     */
+    private void configureActions() {
+        ActionMap map = getActionMap();
+        map.put(javax.swing.text.DefaultEditorKit.copyAction, 
+            ExplorerUtils.actionCopy(manager));
+        map.put(javax.swing.text.DefaultEditorKit.cutAction, 
+            ExplorerUtils.actionCut(manager));
+        map.put(javax.swing.text.DefaultEditorKit.pasteAction, 
+            ExplorerUtils.actionPaste(manager));
+        // old code:  ExplorerUtils.actionDelete(manager, true)
+        map.put("delete", new UTDeleteAction(tt));  // NOI18N
+
+        FindAction find = (FindAction) FindAction.get(FindAction.class);
+        FilterAction filter = (FilterAction) 
+            FilterAction.get(FilterAction.class);
+        map.put(find.getActionMapKey(), filter);
+
+        // following line tells the top component which lookup should be 
+        // associated with it
+        Lookup lookup = ExplorerUtils.createLookup(manager, map);
+        associateLookup(lookup);
+    }
 }

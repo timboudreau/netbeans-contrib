@@ -95,8 +95,7 @@ public class StartedUserTask {
                 int diff = (int) ((now - startedAt) / (60 * 1000));
                 if ((System.currentTimeMillis() - 
                     ActivityListener.getLastActivityMillis()) > INACTIVITY_DURATION &&
-                    System.getProperty(
-                        "org.netbeans.modules.tasklist.usertasks.DontDetectInactivity") == null) { // NOI18N
+                    Settings.getDefault().getDetectInactivity()) { // NOI18N
                     state = STATE_SUSPENDED;
 
                 }
