@@ -198,5 +198,9 @@ public class DocletCompletionItem implements CompletionItem {
 //        CompletionUtilities.renderHtml(null, prefix + displayText, null, g, defaultFont, 
 //                defaultColor, width, height, selected);
     }
+
+    public CharSequence getInsertPrefix() {
+        return "";
+    }
     
 }
