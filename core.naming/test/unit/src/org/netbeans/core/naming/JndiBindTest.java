@@ -159,12 +159,12 @@ public class JndiBindTest extends NbTestCase {
         assertTrue (f.isData ());
 
         // XXX:  hold IDO instance otherwise, it can be GCed and another instance of
-        // objA will be lookuped from the context, this is bug of IDO (Intgere isn't
+        // objA will be looked up from the context, this is bug of IDO (Intgere isn't
         // prop change events source)
         DataObject ido = DataObject.find (f);
 
         Object obj2 = context.lookup ("foo");
-        assertTrue ("Bound object wasn't lookuped", obj2 != null);
+        assertTrue ("Bound object wasn't looked up", obj2 != null);
         assertTrue ("Bind obj and lookup result are different", objA == obj2);
         
         // object and subcontext must coexist
@@ -174,7 +174,7 @@ public class JndiBindTest extends NbTestCase {
             fail ("Context with same name as object binding must coexist");
         }
 
-        // but context has precedence when lookuped
+        // but context has precedence when looked up
         obj2 = context.lookup ("foo");
         assertTrue ("Subontext doesn't take precedence", obj2 instanceof Context);
 
@@ -304,7 +304,7 @@ public class JndiBindTest extends NbTestCase {
         context.bind (strangeName, objA);
 
         Object obj2 = context.lookup (strangeName);
-        assertTrue ("Bound object wasn't lookuped", obj2 != null);
+        assertTrue ("Bound object wasn't looked up", obj2 != null);
         assertTrue ("Bind obj and lookup result are different", objA == obj2);
         
         // object and subcontext must coexist
@@ -314,7 +314,7 @@ public class JndiBindTest extends NbTestCase {
             fail ("Context with same name as object binding must coexist");
         }
 
-        // but context has precedence when lookuped
+        // but context has precedence when looked up
         obj2 = context.lookup (strangeName);
         assertTrue ("Subontext doesn't take precedence", obj2 instanceof Context);
 
