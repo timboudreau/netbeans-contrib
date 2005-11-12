@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+*** GENERATED FROM project.xml - DO NOT EDIT  ***
+***         EDIT ../build.xml INSTEAD         ***
+-->
+<project xmlns:sproject="http://www.netbeans.org/ns/nb-module-suite-project/1" name="htmleditor-impl" basedir="..">
+    <property file="nbproject/private/platform-private.properties"/>
+    <property file="nbproject/platform.properties"/>
+    <macrodef uri="http://www.netbeans.org/ns/nb-module-suite-project/1" name="property">
+        <attribute name="name"/>
+        <attribute name="value"/>
+        <sequential>
+            <property value="${@{value}}" name="@{name}"/>
+        </sequential>
+    </macrodef>
+    <property file="${user.properties.file}"/>
+    <sproject:property value="nbplatform.${nbplatform.active}.harness.dir" name="harness.dir"/>
+    <sproject:property value="nbplatform.${nbplatform.active}.netbeans.dest.dir" name="netbeans.dest.dir"/>
+    <fail message="You must define 'nbplatform.${nbplatform.active}.harness.dir'">
+        <condition>
+            <not>
+                <available type="dir" file="${harness.dir}"/>
+            </not>
+        </condition>
+    </fail>
+    <import file="${harness.dir}/suite.xml"/>
+</project>
