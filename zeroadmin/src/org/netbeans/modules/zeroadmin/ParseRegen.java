@@ -27,7 +27,7 @@ import org.openide.*;
 import org.openide.loaders.*;
 import org.openide.filesystems.*;
 import org.openide.util.RequestProcessor;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.util.Lookup;
 import org.openide.xml.*;
 
@@ -113,15 +113,13 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
                     err.log("JAXP found a usable DOM parser: " + fact);
                 } else {
                     err.log("JAXP failed, trying Xerces impl");
-                    // Can't use this ClassLoader, since the core will block it
-                    // (we have no dep on Xerces).
                     Class xercesImpl = null;
-                    try {
-                        xercesImpl = Class.forName("org.apache.xerces.jaxp.DocumentBuilderFactoryImpl", true, ClassLoader.getSystemClassLoader());
-                    } catch (ClassNotFoundException cnfe) {
+//                    try {
+//                        xercesImpl = Class.forName("org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
+//                    } catch (ClassNotFoundException cnfe) {
                         // so try another classloader
                         xercesImpl = Class.forName("org.apache.xerces.jaxp.DocumentBuilderFactoryImpl", true, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class));
-                    }
+//                    }
                     fact = (DocumentBuilderFactory)xercesImpl.newInstance();
                 }
                 fact.setValidating(validating);
@@ -288,7 +286,7 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
             return;
         }
         if (regenTask == null) {
-            regenTask = ZeroAdminProjectManager.RP.create(this);
+            regenTask = ZeroAdminInstall.RP.create(this);
         }
         regenTask.schedule(10);
     }

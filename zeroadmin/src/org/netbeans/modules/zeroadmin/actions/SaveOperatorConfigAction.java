@@ -22,7 +22,6 @@ import org.openide.util.SharedClassObject;
 import org.openide.ErrorManager;
 
 import org.netbeans.modules.zeroadmin.*;
-import org.netbeans.core.projects.TrivialProjectManager;
 import org.netbeans.core.NbTopManager;
 
 /**
@@ -33,14 +32,13 @@ import org.netbeans.core.NbTopManager;
 public class SaveOperatorConfigAction extends CallableSystemAction {
     
     /**
-     * Saves the writableLayer from ZeroAdminProjectManager to the server.
+     * Saves the writableLayer from ZeroAdminInstall to the server.
      */
     public void performAction() {
         try {
-            final ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
-                .lookup(TrivialProjectManager.class);
+            final ZeroAdminInstall z = (ZeroAdminInstall)SharedClassObject.findObject(ZeroAdminInstall.class);
 
-            if ((z == null) || (z.writableLayer == null) || (z.storage == null)) {
+            if ((z == null) || (z.writableLayer == null) || (z.cfgProxy == null)) {
                 throw new IllegalStateException("ZeroAdminProjectManager not initialized");
             }
             Runnable r = new Runnable() {
@@ -50,12 +48,11 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
                         // force the core to save pending stuff:
                         NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
                         windowSystem.save();
-                        org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
 
                         XMLBufferFileSystem bufFs = new XMLBufferFileSystem();
-                        ZeroAdminProjectManager.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
+                        ZeroAdminInstall.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
                         bufFs.waitFinished();
-                        z.storage.saveOperatorData(bufFs.getBuffer());
+                        z.cfgProxy.saveOperatorData(bufFs.getBuffer());
                     } catch (Exception re) {
                         ErrorManager.getDefault().notify(re);
                     }

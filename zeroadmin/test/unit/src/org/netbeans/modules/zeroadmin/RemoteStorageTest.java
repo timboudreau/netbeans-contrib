@@ -154,7 +154,7 @@ public class RemoteStorageTest extends NbTestCase {
     public void testSaveOperatorConfig() throws Exception {
         SaveOperatorConfigAction action1 = (SaveOperatorConfigAction)SharedClassObject.findObject(SaveOperatorConfigAction.class, true);
         action1.performAction();
-        ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
+        ZeroAdminInstall z = (ZeroAdminInstall)Lookup.getDefault()
                 .lookup(TrivialProjectManager.class);
         assertNotNull(z);
         assertNotNull(z.storage);
@@ -176,7 +176,7 @@ public class RemoteStorageTest extends NbTestCase {
      * </OL>
      */
     public void testSavedDataAreTheSame() throws Exception {
-        ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
+        ZeroAdminInstall z = (ZeroAdminInstall)Lookup.getDefault()
                 .lookup(TrivialProjectManager.class);
         assertNotNull(z);
         assertNotNull(z.saver);
@@ -186,7 +186,7 @@ public class RemoteStorageTest extends NbTestCase {
 
         // test saving to the server
         XMLBufferFileSystem bufFs = new XMLBufferFileSystem();
-        ZeroAdminProjectManager.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
+        ZeroAdminInstall.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
 
         bufFs.waitFinished();
         char[] origData = bufFs.getBuffer();

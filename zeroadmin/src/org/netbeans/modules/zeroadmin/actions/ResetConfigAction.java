@@ -16,6 +16,7 @@ import java.io.IOException;
 import javax.swing.SwingUtilities;
 
 import org.openide.filesystems.*;
+import org.openide.util.SharedClassObject;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
 import org.openide.ErrorManager;
@@ -30,7 +31,6 @@ import org.netbeans.modules.zeroadmin.*;
 
 // core dependency
 import org.netbeans.core.NbTopManager;
-import org.netbeans.core.projects.TrivialProjectManager;
 
 /**
  * Reset to operator configuration.
@@ -39,8 +39,7 @@ import org.netbeans.core.projects.TrivialProjectManager;
 public class ResetConfigAction extends CallableSystemAction {
     
     public void performAction() {
-        final ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
-                .lookup(TrivialProjectManager.class);
+        final ZeroAdminInstall z = (ZeroAdminInstall)SharedClassObject.findObject(ZeroAdminInstall.class);
         if (z == null || z.writableLayer == null) {
             throw new IllegalStateException("ZeroAdminProjectManager not initialized");
         }
@@ -50,7 +49,6 @@ public class ResetConfigAction extends CallableSystemAction {
                     // force the core to save pending stuff:
                     NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
                     windowSystem.save();
-                    org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
 
                     final FileObject[] ch = z.writableLayer.getRoot().getChildren();
                     z.writableLayer.runAtomicAction(new FileSystem.AtomicAction() {

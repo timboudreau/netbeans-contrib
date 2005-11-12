@@ -16,13 +16,13 @@ import java.io.IOException;
 import javax.swing.SwingUtilities;
 
 import org.openide.filesystems.*;
+import org.openide.util.SharedClassObject;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 
 import org.netbeans.modules.zeroadmin.*;
-import org.netbeans.core.projects.TrivialProjectManager;
 import org.netbeans.core.NbTopManager;
 
 /**
@@ -32,8 +32,7 @@ import org.netbeans.core.NbTopManager;
 public class RefreshConfigAction extends CallableSystemAction {
     
     public void performAction() {
-        final ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
-                .lookup(TrivialProjectManager.class);
+        final ZeroAdminInstall z = (ZeroAdminInstall)SharedClassObject.findObject(ZeroAdminInstall.class);
         if (z == null || z.writableLayer == null) {
             throw new IllegalStateException("ZeroAdminProjectManager not initialized");
         }
@@ -43,7 +42,6 @@ public class RefreshConfigAction extends CallableSystemAction {
                     // force the core to save pending stuff:
                     NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
                     windowSystem.save();
-                    org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
                     z.writableLayer.runAtomicAction(new FileSystem.AtomicAction() {
                         // atomic action --> should be faster???
                         public void run() throws IOException {

@@ -27,7 +27,6 @@ import org.openide.*;
 import org.openide.filesystems.*;
 import org.openide.filesystems.FileSystem;
 import org.openide.util.*;
-import org.openide.util.enum.EmptyEnumeration;
 import org.openide.util.io.*;
 
 import org.w3c.dom.*;
@@ -82,8 +81,13 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
         this.transfer = this;
         this.generator = gen;
         this.doc = generator.getDocument();
+        if (doc == null) {
+            IllegalStateException ise = new IllegalStateException();
+            err.annotate(ise, generator.getParseException());
+            throw ise;
+        }
         time = new Date ();
-        fileChangeListener = WeakListener.fileChange (this, null);
+        fileChangeListener = FileUtil.weakFileChangeListener(this, null);
     }
     
     public Status getStatus () {
@@ -108,7 +112,7 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
     }
     
     public String getDisplayName () {
-        return "Writable XML FS: " + getSystemName ();
+        return "Writable XML FS: " + this;
     }
     
     public boolean isReadOnly () {
@@ -507,7 +511,7 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
     
     public Enumeration attributes (String name) {
         Element el = findElement (name);
-        if (el == null) return EmptyEnumeration.EMPTY;
+        if (el == null) return Enumerations.empty();
         NodeList nl = el.getChildNodes ();
         ArrayList l = new ArrayList (10); // List<String>
         for (int i = 0; i < nl.getLength (); i++) {
@@ -1022,8 +1026,7 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
     }
 
     private static FileObject decodeURL(URL u) {
-        FileObject[] fos = URLMapper.findFileObjects(u);
-        return (fos.length > 0) ? fos[0] : null;
+        return URLMapper.findFileObject(u);
     }
     
     public java.awt.Image annotateIcon(java.awt.Image icon, int iconType, java.util.Set files) {
