@@ -10,7 +10,7 @@
         <attribute name="name"/>
         <attribute name="value"/>
         <sequential>
-            <property value="${@{value}}" name="@{name}"/>
+            <property location="${@{value}}" name="@{name}"/>
         </sequential>
     </macrodef>
     <property file="${user.properties.file}"/>
