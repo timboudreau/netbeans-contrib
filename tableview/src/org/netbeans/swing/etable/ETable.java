@@ -149,7 +149,7 @@ public class ETable extends JTable {
     /** */
     private String maxPrefix;
     /** */
-    int SEARCH_FIELD_PREFERRED_SIZE = 260;
+    int SEARCH_FIELD_PREFERRED_SIZE = 160;
     /** */
     int SEARCH_FIELD_SPACE = 3;
     /** */
@@ -1854,7 +1854,8 @@ public class ETable extends JTable {
         if (searchPanel != null && searchPanel.isDisplayable()) {
              int width = Math.min (
                 visibleRect.width - SEARCH_FIELD_SPACE * 2,
-                SEARCH_FIELD_PREFERRED_SIZE - SEARCH_FIELD_SPACE);
+                searchPanel.getPreferredSize().width - searchTextField.getPreferredSize().width + 
+                     SEARCH_FIELD_PREFERRED_SIZE - SEARCH_FIELD_SPACE);
 
              searchPanel.setBounds(
                 Math.max (SEARCH_FIELD_SPACE, 
