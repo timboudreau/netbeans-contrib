@@ -124,6 +124,7 @@ public class BookmarkServiceImpl extends BookmarkService {
         }
         try {
             Context targetFolder = Context.getDefault().createSubcontext(BOOKMARKS_FOLDER);
+            Collection childrenNames = targetFolder.getOrderedNames();
             Context targetTcFolder = Context.getDefault().createSubcontext(TOP_COMPONENTS_FOLDER);
             String safeName = findUnusedName(targetFolder, b.getName());
             // and top component to the tc folder
@@ -134,6 +135,10 @@ public class BookmarkServiceImpl extends BookmarkService {
             }
             // following line will save the bookmark to the system file system
             targetFolder.putObject(safeName, b);
+            // and the order:
+            ArrayList al = new ArrayList(childrenNames);
+            al.add(safeName);
+            targetFolder.orderContext(al);
             // the following will save the bookmark action to the actions folder
             // to be usable for shortcuts
             saveBookmarkActionImpl(targetFolder, safeName);
