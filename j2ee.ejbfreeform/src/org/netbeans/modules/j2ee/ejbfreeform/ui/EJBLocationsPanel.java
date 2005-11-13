@@ -415,7 +415,11 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
                 ejbModule.j2eeSpecLevel = "1.3";
             }
         }
-        ejbModule.classpath = getRelativeLocation(getSrcPackagesLocation());
+        // ejbModule.classpath = getRelativeLocation(getSrcPackagesLocation());
+        // XXX since the contents of the classpath element is set to the (sometimes wrongly) 
+        // detected Java source root, better to set it to null for now and let the 
+        // Java nature provide the classpath (see EJBModules and issue 67651)
+        ejbModule.classpath = ""; // NOI18N
         l.add(ejbModule);
         
         return l;

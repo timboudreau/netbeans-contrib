@@ -185,11 +185,13 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
         }
         SourceGroup sg [] = ProjectUtils.getSources (project).getSourceGroups (JavaProjectConstants.SOURCES_TYPE_JAVA);
         Set filteredSources = new HashSet ();
+        // all Java sources should be added to the result if the classpath element is empty
         for (int i = 0; i < sg.length; i++) {
-            if (srcRootSet.contains (sg [i].getRootFolder ())) {
+            if (path.length == 0 || srcRootSet.contains (sg [i].getRootFolder ())) {
                 filteredSources.add (sg [i].getRootFolder ());
             }
         }
+        // XXX if the classpath element is empty the result will contain the test roots
         return (FileObject []) filteredSources.toArray (new FileObject [filteredSources.size ()]);
     }
     
@@ -226,7 +228,9 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
             }
             pathURL[i] = entry;
         }
-        return ClassPathSupport.createClassPath(pathURL);
+        // create a null classpath instead of an empty one 
+        // in order to allow the Java nature to return its classpath
+        return pathURL.length > 0 ? ClassPathSupport.createClassPath(pathURL) : null;
     }
     
     public void configurationXmlChanged(AntProjectEvent ev) {
