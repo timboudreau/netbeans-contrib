@@ -92,6 +92,9 @@ public class BookmarkImpl extends AbstractAction
     public BookmarkImpl(TopComponent tc) {
         this.topComponent = tc;
         name = tc.getDisplayName();
+        if (name == null) {
+            name = tc.getName();
+        }
         putValue(NAME, name);
     }
     
