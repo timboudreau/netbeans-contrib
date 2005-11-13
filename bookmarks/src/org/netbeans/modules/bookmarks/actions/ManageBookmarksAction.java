@@ -19,6 +19,8 @@ import org.openide.util.NbBundle;
 import org.openide.nodes.NodeOperation;
 
 import org.netbeans.modules.bookmarks.*;
+import org.openide.windows.Mode;
+import org.openide.windows.WindowManager;
 
 /**
  * This action opens an explorer allowing to customize the contents
@@ -51,6 +53,16 @@ public class ManageBookmarksAction extends AbstractAction implements HelpCtx.Pro
      * Open BookmarksRootNode in an explorer.
      */
     public void actionPerformed(java.awt.event.ActionEvent e) {
-            NodeOperation.getDefault().explore(new BookmarksRootNode());
+        ManageBookmarksTool t = ManageBookmarksTool.getInstance();
+        if (t.isOpened()) {
+            t.requestActive();
+            return;
+        }
+        Mode target = WindowManager.getDefault().findMode("explorer");
+        if (target != null) {
+            target.dockInto(t);
+        }
+        t.open();
+        t.requestActive();
     }
 }

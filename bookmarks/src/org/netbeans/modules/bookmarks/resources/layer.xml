@@ -87,6 +87,12 @@
                 <file name="DTD_Bookmark_1_0" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
                     <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.bookmarks//DTD Bookmark 1.0//EN"/>
                 </file>
+                <file name="DTD_ManageBookmarksTool_1_0" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.bookmarks//DTD ManageBookmarksTool 1.0//EN"/>
+                </file>
+                <file name="DTD_ManageBookmarksBookmarkImpl_1_0" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.bookmarks//DTD ManageBookmarksBookmarkImpl 1.0//EN"/>
+                </file>
             </folder>
         </folder>
         <folder name="lookups">
@@ -100,6 +106,24 @@
                     <attr name="settings.instanceOf" stringvalue="org.netbeans.api.bookmarks.Bookmark,org.openide.util.actions.Presenter$Toolbar,org.openide.util.actions.Presenter$Menu,org.netbeans.modules.bookmarks.BookmarkImpl"/>
                     <attr name="xmlproperties.ignoreChanges" stringvalue="AcceleratorKey"/>
                 </file>
+                <file name="DTD_ManageBookmarksTool_1_0.instance">
+                <!--env. provider-->
+                    <attr methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
+                    <!--XMLProperties convertor provided by the settings module-->
+                    <attr methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.bookmarks.ManageBookmarksTool"/>
+                    <attr name="settings.instanceOf" stringvalue="org.openide.windows.TopComponent,org.netbeans.modules.bookmarks.ManageBookmarksTool"/>
+                    <attr name="xmlproperties.ignoreChanges" stringvalue="AcceleratorKey"/>
+                </file>
+                <file name="DTD_ManageBookmarksBookmarkImpl_1_0.instance">
+                <!--env. provider-->
+                    <attr methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
+                    <!--XMLProperties convertor provided by the settings module-->
+                    <attr methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.bookmarks.ManageBookmarksBookmarkImpl"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.api.bookmarks.Bookmark,org.openide.util.actions.Presenter$Toolbar,org.openide.util.actions.Presenter$Menu,org.netbeans.modules.bookmarks.BookmarkImpl,org.netbeans.modules.bookmarks.ManageBookmarksBookmarkImpl"/>
+                    <attr name="xmlproperties.ignoreChanges" stringvalue="AcceleratorKey"/>
+                </file>
             </folder>
         </folder>
         <folder name="memory">
@@ -110,6 +134,9 @@
                             <!--allows to create .settings file from memory via InstanceDataObject.create-->
                             <file name="BookmarkImpl">
                                 <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_bookmarks/DTD_Bookmark_1_0.instance"/>
+                            </file>
+                            <file name="ManageBookmarksTool">
+                                <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_bookmarks/DTD_ManageBookmarksTool_1_0.instance"/>
                             </file>
                         </folder>
                     </folder>

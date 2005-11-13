@@ -128,7 +128,7 @@ public class BookmarkServiceImpl extends BookmarkService {
             Context targetTcFolder = Context.getDefault().createSubcontext(TOP_COMPONENTS_FOLDER);
             String safeName = findUnusedName(targetFolder, b.getName());
             // and top component to the tc folder
-            if (b instanceof BookmarkImpl) {
+            if ((b instanceof BookmarkImpl) && (! (b instanceof ManageBookmarksBookmarkImpl))) {
                 BookmarkImpl bi = (BookmarkImpl)b;
                 targetTcFolder.putObject(safeName, bi.getTopComponent());
                 bi.setTopComponentFileName(safeName);

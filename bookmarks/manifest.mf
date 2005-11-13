@@ -7,3 +7,12 @@ OpenIDE-Module-Display-Category: Infrastructure
 OpenIDE-Module: org.netbeans.modules.bookmarks
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/bookmarks/resources/Bundle.properties
 
+Name: org/netbeans/modules/bookmarks/BookmarkImpl.class
+NetBeans-Simply-Convertible: {org/netbeans/modules/bookmarks}BookmarkImpl
+
+Name: org/netbeans/modules/bookmarks/ManageBookmarksTool.class
+NetBeans-Simply-Convertible: {org/netbeans/modules/bookmarks}ManageBookmarksTool
+
+Name: org/netbeans/modules/bookmarks/ManageBookmarksBookmarkImpl.class
+NetBeans-Simply-Convertible: {org/netbeans/modules/bookmarks}ManageBookmarksBookmarkImpl
+

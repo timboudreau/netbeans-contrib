@@ -317,7 +317,7 @@ public class BookmarkImpl extends AbstractAction
      * It can be private = XMLPropertiesConvertor from core/settings
      * module is able to invoke it anyway.
      */
-    private void readProperties(java.util.Properties p) {
+    void readProperties(java.util.Properties p) {
         tcFileName = p.getProperty(PROP_TC_NAME);
         name = p.getProperty(PROP_NAME);
         putValue(NAME, name);
@@ -330,7 +330,7 @@ public class BookmarkImpl extends AbstractAction
      * It can be private = XMLPropertiesConvertor from core/settings
      * module is able to invoke it anyway.
      */
-    private void writeProperties(java.util.Properties p) {
+    void writeProperties(java.util.Properties p) {
         p.setProperty(PROP_TC_NAME, tcFileName);
         p.setProperty(PROP_NAME, name);
     }
