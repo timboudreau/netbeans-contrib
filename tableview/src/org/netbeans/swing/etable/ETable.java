@@ -130,6 +130,9 @@ public class ETable extends JTable {
      */
     transient int [] sortingPermutation;
     
+    /** Inverse of the above */
+    transient int [] inverseSortingPermutation;
+    
     /**
      *
      */
@@ -619,6 +622,7 @@ public class ETable extends JTable {
         quickFilterColumn = column;
         quickFilterObject = filterObject;
         sortingPermutation = null;
+        inverseSortingPermutation = null;
         filteredRowCount = -1; // force to recompute the rowCount
         super.tableChanged(new TableModelEvent(getModel()));
     }
@@ -632,6 +636,7 @@ public class ETable extends JTable {
         quickFilterColumn = -1;
         filteredRowCount = -1;
         sortingPermutation = null;
+        inverseSortingPermutation = null;
         super.tableChanged(new TableModelEvent(getModel()));
     }
     
@@ -646,6 +651,7 @@ public class ETable extends JTable {
         // force recomputation
         filteredRowCount = -1;
         sortingPermutation = null;
+        inverseSortingPermutation = null;
         quickFilterColumn = -1;
         quickFilterObject = null;
         
@@ -772,6 +778,7 @@ public class ETable extends JTable {
                 int wasSelectedColumn = getSelectedColumn();
                 etcm.setColumnSorted(etc, ascending, rank);
                 sortingPermutation = null;
+                inverseSortingPermutation = null;
                 ETable.super.tableChanged(new TableModelEvent(getModel(), 0, getRowCount()));
                 if (wasSelectedRows.length > 0) {
                     changeSelectionInModel(wasSelectedRows, wasSelectedColumn);
@@ -847,6 +854,10 @@ public class ETable extends JTable {
     private void changeSelectionInModel(int selectedRows[], int selectedColumn) {
         boolean wasAutoScroll = getAutoscrolls();
         setAutoscrolls(false);
+        ListSelectionModel rsm = getSelectionModel();
+        rsm.setValueIsAdjusting(true);
+        ListSelectionModel csm = getColumnModel().getSelectionModel();
+        csm.setValueIsAdjusting(true);
         for (int i = 0; i < selectedRows.length; i++) {
             if ((selectedRows[i] < 0) || (selectedRows[i] >= getModel().getRowCount())) {
                 continue;
@@ -856,6 +867,8 @@ public class ETable extends JTable {
                 changeSelection(viewIndex, selectedColumn, true, false );
             }
         }
+        rsm.setValueIsAdjusting(false);
+        csm.setValueIsAdjusting(false);
         if (wasAutoScroll) {
             setAutoscrolls(true);
         }
@@ -977,6 +990,7 @@ public class ETable extends JTable {
         boolean needsTotalRefresh = true;
         if (e == null || e.getFirstRow() == TableModelEvent.HEADER_ROW) {
             sortingPermutation = null;
+            inverseSortingPermutation = null;
             filteredRowCount = -1;
             super.tableChanged(e);
             return;
@@ -987,6 +1001,7 @@ public class ETable extends JTable {
             int wasSelectedColumn = getSelectedColumn();
             clearSelection();
             sortingPermutation = null;
+            inverseSortingPermutation = null;
             filteredRowCount = -1;
             super.tableChanged(e);
             if (wasSelectedRows.length > 0) {
@@ -1009,6 +1024,7 @@ public class ETable extends JTable {
             int wasSelectedColumn = getSelectedColumn();
             clearSelection();
             sortingPermutation = null;
+            inverseSortingPermutation = null;
             filteredRowCount = -1;
             super.tableChanged(e);
             if (wasSelectedRows.length > 0) {
@@ -1054,6 +1070,7 @@ public class ETable extends JTable {
             int wasSelectedColumn = getSelectedColumn();
         
             sortingPermutation = null;
+            inverseSortingPermutation = null;
             filteredRowCount = -1;
             super.tableChanged(new TableModelEvent(getModel()));
             if (wasSelectedRows.length > 0) {
@@ -1150,14 +1167,12 @@ public class ETable extends JTable {
      * columns.
      */
     public int convertRowIndexToView(int row) {
-        if (sortingPermutation == null) {
+        if (inverseSortingPermutation == null) {
             sortAndFilter();
         }
-        if (sortingPermutation != null) {
-            for (int i = 0; i < sortingPermutation.length; i++) {
-                if (sortingPermutation[i] == row) {
-                    return i;
-                }
+        if (inverseSortingPermutation != null) {
+            if ((row >= 0) && (row < inverseSortingPermutation.length)) {
+                return inverseSortingPermutation[row];
             }
             return -1;
         }
@@ -1380,11 +1395,15 @@ public class ETable extends JTable {
                 }
                 Collections.sort(rows, c);
                 int [] res = new int[rows.size()];
+                int [] invRes = new int[noRows]; // carefull - this one is bigger!
                 for (int i = 0; i < res.length; i++) {
                     RowMapping rm = (RowMapping) rows.get(i);
-                    res[i] = rm.getModelRowIndex();
+                    int rmi = rm.getModelRowIndex();
+                    res[i] = rmi;
+                    invRes[rmi] = i;
                 }
                 sortingPermutation = res;
+                inverseSortingPermutation = invRes;
             }
         }
     }
@@ -1452,6 +1471,7 @@ public class ETable extends JTable {
         }
         filteredRowCount = -1;
         sortingPermutation = null;
+        inverseSortingPermutation = null;
         super.tableChanged(new TableModelEvent(getModel()));
     }
 
@@ -1968,6 +1988,7 @@ public class ETable extends JTable {
                         boolean clear = ((me.getModifiers() & InputEvent.SHIFT_MASK) != InputEvent.SHIFT_MASK);
                         etcm.toggleSortedColumn(etc, clear);
                         sortingPermutation = null;
+                        inverseSortingPermutation = null;
                         ETable.super.tableChanged(new TableModelEvent(getModel(), 0, getRowCount()));
                         if (wasSelectedRows.length > 0) {
                             changeSelectionInModel(wasSelectedRows, wasSelectedColumn);
