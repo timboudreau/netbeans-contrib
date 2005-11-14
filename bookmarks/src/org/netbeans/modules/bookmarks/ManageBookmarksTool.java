@@ -80,12 +80,6 @@ public class ManageBookmarksTool extends TopComponent implements ExplorerManager
         init();
     }
     
-    public void requestFocus() {
-        if (tv != null) {
-            tv.requestFocus();
-        }
-    }
-    
     public void readSettings(java.util.Properties p) {
         // empty - the root node is always the same
     }

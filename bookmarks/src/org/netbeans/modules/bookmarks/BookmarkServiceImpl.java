@@ -174,6 +174,9 @@ public class BookmarkServiceImpl extends BookmarkService {
      */
     public static String findUnusedName(Context targetFolder, String name) {
         String s = name;
+        if (s == null) {
+            s = "bookmark"; // NOI18N
+        }
         // first, get rid of "strange" characters in the name
         StringBuffer sb = new StringBuffer(s.length());
         for (int i = 0; i < s.length(); i++) {

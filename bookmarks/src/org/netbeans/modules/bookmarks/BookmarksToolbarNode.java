@@ -202,7 +202,13 @@ public class BookmarksToolbarNode extends AbstractNode {
             if (i != 0) {
                 sb.append('/');
             }
-            sb.append(names.get(i) + ".xml");
+            if ("org-netbeans-modules-bookmarks-actions-AddBookmarkAction".equals(names.get(i))) {
+                // special case:
+                sb.append(names.get(i) + ".instance");
+            } else {
+                // this is for normal bookmarks:
+                sb.append(names.get(i) + ".xml");
+            }
         }
         getContext().setAttribute(null, "OpenIDE-Folder-Order", sb.toString());
     }
@@ -299,6 +305,11 @@ public class BookmarksToolbarNode extends AbstractNode {
                 String absName = getContext().getAbsoluteContextName() + "/" + name; // NOI18N
                 absName = absName.substring(1);
                 return new Node[] { new BookmarksNode((Bookmark)data, absName) };
+            }
+            if (data instanceof Action) {
+                String absName = getContext().getAbsoluteContextName() + "/" + name; // NOI18N
+                absName = absName.substring(1);
+                return new Node[] { new AddBookmarkNode((Action)data, absName) };
             }
             return new Node[0];
         }
