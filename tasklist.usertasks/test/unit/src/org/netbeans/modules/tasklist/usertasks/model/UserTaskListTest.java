@@ -62,6 +62,18 @@ public class UserTaskListTest extends NbTestCase {
     protected void tearDown () throws Exception {
     }
 
+    /**
+     * Deleting completed tasks.
+     */
+    public void testPurge() {
+        UserTaskList utl = new UserTaskList();
+        UserTask ut = new UserTask("test", utl);
+        utl.getSubtasks().add(ut);
+        ut.setDone(true);
+        utl.getSubtasks().purgeCompletedItems();
+        assertTrue(utl.getSubtasks().size() == 0);
+    }
+    
     /** This is just a dummy place holder test */
     public void testUserTaskList() throws Exception {
         UserTaskList list = (UserTaskList)openList("tasklist.ics"); // NOI18N

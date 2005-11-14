@@ -1388,15 +1388,7 @@ ObjectList.Owner {
      * Deletes all completed subtasks of this task (recursively)
      */
     public void purgeCompleted() {
-        Iterator it = getSubtasks().iterator();
-        while (it.hasNext()) {
-            UserTask ut = (UserTask) it.next();
-            if (ut.isDone()) {
-                it.remove();
-            } else {
-                ut.purgeCompleted();
-            }
-        }
+        getSubtasks().purgeCompletedItems();
     }
     
     /**

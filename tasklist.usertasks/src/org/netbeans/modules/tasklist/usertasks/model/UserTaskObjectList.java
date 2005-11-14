@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.model;
 
+import java.util.Iterator;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.*;
 
@@ -69,4 +70,21 @@ public class UserTaskObjectList extends ObjectList {
         ((UserTask) element).setList(null);
         return element;
     }    
+    
+    /**
+     * Removes completed tasks (recursively).
+     */
+    public void purgeCompletedItems() {
+        if (size() == 0 )
+            return;
+
+        Iterator it = iterator();
+        while (it.hasNext()) {
+            UserTask task = (UserTask) it.next();
+            if (task.isDone())
+                it.remove();
+            else
+                task.getSubtasks().purgeCompletedItems();
+        }
+    }
 }

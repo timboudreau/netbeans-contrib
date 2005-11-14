@@ -480,47 +480,6 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
     }
     
     /**
-     * Removes completed tasks
-     */
-    public void purgeCompletedItems() {
-        if (getSubtasks().size() == 0 ) {
-            return;
-        }
-        dontSave = true;
-        Iterator it = getSubtasks().iterator();
-        while (it.hasNext()) {
-            UserTask task = (UserTask) it.next();
-            recursivePurge(task);
-        }
-        dontSave = false;
-        save();
-    }
-    
-    /** 
-     * Remove any completed items from the list.
-     * Only works if started on the root node.
-     * NOTE - if a task is marked done, it AND ALL ITS CHILDREN
-     * are removed, even if the children haven't been marked done.
-     */
-    private void recursivePurge(UserTask node) {
-        if (node.getSubtasks() != null) {
-            List l = new ArrayList(node.getSubtasks());
-            
-            // I may have to repeat purges because once I delete an item from
-            // the list, the iterator needs to be redone
-            Iterator it = l.iterator();
-            while (it.hasNext()) {
-                UserTask task = (UserTask)it.next();
-                if (task.isDone()) {
-                    it.remove();
-                } else if (!task.getSubtasks().isEmpty()) {
-                    recursivePurge(task);
-                }
-            }
-        }
-    }
-
-    /**
      * Order a timeout for the next due date
      */
     void orderNextTimeout() {

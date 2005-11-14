@@ -56,7 +56,7 @@ public class PurgeTasksAction extends NodeAction {
             } else {
                 UserTaskList utl = 
                     ((UserTaskListNode) nodes[0]).getUserTaskList();
-                utl.purgeCompletedItems();
+                utl.getSubtasks().purgeCompletedItems();
             }
         }
     }

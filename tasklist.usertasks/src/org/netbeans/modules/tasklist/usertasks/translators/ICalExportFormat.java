@@ -214,9 +214,10 @@ public class ICalExportFormat implements ExportImportFormat {
         // an .ics file cannot be empty
         if (cal.getComponents().size() == 0) {
             VToDo td = new VToDo();
+            td.getProperties().add(new Summary(
+                    NbBundle.getMessage(ICalExportFormat.class, 
+                    "Welcome"))); // NOI18N
 
-            td.getProperties().add(
-                    new XComponent("X-NETBEANS-IGNORE")); // NOI18N
             cal.getComponents().add(td);
         }
         

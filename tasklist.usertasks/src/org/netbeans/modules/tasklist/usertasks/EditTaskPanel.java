@@ -246,7 +246,10 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         }
         jComboBoxOwner.setSelectedItem(item.getOwner());
         
-        jLabelCompleted.setText(df.format(new Date(item.getCompletedDate())));
+        if (item.getCompletedDate() != 0)
+            jLabelCompleted.setText(df.format(new Date(item.getCompletedDate())));
+        else
+            jLabelCompleted.setText(""); // NOI18N
         
         DefaultListModel dlm = new DefaultListModel();
         for (int i = 0; i < item.getWorkPeriods().size(); i++) {
@@ -387,8 +390,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * TODO - preserve this setting from run to run! (Unless you change
-     * the default!)
+     * Returns "append/prepend" option.
      *
      * @return true = the task should be appended
      */

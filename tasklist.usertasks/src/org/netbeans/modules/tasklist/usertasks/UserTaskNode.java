@@ -477,7 +477,8 @@ public final class UserTaskNode extends AbstractNode {
     public org.openide.nodes.Node.Cookie getCookie(Class type) {
         UserTask uitem = (UserTask) item;
         if (type == StartCookie.class) {
-            if (uitem.isStarted() || uitem.isSpentTimeComputed()) {
+            if (uitem.isStarted() || uitem.isSpentTimeComputed() ||
+                    uitem.isDone()) {
                 return null;
             } else {
                 return new StartCookie(uitem);
