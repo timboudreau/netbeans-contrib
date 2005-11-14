@@ -41,7 +41,7 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-vcscore-actions-VcsOutputAction.instance" />
             <attr name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance/org-netbeans-modules-vcscore-actions-VcsOutputAction.instance" boolvalue="true"/>          
         </folder>
-        <attr name="org-netbeans-modules-web-monitor-client-MonitorAction.instance/Versioning" boolvalue="true"/>
+        <attr name="org-netbeans-modules-web-monitor-client-MonitorAction.shadow/Versioning" boolvalue="true"/>
         <attr name="Versioning/InspectorAction.shadow" boolvalue="true"/>
     </folder>
   </folder>
