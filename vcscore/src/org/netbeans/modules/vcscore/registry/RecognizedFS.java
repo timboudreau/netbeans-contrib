@@ -47,16 +47,18 @@ public class RecognizedFS extends Object implements Serializable, PropertyChange
         removedRoots = new HashSet();
     }
     
-    public static synchronized RecognizedFS getDefault() {
-        if (defaultInstance == null) {
-            GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
-            defaultInstance = settings.getRecognizedFS();
+    public static RecognizedFS getDefault() {
+        GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
+        synchronized (RecognizedFS.class) {
             if (defaultInstance == null) {
-                defaultInstance = new RecognizedFS();
-            }
-            for (Iterator it = defaultInstance.manuallyRecognized.iterator(); it.hasNext(); ) {
-                FSInfo fsInfo = (FSInfo) it.next();
-                fsInfo.addPropertyChangeListener(WeakListeners.propertyChange(defaultInstance, fsInfo));
+                defaultInstance = settings.getRecognizedFS();
+                if (defaultInstance == null) {
+                    defaultInstance = new RecognizedFS();
+                }
+                for (Iterator it = defaultInstance.manuallyRecognized.iterator(); it.hasNext(); ) {
+                    FSInfo fsInfo = (FSInfo) it.next();
+                    fsInfo.addPropertyChangeListener(WeakListeners.propertyChange(defaultInstance, fsInfo));
+                }
             }
         }
         return defaultInstance;

@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Registry of recognized filesystem types.
@@ -61,9 +62,13 @@ public class FSRegistry {
      * Register a filesystem information.
      */
     void register(FSInfo fsInfo, Object propagationId, boolean autoRecognized) {
+        Set manuallyRecognized = null;
+        if (!initialized) {
+            manuallyRecognized = RecognizedFS.getDefault().getManuallyRecognized();
+        }
         synchronized (fsInfos) {
             if (!initialized) {
-                fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+                fsInfos.addAll(manuallyRecognized);
                 initialized = true;
             }
             if (fsInfos.contains(fsInfo)) {
@@ -89,9 +94,13 @@ public class FSRegistry {
      * Unregister a filesystem information.
      */
     void unregister(FSInfo fsInfo, Object propagationId) {
+        Set manuallyRecognized = null;
+        if (!initialized) {
+            manuallyRecognized = RecognizedFS.getDefault().getManuallyRecognized();
+        }
         synchronized (fsInfos) {
             if (!initialized) {
-                fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+                fsInfos.addAll(manuallyRecognized);
                 initialized = true;
             }
             fsInfos.remove(fsInfo);
@@ -106,9 +115,13 @@ public class FSRegistry {
      */
     public FSInfo[] getRegistered() {
         FSInfo[] info;
+        Set manuallyRecognized = null;
+        if (!initialized) {
+            manuallyRecognized = RecognizedFS.getDefault().getManuallyRecognized();
+        }
         synchronized (fsInfos) {
             if (!initialized) {
-                fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+                fsInfos.addAll(manuallyRecognized);
                 initialized = true;
             }
             info = (FSInfo[]) fsInfos.toArray(new FSInfo[fsInfos.size()]);
@@ -123,9 +136,13 @@ public class FSRegistry {
      * @return true When the filesystem info is already registered, false otherwise.
      */
     public boolean isRegistered(FSInfo info) {
+        Set manuallyRecognized = null;
+        if (!initialized) {
+            manuallyRecognized = RecognizedFS.getDefault().getManuallyRecognized();
+        }
         synchronized (fsInfos) {
             if (!initialized) {
-                fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
+                fsInfos.addAll(manuallyRecognized);
                 initialized = true;
             }
             return fsInfos.contains(info);
