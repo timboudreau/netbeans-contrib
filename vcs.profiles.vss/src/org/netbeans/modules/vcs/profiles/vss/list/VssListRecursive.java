@@ -290,6 +290,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
                 String path = filePath.substring(0, slashIndex);
                 String pattern = filePath.substring(slashIndex + 1);
                 VcsDirContainer filesByNameCont = (path.length() > 0) ? rootFilesByNameCont.getContainerWithPath(path) : rootFilesByNameCont;
+                if (filesByNameCont == null) continue;
                 Hashtable filesByName = (Hashtable) filesByNameCont.getElement();
                 Hashtable varsCmd = new Hashtable(vars);
                 varsCmd.put("DIR", path.replace('/', ps));
@@ -500,7 +501,12 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
             String folder = file.substring(1);
             folder = folder.replace(File.separatorChar, '/');
             folder = (lastFilesCont != null && lastFilesCont.getPath().length() > 0) ? (lastFilesCont.getPath() + '/' + folder) : folder;
-            VcsDirContainer subDir = lastFilesCont.addSubdir(folder);
+            VcsDirContainer subDir;
+            if (lastFilesCont != null) {
+                subDir = lastFilesCont.addSubdir(folder);
+            } else {
+                subDir = rootFilesByNameCont.addSubdir(folder);
+            }
             readLocalFiles(folder, subDir);
         } else if (file.startsWith(AGAINST) && diffingPathFollows) {
             diffingFolder = diffingFolder.trim();
