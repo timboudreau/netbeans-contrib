@@ -33,6 +33,7 @@ public class ProfilesAction extends CallableSystemAction {
     }
     
     protected void initialize() {
+        super.initialize();
         putValue("noIconInMenu", Boolean.TRUE); // NOI18N
     }
     
