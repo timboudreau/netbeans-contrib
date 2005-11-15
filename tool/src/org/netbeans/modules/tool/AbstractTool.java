@@ -180,7 +180,9 @@ public abstract class AbstractTool
     
     //=======================================================================
     // Private data members
-
+    
+    private static volatile long theToolCounter = System.currentTimeMillis();
+    
     /**
      * Name of property used to store this component's name
      */
@@ -252,7 +254,8 @@ public abstract class AbstractTool
         }
         else
         {
-            setName( getClass( ).getName( ) );
+            theToolCounter++;
+            setName( getClass().getName().replace( '.', '_' )  + '_' + theToolCounter );
         }
         
         if( settings != null )
