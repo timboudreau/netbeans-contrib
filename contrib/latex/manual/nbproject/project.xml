@@ -16,6 +16,7 @@ Microsystems, Inc. All Rights Reserved.
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.latex.help</code-name-base>
+            <suite-component />
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.modules.javahelp</code-name-base>
@@ -24,15 +25,6 @@ Microsystems, Inc. All Rights Reserved.
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.0</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.openide</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>4.21</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>

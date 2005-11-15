@@ -1,134 +1,20 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-                Sun Public License Notice
-
-The contents of this file are subject to the Sun Public License
-Version 1.0 (the "License"). You may not use this file except in
-compliance with the License. A copy of the License is available at
-http://www.sun.com/
-
-The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
-Microsystems, Inc. All Rights Reserved.
--->
-
-<project name="latex/test" default="netbeans" basedir=".">
-
-    <import file="../nbbuild/templates/projectized.xml"/>
+                     Sun Public License Notice
     
-    <target name="clean-modules" description="Clean all LaTeX modules.">
-        <ant dir="ant" target="clean" />
-        <ant dir="ant/antint" target="clean" />
-        <ant dir="auted" target="clean" />
-        <ant dir="bibtex" target="clean" />
-        <ant dir="branding" target="clean" />
-        <ant dir="core" target="clean" />
-        <ant dir="editor" target="clean" />
-        <ant dir="guiproject" target="clean" />
-        <ant dir="loaders" target="clean" />
-        <ant dir="model" target="clean" />
-        <ant dir="nexplorer" target="clean" />
-        <ant dir="project" target="clean" />
-        <ant dir="ui" target="clean" />
-    </target>
+     The contents of this file are subject to the Sun Public License
+     Version 1.0 (the "License"). You may not use this file except in
+     compliance with the License. A copy of the License is available at
+     http://www.sun.com/
     
-    <target name="build-modules" description="Build all LaTeX modules">
-	<ant dir="../nbbuild" antfile="../latex/build-include.xml" target="all" />
-    </target>
-
-    <target name="nbm-modules" description="Create NBM archives for all LaTeX modules.">
-        <ant dir="ant/antint" target="nbm" />
-        <ant dir="auted" target="nbm" />
-        <ant dir="bibtex" target="nbm" />
-        <ant dir="branding" target="nbm" />
-        <ant dir="core" target="nbm" />
-        <ant dir="editor" target="nbm" />
-        <ant dir="guiproject" target="nbm" />
-        <ant dir="loaders" target="nbm" />
-        <ant dir="model" target="nbm" />
-        <ant dir="nexplorer" target="nbm" />
-        <ant dir="project" target="nbm" />
-        <ant dir="ui" target="nbm" />
-    </target>
-
-    <target name="test-modules" description="Run tests for all LaTeX modules.">
-	<ant antfile="../xtest/lib/harness.xml" target="runtests">
-	   <property name="xtest.instance.master-config" location="master-config.xml" />
-	   <property name="xtest.instance.name" value="LaTeX tests" />
-	   <property name="xtest.home" location="../xtest" />
-	   <property name="xtest.basedir" location=".." />
-	   <property name="xtest.config" value="latex-tests" />
-	</ant>
-    </target>
-    
-    <target name="clean-tests" description="Clean test artifacts created by the LaTeX modules.">
-        <ant dir="bibtex/test" target="realclean" />
-        <ant dir="core/test" target="realclean" />
-        <ant dir="project/test" target="realclean" />
-        <ant dir="guiproject/test" target="realclean" />
-        <ant dir="test" target="realclean" />
-        <delete  dir="results" />
-    </target>
-    
-    <target name="clean-build" description="Do the most clean build of the LaTeX modules and run all the tests. Run this target before commit.">
-        <antcall target="clean-tests" />
-        <antcall target="clean-modules" />
-        <antcall target="build-modules" />
-        <antcall target="nbm-modules" />
-        <antcall target="test-modules" />
-    </target>
-
-    <target name="-fail-no-buildnumber" unless="buildnumber">
-        <fail>To create the distribution package, you need to specify the buildnumber!</fail>
-    </target>
-    
-    <target name="dist" depends="-fail-no-buildnumber,clean-build" description="Does the clean build, and prepares the distribution packages.">
-        <delete dir="dist" />
-        <mkdir dir="dist" />
-        <zip destfile="dist/latex-nbms-${buildnumber}.zip">
-	    <zipfileset dir="ant/antint/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-antint.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="core/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="auted/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-auted.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="bibtex/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-bibtex.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="editor/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-editor.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="guiproject/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-guiproject.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="loaders/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-loaders.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="model/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-model.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="ui/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-ui.nbm"/>
-	    </zipfileset>
-	</zip>
-        <zip destfile="dist/latex-nbms-extra-${buildnumber}.zip">
-	    <zipfileset dir="branding/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-branding.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="nexplorer/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-nexplorer.nbm"/>
-	    </zipfileset>
-	    <zipfileset dir="project/build" prefix="latex-nbms-${buildnumber}">
-	        <filename name="org-netbeans-modules-latex-project.nbm"/>
-	    </zipfileset>
-	</zip>
-    </target>
-    
-    <target name="clean-all" depends="clean-modules,clean-tests" description="Tries to clean as much as possible">
-        <delete dir="dir" />
-    </target>
-    
+     The Original Code is NetBeans. The Initial Developer of the Original
+     Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+     Microsystems, Inc. All Rights Reserved.
+   -->
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="latex" basedir=".">
+    <description>Builds the module suite latex.</description>
+    <import file="nbproject/build-impl.xml"/>
 </project>

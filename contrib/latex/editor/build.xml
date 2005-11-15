@@ -1,52 +1,50 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-                Sun Public License Notice
-
-The contents of this file are subject to the Sun Public License
-Version 1.0 (the "License"). You may not use this file except in
-compliance with the License. A copy of the License is available at
-http://www.sun.com/
-
-The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
-Microsystems, Inc. All Rights Reserved.
--->
-
-<project name="latex/editor" default="netbeans" basedir=".">
-
-  <import file="../../nbbuild/templates/projectized.xml"/>
-  
-  <target name="compile" depends="compile-language-tex,compile-language-bibtex,projectized-common.compile" />
-  
-  <target name="compile-language-tex">
+                     Sun Public License Notice
     
-    <ant dir="../../lexer/gen" /><!--inheritAll="false"/>-->
-    <ant dir="src/org/netbeans/modules/latex/editor" antfile="../../../../../../../../lexer/gen/src/org/netbeans/modules/lexer/gen/handcoded/handcodedLangBuild.xml" target="compile">
-        <property name="grammar.name" value="Tex" />
-        <property name="grammar.pkg" value="org.netbeans.modules.latex.editor" />
-        <property name="grammar.root" value="." />
-        <property name="lexer.module.root" value="../../../../../../../../lexer" />
-        <property name="lang.description.xml.ignore" value="false" />
-    </ant>
-  </target>
+     The contents of this file are subject to the Sun Public License
+     Version 1.0 (the "License"). You may not use this file except in
+     compliance with the License. A copy of the License is available at
+     http://www.sun.com/
     
-  <target name="do-editor-release">
-    <mkdir dir="${cluster}/${nb.modules.dir}/bin" />
-    <copy file="../client/src/client.linux" tofile="${cluster}/${nb.modules.dir}/bin/lide-editor-client" failonerror="false" />
-    <chmod file="${cluster}/${nb.modules.dir}/bin/lide-editor-client" perm="uog+x" />
-  </target>
+     The Original Code is NetBeans. The Initial Developer of the Original
+     Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+     Microsystems, Inc. All Rights Reserved.
+   -->
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="org.netbeans.modules.latex.editor" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project org.netbeans.modules.latex.editor.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <target name="compile-language-tex">
+        <ant dir="../../lexer/gen" /><!--inheritAll="false"/>-->
+        <ant dir="src/org/netbeans/modules/latex/editor" antfile="../../../../../../../../lexer/gen/src/org/netbeans/modules/lexer/gen/handcoded/handcodedLangBuild.xml" target="compile">
+            <property name="grammar.name" value="Tex" />
+            <property name="grammar.pkg" value="org.netbeans.modules.latex.editor" />
+            <property name="grammar.root" value="." />
+            <property name="lexer.module.root" value="../../../../../../../../lexer" />
+            <property name="lang.description.xml.ignore" value="false" />
+        </ant>
+    </target>
+    
+    <target name="compile-language-bibtex">
+        <ant dir="../../lexer/gen" /><!--inheritAll="false"/>-->
+        <ant dir="src/org/netbeans/modules/latex/editor/bibtex" antfile="../../../../../../../../../lexer/gen/src/org/netbeans/modules/lexer/gen/handcoded/handcodedLangBuild.xml" target="compile">
+            <property name="lexer.module.root" value="../../../../../../../../../lexer" />
+            <property name="grammar.name" value="BiBTeX" />
+            <property name="grammar.pkg" value="org.netbeans.modules.latex.editor.bibtex" />
+            <property name="grammar.root" value="." />
+            <property name="lang.description.xml.ignore" value="false" />
+        </ant>
+    </target>
   
-  <target name="compile-language-bibtex">
-    <ant dir="../../lexer/gen" /><!--inheritAll="false"/>-->
-    <ant dir="src/org/netbeans/modules/latex/editor/bibtex" antfile="../../../../../../../../../lexer/gen/src/org/netbeans/modules/lexer/gen/handcoded/handcodedLangBuild.xml" target="compile">
-         <property name="lexer.module.root" value="../../../../../../../../../lexer" />
-         <property name="grammar.name" value="BiBTeX" />
-         <property name="grammar.pkg" value="org.netbeans.modules.latex.editor.bibtex" />
-         <property name="grammar.root" value="." />
-         <property name="lang.description.xml.ignore" value="false" />
-    </ant>
-  </target>
+    <target name="do-editor-release">
+        <mkdir dir="${cluster}/bin" />
+        <copy file="../client/src/client.linux" tofile="${cluster}/bin/lide-editor-client" failonerror="false" />
+        <chmod file="${cluster}/bin/lide-editor-client" perm="uog+x" />
+    </target>
   
-  <target name="netbeans-extra" depends="do-editor-release"/>
-  
+    <target name="netbeans-extra" depends="do-editor-release"/>
 </project>
