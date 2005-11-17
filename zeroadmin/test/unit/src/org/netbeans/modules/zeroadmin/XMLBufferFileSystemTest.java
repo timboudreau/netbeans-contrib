@@ -43,6 +43,7 @@ public class XMLBufferFileSystemTest extends FileSystemFactoryHid {
         suite.addTestSuite(RepositoryTestHid.class);
         suite.addTestSuite(FileSystemTestHid.class);
         suite.addTestSuite(FileObjectTestHid.class);
+        suite.addTestSuite(AttributesTestHidden.class);
         
         return new XMLBufferFileSystemTest(suite);
     }

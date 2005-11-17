@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<?xml-stylesheet type="text/xml" href="http://openide.netbeans.org/fs/filesystem.xsl"?><filesystem>
+    <folder name="xml">
+        <folder name="entities">
+            <!--the public identifier registration-->
+            <folder name="NetBeans_org_netbeans_modules_zeroadmin_test">
+                <file name="DTD_TestSetting_1_0" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.zeroadmin.test//DTD TestSetting 1.0//EN"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="lookups">
+            <folder name="NetBeans_org_netbeans_modules_zeroadmin_test">
+                <file name="DTD_TestSetting_1_0.instance">
+                <!--env. provider-->
+                    <attr methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
+                    <!--XMLProperties convertor provided by the settings module-->
+                    <attr methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/> 
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.zeroadmin.test.TestSetting"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.zeroadmin.test.TestSetting"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="memory">
+            <folder name="org">
+                <folder name="netbeans">
+                    <folder name="modules">
+                        <folder name="zeroadmin">
+                            <folder name="test">
+                            <!--allows to create .settings file from memory via InstanceDataObject.create-->
+                                <file name="TestSetting">
+                                    <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_zeroadmin_test/DTD_TestSetting_1_0.instance"/>
+                                </file>
+                            </folder>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        
+        <folder name="Tools">
+            
+            <file name="org-netbeans-modules-zeroadmin-test-TestAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.zeroadmin.test.TestAction"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

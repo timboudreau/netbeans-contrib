@@ -22,7 +22,6 @@ import org.openide.windows.*;
 import org.openide.util.SharedClassObject;
 import org.openide.util.Lookup;
 import org.openide.filesystems.*;
-import org.netbeans.core.projects.TrivialProjectManager;
 import org.netbeans.modules.zeroadmin.actions.*;
 import junit.textui.TestRunner;
 
@@ -72,9 +71,9 @@ public class RemoteStorageTest extends NbTestCase {
      * </OL>
      */
     public void testConfigReset() throws Exception {
-        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CREATE_WORKSPACE));
+        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CREATE_TC));
         
-        TestRunnable test = new TestRunnable(TestRunnable.WAIT_FOR_WORKSPACE_EVENT);
+        TestRunnable test = new TestRunnable(TestRunnable.WAIT_FOR_WM_EVENT);
         java.awt.EventQueue.invokeAndWait(test);
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CALL_RESET_CONFIG_ACTION));
         
@@ -85,11 +84,11 @@ public class RemoteStorageTest extends NbTestCase {
             Thread.sleep(1000);
             round++;
             System.out.println("testConfigReset round " + round);
-            if (round > 60) {
+            if (round > 10) {
                 fail("Waiting too long for a change!");
             }
-            done = test.changeEvent != null && "workspaces".equals(test.changeEvent.getPropertyName());
-            if (WindowManager.getDefault().findWorkspace("testWrkSpc") == null) {
+            done = test.changeEvent != null;
+            if (WindowManager.getDefault().findTopComponent("testTc") == null) {
                 // done even without the notification
                 break;
             }
@@ -111,12 +110,12 @@ public class RemoteStorageTest extends NbTestCase {
      * </OL>
      */
     public void testConfigRefresh() throws Exception {
-        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CREATE_WORKSPACE));
+        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CREATE_TC));
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CALL_SAVE_OPERATOR_CONFIG_ACTION));
-        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.DELETE_WORKSPACE));
+        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.DELETE_TC));
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NULL));
         
-        TestRunnable test = new TestRunnable(TestRunnable.WAIT_FOR_WORKSPACE_EVENT);
+        TestRunnable test = new TestRunnable(TestRunnable.WAIT_FOR_WM_EVENT);
         java.awt.EventQueue.invokeAndWait(test);
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CALL_REFRESH_CONFIG_ACTION));
 
@@ -127,11 +126,11 @@ public class RemoteStorageTest extends NbTestCase {
             Thread.sleep(1000);
             round++;
             System.out.println("testConfigRefresh round " + round);
-            if (round > 60) {
+            if (round > 10) {
                 fail("Waiting too long for a change!");
             }
-            done = test.changeEvent != null && "workspaces".equals(test.changeEvent.getPropertyName());
-            if (WindowManager.getDefault().findWorkspace("testWrkSpc") != null) {
+            done = test.changeEvent != null;
+            if (WindowManager.getDefault().findTopComponent("testTc") != null) {
                 // done even without the notification
                 break;
             }
@@ -139,7 +138,7 @@ public class RemoteStorageTest extends NbTestCase {
         
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NOT_NULL));
         // just cleanup at the very end:
-        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.DELETE_WORKSPACE));
+        java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.DELETE_TC));
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NULL));
     }
     
@@ -154,11 +153,10 @@ public class RemoteStorageTest extends NbTestCase {
     public void testSaveOperatorConfig() throws Exception {
         SaveOperatorConfigAction action1 = (SaveOperatorConfigAction)SharedClassObject.findObject(SaveOperatorConfigAction.class, true);
         action1.performAction();
-        ZeroAdminInstall z = (ZeroAdminInstall)Lookup.getDefault()
-                .lookup(TrivialProjectManager.class);
+        ZeroAdminInstall z = (ZeroAdminInstall)SharedClassObject.findObject(ZeroAdminInstall.class);
         assertNotNull(z);
-        assertNotNull(z.storage);
-        char[] dataFromServer = z.storage.getOperatorData();
+        assertNotNull(z.cfgProxy);
+        char[] dataFromServer = z.cfgProxy.getOperatorData();
         XMLBufferFileSystem xbfs = new XMLBufferFileSystem(new ParseRegen(dataFromServer));
         xbfs.waitFinished();
         // no exceptions --> OK.
@@ -176,11 +174,10 @@ public class RemoteStorageTest extends NbTestCase {
      * </OL>
      */
     public void testSavedDataAreTheSame() throws Exception {
-        ZeroAdminInstall z = (ZeroAdminInstall)Lookup.getDefault()
-                .lookup(TrivialProjectManager.class);
+        ZeroAdminInstall z = (ZeroAdminInstall)SharedClassObject.findObject(ZeroAdminInstall.class);
         assertNotNull(z);
         assertNotNull(z.saver);
-        assertNotNull(z.storage);
+        assertNotNull(z.cfgProxy);
         assertNotNull(z.writableLayer);
         z.saver.waitFinished();
 
@@ -190,9 +187,9 @@ public class RemoteStorageTest extends NbTestCase {
 
         bufFs.waitFinished();
         char[] origData = bufFs.getBuffer();
-        z.storage.saveUserData(origData);
+        z.cfgProxy.saveUserData(origData);
 
-        char[] dataFromServer = z.storage.getUserData();
+        char[] dataFromServer = z.cfgProxy.getUserData();
         assertEquals("Data from the server should have the same length", origData.length, dataFromServer.length);
         for (int i = 0; i < origData.length; i++) {
             if (origData[i] != dataFromServer[i]) {
@@ -279,15 +276,15 @@ public class RemoteStorageTest extends NbTestCase {
      */
     private static class TestRunnable implements Runnable, PropertyChangeListener {
         /** possible value for what */
-        public static final int CREATE_WORKSPACE = 1;
+        public static final int CREATE_TC = 1;
         /** possible value for what */
         public static final int CHECK_NULL = 2;
         /** possible value for what */
         public static final int CHECK_NOT_NULL = 3;
         /** possible value for what */
-        public static final int DELETE_WORKSPACE = 4;
+        public static final int DELETE_TC = 4;
         /** possible value for what */
-        public static final int WAIT_FOR_WORKSPACE_EVENT = 5;
+        public static final int WAIT_FOR_WM_EVENT = 5;
         /** possible value for what */
         public static final int CALL_RESET_CONFIG_ACTION = 6;
         /** possible value for what */
@@ -309,33 +306,27 @@ public class RemoteStorageTest extends NbTestCase {
         /** This is run in the AWT event thread */
         public void run() {
             WindowManager wm = WindowManager.getDefault();
-            if (what == CREATE_WORKSPACE) {
-                Workspace newWS = wm.createWorkspace("testWrkSpc", "Test Workspace");
-                Workspace[] originalWorkspaces = wm.getWorkspaces();
-                ArrayList temp = new ArrayList(Arrays.asList(originalWorkspaces));
-                temp.add(newWS);
-                Workspace[] newWorkspaces = (Workspace[])temp.toArray(new Workspace[temp.size()]);
-                wm.setWorkspaces(newWorkspaces);
+            if (what == CREATE_TC) {
+                TopComponent tc = new TopComponent();
+                tc.setName("test");
+                wm.findMode("explorer").dockInto(tc);
+                
                 // --------
-                assertNotNull("The workspace should be created", wm.findWorkspace("testWrkSpc"));
+                assertNotNull("The mode should be created", wm.findTopComponent("testTc"));
             }
             if (what == CHECK_NULL) {
-                assertNull("The workspace should be gone", wm.findWorkspace("testWrkSpc"));
+                assertNull("The mode should be gone", wm.findTopComponent("testTc"));
             }
             if (what == CHECK_NOT_NULL) {
-                assertNotNull("The workspace should be there", wm.findWorkspace("testWrkSpc"));
+                assertNotNull("The mode should be there", wm.findTopComponent("testTc"));
             }
-            if (what == DELETE_WORKSPACE) {
-                Workspace theWS = wm.findWorkspace("testWrkSpc");
-                assertNotNull("Workspace not found", theWS);
-                Workspace[] originalWorkspaces = wm.getWorkspaces();
-                ArrayList temp = new ArrayList(Arrays.asList(originalWorkspaces));
-                temp.remove(theWS);
-                Workspace[] newWorkspaces = (Workspace[])temp.toArray(new Workspace[temp.size()]);
-                wm.setWorkspaces(newWorkspaces);
+            if (what == DELETE_TC) {
+                TopComponent tc = wm.findTopComponent("testTc");
+                assertNotNull(tc);
+                tc.close();
             }
             
-            if (what == WAIT_FOR_WORKSPACE_EVENT) {
+            if (what == WAIT_FOR_WM_EVENT) {
                 wm.addPropertyChangeListener(this);
             }
             
