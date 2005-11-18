@@ -1,98 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN"
-          "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
-
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
 
-    <!-- ##################################################################### -->
+	<!-- ##################################################################### -->
 
-    <folder name="Actions">
+	<folder name="Actions">
 
-	<folder name="Tools">
-	    <file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance" />
-	    <file name="de-hunsicker-jalopy-plugin-netbeans-SettingsAction.instance" />
-	</folder>    <!--folder name="Tools"-->
+		<folder name="Tools">
+			<file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+			<file name="de-hunsicker-jalopy-plugin-netbeans-SettingsAction.instance"/>
+		</folder>    <!--folder name="Tools"-->
 
-    </folder>  <!--folder name="Actions"-->
+	</folder>  <!--folder name="Actions"-->
 
-    <!-- ##################################################################### -->
+	<!-- ##################################################################### -->
 
-    <folder name="Menu">
+	<folder name="Menu">
 
-	<folder name="Source">
-	    <attr name="org-netbeans-modules-editor-MainMenuAction$FormatAction.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true" />
-	    <file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
-		<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance" />
-	    </file>
-	</folder>    <!--folder name="Source"-->
+		<folder name="Source">
+			<file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
+				<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+			</file>
+		</folder>    <!--folder name="Source"-->
 
-	<folder name="Tools">
-	    <attr name="org-netbeans-modules-options-OptionsWindowAction.instance/de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow" boolvalue="true" />
-	    <file name="de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow">
-		<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-SettingsAction.instance" />
-	    </file>
-	</folder>    <!--folder name="Tools"-->
+		<folder name="Tools">
+			<attr name="org-netbeans-core-actions-OptionsAction.instance/de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow" boolvalue="true"/>
+			<file name="de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow">
+				<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-SettingsAction.instance"/>
+			</file>
+			<attr name="de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow/Separator3.instance" boolvalue="true"/>
+		</folder>    <!--folder name="Tools"-->
 
-    </folder>  <!--folder name="Menu"-->
+	</folder>  <!--folder name="Menu"-->
 
-    <!-- ##################################################################### -->
+	<!-- ##################################################################### -->
 
-    <folder name="Shortcuts">
+	<folder name="Shortcuts">
 
-	<file name="CS-F10.shadow">
-	    <attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance" />
-	</file>
+		<file name="CS-F10.shadow">
+			<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+		</file>
 
-    </folder>  <!--folder name="Shortcuts"-->
+	</folder>  <!--folder name="Shortcuts"-->
 
-    <!-- ##################################################################### -->
+	<!-- ##################################################################### -->
 
-    <folder name="Editors">
+	<folder name="Editors">
 
-	<folder name="AnnotationTypes">
-	    <file name="de-hunsicker-jalopy-plugin-netbeans-error.xml" url="error-annotation.xml" />
-	    <file name="de-hunsicker-jalopy-plugin-netbeans-warn.xml" url="warn-annotation.xml" />
-	</folder>    <!--folder name="AnnotationTypes"-->
+		<folder name="AnnotationTypes">
+			<file name="de-hunsicker-jalopy-plugin-netbeans-error.xml" url="error-annotation.xml"/>
+			<file name="de-hunsicker-jalopy-plugin-netbeans-warn.xml" url="warn-annotation.xml"/>
+		</folder>    <!--folder name="AnnotationTypes"-->
 
-	<folder name="text">
-	    <folder name="x-java">
-		<folder name="Popup">
-		    <attr name="org-openide-actions-PasteAction.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true" />
-		    <file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
-			<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance" />
-		    </file>
-		</folder>
-	    </folder>
-	</folder>    <!--folder name="text"-->
+		<folder name="text">
+			<folder name="x-java">
+				<folder name="Popup">
+					<attr name="org-netbeans-modules-refactoring-ui-RSMEditorAction.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true"/>
+					<file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
+						<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+					</file>
+					<attr name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow/format" boolvalue="true"/>
+				</folder>
+			</folder>
+		</folder>    <!--folder name="text"-->
 
-    </folder>  <!--folder name="Editors"-->
+	</folder>  <!--folder name="Editors"-->
 
-    <!-- ##################################################################### -->
+	<!-- ##################################################################### -->
 
-    <folder name="Loaders">
+	<folder name="Loaders">
 
-	<folder name="text">
-	    <folder name="x-java">
-		<folder name="Actions">
-		    <attr name="org-openide-actions-PasteAction.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true" />
-		    <file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
-			<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance" />
-		    </file>
-		</folder>
-	    </folder>
-	</folder>    <!--folder name="text"-->
+		<folder name="text">
+			<folder name="x-java">
+				<folder name="Actions">
+					<attr name="RefactoringAll.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true"/>
+					<file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
+						<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+					</file>
+					<attr name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow/RefactoringSeparator-1.instance" boolvalue="true"/>
+				</folder>
+			</folder>
+		</folder>    <!--folder name="text"-->
 
-	<folder name="folder">
-	    <folder name="any">
-		<folder name="Actions">
-		    <attr name="org-openide-actions-PasteAction.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true" />
-		    <file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
-			<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance" />
-		    </file>
-		</folder>
-	    </folder>
-	</folder>    <!--folder name="folder"-->
+		<folder name="folder">
+			<folder name="any">
+				<folder name="Actions">
+					<attr name="RefactoringAll.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true"/>
+					<file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
+						<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+					</file>
+					<attr name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow/Separator3.instance" boolvalue="true"/>
+				</folder>
+			</folder>
+		</folder>    <!--folder name="folder"-->
 
-    </folder>  <!--folder name="Loaders"-->
+	</folder>  <!--folder name="Loaders"-->
 
 </filesystem>
