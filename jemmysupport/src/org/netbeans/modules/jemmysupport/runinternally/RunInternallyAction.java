@@ -120,7 +120,7 @@ public class RunInternallyAction extends NodeAction {
      * @return String path to action icon
      */
     protected String iconResource() {
-        return "org/netbeans/modules/jemmysupport/runinternally/RunInternallyAction.gif"; // NOI18N
+        return "org/netbeans/modules/jemmysupport/resources/runInternally.png"; // NOI18N
     }
     
     /** method returning action Help Context

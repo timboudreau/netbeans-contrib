@@ -56,7 +56,7 @@ public class RunGUIBrowserAction extends NodeAction {
      * @return String path to action icon
      */
     protected String iconResource() {
-        return "org/netbeans/modules/jemmysupport/runinternally/RunGUIBrowserAction.gif"; // NOI18N
+        return "org/netbeans/modules/jemmysupport/resources/GUIBrowser.png"; // NOI18N
     }
     
     /** method returning action Help Context

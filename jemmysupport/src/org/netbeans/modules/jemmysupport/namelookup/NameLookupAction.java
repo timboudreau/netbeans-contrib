@@ -55,7 +55,7 @@ public class NameLookupAction extends NodeAction {
      * @return String path to action icon
      */    
     protected String iconResource() {
-       return "org/netbeans/modules/jemmysupport/namelookup/NameLookupAction.gif"; // NOI18N
+       return "org/netbeans/modules/jemmysupport/resources/nameLookup.png"; // NOI18N
     }
     
     /** method returning action Help Context
