@@ -111,7 +111,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
             Hashtable t = new Hashtable();
 
             // Initialize remote connection to ZeroAdminServlet
-            String urlStr = System.getProperty("netbeans.config.url", "appres://desktop/nbconfig");
+            String urlStr = System.getProperty("netbeans.config.url", "appres:8080//zeroadmin/desktop/nbconfig");
             System.out.println("[zeroadmin] netbeans.config.url = " + urlStr);
 
             interval = Integer.parseInt( 
@@ -147,12 +147,13 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
                     public void actionPerformed(ActionEvent ev) {
                         RP.post(new Runnable() {
                             public void run() {
-                                org.openide.LifecycleManager.getDefault().exit();
+                                System.exit(0);
                             }
-                        });
+                        }, 1000);
                     }
                 }
             );
+            
             DialogDisplayer.getDefault().notify(dd);
         }
     }
@@ -402,7 +403,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
             _cfgURL = cfgURL;
             _userName = System.getProperty("netbeans.appuser", "operator");
             
-            String apphost = System.getProperty("netbeans.apphost");
+            String apphost = System.getProperty("netbeans.apphost", "localhost");
             System.out.println("[zeroadmin] netbeans.apphost = " + apphost);
             System.out.println("[zeroadmin] netbeans.appuser = " + _userName);
         }

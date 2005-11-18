@@ -101,7 +101,7 @@ public class NbAppResStreamHandler extends URLStreamHandler
      */
     protected void parseURL( URL u, String spec, int start, int limit )
     {
-        String apphost = System.getProperty( P_APPHOST );
+        String apphost = System.getProperty( P_APPHOST, "localhost" );
         String ssl = System.getProperty( P_SSL );
         String path = getPath( spec );
         String query = getQuery( spec );

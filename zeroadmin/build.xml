@@ -12,7 +12,7 @@ of the Original Code is Nokia. Portions Copyright 2005 Nokia.
 All Rights Reserved.
 -->
 
-<project name="tool" default="netbeans" basedir=".">
+<project name="zeroadmin" default="netbeans" basedir=".">
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 

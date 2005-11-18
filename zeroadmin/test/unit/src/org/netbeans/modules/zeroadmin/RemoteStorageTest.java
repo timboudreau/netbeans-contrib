@@ -88,10 +88,6 @@ public class RemoteStorageTest extends NbTestCase {
                 fail("Waiting too long for a change!");
             }
             done = test.changeEvent != null;
-            if (WindowManager.getDefault().findTopComponent("testTc") == null) {
-                // done even without the notification
-                break;
-            }
         }
         
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NULL));
@@ -130,10 +126,6 @@ public class RemoteStorageTest extends NbTestCase {
                 fail("Waiting too long for a change!");
             }
             done = test.changeEvent != null;
-            if (WindowManager.getDefault().findTopComponent("testTc") != null) {
-                // done even without the notification
-                break;
-            }
         }
         
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NOT_NULL));
@@ -307,18 +299,22 @@ public class RemoteStorageTest extends NbTestCase {
         public void run() {
             WindowManager wm = WindowManager.getDefault();
             if (what == CREATE_TC) {
-                TopComponent tc = new TopComponent();
-                tc.setName("test");
+                TopComponent tc = new TopComponent() {
+                    public int getPersistenceType() {
+                        return TopComponent.PERSISTENCE_NEVER;
+                    }
+                };
+                tc.setName("testTc");
                 wm.findMode("explorer").dockInto(tc);
-                
+                tc.open();
                 // --------
-                assertNotNull("The mode should be created", wm.findTopComponent("testTc"));
+                assertNotNull("The tc should be created", wm.findTopComponent("testTc"));
             }
             if (what == CHECK_NULL) {
-                assertNull("The mode should be gone", wm.findTopComponent("testTc"));
+                assertNull("The tc should be gone", wm.findTopComponent("testTc"));
             }
             if (what == CHECK_NOT_NULL) {
-                assertNotNull("The mode should be there", wm.findTopComponent("testTc"));
+                assertNotNull("The tc should be there", wm.findTopComponent("testTc"));
             }
             if (what == DELETE_TC) {
                 TopComponent tc = wm.findTopComponent("testTc");

@@ -15,6 +15,17 @@ Microsystems, Inc. All Rights Reserved.
 <project name="zeroadmin logging tests compilers and executors" basedir="." default="all">
 
     <import file="../../../nbbuild/templates/xtest-unit.xml"/>
+    
+    <target name="runidetest">
+        <property name="xtest.ide.use.classloader" value="org.netbeans.modules.zeroadmin"/>
+        <property name="xtest.ide.commandline.suffix" value="-J-Dnetbeans.winsys.no_toolbars=true"/>
+<!--    <property name="xtest.userdata|netbeans.classloader.verbose" value="true"/>
+        <property name="xtest.userdata|org.netbeans.core.modules" value="-1"/>
+-->
+ 	<executeTests pluginName="ide">
+	<classpath/>
+	</executeTests>
+    </target>
 
 </project>
 
