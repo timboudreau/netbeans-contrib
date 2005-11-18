@@ -33,72 +33,60 @@ import javax.swing.SwingUtilities;
  * @author Frank-Michael Moser
  */
 public final class SettingsAction extends CallableSystemAction {
-	
+
+	/** The name of the action to display. */
+	private String name = NbBundle.getMessage(
+			SettingsAction.class, "LBL_SettingsAction" /* NOI18N */);
+
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * {@inheritDoc}
+	 */
+	protected void initialize() {
+		super.initialize();
+		putProperty(
+			Action.SHORT_DESCRIPTION,
+			NbBundle.getMessage(
+				SettingsAction.class, "HINT_SettingsAction" /* NOI18N */));
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public HelpCtx getHelpCtx() {
-		return HelpCtx.DEFAULT_HELP;
-		
+
 		// If you will provide context help then use:
 		// return new HelpCtx (Callable_actionAction.class);
+		return HelpCtx.DEFAULT_HELP;
 	}
-	
+
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * {@inheritDoc}
 	 */
 	public String getName() {
-		return NbBundle.getMessage(
-				SettingsAction.class, "LBL_SettingsAction" /* NOI18N */);
+		return name;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean asynchronous() {
 		return false;
 	}
-	
+
 	/**
-	 * DOCUMENT ME!
+	 * {@inheritDoc}
 	 */
 	public void performAction() {
 		SwingUtilities.invokeLater(
-				new Runnable() {
-			public void run() {
-				
-				Frame frame = WindowManager.getDefault().getMainWindow();
-				SettingsDialog dialog = SettingsDialog.create(frame);
-				
-				dialog.pack();
-				dialog.setLocationRelativeTo(frame);
-				dialog.setVisible(true);
-			}
-		});
-	}
-	
-//	/**
-//	 * DOCUMENT ME!
-//	 *
-//	 * @return DOCUMENT ME!
-//	 */
-//	protected String iconResource() {
-//		return NbBundle.getMessage(
-//			SettingsAction.class, "ICON_Settings" /* NOI18N */);
-//	}
-	
-	/**
-	 * DOCUMENT ME!
-	 */
-	protected void initialize() {
-		super.initialize();
-		putProperty(
-				Action.SHORT_DESCRIPTION,
-				NbBundle.getMessage(
-				SettingsAction.class, "HINT_SettingsAction" /* NOI18N */));
+			new Runnable() {
+				public void run() {
+					Frame frame = WindowManager.getDefault().getMainWindow();
+					SettingsDialog dialog = SettingsDialog.create(frame);
+
+					dialog.pack();
+					dialog.setLocationRelativeTo(frame);
+					dialog.setVisible(true);
+				}
+			});
 	}
 }

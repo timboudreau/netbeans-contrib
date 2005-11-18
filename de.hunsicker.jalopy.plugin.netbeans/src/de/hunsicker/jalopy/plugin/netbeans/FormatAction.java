@@ -36,12 +36,12 @@ import javax.swing.JEditorPane;
 public final class FormatAction extends CookieAction {
 
 	/** Cookies for which to enable the action. */
-	private static final Class[] COOKIE_CLASSES =
-		new Class[] {DataFolder.class, DataObject.class, DataNode.class};
+	private static final Class[] COOKIE_CLASSES = new Class[] {
+			DataFolder.class, DataObject.class, DataNode.class
+		};
 
-	/** The name of the action to display in 'Build' menu. */
-	private String _name =
-		NbBundle.getMessage(
+	/** The name of the action to display. */
+	private String name = NbBundle.getMessage(
 			FormatAction.class, "LBL_FormatSingleAction" /* NOI18N */);
 
 	/**
@@ -53,18 +53,29 @@ public final class FormatAction extends CookieAction {
 	/**
 	 * {@inheritDoc}
 	 */
+	protected void initialize() {
+		super.initialize();
+		putProperty(
+			Action.SHORT_DESCRIPTION,
+			NbBundle.getMessage(
+				FormatAction.class, "HINT_FormatAction" /* NOI18N */));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public HelpCtx getHelpCtx() {
-		return HelpCtx.DEFAULT_HELP;
 
 		// If you will provide context help then use:
 		// return new HelpCtx (FormatAction.class);
+		return HelpCtx.DEFAULT_HELP;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getName() {
-		return _name;
+		return name;
 	}
 
 	/**
@@ -91,34 +102,23 @@ public final class FormatAction extends CookieAction {
 	/**
 	 * {@inheritDoc}
 	 */
-	protected void initialize() {
-		super.initialize();
-		putProperty(
-			Action.SHORT_DESCRIPTION,
-			NbBundle.getMessage(
-				FormatAction.class, "HINT_FormatAction" /* NOI18N */));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	protected void performAction(org.openide.nodes.Node[] nodes) {
+	protected void performAction(Node[] nodes) {
 		NbPlugin.INSTANCE.project.nodes = nodes;
-
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
 		try {
+
 			// set the context class loader for the ImportTransformation
 			// feature to work
 			Thread.currentThread().setContextClassLoader(
 				(ClassLoader) Lookup.getDefault().lookup(ClassLoader.class));
 
 			if (nodes.length == 1) {
-
-				DataObject obj =
-					(DataObject) nodes[0].getCookie(DataObject.class);
+				DataObject obj = (DataObject) nodes[0].getCookie(
+						DataObject.class);
 
 				if (NbHelper.isJavaFile(obj)) {
+
 					// we have to check if the node has an editor opened as
 					// Action.FORMAT_ACTIVE relies on an opened view
 					if (isOpened(nodes[0])) {
@@ -154,16 +154,15 @@ public final class FormatAction extends CookieAction {
 	 * @return <code>true</code> if the node has an opened editor pane.
 	 */
 	private static boolean isOpened(Node node) {
-
+		boolean open = false;
 		EditorCookie cookie = (EditorCookie) node.getCookie(EditorCookie.class);
 
-		// @todo maybe this check is obsolete?
-		if (cookie == null) {
-			return false;
+		if (cookie != null) {
+			JEditorPane[] panes = cookie.getOpenedPanes();
+
+			open = (panes != null) && (panes.length > 0);
 		}
 
-		JEditorPane[] panes = cookie.getOpenedPanes();
-
-		return ((panes != null) && (panes.length > 0));
+		return open;
 	}
 }
