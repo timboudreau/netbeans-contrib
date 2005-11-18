@@ -56,10 +56,7 @@ public class MyDataLoader extends UniFileLoader {
     protected void initialize() {
         super.initialize();
         
-        ExtensionList extensions = new ExtensionList();
-        extensions.addExtension("tex");
-        extensions.addExtension("latex");
-        setExtensions(extensions);
+        getExtensions().addMimeType("text/x-tex");
     }
     
     protected SystemAction[] defaultActions() {
