@@ -23,6 +23,10 @@ Contributor(s): Jan Lahoda
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.model.structural.parser.ModelImpl"/>
                 <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.structural.Model"/>
             </file>
+            <file name="DebuggingSupport.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.model.command.impl.DebuggingSupportImpl"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.command.DebuggingSupport"/>
+            </file>
 
 <!--            <file name="BasicNodeFactory.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.model.structural.ui.nodes.NodeFactoryImpl"/>

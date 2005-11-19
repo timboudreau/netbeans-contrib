@@ -86,4 +86,16 @@ public class ArgumentNodeImpl extends GroupNodeImpl implements ArgumentNode {
         pw.println("</ArgumentNodeImpl>");
     }
 
+    /**No attributes
+     */
+    public String getAttribute(String name) {
+        return getArgument().getAttribute(name);
+    }
+
+    /**No attributes
+     */
+    public boolean hasAttribute(String name) {
+        return getArgument().hasAttribute(name);
+    }
+
 }

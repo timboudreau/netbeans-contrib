@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -45,6 +45,7 @@ import org.netbeans.modules.latex.model.command.impl.InputNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 import org.netbeans.modules.latex.model.command.impl.NBDocumentNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.NodeImpl;
+import org.netbeans.modules.latex.model.command.impl.ParagraphNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.TextNodeImpl;
 import org.netbeans.modules.latex.model.command.parser.ParserInput;
 import org.openide.ErrorManager;
@@ -57,7 +58,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Jan Lahoda
  */
-public class CommandParser {
+public final class CommandParser {
     
     private static final boolean includeDebug = Boolean.getBoolean("netbeans.latex.parser.include.debug");
     private static final boolean debug        = Boolean.getBoolean("netbeans.latex.parser.debug");
@@ -199,23 +200,67 @@ public class CommandParser {
         //nothing...
     }
     
+    private boolean isParNode(Node node) {
+        if (node instanceof CommandNode) {
+            return ((CommandNode) node).getCommand().hasAttribute("par");
+        }
+        
+        if (node instanceof BlockNode) {
+            Environment env = ((BlockNode) node).getEnvironment();
+            
+            return env.hasAttribute("par");
+        }
+        
+        return false;
+    }
+    
+    private boolean isFreeTextEndNode(Node node) {
+        return node.hasAttribute("free-text-end");
+    }
+    
     private TextNodeImpl parseTextNode(ParserInput input, TextNodeImpl node) throws IOException {
+//        return parseGroup(input, node, false, false, false, true, true);
         NodeImpl lastCommandDefiningNode = currentCommandDefiningNode;
 
+        boolean useParagraphs = true;
+        
         node.setStartingPosition(input.getPosition());
+        
+        TextNodeImpl lastParagraph = useParagraphs ? new ParagraphNodeImpl(node, currentCommandDefiningNode) : node;
+        
+        if (useParagraphs) {
+            lastParagraph.setStartingPosition(input.getPosition());
+            node.addChild(lastParagraph);
+        }
         
         while (input.hasNext()) {
             Token read = input.getToken();
             
             if (read.getId() == TexLanguage.COMMAND) {
-                node.addChild(parseCommand(node, input));
+                SourcePosition previous = input.getPosition();
+                Node cnode = parseCommand(node, input);
                 
+                if (isParNode(cnode) && useParagraphs) {
+                    lastParagraph.setEndingPosition(previous);
+                    lastParagraph = new ParagraphNodeImpl(node, currentCommandDefiningNode);
+                    lastParagraph.setStartingPosition(previous);
+                    node.addChild(lastParagraph);
+                }
+                
+                lastParagraph.addChild(cnode);
             } else {
                 if (read.getId() == TexLanguage.COMP_BRACKET_LEFT) {
                     GroupNodeImpl n = new GroupNodeImpl(node, currentCommandDefiningNode);
                     
-                    node.addChild(parseGroup(input, n, false, false, false));
+                    lastParagraph.addChild(parseGroup(input, n, false, false, false, true, false));
                 } else {
+                    if (read.getId() == TexLanguage.PARAGRAPH_END && useParagraphs) {
+                        lastParagraph.setEndingPosition(input.getPosition());
+                        lastParagraph = new ParagraphNodeImpl(node, currentCommandDefiningNode);
+                        lastParagraph.setStartingPosition(input.getPosition());
+                        node.addChild(lastParagraph);
+                    }
+                    
                     input.next();
                 }
             }
@@ -223,6 +268,9 @@ public class CommandParser {
         }
         
         node.setEndingPosition(input.getPosition());
+        
+        if (useParagraphs)
+            lastParagraph.setEndingPosition(input.getPosition());
         
         currentCommandDefiningNode = lastCommandDefiningNode;
         
@@ -368,9 +416,9 @@ public class CommandParser {
                 }
             }
             
-            boolean freeText = !ParserUtilities.isOpeningBracket(read);
+            boolean freeText = actual.getArgument(currentArgument).getType() == Command.Param.FREE;
             
-            if (freeText && (actual.getArgument(currentArgument).getType() != Command.Param.FREE)) {
+            if (!ParserUtilities.isOpeningBracket(read) && (actual.getArgument(currentArgument).getType() != Command.Param.FREE)) {
                 errors.add(Utilities.getDefault().createError("A non-free argument looking like a free argument", input.getPosition()));
                 break;
 //                throw new ParseException(input);
@@ -389,7 +437,7 @@ public class CommandParser {
             if (param.hasAttribute(Command.Param.ATTR_NO_PARSE))
                 handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseBalancedText(input, ani, true /*!!!!!!*/));
             else
-                handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseGroup(input, ani, true, freeText, true/*!!!!!!*/));
+                handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseGroup(input, ani, true, freeText, true /*!!!!!!*/, param.hasAttribute("contains-paragraph"), false));
             
             currentArgument++;
             
@@ -628,8 +676,9 @@ public class CommandParser {
         return node;
     }
 
-    private /*GroupNode*/TextNode parseGroup(ParserInput input, /*GroupNodeImpl*/TextNodeImpl node, boolean argument, boolean freeText, boolean parErrorRecovery) throws IOException {
+    private /*GroupNode*/TextNodeImpl parseGroup(ParserInput input, /*GroupNodeImpl*/TextNodeImpl node, boolean argument, boolean freeText, boolean parErrorRecovery, boolean useParagraphs, boolean forEver) throws IOException {
         if (debug) {
+            //TODO: put missing arguments into the log message:
 	    System.err.println("parseGroup: start(" + input + ", " + node + ", " + argument + ", " + freeText + ", " + parErrorRecovery);
 	}
 	
@@ -642,7 +691,14 @@ public class CommandParser {
         
         NodeImpl lastCommandDefiningNode = currentCommandDefiningNode;
         
-        assert freeText || isOpeningBracket(read, argument);
+        TextNodeImpl lastParagraph = useParagraphs ? new ParagraphNodeImpl(node, currentCommandDefiningNode) : node;
+        
+        if (useParagraphs) {
+            lastParagraph.setStartingPosition(input.getPosition());
+            node.addChild(lastParagraph);
+        }
+        
+        assert freeText || isOpeningBracket(read, argument) || forEver;
         
         node.setStartingPosition(input.getPosition());
         
@@ -676,30 +732,64 @@ public class CommandParser {
             }
             
             if (read.getId() == TexLanguage.COMMAND) {
-                node.addChild(parseCommand(node, input));
+                SourcePosition previous = input.getPosition();
+                Node cnode = parseCommand(node, input);
+                
+                if (isFreeTextEndNode(cnode) && freeText) {
+                    break;
+                }
+                
+                if (isParNode(cnode) && useParagraphs) {
+                    lastParagraph.setEndingPosition(previous); //!!!!!
+                    lastParagraph = new ParagraphNodeImpl(node, currentCommandDefiningNode);
+                    lastParagraph.setStartingPosition(previous);
+                    node.addChild(lastParagraph);
+                }
+                
+                lastParagraph.addChild(cnode);
+                
+                
                 afterCommand = true;
             }
             
             if (read.getId() == TexLanguage.COMP_BRACKET_LEFT) {
                 GroupNodeImpl n = new GroupNodeImpl(node, currentCommandDefiningNode);
+
+                lastParagraph.addChild(parseGroup(input, n, false, false, parErrorRecovery, /*?????*/useParagraphs, false));
                 
-                node.addChild(parseGroup(input, n, false, false, parErrorRecovery));
                 afterCommand = true;
             }
-        } while (!(   (freeText && isFreeTextEnd(input.getToken(), input, node.getParent()))
-                   || ParserUtilities.matches(left, input.getToken())
-                   || (errorRecovery = parErrorRecovery && isErrorRecoveryEnd(input.getToken(), input, node.getParent()))));
+            
+            if (read.getId() == TexLanguage.PARAGRAPH_END && useParagraphs) {
+                lastParagraph.setEndingPosition(input.getPosition()); //!!!!!
+                lastParagraph = new ParagraphNodeImpl(node, currentCommandDefiningNode);
+                lastParagraph.setStartingPosition(input.getPosition());
+                node.addChild(lastParagraph);
+            }
+        } while (!(   (freeText && isFreeTextEnd(input.getToken(), input, node.getParent())) 
+                   || (!freeText && ParserUtilities.matches(left, input.getToken()))
+                   || (errorRecovery = parErrorRecovery && isErrorRecoveryEnd(input.getToken(), input, node.getParent()))
+                   || (forEver && !input.hasNext())
+                   ));
         
 	if (debug) {
 	    System.err.println("parseGroup: after main loop: input.getToken()=" + input.getToken() + ";" + input.getPosition());
 	}
 	
-        shouldReadAtEnd = shouldReadAtEnd && !errorRecovery && !(freeText && input.getToken().getId() == TexLanguage.COMP_BRACKET_RIGHT);
+        shouldReadAtEnd = shouldReadAtEnd && !errorRecovery && !(freeText && isPAREnd(input.getToken(), input, node.getParent()));
         
-        node.setEndingPosition(input.getPosition());
+        if (useParagraphs) {
+            lastParagraph.setEndingPosition(input.getPosition());
+        }
+        
+        //TODO:moved down, so the argument node contains also the last {. Is it correct also for other cases?
+//      node.setEndingPosition(input.getPosition());
         
         if (shouldReadAtEnd && input.hasNext())
             input.next();
+        
+        //TODO: see above.
+        node.setEndingPosition(input.getPosition());
         
         if (errorRecovery) {
             ParseError err = Utilities.getDefault().createError("Missing closing bracket added.", node.getEndingPosition());
@@ -711,7 +801,8 @@ public class CommandParser {
             }
         }
         
-        currentCommandDefiningNode = lastCommandDefiningNode;
+        if (!forEver)
+            currentCommandDefiningNode = lastCommandDefiningNode;
         
 	if (debug) {
 	    System.err.println("parseGroup: end, input.getToken()=" + input.getToken());
@@ -726,9 +817,14 @@ public class CommandParser {
 	ArgumentNode  anode = Utilities.getDefault().getArgumentWithAttribute(begin, "#environmentname");
         String        beginText = anode != null ? anode.getText().toString() : "";
         Environment   env = findEnvironment(beginText);
+        
+        if (env == null) {
+            env = BlockNodeImpl.NULL_ENVIRONMENT;
+        }
+        
         BlockNodeImpl bni = new BlockNodeImpl(begin.getParent(), currentCommandDefiningNode, env);
         
-        if (env != null) {
+        {
             CommandCollection coll = new CommandCollection();
             coll.addEnvironmentContent(env);
             bni.setCommandCollection(coll);
@@ -741,6 +837,17 @@ public class CommandParser {
         
         bni.setContent(node);
         node.setStartingPosition(input.getPosition());
+
+        boolean useParagraphs = true;
+        
+        TextNodeImpl lastParagraph = useParagraphs ? new ParagraphNodeImpl(node, currentCommandDefiningNode) : node;
+
+        if (useParagraphs) {
+            lastParagraph.setStartingPosition(input.getPosition());
+            node.addChild(lastParagraph);
+        }
+        
+        SourcePosition endPosition = null;
         
         if (debug) {
             System.err.println("parseBlock: start environment name=" + beginText + ", input.getToken()=" + input.getToken());
@@ -750,8 +857,18 @@ public class CommandParser {
             Token read = input.getToken();
             
             if (read.getId() == TexLanguage.COMMAND) {
+                endPosition = input.getPosition();
+                
                 NodeImpl bcnode = parseCommand(node, input);
                 
+                if (isParNode(bcnode) && useParagraphs) {
+                    lastParagraph.setEndingPosition(endPosition);
+                    lastParagraph = new ParagraphNodeImpl(node, currentCommandDefiningNode);
+                    lastParagraph.setStartingPosition(endPosition);
+                    node.addChild(lastParagraph);
+                }
+                
+                System.err.println("bcnode= " + bcnode);
                 if (bcnode instanceof CommandNodeImpl) {
                      CommandNodeImpl cnode = (CommandNodeImpl) bcnode;
                      
@@ -761,6 +878,8 @@ public class CommandParser {
                          bni.setEndCommand(cnode); //!!!Test missing
                          
                          if (!beginText.equals(endText)) {
+                             System.err.println("beginText= " + beginText);
+                             System.err.println("endText = " + endText);
                              errors.add(Utilities.getDefault().createError("\\begin-\\end not matching. \\begin command: " + beginText + ", \\end command: " + endText + ".", cnode.getStartingPosition()));
                              //????
                              break;
@@ -770,12 +889,14 @@ public class CommandParser {
                      }
                 }
                 
-                node.addChild(bcnode);
+                endPosition = null;
+                
+                lastParagraph.addChild(bcnode);
             } else {
                 if (read.getId() == TexLanguage.COMP_BRACKET_LEFT) {
                     GroupNodeImpl n = new GroupNodeImpl(node, currentCommandDefiningNode);
                     
-                    node.addChild(parseGroup(input, n, false, false, false));
+                    lastParagraph.addChild(parseGroup(input, n, false, false, false, true, false));
                 } else {
                     if (read.getId() == TexLanguage.COMP_BRACKET_RIGHT) {
                         SourcePosition pos = input.getPosition();
@@ -783,6 +904,12 @@ public class CommandParser {
                         errors.add(Utilities.getDefault().createError("Missing \\end{" + beginText + "} command added.", pos));
                         break;
                     } else {
+                        if (read.getId() == TexLanguage.PARAGRAPH_END && useParagraphs) {
+                            lastParagraph.setEndingPosition(input.getPosition());
+                            lastParagraph = new ParagraphNodeImpl(node, currentCommandDefiningNode);
+                            lastParagraph.setStartingPosition(input.getPosition());
+                            node.addChild(lastParagraph);
+                        }
                         input.next();
                     }
                 }
@@ -790,7 +917,14 @@ public class CommandParser {
             
         }
         
-        node.setEndingPosition(input.getPosition());
+        if (endPosition == null)
+            endPosition = input.getPosition();
+        
+        node.setEndingPosition(endPosition);
+        
+        if (useParagraphs) {
+            lastParagraph.setEndingPosition(endPosition);
+        }
         
         //Safety workaround:
         if (bni.getEndingPosition() == null) {

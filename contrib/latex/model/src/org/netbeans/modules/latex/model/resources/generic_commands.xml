@@ -35,17 +35,6 @@ Microsystems, Inc. All Rights Reserved.
   </argument>
 </command>
 
-<command name="\item">
-  <attribute name="par" value="true" />
-  <argument type="nonmandatory">
-    <attribute name="#code" value="true" />
-  </argument>
-
-  <argument type="free">
-    <attribute name="#text" value="true" />
-  </argument>
-</command>
-
 <command name="\indent">
 </command>
 
@@ -53,12 +42,17 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\subsection*">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="subsection" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
+  <attribute name="numbering-formating" value="" />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-subsection*" />
+    <attribute name="section-argument" value="subsection" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -116,12 +110,17 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\subsubsection">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="subsubsection" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
+  <attribute name="numbering-formating" value="{section}.{subsection}.{subsubsection}. " />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-subsubsection" />
+    <attribute name="section-argument" value="subsubsection" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -136,8 +135,11 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\textit">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#text" value="true" />
+    <attribute name="font-style" value="italic" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -145,18 +147,27 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\Large">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#code" value="true" />
+    <attribute name="extended-coloring-modifier" value="mod-ext-Large" />
+    <attribute name="font-size" value="Large" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\subparagraph*">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="subparagraph" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
+  <attribute name="numbering-formating" value="" />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-subparagraph*" />
+    <attribute name="section-argument" value="subparagraph" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -197,12 +208,16 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\section*">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="section" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-section*" />
+    <attribute name="section-argument" value="section" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -217,8 +232,12 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\scriptsize">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#code" value="true" />
+    <attribute name="extended-coloring-modifier" value="mod-ext-scriptsize" />
+    <attribute name="font-size" value="scriptsize" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -240,8 +259,11 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\emph">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#text" value="true" />
+    <attribute name="font-style" value="emphesise" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -252,24 +274,37 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\huge">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#code" value="true" />
+    <attribute name="extended-coloring-modifier" value="mod-ext-huge" />
+    <attribute name="font-size" value="huge" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\subparagraph">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="subparagraph" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
+  <attribute name="numbering-formating" value="{section}.{subsection}.{subsubsection}.{paragraph}.{subparagraph}. " />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-subparagraph" />
+    <attribute name="section-argument" value="subparagraph" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\LARGE">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#code" value="true" />
+    <attribute name="extended-coloring-modifier" value="mod-ext-LARGE" />
+    <attribute name="font-size" value="LARGE" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -299,22 +334,32 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\subsection">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="subsection" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
+  <attribute name="numbering-formating" value="{section}.{subsection}. " />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-subsection" />
+    <attribute name="section-argument" value="subsection" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\paragraph">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="paragraph" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
+  <attribute name="numbering-formating" value="{section}.{subsection}.{subsubsection}.{paragraph}. " />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-paragraph" />
+    <attribute name="section-argument" value="paragraph" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -365,38 +410,57 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\footnotesize">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#code" value="true" />
+    <attribute name="extended-coloring-modifier" value="mod-ext-footnotesize" />
+    <attribute name="font-size" value="footnotesize" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\section">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="section" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
+  <attribute name="numbering-formating" value="{section}. " />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-section" />
+    <attribute name="section-argument" value="section" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\paragraph*">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="paragraph" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
+  <attribute name="numbering-formating" value="" />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-paragraph*" />
+    <attribute name="section-argument" value="paragraph" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\subsubsection*">
-  <attribute name="#section-command" value="true" />
+  <attribute name="#section-command" value="subsubsection" />
   <attribute name="#caption-command" value="true" />
+  <attribute name="par" value="true" />
+  <attribute name="hide-command" value="true" />
+  <attribute name="numbering-formating" value="" />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-
+    <attribute name="extended-coloring-modifier" value="mod-ext-subsubsection*" />
+    <attribute name="section-argument" value="subsubsection" />
     <attribute name="#caption" value="true" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -421,14 +485,22 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\small">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#code" value="true" />
+    <attribute name="extended-coloring-modifier" value="mod-ext-small" />
+    <attribute name="font-size" value="small" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\large">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#code" value="true" />
+    <attribute name="extended-coloring-modifier" value="mod-ext-large" />
+    <attribute name="font-size" value="large" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -442,14 +514,22 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\tiny">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#code" value="true" />
+    <attribute name="extended-coloring-modifier" value="mod-ext-tiny" />
+    <attribute name="font-size" value="tiny" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\Huge">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#code" value="true" />
+    <attribute name="extended-coloring-modifier" value="mod-ext-Huge" />
+    <attribute name="font-size" value="Huge" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -483,14 +563,20 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\textbf">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#text" value="true" />
+    <attribute name="font-style" value="bold" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
 <command name="\underline">
+  <attribute name="hide-command" value="true" />
   <argument type="free">
     <attribute name="#text" value="true" />
+    <attribute name="text-style" value="underline" />
+    <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>
 
@@ -538,6 +624,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <command name="\documentclass">
   <attribute name="preamble" value="true" />
+  <attribute name="hide-whole-node" value="true" />
   <argument type="nonmandatory">
     <attribute name="#documentclassoptions" value="true" />
 
@@ -566,6 +653,7 @@ Microsystems, Inc. All Rights Reserved.
 <command name="\end">
   <attribute name="par" value="true" />
   <attribute name="end" value="true" />
+  <attribute name="free-text-end" value="true" />
   <argument type="mandatory">
     <attribute name="#code" value="true" />
 
@@ -582,6 +670,7 @@ Microsystems, Inc. All Rights Reserved.
       <attribute name="#no-parse" value="true" />
       <attribute name="#code" value="true" />
       <attribute name="type" value="verb" />
+      <attribute name="extended-coloring-modifier" value="mod-ext-verb" />
   </argument>
 </command>
 

@@ -61,7 +61,7 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode/*, 
         
         CommandCollection coll = new CommandCollection();
         
-        coll.addCommand(new Command("\\documentclass[#code|#documentclassoptions]{#code|#documentclass}:preamble"));
+        coll.addCommand(new Command("\\documentclass[#code|#documentclassoptions]{#code|#documentclass}:preamble,hide-whole-node"));
         setCommandCollection(coll);
     }
     

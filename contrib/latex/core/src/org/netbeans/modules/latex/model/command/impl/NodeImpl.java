@@ -155,8 +155,8 @@ public abstract class NodeImpl implements Node {
             
             int startIndex = tre.getElementIndex(start.getOffsetValue());
             int endIndex   = tre.getElementIndex(end.getOffsetValue());
-            
-            for (int cntr = startIndex; cntr <= endIndex; cntr++) {
+
+            for (int cntr = startIndex; cntr </*=*/ endIndex; cntr++) {
                 if (!isInChild(start.getFile(), doc.createPosition(tre.getElementOffset(cntr))))
                     result.add((Token) tre.getElement(cntr));
             }
@@ -191,7 +191,7 @@ public abstract class NodeImpl implements Node {
         int startIndex = tre.getElementIndex(start.getOffset().getOffset());
         int endIndex   = tre.getElementIndex(end.getOffset().getOffset());
         
-        for (int cntr = startIndex; cntr <= endIndex; cntr++) {
+        for (int cntr = startIndex; cntr </*=*/ endIndex; cntr++) {
             //TODO: this will work only for one file, not sure whether this is problem now.
             result.add((Token) tre.getElement(cntr));
         }
@@ -374,6 +374,18 @@ public abstract class NodeImpl implements Node {
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
         }
+    }
+
+    /**No attributes
+     */
+    public String getAttribute(String name) {
+        return null;
+    }
+
+    /**No attributes
+     */
+    public boolean hasAttribute(String name) {
+        return false;
     }
     
 }

@@ -122,7 +122,7 @@ public final class Command extends NamedAttributableWithArguments {
         return getCommand();
     }
     
-    public static final class Param extends Attributable {
+    public static final class Param extends AttributableImpl {
         
         public static final int FREE = 0;
         public static final int MANDATORY = 1;

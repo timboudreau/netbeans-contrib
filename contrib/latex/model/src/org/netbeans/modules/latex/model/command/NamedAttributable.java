@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -21,16 +21,16 @@ import java.util.Map;
 
 /**
  *
- * @author  lahvac
+ * @author Jan Lahoda
  */
-public class NamedAttributable extends Attributable {
+public class NamedAttributable extends AttributableImpl {
     
     private String name;
     
     /*package private*/synchronized void setName(String name) {
         this.name = name;
     }
-    
+
     /** Creates a new instance of Option */
     /*package private*/ NamedAttributable() {
     }

@@ -192,4 +192,16 @@ public class CommandNodeImpl extends NodeImpl implements CommandNode {
         super.setCommandCollection(commandCollection);
     }
     
+    /**No attributes
+     */
+    public String getAttribute(String name) {
+        return getCommand().getAttribute(name);
+    }
+
+    /**No attributes
+     */
+    public boolean hasAttribute(String name) {
+        return getCommand().hasAttribute(name);
+    }
+
 }

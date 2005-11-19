@@ -39,6 +39,7 @@ Microsystems, Inc. All Rights Reserved.
     <command name="\chapter">
         <attribute name="#caption-command" value="true" />
         <attribute name="#section-command" value="true" />
+        <attribute name="par" value="true" />
         <argument type="mandatory">
             <attribute name="#text" value="true"/>
             <attribute name="#caption" value="true"/>
@@ -48,6 +49,7 @@ Microsystems, Inc. All Rights Reserved.
     <command name="\chapter*">
         <attribute name="#caption-command" value="true" />
         <attribute name="#section-command" value="true" />
+        <attribute name="par" value="true" />
         <argument type="mandatory">
             <attribute name="#text" value="true"/>
             <attribute name="#caption" value="true"/>

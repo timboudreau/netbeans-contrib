@@ -13,17 +13,19 @@ Microsystems, Inc. All Rights Reserved.
 -->
 <!DOCTYPE file PUBLIC "-//NetBeans//LaTeX Commands Description 1.0//EN" "command_description.dtd">
 <file name="graphicx" type="package">
-<options/>
-<environments/>
-<commands>
-<command name="\includegraphics">
-<argument type="nonmandatory">
-<attribute name="#code" value="true"/>
-</argument>
-<argument type="mandatory">
-<attribute name="#code" value="true"/>
-</argument>
-</command>
-</commands>
+    <options/>
+    <environments/>
+    <commands>
+        <command name="\includegraphics">
+            <attribute name="hide-command" value="true" />
+            <argument type="nonmandatory">
+                <attribute name="#code" value="true"/>
+            </argument>
+            <argument type="mandatory">
+                <attribute name="#code" value="true"/>
+                <attribute name="picture-file-name" value="true" />
+            </argument>
+        </command>
+    </commands>
 </file>
 

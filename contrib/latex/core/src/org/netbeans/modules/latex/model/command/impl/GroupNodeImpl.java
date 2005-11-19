@@ -27,5 +27,16 @@ public class GroupNodeImpl extends TextNodeImpl implements GroupNode {
     public GroupNodeImpl(Node parent, NodeImpl previousCommandDefiningNode) {
         super(parent, previousCommandDefiningNode);
     }
+
+    public boolean hasAttribute(String name) {
+        return "hide-surrounding-brackets".equals(name);
+    }
+
+    public String getAttribute(String name) {
+        if ("hide-surrounding-brackets".equals(name))
+            return "true";
+        
+        return null;
+    }
     
 }

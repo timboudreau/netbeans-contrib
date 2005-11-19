@@ -122,7 +122,7 @@ import org.xml.sax.*;
     public void start_attribute(final AttributeList meta) throws SAXException {
         if (DEBUG) System.err.println("start_attribute: " + meta);
         
-        ((Attributable) lastAttributable.peek()).getAttributes().put(meta.getValue("name"), meta.getValue("value"));
+        ((AttributableImpl) lastAttributable.peek()).getAttributes().put(meta.getValue("name"), meta.getValue("value"));
     }
     
     public void end_attribute() throws SAXException {
@@ -174,7 +174,7 @@ import org.xml.sax.*;
     public void handle_description(final String data, final AttributeList meta) throws SAXException {
         if (DEBUG) System.err.println("handle_description: " + meta);
         
-        ((Attributable) lastAttributable.pop()).setDescription(data);
+        ((AttributableImpl) lastAttributable.pop()).setDescription(data);
     }
     
     public void start_environment(final AttributeList meta) throws SAXException {

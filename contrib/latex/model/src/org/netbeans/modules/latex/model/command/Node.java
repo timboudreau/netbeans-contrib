@@ -21,7 +21,7 @@ import java.util.Iterator;
  *
  * @author Jan Lahoda
  */
-public interface Node {
+public interface Node extends Attributable {
     
     /** Returns textual representation of this Node. It should not contain
      *  commands.

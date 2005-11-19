@@ -3,6 +3,11 @@
 <position><![CDATA[Position:[file=freearg3.tex, line=0, column=0, offset=0]]]></position>
 <position><![CDATA[Position:[file=freearg3.tex, line=6, column=14, offset=89]]]></position>
 </positions>
+<ParagraphNodeImpl>
+<positions>
+<position><![CDATA[Position:[file=freearg3.tex, line=0, column=0, offset=0]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=0, column=23, offset=23]]]></position>
+</positions>
 <CommandNodeImpl name="\documentclass">
 <positions>
 <position><![CDATA[Position:[file=freearg3.tex, line=0, column=0, offset=0]]]></position>
@@ -17,10 +22,16 @@
 <ArgumentNodeImpl>
 <positions>
 <position><![CDATA[Position:[file=freearg3.tex, line=0, column=14, offset=14]]]></position>
-<position><![CDATA[Position:[file=freearg3.tex, line=0, column=22, offset=22]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=0, column=23, offset=23]]]></position>
 </positions>
 </ArgumentNodeImpl>
 </CommandNodeImpl>
+</ParagraphNodeImpl>
+<ParagraphNodeImpl>
+<positions>
+<position><![CDATA[Position:[file=freearg3.tex, line=0, column=23, offset=23]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=6, column=14, offset=89]]]></position>
+</positions>
 <BlockNodeImpl>
 <positions>
 <position><![CDATA[Position:[file=freearg3.tex, line=2, column=0, offset=25]]]></position>
@@ -35,7 +46,7 @@
 <ArgumentNodeImpl>
 <positions>
 <position><![CDATA[Position:[file=freearg3.tex, line=2, column=6, offset=31]]]></position>
-<position><![CDATA[Position:[file=freearg3.tex, line=2, column=15, offset=40]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=2, column=16, offset=41]]]></position>
 </positions>
 </ArgumentNodeImpl>
 </CommandNodeImpl>
@@ -44,20 +55,38 @@
 <TextNodeImpl>
 <positions>
 <position><![CDATA[Position:[file=freearg3.tex, line=2, column=16, offset=41]]]></position>
-<position><![CDATA[Position:[file=freearg3.tex, line=6, column=14, offset=89]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=6, column=0, offset=75]]]></position>
+</positions>
+<ParagraphNodeImpl>
+<positions>
+<position><![CDATA[Position:[file=freearg3.tex, line=2, column=16, offset=41]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=6, column=0, offset=75]]]></position>
 </positions>
 <CommandNodeImpl name="\huge">
 <positions>
 <position><![CDATA[Position:[file=freearg3.tex, line=3, column=4, offset=46]]]></position>
-<position><![CDATA[Position:[file=freearg3.tex, line=3, column=16, offset=58]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=6, column=0, offset=75]]]></position>
 </positions>
 <ArgumentNodeImpl>
 <positions>
 <position><![CDATA[Position:[file=freearg3.tex, line=3, column=9, offset=51]]]></position>
-<position><![CDATA[Position:[file=freearg3.tex, line=3, column=15, offset=57]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=6, column=0, offset=75]]]></position>
 </positions>
+<TextNodeImpl>
+<positions>
+<position><![CDATA[Position:[file=freearg3.tex, line=3, column=9, offset=51]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=3, column=16, offset=58]]]></position>
+</positions>
+</TextNodeImpl>
 </ArgumentNodeImpl>
 </CommandNodeImpl>
+</ParagraphNodeImpl>
+<ParagraphNodeImpl>
+<positions>
+<position><![CDATA[Position:[file=freearg3.tex, line=6, column=0, offset=75]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=6, column=0, offset=75]]]></position>
+</positions>
+</ParagraphNodeImpl>
 </TextNodeImpl>
 </content>
 <end>
@@ -69,10 +98,11 @@
 <ArgumentNodeImpl>
 <positions>
 <position><![CDATA[Position:[file=freearg3.tex, line=6, column=4, offset=79]]]></position>
-<position><![CDATA[Position:[file=freearg3.tex, line=6, column=13, offset=88]]]></position>
+<position><![CDATA[Position:[file=freearg3.tex, line=6, column=14, offset=89]]]></position>
 </positions>
 </ArgumentNodeImpl>
 </CommandNodeImpl>
 </end>
 </BlockNodeImpl>
+</ParagraphNodeImpl>
 </NBDocumentNodeImpl>

@@ -25,11 +25,42 @@ Microsystems, Inc. All Rights Reserved.
     </commands>
 </environment>
 
-<environment name="itemize"></environment>
+<environment name="itemize">
+    <attribute name="hide-environment-boundary" value="true" />
+    <attribute name="item-block" value="item-itemize" />
+    <attribute name="par" value="true" />
+    <commands>
+        <command name="\item">
+          <attribute name="par" value="true" />
+          <attribute name="free-text-end" value="true" />
+          <attribute name="hide-command" value="true" />
+          <attribute name="item-command" value="true" />
+          <attribute name="visual-caret-marker" value="true" />
+          <argument type="nonmandatory">
+            <attribute name="#code" value="true" />
+            <attribute name="item-description-argument" value="true" />
+            <attribute name="hide-surrounding-brackets" value="true" />
+          </argument>
+
+          <argument type="free">
+            <attribute name="#text" value="true" />
+            <attribute name="item-argument" value="item-itemize" />
+            <attribute name="item-formating-level-1" value="- " />
+            <attribute name="item-formating-level-2" value="- " />
+            <attribute name="item-formating-level-3" value="- " />
+            <attribute name="item-formating-level-4" value="- " />
+            <attribute name="contains-paragraph" value="true" />
+            <attribute name="hide-surrounding-brackets" value="true" />
+          </argument>
+        </command>
+    </commands>
+</environment>
 
 <environment name="figure">
     <attribute name="#figure-environment" value="true" />
     <attribute name="#captionable" value="true" />
+    <attribute name="figure-environment" value="true" />
+    <attribute name="hide-environment-boundary" value="true" />
     <commands>
         <command name="\caption">
           <attribute name="#caption-command" value="true" />
@@ -44,9 +75,41 @@ Microsystems, Inc. All Rights Reserved.
 
 <environment name="abstract"></environment>
 
-<environment name="description"></environment>
+<environment name="description">
+    <attribute name="hide-environment-boundary" value="true" />
+    <attribute name="item-block" value="item-description" />
+    <attribute name="par" value="true" />
+    <commands>
+        <command name="\item">
+          <attribute name="par" value="true" />
+          <attribute name="free-text-end" value="true" />
+          <attribute name="hide-command" value="true" />
+          <attribute name="item-command" value="true" />
+          <attribute name="visual-caret-marker" value="true" />
+          <argument type="nonmandatory">
+            <attribute name="#code" value="true" />
+            <attribute name="item-description-argument" value="true" />
+            <attribute name="font-style" value="bold" />
+            <attribute name="hide-surrounding-brackets" value="true" />
+          </argument>
 
-<environment name="document"></environment>
+          <argument type="free">
+            <attribute name="#text" value="true" />
+            <attribute name="item-argument" value="item-description" />
+            <attribute name="item-formating-level-1" value="" />
+            <attribute name="item-formating-level-2" value="" />
+            <attribute name="item-formating-level-3" value="" />
+            <attribute name="item-formating-level-4" value="" />
+            <attribute name="contains-paragraph" value="true" />
+            <attribute name="hide-surrounding-brackets" value="true" />
+          </argument>
+        </command>
+    </commands>
+</environment>
+
+<environment name="document">
+    <attribute name="hide-environment-boundary" value="true" />
+</environment>
 
 <environment name="center"></environment>
 
@@ -56,6 +119,35 @@ Microsystems, Inc. All Rights Reserved.
 
 <environment name="tabular"></environment>
 
-<environment name="enumerate"></environment>
+<environment name="enumerate">
+    <attribute name="hide-environment-boundary" value="true" />
+    <attribute name="item-block" value="item-enumerate" />
+    <attribute name="par" value="true" />
+    <commands>
+        <command name="\item">
+          <attribute name="par" value="true" />
+          <attribute name="free-text-end" value="true" />
+          <attribute name="hide-command" value="true" />
+          <attribute name="item-command" value="true" />
+          <attribute name="visual-caret-marker" value="true" />
+          <argument type="nonmandatory">
+            <attribute name="#code" value="true" />
+            <attribute name="item-description-argument" value="true" />
+            <attribute name="hide-surrounding-brackets" value="true" />
+          </argument>
+
+          <argument type="free">
+            <attribute name="#text" value="true" />
+            <attribute name="item-argument" value="item-enumerate" />
+            <attribute name="item-formating-level-1" value="{item-counter-level-item-enumerate-1}. " />
+            <attribute name="item-formating-level-2" value="{item-counter-level-item-enumerate-2}. " />
+            <attribute name="item-formating-level-3" value="{item-counter-level-item-enumerate-3}. " />
+            <attribute name="item-formating-level-4" value="{item-counter-level-item-enumerate-4}. " />
+            <attribute name="contains-paragraph" value="true" />
+            <attribute name="hide-surrounding-brackets" value="true" />
+          </argument>
+        </command>
+    </commands>
+</environment>
 
 <environment name="minipage"></environment>

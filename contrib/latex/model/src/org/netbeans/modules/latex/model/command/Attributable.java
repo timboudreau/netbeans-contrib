@@ -21,44 +21,12 @@ import java.util.Map;
 
 /**
  *
- * @author  lahvac
+ * @author Jan Lahoda
  */
-public class Attributable {
+public interface Attributable {
     
-    private Map attributes;
-    private String description;
+    public boolean hasAttribute(String name);
     
-    /*package private*/synchronized Map getAttributes() {
-        if (attributes == null)
-            attributes = new HashMap();
-        
-        return attributes;
-    }
-    
-    /*package private*/synchronized void setDescription(String description) {
-        this.description = description;
-    }
-    
-    /** Creates a new instance of Option */
-    /*package private*/ Attributable() {
-    }
-    
-    public synchronized boolean hasAttribute(String name) {
-        if (attributes == null)
-            return false;
-        
-        return attributes.get(name) != null;
-    }
-    
-    public synchronized String getAttribute(String name) {
-        if (attributes == null)
-            return null;
-        
-        return (String) attributes.get(name);
-    }
-    
-    public synchronized String getDescription() {
-        return description;
-    }
+    public String getAttribute(String name);
     
 }

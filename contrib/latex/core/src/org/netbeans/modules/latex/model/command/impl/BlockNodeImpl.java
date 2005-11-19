@@ -31,6 +31,8 @@ import org.netbeans.modules.latex.test.TestCertificate;
  */
 public class BlockNodeImpl extends NodeImpl implements BlockNode {
     
+    public static final Environment NULL_ENVIRONMENT = new Environment("nullenvironments");
+    
     private CommandNodeImpl begin;
     private CommandNodeImpl end;
     private TextNodeImpl    content;
@@ -133,4 +135,16 @@ public class BlockNodeImpl extends NodeImpl implements BlockNode {
         return environment;
     }
     
+    /**No attributes
+     */
+    public String getAttribute(String name) {
+        return getEnvironment().getAttribute(name);
+    }
+
+    /**No attributes
+     */
+    public boolean hasAttribute(String name) {
+        return getEnvironment().hasAttribute(name);
+    }
+
 }
