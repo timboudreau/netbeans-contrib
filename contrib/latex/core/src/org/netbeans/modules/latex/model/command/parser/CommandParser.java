@@ -868,7 +868,6 @@ public final class CommandParser {
                     node.addChild(lastParagraph);
                 }
                 
-                System.err.println("bcnode= " + bcnode);
                 if (bcnode instanceof CommandNodeImpl) {
                      CommandNodeImpl cnode = (CommandNodeImpl) bcnode;
                      
