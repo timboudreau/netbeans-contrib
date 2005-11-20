@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                     Sun Public License Notice
+    
+     The contents of this file are subject to the Sun Public License
+     Version 1.0 (the "License"). You may not use this file except in
+     compliance with the License. A copy of the License is available at
+     http://www.sun.com/
+    
+     The Original Code is NetBeans. The Initial Developer of the Original
+     Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+     Microsystems, Inc. All Rights Reserved.
+   -->
+
+<!--
+    Document   : NetBeans-LaTeX-fontsColors.xml.xml
+    Created on : November 16, 2005, 6:11 PM
+    Author     : lahvac
+    Description:
+        Purpose of the document follows.
+-->
+
+<fontscolors>
+    
+<!--mod-enum-arg-incorrect
+whitespace
+mod-enum-arg-correct
+unknown-character
+comment
+mod-command-incorrect
+command
+paragraph-end
+mod-math
+mod-command-correct
+mod-command-definition
+word
+mod-word-bad
+mod-word-incomplete
+mod-word-incorrect-->
+
+<!--            settingsMap.put(TexColoringNames.COMMAND_GENERAL   + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, null, null));
+            settingsMap.put(TexColoringNames.COMMENT           + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Color.gray, null));
+            settingsMap.put(TexColoringNames.UNKNOWN_CHARACTER + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Color.black, null));
+            settingsMap.put(TexColoringNames.WHITESPACE        + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Color.white, null));
+            settingsMap.put(TexColoringNames.WORD              + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Color.black, null));
+            settingsMap.put(TexColoringNames.PARAGRAPH_END     + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, null, null));
+            settingsMap.put(TexColoringNames.MATH              + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, null, new Color(200, 218, 255)));
+            settingsMap.put(TexColoringNames.COMMAND_INCORRECT + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, new Color(204, 0, 0), null, null, null, Color.RED));
+            settingsMap.put(TexColoringNames.COMMAND_CORRECT   + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, new Color(204, 0, 0), null));
+            settingsMap.put(TexColoringNames.DEFINITION        + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(PLAIN, Coloring.FONT_MODE_APPLY_STYLE, new Color(128, 128, 0), null));
+            settingsMap.put(TexColoringNames.ENUM_ARG_INCORRECT + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, new Color(0, 0, 245), null, null, null, Color.RED));
+            settingsMap.put(TexColoringNames.ENUM_ARG_CORRECT   + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, new Color(0, 0, 245), null));
+            settingsMap.put(TexColoringNames.WORD_BAD           + SettingsNames.COLORING_NAME_SUFFIX, new Coloring());
+            settingsMap.put(TexColoringNames.WORD_INCORRECT     + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, null, null, null, null, Color.RED));
+            settingsMap.put(TexColoringNames.WORD_INCOMPLETE    + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, null, null, null, null, Color.GRAY));-->
+
+</fontscolors>

@@ -9,7 +9,7 @@ http://www.sun.com/
 
 The Original Code is the DocSup module.
 The Initial Developer of the Original Code is Jan Lahoda.
-Portions created by Jan Lahoda are Copyright 2002-2003.
+Portions created by Jan Lahoda are Copyright 2002-2005.
 All Rights Reserved.
 
 Contributor(s): Jan Lahoda
@@ -20,6 +20,7 @@ Contributor(s): Jan Lahoda
    <folder name="Editors">
       <folder name="text">
          <folder name="x-tex">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.latex.editor.Bundle"/>
             <file name="Settings.settings" url="TexOptions.settings"/>
             <file name="EditorKit.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.editor.TexKit"/>
@@ -58,6 +59,12 @@ Contributor(s): Jan Lahoda
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.editor.LaTeXHyperlinkProvider"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProvider"/>
                 </file>
+            </folder>
+            
+            <folder name="NetBeans">
+                <folder name="Defaults">
+                    <file name="coloring.xml" url="NetBeans-LaTeX-fontsColors.xml" />
+                </folder>
             </folder>
           </folder>
           
