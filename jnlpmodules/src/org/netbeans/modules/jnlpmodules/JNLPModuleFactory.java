@@ -287,11 +287,12 @@ public class JNLPModuleFactory extends ModuleFactory {
             Set m = mgr.getModules();
             for (Iterator it = m.iterator(); it.hasNext(); ) {
                 Module m1 = (Module)it.next();
-                if (  (m1.getCodeName().equals("org.openide/1")) ||
-                      (m1.getCodeName().equals("org.netbeans.core/1")) ||
-                      (m1.getCodeName().equals("org.openide.loaders")) ||
-                      (m1.getCodeName().equals("org.netbeans.libs.xerces/1")) ||
-                      (m1.getCodeName().equals("org.netbeans.modules.zeroadmin/1")) 
+                if (  m1.getCodeName().equals("org.netbeans.bootstrap/1") ||
+                      m1.getCodeName().equals("org.netbeans.core.startup/1") ||
+                      m1.getCodeName().equals("org.netbeans.modules.jnlpmodules") ||
+                      m1.getCodeName().equals("org.openide.modules") ||
+                      m1.getCodeName().equals("org.openide.util") ||
+                      m1.getCodeName().equals("org.openide.filesystems")
                 ) {
                     if (m1 instanceof ClasspathModule) {
                         ClasspathModule cpm1 = (ClasspathModule)m1;

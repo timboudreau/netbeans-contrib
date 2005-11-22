@@ -202,13 +202,14 @@ public final class ClasspathModule extends Module {
      * and cannot be uninstalled or manipulated in any way.
      */
     public boolean isFixed() {
-        return getCodeName().equals("org.openide/1") ||
-               getCodeName().equals("org.netbeans.core/1") ||
-               getCodeName().equals("org.openide.loaders") ||
-               getCodeName().equals("org.netbeans.libs.xerces/1") ||
-               getCodeName().equals("org.netbeans.modules.zeroadmin/1");
+        return getCodeName().equals("org.netbeans.bootstrap/1") ||
+               getCodeName().equals("org.netbeans.core.startup/1") ||
+               getCodeName().equals("org.netbeans.modules.jnlpmodules") ||
+               getCodeName().equals("org.openide.modules") ||
+               getCodeName().equals("org.openide.util") ||
+               getCodeName().equals("org.openide.filesystems"); // ??? getCodeName().equals("org.netbeans.libs.xerces/1") ||
     }
-    
+
     /** Find any extensions loaded by the module, as well as any localized
      * variants of the module or its extensions.
      */
@@ -439,11 +440,12 @@ public final class ClasspathModule extends Module {
         
         try {
                 if ((delegate != null) &&
-                    ( (getCodeName().equals("org.openide/1")) ||
-                      (getCodeName().equals("org.netbeans.core/1")) ||
-                      (getCodeName().equals("org.openide.loaders")) || 
-                      (getCodeName().equals("org.netbeans.libs.xerces/1")) ||
-                      (getCodeName().equals("org.netbeans.modules.zeroadmin/1"))
+                    ( (getCodeName().equals("org.netbeans.bootstrap/1")) ||
+                      (getCodeName().equals("org.netbeans.core.startup/1")) ||
+                      (getCodeName().equals("org.netbeans.modules.jnlpmodules")) || 
+                      (getCodeName().equals("org.openide.modules")) ||
+                      (getCodeName().equals("org.openide.util")) ||
+                      (getCodeName().equals("org.openide.filesystems")) //  ??? (getCodeName().equals("org.netbeans.libs.xerces/1")) ||
                     )
                 ) {
                     classloader = delegate;
