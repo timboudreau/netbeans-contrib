@@ -34,4 +34,15 @@ public class MDRLoader extends UniFileLoader {
     public MultiDataObject createMultiObject(FileObject primaryFile) throws DataObjectExistsException, IOException {
         return new MDRDataObject(primaryFile, this);
     }
+    
+    protected FileObject findPrimaryFile (FileObject fo) {
+        FileObject result = super.findPrimaryFile(fo);
+        if (result == null)
+            return null;
+        String fileName = result.getName();
+        if (fileName.indexOf('[')==-1 || fileName.indexOf(']')==-1)
+            return null;
+        return result;
+    }
+    
 }
