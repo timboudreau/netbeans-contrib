@@ -169,13 +169,13 @@ public final class ClasspathModule extends Module {
                 }
             }
             if (!usingLoader) {
-                if (localizedProps == null) {
+                if (localizedProps != null) {
+                    String val = localizedProps.getProperty(attr);
+                    if (val != null) {
+                        return val;
+                    }
+                } else {
                     err.log("Trying to get localized attr " + attr + " from disabled module " + getCodeNameBase());
-                    throw new IllegalStateException();
-                }
-                String val = localizedProps.getProperty(attr);
-                if (val != null) {
-                    return val;
                 }
             }
         }
