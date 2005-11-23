@@ -186,8 +186,14 @@ public class JNLPModuleFactory extends ModuleFactory {
     private String getJarFileName(String prefix, Set jarFileNames) {
         for (Iterator it = jarFileNames.iterator(); it.hasNext(); ) {
             String jarFileName = (String)it.next();
-            if (prefix.indexOf(jarFileName) >= 0) {
-                return jarFileName;
+            if (prefix.indexOf("RM")>=0) { // using "RM"+ is an ugly hack that should be removed
+                if (prefix.indexOf("RM"+jarFileName) >= 0) {
+                    return jarFileName;
+                }
+            } else { // "RM" is not part of the URL, try without this "anchor"
+                if (prefix.indexOf(jarFileName) >= 0) {
+                    return jarFileName;
+                }
             }
         }
         String warning = "PROBLEM: " + prefix + " not found in "; // NOI18N
