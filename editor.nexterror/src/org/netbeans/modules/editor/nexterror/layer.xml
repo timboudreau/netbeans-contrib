@@ -21,17 +21,9 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
 
     <folder name="Shortcuts">
-        <file name="F2.shadow">
+        <file name="AS-N.shadow">
 	    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-editor-nexterror-ScanAnnotationsAction.instance"/>
         </file>
     </folder>
 
-    <folder name="Profiles">
-        <folder name="NetBeans">
-            <file name="F2.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-editor-nexterror-ScanAnnotationsAction.instance"/>
-            </file>
-        </folder>
-    </folder>
-    
 </filesystem>
