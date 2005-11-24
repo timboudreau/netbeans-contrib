@@ -178,7 +178,7 @@ public class BundleLookupPanel extends TopComponent  {
         setName("BundleLookupPanel"); // NOI18N
         try {
             setIcon(java.awt.Toolkit.getDefaultToolkit().getImage(
-                getClass().getResource("/org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif"))); // NOI18N
+                getClass().getResource("org/netbeans/modules/jemmysupport/resources/bundleLookup.png"))); // NOI18N
         } catch (Exception e){
             ErrorManager.getDefault().notify(e);
         }
