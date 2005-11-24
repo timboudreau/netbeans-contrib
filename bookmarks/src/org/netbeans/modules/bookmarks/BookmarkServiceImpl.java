@@ -12,10 +12,13 @@
  */
 package org.netbeans.modules.bookmarks;
 
+import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
+import javax.swing.AbstractAction;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
@@ -417,11 +420,18 @@ public class BookmarkServiceImpl extends BookmarkService {
         try {
             Context c = Context.getDefault().createSubcontext(SHORTCUTS_FOLDER);
             // This is a hack! It forces the core's impl to refresh the list of shortcuts.
-            c.putObject("dummy", new java.io.Serializable() { // NOI18N
-                static final long serialVersionUID = 1L;
-            } );
+            c.putObject("dummy", new DummyAction()); // NOI18N
+            // and delete it!
+            c.putObject("dummy", null);
         } catch (ContextException ce)  {
             ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce); // NOI18N
+        }
+    }
+    
+    private static class DummyAction extends AbstractAction implements Serializable {
+        static final long serialVersionUID = 1L;
+
+        public void actionPerformed(ActionEvent e) {
         }
     }
     
