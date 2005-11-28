@@ -289,7 +289,7 @@ public class JNLPModuleFactory extends ModuleFactory {
     public ClassLoader getClasspathDelegateClassLoader(ModuleManager mgr, ClassLoader del) {
         if (classpathDelegateClassLoader == null) {
             Set s = getPrefixNonModules("core");
-//            s.addAll(getPrefixNonModules("lib"));
+            s.addAll(getPrefixNonModules("lib"));
             Set m = mgr.getModules();
             for (Iterator it = m.iterator(); it.hasNext(); ) {
                 Module m1 = (Module)it.next();
