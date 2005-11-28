@@ -4,20 +4,26 @@
 <filesystem>
     <folder name="Templates">
         <folder name="TestingTools">
-          <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/xtest/resources/testingToolsCategory.html" />
-          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.xtest.resources.Bundle"/>
+            <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/xtest/resources/testingToolsCategory.html" />
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.xtest.resources.Bundle"/>
 
-          <file name="build-unit.xml" url="template.build-unit.xml"/>
-          <file name="cfg-unit.xml" url="template.cfg-unit.xml"/>
-          <file name="build-functional.xml" url="template.build-functional.xml"/>
-          <file name="cfg-functional.xml" url="template.cfg-functional.xml"/>
-          <file name="build.xml" url="template.build.xml">
-             <attr name="template" boolvalue="true" />
-             <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/xtest/resources/XTest.html" />
-             <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.xtest.XTestWizardIterator.singleton" />
-             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.xtest.resources.Bundle"/>
-             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/xtest/resources/XTest.gif"/>
-          </file>
+            <file name="build-unit.xml" url="template.build-unit.xml"/>
+            <file name="cfg-unit.xml" url="template.cfg-unit.xml"/>
+            <file name="build-functional.xml" url="template.build-functional.xml"/>
+            <file name="cfg-functional.xml" url="template.cfg-functional.xml"/>
+            <file name="build.xml" url="template.build.xml">
+                <attr name="template" boolvalue="true" />
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/xtest/resources/XTest.html" />
+                <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.xtest.XTestWizardIterator.singleton" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.xtest.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/xtest/resources/XTest.gif"/>
+            </file>
+        </folder>
+    </folder>
+    <!-- Adds XTest sub menu to project root node -->
+    <folder name="Projects" >
+        <folder name="Actions" >
+            <file name="org-netbeans-modules-xtest-actions-XTestProjectMenuItem.instance"/>
         </folder>
     </folder>
 </filesystem>
