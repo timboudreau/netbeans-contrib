@@ -17,6 +17,7 @@ import java.io.File;
 import org.netbeans.modules.projectpackager.tools.Constants;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  * Validator of import package
@@ -34,23 +35,23 @@ public class ImportPackageValidator {
      */
     public static boolean validate() {
         if (ImportPackageInfo.getZip().equals("")) {
-            NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_choose_a_zip_file_with_project_to_import."), NotifyDescriptor.ERROR_MESSAGE);
-            d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_no_zip_selected"));
+            NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Please_choose_a_zip_file_with_project_to_import."), NotifyDescriptor.ERROR_MESSAGE);
+            d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Error:_no_zip_selected"));
             DialogDisplayer.getDefault().notify(d);
             return false;
         }
 
         if (ImportPackageInfo.getUnzipDir().equals("")) {
-            NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_specify_a_directory_where_to_unzip_project."), NotifyDescriptor.ERROR_MESSAGE);
-            d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_project_directory_not_specified"));
+            NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Please_specify_a_directory_where_to_unzip_project."), NotifyDescriptor.ERROR_MESSAGE);
+            d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Error:_project_directory_not_specified"));
             DialogDisplayer.getDefault().notify(d);
             return false;            
         }
 
         File projectDir = new File(ImportPackageInfo.getUnzipDir()+File.separator+ImportPackageInfo.getProjectName());
         if (projectDir.exists()) {
-            NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_directory_already_exists._Please_choose_a_different_directory."),
-                    java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_project_directory_exists"));
+            NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine(NbBundle.getBundle(Constants.BUNDLE).getString("Project_directory_already_exists._Please_choose_a_different_directory."),
+                    NbBundle.getBundle(Constants.BUNDLE).getString("Error:_project_directory_exists"));
             d.setInputText(ImportPackageInfo.getOriginalName());
             DialogDisplayer.getDefault().notify(d);
             // new project folder name
@@ -64,15 +65,15 @@ public class ImportPackageValidator {
         
         File target = new File(ImportPackageInfo.getUnzipDir());
         if (!target.canWrite()) {
-            NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_directory_is_not_writable._Please_choose_a_different_directory."), NotifyDescriptor.ERROR_MESSAGE);
-            d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_project_directory_not_writable"));
+            NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Project_directory_is_not_writable._Please_choose_a_different_directory."), NotifyDescriptor.ERROR_MESSAGE);
+            d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Error:_project_directory_not_writable"));
             DialogDisplayer.getDefault().notify(d);
             return false;            
         }
 
         if (ImportPackageInfo.getProjectName().equals("")) {
-            NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Please_specify_a_non-empty_project_name."), NotifyDescriptor.ERROR_MESSAGE);
-            d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_empty_project_name"));
+            NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Please_specify_a_non-empty_project_name."), NotifyDescriptor.ERROR_MESSAGE);
+            d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Error:_empty_project_name"));
             DialogDisplayer.getDefault().notify(d);
             return false;
         }

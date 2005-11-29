@@ -19,6 +19,7 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 import java.util.ResourceBundle;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 /**
@@ -27,7 +28,7 @@ import org.openide.util.Utilities;
 public class ProjectPackagerSettingsBeanInfo extends SimpleBeanInfo {
     
     public PropertyDescriptor[] getPropertyDescriptors() {
-        ResourceBundle bundle = java.util.ResourceBundle.getBundle(Constants.BUNDLE);
+        ResourceBundle bundle = NbBundle.getBundle(Constants.BUNDLE);
         try {
             PropertyDescriptor smtpServer =
                     new PropertyDescriptor("smtpServer", ProjectPackagerSettings.class);

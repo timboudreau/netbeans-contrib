@@ -31,6 +31,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
 
 /**
  * A thread which executes ant targets and shows result of the actions to user.
@@ -67,7 +68,7 @@ public class ImportExecutorThread extends Thread {
      */
     public void run() {
         if (!isSilent()) {
-            handle = ProgressHandleFactory.createHandle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Processing_zips"));
+            handle = ProgressHandleFactory.createHandle(NbBundle.getBundle(Constants.BUNDLE).getString("Processing_zips"));
             handle.start();
         }
         while (count<scheduledCount) {
@@ -77,7 +78,7 @@ public class ImportExecutorThread extends Thread {
             try {
                 ExecutorTask et = ActionUtils.runTarget(script, target, props);
                 if (et.result()!=0) {
-                    System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Task_execution_error_during_")+target[0]+".");
+                    System.err.println(NbBundle.getBundle(Constants.BUNDLE).getString("Task_execution_error_during_")+target[0]+".");
                     status.put(target[0], new Boolean(false));
                 } else {
                     if (status.get(target[0])==null) {
@@ -85,7 +86,7 @@ public class ImportExecutorThread extends Thread {
                     }
                 }
             } catch (IOException e) {
-                System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
+                System.err.println(NbBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
             }
             count++;
         }
@@ -105,7 +106,7 @@ public class ImportExecutorThread extends Thread {
                         OpenProjects.getDefault().open(new Project[] { project },false);
                     }
                 } catch (IOException e) {
-                    System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
+                    System.err.println(NbBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
                 }
             }
         });
@@ -118,33 +119,33 @@ public class ImportExecutorThread extends Thread {
         
         String errorMsg = "";
         if (scheduledTasks.get("unzip-project")!=null && !((Boolean) status.get("unzip-project")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_unzip_project._Disk_error?");
+            errorMsg+=NbBundle.getBundle(Constants.BUNDLE).getString("Could_not_unzip_project._Disk_error?");
         }
         if (scheduledTasks.get("delete-zip")!=null && !((Boolean) status.get("delete-zip")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_delete_zip.__Disk_not_writable?");
+            errorMsg+=NbBundle.getBundle(Constants.BUNDLE).getString("Could_not_delete_zip.__Disk_not_writable?");
         }
         if (!errorMsg.equals("")) {
             NotifyDescriptor d = new NotifyDescriptor.Message(errorMsg, NotifyDescriptor.ERROR_MESSAGE);
-            d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error_during_processing_zips"));
+            d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Error_during_processing_zips"));
             DialogDisplayer.getDefault().notify(d);
         } else {
             if (scheduledTasks.get("delete-zip")==null && scheduledTasks.get("unzip-project")!=null && 
                     ((Boolean) scheduledTasks.get("unzip-project")).booleanValue()) {
-                NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_imported_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
-                d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip_importer_finished"));
+                NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Project_imported_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
+                d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Zip_importer_finished"));
                 DialogDisplayer.getDefault().notify(d);
                 return;
             }
             if (scheduledTasks.get("delete-zip")==null && scheduledTasks.get("unzip-renamed-project")!=null && 
                     ((Boolean) scheduledTasks.get("unzip-renamed-project")).booleanValue()) {
-                NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_imported_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
-                d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip_importer_finished"));
+                NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Project_imported_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
+                d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Zip_importer_finished"));
                 DialogDisplayer.getDefault().notify(d);
                 return;
             }
             if (((Boolean) scheduledTasks.get("delete-zip")).booleanValue()) {
-                NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_imported_successfully,_original_zip_deleted."), NotifyDescriptor.INFORMATION_MESSAGE);
-                d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip_importer_finished"));
+                NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Project_imported_successfully,_original_zip_deleted."), NotifyDescriptor.INFORMATION_MESSAGE);
+                d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Zip_importer_finished"));
                 DialogDisplayer.getDefault().notify(d);
             }
         }

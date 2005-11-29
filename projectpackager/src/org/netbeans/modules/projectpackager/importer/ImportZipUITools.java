@@ -21,6 +21,7 @@ import javax.swing.JFileChooser;
 import org.netbeans.modules.projectpackager.tools.Constants;
 import org.netbeans.modules.projectpackager.tools.DirectoryFilter;
 import org.netbeans.modules.projectpackager.tools.ZipFilter;
+import org.openide.util.NbBundle;
 
 /**
  * Tools for Import Zip dialog
@@ -69,7 +70,7 @@ public class ImportZipUITools {
             }            
             if (!isProject) {
                 // seems to be a source root, change projectName
-                izd.setProjectNameLabel(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Source_Root_Folder_Name"));
+                izd.setProjectNameLabel(NbBundle.getBundle(Constants.BUNDLE).getString("Source_Root_Folder_Name"));
             }
             ImportPackageInfo.setOriginalName(name);
             izd.setProjectName(name);

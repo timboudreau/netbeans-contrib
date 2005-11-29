@@ -44,6 +44,7 @@ public class ExecutionTools {
         InputStream in = sfo.getInputStream();
         
         FileWriter out = new FileWriter(sf);
+        // XXX FileUtil.copy
         int c;
         while ((c = in.read()) != -1)
             out.write(c);

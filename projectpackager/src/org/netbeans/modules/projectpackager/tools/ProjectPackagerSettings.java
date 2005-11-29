@@ -18,6 +18,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import org.openide.options.SystemOption;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 
 
 /**
@@ -32,37 +33,37 @@ public class ProjectPackagerSettings extends SystemOption {
     /**
      * SMTP server property
      */
-    public static final String PROP_SMTP_SERVER = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Server");
+    public static final String PROP_SMTP_SERVER = NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_Server");
     /**
      * SMTP username property
      */
-    public static final String PROP_SMTP_USERNAME = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Username");
+    public static final String PROP_SMTP_USERNAME = NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_Username");
     /**
      * SMTP password property
      */
-    public static final String PROP_SMTP_PASSWORD = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Password");
+    public static final String PROP_SMTP_PASSWORD = NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_Password");
     /**
      * Use SSL for SMTP property
      */    
-    public static final String PROP_SMTP_USE_SSL = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Use_SSL");
+    public static final String PROP_SMTP_USE_SSL = NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_Use_SSL");
     /**
      * Mail From
      */
-    public static final String PROP_MAIL_FROM = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Mail_From");
+    public static final String PROP_MAIL_FROM = NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_Mail_From");
     /**
      * Mail Subject
      */
-    public static final String PROP_MAIL_SUBJECT = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Mail_Subject");
+    public static final String PROP_MAIL_SUBJECT = NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_Mail_Subject");
     /**
      * Mail Body
      */
-    public static final String PROP_MAIL_BODY = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("SMTP_Mail_Body");
+    public static final String PROP_MAIL_BODY = NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_Mail_Body");
             
     
     /**
      * Version property
      */
-    public static final String PROP_VERSION = java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("version");    
+    public static final String PROP_VERSION = NbBundle.getBundle(Constants.BUNDLE).getString("version");    
     
     /**
      * Current version - 4.1, may need update
@@ -102,12 +103,9 @@ public class ProjectPackagerSettings extends SystemOption {
         } else {
             putProperty(PROP_SMTP_USE_SSL, Boolean.FALSE, true);
         }
-        putProperty(PROP_MAIL_FROM, java.util.ResourceBundle.getBundle(
-                Constants.BUNDLE).getString("Mail_From_Default"), true);
-        putProperty(PROP_MAIL_SUBJECT, java.util.ResourceBundle.getBundle(
-                Constants.BUNDLE).getString("Mail_Subject_Default"), true);
-        putProperty(PROP_MAIL_BODY, java.util.ResourceBundle.getBundle(
-                Constants.BUNDLE).getString("Mail_Body_Default"), true);
+        putProperty(PROP_MAIL_FROM, NbBundle.getBundle(Constants.BUNDLE).getString("Mail_From_Default"), true);
+        putProperty(PROP_MAIL_SUBJECT, NbBundle.getBundle(Constants.BUNDLE).getString("Mail_Subject_Default"), true);
+        putProperty(PROP_MAIL_BODY, NbBundle.getBundle(Constants.BUNDLE).getString("Mail_Body_Default"), true);
     }
 
     /**
@@ -139,7 +137,7 @@ public class ProjectPackagerSettings extends SystemOption {
             readVersionedOptions(in, version);
         } else {
             // something went wrong
-            System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Unknown_options_for_Project_Packager."));
+            System.err.println(NbBundle.getBundle(Constants.BUNDLE).getString("Unknown_options_for_Project_Packager."));
         }
     }    
     
@@ -150,7 +148,7 @@ public class ProjectPackagerSettings extends SystemOption {
                 break;
             default:
                 // weird stuff
-                System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Unknown_options_for_Project_Packager_-_version:_")+version);
+                System.err.println(NbBundle.getBundle(Constants.BUNDLE).getString("Unknown_options_for_Project_Packager_-_version:_")+version);
         }
     }
     
@@ -169,7 +167,7 @@ public class ProjectPackagerSettings extends SystemOption {
      * @return settings name
      */
     public String displayName () {
-        return java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Project_Packager_Settings");
+        return NbBundle.getBundle(Constants.BUNDLE).getString("Project_Packager_Settings");
     }
 
     /**

@@ -29,6 +29,7 @@ public class ExportZipDialog extends javax.swing.JFrame {
     public ExportZipDialog() {
         listData = ExportZipUITools.getListData();
         initComponents();
+        // XXX forgot I18N on forms!
         projectList.setListData(listData);
         setLocationRelativeTo(null);
         if (listData.size()==1) {

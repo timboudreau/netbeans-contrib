@@ -20,6 +20,7 @@ import org.netbeans.modules.projectpackager.tools.DirectoryFilter;
 import org.netbeans.modules.projectpackager.tools.ProjectPackagerSettings;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  * Tools for Export zip dialog
@@ -157,8 +158,8 @@ public class ExportZipUITools {
         ProjectInfo.initProjects();
         ProjectTools.readProjectInfo();
         if (ProjectInfo.getProjectCount()==0) {
-            NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("No_projects_are_currently_opened._Please_open_at_least_one_project_and_re-run_exporter."), NotifyDescriptor.ERROR_MESSAGE);
-            d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_no_project_opened"));
+            NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("No_projects_are_currently_opened._Please_open_at_least_one_project_and_re-run_exporter."), NotifyDescriptor.ERROR_MESSAGE);
+            d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Error:_no_project_opened"));
             DialogDisplayer.getDefault().notify(d);
             return null;
         }

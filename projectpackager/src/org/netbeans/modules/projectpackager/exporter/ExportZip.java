@@ -16,6 +16,7 @@ import org.netbeans.modules.projectpackager.tools.Constants;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 
 /**
@@ -36,7 +37,7 @@ public class ExportZip extends CallableSystemAction {
      * @return action name
      */
     public String getName() {
-        return java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("NetBeans_Project(s)_as_Zip...");
+        return NbBundle.getBundle(Constants.BUNDLE).getString("NetBeans_Project(s)_as_Zip...");
     }
     
     /**
@@ -56,8 +57,8 @@ public class ExportZip extends CallableSystemAction {
                 zpd.requestFocus();
                 return;
             } else {
-                NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Another_instance_of_this_action_is_already_running._Please_wait_untill_it_finishes."), NotifyDescriptor.ERROR_MESSAGE);
-                d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error:_another_instance_is_running"));
+                NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Another_instance_of_this_action_is_already_running._Please_wait_untill_it_finishes."), NotifyDescriptor.ERROR_MESSAGE);
+                d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Error:_another_instance_is_running"));
                 DialogDisplayer.getDefault().notify(d);            
                 return;
             }
@@ -66,6 +67,7 @@ public class ExportZip extends CallableSystemAction {
         ExportPackageInfo.setProcessed(true);
         
         if (ExportZipUITools.getListData()!=null) {
+            // XXX should rather delete OK/Cancel buttons from frame, and use NotifyDescriptor on a JPanel instead
             zpd = new ExportZipDialog();
             zpd.setVisible(true);
         } else {
@@ -80,5 +82,10 @@ public class ExportZip extends CallableSystemAction {
     protected boolean asynchronous() {
         return false;
     }
-}
 
+    protected void initialize() {
+        super.initialize();
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
+    }
+    
+}

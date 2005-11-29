@@ -25,6 +25,7 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
 
 /**
  * A thread which executes ant targets and shows result of the actions to user.
@@ -61,7 +62,7 @@ public class ExportExecutorThread extends Thread {
      */
     public void run() {
         if (!isSilent()) {
-            handle = ProgressHandleFactory.createHandle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Processing_zips"));  
+            handle = ProgressHandleFactory.createHandle(NbBundle.getBundle(Constants.BUNDLE).getString("Processing_zips"));  
             handle.start();            
         }
         while (count<scheduledCount) {
@@ -71,7 +72,9 @@ public class ExportExecutorThread extends Thread {
             try {
                 ExecutorTask et = ActionUtils.runTarget(script, target, props);
                 if (et.result()!=0) {
-                    System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Task_execution_error_during_")+target[0]+".");
+                    // XXX incorrect I18N; should use getMessage with a format
+                    // (and should use Bundle.properties in same package as class, not in resources subfolder)
+                    System.err.println(NbBundle.getBundle(Constants.BUNDLE).getString("Task_execution_error_during_")+target[0]+".");
                     status.put(target[0], new Boolean(false));
                 } else {
                     if (status.get(target[0])==null) {
@@ -79,7 +82,7 @@ public class ExportExecutorThread extends Thread {
                     }
                 }
             } catch (IOException e) {
-                System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
+                System.err.println(NbBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
             }
             count++;
         }
@@ -95,37 +98,37 @@ public class ExportExecutorThread extends Thread {
         
         String errorMsg = "";
         if (scheduledTasks.get("zip-project")!=null && !((Boolean) status.get("zip-project")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_zip_projects._Disk_not_writable?");
+            errorMsg+=NbBundle.getBundle(Constants.BUNDLE).getString("Could_not_zip_projects._Disk_not_writable?");
         }
         if (scheduledTasks.get("mail-zips")!=null && !((Boolean) status.get("mail-zips")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_send_e-mail._Check_SMTP_server_settings.");
+            errorMsg+=NbBundle.getBundle(Constants.BUNDLE).getString("Could_not_send_e-mail._Check_SMTP_server_settings.");
             ExportPackageInfo.setSmtpServer("");
             ExportPackageInfo.setSmtpUsername("");
             ExportPackageInfo.setSmtpPassword("");
         }
         if (scheduledTasks.get("delete-zip")!=null && !((Boolean) status.get("delete-zip")).booleanValue()) {
-            errorMsg+=java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Could_not_delete_projects._Disk_not_writable?");
+            errorMsg+=NbBundle.getBundle(Constants.BUNDLE).getString("Could_not_delete_projects._Disk_not_writable?");
         }
         if (!errorMsg.equals("")) {
             NotifyDescriptor d = new NotifyDescriptor.Message(errorMsg, NotifyDescriptor.ERROR_MESSAGE);
-            d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Error_during_processing_zips"));
+            d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Error_during_processing_zips"));
             DialogDisplayer.getDefault().notify(d);            
         } else {
             if (scheduledTasks.get("mail-zips")==null && ((Boolean) scheduledTasks.get("zip-project")).booleanValue()) {
-                NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip(s)_created_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
-                d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip_exporter_finished"));
+                NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Zip(s)_created_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
+                d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Zip_exporter_finished"));
                 DialogDisplayer.getDefault().notify(d);
                 return;
             }
             if (scheduledTasks.get("delete-zip")==null && ((Boolean) scheduledTasks.get("mail-zips")).booleanValue()) {
-                NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip(s)_created_and_sent_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
-                d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip_exporter_finished"));
+                NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Zip(s)_created_and_sent_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
+                d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Zip_exporter_finished"));
                 DialogDisplayer.getDefault().notify(d);
                 return;
             }
             if (((Boolean) scheduledTasks.get("delete-zip")).booleanValue()) {
-                NotifyDescriptor d = new NotifyDescriptor.Message(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip(s)_created,_sent_and_deleted_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
-                d.setTitle(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip_exporter_finished"));
+                NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getBundle(Constants.BUNDLE).getString("Zip(s)_created,_sent_and_deleted_successfully."), NotifyDescriptor.INFORMATION_MESSAGE);
+                d.setTitle(NbBundle.getBundle(Constants.BUNDLE).getString("Zip_exporter_finished"));
                 DialogDisplayer.getDefault().notify(d);
             }            
         }

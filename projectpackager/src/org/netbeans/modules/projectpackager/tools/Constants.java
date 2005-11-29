@@ -19,7 +19,7 @@ public class Constants {
     /**
      * Bundle
      */
-    public static final String BUNDLE = "org/netbeans/modules/projectpackager/resources/Bundle";
+    public static final String BUNDLE = "org.netbeans.modules.projectpackager.resources.Bundle"; // NOI18N
     
     private Constants() {
     }

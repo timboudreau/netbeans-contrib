@@ -12,11 +12,15 @@
  */
 
 package org.netbeans.modules.projectpackager.tools;
-import org.openide.*;
-import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import org.openide.DialogDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  * @author Roman "Roumen" Strobl
@@ -80,8 +84,8 @@ public class NotifyDescriptorInputPassword extends DialogDescriptor {
         map.removeKeyStrokeBinding (enter);
         textLabel.setLabelFor(passwordField);
         panel.getAccessibleContext().setAccessibleDescription(
-            java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("NotifyDescriptorInputPassword.dialog"));
-        passwordField.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("NotifyDescriptorInputPassword.passwordField"));
+            NbBundle.getBundle(Constants.BUNDLE).getString("NotifyDescriptorInputPassword.dialog"));
+        passwordField.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(Constants.BUNDLE).getString("NotifyDescriptorInputPassword.passwordField"));
         if (mnemonic != null) {
             textLabel.setDisplayedMnemonic(mnemonic.charValue());
         }

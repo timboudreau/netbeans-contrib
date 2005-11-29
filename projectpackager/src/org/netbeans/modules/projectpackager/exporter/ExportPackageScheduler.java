@@ -26,6 +26,7 @@ import org.netbeans.modules.projectpackager.tools.ExecutionTools;
 import org.netbeans.modules.projectpackager.tools.ProjectPackagerSettings;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
 
 /**
  * Schedules an export package
@@ -50,11 +51,13 @@ public class ExportPackageScheduler {
      */
     public static ExportExecutorThread init() {
         try {
-            script = ExecutionTools.initScript(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Services/ProjectPackager/export_script.xml"));
+            // XXX this string should not be internationalized!
+            script = ExecutionTools.initScript(NbBundle.getBundle(Constants.BUNDLE).getString("Services/ProjectPackager/export_script.xml"));
             et = new ExportExecutorThread();
             initialized = true;
         } catch (IOException e) {
-            System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
+            // XXX should use ErrorManager, or at least e.dumpStack(); and strings printed to console should never be internationalized
+            System.err.println(NbBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
         }
         return et;
     }
@@ -85,7 +88,7 @@ public class ExportPackageScheduler {
                 // create extra zips for external source roots
                 if (isExternal[j].booleanValue()) {
                     external++;
-                    String fileName = ProjectInfo.getName(i)+"_"+java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("external")+external+"_"+timeStamp;
+                    String fileName = ProjectInfo.getName(i)+"_"+NbBundle.getBundle(Constants.BUNDLE).getString("external")+external+"_"+timeStamp;
                     props.setProperty("zip_name", fileName);
                     fileList.add(ExportPackageInfo.getTargetDir()+File.separator+fileName+".zip");
                 } else {

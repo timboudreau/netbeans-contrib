@@ -18,6 +18,7 @@ import java.util.Properties;
 import org.netbeans.modules.projectpackager.tools.Constants;
 import org.netbeans.modules.projectpackager.tools.ExecutionTools;
 import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
 
 /**
  * Scheduler of import tasks
@@ -44,7 +45,7 @@ public class ImportPackageScheduler {
             et = new ImportExecutorThread();
             initialized = true;            
         } catch (IOException e) {
-            System.err.println(java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
+            System.err.println(NbBundle.getBundle(Constants.BUNDLE).getString("IO_error:_")+e);
         }                
         return et;
     }

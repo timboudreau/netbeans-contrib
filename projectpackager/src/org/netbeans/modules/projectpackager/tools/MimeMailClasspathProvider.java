@@ -16,6 +16,7 @@ package org.netbeans.modules.projectpackager.tools;
 import java.io.File;
 import org.apache.tools.ant.module.spi.AutomaticExtraClasspathProvider;
 import org.openide.modules.InstalledFileLocator;
+import org.openide.util.NbBundle;
 
 
 /**
@@ -36,10 +37,10 @@ public class MimeMailClasspathProvider implements AutomaticExtraClasspathProvide
     public File[] getClasspathItems() {
         File mailJar = InstalledFileLocator.getDefault().locate(
             "modules/ext/mail-1.3.2.jar", "org.netbeans.modules.projectpackager", false); // NOI18N
-        assert mailJar != null : java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Missing_mail.jar");
+        assert mailJar != null : NbBundle.getBundle(Constants.BUNDLE).getString("Missing_mail.jar");
         File activationJar = InstalledFileLocator.getDefault().locate(
             "modules/ext/activation-1.0.2.jar", "org.netbeans.modules.projectpackager", false); // NOI18N
-        assert activationJar != null : java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Missing_activation.jar");
+        assert activationJar != null : NbBundle.getBundle(Constants.BUNDLE).getString("Missing_activation.jar");
         return new File[] {mailJar, activationJar};
     }
     

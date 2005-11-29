@@ -14,7 +14,8 @@
 package org.netbeans.modules.projectpackager.tools;
 
 import java.io.File;
-import javax.swing.filechooser.*;
+import javax.swing.filechooser.FileFilter;
+import org.openide.util.NbBundle;
 
 /**
  * Filter to show only directories and zips, allow only zips
@@ -41,6 +42,6 @@ public class ZipFilter extends FileFilter {
      * @return description
      */
     public String getDescription() {
-       return java.util.ResourceBundle.getBundle(Constants.BUNDLE).getString("Zip_Files");
+       return NbBundle.getBundle(Constants.BUNDLE).getString("Zip_Files");
     }
 }
