@@ -74,7 +74,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     final static String CATEGORY = "sourcetasks"; // NOI18N
 
     // keep consistent with SourceTasksAction icon
-    private final static String ICON_PATH = "org/netbeans/modules/tasklist/docscan/todosAction.png"; // NOI18N
+    private final static String ICON_PATH = "org/netbeans/modules/tasklist/docscan/todosAction.gif"; // NOI18N
 
     private final int MAIN_COLUMN_UID = 2352;
     private final int PRIORITY_COLUMN_UID = 7896;
