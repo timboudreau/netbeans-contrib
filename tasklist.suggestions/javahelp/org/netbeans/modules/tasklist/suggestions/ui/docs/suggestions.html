@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<!--
+   -                 Sun Public License Notice
+   - 
+   - The contents of this file are subject to the Sun Public License
+   - Version 1.0 (the "License"). You may not use this file except in
+   - compliance with the License. A copy of the License is available at
+   - http://www.sun.com/
+   - 
+   - The Original Code is NetBeans. The Initial Developer of the Original
+   - Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+   - Microsystems, Inc. All Rights Reserved.
+  -->
+  <title>Suggestions</title>
+  <link rel="StyleSheet" href="ide.css" type="text/css">
+</head>
+<body>
+<h2> Suggestions </h2>
+The <a href="http://tasklist.netbeans.org"><b>suggestions</b></a>
+module, which lists suggestions for your code, such as ideas for how
+compiler errors can be fixed, lists unused code, suggests copyrights
+whose year ranges need to be updated, etc. <br>
+<br>
+This feature is still being designed and implemented.
+Check out http://tasklist.netbeans.org and the
+dev@tasklist.netbeans.org mailing list to get informed
+and provide feedback.
+<p>The "Suggestions View" shows a list of suggestions generated
+by various pieces in the IDE. For example, there is a copyright
+checker which makes sure that if there is a copyright string
+near the top of the source file, the current year is included,
+and if that is not the case, it provides a suggestion that it
+is fixed. In many cases, the suggestions can be fixed automatically,
+by simply double clicking on the suggestion. </p>
+<p>The Suggestions View typically shows suggestions for the
+current source file. However, if you select a directory
+in the explorer and go to the Tools menu, you can
+run the <b>Scan Directory for Suggestions</b> action. This
+will recursively process all source files in the directory
+and list suggestions for these in a separate view. This
+is a convenient way to for example fix the copyright years
+on all your source files. Note that you can shift select
+all the suggestions and right click to select <b>Fix...</b>,
+and now you will iterate through all the suggestions.
+</p>
+<p>Creating these suggestions often involve a lot of processing.
+By default, this processing happens every time you edit a
+source file (after a short delay). You can change this such
+that suggestion scanning only occurs when you save a file.
+You can also simply hide the Suggestions View temporarily if
+you want to free up the CPU for something else (such as running
+an ant task), since processing only occurs when the Suggestions
+View is visible. You can also customize how long the suggestion
+scanner should wait after an edit before starting a scan.
+You can find these options by selecting "Edit Categories..." in
+the context menu in the Suggestions View.
+</p>
+<p>The following is a list of suggestion providers you might
+have available. Modules can add more suggestion providers, so this list
+may not be complete.
+</p>
+<ul>
+  <li> Java Compilation Errors. Lists all the java compilation errors
+encountered while background-parsing the current source file. It will
+also fix suggestions for how the errors can be fixed. For example, it
+may suggest that a particular import statement is added, or the
+capitalization of an identifier may be changed, or a new method
+created. </li>
+  <li> Rule Checking. Using the PMD utility, it checks the source file
+for violations of rules. This will for example list unused methods,
+empty if blocks, etc. </li>
+  <li> Javadoc Errors. Lists all methods in the current file that have
+errors in their javadoc. The javadoc may be missing, or the parameter
+list incomplete, or a @return missing, etc. Allows some of these to be
+corrected automatically. </li>
+  <li> HTML Errors. Lists errors and warnings in your HTML, XML and JSP
+documents, such as missing ALT tags, mismatched tags, etc. Allows the
+document to be cleaned up and reformatted automatically. </li>
+  <li> Copyright Errors. Lists copyright items where the year or year
+range does not include the current year. Allows these to be corrected
+automatically. </li>
+  <li> Due Tasks. Lists tasks in the user task view that are already
+due or will become due in the next 36 hours (e.g. roughly today or
+tomorrow). </li>
+  <li> Source Tasks. Lists tasks found in the source file, where a task
+is an entry in a comment marked by FIXME, TODO or XXX. </li>
+</ul>
+<p>
+</p>
+<h3>Fixing a Suggestion</h3>
+Some tasks have associated Fix operations. When that is the case,
+double clicking on the suggestion will bring up the Fix Confirmation
+Dialog. The Fix confirmation dialog varies from suggestion to
+suggestion, but typically it provides details describing exactly
+what applying Fix is going to change - and gives you a Cancel button
+if you change your mind.
+<p>You can select multiple suggestions at once (using the Shift key
+or the Control key), and then right click and select Fix. This
+will apply Fix to each item in the selection list, which provides
+you with a quick way to apply a number of suggestions. When multiple
+suggestions have been selected, the confirmation dialog includes
+a "Fix All" button which bypasses the confirmation step for each
+suggestion and simply performs the suggestions quietly. It will
+also have a "Skip" button you can use to skip one particular
+suggestion and move to the next.
+</p>
+<p></p>
+<h3>Show Source Code</h3>
+Whenever a confirmation dialog is shown for a suggestion, its
+associated file position is also shown in the editor. If a
+suggestion does not have an automatic fix operation, the
+default operation on double click is to show the source position.
+For suggestions with automatic fix, you can right click and
+select "Go To Source" to show the source position for a suggestion.
+<h3>Filtering Suggestions</h3>
+If you want to limit your focus to suggestions of one particular
+category, use the "Show" action in the Suggestions View context menu.
+It lists the categories of suggestions, such as "Java Compilation
+Errors". When you select one of these, only suggestions in that
+category are shown (and more importantly, the other categories are no
+longer processed, so your computer doesn't have to work as hard.)
+If you want to get back to showing all suggestions, simply select
+"All" from the Show menu.
+<h3>Disabling Suggestions</h3>
+If you are not interested in a particular category of suggestions, such
+as
+"Copyright Problems", you can disable it. This will make your
+suggestions view less cluttered since it only lists suggestions
+you are interested in. To disable a category, right click on
+a suggestion and select "Disable Category". You can also
+show the "Edit Categories..." dialog - and this is what you have
+to do if you want to bring back a category you have previously
+disabled.
+<!-- TODO Show dialog screenshot here -->The "Edit Categories" dialog
+lists the available categories
+as rows in a table. Additional columns allow you to enable/disable
+each category, and for those that are enabled, turn off
+confirmation dialogs when the suggestion is performed.
+When confirmation is disabled for a category, selecting
+"Fix..." on a suggestion will perform the fix without showing
+the confirmation dialog.
+<p><b>Important</b>: Note that disabling a category applies to
+all suggestions of that particular category. For example,
+if there is a particular rule suggestion you don't want
+to see, such as "unused import", disabling it means that
+ALL rule suggestions are disabled, not just this particular
+rule. To customize which rules are run, right click
+and select "Edit Rules...". </p>
+<p>Finally, the dialog allows you to control the scanning behavior
+of sourcefile-oriented suggestions. You can choose to have
+the suggestion list updated whenever the document is edited,
+or just when the document is saved. You can also change the
+scanning delay to be more or less aggressive. The scanning
+delay is the time interval that the suggestions view will
+wait after a file edit or file save before it starts checking
+the source for suggestions.
+</p>
+<h3>Category-specific Help</h3>
+<ul>
+  <li> The Java Compilation Errors are cued off of the java module's
+parser - so it ignores the save-vs-edit behavior.
+    <p> This module also depends on the specific English error strings
+created by the compiler. If somehow you are running the compiler in a
+different locale, this may break the module. This should be fixed by
+JSR-199 when that becomes available. </p>
+    <p></p>
+  </li>
+  <li> The Rule Violations suggestions provide automatic fix performers
+for unused imports, duplicate imports, and unused fields. Not all
+unused fields have automatic fixers, since in some cases doing it
+automatically might be risky.
+    <p></p>
+  </li>
+  <li> The Javadoc error does not handle parameter renaming well. In
+particular, let's say that you had a method with a single parameter
+named "foo", and you documented this with a "@param foo" javadoc tag.
+Then you've renamed the parameter to "bar" and forgot to update the
+javadoc. The javadoc scanner will not realize that "@param foo" is
+referring to parameter "bar", so you will get two errors: no javadoc
+for "bar", and javadoc for a nonexistent parameter "foo". When you
+autofix this javadoc, it will create a new empty javadoc tag for "bar",
+and remove the javadoc tag for "foo", instead of renaming (and
+persisting) the existing javadoc.
+    <p></p>
+  </li>
+  <li> The Javadoc error provider will list separate suggestions for
+separate problems found in a method's javadoc. However, running Fix on
+the suggestion will fix ALL the problems in the javadoc in a single
+operation. You cannot fix one individual problem automatically.
+    <p></p>
+  </li>
+  <li> The HTML error provider works on HTML files, XML files and JSP
+files. The errors are provided by the "Tidy" utility behind the scenes.
+It was mostly written for HTML files so it is not clear how useful the
+errors are in XML or JSP files.
+    <p> In the context menu, you can find a "Cleanup/Rewrite" action.
+When you select this, your entire document will be cleaned up (meaning
+wrong tags moved or removed, etc.) and reformatted. By selecting the
+Preview button in the dialog, you can get a before-and-after diff of
+the changes performed. </p>
+    <p> You can run this action on documents that don't have
+suggestions as well. Select the given HTML document, and then look in
+the Tools menu - the action should be there. </p>
+    <p></p>
+  </li>
+  <li> You can customize the tokens that are used to locate source code
+tasks: XXX, TODO, FIXME. Go to the Options dialog and select "Task List
+Editor Support"; you will find a setting named "Scan Regular
+Expression". This is a regular expression your source comments are
+matched against.
+    <p> </p>
+  </li>
+</ul>
+If you have any questions or comments, write to
+dev@tasklist.netbeans.org .
+<hr>Comments &amp; requests to <a
+ href="mailto:dev@tasklist.netbeans.org"><code>dev@tasklist.netbeans.org</code></a>.
+Further information at <a href="http://tasklist.netbeans.org/"><code>http://tasklist.netbeans.org</code></a>.
+</body>
+</html>
