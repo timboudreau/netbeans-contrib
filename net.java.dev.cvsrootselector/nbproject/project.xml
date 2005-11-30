@@ -4,7 +4,6 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>net.java.dev.cvsrootselector</code-name-base>
-            <standalone/>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.api.progress</code-name-base>
