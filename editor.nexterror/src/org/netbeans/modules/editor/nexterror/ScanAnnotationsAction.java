@@ -26,6 +26,7 @@ import org.netbeans.editor.Registry;
 import org.netbeans.editor.Utilities;
 
 import org.openide.ErrorManager;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -39,6 +40,7 @@ public class ScanAnnotationsAction extends AbstractAction {
     
     /** Creates a new instance of ScanAnnotationsAction */
     public ScanAnnotationsAction() {
+        putValue(NAME, NbBundle.getMessage(ScanAnnotationsAction.class, "LBL_Next_Error"));
     }
 
     public void actionPerformed(ActionEvent e) {
