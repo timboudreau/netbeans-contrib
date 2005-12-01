@@ -19,8 +19,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import javax.swing.JComponent;
 import org.netbeans.spi.options.AdvancedOption;
-import org.netbeans.spi.options.OptionsCategory;
-import org.netbeans.spi.options.OptionsCategory.PanelController;
+import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -42,11 +41,11 @@ public final class Option extends AdvancedOption {
         return NbBundle.getMessage(Option.class, "Option.toolTip");
     }
 
-    public OptionsCategory.PanelController create() {
+    public OptionsPanelController create() {
         return new Controller();
     }
     
-    private static final class Controller extends OptionsCategory.PanelController implements ActionListener {
+    private static final class Controller extends OptionsPanelController implements ActionListener {
         
         private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
         private final OptionPanel panel = new OptionPanel();
@@ -106,7 +105,7 @@ public final class Option extends AdvancedOption {
         public void actionPerformed(ActionEvent e) {
             if (!changed) {
                 changed = true;
-                pcs.firePropertyChange(OptionsCategory.PanelController.PROP_CHANGED, false, true);
+                pcs.firePropertyChange(OptionsPanelController.PROP_CHANGED, false, true);
             }
             panel.breakup.setEnabled(panel.sort.isSelected());
         }
