@@ -14,13 +14,10 @@
 package org.netbeans.modules.rmi.registry;
 
 import java.beans.*;
-import java.rmi.*;
 import java.util.*;
 
 import org.openide.nodes.*;
-import org.openide.util.WeakListener;
-
-import org.netbeans.modules.rmi.*;
+import org.openide.util.WeakListeners;
 
 /**
  * [PENDING] removing listener from item needs improving
@@ -48,7 +45,7 @@ public class RegistryItemChildren extends Children.Keys {
             setKeys(keys);
             if (listener == null) {
                 listener = new ChildrenListener();
-                item.addPropertyChangeListener(WeakListener.propertyChange(listener, item));
+                item.addPropertyChangeListener(WeakListeners.propertyChange(listener, item));
             }
         } else {
             RMIRegistryNode node = (RMIRegistryNode) getNode().getParentNode().getCookie(RMIRegistryNode.class);

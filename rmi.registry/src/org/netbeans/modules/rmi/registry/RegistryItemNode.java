@@ -16,7 +16,6 @@ package org.netbeans.modules.rmi.registry;
 import java.beans.*;
 import java.io.*;
 import java.text.MessageFormat;
-import java.util.*;
 import org.netbeans.modules.rmi.registry.settings.RMIRegistrySettings;
 
 import org.openide.nodes.*;
@@ -138,7 +137,7 @@ public class RegistryItemNode extends AbstractNode implements Node.Cookie, Refre
             this.item = item;
 
             // weak listener, it is not necessary to unregister
-            PropertyChangeListener pcl = WeakListener.propertyChange(this, item);
+            PropertyChangeListener pcl = WeakListeners.propertyChange(this, item);
             item.addPropertyChangeListener(pcl);
             //      item.addPropertyChangeListener(new WeakListener.PropertyChange(this));
 
