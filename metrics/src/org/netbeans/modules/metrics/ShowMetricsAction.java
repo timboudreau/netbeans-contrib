@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.metrics;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -78,8 +79,12 @@ public class ShowMetricsAction extends NodeAction {
     * @param activatedNodes gives array of actually activated nodes.
     */
     protected void performAction (final Node[] activatedNodes) {
-        Set metricsSet = createMetricsSet(activatedNodes);
-	new MetricsPane(metricsSet).setVisible(true);
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                Set metricsSet = createMetricsSet(activatedNodes);
+                new MetricsPane(metricsSet).setVisible(true);
+            }
+        });
     }
 
     // Translate the array of Explorer nodes into a set of ClassMetrics.

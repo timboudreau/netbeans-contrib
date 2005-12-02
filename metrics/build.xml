@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
                 Sun Public License Notice
 
@@ -8,82 +8,11 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="metrics" basedir="." default="netbeans">
-
-  <property name="dist.base" value="www.netbeans.org/download/nbms/alpha/dev"/>
-  <property name="homepage.base" value="netbeans.org"/>
-  <property name="license.file" location="../nbbuild/standard-nbm-license.txt"/>
-
-  <property name="nbm_alias" value="nb_ide"/>
-
-  <target name="compile" depends="check-root">
-    <javac srcdir="src" destdir="src" deprecation="true"
-     debug="${build.compiler.debug}"> 
-     <classpath>
-        <pathelement location="../openide/netbeans/lib/openide.jar"/>
-        <pathelement location="../openide/loaders/netbeans/lib/openide-loaders.jar"/>
-        <pathelement location="../java/srcmodel/netbeans/modules/autoload/java-src-model.jar"/>
-       <pathelement location="../java/netbeans/modules/java.jar" />
-       <pathelement location="../clazz/netbeans/modules/clazz.jar" />
-       <pathelement location="../classfile/netbeans/modules/autoload/classfile.jar" />
-       <pathelement location="../java/api/netbeans/modules/autoload/java-api.jar"/>
-       <fileset dir="../core/external">
-         <include name="xml-apis*.jar"/>
-       </fileset>
-    </classpath>
-    </javac>
-  </target>
-
-       
-  <target name="jars" depends="compile">
-    <mkdir dir="netbeans/modules" />
-    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="netbeans/modules/metrics.jar" 
-     manifest="manifest-subst.mf" 
-     basedir="src" 
-     excludesfile="jar-excludes.txt" 
-     compress="false"/>
-  </target>
-
-  <target name="netbeans" depends="jars"/>
-
-  <target name="check-root" depends="check-root-file" unless="root-specified">
-     <fail message="Environment variable NB_ROOT invalid or not set."/>
-  </target>
-  <target name="check-root-file">
-     <available property="root-specified" file="../nbbuild/build.xml"/>
-  </target>
-
-  <target name="clean">
-    <delete>
-      <fileset dir="src">
-        <include name="**/*.class"/>
-      </fileset>
-    </delete>
-    <delete file="manifest-subst.mf"/>
-    <delete file="metrics.nbm"/>
-    <delete dir="netbeans"/>
-    <delete dir="Info"/>
-  </target>
-
-  <target name="real-clean" depends="clean">
-  </target>
-
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../nbbuild/nbantext.jar"/>
-  <target name="nbm" depends="netbeans">
-    <makenbm file="metrics.nbm"
-             topdir="."
-             module="netbeans/modules/metrics.jar"
-	     homepage="http://metrics.${homepage.base}/"
-	     distribution="http://${dist.base}/metrics.nbm">
-      <license file="${license.file}"/>
-      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-    </makenbm>
-  </target>
-
+<project name="metrics" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the metrics project.</description>
+    <import file="../nbbuild/templates/projectized.xml"/>
 </project>

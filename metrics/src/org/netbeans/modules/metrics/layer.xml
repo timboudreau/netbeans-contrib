@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-metrics-ApproveMetricAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.metrics.ApproveMetricAction"/>
+            </file>
+            <file name="org-netbeans-modules-metrics-ShowMetricsAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.metrics.ShowMetricsAction"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-metrics-ShowMetricsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-metrics-ShowMetricsAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-metrics-ShowMetricsAction.shadow/org-netbeans-modules-metrics-ApproveMetricAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-metrics-ApproveMetricAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-metrics-ApproveMetricAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-metrics-ApproveMetricAction.shadow/org-netbeans-modules-metrics-separatorAfter.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-metrics-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-modules-metrics-separatorAfter.instance/JavaPlatformsCustomizerAction.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <file name="org-netbeans-modules-metrics-settings.settings" url="resources/metrics-settings.settings">
+          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.metrics.options.Bundle"/>
+          <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/metrics/resources/barchart.gif"/>
+        </file>
+
+        <!-- register dynamically loaded metrics with Lookup -->
+        <folder name="Metrics">
+          <file name="org-netbeans-modules-metrics-WMCMetric$Factory.instance">
+               <attr name="instanceOf" stringvalue="org.netbeans.modules.metrics.MetricFactory"/>
+          </file>
+          <file name="org-netbeans-modules-metrics-CBOMetric$Factory.instance">
+               <attr name="instanceOf" stringvalue="org.netbeans.modules.metrics.MetricFactory"/>
+          </file>
+          <file name="org-netbeans-modules-metrics-RFCMetric$Factory.instance">
+               <attr name="instanceOf" stringvalue="org.netbeans.modules.metrics.MetricFactory"/>
+          </file>
+          <file name="org-netbeans-modules-metrics-MPCMetric$Factory.instance">
+               <attr name="instanceOf" stringvalue="org.netbeans.modules.metrics.MetricFactory"/>
+          </file>
+          <file name="org-netbeans-modules-metrics-DITMetric$Factory.instance">
+               <attr name="instanceOf" stringvalue="org.netbeans.modules.metrics.MetricFactory"/>
+          </file>
+          <file name="org-netbeans-modules-metrics-NOCMetric$Factory.instance">
+               <attr name="instanceOf" stringvalue="org.netbeans.modules.metrics.MetricFactory"/>
+          </file>
+          <file name="org-netbeans-modules-metrics-NTMetric$Factory.instance">
+               <attr name="instanceOf" stringvalue="org.netbeans.modules.metrics.MetricFactory"/>
+          </file>
+        </folder> <!-- Metrics -->
+    </folder> <!-- Services -->
+
+    <folder name="UI">
+        <folder name="Services">
+            <folder name="Metrics">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.metrics.options.Bundle"/>
+                <file name="org-netbeans-modules-metrics-settings.shadow">
+                    <attr name="originalFile" stringvalue="Services/org-netbeans-modules-metrics-settings.settings"/>
+                </file>
+            </folder> <!-- Metrics -->
+        </folder> <!-- Services -->
+    </folder> <!-- UI -->
+
+    <folder name="NodeFactories">
+        <folder name="java">
+            <folder name="explorer">
+               <file name="org-netbeans-modules-metrics-MetricsFilterFactory.instance"/>
+            </folder>
+        </folder>
+        <folder name="clazz">
+            <folder name="explorer">
+               <file name="org-netbeans-modules-metrics-MetricsFilterFactory.instance"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
