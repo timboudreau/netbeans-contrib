@@ -17,11 +17,13 @@ package org.netbeans.modules.latex.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.lang.reflect.Method;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JEditorPane;
-import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.JTextComponent;
 import org.netbeans.modules.latex.editor.ActionsFactory;
 import org.netbeans.modules.latex.editor.TexKit;
 import org.netbeans.modules.latex.loaders.TexCloneableEditorCreatorJustForUI;
@@ -34,22 +36,29 @@ import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.latex.ui.actions.CiteAction;
 import org.netbeans.modules.latex.ui.actions.CountWordsAction;
 import org.netbeans.modules.latex.ui.actions.RefAction;
+import org.netbeans.modules.latex.ui.palette.IconNode;
+import org.netbeans.modules.latex.ui.palette.RootNode;
+import org.netbeans.spi.palette.PaletteActions;
+import org.netbeans.spi.palette.PaletteController;
+import org.netbeans.spi.palette.PaletteFactory;
+import org.openide.ErrorManager;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ProxyLookup;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class TexCloneableEditor extends CloneableEditor implements FocusListener {
+public class TexCloneableEditor extends CloneableEditor implements FocusListener, PropertyChangeListener {
     public TexCloneableEditor() {
         super();
         prepareActions();
-//        TexGroupActivator.install();
     }
     
     public TexCloneableEditor(TexEditorSupport support) {
         super(support);
         prepareActions();
-//        TexGroupActivator.install();
     }
     
     public JEditorPane getPane() {
@@ -65,7 +74,6 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
 //        System.err.println("TexCloneableEditor.componentShowing");
 //	new Exception().printStackTrace(System.err);
         super.componentShowing();
-        TexGroupActivator.install();
         pane.addFocusListener(this);
     }
     
@@ -111,6 +119,38 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
     public void focusLost(FocusEvent e) {
     }
     
+    private MyProxyLookup lookup = null;
+    private PaletteController pc = null;
+    
+    public synchronized Lookup getLookup() {
+        if (lookup == null) {
+            Lookup sup = super.getLookup();
+            lookup = new MyProxyLookup();
+            
+            Lookup palette = null;
+            
+            pc = PaletteFactory.createPalette(new RootNode(), new PaletteActionsImpl());
+            
+            pc.addPropertyChangeListener(this);
+            palette = Lookups.fixed(new Object[] {pc});
+            
+//            Lookup f = Lookups.fixed(new Object[] {
+//                ((TexEditorSupport) cloneableEditorSupport()).getDataObject(),
+//                ((TexEditorSupport) cloneableEditorSupport()).getDataObject().getNodeDelegate(),
+//            });
+            
+            lookup.setLookupsInternal(new Lookup[] {sup, palette, /*f*/});
+        }
+        
+        return lookup;
+    }
+    
+    private static class MyProxyLookup extends ProxyLookup {
+        public void setLookupsInternal(Lookup[] l) {
+            super.setLookups(l);
+        }
+    }
+    
     private static class ActionWrapper extends AbstractAction {
         
         private TexCloneableEditor tce;
@@ -134,6 +174,68 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
         
         public CloneableEditor createCloneableEditor(TexEditorSupport sup) {
             return new TexCloneableEditor(sup);
+        }
+        
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (pc != null && PaletteController.PROP_SELECTED_ITEM.equals(evt.getPropertyName())) {
+            JTextComponent target = UIUtilities.getCurrentEditorPane();
+            
+            if (target != getPane())
+                return ;
+            
+            IconNode in = (IconNode) pc.getSelectedItem().lookup(IconNode.class);
+            
+            if (in == null)
+                return ;
+            
+            String command = in.getCommand();
+            
+            if (command == null)
+                return ;
+            
+            int dot = target.getCaret().getDot();
+            
+            try {
+                target.getDocument().insertString(dot, command, null);
+            } catch (BadLocationException e) {
+                IllegalStateException ex = new IllegalStateException(e.getMessage());
+                
+                ErrorManager.getDefault().annotate(ex, e);
+                
+                throw ex;
+            }
+            
+            pc.clearSelection();
+            
+            requestFocus();
+            requestFocusInWindow();
+            target.requestFocus();
+            target.requestFocusInWindow();
+        }
+    }
+    
+    private static final class PaletteActionsImpl extends PaletteActions {
+        
+        public Action[] getImportActions() {
+            return new Action[0];
+        }
+        
+        public Action[] getCustomPaletteActions() {
+             return new Action[0];
+       }
+        
+        public Action[] getCustomCategoryActions(Lookup category) {
+            return new Action[0];
+        }
+        
+        public Action[] getCustomItemActions(Lookup item) {
+            return new Action[0];
+        }
+        
+        public Action getPreferredAction(Lookup item) {
+            return null;
         }
         
     }

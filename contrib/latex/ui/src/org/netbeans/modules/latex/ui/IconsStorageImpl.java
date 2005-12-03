@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -20,6 +20,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -246,7 +247,7 @@ public final class IconsStorageImpl extends IconsStorage {
     }
 
     public ChangeableIcon getIconForExpression(String expression) {
-        return getIconForExpression(expression, -1, -1);
+        return getIconForExpression(expression, 16, 16);
     }
     
     public ChangeableIcon getIconForExpression(String expression, int sizeX, int sizeY) {
@@ -274,24 +275,19 @@ public final class IconsStorageImpl extends IconsStorage {
         private int    desiredSizeX;
         private int    desiredSizeY;
         
-        private int    textSizeX;
-        private int    textSizeY;
-        
         public DelegatingIcon(Icon delegateTo, String text, int desiredSizeX, int desiredSizeY) {
+            if (desiredSizeX < 0 || desiredSizeY < 0) {
+                throw new IllegalArgumentException("desiredSizeX= " + desiredSizeX + ", desiredSizeY" + desiredSizeY);
+            }
+            
             this.delegateTo = delegateTo;
             this.text       = text;
             this.desiredSizeX = desiredSizeX;
             this.desiredSizeY = desiredSizeY;
-            this.textSizeX = (-1);
-            this.textSizeY = (-1);
         }
         
         public DelegatingIcon(String text, int desiredSizeX, int desiredSizeY) {
             this(null, text, desiredSizeX, desiredSizeY);
-        }
-        
-        public DelegatingIcon(String text) {
-            this(null, text, -1, -1);
         }
         
         //Only enclosing class should call this:
@@ -382,60 +378,15 @@ public final class IconsStorageImpl extends IconsStorage {
         public void paintIcon(Component c, Graphics g, int x, int y) {
             if (delegateTo != null) {
                 delegateTo.paintIcon(c, g, x, y);
-            } else {
-                //draw text:
-                Color oldColor = g.getColor();
-                Font oldFont = g.getFont();
-                
-                if (c != null) {
-                    g.setColor(c.getForeground());
-                } else {
-                    g.setColor(Color.BLACK);
-                }
-                
-                g.setFont(Font.decode("Monospaced"));
-                
-                g.drawString(getText(), x, y + getIconHeight() /*/ 2*/);
-                
-                g.setFont(oldFont);
-                g.setColor(oldColor);
             }
         }
-
+        
         public int getIconWidth() {
-            if (delegateTo != null)
-                return delegateTo.getIconWidth();
-            
-            if (textSizeX == (-1))
-                computeTextMetrics();
-            
-            return textSizeX;
+            return desiredSizeX;
         }
 
         public int getIconHeight() {
-            if (delegateTo != null)
-                return delegateTo.getIconHeight();
-            
-            if (textSizeY == (-1))
-                computeTextMetrics();
-            
-            return textSizeY;
-        }
-        
-        private void computeTextMetrics() {
-            Font f = Font.decode("Monospaced");
-            
-            Rectangle2D bounds = f.getStringBounds(getText(), new FontRenderContext(null, false, false));
-            
-            textSizeX = (int) bounds.getWidth();
-            
-            if (textSizeX < bounds.getWidth())
-                textSizeX++;
-            
-            textSizeY = (int) bounds.getHeight();
-            
-            if (textSizeY < bounds.getHeight())
-                textSizeY++;
+            return desiredSizeY;
         }
         
     }

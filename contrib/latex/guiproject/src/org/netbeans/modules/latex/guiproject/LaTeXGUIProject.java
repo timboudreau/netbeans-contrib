@@ -107,7 +107,14 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         this.masterFile = masterFile;
         source = new LaTeXSourceImpl(masterFile);
         source.addDocumentChangedListener(source.weakDocumentChangedListener(this, source));
-        lookup = Lookups.fixed(new Object[] {this, GenericSources.genericOnly(this), source, new LaTeXGUIProjectOpenedHookImpl(this), new LaTeXAuxiliaryConfigurationImpl(this)});
+        lookup = Lookups.fixed(new Object[] {
+            this,
+            GenericSources.genericOnly(this),
+            source,
+            new LaTeXGUIProjectOpenedHookImpl(this),
+            new LaTeXAuxiliaryConfigurationImpl(this),
+            new NavigatorHintImpl(),
+        });
     }
     
     public Lookup getLookup() {

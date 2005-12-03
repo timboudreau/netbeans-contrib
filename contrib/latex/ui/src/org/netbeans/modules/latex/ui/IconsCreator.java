@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.

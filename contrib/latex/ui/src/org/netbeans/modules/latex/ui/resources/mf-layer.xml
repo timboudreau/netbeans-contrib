@@ -9,7 +9,7 @@ http://www.sun.com/
 
 The Original Code is the LaTeX module.
 The Initial Developer of the Original Code is Jan Lahoda.
-Portions created by Jan Lahoda are Copyright 2002-2003.
+Portions created by Jan Lahoda are Copyright 2002-2005.
 All Rights Reserved.
 
 Contributor(s): Jan Lahoda
@@ -19,9 +19,9 @@ Contributor(s): Jan Lahoda
 
     <folder name="Templates">
         <folder name="Privileged">
-	    <attr name="Folder.shadow/Document.shadow" boolvalue="true" />
+	    <attr name="Folder.shadow/Document.shadow" boolvalue="true"/>
 	    <file name="Document.shadow">
-	        <attr name="originalFile" stringvalue="Templates/LaTeX/Document.tex" />
+	        <attr name="originalFile" stringvalue="Templates/LaTeX/Document.tex"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.latex.ui.Bundle"/>
 	    </file>
 	</folder>
@@ -65,22 +65,15 @@ Contributor(s): Jan Lahoda
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.ChangeLanguageAction"/>
            </file>
 
-           <file name="org-netbeans-modules-latex-ui-actions-GoToFileAction.instance" />
-           <file name="org-netbeans-modules-latex-ui-actions-InstallDictionaryAction.instance" />
+           <file name="org-netbeans-modules-latex-ui-actions-GoToFileAction.instance"/>
+           <file name="org-netbeans-modules-latex-ui-actions-InstallDictionaryAction.instance"/>
            <file name="CountWordsAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CountWordsAction"/>
            </file>
            
            <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance"/>
            </file>
-       </folder>
-       <folder name="Window">
-            <file name="ViewStructualTabAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-latex-ui-actions-ViewStructuralTabAction.instance"/>
-            </file>
-            <attr name="ViewFilesTabAction.shadow/ViewStructualTabAction.shadow" boolvalue="true" />
-            <attr name="ViewStructualTabAction.shadow/ViewFilesystemsTabAction.shadow" boolvalue="true" />
        </folder>
     </folder>
 
@@ -90,8 +83,8 @@ Contributor(s): Jan Lahoda
            <file name="org-netbeans-modules-latex-ui-actions-CountWordsAction.instance"/>
            <file name="org-netbeans-modules-latex-ui-actions-CiteAction.instance"/>
            <file name="org-netbeans-modules-latex-ui-actions-RefAction.instance"/>
-           <file name="org-netbeans-modules-latex-ui-actions-InstallDictionaryAction.instance" />
-           <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance" />
+           <file name="org-netbeans-modules-latex-ui-actions-InstallDictionaryAction.instance"/>
+           <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance"/>
 
            <!--Toolbar actions:-->
             <file name="Emph.instance">
@@ -128,14 +121,14 @@ Contributor(s): Jan Lahoda
             
             <file name="Structure_Combo.instance">
                 <attr methodvalue="org.netbeans.modules.latex.ui.StructureToolbarAction.createInstance" name="instanceCreate"/>
-                <attr name="type" stringvalue="structure" />
-                <attr name="name" stringvalue="Structure" />
+                <attr name="type" stringvalue="structure"/>
+                <attr name="name" stringvalue="Structure"/>
             </file>
             
             <file name="Font_Size.instance">
                 <attr methodvalue="org.netbeans.modules.latex.ui.StructureToolbarAction.createInstance" name="instanceCreate"/>
-                <attr name="type" stringvalue="font" />
-                <attr name="name" stringvalue="Font" />
+                <attr name="type" stringvalue="font"/>
+                <attr name="name" stringvalue="Font"/>
             </file>
             
 
@@ -159,14 +152,10 @@ Contributor(s): Jan Lahoda
                 <attr methodvalue="org.netbeans.modules.latex.ui.ToolbarFactory.getEnvironmentAction" name="instanceCreate"/>
                 <attr name="instanceOf" stringvalue="javax.swing.Action"/>
                 <attr name="actionIcon" stringvalue="org/netbeans/modules/latex/ui/resources/center_icon.png"/>
-                <attr name="actionEnvironment" stringvalue="center" />
-                <attr name="actionTooltip" stringvalue="Center" />
+                <attr name="actionEnvironment" stringvalue="center"/>
+                <attr name="actionTooltip" stringvalue="Center"/>
             </file>
             <!--End of Toolbar actions-->
-        </folder>
-        
-        <folder name="Window">
-           <file name="org-netbeans-modules-latex-ui-actions-ViewStructuralTabAction.instance" />
         </folder>
     </folder>
     
@@ -178,20 +167,20 @@ Contributor(s): Jan Lahoda
             <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CountWordsAction"/>
         </file>
         <file name="C-E.shadow">
-            <attr name="originalFile" stringvalue="Actions/LaTeX/Emph.instance" />
+            <attr name="originalFile" stringvalue="Actions/LaTeX/Emph.instance"/>
         </file>
         <file name="C-B.shadow">
-            <attr name="originalFile" stringvalue="Actions/LaTeX/Bold.instance" />
+            <attr name="originalFile" stringvalue="Actions/LaTeX/Bold.instance"/>
         </file>
         <file name="C-I.shadow">
-            <attr name="originalFile" stringvalue="Actions/LaTeX/Italic.instance" />
+            <attr name="originalFile" stringvalue="Actions/LaTeX/Italic.instance"/>
         </file>
     </folder>
     
     <folder name="Toolbars">
         <folder name="LaTeX">
             <file name="Structure_Combo.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/Structure_Combo.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/Structure_Combo.instance"/>
             </file>
 
             <attr boolvalue="true" name="Structure_Combo.shadow/Separator1.instance"/>
@@ -203,7 +192,7 @@ Contributor(s): Jan Lahoda
             <attr boolvalue="true" name="Separator1.instance/Font_Size.shadow"/>
             
             <file name="Font_Size.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/Font_Size.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/Font_Size.instance"/>
             </file>
             
             <attr boolvalue="true" name="Font_Size.shadow/Separator2.instance"/>
@@ -215,7 +204,7 @@ Contributor(s): Jan Lahoda
             <attr boolvalue="true" name="Separator2.instance/Emph.shadow"/>
             
             <file name="Emph.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/Emph.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/Emph.instance"/>
             </file>
             
             <attr boolvalue="true" name="Emph.shadow/Separator3.instance"/>
@@ -227,7 +216,7 @@ Contributor(s): Jan Lahoda
             <attr boolvalue="true" name="Separator3.instance/Bold.shadow"/>
             
             <file name="Bold.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/Bold.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/Bold.instance"/>
             </file>
             
             <attr boolvalue="true" name="Bold.shadow/Separator4.instance"/>
@@ -239,7 +228,7 @@ Contributor(s): Jan Lahoda
             <attr boolvalue="true" name="Separator4.instance/Italic.shadow"/>
             
             <file name="Italic.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/Italic.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/Italic.instance"/>
             </file>
 
             <attr boolvalue="true" name="Italic.shadow/Separator5.instance"/>
@@ -251,7 +240,7 @@ Contributor(s): Jan Lahoda
             <attr boolvalue="true" name="Separator5.instance/Underline.shadow"/>
 
             <file name="Underline.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/Underline.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/Underline.instance"/>
             </file>
             
             <attr boolvalue="true" name="Underline.shadow/Separator5a.instance"/>
@@ -263,7 +252,7 @@ Contributor(s): Jan Lahoda
             <attr boolvalue="true" name="Separator5a.instance/FlushLeft.shadow"/>
             
             <file name="FlushLeft.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/FlushLeft.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/FlushLeft.instance"/>
             </file>
 
             <attr boolvalue="true" name="FlushLeft.shadow/Separator6.instance"/>
@@ -275,7 +264,7 @@ Contributor(s): Jan Lahoda
             <attr boolvalue="true" name="Separator6.instance/FlushRight.shadow"/>
             
             <file name="FlushRight.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/FlushRight.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/FlushRight.instance"/>
             </file>
             
             <attr boolvalue="true" name="FlushRight.shadow/Separator7.instance"/>
@@ -287,37 +276,8 @@ Contributor(s): Jan Lahoda
             <attr boolvalue="true" name="Separator7.instance/Center.shadow"/>
             
             <file name="Center.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/Center.instance" />
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/Center.instance"/>
             </file>
-        </folder>
-    </folder>
-    
-    <folder name="Windows2">
-        <folder name="Modes">
-            <folder name="explorer">
-                <file name="StructuralExplorer.wstcref" url="StructuralExplorerRef.xml" />
-            </folder>
-            
-            <file name="vexplorer.wsmode" url="vexplorermode.xml" />
-            <folder name="vexplorer">
-                <file name="VauProperties.wstcref" url="VauPropertiesRef.xml" />
-            </folder>
-        </folder>
-
-        <folder name="Components">
-            <file name="StructuralExplorer.settings" url="StructuralExplorerSettings.xml" />
-            <file name="VauProperties.settings" url="VauPropertiesSettings.xml" />
-        </folder>
-        
-        <folder name="Groups">
-<!--            <file name="latex.wsgrp" url="latexgroup.xml" />
-            <folder name="latex">
-                <file name="StructuralExplorer.wstcgrp" url="StructuralExplorerTCGroup.xml" />
-            </folder>-->
-            <file name="vau.wsgrp" url="vaugroup.xml" />
-            <folder name="vau">
-                <file name="VauProperties.wstcgrp" url="VauPropertiesTCGroup.xml" />
-            </folder>
         </folder>
     </folder>
 
@@ -325,17 +285,17 @@ Contributor(s): Jan Lahoda
         <folder name="Hidden">
             <file name="CloneableEditorCreator.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.TexCloneableEditor$Creator"/>
-                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.loaders.TexCloneableEditorCreatorJustForUI" />
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.loaders.TexCloneableEditorCreatorJustForUI"/>
 <!--                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.ui.TexCloneableEditor$Creator"/>-->
             </file>
             <file name="IconsStorage.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.IconsStorageImpl"/>
-                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.IconsStorage" />
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.IconsStorage"/>
             </file>
         </folder>
         
         <folder name="AutoupdateType">
-            <attr name="hidden" boolvalue="true" />
+            <attr name="hidden" boolvalue="true"/>
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.latex.ui.Bundle"/>
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/latex/ui/resources/updateAction.gif"/>
             <attr name="helpID" stringvalue="org.netbeans.modules.autoupdate.AutoupdateType"/>
@@ -352,9 +312,12 @@ Contributor(s): Jan Lahoda
         <folder name="Panels">
             <folder name="text">
                 <folder name="x-tex">
-                    <file name="org-netbeans-modules-latex-ui-navigator-DebugNavigatorProviderImpl.instance" />
+                    <file name="org-netbeans-modules-latex-ui-navigator-LaTeXNavigatorPanel.instance"/>
+                    <file name="org-netbeans-modules-latex-ui-navigator-DebugNavigatorProviderImpl.instance"/>
+                    <attr name="org-netbeans-modules-latex-ui-navigator-LaTeXNavigatorPanel.instance/org-netbeans-modules-latex-ui-navigator-DebugNavigatorProviderImpl.instance" boolvalue="true"/>
                 </folder>
             </folder>
         </folder>
     </folder>
+    
 </filesystem>
