@@ -54,12 +54,14 @@ Contributor(s): Jan Lahoda
             <folder name="nodes">
                 <file name="org-netbeans-modules-latex-model-structural-section-SectionNodeProvider.instance" />
                 <file name="org-netbeans-modules-latex-model-structural-figtable-FigtableNodeProvider.instance" />
+                <file name="org-netbeans-modules-latex-model-structural-slide-SlideNodeProvider.instance" />
                 <file name="org-netbeans-modules-latex-model-structural-label-LabelNodeProvider.instance" />
                 <file name="org-netbeans-modules-latex-model-structural-parser-MainStructuralElementNodeProvider.instance" />
             </folder>
             <folder name="parsers">
                 <file name="org-netbeans-modules-latex-model-structural-section-SectionDelegatedParser.instance" />
                 <file name="org-netbeans-modules-latex-model-structural-figtable-FigtableDelegatedParser.instance" />
+                <file name="org-netbeans-modules-latex-model-structural-slide-SlideDelegatedParser.instance" />
                 <file name="org-netbeans-modules-latex-model-structural-label-LabelDelegatedParser.instance" />
             </folder>
         </folder>
