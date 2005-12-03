@@ -126,7 +126,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <command name="\input">
   <attribute name="input" value="true" />
-  <argument type="free">
+  <argument type="mandatory"> <!--XXX: This is incorrect, "\input test" is a correct command-->
     <attribute name="#include" value="true" />
     <attribute name="use-file-argument" value="true" />
     <attribute name="use-file-argument-extensions" value="tex" />

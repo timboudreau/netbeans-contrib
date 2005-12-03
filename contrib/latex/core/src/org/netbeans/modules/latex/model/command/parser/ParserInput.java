@@ -30,6 +30,7 @@ import javax.swing.text.Position;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 
@@ -59,7 +60,10 @@ public class ParserInput implements DocumentListener {
         
         Document ad = (Document) Utilities.getDefault().openDocument(fo);
         
-        //TODO: ad may be null. is there something that can be done?:
+        if (ad == null) {
+            throw new IOException("Cannot open document for file: " + FileUtil.getFileDisplayName(fo));
+        }
+        
         ad.addDocumentListener(this);
         
         documents.add(ad);
