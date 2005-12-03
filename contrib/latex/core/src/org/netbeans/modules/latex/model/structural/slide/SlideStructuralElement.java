@@ -17,6 +17,9 @@ package org.netbeans.modules.latex.model.structural.slide;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
+import org.netbeans.modules.latex.model.command.GroupNode;
+import org.netbeans.modules.latex.model.command.Node;
+import org.netbeans.modules.latex.model.command.ParagraphNode;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.openide.actions.OpenAction;
 import org.openide.actions.PropertiesAction;
@@ -43,12 +46,20 @@ public class SlideStructuralElement extends StructuralElement {
     public String getName() {
         //TODO: this is only a workaround, not very exact:
         if (node.getContent().getChildrenCount() > 0) {
-            CharSequence name = node.getContent().getChild(0).getText();
+            Node argumentParagraph = node.getContent().getChild(0);
             
-            return name.toString();
-        } else {
-            return "Unnamed Slide";
+            if (argumentParagraph instanceof ParagraphNode && ((ParagraphNode) argumentParagraph).getChildrenCount() > 0) {
+                Node argumentGroup = ((ParagraphNode) argumentParagraph).getChild(0);
+                
+                if (argumentGroup instanceof GroupNode && ((GroupNode) argumentGroup).getChildrenCount() > 0) {
+                    CharSequence name = ((GroupNode) argumentGroup).getChild(0).getText();
+                    
+                    return name.toString();
+                }
+            }
         }
+        
+        return "Unnamed Slide";
     }
     
     public BlockNode getNode() {
