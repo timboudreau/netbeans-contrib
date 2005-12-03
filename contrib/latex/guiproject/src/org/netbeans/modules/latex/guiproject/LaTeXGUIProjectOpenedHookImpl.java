@@ -33,7 +33,7 @@ public class LaTeXGUIProjectOpenedHookImpl extends ProjectOpenedHook {
 
     protected void projectOpened() {
         LaTeXGUIProjectUpgrader.getUpgrader().upgrade(project);
-//        assureParsed();
+        assureParsed();
     }
 
     protected void projectClosed() {

@@ -48,6 +48,7 @@ import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 import org.netbeans.modules.latex.model.structural.Model;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.StructuralNodeFactory;
+import org.netbeans.spi.navigator.NavigatorLookupHint;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.ui.CustomizerProvider;
@@ -93,6 +94,8 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     
     public static final String COMMAND_SHOW = "latex-show";//NOI18N
     
+    private static final NavigatorLookupHint NAVIGATOR_HINT = new NavigatorHintImpl();
+    
     private static final Image LaTeXGUIProjectIMAGE;
     private static final Icon LaTeXGUIProjectICON;
     
@@ -113,7 +116,6 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
             source,
             new LaTeXGUIProjectOpenedHookImpl(this),
             new LaTeXAuxiliaryConfigurationImpl(this),
-            new NavigatorHintImpl(),
         });
     }
     
@@ -313,7 +315,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         // icon badging <<<
         
         public LaTeXGUIProjectNode(LaTeXGUIProject project) {
-            super(project.createChildren(), Lookups.fixed(new Object[] {project}));
+            super(project.createChildren(), Lookups.fixed(new Object[] {project, NAVIGATOR_HINT, project.source}));
             setDisplayName(project.getDisplayName());
             setIconBase("org/netbeans/modules/latex/guiproject/resources/latex_gui_project_icon");
             setProjectFiles(project);
