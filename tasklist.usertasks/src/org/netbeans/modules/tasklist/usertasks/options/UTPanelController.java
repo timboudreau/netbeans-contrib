@@ -7,21 +7,25 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.usertasks.options;
 
-import org.netbeans.spi.options.OptionsCategory;
+import java.beans.PropertyChangeListener;
+import javax.swing.JComponent;
+import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 
 /**
  * PanelController for the options.
  *
  * @author tl
  */
-public class UTPanelController extends OptionsCategory.PanelController {
+public class UTPanelController extends OptionsPanelController {
+    
     private UTOptionsPanel panel = new UTOptionsPanel();
     
     /**
@@ -30,15 +34,15 @@ public class UTPanelController extends OptionsCategory.PanelController {
     public UTPanelController() {
     }
 
-    public javax.swing.JComponent getComponent(org.openide.util.Lookup masterLookup) {
+    public JComponent getComponent(Lookup masterLookup) {
         return panel;
     }
 
-    public void removePropertyChangeListener(java.beans.PropertyChangeListener l) {
+    public void removePropertyChangeListener(PropertyChangeListener l) {
         panel.removePropertyChangeListener(l);
     }
 
-    public void addPropertyChangeListener(java.beans.PropertyChangeListener l) {
+    public void addPropertyChangeListener(PropertyChangeListener l) {
         panel.addPropertyChangeListener(l);
     }
 
@@ -54,7 +58,7 @@ public class UTPanelController extends OptionsCategory.PanelController {
         return panel.isChanged();
     }
 
-    public org.openide.util.HelpCtx getHelpCtx() {
+    public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
 
@@ -65,4 +69,5 @@ public class UTPanelController extends OptionsCategory.PanelController {
     public void applyChanges() {
         panel.applyChanges();
     }
+    
 }

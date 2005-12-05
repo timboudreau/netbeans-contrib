@@ -7,13 +7,14 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.usertasks.options;
 
 import org.netbeans.spi.options.AdvancedOption;
+import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.NbBundle;
 
 /**
@@ -38,7 +39,8 @@ public class UTAdvancedOption extends AdvancedOption {
             "OptionDisplayName"); // NOI18N
     }
 
-    public org.netbeans.spi.options.OptionsCategory.PanelController create() {
+    public OptionsPanelController create() {
         return new UTPanelController();
     }
+    
 }
