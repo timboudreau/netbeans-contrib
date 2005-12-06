@@ -1,6 +1,4 @@
 /*
- * MetricsFilterFactory.java
- *
  *                 Sun Public License Notice
  * 
  * The contents of this file are subject to the Sun Public License
@@ -11,22 +9,17 @@
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
- *
- * Contributor(s): Thomas Ball
- *
- * Version: $Revision$
  */
 
 package org.netbeans.modules.metrics;
 
 import org.openide.filesystems.*;
+import org.openide.loaders.DataObject;
 import org.openide.nodes.*;
 import org.openide.src.nodes.*;
 import org.openide.src.*;
 
 import org.netbeans.modules.classfile.ClassName;
-import org.netbeans.modules.clazz.CompiledDataObject;
-import org.netbeans.modules.java.JavaDataObject;
 
 import java.io.*;
 import java.util.*;
@@ -46,8 +39,6 @@ public class MetricsFilterFactory extends FilterFactory {
 
     public Node createClassNode (ClassElement element) {
         Node node = super.createClassNode(element);
-        JavaDataObject jdo = 
-            (JavaDataObject)node.getCookie(JavaDataObject.class);
 
         // Add metrics node to class node's children list.
         Children children = node.getChildren();
@@ -69,15 +60,16 @@ public class MetricsFilterFactory extends FilterFactory {
         // Add class files associated with jdo to ClassMetrics pool.
         // It doesn't matter that the main class file is fetched again,
         // as it has been already created.
-        if (jdo != null) {
-            Collection c = jdo.getCompiledClasses();
-            if (c != null)
-               for (Iterator iter = c.iterator(); iter.hasNext();) {
-                   FileObject fo = (FileObject)iter.next();
+        DataObject dobj = (DataObject)node.getCookie(DataObject.class);
+        if (dobj != null) {
+            FileObject fobj = dobj.getPrimaryFile();
+            if (fobj.getExt().equals("java")) {
+                List<FileObject> classes = ClassFinder.getCompiledClasses(fobj);
+                for (FileObject fo : classes)
                    try {
                        ClassMetrics.getClassMetrics(fo);
                    } catch (IOException e) {}
-               }
+            }
         }
 
         // Add an icon updating filter to this class node.
@@ -145,17 +137,15 @@ public class MetricsFilterFactory extends FilterFactory {
 
     private ClassMetrics getClassMetrics(Node node) throws IOException {
         FileObject classFile = null;
-        JavaDataObject jdo = 
-            (JavaDataObject)node.getCookie(JavaDataObject.class);
-        if (jdo != null)
-            classFile = FileUtil.findBrother(jdo.getPrimaryFile(), "class");
-        else {
-            CompiledDataObject cdo = 
-                (CompiledDataObject)node.getCookie(CompiledDataObject.class);
-            if (cdo != null)
-                classFile = cdo.getPrimaryFile();
+        DataObject dobj = (DataObject)node.getCookie(DataObject.class);
+        if (dobj != null) {
+            FileObject fobj = dobj.getPrimaryFile();
+            if (fobj.getExt().equals("java")) {
+                List<FileObject> classes = ClassFinder.getCompiledClasses(fobj);
+                if (classes.size() > 0)
+                    classFile = classes.get(0);
+            }
         }
-
 	return ClassMetrics.getClassMetrics(classFile);
     }
 }

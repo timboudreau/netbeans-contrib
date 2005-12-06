@@ -1,33 +1,25 @@
 /*
- * ShowMetricsAction.java
- *
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
- *
- * Contributor(s): Thomas Ball
- *
- * Version: $Revision$
  */
 
 package org.netbeans.modules.metrics;
 
 import java.awt.EventQueue;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
-import org.netbeans.modules.clazz.CompiledDataObject;
-import org.netbeans.modules.java.JavaDataObject;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataFolder;
@@ -96,22 +88,11 @@ public class ShowMetricsAction extends NodeAction {
             if (df != null)
                 addDirectoryClasses(df, metricsSet);
             else {
-                JavaDataObject jdo = 
-                    (JavaDataObject)node.getCookie(JavaDataObject.class);
-                if (jdo != null)
-                    addClassFiles(jdo, metricsSet);
-                else {
-                    CompiledDataObject cdo = 
-                        (CompiledDataObject)node.getCookie(CompiledDataObject.class);
-                    if (cdo != null) {
-                        try {
-                            ClassMetrics cm = getClassMetrics(cdo.getName(),
-                                cdo.getPrimaryFile());
-                            metricsSet.add(cm);
-                        } catch (IOException e) {
-                            if (debug)
-                                System.err.println(e.toString());
-                        }
+                DataObject dobj = (DataObject)node.getCookie(DataObject.class);
+                if (dobj != null) {
+                    FileObject fobj = dobj.getPrimaryFile();
+                    if (fobj.getExt().equals("java")) {
+                        addClassFiles(fobj, metricsSet);
                     }
                 }
             }
@@ -131,48 +112,35 @@ public class ShowMetricsAction extends NodeAction {
     }
 
     private void addDirectoryClasses(DataFolder df, Set metricsSet) {
+        if (df.getName().equals("CVS")) //FIXME: use "hidden files" system option
+            return;
         DataObject dobj[] = df.getChildren();
         for (int i = 0; i < dobj.length; i++) {
             if (dobj[i] instanceof DataFolder)
                 addDirectoryClasses((DataFolder)dobj[i], metricsSet);
             else {
-                JavaDataObject jdo = 
-                    (JavaDataObject)dobj[i].getCookie(JavaDataObject.class);
-                if (jdo != null)
-                    addClassFiles(jdo, metricsSet);
-                else {
-                    CompiledDataObject cdo = 
-                        (CompiledDataObject)dobj[i].getCookie(CompiledDataObject.class);
-                    if (cdo != null)
-                        try {
-                            ClassMetrics cm = getClassMetrics(cdo.getName(),
-                                cdo.getPrimaryFile());
-                            metricsSet.add(cm);
-                        } catch (IOException e) {
-                            if (debug)
-                                System.err.println(e.toString());
-                        }
+                DataObject data = (DataObject)dobj[i].getCookie(DataObject.class);
+                if (data != null) {
+                    FileObject fobj = data.getPrimaryFile();
+                    if (fobj.getExt().equals("java")) {
+                        addClassFiles(fobj, metricsSet);
+                    }
                 }
             }
         }
     }
 
-    // Add all class files associated with a JavaDataObject.
-    private void addClassFiles(JavaDataObject jdo, Set metricsSet) {
-        Collection c = jdo.getCompiledClasses();
-        if (c != null) {
-            Iterator iter = c.iterator();
-            while (iter.hasNext()) {
-                try {
-                    FileObject fo = (FileObject)iter.next();
-                    ClassMetrics cm = getClassMetrics(fo.getName(), fo);
-                    metricsSet.add(cm);
-                } catch (IOException e) {
-                    if (debug)
-                        System.err.println(e.toString());
-                }
+    // Add all class files associated with a Java FileObject.
+    private void addClassFiles(FileObject fobj, Set metricsSet) {
+        List<FileObject> classes = ClassFinder.getCompiledClasses(fobj);
+        for (FileObject fo : classes)
+            try {
+                ClassMetrics cm = getClassMetrics(fo.getName(), fo);
+                metricsSet.add(cm);
+            } catch (IOException e) {
+                if (debug)
+                    System.err.println(e.toString());
             }
-        }
     }
 
     private static final String readingMsg = 

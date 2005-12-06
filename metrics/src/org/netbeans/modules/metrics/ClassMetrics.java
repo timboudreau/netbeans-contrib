@@ -1,6 +1,4 @@
 /*
- * ClassMetrics.java
- *
  *                 Sun Public License Notice
  * 
  * The contents of this file are subject to the Sun Public License
@@ -11,15 +9,12 @@
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
- *
- * Contributor(s): Thomas Ball
- *
- * Version: $Revision$
  */
 
 package org.netbeans.modules.metrics;
 
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.modules.classfile.*;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
@@ -35,7 +30,9 @@ import java.util.*;
  * The class' information is shared by all
  * metrics and so only need to be retrieved once.
  *
- * @author  tball
+ * @author  tball * ClassMetrics.java
+ *
+
  * @version
  */
 public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
@@ -157,12 +154,9 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
     private InputStream lookupClass() throws IOException {
 	InputStream is = null;
 	String resName = className.getInternalName() + ".class";
-	ClassPath classPath = ClassPath.getClassPath(null, ClassPath.COMPILE);
-	FileObject fo = classPath.findResource(resName);
-	if (fo == null) {
-	    classPath = ClassPath.getClassPath(null, ClassPath.EXECUTE);
-	    fo = classPath.findResource(resName);
-	}
+	FileObject fo = ClassFinder.findResource(resName, ClassPath.COMPILE);
+	if (fo == null)
+	    fo = ClassFinder.findResource(resName, ClassPath.EXECUTE);
 	is = (fo != null)
 	    ? fo.getInputStream() 
 	    : getClass().getClassLoader().getResourceAsStream(resName);
