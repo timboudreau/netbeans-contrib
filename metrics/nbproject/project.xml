@@ -104,7 +104,10 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>org.netbeans.modules.metrics</package>
+                <package>org.netbeans.modules.metrics.options</package>
+            </public-packages>
         </data>
     </configuration>
 </project>
