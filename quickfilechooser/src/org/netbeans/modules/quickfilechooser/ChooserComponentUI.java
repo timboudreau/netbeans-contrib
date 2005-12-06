@@ -57,6 +57,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 
@@ -73,6 +74,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     private boolean currentDirectoryChanging;
     private JButton approve;
     private JPanel buttons;
+    private JLabel filterLabel;
     private boolean historyChanging;
 
     public ChooserComponentUI(JFileChooser jfc) {
@@ -166,6 +168,8 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         JScrollPane jsc = new JScrollPane(completions);
         JPanel pnl2 = new JPanel();
         pnl2.setLayout(new BorderLayout());
+        filterLabel = new JLabel();
+        pnl2.add(filterLabel, BorderLayout.NORTH);
         pnl2.add(jsc, BorderLayout.CENTER);
         pnl2.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 0));
         
@@ -188,6 +192,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             getAccessoryPanel().add(x);
         }
         updateButtons();
+        updateFilterDisplay();
     }
     
     private static ResourceBundle getBundle() {
@@ -313,6 +318,9 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                     }
                 } else if (JFileChooser.CONTROL_BUTTONS_ARE_SHOWN_CHANGED_PROPERTY.equals(name)) {
                     buttons.setVisible(getFileChooser().getControlButtonsAreShown());
+                } else if (JFileChooser.FILE_FILTER_CHANGED_PROPERTY.equals(name)) {
+                    refreshCompletions();
+                    updateFilterDisplay();
                 }
                 // XXX may have to handle JFileChooser.FILE_CHANGED_PROPERTY too
             }
@@ -335,6 +343,9 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                     Arrays.sort(kids, Collator.getInstance());
                     for (int i = 0; i < kids.length; i++) {
                         File kid = new File(d, kids[i]);
+                        if (!getFileChooser().accept(kid)) {
+                            continue;
+                        }
                         if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY && !kid.isDirectory()) {
                             continue;
                         }
@@ -501,6 +512,16 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                     history.add(f);
                 }
             }
+        }
+    }
+
+    private void updateFilterDisplay() {
+        FileFilter filter = getFileChooser().getFileFilter();
+        if (filter != null) {
+            filterLabel.setText(filter.getDescription());
+            filterLabel.setVisible(true);
+        } else {
+            filterLabel.setVisible(false);
         }
     }
     

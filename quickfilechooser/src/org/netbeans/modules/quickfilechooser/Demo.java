@@ -18,6 +18,7 @@ import java.util.Arrays;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileView;
 
 public class Demo {
@@ -40,9 +41,21 @@ public class Demo {
                 return null;
             }
         });
+        /*
+        chooser.addChoosableFileFilter(new FileFilter() {
+            public boolean accept(File pathname) {
+                return pathname.isDirectory() ||
+                        pathname.getName().toLowerCase().endsWith(".html");
+            }
+            public String getDescription() {
+                return "HTML Files";
+            }
+        });
+         */
         //chooser.setControlButtonsAreShown(false);
-        chooser.showOpenDialog(null);
-        System.out.println("Selected: " + Arrays.asList(chooser.getSelectedFiles()));
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            System.out.println("Selected: " + Arrays.asList(chooser.getSelectedFiles()));
+        }
         System.exit(0);
     }
     
