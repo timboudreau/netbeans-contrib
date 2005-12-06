@@ -38,8 +38,7 @@ public final class DebuggingSupportImpl extends DebuggingSupport {
         
         debuggingEnabled = e;
         
-        if (isDebuggingEnabled())
-            pcs.firePropertyChange(PROP_DEBUGGING_ENABLED, Boolean.valueOf(old), Boolean.valueOf(debuggingEnabled));
+        pcs.firePropertyChange(PROP_DEBUGGING_ENABLED, Boolean.valueOf(old), Boolean.valueOf(debuggingEnabled));
     }
 
     public Node getCurrentSelectedNode() {
