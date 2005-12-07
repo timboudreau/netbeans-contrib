@@ -18,16 +18,20 @@ Microsystems, Inc. All Rights Reserved.
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.autoclose</code-name-base>
             <module-dependencies>
-
                 <dependency>
-                    <code-name-base>org.openide.util</code-name-base>
+                    <code-name-base>org.openide.explorer</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>6.2</specification-version>
+                        <specification-version>6.5</specification-version>
                     </run-dependency>
                 </dependency>
-
+                <dependency>
+                    <code-name-base>org.openide.loaders</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency/>
+                </dependency>
                 <dependency>
                     <code-name-base>org.openide.modules</code-name-base>
                     <build-prerequisite/>
@@ -36,7 +40,6 @@ Microsystems, Inc. All Rights Reserved.
                         <specification-version>6.2</specification-version>
                     </run-dependency>
                 </dependency>
-
                 <dependency>
                     <code-name-base>org.openide.nodes</code-name-base>
                     <build-prerequisite/>
@@ -45,7 +48,6 @@ Microsystems, Inc. All Rights Reserved.
                         <specification-version>6.2</specification-version>
                     </run-dependency>
                 </dependency>
-
                 <dependency>
                     <code-name-base>org.openide.options</code-name-base>
                     <build-prerequisite/>
@@ -54,7 +56,22 @@ Microsystems, Inc. All Rights Reserved.
                         <specification-version>6.2</specification-version>
                     </run-dependency>
                 </dependency>
-
+                <dependency>
+                    <code-name-base>org.openide.text</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>6.9</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.util</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>6.2</specification-version>
+                    </run-dependency>
+                </dependency>
                 <dependency>
                     <code-name-base>org.openide.windows</code-name-base>
                     <build-prerequisite/>
@@ -63,14 +80,7 @@ Microsystems, Inc. All Rights Reserved.
                         <specification-version>6.2</specification-version>
                     </run-dependency>
                 </dependency>
-
-                <dependency>
-                    <code-name-base>org.openide.loaders</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency/>
-                </dependency>
-                </module-dependencies>
+            </module-dependencies>
             <public-packages/>
             <javadoc/>
         </data>

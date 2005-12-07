@@ -20,8 +20,12 @@ import java.util.Iterator;
 import java.util.Set;
 import org.openide.ErrorManager;
 import org.openide.cookies.SaveCookie;
+import org.openide.explorer.ExplorerManager;
 import org.openide.loaders.DataObject;
+import org.openide.text.CloneableEditorSupport;
+import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -104,6 +108,24 @@ import org.openide.windows.TopComponent;
         }
     }
     
+    private boolean isEditor(TopComponent tc) {
+        if (tc == null) {
+            return false;
+        }
+        // #57621: check if the closed top component isn't instance of ExplorerManager.Provider e.g. Projects/Files tab, if yes then do skip this loop
+        if (tc instanceof ExplorerManager.Provider) {
+            return false;
+        }
+        // #68677: closing only documents in the editor, not eg. navigator window:
+        Mode m = WindowManager.getDefault().findMode(tc);
+        if (m == null || !CloneableEditorSupport.EDITOR_MODE.equals(m.getName())) { // NOI18N
+            return false;
+        }
+        DataObject dobj = (DataObject) tc.getLookup ().lookup (DataObject.class);
+        
+        return dobj != null;
+    }
+    
     private void propertyChangeRegistry(PropertyChangeEvent evt) {
         if (TopComponent.Registry.PROP_OPENED.equals(evt.getPropertyName())) {
             Set newlyOpened = new HashSet((Collection) evt.getNewValue());
@@ -113,7 +135,7 @@ import org.openide.windows.TopComponent;
             for (Iterator i = ((Collection) newlyOpened).iterator(); i.hasNext(); ) {
                 TopComponent tc = (TopComponent) i.next();
                 
-                if (tc.getLookup().lookup(DataObject.class) != null) {
+                if (isEditor(tc)) {
                     //probably editor:
                     update(tc);
                 }
@@ -125,7 +147,7 @@ import org.openide.windows.TopComponent;
         if (TopComponent.Registry.PROP_ACTIVATED.equals(evt.getPropertyName())) {
             TopComponent tc = (TopComponent) evt.getNewValue();
             
-            if (tc != null && tc.getLookup().lookup(DataObject.class) != null) {
+            if (isEditor(tc)) {
                 //probably editor:
                 update(tc);
             }
