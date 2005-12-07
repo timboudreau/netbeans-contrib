@@ -111,9 +111,9 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
 
         setLayout(new java.awt.GridBagLayout());
 
-        serviceLabel.setText("Service URL");
+        serviceLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("ServiceUrl_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         add(serviceLabel, gridBagConstraints);
 
         serviceTextField.setColumns(60);
@@ -124,19 +124,20 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
         add(serviceTextField, gridBagConstraints);
 
-        serviceExampleLabel.setText("e.g. http://www.solitone.org/scarab/issues/");
+        serviceExampleLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("ServiceUrlExample_Label"));
         serviceExampleLabel.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         add(serviceExampleLabel, gridBagConstraints);
 
-        customLabel.setText("Query");
+        customLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Query_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(6, 24, 0, 0);
         add(customLabel, gridBagConstraints);
 
@@ -148,20 +149,22 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         add(customTextField, gridBagConstraints);
 
-        customExLabel.setText("i.e. \"go\" parameter value");
+        customExLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("QueryExample_Label"));
         customExLabel.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         add(customExLabel, gridBagConstraints);
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Attribute Mappings"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("AttributeMappings_Label")));
         jPanel1.setToolTipText("Enter names for scarab's attributes to match NetBeans Tasklist names.");
-        summaryLabel.setText("Summary:");
+        summaryLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Summary_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -169,7 +172,7 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
         jPanel1.add(summaryLabel, gridBagConstraints);
 
-        priorityLabel.setText("Priority:");
+        priorityLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Priority_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;
@@ -177,7 +180,7 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
         jPanel1.add(priorityLabel, gridBagConstraints);
 
-        componentLabel.setText("Component:");
+        componentLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Component_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -185,7 +188,7 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
         jPanel1.add(componentLabel, gridBagConstraints);
 
-        subcomponentLabel.setText("Subcomponent:");
+        subcomponentLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Subcomponent_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -193,7 +196,7 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
         jPanel1.add(subcomponentLabel, gridBagConstraints);
 
-        keywordsLabel.setText("Keywords:");
+        keywordsLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Keywords_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 11;
@@ -201,7 +204,7 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
         jPanel1.add(keywordsLabel, gridBagConstraints);
 
-        assignedToLabel.setText("Assigned to:");
+        assignedToLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("AssignedTo_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
@@ -209,7 +212,7 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
         jPanel1.add(assignedToLabel, gridBagConstraints);
 
-        statusLabel.setText("Status:");
+        statusLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Status_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -217,7 +220,7 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
         jPanel1.add(statusLabel, gridBagConstraints);
 
-        targetLabel.setText("Target:");
+        targetLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Target_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 9;
@@ -225,7 +228,7 @@ public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
         jPanel1.add(targetLabel, gridBagConstraints);
 
-        votesLabel.setText("Votes:");
+        votesLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Votes_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 10;

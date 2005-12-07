@@ -151,16 +151,16 @@ public final class Issue implements Comparable {
     public String toString() {   
         StringBuffer buffer;
         if (attributes == null) {
-            return "Empty BugBase";
+            return java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("Empty_BugBase");
         }
         Iterator it = attributes.entrySet().iterator();
         buffer = new StringBuffer();
         buffer.append(this.getClass().getName() 
-                      + " containing these name/value attribute pairs:\n");
+                      + java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("_containing_these_name/value_attribute_pairs:\n"));
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
-            buffer.append("NAME  : " + entry.getKey() + "\n");
-            buffer.append("VALUE : " + entry.getValue() + "\n");      
+            buffer.append(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("NAME__:_") + entry.getKey() + "\n");
+            buffer.append(java.util.ResourceBundle.getBundle("org/netbeans/modules/tasklist/bugs/scarab/Bundle").getString("VALUE_:_") + entry.getValue() + "\n");      
         }
         return buffer.toString();
     }

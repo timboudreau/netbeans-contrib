@@ -85,12 +85,12 @@ public final class Scarab{
             saxParser = factory.newSAXParser();
         } catch (Exception ex) {
             ex.printStackTrace();
-            throw new IllegalStateException ("Cannot initialize parser");
+            throw new IllegalStateException ("Cannot initialize parser"); //NOI18N
         }
     }
     
     public void setProxyPool( final String proxyPool ) {
-        java.util.StringTokenizer tokens = new java.util.StringTokenizer( proxyPool, "," );
+        java.util.StringTokenizer tokens = new java.util.StringTokenizer( proxyPool, "," ); //NOI18N
         
         proxyServer = new Vector();
         
@@ -112,13 +112,13 @@ public final class Scarab{
         final String host = proxyString.substring(0, proxyString.indexOf(':'));
         final String port = proxyString.substring(proxyString.indexOf(':')+1);
   
-        System.out.println("Rotating http proxy server to " + host + ":" + port);
+        System.out.println("Rotating http proxy server to " + host + ":" + port); //NOI18N
         
         if (!port.equals("")) {
-            System.getProperties ().put ("http.proxyPort", port);
+            System.getProperties ().put ("http.proxyPort", port); //NOI18N
         }
         if (!host.equals("")) {
-            System.getProperties ().put ("http.proxyHost", host);
+            System.getProperties ().put ("http.proxyHost", host); //NOI18N
         }
     }
     
@@ -128,7 +128,7 @@ public final class Scarab{
      */
     public List query (final String query) throws SAXException, IOException {
     
-        final String search = "curmodule/0/tqk/0/template/admin%2CViewXMLExportIssues.vm?";
+        final String search = "curmodule/0/tqk/0/template/admin%2CViewXMLExportIssues.vm?"; //NOI18N
         final URL u = new URL (urlBase,search+query);
         IOException lastEx = null;
         InputStreamReader isr = null;
@@ -136,7 +136,7 @@ public final class Scarab{
 
         for (int iterate = 0; iterate < maxIOFailures; iterate++) {
             try {
-                isr = new InputStreamReader (u.openStream (), "UTF-8");
+                isr = new InputStreamReader (u.openStream (), "UTF-8"); //NOI18N
                 reader = new BufferedReader (isr);
                 if( reader != null ){ break; }
             }catch (IOException ex) {
@@ -162,7 +162,7 @@ public final class Scarab{
         }
         if (reader == null) {
             if (lastEx != null) throw lastEx;
-            else throw new IOException("Can't get connection to " + u.toString() + " for " + maxIOFailures + "times.");
+            else throw new IOException("Can't get connection to " + u.toString() + " for " + maxIOFailures + "times.");  //NOI18N
         }
         
         final List list = getBugs(reader,u);

@@ -72,7 +72,7 @@ public final class ScarabEngine implements BugEngine {
      */
     public void doRefresh(final BugQuery inQuery, final BugList list) {
         if( !(inQuery instanceof ScarabBugQuery) ){
-            throw new IllegalArgumentException("ScarabEngine.doRefresh only excepts ScarabBugQuery argument");
+            throw new IllegalArgumentException("ScarabEngine.doRefresh only excepts ScarabBugQuery argument"); //NOI18N
         }
         final ScarabBugQuery sbQuery = (ScarabBugQuery)inQuery;
         final TaskListView v = TaskListView.getCurrent();
@@ -82,8 +82,8 @@ public final class ScarabEngine implements BugEngine {
             view.setCursor(Utilities.createProgressCursor(view));
         }
         try {
-            if ((inQuery.getBaseUrl()  == null || inQuery.getBaseUrl().equals("")) 
-                    || (inQuery.getQueryString() == null || inQuery.getQueryString().equals(""))) {
+            if ((inQuery.getBaseUrl()  == null || inQuery.getBaseUrl().equals(""))  //NOI18N
+                    || (inQuery.getQueryString() == null || inQuery.getQueryString().equals(""))) { //NOI18N
                 //They didn't enter anything on the gui
                 StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(ScarabEngine.class,
                         "BadQuery")); // NOI18N
@@ -91,9 +91,9 @@ public final class ScarabEngine implements BugEngine {
             }            
             // Do a bug query
             final String baseurl = inQuery.getBaseUrl();
-            final String query = "downloadtype=1&go="+inQuery.getQueryString();
+            final String query = "downloadtype=1&go="+inQuery.getQueryString(); //NOI18N
 
-            System.out.println("Baseurl = " + baseurl + " query = " + query);
+            System.out.println("Baseurl = " + baseurl + " query = " + query); //NOI18N
 
             StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(ScarabEngine.class,
                     "Refreshing")); // NOI18N
@@ -149,7 +149,7 @@ public final class ScarabEngine implements BugEngine {
                     
                 } catch (org.xml.sax.SAXException se) {
                     ErrorManager.getDefault().notify(se);
-                    System.out.println("Couldn't read bug list: sax exception");
+                    System.out.println("Couldn't read bug list: sax exception"); //NOI18N
                 } catch (java.net.UnknownHostException uhe) {
                     StatusDisplayer.getDefault().setStatusText(MessageFormat.format(NbBundle.getMessage(ScarabEngine.class,
                             "NoNet"), // NOI18N
@@ -157,9 +157,9 @@ public final class ScarabEngine implements BugEngine {
 
                 } catch (java.io.IOException ioe) {
                     ErrorManager.getDefault().notify(ioe);
-                    System.out.println("Couldn't read bug list: io exception");
+                    System.out.println("Couldn't read bug list: io exception"); //NOI18N
                 }
-                StatusDisplayer.getDefault().setStatusText("");
+                StatusDisplayer.getDefault().setStatusText(""); //NOI18N
             }
         } finally {
             if (view != null) {
