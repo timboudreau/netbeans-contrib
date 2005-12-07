@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN"
+                     "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+
+<toc version="2.0">
+	<tocitem text="Enterprise Applications">
+		<tocitem text="Developing Enterprise Applications">
+			<tocitem text="Using the Application Verification Kit">
+				<tocitem text="Using Java Application Verification Kit" target="avk_overview" />
+				<tocitem text="Enabling Dynamic Verification" target="AVKVerifyDialog" />
+				<tocitem text="Generating and Viewing AVK Reports" target="AVKGenerateReport" />
+			</tocitem>
+		</tocitem>
+	</tocitem>
+</toc>

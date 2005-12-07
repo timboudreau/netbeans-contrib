@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
+<filesystem>
+   <folder name="J2EE">
+       <folder name="SunAppServer">
+           <folder name="Actions">
+                       <file name="AVK1.instance">
+                               <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ide.avk.actions.GenerateReportAction"/>
+                           </file>
+           </folder>
+           <folder name="AVKImplementation">
+                       <file name="AVK.instance">
+                               <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ide.avk.AVKSupport"/>
+                       </file>
+           </folder>
+       </folder>
+   </folder> 
+   <folder name="Services">
+     <!-- Register the HelpSet in lookup: -->
+     <folder name="JavaHelp">
+        <!-- Merge after Core IDE Help: -->
+        <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-j2ee-sun-avk-helpset.xml" boolvalue="true"/>
+        <attr name="org-netbeans-modules-j2ee-server-above-regular.txt/org-netbeans-modules-j2ee-sun-avk-helpset.xml"
+                   boolvalue="true"/>
+        <!-- The following file supplies the IDE with the name of the helpset: -->
+        <file name="org-netbeans-modules-j2ee-sun-avk-helpset.xml" url="avkhelpset-decl.xml"/>
+        <!-- Merge it before the last group of helpset TOC entries: -->
+        <attr name="org-netbeans-modules-j2ee-sun-avk-helpset.xml/org-netbeans-modules-usersguide-below-regular.txt" 
+                   boolvalue="true"/>
+     </folder>  
+    </folder>  
+    <folder name="Menu">
+        <folder name="Help">
+            <file name="org-netbeans-modules-j2ee-sun-ide-avk-actions-ShowAVKHelpAction.instance" />
+            <attr name="Tutorials/org-netbeans-modules-j2ee-sun-ide-avk-actions-ShowAVKHelpAction.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-j2ee-sun-ide-avk-actions-ShowAVKHelpAction.instance/shortcuts.xml" boolvalue="true"/>
+	    <attr name="org-netbeans-modules-j2ee-sun-ide-avk-actions-ShowAVKHelpAction.instance/org-netbeans-core-actions-AboutAction.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+    <folder name="Actions">
+        <folder name="Help">
+            <file name="Show AVK Help.instance">
+	        <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ide.avk.actions.ShowAVKHelpAction"/>
+            </file>
+        </folder>
+    </folder> 
+           
+</filesystem>

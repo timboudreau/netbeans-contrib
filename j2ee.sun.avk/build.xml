@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?> <!-- -*- sgml-indent-step: 2 -*- -->
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="avk-plugin" default="netbeans" basedir=".">
+  <import file="../../../nbbuild/templates/projectized.xml"/>
+
+    <!--target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+        <mkdir dir="build"/>
+        <makenbm file="build/${nbm}"
+                 productdir="${cdp.dest.dir}/${cluster.dir}"
+                 module="${module.jar}"
+                 homepage="http://${nbm.domain}.${homepage.base}/"
+                 distribution="http://${dist.base}/${nbm}"
+                 needsrestart="${nbm.needs.restart}"
+                 releasedate="${nbm.release.date}"
+		 moduleauthor="${nbm.module.author}"
+                 >
+            <license file="${license.file}"/>
+        </makenbm>
+
+        
+    </target-->    
+
+ 
+   
+    
+        <target name="files-init" depends="basic-init">
+         <unzip src="release/javke.zip" dest="${netbeans.dest.dir}/${cluster.dir}/javke"/>
+
+        <patternset id="module.files">
+            <include name="${module.jar}"/>
+            <include name="${javahelp.jar}" if="has.javahelp"/>
+            <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
+            <include name="javke1.4.1/**"/>
+
+            
+        </patternset>
+    </target>
+</project>
