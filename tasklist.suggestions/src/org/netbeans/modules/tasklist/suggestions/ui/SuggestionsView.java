@@ -197,6 +197,11 @@ public class SuggestionsView extends TaskListView implements SuggestionView {
             );
     }
 
+    
+    protected String preferredID() {
+        return getClass().getName();
+    }
+    
     public void readExternal(java.io.ObjectInput objectInput) throws java.io.IOException, java.lang.ClassNotFoundException {
         int version = objectInput.readInt();  // IOExceptions means even older unversioned serialization
         if (version == 1) {
@@ -493,4 +498,5 @@ public class SuggestionsView extends TaskListView implements SuggestionView {
             t));
         return tp;
     }
+
 }
