@@ -1378,11 +1378,18 @@ for (int i = 0; i < columns.length; i++) {
         if (last.getChildCount() > 0) {
             next = last.getChildAt(0);
         } else {
-            int index = last.getParent().getIndex(last);
-            assert index != -1;
-            index++;
-            if (index < last.getParent().getChildCount()) {
-                next = last.getParent().getChildAt(index);
+            TreeNode parent = last.getParent();
+            if (parent == null) {
+                if (parent.getChildCount() > 0) {
+                    next = parent.getChildAt(0);
+                }                
+            } else {
+                int index = parent.getIndex(last);
+                assert index != -1;
+                index++;
+                if (index < last.getParent().getChildCount()) {
+                    next = last.getParent().getChildAt(index);
+                }
             }
         }
 
