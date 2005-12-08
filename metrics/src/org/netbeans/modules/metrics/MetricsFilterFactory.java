@@ -64,9 +64,10 @@ public class MetricsFilterFactory extends FilterFactory {
         if (dobj != null) {
             FileObject fobj = dobj.getPrimaryFile();
             if (fobj.getExt().equals("java")) {
-                List<FileObject> classes = ClassFinder.getCompiledClasses(fobj);
-                for (FileObject fo : classes)
+                List /*<FileObject>*/ classes = ClassFinder.getCompiledClasses(fobj);
+                for (Iterator i = classes.iterator(); i.hasNext();)
                    try {
+                       FileObject fo = (FileObject)i.next();
                        ClassMetrics.getClassMetrics(fo);
                    } catch (IOException e) {}
             }
@@ -141,9 +142,9 @@ public class MetricsFilterFactory extends FilterFactory {
         if (dobj != null) {
             FileObject fobj = dobj.getPrimaryFile();
             if (fobj.getExt().equals("java")) {
-                List<FileObject> classes = ClassFinder.getCompiledClasses(fobj);
+                List classes = ClassFinder.getCompiledClasses(fobj);
                 if (classes.size() > 0)
-                    classFile = classes.get(0);
+                    classFile = (FileObject)classes.get(0);
             }
         }
 	return ClassMetrics.getClassMetrics(classFile);

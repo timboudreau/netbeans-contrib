@@ -132,9 +132,10 @@ public class ShowMetricsAction extends NodeAction {
 
     // Add all class files associated with a Java FileObject.
     private void addClassFiles(FileObject fobj, Set metricsSet) {
-        List<FileObject> classes = ClassFinder.getCompiledClasses(fobj);
-        for (FileObject fo : classes)
+        List /*<FileObject>*/ classes = ClassFinder.getCompiledClasses(fobj);
+        for (Iterator i = classes.iterator(); i.hasNext();)
             try {
+                FileObject fo = (FileObject)i.next();
                 ClassMetrics cm = getClassMetrics(fo.getName(), fo);
                 metricsSet.add(cm);
             } catch (IOException e) {

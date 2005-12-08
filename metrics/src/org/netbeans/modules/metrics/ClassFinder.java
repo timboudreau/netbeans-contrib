@@ -31,8 +31,8 @@ public final class ClassFinder {
      * Returns the list (set, actually) of classes created by a specified
      * Java source file during compilation.
      */
-    public static List<FileObject> getCompiledClasses(FileObject f) {
-        List<FileObject> classes = new ArrayList<FileObject>();
+    public static List /*<FileObject>*/ getCompiledClasses(FileObject f) {
+        List classes = new ArrayList();
         ClassPath cp = ClassPath.getClassPath(f, ClassPath.SOURCE);
         String clsName = cp.getResourceName(f, '/', false) + ".class";
         cp = ClassPath.getClassPath(f, ClassPath.EXECUTE);
@@ -41,9 +41,11 @@ public final class ClassFinder {
             classes.add(cls);
             FileObject pkg = cls.getParent();
             String baseName = cls.getName() + '$';
-            for (FileObject c : pkg.getChildren()) {
-                if (c.getName().startsWith(baseName))
-                    classes.add(c);
+            FileObject[] children = pkg.getChildren();
+            for (int i = 0; i < children.length; i++) {
+                FileObject child = children[i];
+                if (child.getName().startsWith(baseName))
+                    classes.add(child);
             }
         }
         return classes;
