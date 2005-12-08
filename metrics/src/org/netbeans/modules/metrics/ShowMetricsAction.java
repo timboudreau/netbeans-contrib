@@ -156,4 +156,8 @@ public class ShowMetricsAction extends NodeAction {
         StatusDisplayer.getDefault().setStatusText(msg);
         return ClassMetrics.getClassMetrics(fo);
     }
+
+    protected boolean asynchronous() {
+        return false;
+    }
 }
