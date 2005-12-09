@@ -40,7 +40,7 @@ public class LaTeXGUIProjectOpenedHookImpl extends ProjectOpenedHook {
     }
     
     private void assureParsed() {
-        RequestProcessor.getDefault().postRequest(new Runnable() {
+        RequestProcessor.getDefault().post(new Runnable() {
 	    public void run() {
                 LaTeXSource      source = project.getSource();
 	        LaTeXSource.Lock lock = null;
