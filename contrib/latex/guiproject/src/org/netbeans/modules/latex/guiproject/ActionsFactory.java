@@ -7,70 +7,31 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.guiproject;
-import java.awt.event.ActionEvent;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.net.URL;
-
 import java.util.Properties;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
-
-
-
-
-import org.apache.tools.ant.module.api.AntProjectCookie;
-import org.apache.tools.ant.module.api.AntTargetExecutor;
 import org.apache.tools.ant.module.api.support.ActionUtils;
-import org.netbeans.api.project.Project;
-import org.netbeans.modules.latex.guiproject.ui.ProjectSettings;
-
-import org.netbeans.modules.latex.guiproject.ui.PropertiesDialogPanel;
-
-
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
-import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
-
-
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
-
-
-
-
-
-//import org.openide.execution.ExecutorTask;
-
-
-
-
 import org.openide.filesystems.FileObject;
-
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
-
-
-import org.openide.loaders.DataObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.text.NbDocument;
-
-
-
 import org.openide.util.RequestProcessor;
 
 /**
