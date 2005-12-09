@@ -235,6 +235,13 @@ public final class StatusFormat {
         }
         return adjusted.toString();
     }
+    
+    /** Adjusts "${" and "$[" strings so that they are not interpreted by the expansion method. */
+    private static String adjustVarRef(String str) {
+        str = org.openide.util.Utilities.replaceString(str, "${", "\\${"); // NOI18N
+        str = org.openide.util.Utilities.replaceString(str, "$[", "\\$["); // NOI18N
+        return str;
+    }
 
     // TODO Following methods are called only by FS. Move closer to FS to avoid public contact with side efects
 
@@ -265,7 +272,7 @@ public final class StatusFormat {
                                              Map possibleFileStatusInfoMap) {
         Hashtable vars = new Hashtable();
         if (extraVars != null) vars.putAll(extraVars);
-        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, name);
+        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, adjustVarRef(name));
 
         String status;
         FileProperties fprops = null;
@@ -307,7 +314,7 @@ public final class StatusFormat {
                                              int[] multiFilesAnnotationTypes) {
         Hashtable vars = new Hashtable();
         //if (extraVars != null) vars.putAll(extraVars);
-        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, name);
+        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, adjustVarRef(name));
 
         List statuses = new ArrayList(files.size());
         FileProperties[] properties = new FileProperties[files.size()];
@@ -476,7 +483,7 @@ public final class StatusFormat {
         name = escapeSpecialHTMLCharacters(name);
         // Special "light gray" color for the file annotation
         name += getAnnotationFontColor();
-        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, name);
+        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, adjustVarRef(name));
         if ("${fileName}".equals(annotationPattern)) { // NOI18N
             return Variables.expand(vars, annotationPattern, false);
         }
@@ -552,7 +559,7 @@ public final class StatusFormat {
         name = escapeSpecialHTMLCharacters(name);
         // Special "light gray" color for the file annotation
         name += getAnnotationFontColor();
-        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, name);
+        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, adjustVarRef(name));
         if ("${fileName}".equals(pattern)) { // NOI18N
             return Variables.expand(vars, pattern, false);
         }
@@ -700,7 +707,7 @@ public final class StatusFormat {
         name = escapeSpecialHTMLCharacters(name);
         // Special "light gray" color for the file annotation
         name += getAnnotationFontColor();
-        vars.put(ANNOTATION_PATTERN_FILE_NAME, name);
+        vars.put(ANNOTATION_PATTERN_FILE_NAME, adjustVarRef(name));
         if ("${fileName}".equals(annotationPattern)) { // NOI18N
             return Variables.expand(vars, annotationPattern, false);
         }

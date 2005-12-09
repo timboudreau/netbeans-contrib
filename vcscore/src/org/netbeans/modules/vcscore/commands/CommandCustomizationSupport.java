@@ -863,7 +863,8 @@ public class CommandCustomizationSupport extends Object {
                 if (inputDescriptor != null && showInputDescriptor(inputDescriptor, expertCondition, vars)
                     || userParamsPromptLabels.size() > 0) {
                         
-                    String file = (String) vars.get("FILE"); // NOI18N
+                    VariableValueAdjustment varValueAdjust = executionContext.getVarValueAdjustment();
+                    String file = varValueAdjust.revertAdjustedVarValue((String) vars.get("FILE")); // NOI18N
                     // provide a copy of variables for easy use and modification,
                     // since I have the original variables locked.
                     final Hashtable dlgVars = new Hashtable(vars);

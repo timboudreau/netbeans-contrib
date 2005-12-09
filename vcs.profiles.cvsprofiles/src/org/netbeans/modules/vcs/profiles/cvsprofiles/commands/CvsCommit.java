@@ -23,6 +23,7 @@ import org.netbeans.lib.cvsclient.CVSRoot;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.list.CvsListOffline;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.list.StatusFilePathsBuilder;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.commit.CommitInformation;
+import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
@@ -277,12 +278,16 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         }
         char ps = (psStr == null || psStr.length() < 1) ? java.io.File.pathSeparatorChar : psStr.charAt(0);
         String relativeMountPoint = fileSystem.getRelativeMountPoint();
-        String fsRoot = (String) vars.get("ROOTDIR");
+        VariableValueAdjustment varAdj = fileSystem.getVarValueAdjustment();
+        String fsRoot = varAdj.revertAdjustedVarValue((String) vars.get("ROOTDIR"));
         if (relativeMountPoint != null && relativeMountPoint.length() > 0) {
             fsRoot += ps + relativeMountPoint;//vars.get("MODULE");
         }
-        String relativePath = (String) vars.get("COMMON_PARENT");
-        ArrayList filePaths = getFilePaths((String) vars.get("COMMON_PARENT"), (String) vars.get("PATHS"), ps);
+        String relativePath = varAdj.revertAdjustedVarValue((String) vars.get("COMMON_PARENT"));
+        ArrayList filePaths = getFilePaths(
+                varAdj.revertAdjustedVarValue((String) vars.get("COMMON_PARENT")),
+                varAdj.revertAdjustedVarValue((String) vars.get("PATHS")),
+                ps);
         boolean applyCVSROOT = "true".equals(vars.get("APPLY_CVSROOT"));
         fileStatusUpdater = new FileStatusUpdater(new File(fsRoot),
                                                   applyCVSROOT ? (String) vars.get("CVS_REPOSITORY") : null,

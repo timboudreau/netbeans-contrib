@@ -52,6 +52,20 @@ public class VariableValueAdjustment implements Serializable {
     public VariableValueAdjustment() {
     }
     
+    /** Adjusts "${" and "$[" strings so that they are not interpreted by the expansion method. */
+    private static String adjustVarRef(String str) {
+        str = org.openide.util.Utilities.replaceString(str, "${", "\\${"); // NOI18N
+        str = org.openide.util.Utilities.replaceString(str, "$[", "\\$["); // NOI18N
+        return str;
+    }
+
+    /** Revert the adjusted "\${" and "\$[" strings. */
+    private static String revertAdjustedVarRef(String str) {
+        str = org.openide.util.Utilities.replaceString(str, "\\${", "${"); // NOI18N
+        str = org.openide.util.Utilities.replaceString(str, "\\$[", "$["); // NOI18N
+        return str;
+    }
+
     public synchronized void setAdjust(Hashtable vars) {
         String adjustCharsStr = (String) vars.get(VAR_ADJUST_CHARS);
         if (adjustCharsStr == null) return ;
@@ -102,6 +116,7 @@ public class VariableValueAdjustment implements Serializable {
      * @return the adjusted value
      */
     public String adjustVarValue(String value) {
+        if (value == null) return value;
         value = adjustCharsInValue(value);
         if (quoting != null && value != null) {
             int index = 0;
@@ -112,12 +127,12 @@ public class VariableValueAdjustment implements Serializable {
                 index += adjustedQuoting.length();
             }
         }
+        value = adjustVarRef(value);
         return value;
     }
     
     private String adjustCharsInValue(String value) {
         if (adjustedChars == null) return value;
-        if (value == null) return value;
         for (int i = 0; i < value.length(); i++) {
             Character c = new Character(value.charAt(i));
             if (adjustedChars.contains(c)) {
@@ -149,6 +164,8 @@ public class VariableValueAdjustment implements Serializable {
      * @return the reverted value
      */
     public String revertAdjustedVarValue(String value) {
+        if (value == null) return value;
+        value = revertAdjustedVarRef(value);
         value = revertAdjustedCharsInValue(value);
         if (quoting != null && value != null) {
             int index = 0;
@@ -164,7 +181,6 @@ public class VariableValueAdjustment implements Serializable {
     
     private String revertAdjustedCharsInValue(String value) {
         if (adjustedChars == null) return value;
-        if (value == null) return value;
         int index = value.indexOf(adjustingChar);
         while(index >= 0 && index < (value.length() - 1)) {
             if (adjustedChars.contains(new Character(value.charAt(index + 1)))) {
