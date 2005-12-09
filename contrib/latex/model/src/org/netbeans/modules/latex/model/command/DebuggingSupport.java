@@ -28,8 +28,14 @@ public abstract class DebuggingSupport {
     public DebuggingSupport() {
     }
     
-    public static final DebuggingSupport getDefault() {
-        return (DebuggingSupport) Lookup.getDefault().lookup(DebuggingSupport.class);
+    private static DebuggingSupport INSTANCE;
+    
+    public static synchronized DebuggingSupport getDefault() {
+        if (INSTANCE == null) {
+            INSTANCE = (DebuggingSupport) Lookup.getDefault().lookup(DebuggingSupport.class);
+        }
+        
+        return INSTANCE;
     }
     
     public abstract void addPropertyChangeListener(PropertyChangeListener l);
