@@ -3766,22 +3766,27 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                name.endsWith("/filesystem.attributes"); // NOI18N
     }
 
-    protected void createBackupFile(String name) throws java.io.IOException {
+    protected void createBackupFile(String name) {
         if (name.endsWith(getBackupExtension()) || isIDESettingsFile(name) ||
             !getFile(name).exists() || !isImportant(name)) {
 
             return ;
         }
-        InputStream in = inputStream(name);
         try {
-            OutputStream out = outputStream (name + getBackupExtension());
+            InputStream in = inputStream(name);
             try {
-                FileUtil.copy(in, out);
+                OutputStream out = outputStream (name + getBackupExtension());
+                try {
+                    FileUtil.copy(in, out);
+                } finally {
+                    out.close();
+                }
             } finally {
-                out.close();
+                in.close();
             }
-        } finally {
-            in.close();
+        } catch (IOException ioex) {
+            // Ignore the problems with creating backups.
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
         }
     }
 
