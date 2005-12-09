@@ -15,12 +15,16 @@ package org.netbeans.modules.autoclose;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import org.openide.ErrorManager;
 import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
+import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.windows.Mode;
@@ -33,22 +37,38 @@ import org.openide.windows.WindowManager;
  */
 /*package private*/ final class AutoCloseImpl implements PropertyChangeListener {
     
-    private static final String PROP_DATA = "autoclose-auxiliary-data";
-    
     private static ErrorManager ERR = ErrorManager.getDefault().getInstance("org.netbeans.modules.autoclose");
     
     private int maxOpenedFiles;
     private boolean isEnabled;
     
+    private Map timestamps;
+    
+    private static AutoCloseImpl INSTANCE;
+    
+    public static synchronized AutoCloseImpl getDefault() {
+        if (INSTANCE == null) {
+            INSTANCE = new AutoCloseImpl();
+        }
+        
+        return INSTANCE;
+    }
+    
     /** Creates a new instance of AutoCloseImpl */
-    public AutoCloseImpl() {
+    private AutoCloseImpl() {
         AutoCloseOptions.getDefault().addPropertyChangeListener(this);
+        timestamps = new WeakHashMap();
+        timestamps.putAll(AutoCloseOptions.getDefault().getTimestampMap());
         loadSettings();
     }
     
     private void loadSettings() {
         maxOpenedFiles = AutoCloseOptions.getDefault().getMaxOpenedFiles();
         isEnabled = AutoCloseOptions.getDefault().isAutoCloseEnabled();
+    }
+    
+    public void close() {
+        AutoCloseOptions.getDefault().setTimestampMap(new HashMap(timestamps));
     }
 
     private void closeIfNecessary() {
@@ -62,7 +82,7 @@ import org.openide.windows.WindowManager;
         for (Iterator i = TopComponent.getRegistry().getOpened().iterator(); i.hasNext(); ) {
             TopComponent tc = (TopComponent) i.next();
             
-            Long l = (Long) tc.getClientProperty(PROP_DATA);
+            Long l = (Long) timestamps.get(tc);
             
             if (l != null) {
                 //if l == null, it is not augmented, ignore.
@@ -95,7 +115,8 @@ import org.openide.windows.WindowManager;
         if (ERR.isLoggable(ErrorManager.INFORMATIONAL)) {
             ERR.log("augmenting: " + tc);
         }
-        tc.putClientProperty(PROP_DATA, new Long(System.currentTimeMillis()));
+        
+        timestamps.put(tc, new Long(System.currentTimeMillis()));
     }
     
     public void propertyChange(PropertyChangeEvent evt) {

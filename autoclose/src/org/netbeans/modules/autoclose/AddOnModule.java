@@ -27,7 +27,10 @@ public final class AddOnModule extends ModuleInstall {
 
     public void restored() {
         super.restored();
-        TopComponent.getRegistry().addPropertyChangeListener(new AutoCloseImpl());
+        TopComponent.getRegistry().addPropertyChangeListener(AutoCloseImpl.getDefault());
     }
     
+    public void closed() {
+        AutoCloseImpl.getDefault().close();
+    }
 }

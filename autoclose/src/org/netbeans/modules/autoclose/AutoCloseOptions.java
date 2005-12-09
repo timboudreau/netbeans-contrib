@@ -12,7 +12,7 @@
  */
 package org.netbeans.modules.autoclose;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import org.openide.options.SystemOption;
 import org.openide.util.HelpCtx;
@@ -28,6 +28,7 @@ public class AutoCloseOptions extends SystemOption {
     
     public static final String PROP_MAX_OPENED_FILES = "maxOpenedFiles";
     public static final String PROP_AUTO_CLOSE_ENABLED = "autoCloseEnabled";
+    public static final String PROP_TIMESTAMP_MAP = "timestampMap";
     
     // No constructor please!
     
@@ -78,6 +79,20 @@ public class AutoCloseOptions extends SystemOption {
         // variable and use firePropertyChange(...). Because if putProperty(...)
         // is used, getters and setters will be skipped during project save
         // and restore, which may cause problems.
+    }
+    
+    public Map getTimestampMap() {
+        Map result = (Map) getProperty(PROP_TIMESTAMP_MAP);
+        
+        if (result == null) {
+            return Collections.EMPTY_MAP;
+        }
+        
+        return result;
+    }
+    
+    public void setTimestampMap(Map m) {
+        putProperty(PROP_TIMESTAMP_MAP, m);
     }
     
 }
