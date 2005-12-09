@@ -35,12 +35,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
-import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.latex.guiproject.ui.LaTeXGUIProjectCustomizer;
 import org.netbeans.modules.latex.guiproject.ui.ProjectSettings;
-import org.netbeans.modules.latex.guiproject.ui.PropertiesDialogPanel;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
@@ -50,12 +49,8 @@ import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.StructuralNodeFactory;
 import org.netbeans.spi.navigator.NavigatorLookupHint;
 import org.netbeans.spi.project.ActionProvider;
-import org.netbeans.spi.project.AuxiliaryConfiguration;
-import org.netbeans.spi.project.ui.CustomizerProvider;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -73,18 +68,16 @@ import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.util.Mutex;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
-import org.w3c.dom.Element;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class LaTeXGUIProject implements Project, ProjectInformation, LogicalViewProvider, ActionProvider, CustomizerProvider, LaTeXSource.DocumentChangedListener {
+public class LaTeXGUIProject implements Project, ProjectInformation, LogicalViewProvider, ActionProvider, LaTeXSource.DocumentChangedListener {
     
     private FileObject dir;
     private FileObject masterFile;
@@ -116,6 +109,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
             source,
             new LaTeXGUIProjectOpenedHookImpl(this),
             new LaTeXAuxiliaryConfigurationImpl(this),
+            new LaTeXGUIProjectCustomizer(this),
         });
     }
     
@@ -256,21 +250,6 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
         return true;//TODO:....
-    }
-
-    public void showCustomizer() {
-        ProjectSettings settings = ProjectSettings.getDefault(this);
-        PropertiesDialogPanel panel = new PropertiesDialogPanel(settings);
-        DialogDescriptor dd = new DialogDescriptor(panel, "Properties");
-        DialogDisplayer.getDefault().createDialog(dd).show();
-        
-        panel.store();
-        
-        if (dd.getValue() == DialogDescriptor.OK_OPTION) {
-            settings.commit();
-        } else {
-            settings.rollBack();
-        }
     }
 
     private synchronized void updateContainedFilesCache() {
