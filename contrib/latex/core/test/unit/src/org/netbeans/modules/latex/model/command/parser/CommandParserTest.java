@@ -15,7 +15,9 @@ package org.netbeans.modules.latex.model.command.parser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.modules.latex.model.command.DocumentNode;
@@ -29,6 +31,8 @@ import org.openide.filesystems.FileUtil;
  */
 public class CommandParserTest extends NbTestCase {
     
+    private FileObject dataDir;
+    
     public CommandParserTest(String testName) {
         super(testName);
     }
@@ -37,26 +41,28 @@ public class CommandParserTest extends NbTestCase {
         System.setProperty("netbeans.test.latex.enable", "true");
         
         UnitUtilities.prepareTest(new String[0], new Object[0]);
+        
+        dataDir = FileUtil.toFileObject(new File(getDataDir(), "CommandParserTest"));
+        
+        assertNotNull(dataDir);
     }
 
     public void testInclude() throws Exception {
-        Collection errors = performTest("testInclude.tex");
+        FileObject testFileObject = dataDir.getFileObject("testInclude.tex");
         
-        assertTrue("Errors: " + errors, errors.isEmpty());
-    }
-    
-    private Collection performTest(String testFileName) throws Exception {
-        File testFile = new File(new File(getDataDir(), "CommandParserTest"), testFileName);
-        FileObject testFileObject = FileUtil.toFileObject(testFile);
-        
-        assertNotNull("The test file " + testFileName + " translated to " + testFile.getPath() + " was not found on the filesystems.", testFileObject);
+        assertNotNull(testFileObject);
         
         Collection errors = new ArrayList();
         LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
         DocumentNode node = new CommandParser().parse(lsi, errors);
         
-        return errors;
+        assertTrue("Errors: " + errors, errors.isEmpty());
+        assertEquals(new HashSet(Arrays.asList(new FileObject[] {
+            dataDir.getFileObject("testInclude.tex"),
+            dataDir.getFileObject("inc1.tex"),
+            dataDir.getFileObject("includes/inc2.tex"),
+        })), new HashSet(node.getFiles()));
     }
     
 }
