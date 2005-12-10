@@ -14,19 +14,16 @@
 package org.netbeans.modules.latex.guiproject;
 
 import java.beans.PropertyChangeListener;
-import java.io.File;
+import java.util.Iterator;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 //import org.netbeans.api.queries.SharabilityQuery;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Utilities;
 
 // XXX need test
 
@@ -127,12 +124,20 @@ public class GenericSources {
             if (file != rootFolder && !FileUtil.isParentOf(rootFolder, file)) {
                 throw new IllegalArgumentException();
             }
+            if (file.isFolder()) {
+                //include the folder only if it contains at least one file that is part of the project:
+                for (Iterator i = p.getContainedFiles().iterator(); i.hasNext(); ) {
+                    FileObject contained = (FileObject) i.next();
+                    
+                    if (FileUtil.isParentOf(file, contained))
+                        return true;
+                }
+                return false;
+            }
             if (FileOwnerQuery.getOwner(file) != p) {
                 return false;
             }
-            file = FileUtil.findBrother(file, "tex");
-//            File f = FileUtil.toFile(file);
-            return file != null && p.contains(file);
+            return true;
         }
         
         public void addPropertyChangeListener(PropertyChangeListener l) {

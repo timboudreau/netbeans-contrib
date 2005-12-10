@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Set;
 import org.apache.tools.ant.module.api.AntProjectCookie;
 import org.apache.tools.ant.module.api.support.TargetLister;
+import org.netbeans.api.project.ProjectUtils;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
@@ -31,6 +32,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.modules.SpecificationVersion;
+import org.openide.util.NbBundle;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -181,8 +183,12 @@ public final class LaTeXGUIProjectUpgrader {
             return null;
         
         if (UPGRADE_COMMON.equals(upgradeOption)) {
-            String format  = java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/guiproject/Bundle").getString("MSG_UpgradeProjectConfirmationMessage");
-            String message = MessageFormat.format(format, new Object[] {project.getDisplayName(), String.valueOf(version), String.valueOf(actualVersion), getItinerary(version)});
+            String message = NbBundle.getMessage(LaTeXGUIProjectUpgrader.class, "MSG_UpgradeProjectConfirmationMessage", new Object[] {
+                ProjectUtils.getInformation(project).getDisplayName(),
+                String.valueOf(version),
+                String.valueOf(actualVersion),
+                getItinerary(version)
+            });
             NotifyDescriptor nd = new NotifyDescriptor.Confirmation(message, "Upgrade Project", NotifyDescriptor.YES_NO_OPTION);
             
             if (DialogDisplayer.getDefault().notify(nd) != NotifyDescriptor.YES_OPTION)

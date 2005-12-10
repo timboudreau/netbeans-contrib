@@ -16,6 +16,8 @@ package org.netbeans.modules.latex.guiproject;
 
 import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
+import org.openide.ErrorManager;
+import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -42,6 +44,15 @@ public class LaTeXGUIProjectOpenedHookImpl extends ProjectOpenedHook {
     private void assureParsed() {
         RequestProcessor.getDefault().post(new Runnable() {
 	    public void run() {
+                //an attempt to prevent deadlock between TexKit.<clinit> and TexSettingsInitializer:
+                try {
+                    ClassLoader cl = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
+                    
+                    cl.loadClass("org.netbeans.modules.latex.editor.TexKit");
+                } catch (Exception e) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                }
+                
                 LaTeXSource      source = project.getSource();
 	        LaTeXSource.Lock lock = null;
 		

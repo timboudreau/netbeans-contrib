@@ -17,10 +17,12 @@ package org.netbeans.modules.latex.guiproject;
 import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +35,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectUtils;
@@ -77,13 +80,17 @@ import org.openide.util.lookup.ProxyLookup;
  *
  * @author Jan Lahoda
  */
-public class LaTeXGUIProject implements Project, ProjectInformation, LogicalViewProvider, ActionProvider, LaTeXSource.DocumentChangedListener {
+public class LaTeXGUIProject implements Project, LogicalViewProvider, ActionProvider, LaTeXSource.DocumentChangedListener {
     
     private FileObject dir;
     private FileObject masterFile;
     private Lookup lookup;
     
     private LaTeXSource source;
+    
+    private PropertyChangeSupport pcs;
+    
+    public static final String PROP_CONTAINED_FILES = "containedFiles";
     
     public static final String COMMAND_SHOW = "latex-show";//NOI18N
     
@@ -103,12 +110,15 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         this.masterFile = masterFile;
         source = new LaTeXSourceImpl(masterFile);
         source.addDocumentChangedListener(source.weakDocumentChangedListener(this, source));
+        pcs = new PropertyChangeSupport(this);
         lookup = Lookups.fixed(new Object[] {
+            new Info(),
             this,
             GenericSources.genericOnly(this),
             source,
             new LaTeXGUIProjectOpenedHookImpl(this),
             new LaTeXAuxiliaryConfigurationImpl(this),
+            new LaTeXSharabilityQuery(this),
             new LaTeXGUIProjectCustomizer(this),
         });
     }
@@ -121,30 +131,16 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         return dir;
     }
     
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
     }
     
-    public String getDisplayName() {
-        return getName();
-    }
-    
-    public Icon getIcon() {
-        return LaTeXGUIProjectICON;
-    }
-    
-    public String getName() {
-        return masterFile.getNameExt();
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
     }
     
     /*package private*/FileObject getMasterFile() {
         return masterFile;
-    }
-    
-    public Project getProject() {
-        return this;
-    }
-    
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
     }
     
     public Node createLogicalView() {
@@ -200,7 +196,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     private Children createChildren() {
         Children.Array mainChildren = new Children.Array();
         
-        mainChildren.add(new Node[] {createSourcesNode(), createStructuralNode()});
+        mainChildren.add(new Node[] {createSourcesNode()/*, createStructuralNode()*/});
         
         return mainChildren;
     }
@@ -236,15 +232,15 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         if (containedFilesCache == null)
             return Utilities.getDefault().compareFiles(source.getMainFile(), file);
         else {
-//            System.err.println("file=" + file);
-//            
-//            for (Iterator i = containedFilesCache.iterator(); i.hasNext(); ) {
-//                FileObject actualFile = (FileObject) i.next();
-//                
-//                System.err.println("testing file=" + actualFile + ": equals=" + actualFile.equals(file) + ", toFile.equals=" + FileUtil.toFile(actualFile).equals(FileUtil.toFile(file)));
-//            }
-            
             return containedFilesCache.contains(file);
+        }
+    }
+    
+    public synchronized Collection getContainedFiles() {
+        if (containedFilesCache == null)
+            return Collections.singletonList(source.getMainFile());
+        else {
+            return containedFilesCache;
         }
     }
     
@@ -254,6 +250,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
 
     private synchronized void updateContainedFilesCache() {
         containedFilesCache = new HashSet(source.getDocument().getFiles());
+        pcs.firePropertyChange(PROP_CONTAINED_FILES, null, null);
     }
     
     public void nodesRemoved(LaTeXSource.DocumentChangeEvent evt) {
@@ -278,7 +275,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         
     }
     
-    private static class LaTeXGUIProjectNode extends AbstractNode implements Runnable, FileStatusListener, ChangeListener, PropertyChangeListener {
+    private static class LaTeXGUIProjectNode extends AbstractNode implements Runnable, FileStatusListener, PropertyChangeListener {
         
         private LaTeXGUIProject project;
         
@@ -295,9 +292,11 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         
         public LaTeXGUIProjectNode(LaTeXGUIProject project) {
             super(project.createChildren(), Lookups.fixed(new Object[] {project, NAVIGATOR_HINT, project.source}));
-            setDisplayName(project.getDisplayName());
+            setDisplayName(ProjectUtils.getInformation(project).getDisplayName());
             setIconBase("org/netbeans/modules/latex/guiproject/resources/latex_gui_project_icon");
+            this.project = project;
             setProjectFiles(project);
+            project.addPropertyChangeListener(this);
         }
         
         public Action[] getActions(boolean context) {
@@ -346,38 +345,10 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         }
 
         
-        protected final void setProjectFiles(Project project) {
-            Sources sources = ProjectUtils.getSources(project);  // returns singleton
-            if (sourcesListener == null) {
-                sourcesListener = WeakListeners.change(this, sources);
-                sources.addChangeListener(sourcesListener);
-            }
-            setGroups(Arrays.asList(sources.getSourceGroups(Sources.TYPE_GENERIC)));
+        protected final void setProjectFiles(LaTeXGUIProject project) {
+            setFiles(new HashSet(project.getContainedFiles()));
         }
         
-        private final void setGroups(Collection groups) {
-            if (groupsListeners != null) {
-                Iterator it = groupsListeners.keySet().iterator();
-                while (it.hasNext()) {
-                    SourceGroup group = (SourceGroup) it.next();
-                    PropertyChangeListener pcl = (PropertyChangeListener) groupsListeners.get(group);
-                    group.removePropertyChangeListener(pcl);
-                }
-            }
-            groupsListeners = new HashMap();
-            Set roots = new HashSet();
-            Iterator it = groups.iterator();
-            while (it.hasNext()) {
-                SourceGroup group = (SourceGroup) it.next();
-                PropertyChangeListener pcl = WeakListeners.propertyChange(this, group);
-                groupsListeners.put(group, pcl);
-                group.addPropertyChangeListener(pcl);
-                FileObject fo = group.getRootFolder();
-                roots.add(fo);
-            }
-            setFiles(roots);
-        }
-
         protected final void setFiles(Set files) {
             if (fileSystemListeners != null) {
                 Iterator it = fileSystemListeners.keySet().iterator();
@@ -519,12 +490,6 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
             task.schedule(50);  // batch by 50 ms
         }
 
-        // sources change
-        public void stateChanged(ChangeEvent e) {
-            setProjectFiles(project);
-        }
-
-        // group change
         public void propertyChange(PropertyChangeEvent evt) {
             setProjectFiles(project);
          }
@@ -585,6 +550,32 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         public SourceFileNode(Node shadow, FileObject file) {
             super(shadow, Children.LEAF, new ProxyLookup(new Lookup[] {shadow.getLookup(), Lookups.singleton(file)}));
         }
+    }
+    
+    private class Info implements ProjectInformation {
+        
+        public void addPropertyChangeListener(PropertyChangeListener listener) {
+        }
+        
+        public String getDisplayName() {
+            return getName();
+        }
+        
+        public Icon getIcon() {
+            return LaTeXGUIProjectICON;
+        }
+        
+        public String getName() {
+            return masterFile.getNameExt();
+        }
+        
+        public Project getProject() {
+            return LaTeXGUIProject.this;
+        }
+        
+        public void removePropertyChangeListener(PropertyChangeListener listener) {
+        }
+        
     }
     
 }

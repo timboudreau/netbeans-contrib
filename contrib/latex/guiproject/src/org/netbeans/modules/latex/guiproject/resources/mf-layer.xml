@@ -27,11 +27,6 @@ Contributor(s): Jan Lahoda
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.project.ProjectFactory"/>
             </file>
             
-            <file name="LaTeXFileOwnerQuery.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.guiproject.LaTeXFileOwnerQuery"/>
-                <attr name="instanceOf" stringvalue="org.netbeans.spi.project.FileOwnerQueryImplementation"/>
-            </file>
-            
             <file name="LaTeXGUIProjectFactorySourceFactory.instance">
                 <attr methodvalue="org.netbeans.modules.latex.guiproject.LaTeXGUIProjectFactorySourceFactory.instanceCreate" name="instanceCreate"/>
 <!--                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.guiproject.LaTeXGUIProjectFactorySourceFactory"/>-->

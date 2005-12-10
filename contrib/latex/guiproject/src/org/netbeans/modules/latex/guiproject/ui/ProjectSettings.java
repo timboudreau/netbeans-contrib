@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.WeakHashMap;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.latex.guiproject.EditableProperties;
 import org.netbeans.modules.latex.guiproject.LaTeXGUIProject;
 import org.openide.DialogDescriptor;
@@ -337,7 +338,7 @@ public class ProjectSettings implements FileChangeListener {
             return ;
         }
         
-        DialogDescriptor dd = new DialogDescriptor("The settings for LaTeX project: " + project.getDisplayName() + " has been changed on disk and are also changed in memory. Drop the in-memory changes?", "External modification");
+        DialogDescriptor dd = new DialogDescriptor("The settings for LaTeX project: " + ProjectUtils.getInformation(project).getDisplayName() + " has been changed on disk and are also changed in memory. Drop the in-memory changes?", "External modification");
         Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);
         
         dialog.show();
