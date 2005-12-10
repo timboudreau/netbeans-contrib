@@ -10,6 +10,7 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
+
 package org.netbeans.modules.whichproject;
 
 import java.awt.Toolkit;
@@ -18,8 +19,9 @@ import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.util.*;
-import org.openide.util.actions.*;
+import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
+import org.openide.util.actions.CallableSystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -31,16 +33,20 @@ import org.openide.windows.WindowManager;
  * @author Tim Boudreau
  */
 public class WhichProjectAction extends CallableSystemAction {
+    
     public void performAction () {
         Mode editorMode = WindowManager.getDefault().findMode("editor");
         boolean didSomething = false;
         if (editorMode != null) {
-            Project project = projectFor (editorMode.getSelectedTopComponent());
-            if (project != null) {
-                TopComponent[] tc = editorMode.getTopComponents();
-                for (int i=0; i < tc.length; i++) {
-                    Project p = projectFor (tc[i]);
-                    didSomething |= processTc (tc[i], project.equals(p));
+            TopComponent selTC = editorMode.getSelectedTopComponent();
+            if (selTC != null) {
+                Project project = projectFor(selTC);
+                if (project != null) {
+                    TopComponent[] tc = editorMode.getTopComponents();
+                    for (int i=0; i < tc.length; i++) {
+                        Project p = projectFor(tc[i]);
+                        didSomething |= processTc(tc[i], project.equals(p));
+                    }
                 }
             }
         }
