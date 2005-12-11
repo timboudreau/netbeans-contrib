@@ -108,6 +108,7 @@ public class VcsGroupNode extends AbstractNode {
                         }
                         String path = (String) dob.getPrimaryFile().getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
                         FileObject fo = fs.findResource(path);
+                        if (fo == null) continue;
                         Set foset = new HashSet();
                         foset.add(fo);
                         SystemAction[] acts = fo.getFileSystem().getActions(foset);
