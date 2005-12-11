@@ -106,7 +106,6 @@ public class XMLErrorParserImplTest extends NbTestCase {
     public static class UserCatalogImpl extends UserCatalog implements EntityResolver {
         
         public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-            System.err.println("publicId=" + publicId);
             if (PUBLIC_ID.equals(publicId)) {
                 URL dtd = getClass().getResource("/org/netbeans/modules/editor/hints/xml/test.dtd");
                 
