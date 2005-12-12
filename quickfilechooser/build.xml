@@ -4,4 +4,15 @@
     <target name="demo" depends="netbeans" description="Try a quick demo of the GUI.">
         <java fork="true" classpath="${cluster}/${module.jar}" classname="org.netbeans.modules.quickfilechooser.Demo"/>
     </target>
+    <target name="demo-debug" depends="netbeans" description="Try the GUI in a debugger.">
+        <nbjpdastart transport="dt_socket" addressproperty="jpda.address" name="QFC">
+            <classpath path="${cluster}/${module.jar}"/>
+        </nbjpdastart>
+        <java fork="true" classpath="${cluster}/${module.jar}" classname="org.netbeans.modules.quickfilechooser.Demo">
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xnoagent"/>
+            <jvmarg value="-Djava.compiler=none"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+        </java>
+    </target>
 </project>

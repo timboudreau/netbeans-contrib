@@ -23,7 +23,12 @@ public class Module extends ModuleInstall {
     
     public void restored() {
         super.restored();
-        Install.main(null);
+        Install.install();
+    }
+
+    public void uninstalled() {
+        super.uninstalled();
+        Install.uninstall();
     }
     
 }

@@ -23,27 +23,52 @@ import javax.swing.UIManager;
  * @author Jesse Glick
  */
 public class Install {
+    
+    private static final String KEY = "FileChooserUI";
+    private static Class originalImpl;
+    private static PropertyChangeListener pcl;
 
     /**
      * Register the new UI.
      */
     public static void main(String[] args) {
+        install();
+    }
+    
+    public static void install() {
         final UIDefaults uid = UIManager.getDefaults();
-        final String key = "FileChooserUI";
+        originalImpl = uid.getUIClass(KEY);
         Class impl = ChooserComponentUI.class;
         final String val = impl.getName();
-        uid.put(key, val);
+        uid.put(KEY, val);
         // To make it work in NetBeans too:
         uid.put(val, impl);
         // #61147: prevent NB from switching to a different UI later (under GTK):
-        uid.addPropertyChangeListener(new PropertyChangeListener() {
+        uid.addPropertyChangeListener(pcl = new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
-                if ((name.equals(key) || name.equals("UIDefaults")) && !val.equals(uid.get(key))) {
-                    uid.put(key, val);
+                if ((name.equals(KEY) || name.equals("UIDefaults")) && !val.equals(uid.get(KEY))) {
+                    uid.put(KEY, val);
                 }
             }
         });
+    }
+    
+    public static void uninstall() {
+        if (isInstalled()) {
+            assert pcl != null;
+            UIDefaults uid = UIManager.getDefaults();
+            uid.removePropertyChangeListener(pcl);
+            pcl = null;
+            String val = originalImpl.getName();
+            uid.put(KEY, val);
+            uid.put(val, originalImpl);
+            originalImpl = null;
+        }
+    }
+    
+    public static boolean isInstalled() {
+        return originalImpl != null;
     }
     
 }

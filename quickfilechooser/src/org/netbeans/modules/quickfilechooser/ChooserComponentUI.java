@@ -105,7 +105,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         histInstructions.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
         histInstructions.setLabelFor(box);
         histPanel.add(box, BorderLayout.CENTER);
-        histPanel.add(histInstructions, BorderLayout.WEST);
+        histPanel.add(histInstructions, BorderLayout.LINE_START);
         if (getHistory().length == 0) {
             box.setEnabled(false);
         }
@@ -153,9 +153,9 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         instructions.setDisplayedMnemonic(getBundle().getString("MNEM_TextField").charAt(0));
         instructions.setLabelFor(text);
         instructions.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
-        histPanel.add(instructions, BorderLayout.SOUTH);
+        histPanel.add(instructions, BorderLayout.PAGE_END);
         pnl.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
-        pnl.add(histPanel, BorderLayout.NORTH);
+        pnl.add(histPanel, BorderLayout.PAGE_START);
         
         fc.add(pnl, BorderLayout.PAGE_START);
         completionsModel = new DefaultListModel();
@@ -169,7 +169,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         JPanel pnl2 = new JPanel();
         pnl2.setLayout(new BorderLayout());
         filterLabel = new JLabel();
-        pnl2.add(filterLabel, BorderLayout.NORTH);
+        pnl2.add(filterLabel, BorderLayout.PAGE_START);
         pnl2.add(jsc, BorderLayout.CENTER);
         pnl2.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 0));
         
@@ -180,13 +180,33 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         JButton cancel = new JButton(cancelButtonText);
         cancel.addActionListener(getCancelSelectionAction());
         buttons = new JPanel();
-        buttons.setLayout(new FlowLayout(FlowLayout.TRAILING));
-        buttons.add(approve);
-        buttons.add(cancel);
-        fc.add(buttons, BorderLayout.SOUTH);
+        buttons.setLayout(new BorderLayout());
+        JPanel rightButtons = new JPanel();
+        rightButtons.setLayout(new FlowLayout(FlowLayout.TRAILING));
+        rightButtons.add(approve);
+        rightButtons.add(cancel);
+        JButton classic = new JButton(getBundle().getString("LBL_Classic"));
+        classic.setMnemonic(getBundle().getString("MNEM_Classic").charAt(0));
+        classic.setEnabled(Install.isInstalled());
+        classic.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Just calling setUI does not work well:
+                // JFileChooser.updateUI is needed to update JFC.uiFileView;
+                // otherwise get NPEs when trying to display anything, since icons are all null.
+                Install.uninstall();
+                filechooser.updateUI();
+                // XXX could perhaps wait for the file chooser to be closed and call Install.install() again?
+            }
+        });
+        JPanel leftButtons = new JPanel();
+        leftButtons.add(classic);
+        buttons.add(leftButtons, BorderLayout.LINE_START);
+        buttons.add(rightButtons, BorderLayout.LINE_END);
+        buttons.setBorder(BorderFactory.createEmptyBorder(0, 6, 6, 6));
+        fc.add(buttons, BorderLayout.PAGE_END);
         getAccessoryPanel().setBorder(
                 BorderFactory.createEmptyBorder(12,0,12,12));
-        fc.add(getAccessoryPanel(), BorderLayout.EAST);
+        fc.add(getAccessoryPanel(), BorderLayout.LINE_END);
         JComponent x = fc.getAccessory();
         if (x != null) {
             getAccessoryPanel().add(x);
@@ -243,7 +263,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         refreshCompletions();
         text.requestFocus();
     }
-    
+
     public void uninstallComponents(JFileChooser fc) {
         fc.removeAll();
         text = null;
