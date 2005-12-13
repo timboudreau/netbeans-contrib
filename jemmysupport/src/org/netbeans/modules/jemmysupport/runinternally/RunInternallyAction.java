@@ -13,30 +13,33 @@
 
 package org.netbeans.modules.jemmysupport.runinternally;
 
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Properties;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.queries.FileBuiltQuery;
 import org.netbeans.jmi.javamodel.JavaClass;
 import org.netbeans.jmi.javamodel.Resource;
 import org.netbeans.modules.javacore.api.JavaModel;
-import org.netbeans.modules.jemmysupport.Utils;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
+import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.util.actions.NodeAction;
 import org.openide.nodes.Node;
@@ -44,22 +47,20 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.windows.IOProvider;
-import org.openide.windows.InputOutput;
 
 /** Used to run jemmy test internally in the same JVM as IDE.
  * @author Jiri.Skrivanek@sun.com
  */
 public class RunInternallyAction extends NodeAction {
-
-    private InputOutput io;
-    private boolean started = false;
-
+    
+    private final String scriptFilename = "build"+System.currentTimeMillis(); // NOI18N
+    
+    
     /** Not to show icon in main menu. */
     public RunInternallyAction() {
         putValue("noIconInMenu", Boolean.TRUE); // NOI18N
     }
-
+    
     /** method performing the action
      * @param nodes selected nodes
      */
@@ -78,8 +79,7 @@ public class RunInternallyAction extends NodeAction {
                 public void run() {
                     try {
                         executeSelectedMainClass();
-                    }
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
                     }
                 }
@@ -90,15 +90,12 @@ public class RunInternallyAction extends NodeAction {
         }
     }
     
-    /** action is enabled when a main class is selected and it is a class
-     * in regular java project.
+    /** Action is enabled when a main class is selected and it is a class
+     * which can be compiled.
      * @param node selected nodes
-     * @return true if a main class is selected
+     * @return true if a compilable main class is selected
      */
     public boolean enable(Node[] node) {
-        if(started) {
-            return false;
-        }
         Lookup context = Utilities.actionsGlobalContext();
         if(getSelectedMainClass(context) != null) {
             DataObject dObj = getSelectedDataObject(context);
@@ -142,38 +139,51 @@ public class RunInternallyAction extends NodeAction {
         FileObject fObj = dObj.getPrimaryFile();
         String classname = getSelectedMainClass(context);
         
-        FileBuiltQuery.Status status = FileBuiltQuery.getStatus(fObj);
-        if(!status.isBuilt()) {
+        FileBuiltQuery.Status builtStatus = FileBuiltQuery.getStatus(fObj);
+        if(builtStatus.isBuilt()) {
+            // it is built, so execute
+            execute(fObj, classname);
+        } else {
             // if not built add listener to wait for the end of compilation
             CompileListener listener = new CompileListener();
-            status.addChangeListener(listener);
-
-            // try to compile
-            // This cannot be called because it is not made public in manifest
-            //Actions.compileSingle().actionPerformed(null);
-            Project project = FileOwnerQuery.getOwner(fObj);
-            ActionProvider ap = (ActionProvider)project.getLookup().lookup(ActionProvider.class );
-            ap.invokeAction(ActionProvider.COMMAND_COMPILE_SINGLE, context);
-
-            //wait until compilation finishes
-            // TODO - possibly wait for status text (failed or finished)
+            builtStatus.addChangeListener(listener);
+            
+            String projectName = ProjectUtils.getInformation(FileOwnerQuery.getOwner(fObj)).getName();
+            // "myproject (compile-single)"
+            String outputTarget = MessageFormat.format(
+                    NbBundle.getBundle("org.apache.tools.ant.module.run.Bundle").getString("TITLE_output_target"),
+                    new Object[] {projectName, null, "compile-single"});  // NOI18N
+            // "Build of myproject (compile-single) failed."
+            String failedMessage = MessageFormat.format(
+                    NbBundle.getBundle("org.apache.tools.ant.module.run.Bundle").getString("FMT_target_failed_status"),
+                    new Object[] {outputTarget});
+            
+            StatusListener statusListener = new StatusListener(failedMessage);
+            StatusDisplayer.getDefault().addChangeListener(statusListener);
             try {
+                // try to compile
+                // This cannot be called because it is not made public in manifest
+                //Actions.compileSingle().actionPerformed(null);
+                Project project = FileOwnerQuery.getOwner(fObj);
+                ActionProvider ap = (ActionProvider)project.getLookup().lookup(ActionProvider.class );
+                ap.invokeAction(ActionProvider.COMMAND_COMPILE_SINGLE, context);
+                
+                //wait until compilation finishes
                 synchronized (compileLock) {
-                    // wait max. 30 seconds
+                    // wait max. 30 seconds but it should be released sooner from CompileListener
+                    // if compilation succeeded or StatusListener if compilation failed
                     compileLock.wait(30000);
                 }
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(e);
             } finally {
-                status.removeChangeListener(listener);
+                builtStatus.removeChangeListener(listener);
+                StatusDisplayer.getDefault().removeChangeListener(statusListener);
             }
-            if(status.isBuilt()) {
+            if(builtStatus.isBuilt()) {
                 // finally if really built, execute it
                 execute(fObj, classname);
             }
-        } else {
-            // it is built, so execute
-            execute(fObj, classname);
         }
     }
     
@@ -210,14 +220,14 @@ public class RunInternallyAction extends NodeAction {
                 return ((JavaClass)res.getMain().get(0)).getName();
             }
         } finally {
-            JavaModel.getJavaRepository ().endTrans ();
+            JavaModel.getJavaRepository().endTrans();
         }
         return null;
     }
     
     private Object compileLock = new Object();
     
-    /** Listener to wait for compilation. */
+    /** Listener to wait for compilation success. */
     class CompileListener implements ChangeListener {
         
         public void stateChanged(ChangeEvent evt) {
@@ -230,106 +240,78 @@ public class RunInternallyAction extends NodeAction {
             }
         }
     }
-
-    /** Gets IDE's system class loader, adds given classpath and invokes main
-     * method of given class.
-     * @throws BuildException when something's wrong
-     */
-    private void execute(FileObject fObj, String classname) {
-        String displayName = classname.substring(classname.lastIndexOf('.')+1)+" (run-internally)";
-        try {
-            URL[] urls = classpathToURL(fObj);
-            URLClassLoader testClassLoader = new Utils.TestClassLoader(urls, Utils.getSystemClassLoader());
-            /*
-            URL[] u = testClassLoader.getURLs();
-            for(int i=0;i<u.length;i++) {
-                System.out.println("URL="+u[i]);
-            }
-            System.out.println("CLASSLOADER="+systemClassloader);
-             */
-            try {
-                redirectOutput(displayName, testClassLoader);
-            } catch (Exception e) {
-                // ignore exception (e.g. when jemmy not available)
-            }
-            Class classToRun = testClassLoader.loadClass(classname);
-            Method method = classToRun.getDeclaredMethod("main", new Class[] {String[].class}); // NOI18N
-            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(
-                    RunInternallyAction.class, "LBL_Running", displayName));
-            started = true;
-            enableAction(false);
-            method.invoke(null, new Object[] {null});
-        } catch (ClassNotFoundException cnfe) {
-            // compilation probably failed and we ignore it because I don't know
-            // how to check the result of compilation for workaround 43609
-        } catch (Exception e) {
-            if(e.getCause() != null) {
-                e.getCause().printStackTrace(io.getErr());
-            } else {
-                e.printStackTrace(io.getErr());
-            }
-        } finally {
-            started = false;
-            enableAction(true);
-            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(
-                    RunInternallyAction.class, "LBL_Finished", displayName));
+    
+    /** Listener to wait for compilation failure. */
+    class StatusListener implements ChangeListener {
+        private String failedMessage;
+        public StatusListener(String failedMessage) {
+            this.failedMessage = failedMessage;
         }
-    }
-
-    /** Get output tab and redirect jemmy outputs to that tab.
-     * @param displayName display name of output tab
-     * @param testClassLoader classloader to used
-     */
-    private void redirectOutput(String displayName, URLClassLoader testClassLoader) throws Exception {
-        InputOutput ioNew = IOProvider.getDefault().getIO(displayName, false);
-        if(io != null && io != ioNew) {
-            // close previous tab if has different display name
-            io.closeInputOutput();
-        }
-        io = ioNew;
-        io.getOut().reset();
-        io.getErr().reset();
-        io.select();
-        // Do the following using reflection and system classloader
-        // JemmyProperties.setCurrentOutput(new TestOut(null, (PrintWriter)io.getOut(), (PrintWriter)io.getErr()));
-        Class testOutClass = testClassLoader.loadClass("org.netbeans.jemmy.TestOut");  // NOI18N
-        Constructor constr = testOutClass.getDeclaredConstructor(new Class[] {InputStream.class, PrintWriter.class, PrintWriter.class});
-        Object testOut = constr.newInstance(new Object[] {null, (PrintWriter)io.getOut(), (PrintWriter)io.getErr()});
-
-        Class jemmyPropClass = testClassLoader.loadClass("org.netbeans.jemmy.JemmyProperties");  //NOI18N
-        Method setCurrentOutputMethod = jemmyPropClass.getDeclaredMethod("setCurrentOutput", new Class[] {testOutClass}); // NOI18N
-        setCurrentOutputMethod.invoke(null, new Object[] {testOut});
-    }
-
-    /** Helper method to enable or disable this action.
-     * @param state true or false
-     */
-    private void enableAction(final boolean state) {
-        if(SwingUtilities.isEventDispatchThread()) {
-            setEnabled(state);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    setEnabled(state);
+        public synchronized void stateChanged(ChangeEvent evt) {
+            if(StatusDisplayer.getDefault().getStatusText().equals(failedMessage)) {
+                // release lock because compile failed
+                synchronized (compileLock) {
+                    try {
+                        compileLock.notifyAll();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            });
+            }
         }
     }
     
-    /**
-     * Finds execute classpath of given file object and converts it to an array of URLs.
-     * @return array of URLs
-     */
-    public static URL[] classpathToURL(FileObject fObj) {
-        ClassPath classpath = ClassPath.getClassPath(fObj, ClassPath.EXECUTE);
-        //System.out.println("CLASSPATH="+classpath);
-        ArrayList list = new ArrayList();
-        for (Iterator it = classpath.entries().iterator(); it.hasNext();) {
-            ClassPath.Entry entry = (ClassPath.Entry) it.next();
-            //System.out.println("URL="+entry.getURL());
-            list.add(entry.getURL());
+    /** Returns build script with run-internally target. */
+    private FileObject getScript() {
+        FileObject tmpFolderFO = FileUtil.toFileObject(FileUtil.normalizeFile(
+                new File(System.getProperty("java.io.tmpdir"))));
+        FileObject scriptFO = tmpFolderFO.getFileObject(scriptFilename+".xml");
+        if(scriptFO == null || !scriptFO.isValid()) {
+            URL url = this.getClass().getResource("build.xml"); // NOI18N
+            FileObject templateScriptFO = URLMapper.findFileObject(url);
+            try {
+                FileUtil.copyFile(templateScriptFO, tmpFolderFO, scriptFilename);
+            } catch (IOException ex) {
+                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            }
+            scriptFO = tmpFolderFO.getFileObject(scriptFilename+".xml"); // NOI18N
+            FileUtil.toFile(scriptFO).deleteOnExit();
         }
-        return (URL[])list.toArray(new URL[list.size()]);
+        return scriptFO;
+    }
+    
+    /** Returns EXECUTE classpath of given FileObject. */
+    private String getClasspath(FileObject fObj) {
+        ClassPath classpath = ClassPath.getClassPath(fObj, ClassPath.EXECUTE);
+        StringBuffer result = new StringBuffer();
+        for (Iterator it = classpath.entries().iterator(); it.hasNext();) {
+            URL entryUrl = ((ClassPath.Entry)it.next()).getURL();
+            if("jar".equals(entryUrl.getProtocol())) { // NOI18N
+                entryUrl = FileUtil.getArchiveFile(entryUrl);
+            }
+            result.append(new File(URI.create(entryUrl.toExternalForm())).getAbsolutePath());
+            if(it.hasNext()) {
+                result.append(File.pathSeparatorChar);
+            }
+        }
+        return result.toString();
+    }
+
+    /** Gets IDE's system class loader, adds given classpath and invokes main
+     * method of given class. It uses RunInternallyTask.
+     */
+    private void execute(FileObject fObj, String classname) {
+        try {
+            String[] targets = {"run-internally"}; // NOI18N
+            Properties props = new Properties();
+            props.setProperty("run-internally.classname", classname); // NOI18N
+            props.setProperty("run-internally.cp", getClasspath(fObj)); // NOI18N
+            ExecutorTask task = ActionUtils.runTarget(getScript(), targets, props);
+        } catch (IllegalArgumentException ex) {
+            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+        } catch (IOException ex) {
+            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+        }
     }
 }
 
