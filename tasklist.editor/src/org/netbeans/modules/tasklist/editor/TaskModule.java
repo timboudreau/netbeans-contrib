@@ -32,8 +32,8 @@ public class TaskModule extends ModuleInstall {
 
     static final long serialVersionUID = -3935204626992817943L;
     
-    /** Called at startup; adds my own localizer for translation 
-        @todo Use lookup instead of the above addTaskListener approach
+    /** 
+     * Called at startup; adds my own localizer for translation 
      */    
     public void restored() {
         LocaleSupport.addLocalizer(new NbLocalizer(NewTaskEditorAction.class));

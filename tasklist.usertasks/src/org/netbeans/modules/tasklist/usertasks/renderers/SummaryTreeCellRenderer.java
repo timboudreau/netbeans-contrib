@@ -33,27 +33,10 @@ public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
 
     private static final long serialVersionUID = 1;
 
-    private static final Image IMAGE =
-        Utilities.loadImage("org/netbeans/modules/tasklist/core/task.gif"); // NOI18N
-    private static final Image DONE =
-        Utilities.loadImage("org/netbeans/modules/tasklist/core/doneItem.gif"); // NOI18N
-    private static final Image UNMATCHED =
-        Utilities.loadImage("org/netbeans/modules/tasklist/core/unmatched.gif"); // NOI18N
-    
-    private static final Image STARTED_BADGE =
-        Utilities.loadImage("org/netbeans/modules/tasklist/usertasks/startedBadge.gif"); // NOI18N
-
-    private static final Image IMAGE_STARTED = 
-        Utilities.mergeImages(IMAGE, STARTED_BADGE, 8, 8);
-    private static final Image DONE_STARTED = 
-        Utilities.mergeImages(DONE, STARTED_BADGE, 8, 8);
-    private static final Image UNMATCHED_STARTED = 
-        Utilities.mergeImages(UNMATCHED, STARTED_BADGE, 8, 8);
-    
     private ImageIcon icon = new ImageIcon();
     
     public SummaryTreeCellRenderer() {
-        ImageIcon icon = new ImageIcon(IMAGE);
+        ImageIcon icon = new ImageIcon();
         
         // see TreeTable.TreeTableCellEditor.getTableCellEditorComponent
         setLeafIcon(icon);
@@ -67,28 +50,14 @@ public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
         super.getTreeCellRendererComponent(tree, value, selected, expanded,
             leaf, row, hasFocus);
         if (value instanceof UserTaskListTreeTableNode) {
-            icon.setImage(IMAGE);
+            icon.setImage(UserTaskIconProvider.getUserTaskListImage());
             setText(NbBundle.getMessage(SummaryTreeCellRenderer.class, 
                 "TaskList")); // NOI18N
         } else {
             UserTaskTreeTableNode utl = (UserTaskTreeTableNode) value;
             UserTask ut = utl.getUserTask();
             setText(ut.getSummary());
-            if (ut.isStarted()) {
-                if (utl.isUnmatched())
-                    icon.setImage(UNMATCHED_STARTED);
-                else if (ut.isDone())
-                    icon.setImage(DONE_STARTED);
-                else
-                    icon.setImage(IMAGE_STARTED);
-            } else {
-                if (utl.isUnmatched())
-                    icon.setImage(UNMATCHED);
-                else if (ut.isDone())
-                    icon.setImage(DONE);
-                else
-                    icon.setImage(IMAGE);
-            }
+            icon.setImage(UserTaskIconProvider.getUserTaskImage(ut, utl.isUnmatched()));
         }
         setIcon(icon);
         return this;

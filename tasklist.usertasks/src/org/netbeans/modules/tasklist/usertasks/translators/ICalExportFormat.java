@@ -60,6 +60,7 @@ import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
@@ -106,7 +107,8 @@ public class ICalExportFormat implements ExportImportFormat {
         SaveFilePanel panel = 
             (SaveFilePanel) wd.getProperty(CHOOSE_FILE_PANEL_PROP);
         try {
-            UserTaskList list = (UserTaskList) UserTaskView.getCurrent().getUserTaskList();
+            UserTaskList list = UserTaskViewRegistry.getInstance().
+                    getCurrent().getUserTaskList();
             FileOutputStream fos = new FileOutputStream(panel.getFile());
             try {
                 writeList(list, fos);
@@ -196,9 +198,10 @@ public class ICalExportFormat implements ExportImportFormat {
         cal.getProperties().add(Version.VERSION_2_0);
         
         Iterator it = list.getSubtasks().iterator();
+        int[] p = new int[1];
         while (it.hasNext()) {
             UserTask item = (UserTask) it.next();
-            writeTask(cal, item);
+            writeTask(cal, item, p);
         }
         
         final List uids = new ArrayList();
@@ -267,15 +270,21 @@ public class ICalExportFormat implements ExportImportFormat {
      *
      * @param cal calendar object
      * @param task The task/todo item to use
+     * @param position position of the VTODO-element in cal.getComponents()
+     * Length of the array should be 1 (in/out argument).
      */
-    private void writeTask(Calendar cal, UserTask task) 
+    private void writeTask(Calendar cal, UserTask task, int[] position) 
     throws IOException, URISyntaxException, ParseException, ValidationException {
         VToDo vtodo = find(cal, task.getUID());
         if (vtodo == null) {
             vtodo = new VToDo();
             vtodo.getProperties().add(new Uid(task.getUID()));
-            cal.getComponents().add(vtodo);
+            cal.getComponents().add(position[0], vtodo);
+        } else {
+            cal.getComponents().remove(vtodo);
+            cal.getComponents().add(position[0], vtodo);
         }
+        position[0]++;
 
         PropertyList pl = vtodo.getProperties();
         Property prop = pl.getProperty(Property.CREATED);
@@ -559,7 +568,7 @@ public class ICalExportFormat implements ExportImportFormat {
         Iterator it = task.getSubtasks().iterator();
         while (it.hasNext()) {
             UserTask subtask = (UserTask)it.next();
-            writeTask(cal, subtask);
+            writeTask(cal, subtask, position);
         }
     }
     

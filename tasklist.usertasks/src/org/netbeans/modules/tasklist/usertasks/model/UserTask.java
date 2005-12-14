@@ -397,6 +397,11 @@ ObjectList.Owner {
             public void listChanged(ObjectList.Event ev) {
                 switch (ev.getType()) {
                     case ObjectList.Event.EVENT_ADDED:
+                        if (Settings.getDefault().getAutoSwitchToComputed()) {
+                            setProgressComputed(true);
+                            setEffortComputed(true);
+                            setSpentTimeComputed(true);
+                        }
                         structureChanged();
                         break;
                     case ObjectList.Event.EVENT_REMOVED: {
@@ -680,6 +685,16 @@ ObjectList.Owner {
     }
     
     /**
+     * Checks whether this task could be started. This method als could
+     * return true for a task that is currently running.
+     *
+     * @return true = this task could be started
+     */
+    public boolean isStartable() {
+        return !isSpentTimeComputed() && !isDone();
+    }
+    
+    /**
      * Was the due alarm for this task already sent?
      * 
      * @return true = yes
@@ -816,6 +831,15 @@ ObjectList.Owner {
      */
     public float getProgress() {
         return progress;
+    }
+    
+    /**
+     * Computes the "expected" (based on the spent time) progress for this task.
+     *
+     * @return "expected" progress 0..100 - value in percents
+     */
+    public float getExpectedProgress() {
+        return ((float) getSpentTime()) / getEffort() * 100.0f;
     }
     
     /**

@@ -60,7 +60,8 @@ public class TaskListDataObject extends MultiDataObject implements OpenCookie {
      * Opens the TC in the Swing thread
      */
     private void open_() {
-	UserTaskView view = UserTaskView.findView(getPrimaryEntry().getFile());
+	UserTaskView view = UserTaskViewRegistry.getInstance().
+                findView(getPrimaryEntry().getFile());
         if (view == null) {
             FileObject fo = getPrimaryEntry().getFile();
             try {

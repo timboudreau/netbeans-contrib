@@ -16,14 +16,15 @@ package org.netbeans.modules.tasklist.usertasks.model;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.TimeZone;
 
 import junit.framework.Test;
+import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.model.ValidationException;
 
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
@@ -33,8 +34,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
-import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 
 /**
  * Test the usertask list functionality
@@ -62,6 +61,76 @@ public class UserTaskListTest extends NbTestCase {
     protected void tearDown () throws Exception {
     }
 
+    /**
+     * Save to/restore from .ics.
+     *
+     * @param utl this task list will be saved
+     * @return restored from .ics task list
+     */
+    private UserTaskList saveAndLoad(UserTaskList utl) throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ICalExportFormat exp = new ICalExportFormat();
+        exp.writeList(utl, out);
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        ICalImportFormat imp = new ICalImportFormat();
+
+        utl = new UserTaskList();
+        imp.read(utl, in);
+        return utl;
+    }
+    
+    /**
+     * Task list should preserve order of tasks.
+     */
+    public void testPreserveOrder() throws Exception {
+        UserTaskList utl = new UserTaskList();
+        UserTask ut = new UserTask("1", utl);
+        UserTask ut2 = new UserTask("2", utl);
+        UserTask ut3 = new UserTask("3", utl);
+        utl.getSubtasks().add(ut);
+        utl.getSubtasks().add(ut2);
+        utl.getSubtasks().add(ut3);
+        
+        utl = saveAndLoad(utl);
+        
+        assertEquals("1", utl.getSubtasks().getUserTask(0).getSummary());
+        assertEquals("2", utl.getSubtasks().getUserTask(1).getSummary());
+        assertEquals("3", utl.getSubtasks().getUserTask(2).getSummary());
+        
+        utl.getSubtasks().getUserTask(1).moveUp();
+        
+        utl = saveAndLoad(utl);
+        
+        assertEquals("2", utl.getSubtasks().getUserTask(0).getSummary());
+        assertEquals("1", utl.getSubtasks().getUserTask(1).getSummary());
+        assertEquals("3", utl.getSubtasks().getUserTask(2).getSummary());
+    }
+    
+    /**
+     * Changing one task should not trigger the "last-modified" value of 
+     * other tasks in a list.
+     */
+    public void testLastModified() {
+        UserTaskList utl = new UserTaskList();
+        UserTask ut = new UserTask("test", utl);
+        UserTask ut2 = new UserTask("test2", utl);
+        UserTask ut3 = new UserTask("test2", utl);
+        utl.getSubtasks().add(ut);
+        utl.getSubtasks().add(ut2);
+        ut.getSubtasks().add(ut3);
+        
+        ut2.setLastEditedDate(15);
+        
+        ut.setDone(true);
+        assertEquals(15, ut2.getLastEditedDate());
+        
+        ut.setProgressComputed(true);
+        ut.setEffortComputed(true);
+        ut.setSpentTimeComputed(true);
+        ut3.setDone(true);
+        assertEquals(15, ut2.getLastEditedDate());
+    }
+    
     /**
      * Deleting completed tasks.
      */

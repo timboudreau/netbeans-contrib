@@ -60,6 +60,7 @@ public class UTOptionsPanel extends javax.swing.JPanel {
         jSpinnerDays.setValue(new Integer(s.getDaysPerWeek()));
         jTextFieldFile.setText(s.getFilename());
         jCheckBoxDetectInactivity.setSelected(s.getDetectInactivity());
+        jCheckBoxAutoSwitchToComputed.setSelected(s.getAutoSwitchToComputed());
         changed = false;
     }
 
@@ -78,6 +79,7 @@ public class UTOptionsPanel extends javax.swing.JPanel {
         s.setDaysPerWeek(((Integer) jSpinnerDays.getValue()).intValue());
         s.setFilename(jTextFieldFile.getText());
         s.setDetectInactivity(jCheckBoxDetectInactivity.isSelected());
+        s.setAutoSwitchToComputed(jCheckBoxAutoSwitchToComputed.isSelected());
     }
 
     /**
@@ -124,6 +126,7 @@ public class UTOptionsPanel extends javax.swing.JPanel {
         jTextFieldFile = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jCheckBoxDetectInactivity = new javax.swing.JCheckBox();
+        jCheckBoxAutoSwitchToComputed = new javax.swing.JCheckBox();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -183,7 +186,7 @@ public class UTOptionsPanel extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(UTOptionsPanel.class, "HoursPerDay"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 12);
         add(jLabel1, gridBagConstraints);
@@ -198,7 +201,7 @@ public class UTOptionsPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(jSpinnerHours, gridBagConstraints);
@@ -207,7 +210,7 @@ public class UTOptionsPanel extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(UTOptionsPanel.class, "DaysPerWeek"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 12);
         add(jLabel2, gridBagConstraints);
@@ -222,7 +225,7 @@ public class UTOptionsPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(jSpinnerDays, gridBagConstraints);
@@ -231,14 +234,14 @@ public class UTOptionsPanel extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(UTOptionsPanel.class, "DefaultUserTasksFile"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
         add(jLabel3, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(jTextFieldFile, gridBagConstraints);
@@ -246,7 +249,7 @@ public class UTOptionsPanel extends javax.swing.JPanel {
         jPanel1.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(jPanel1, gridBagConstraints);
@@ -255,14 +258,47 @@ public class UTOptionsPanel extends javax.swing.JPanel {
         jCheckBoxDetectInactivity.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBoxDetectInactivity.setMargin(new java.awt.Insets(0, 0, 0, 0));
         jCheckBoxDetectInactivity.setOpaque(false);
+        jCheckBoxDetectInactivity.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxDetectInactivityActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 12);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(jCheckBoxDetectInactivity, gridBagConstraints);
 
+        org.openide.awt.Mnemonics.setLocalizedText(jCheckBoxAutoSwitchToComputed, org.openide.util.NbBundle.getBundle(UTOptionsPanel.class).getString("AutoSwithToComputed"));
+        jCheckBoxAutoSwitchToComputed.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jCheckBoxAutoSwitchToComputed.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jCheckBoxAutoSwitchToComputed.setOpaque(false);
+        jCheckBoxAutoSwitchToComputed.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxAutoSwitchToComputedActionPerformed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
+        add(jCheckBoxAutoSwitchToComputed, gridBagConstraints);
+
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jCheckBoxAutoSwitchToComputedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxAutoSwitchToComputedActionPerformed
+        changed = true;
+    }//GEN-LAST:event_jCheckBoxAutoSwitchToComputedActionPerformed
+
+    private void jCheckBoxDetectInactivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxDetectInactivityActionPerformed
+        changed = true;
+    }//GEN-LAST:event_jCheckBoxDetectInactivityActionPerformed
 
     private void jSpinnerDaysStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerDaysStateChanged
         changed = true;
@@ -286,6 +322,7 @@ public class UTOptionsPanel extends javax.swing.JPanel {
         
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JCheckBox jCheckBoxAppend;
+    public javax.swing.JCheckBox jCheckBoxAutoSwitchToComputed;
     public javax.swing.JCheckBox jCheckBoxCollectWorkPeriods;
     public javax.swing.JCheckBox jCheckBoxDetectInactivity;
     public javax.swing.JCheckBox jCheckBoxSaveBackups;

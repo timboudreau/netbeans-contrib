@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks.actions;
 
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
@@ -30,7 +31,7 @@ public final class ExpandAllUserTasksAction extends CallableSystemAction {
      * Do the actual expansion
      */    
     public void performAction() {
-        UserTaskView view = UserTaskView.getCurrent();
+        UserTaskView view = UserTaskViewRegistry.getInstance().getCurrent();
         if (view != null) {
 	    view.getTreeTable().expandAll();
 	}

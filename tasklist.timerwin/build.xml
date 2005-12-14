@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="tasklist/timerwin" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project org.netbeans.modules.tasklist.timerwin</description>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+    
+    <target name="genc">
+        <javah classpath="build/classes" 
+            class="org.netbeans.modules.tasklist.timerwin.AlwaysOnTop"
+            destdir="native"/>
+    </target>
+
+    <target name="release" depends="init">
+        <mkdir dir="${cluster}/modules/lib"/>
+        <copy file="native/alwaysontop.dll" todir="${cluster}/modules/lib"/>
+    </target>
+
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-timerwin.html" 
+            style="../www/updates/updates.xsl"/>
+    </target>
+</project>

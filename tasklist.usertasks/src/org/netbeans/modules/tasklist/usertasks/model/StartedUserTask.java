@@ -1,6 +1,9 @@
 package org.netbeans.modules.tasklist.usertasks.model;
 
 import java.util.TimerTask;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
 import org.netbeans.modules.tasklist.core.util.ActivityListener;
 import org.netbeans.modules.tasklist.usertasks.Settings;
 
@@ -44,10 +47,9 @@ public class StartedUserTask {
     private long startedAt;
     
     private int initialSpentTime;
-    
     private int state = STATE_NOTASK;
-    
     private UserTask.WorkPeriod workPeriod;
+    private EventListenerList list = new EventListenerList();
 
     static {
         TIMER.scheduleAtFixedRate(new TimerTask() {
@@ -62,6 +64,40 @@ public class StartedUserTask {
      * Creates a new instance of StartingTask
      */
     private StartedUserTask() {
+    }
+
+    /**
+     * Fires a change event.
+     */
+    private void fireChange() {
+        ChangeEvent event = null;
+        Object[] listeners = list.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == ChangeListener.class) {
+                if (event == null)
+                    event = new ChangeEvent(this);
+                ((ChangeListener) listeners[i + 1]).stateChanged(event);
+            }
+        }
+    }
+    
+    /**
+     * Adds a listener that will be notified when the started task was
+     * changed.
+     *
+     * @param l a listener
+     */
+    public void addChangeListener(ChangeListener l) {
+        list.add(ChangeListener.class, l);
+    }
+    
+    /**
+     * Removes a listener registered with addChangeListener.
+     *
+     * @param l a listener
+     */
+    public void removeChangeListener(ChangeListener l) {
+        list.remove(ChangeListener.class, l);
     }
     
     /**
@@ -121,7 +157,8 @@ public class StartedUserTask {
     }
     
     /**
-     * Starts another task
+     * Starts another task. If a task is currently running it should be 
+     * stopped first.
      *
      * @param task currently working on this task. May be null.
      */
@@ -141,6 +178,7 @@ public class StartedUserTask {
                     ut.clearEmptyWorkPeriods();
                     ut.firePropertyChange("started", Boolean.TRUE, 
                         Boolean.FALSE); // NOI18N
+                    fireChange();
                 }
                 break;
             }
@@ -160,6 +198,7 @@ public class StartedUserTask {
                     ut.clearEmptyWorkPeriods();
                     ut.firePropertyChange("started", Boolean.TRUE, 
                         Boolean.FALSE); // NOI18N
+                    fireChange();
                 }
                 break;
             }
@@ -175,6 +214,7 @@ public class StartedUserTask {
                     updateSpentTime(0);
                     started.firePropertyChange("started", Boolean.FALSE, 
                         Boolean.TRUE); // NOI18N
+                    fireChange();
                 }
                 break;
             }

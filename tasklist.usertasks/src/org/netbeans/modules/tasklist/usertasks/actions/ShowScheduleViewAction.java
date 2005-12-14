@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.schedule.ScheduleTopComponent;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.openide.util.HelpCtx;
@@ -26,7 +27,7 @@ public class ShowScheduleViewAction extends CallableSystemAction {
     private static final long serialVersionUID = 1;
 
     public void performAction() {
-        UserTaskView v = UserTaskView.getCurrent();
+        UserTaskView v = UserTaskViewRegistry.getInstance().getCurrent();
         ScheduleTopComponent tc = new ScheduleTopComponent(
             v.getName(), v.getUserTaskList());
         tc.open();

@@ -22,6 +22,7 @@ import javax.swing.JButton;
 
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskListNode;
@@ -206,7 +207,7 @@ public class NewTaskAction extends NodeAction {
         associate = false;
         
         // After the add - view the todo list as well!
-        utv = UserTaskView.getCurrent();
+        utv = UserTaskViewRegistry.getInstance().getCurrent();
 
         performTheAction();
     }
@@ -233,9 +234,9 @@ public class NewTaskAction extends NodeAction {
         nta.lineNumber = line.getLineNumber();
         
         // After the add - view the todo list as well!
-        nta.utv = UserTaskView.getLastActivated();
+        nta.utv = UserTaskViewRegistry.getInstance().getLastActivated();
         if (nta.utv == null) {
-            nta.utv = UserTaskView.getDefault();
+            nta.utv = UserTaskViewRegistry.getInstance().getDefault();
             nta.utv.showInMode();
         }    
         nta.utl = nta.utv.getUserTaskList();

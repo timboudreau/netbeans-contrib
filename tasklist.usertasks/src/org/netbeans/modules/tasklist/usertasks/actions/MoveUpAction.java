@@ -13,8 +13,11 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
-import java.io.Serializable;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import javax.swing.KeyStroke;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
@@ -31,12 +34,14 @@ public class MoveUpAction extends NodeAction {
      * Creates a new instance of MoveUpAction
      */
     public MoveUpAction() {
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_UP,
+                InputEvent.CTRL_MASK));
     }
     
     protected void performAction(org.openide.nodes.Node[] activatedNodes) {
         UserTaskNode n = (UserTaskNode) activatedNodes[0];
         UserTask ut = n.getTask();
-        UserTaskView utv = UserTaskView.getCurrent();
+        UserTaskView utv = UserTaskViewRegistry.getInstance().getCurrent();
         Object es = utv.getTreeTable().getExpandedNodesAndSelection();
         ut.moveUp();
         utv.getTreeTable().setExpandedNodesAndSelection(es);

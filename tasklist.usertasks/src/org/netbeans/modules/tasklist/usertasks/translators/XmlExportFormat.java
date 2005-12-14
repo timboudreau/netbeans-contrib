@@ -39,6 +39,7 @@ import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
@@ -133,7 +134,8 @@ public class XmlExportFormat implements ExportImportFormat {
         SaveFilePanel panel = 
             (SaveFilePanel) wd.getProperty(CHOOSE_FILE_PANEL_PROP);
         try {
-            UserTaskList list = (UserTaskList) UserTaskView.getCurrent().getUserTaskList();
+            UserTaskList list = UserTaskViewRegistry.getInstance().
+                    getCurrent().getUserTaskList();
             Document doc = createXml(list);
             Transformer t = createTransformer();
             Source source = new DOMSource(doc);

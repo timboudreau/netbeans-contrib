@@ -14,6 +14,8 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.logging.Level;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -34,11 +37,13 @@ import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.editors.CategoryTableCellEditor;
+import org.netbeans.modules.tasklist.usertasks.editors.EffortTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.OwnerTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.renderers.CategoryTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.DoneTreeTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DueDateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.EffortTableCellRenderer;
@@ -47,7 +52,6 @@ import org.netbeans.modules.tasklist.usertasks.renderers.PercentsTableCellRender
 import org.netbeans.modules.tasklist.usertasks.renderers.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.SummaryTreeCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
-import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
@@ -182,13 +186,17 @@ public class UserTasksTreeTable extends NodesTreeTable {
         tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellRenderer(
             new PriorityTableCellRenderer());
         
+        tcm.getColumn(UserTasksTreeTableModel.EFFORT).setCellEditor(
+                new EffortTableCellEditor());
+        
         r = new SortingHeaderRenderer();
         r.setIcon(new ImageIcon(
             UserTasksTreeTable.class.getResource("checkbox.gif"))); // NOI18N
         tcm.getColumn(UserTasksTreeTableModel.DONE).setHeaderRenderer(r);
         tcm.getColumn(UserTasksTreeTableModel.DONE).setCellRenderer(
-            new BooleanTableCellRenderer());
+            new DoneTreeTableCellRenderer());
         tcm.getColumn(UserTasksTreeTableModel.DONE).setMinWidth(17);
+        
         tcm.getColumn(UserTasksTreeTableModel.PERCENT_COMPLETE).setCellRenderer(
             new PercentsTableCellRenderer());
         DurationTableCellRenderer dr = new DurationTableCellRenderer();
