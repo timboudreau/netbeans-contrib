@@ -27,6 +27,7 @@
                         <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-xmlnavigation-XMLNavigatorPanel.instance"/>
                     </file>
                 </folder>
+                <!-- Poor behavior with these currently, "XML View" does better (though not ideal):
                 <folder name="x-schema+xml">
                     <file name="org-netbeans-modules-xmlnavigation-XMLNavigatorPanel.shadow">
                         <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-xmlnavigation-XMLNavigatorPanel.instance"/>
@@ -37,6 +38,7 @@
                         <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-xmlnavigation-XMLNavigatorPanel.instance"/>
                     </file>
                 </folder>
+                -->
             </folder>
         </folder>
     </folder>
