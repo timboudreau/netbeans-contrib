@@ -64,7 +64,7 @@ public class XMLNavigatorPanelTest extends NbTestCase {
         });
     }
     
-    public void testParse() throws Exception {
+    public void testParseXHTML() throws Exception {
         assertEquals("correct parse of some XHTML sections",
             "1[h1/h1]Intro\n" +
             "6[h1/h1]Main Section\n" +
@@ -98,6 +98,9 @@ public class XMLNavigatorPanelTest extends NbTestCase {
                 "<a id='there'>More stuff...</a>\n" + // 6
                 "</body>\n" // 7
                 )));
+    }
+    
+    public void testParseDocBook() throws Exception {
         assertEquals("correct parse of some DocBook sections",
             "1[section/title]First\n" +
             "4[section/title]Second\n" +
