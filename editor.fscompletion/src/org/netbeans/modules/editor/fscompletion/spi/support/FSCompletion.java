@@ -1,0 +1,101 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+package org.netbeans.modules.editor.fscompletion.spi.support;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import org.netbeans.api.queries.VisibilityQuery;
+import org.openide.filesystems.FileObject;
+
+/**
+ *
+ * @author Jan Lahoda
+ */
+public class FSCompletion {
+    
+    private FSCompletion() {}
+    
+    /**TODO: root=null, relative=null should mean root of all filesystems!
+     */
+    public static List/*<CompletionItem>*/ completion(FileObject root, FileObject relative, String prefix, int anchor) throws IOException {
+        if (relative == null && root == null) {
+            throw new IllegalArgumentException("root == null && relative == null currently not supported!");
+        }
+        
+        boolean isAbsolute = relative == null;
+        
+        List result = new ArrayList();
+        
+        if (relative != null && relative.isData())
+            relative = relative.getParent();
+        
+        int lastSlash = prefix.lastIndexOf('/');
+        String pathPrefix;
+        String filePrefix;
+        
+        if (lastSlash != (-1)) {
+            pathPrefix = prefix.substring(0, lastSlash);
+            filePrefix = prefix.substring(lastSlash + 1);
+        } else {
+            pathPrefix = null;
+            filePrefix = prefix;
+        }
+        
+        if (root == null) {
+            root = relative.getFileSystem().getRoot(); //TODO: what about drive letters?
+        }
+        
+        if (relative == null) {
+            relative = root;
+        }
+        
+        if (pathPrefix != null) {
+            relative = relative.getFileObject(pathPrefix);
+        }
+        
+        if (relative == null) {
+            return Collections.EMPTY_LIST;
+        }
+        
+        FileObject[] children = relative.getChildren();
+        
+        for (int cntr = 0; cntr < children.length; cntr++) {
+            FileObject current = children[cntr];
+            
+            if (VisibilityQuery.getDefault().isVisible(current) && current.getNameExt().startsWith(filePrefix)) {
+                result.add(new FSCompletionItem(current, pathPrefix != null ? pathPrefix + "/" : isAbsolute ? "/" : "", anchor));
+            }
+        }
+        
+        return result;
+    }
+    
+    public static List/*<CompletionItem>*/ completion(FileObject[] root, FileObject[] relative, String prefix, int anchor) throws IOException {
+        if (root.length != relative.length) {
+            throw new IllegalArgumentException();
+        }
+        
+        Set result = new LinkedHashSet();
+        
+        for (int cntr = 0; cntr < root.length; cntr++) {
+            result.addAll(completion(root[cntr], relative[cntr], prefix, anchor));
+        }
+        
+        return new ArrayList(result);
+    }
+    
+}
