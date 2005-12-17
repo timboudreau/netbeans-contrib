@@ -18,5 +18,7 @@ Microsystems, Inc. All Rights Reserved.
     description_key='HINT_TASK_transparent'
     localizing_bundle='org.netbeans.modules.tasklist.usertasks.annotations.Bundle'
     visible='true' 
+    severity='ok'
+    custom_sidebar_color='0xFF0000'
     glyph='nbresloc:/org/netbeans/modules/tasklist/usertasks/annotations/taskGlyph.gif'
 />

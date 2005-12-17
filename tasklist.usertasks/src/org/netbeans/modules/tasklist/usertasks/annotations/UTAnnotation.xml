@@ -21,5 +21,7 @@ Microsystems, Inc. All Rights Reserved.
     glyph='nbresloc:/org/netbeans/modules/tasklist/usertasks/annotations/taskGlyph.gif'
     highlight='0xFBE564'
     type='line'
+    severity='ok'
+    custom_sidebar_color='0xFF0000'
     actions='TaskAnnotationActions'
 />
