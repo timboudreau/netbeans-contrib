@@ -238,7 +238,7 @@ public final class CommandParser {
             
             if (read.getId() == TexLanguage.COMMAND) {
                 SourcePosition previous = input.getPosition();
-                Node cnode = parseCommand(node, input);
+                NodeImpl cnode = parseCommand(lastParagraph, input);
                 
                 if (isParNode(cnode) && useParagraphs) {
                     lastParagraph.setEndingPosition(previous);
@@ -247,10 +247,11 @@ public final class CommandParser {
                     node.addChild(lastParagraph);
                 }
                 
+                cnode.setParent(lastParagraph);
                 lastParagraph.addChild(cnode);
             } else {
                 if (read.getId() == TexLanguage.COMP_BRACKET_LEFT) {
-                    GroupNodeImpl n = new GroupNodeImpl(node, currentCommandDefiningNode);
+                    GroupNodeImpl n = new GroupNodeImpl(lastParagraph, currentCommandDefiningNode);
                     
                     lastParagraph.addChild(parseGroup(input, n, false, false, false, true, false));
                 } else {
@@ -733,7 +734,7 @@ public final class CommandParser {
             
             if (read.getId() == TexLanguage.COMMAND) {
                 SourcePosition previous = input.getPosition();
-                Node cnode = parseCommand(node, input);
+                NodeImpl cnode = parseCommand(lastParagraph, input);
                 
                 if (isFreeTextEndNode(cnode) && freeText) {
                     break;
@@ -746,14 +747,14 @@ public final class CommandParser {
                     node.addChild(lastParagraph);
                 }
                 
+                cnode.setParent(lastParagraph);
                 lastParagraph.addChild(cnode);
-                
                 
                 afterCommand = true;
             }
             
             if (read.getId() == TexLanguage.COMP_BRACKET_LEFT) {
-                GroupNodeImpl n = new GroupNodeImpl(node, currentCommandDefiningNode);
+                GroupNodeImpl n = new GroupNodeImpl(lastParagraph, currentCommandDefiningNode);
 
                 lastParagraph.addChild(parseGroup(input, n, false, false, parErrorRecovery, /*?????*/useParagraphs, false));
                 
@@ -859,7 +860,7 @@ public final class CommandParser {
             if (read.getId() == TexLanguage.COMMAND) {
                 endPosition = input.getPosition();
                 
-                NodeImpl bcnode = parseCommand(node, input);
+                NodeImpl bcnode = parseCommand(lastParagraph, input);
                 
                 if (isParNode(bcnode) && useParagraphs) {
                     lastParagraph.setEndingPosition(endPosition);
@@ -874,6 +875,7 @@ public final class CommandParser {
                      if (cnode.getCommand().isEndLike()) {
                          String endText   = cnode.getArgumentCount() > 0 ? cnode.getArgument(0).getText().toString() : "";
                          
+                         cnode.setParent(bni);
                          bni.setEndCommand(cnode); //!!!Test missing
                          
                          if (!beginText.equals(endText)) {
@@ -890,10 +892,11 @@ public final class CommandParser {
                 
                 endPosition = null;
                 
+                bcnode.setParent(lastParagraph);
                 lastParagraph.addChild(bcnode);
             } else {
                 if (read.getId() == TexLanguage.COMP_BRACKET_LEFT) {
-                    GroupNodeImpl n = new GroupNodeImpl(node, currentCommandDefiningNode);
+                    GroupNodeImpl n = new GroupNodeImpl(lastParagraph, currentCommandDefiningNode);
                     
                     lastParagraph.addChild(parseGroup(input, n, false, false, false, true, false));
                 } else {
