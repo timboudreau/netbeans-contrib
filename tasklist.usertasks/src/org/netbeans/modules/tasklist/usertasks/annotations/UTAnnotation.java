@@ -88,9 +88,8 @@ public class UTAnnotation extends Annotation {
     }
     
     public String getAnnotationType () {
-        // THE TYPE IS DEFINED IN THE TASKLIST CORE MODULE!
         if (!done) {
-            if (highlight) {
+            if (!highlight) {
                 return "org-netbeans-modules-tasklist-usertasks-UTNoHighlight"; // NOI18N
             } else {
                 return "org-netbeans-modules-tasklist-usertasks-UT"; // NOI18N
