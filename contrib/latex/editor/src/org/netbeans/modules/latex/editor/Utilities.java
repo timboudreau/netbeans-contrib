@@ -41,7 +41,7 @@ public final class Utilities {
     public static final Token getToken(Document doc, int offset) throws /*BadLocationException, */ClassCastException {
         TokenRootElement tre = getTREImpl(doc);
         
-        tre.relocate(offset - 1);
+        tre.relocate(offset > 0 ? offset - 1 : 0);
         
         return tre.next();
     }
