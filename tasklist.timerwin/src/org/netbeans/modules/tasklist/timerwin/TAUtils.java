@@ -26,7 +26,7 @@ public class TAUtils {
     public static final Logger LOGGER = TLUtils.getLogger(TAUtils.class);
     
     static {
-        LOGGER.setLevel(Level.FINE);
+        LOGGER.setLevel(Level.OFF);
     }
 
     /** 

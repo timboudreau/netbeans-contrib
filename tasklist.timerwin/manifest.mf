@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.tasklist.timerwin
-OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Implementation-Version: 2
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/timerwin/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/timerwin/Bundle.properties
 
