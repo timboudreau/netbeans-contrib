@@ -22,14 +22,5 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
     
-    <folder name="Services">
-        <folder name="Hidden">
-            <file name="BiBTeXModelFactoryImpl.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.bibtex.BiBTeXModelFactoryImpl"/>
-                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.bibtex.BiBTeXModelFactory"/>
-            </file>
-        </folder>
-    </folder>
-    
 </filesystem>
 
