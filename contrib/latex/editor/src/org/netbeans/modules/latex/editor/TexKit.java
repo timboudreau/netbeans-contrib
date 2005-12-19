@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -119,13 +119,13 @@ public class TexKit extends NbEditorKit {
         return new TexSyntaxSupport(doc);
     }
     
-    public Completion createCompletion(ExtEditorUI extEditorUI) {
-        return new TexCompletion(extEditorUI);
-    }
-    
-    public CompletionJavaDoc createCompletionJavaDoc(ExtEditorUI extEditorUI) {
-        return new TexCompletionJavaDoc(extEditorUI);
-    }
+//    public Completion createCompletion(ExtEditorUI extEditorUI) {
+//        return new TexCompletion(extEditorUI);
+//    }
+//    
+//    public CompletionJavaDoc createCompletionJavaDoc(ExtEditorUI extEditorUI) {
+//        return new TexCompletionJavaDoc(extEditorUI);
+//    }
     
     public void install(JEditorPane pane) {
         super.install(pane);
