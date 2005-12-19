@@ -291,7 +291,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, ActionProv
         // icon badging <<<
         
         public LaTeXGUIProjectNode(LaTeXGUIProject project) {
-            super(project.createChildren(), Lookups.fixed(new Object[] {project, NAVIGATOR_HINT, project.source}));
+            super(project.createChildren(), Lookups.fixed(new Object[] {project, NAVIGATOR_HINT, project.source, new SearchInfoImpl(project)}));
             setDisplayName(ProjectUtils.getInformation(project).getDisplayName());
             setIconBase("org/netbeans/modules/latex/guiproject/resources/latex_gui_project_icon");
             this.project = project;
