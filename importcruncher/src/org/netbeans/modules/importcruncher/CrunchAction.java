@@ -81,8 +81,9 @@ public final class CrunchAction extends CookieAction implements Comparator {
         return NbBundle.getMessage(CrunchAction.class, "LBL_Action");
     }
 
-    public String iconResource() {
-        return null;
+    protected void initialize() {
+        super.initialize();
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
     }
 
     public HelpCtx getHelpCtx() {
