@@ -7,19 +7,26 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.vcscore.registry;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 
 import org.openide.util.SharedClassObject;
 import org.openide.util.WeakListeners;
@@ -34,10 +41,11 @@ import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
  */
 public class RecognizedFS extends Object implements Serializable, PropertyChangeListener {
     
+    private static RecognizedFS defaultInstance;
+    
     private Set manuallyRecognized;
     private Set removedRoots;
-    
-    private static RecognizedFS defaultInstance;
+    private transient PropertyChangeSupport pchs = new PropertyChangeSupport(this);
     
     static final long serialVersionUID = -2248315346064169290L;
     
@@ -47,21 +55,62 @@ public class RecognizedFS extends Object implements Serializable, PropertyChange
         removedRoots = new HashSet();
     }
     
+    private static boolean readFromSettings = false;
+    
     public static RecognizedFS getDefault() {
-        GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
         synchronized (RecognizedFS.class) {
+            if (defaultInstance != null) return defaultInstance;
+        }
+        if (readFromSettings) {
+            getDefaultFromSettings();
+        } else {
+            final Lookup.Result r = Lookup.getDefault().lookup(new Lookup.Template(GeneralVcsSettings.class));
+            r.allInstances().size(); // This initializes the looked-up class outside of a lock from SharedClassObject.findObject()
+            if (readFromSettings) { // It was actually read
+                getDefaultFromSettings();
+            } else { // Create an empty object and hope that it will be read later...
+                synchronized (RecognizedFS.class) {
+                    if (defaultInstance == null) {
+                        defaultInstance = new RecognizedFS();
+                    }
+                }
+            }
+        }
+        return defaultInstance;
+    }
+    
+    private static void getDefaultFromSettings() {
+        GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
+        boolean fire = false;
+        RecognizedFS settingsFS;
+        synchronized (RecognizedFS.class) {
+            settingsFS = settings.getRecognizedFS();
             if (defaultInstance == null) {
-                defaultInstance = settings.getRecognizedFS();
+                defaultInstance = settingsFS;
                 if (defaultInstance == null) {
                     defaultInstance = new RecognizedFS();
                 }
-                for (Iterator it = defaultInstance.manuallyRecognized.iterator(); it.hasNext(); ) {
+            } else {
+                if (settingsFS != null) {
+                    // The other pass already initialized the defaultInstance,
+                    // we need to merge it with the settings...
+                    defaultInstance.manuallyRecognized.addAll(settingsFS.manuallyRecognized);
+                    defaultInstance.removedRoots.addAll(settingsFS.removedRoots);
+                    fire = true;
+                }
+            }
+            if (settingsFS != null) { // Attach the listener to the FSInfo from settings only.
+                for (Iterator it = settingsFS.manuallyRecognized.iterator(); it.hasNext(); ) {
                     FSInfo fsInfo = (FSInfo) it.next();
                     fsInfo.addPropertyChangeListener(WeakListeners.propertyChange(defaultInstance, fsInfo));
                 }
             }
         }
-        return defaultInstance;
+        if (fire) {
+            for (Iterator it = settingsFS.manuallyRecognized.iterator(); it.hasNext(); ) {
+                defaultInstance.firePropertyChange("manuallyRecognized", it.next());
+            }
+        }
     }
     
     private void saveMe() {
@@ -119,6 +168,39 @@ public class RecognizedFS extends Object implements Serializable, PropertyChange
     
     public void propertyChange(java.beans.PropertyChangeEvent evt) {
         saveMe();
+    }
+    
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        pchs.addPropertyChangeListener(l);
+    }
+    
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        pchs.removePropertyChangeListener(l);
+    }
+    
+    private void firePropertyChange(String propertyName, Object fsInfoValue) {
+        pchs.firePropertyChange(new PropertyChangeEvent(this, propertyName, null, fsInfoValue));
+    }
+    
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        pchs = new PropertyChangeSupport(this);
+        boolean hasDefaultInstance;
+        synchronized (RecognizedFS.class) {
+            readFromSettings = true;
+            hasDefaultInstance = defaultInstance != null;
+        }
+        if (hasDefaultInstance) { // Update the default instance from settings
+            final GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
+            settings.addPropertyChangeListener(new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (evt.getPropertyName() == null) { // Loading finished
+                        getDefaultFromSettings();
+                        settings.removePropertyChangeListener(this);
+                    }
+                }
+            });
+        }
     }
     
 }

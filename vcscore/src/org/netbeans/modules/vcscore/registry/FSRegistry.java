@@ -7,12 +7,14 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.vcscore.registry;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -20,6 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import org.openide.util.WeakListeners;
 
 /**
  * Registry of recognized filesystem types.
@@ -34,6 +37,7 @@ public class FSRegistry {
     private List fsInfos = new LinkedList();
     private boolean initialized = false; // whether fsInfos are initialized
     private Comparator fsInfoComparator = new FSInfoComparator();
+    private PropertyChangeListener recognizedFSListener;
     
     /** Creates a new instance of FSRegistry */
     private FSRegistry() {
@@ -51,6 +55,37 @@ public class FSRegistry {
         return registry;
     }
     
+    private Set getManuallyRecognized() {
+        Set manuallyRecognized = null;
+        if (!initialized) {
+            RecognizedFS recognizedFS;
+            boolean wasListenerRegistered;
+            synchronized (this) {
+                if (recognizedFSListener == null) {
+                    recognizedFSListener = new PropertyChangeListener() {
+                        public void propertyChange(PropertyChangeEvent evt) {
+                            synchronized (fsInfos) {
+                                initialized = false;
+                            }
+                            fireFSInfoChanged((FSInfo) evt.getNewValue(), true, null);
+                        }
+                    };
+                    wasListenerRegistered = false;
+                } else {
+                    wasListenerRegistered = true;
+                }
+            }
+            if (!wasListenerRegistered) {
+                recognizedFS = RecognizedFS.getDefault();
+                recognizedFS.addPropertyChangeListener(WeakListeners.propertyChange(recognizedFSListener, recognizedFS));
+            } else {
+                recognizedFS = RecognizedFS.getDefault();
+            }
+            manuallyRecognized = recognizedFS.getManuallyRecognized();
+        }
+        return manuallyRecognized;
+    }
+    
     /**
      * Register a filesystem information.
      */
@@ -62,10 +97,7 @@ public class FSRegistry {
      * Register a filesystem information.
      */
     void register(FSInfo fsInfo, Object propagationId, boolean autoRecognized) {
-        Set manuallyRecognized = null;
-        if (!initialized) {
-            manuallyRecognized = RecognizedFS.getDefault().getManuallyRecognized();
-        }
+        Set manuallyRecognized = getManuallyRecognized();
         synchronized (fsInfos) {
             if (!initialized) {
                 fsInfos.addAll(manuallyRecognized);
@@ -94,10 +126,7 @@ public class FSRegistry {
      * Unregister a filesystem information.
      */
     void unregister(FSInfo fsInfo, Object propagationId) {
-        Set manuallyRecognized = null;
-        if (!initialized) {
-            manuallyRecognized = RecognizedFS.getDefault().getManuallyRecognized();
-        }
+        Set manuallyRecognized = getManuallyRecognized();
         synchronized (fsInfos) {
             if (!initialized) {
                 fsInfos.addAll(manuallyRecognized);
@@ -115,10 +144,7 @@ public class FSRegistry {
      */
     public FSInfo[] getRegistered() {
         FSInfo[] info;
-        Set manuallyRecognized = null;
-        if (!initialized) {
-            manuallyRecognized = RecognizedFS.getDefault().getManuallyRecognized();
-        }
+        Set manuallyRecognized = getManuallyRecognized();
         synchronized (fsInfos) {
             if (!initialized) {
                 fsInfos.addAll(manuallyRecognized);
@@ -136,10 +162,7 @@ public class FSRegistry {
      * @return true When the filesystem info is already registered, false otherwise.
      */
     public boolean isRegistered(FSInfo info) {
-        Set manuallyRecognized = null;
-        if (!initialized) {
-            manuallyRecognized = RecognizedFS.getDefault().getManuallyRecognized();
-        }
+        Set manuallyRecognized = getManuallyRecognized();
         synchronized (fsInfos) {
             if (!initialized) {
                 fsInfos.addAll(manuallyRecognized);
