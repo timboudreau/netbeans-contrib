@@ -84,6 +84,14 @@ public class VcsManagerAction extends CallableSystemAction {
      
     }
     
+    public void closeVcsManager() {
+        if (dlg != null) {
+            dlg.setVisible(false);
+            dlg.dispose();
+            dlg = null;
+        }
+    }
+    
     private VcsManager getVcsManager(){
         return VcsManager.getInstance();
     }

@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.ref.SoftReference;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import org.netbeans.modules.vcscore.VcsModule;
 
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileSystem;
@@ -78,6 +81,26 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
         mountRegistered(FSRegistry.getDefault().getRegistered());
         //return this;  TODO Return this to activate the auto-recognition
         return null;
+    }
+    
+    public void shutdown() {
+        //System.out.println("VcsFSProvider("+hashCode()+").shutdown");
+        FSInfo[] infos = FSRegistry.getDefault().getRegistered();
+        for (int i = 0; i < infos.length; i++) {
+            FSInfo fsInfo = infos[i];
+            fsInfo.removePropertyChangeListener(VcsFSProvider.this);
+            fsInfo.removeVetoableChangeListener(VcsFSProvider.this);
+            if (!fsInfo.isControl()) continue;
+            FileSystem fs = fsInfo.getExistingFileSystem();
+            if (fs != null) {
+                try {
+                    mountSupport.unmount(fs);
+                    unmountedFSNotify(fs);
+                } catch (IOException ioex) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+                }
+            }
+        }
     }
     
     private void mountRegistered(FSInfo[] infos) {

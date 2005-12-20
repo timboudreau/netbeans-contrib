@@ -108,7 +108,7 @@ public final class ProfilesFactory extends Object {
     private static ProfilesFactory factory;
     
     private FileObject profileRoot;
-    private FileChangeListener profileRootFolderListener;
+    private ProfileRootFolderListener profileRootFolderListener;
     
     private List profileNames;
     private List profileLabels;
@@ -527,7 +527,9 @@ public final class ProfilesFactory extends Object {
         return profile;
     }
 
-
+    void shutdown() {
+        profileRootFolderListener.shutdown();
+    }
 
 
     public class ProfileImpl extends Profile implements FileChangeListener {
@@ -950,6 +952,8 @@ public final class ProfilesFactory extends Object {
         
     private class ProfileRootFolderListener extends Object implements FileChangeListener {
 
+        private boolean down;
+
         /**
          * The config's root folder's attribute changed.
          */
@@ -966,6 +970,7 @@ public final class ProfilesFactory extends Object {
          * Some data were created in the config's root folder.
          */
         public void fileDataCreated(FileEvent fileEvent) {
+            if (down) return;
             FileObject newData = fileEvent.getFile();
             if (newData.getSize() == 0L || !VariableIO.isConfigFile(newData)) return ; // Ignore an empty file
             List currentLocales = VariableIO.getLocalizedConfigurations(new FileObject[] { newData });
@@ -999,6 +1004,7 @@ public final class ProfilesFactory extends Object {
          * Some data were deleted in the config's root folder.
          */
         public void fileDeleted(FileEvent fileEvent) {
+            if (down) return;
             FileObject oldData = fileEvent.getFile();
             String name = oldData.getNameExt();
             synchronized (ProfilesFactory.this) {
@@ -1026,6 +1032,9 @@ public final class ProfilesFactory extends Object {
         public void fileRenamed(FileRenameEvent fileRenameEvent) {
         }
         
+        void shutdown() {
+            down = true;
+        }
     }
     
 }

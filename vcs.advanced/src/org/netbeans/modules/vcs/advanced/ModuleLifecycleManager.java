@@ -123,4 +123,8 @@ public class ModuleLifecycleManager extends ModuleInstall implements ErrorHandle
     public void warning(SAXParseException exception) throws SAXException {
         ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, exception);
     }
+
+    public void uninstalled() {
+        ProfilesFactory.getDefault().shutdown();
+    }
 }

@@ -308,6 +308,16 @@ public final class FileAttributeQuery {
     }
 
     // Background loading ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    /** Stop all threads, unregister... */
+    public void cancel() {
+        synchronized(prepareRequests) {
+            if (preparationTask != null) {
+                preparationTask.notifyFinish();
+                preparationTask = null;
+            }
+        }
+    }
 
 
     /** Holds fileobject that were requested for background status retrieval. */
@@ -453,6 +463,13 @@ public final class FileAttributeQuery {
                     Statistics.duplicate();
                     Statistics.diskHit();
                 }
+            }
+        }
+        
+        public void notifyFinish() {
+            synchronized(requests) {
+                requests.clear();
+                requests.notify();
             }
         }
 
