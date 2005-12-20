@@ -26,6 +26,7 @@ Microsystems, Inc. All Rights Reserved.
                 <exclude name="nbproject/private/"/>
                 <exclude name="build/"/>
                 <exclude name="user.build.properties"/>
+                <exclude name="**/.exists"/>
             </fileset>
         </zip>
         <zip zipfile="${build.classes.dir}/org/netbeans/modules/ant/freeform/samples/AnagramFreeformProject.zip" compress="true">
