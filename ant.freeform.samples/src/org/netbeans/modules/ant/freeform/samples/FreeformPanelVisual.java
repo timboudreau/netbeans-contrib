@@ -211,8 +211,8 @@ public class FreeformPanelVisual extends JPanel implements DocumentListener {
         this.projectLocationTextField.setText(projectLocation.getAbsolutePath());
         
         String projectName = (String) settings.getProperty("name");
-        if(projectName == null) {
-            projectName = "SkeletalFreeform";
+        if (projectName == null) {
+            projectName = "freeform";
         }
         this.projectNameTextField.setText(projectName);
         this.projectNameTextField.selectAll();

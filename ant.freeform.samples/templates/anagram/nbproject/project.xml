@@ -3,7 +3,7 @@
     <type>org.netbeans.modules.ant.freeform</type>
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
-            <name>@NAME@</name>
+            <name>Anagram Game</name>
             <properties>
                 <property-file>user.build.properties</property-file>
                 <property-file>build.properties</property-file>
@@ -13,11 +13,6 @@
                     <label>Sources</label>
                     <type>java</type>
                     <location>${src.dir}</location>
-                </source-folder>
-                <source-folder>
-                    <label>Tests</label>
-                    <type>java</type>
-                    <location>${test.dir}</location>
                 </source-folder>
                 <build-folder>
                     <location>${build.dir}</location>
@@ -37,13 +32,6 @@
                 <action name="run">
                     <target>run</target>
                 </action>
-                <action name="javadoc">
-                    <script>nbproject/netbeans-targets.xml</script>
-                    <target>show-javadoc</target>
-                </action>
-                <action name="test">
-                    <target>run-tests</target>
-                </action>
                 <action name="debug">
                     <script>nbproject/netbeans-targets.xml</script>
                     <target>debug</target>
@@ -54,19 +42,6 @@
                     <context>
                         <property>includes</property>
                         <folder>${src.dir}</folder>
-                        <pattern>\.java$</pattern>
-                        <format>relative-path</format>
-                        <arity>
-                            <separated-files>,</separated-files>
-                        </arity>
-                    </context>
-                </action>
-                <action name="compile.single">
-                    <script>nbproject/file-targets.xml</script>
-                    <target>compile-selected-test</target>
-                    <context>
-                        <property>includes</property>
-                        <folder>${test.dir}</folder>
                         <pattern>\.java$</pattern>
                         <format>relative-path</format>
                         <arity>
@@ -92,32 +67,6 @@
                     <context>
                         <property>main.class</property>
                         <folder>${src.dir}</folder>
-                        <pattern>\.java$</pattern>
-                        <format>java-name</format>
-                        <arity>
-                            <one-file-only/>
-                        </arity>
-                    </context>
-                </action>
-                <action name="run.single">
-                    <script>nbproject/file-targets.xml</script>
-                    <target>run-selected-tests</target>
-                    <context>
-                        <property>includes</property>
-                        <folder>${test.dir}</folder>
-                        <pattern>\.java$</pattern>
-                        <format>relative-path</format>
-                        <arity>
-                            <separated-files>,</separated-files>
-                        </arity>
-                    </context>
-                </action>
-                <action name="debug.single">
-                    <script>nbproject/netbeans-targets.xml</script>
-                    <target>debug-test</target>
-                    <context>
-                        <property>test</property>
-                        <folder>${test.dir}</folder>
                         <pattern>\.java$</pattern>
                         <format>java-name</format>
                         <arity>
@@ -145,35 +94,25 @@
                 <build-target>jar</build-target>
                 <clean-target>clean</clean-target>
             </export>
-            <export>
-                <type>folder</type>
-                <location>${test.classes.dir}</location>
-                <build-target>compile-tests</build-target>
-                <clean-target>clean</clean-target>
-            </export>
             <view>
                 <items>
                     <source-folder style="packages">
                         <label>Sources</label>
                         <location>${src.dir}</location>
                     </source-folder>
-                    <source-folder style="packages">
-                        <label>Tests</label>
-                        <location>${test.dir}</location>
-                    </source-folder>
                 </items>
                 <context-menu>
                     <ide-action name="build"/>
                     <ide-action name="rebuild"/>
                     <ide-action name="clean"/>
-                    <ide-action name="javadoc"/>
                     <separator/>
                     <ide-action name="run"/>
                     <ide-action name="debug"/>
-                    <ide-action name="test"/>
                 </context-menu>
             </view>
-            <subprojects/>
+            <subprojects>
+                <project>${subproject}</project>
+            </subprojects>
         </general-data>
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
             <compilation-unit>
@@ -182,16 +121,7 @@
                 <classpath mode="execute">${run.cp}</classpath>
                 <built-to>${classes.dir}</built-to>
                 <built-to>${jar}</built-to>
-                <javadoc-built-to>${javadoc.dir}</javadoc-built-to>
-                <source-level>1.5</source-level>
-            </compilation-unit>
-            <compilation-unit>
-                <package-root>${test.dir}</package-root>
-                <unit-tests/>
-                <classpath mode="compile">${test.cp}</classpath>
-                <classpath mode="execute">${test.run.cp}</classpath>
-                <built-to>${test.classes.dir}</built-to>
-                <source-level>1.5</source-level>
+                <source-level>1.4</source-level>
             </compilation-unit>
         </java-data>
     </configuration>

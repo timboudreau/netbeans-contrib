@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="anagram" basedir="." default="jar">
+    
+    <target name="-init">
+        <property file="user.build.properties"/>
+        <property file="build.properties"/>
+    </target>
+    
+    <target name="-libs" depends="-init">
+        <ant dir="${subproject}" target="jar" inheritall="false" inheritrefs="false"/>
+    </target>
+    
+    <target name="compile" depends="-libs" description="Compile main sources.">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.4" debug="${debug}" deprecation="${deprecation}">
+            <classpath path="${cp}"/>
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}" excludes="${jar.excludes}"/>
+        </copy>
+    </target>
+    
+    <target name="jar" depends="compile" description="Build JAR file for main sources.">
+        <jar jarfile="${jar}" compress="true"><!-- manifest="${manifest}" -->
+            <fileset dir="${classes.dir}"/>
+        </jar>
+    </target>
+    
+    <target name="run" depends="compile" description="Run application.">
+        <fail unless="main.class">Must set property 'main.class' (e.g. in build.properties)</fail>
+        <java classname="${main.class}" fork="true" failonerror="true">
+            <classpath path="${run.cp}"/>
+            <jvmarg value="-ea"/>
+        </java>
+    </target>
+    
+    <target name="clean" depends="-init" description="Clean build products.">
+        <delete dir="${build.dir}"/>
+        <ant dir="${subproject}" target="clean" inheritall="false" inheritrefs="false"/>
+    </target>
+    
+    <!-- Has to be here for NB profiler to find it, alas: -->
+    <target name="profile">
+        <ant antfile="nbproject/netbeans-targets.xml" target="profile"/>
+    </target>
+    
+</project>

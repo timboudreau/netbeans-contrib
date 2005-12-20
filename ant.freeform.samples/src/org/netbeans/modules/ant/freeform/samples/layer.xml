@@ -19,6 +19,8 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="j2sefreeform.xml/EmptyFreeformProject.zip" boolvalue="true"/>
                 <file name="EmptyFreeformProject.zip" url="EmptyFreeformProject.zip">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ant.freeform.samples.Bundle"/>
+                    <!-- XXX: icon used from ant/freeform -->
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/resources/freeform-project.png"/>
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.ant.freeform.samples.FreeformWizardIterator.createIterator"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/samples/EmptyFreeformDescription.html"/>
                     <attr name="template" boolvalue="true"/>
@@ -26,10 +28,23 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="EmptyFreeformProject.zip/SkeletalFreeformProject.zip" boolvalue="true"/>
                 <file name="SkeletalFreeformProject.zip" url="SkeletalFreeformProject.zip">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ant.freeform.samples.Bundle"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/resources/freeform-project.png"/>
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.ant.freeform.samples.FreeformWizardIterator.createIterator"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/samples/SkeletalFreeformDescription.html"/>
                     <attr name="template" boolvalue="true"/>
                 </file>
+            </folder>
+            <folder name="Samples">
+                <folder name="Standard">
+                    <attr name="anagrams.zip/AnagramFreeformProject.zip" boolvalue="true"/>
+                    <file name="AnagramFreeformProject.zip" url="AnagramFreeformProject.zip">
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ant.freeform.samples.Bundle"/>
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/resources/freeform-project.png"/>
+                        <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.ant.freeform.samples.FreeformWizardIterator.createIterator"/>
+                        <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/samples/AnagramFreeformDescription.html"/>
+                        <attr name="template" boolvalue="true"/>
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>

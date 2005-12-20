@@ -3,7 +3,7 @@
     <type>org.netbeans.modules.ant.freeform</type>
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
-            <name>@NAME@</name>
+            <name>Anagram Library</name>
             <properties>
                 <property-file>user.build.properties</property-file>
                 <property-file>build.properties</property-file>
@@ -34,19 +34,12 @@
                     <target>clean</target>
                     <target>jar</target>
                 </action>
-                <action name="run">
-                    <target>run</target>
-                </action>
                 <action name="javadoc">
                     <script>nbproject/netbeans-targets.xml</script>
                     <target>show-javadoc</target>
                 </action>
                 <action name="test">
                     <target>run-tests</target>
-                </action>
-                <action name="debug">
-                    <script>nbproject/netbeans-targets.xml</script>
-                    <target>debug</target>
                 </action>
                 <action name="compile.single">
                     <script>nbproject/file-targets.xml</script>
@@ -145,12 +138,6 @@
                 <build-target>jar</build-target>
                 <clean-target>clean</clean-target>
             </export>
-            <export>
-                <type>folder</type>
-                <location>${test.classes.dir}</location>
-                <build-target>compile-tests</build-target>
-                <clean-target>clean</clean-target>
-            </export>
             <view>
                 <items>
                     <source-folder style="packages">
@@ -168,8 +155,6 @@
                     <ide-action name="clean"/>
                     <ide-action name="javadoc"/>
                     <separator/>
-                    <ide-action name="run"/>
-                    <ide-action name="debug"/>
                     <ide-action name="test"/>
                 </context-menu>
             </view>
@@ -183,7 +168,7 @@
                 <built-to>${classes.dir}</built-to>
                 <built-to>${jar}</built-to>
                 <javadoc-built-to>${javadoc.dir}</javadoc-built-to>
-                <source-level>1.5</source-level>
+                <source-level>1.4</source-level>
             </compilation-unit>
             <compilation-unit>
                 <package-root>${test.dir}</package-root>
@@ -191,7 +176,7 @@
                 <classpath mode="compile">${test.cp}</classpath>
                 <classpath mode="execute">${test.run.cp}</classpath>
                 <built-to>${test.classes.dir}</built-to>
-                <source-level>1.5</source-level>
+                <source-level>1.4</source-level>
             </compilation-unit>
         </java-data>
     </configuration>
