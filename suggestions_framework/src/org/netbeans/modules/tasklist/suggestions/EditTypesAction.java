@@ -7,32 +7,27 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.suggestions;
 
-
 import java.awt.Dialog;
 import java.awt.Dimension;
 import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.CallableSystemAction;
-import org.openide.util.actions.SystemAction;
-import org.openide.DialogDisplayer;
-
 
 /** Filter the tasklist such that only tasks matching a given
  * criteria (or with a subtask matching the given criteria) are
  * shown.
  *
  * @author Tor Norbye */
-public final class EditTypesAction extends CallableSystemAction
-    implements ActionPerformer {
+public final class EditTypesAction extends CallableSystemAction {
 
     private static final long serialVersionUID = 1;
 
@@ -58,11 +53,6 @@ public final class EditTypesAction extends CallableSystemAction
         return false;
     }
 
-    /** XXX why are we ignoring action? */
-    public void performAction(SystemAction action) {
-        performAction();
-    }
-    
     /** Return name of the action, as shown in menus etc. */    
     public String getName() {
         return NbBundle.getMessage(EditTypesAction.class, 
