@@ -13,25 +13,14 @@
 
 package org.netbeans.modules.codetemplatetools.actions;
 
-import java.awt.Dialog;
-import java.util.Collection;
-import java.util.Iterator;
 import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.text.Document;
-import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
-import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.codetemplatetools.ui.view.CodeTemplatesPanel;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 /**
  *

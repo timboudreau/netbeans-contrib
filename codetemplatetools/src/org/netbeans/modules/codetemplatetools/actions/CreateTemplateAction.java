@@ -14,7 +14,6 @@
 package org.netbeans.modules.codetemplatetools.actions;
 
 import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
 import org.netbeans.modules.codetemplatetools.ui.view.CreateCodeTemplatePanel;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
@@ -22,7 +21,6 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 /**
  *

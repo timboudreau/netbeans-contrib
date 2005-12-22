@@ -17,7 +17,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -25,9 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableModel;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
-import org.netbeans.modules.editor.options.AllOptionsFolder;
 import org.netbeans.modules.editor.options.BaseOptions;
 import org.openide.windows.WindowManager;
 

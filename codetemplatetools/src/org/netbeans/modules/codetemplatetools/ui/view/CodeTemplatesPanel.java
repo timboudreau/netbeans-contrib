@@ -13,28 +13,19 @@
 
 package org.netbeans.modules.codetemplatetools.ui.view;
 
-import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 import javax.swing.AbstractListModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.windows.WindowManager;
 
 /**
