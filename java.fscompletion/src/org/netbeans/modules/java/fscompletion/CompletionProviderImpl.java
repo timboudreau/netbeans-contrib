@@ -13,15 +13,16 @@
 package org.netbeans.modules.java.fscompletion;
 
 import java.io.IOException;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.jmi.javamodel.Element;
-import org.netbeans.jmi.javamodel.MethodInvocation;
-import org.netbeans.jmi.javamodel.Resource;
-import org.netbeans.jmi.javamodel.StringLiteral;
-import org.netbeans.jmi.javamodel.Type;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.SyntaxSupport;
+import org.netbeans.editor.TokenItem;
+import org.netbeans.editor.ext.java.JavaTokenContext;
 import org.netbeans.modules.editor.fscompletion.spi.support.FSCompletion;
+import org.netbeans.modules.editor.java.NbJavaJMISyntaxSupport;
 import org.netbeans.modules.javacore.api.JavaModel;
 import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
 import org.netbeans.spi.editor.completion.CompletionProvider;
@@ -52,40 +53,30 @@ public class CompletionProviderImpl implements CompletionProvider {
                 JavaModel.getJavaRepository().beginTrans(false);
                 
                 try {
-                    JavaModel.setClassPath(file);
-                    
-                    Resource res = JavaModel.getResource(file);
-                    Element el = res.getElementByOffset(caretOffset);
-                    
-                    if (!(el instanceof StringLiteral)) {
-                        return ;
+                    if (doc instanceof BaseDocument) {
+                        SyntaxSupport sup = ((BaseDocument) doc).getSyntaxSupport();
+                        NbJavaJMISyntaxSupport nbJavaSup = (NbJavaJMISyntaxSupport)sup.get(NbJavaJMISyntaxSupport.class);
+                        
+                        TokenItem item = nbJavaSup.getTokenChain(caretOffset, caretOffset);
+                        
+                        if (item.getTokenID() == JavaTokenContext.STRING_LITERAL) {
+                            int start = item.getOffset() + 1;
+                            
+                            JavaModel.setClassPath(file);
+                            
+                            ClassPath cp = JavaMetamodel.getManager().getClassPath();
+                            FileObject[] roots = cp.getRoots();
+                            
+                            String text = doc.getText(start, caretOffset - start);
+                            
+                            resultSet.addAllItems(FSCompletion.completion(roots, roots, text, caretOffset - text.length()));
+                            
+                            resultSet.setTitle(text);
+                        }
                     }
-                    
-//                    Element parent = (Element) el.refImmediateComposite(); //???
-//                    
-//                    if (!(parent instanceof MethodInvocation)) {
-//                        return ;
-//                    }
-//                    
-//                    MethodInvocation inv = (MethodInvocation) parent;
-//                    
-//                    String name = inv.getName();
-//                    Type   type = inv.getParentClass().getType();
-//                    String typeName = type.getName();
-                    
-//                    if (/*"java.lang.Class".equals(typeName) && */"getResource".equals(name)) {
-                        ClassPath cp = JavaMetamodel.getManager().getClassPath();
-                        FileObject[] roots = cp.getRoots();
-                        
-                        String text = ((StringLiteral) el).getValue();
-                        
-                        text = text.substring(0, caretOffset - JavaMetamodel.getManager().getElementPosition(el).getBegin().getOffset() - 1);
-                        
-                        resultSet.addAllItems(FSCompletion.completion(roots, roots, text, caretOffset - text.length()));
-                        
-                        resultSet.setTitle(text);
-//                    }
                 } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                } catch (BadLocationException e) {
                     ErrorManager.getDefault().notify(e);
                 } finally {
                     JavaModel.getJavaRepository().endTrans();
