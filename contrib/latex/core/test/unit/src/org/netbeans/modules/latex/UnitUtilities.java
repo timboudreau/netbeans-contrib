@@ -35,6 +35,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.XMLFileSystem;
+import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
@@ -126,7 +127,7 @@ public class UnitUtilities extends ProxyLookup {
     private static class ModelUtilities extends NBUtilities {
         
         public Object getFile(Document doc) {
-            return doc.getProperty(Document.StreamDescriptionProperty);
+            return ((DataObject) doc.getProperty(Document.StreamDescriptionProperty)).getPrimaryFile();
         }
         
         private Map/*<File,Document>*/ file2Document = null;
