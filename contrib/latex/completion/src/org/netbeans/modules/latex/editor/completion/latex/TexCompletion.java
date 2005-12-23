@@ -15,7 +15,6 @@
 package org.netbeans.modules.latex.editor.completion.latex;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -25,8 +24,8 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
+import org.netbeans.modules.editor.fscompletion.spi.support.FSCompletion;
 import org.netbeans.modules.latex.editor.AnalyseBib;
-import org.netbeans.modules.latex.editor.ErrorManager;
 import org.netbeans.modules.latex.editor.TexLanguage;
 import org.netbeans.modules.latex.editor.Utilities;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.BiBRecordCompletionItem;
@@ -49,6 +48,8 @@ import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
+import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 
 
@@ -240,27 +241,27 @@ public class TexCompletion implements CompletionProvider {
         }
         
     }
-//
-//        private static class InputArgumentCompletionHandler implements ArgumentCompletionHandler {
-//
-//            public String[] getArgumentTags() {
-//                return new String[] {"#include"};
-//            }
-//
-//            public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix) {
-//                try {
-//                    return org.netbeans.modules.latex.model.Utilities.getDefault().findRelativeFilesBegining(source.getMainFile(), prefix);
-//                } catch (IOException e) {
-//                    return Collections.EMPTY_LIST;
-//                }
-//            }
-//
-//            public String preprocessPrefix(LaTeXSource source, ArgumentNode node, String prefix) {
-//                return prefix;
-//            }
-//
-//        }
-//
+
+        private static class InputArgumentCompletionHandler implements ArgumentCompletionHandler {
+
+            public String[] getArgumentTags() {
+                return new String[] {"#include"};
+            }
+
+            public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
+                try {
+                    set.addAllItems(FSCompletion.completion(null, (FileObject) source.getMainFile(), prefix, start));
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                }
+            }
+
+            public String preprocessPrefix(LaTeXSource source, ArgumentNode node, String prefix) {
+                return prefix;
+            }
+
+        }
+
     private static class EnvironmentArgumentCompletionHandler implements ArgumentCompletionHandler {
         
         public String[] getArgumentTags() {
@@ -294,7 +295,7 @@ public class TexCompletion implements CompletionProvider {
         new RefArgumentCompletionHandler(),
         new CiteArgumentCompletionHandler(),
         new DocumentClassOptionsArgumentCompletionHandler(),
-//            new InputArgumentCompletionHandler(),
+        new InputArgumentCompletionHandler(),
         new EnvironmentArgumentCompletionHandler(),
         new DocumentClassArgumentCompletionHandler(),
     };
