@@ -108,7 +108,7 @@ public class LaTeXGUIProjectFactory implements ProjectFactory {
         FileObject master = getMasterFile(projectDirectory);
         LaTeXGUIProject p = new LaTeXGUIProject(projectDirectory, master);
         
-        LaTeXGUIProjectFactorySourceFactory.instanceCreate().projectLoad(p, master);
+        LaTeXGUIProjectFactorySourceFactory.get().projectLoad(p, master);
 
         return p;
 //        throw new IOException("Xxxx");

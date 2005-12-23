@@ -27,14 +27,6 @@ Contributor(s): Jan Lahoda
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.project.ProjectFactory"/>
             </file>
             
-            <file name="LaTeXGUIProjectFactorySourceFactory.instance">
-                <attr methodvalue="org.netbeans.modules.latex.guiproject.LaTeXGUIProjectFactorySourceFactory.instanceCreate" name="instanceCreate"/>
-<!--                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.guiproject.LaTeXGUIProjectFactorySourceFactory"/>-->
-                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.command.LaTeXSourceFactory"/>
-            </file>
-
-            <attr name="LaTeXGUIProjectFactorySourceFactory.instance/FileObjectLaTeXSourceFactory.instance" boolvalue="true" />
-
         </folder>
     </folder>
     

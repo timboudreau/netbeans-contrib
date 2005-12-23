@@ -15,11 +15,13 @@
 package org.netbeans.modules.latex.guiproject;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Iterator;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.FileOwnerQueryImplementation;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**A FileOwnerQuery implementation for the LaTeX GUI Project. Currently
  * searches all known LaTeX projects to find the given file.
@@ -38,11 +40,19 @@ public final class LaTeXFileOwnerQuery implements FileOwnerQueryImplementation {
     }
 
     public Project getOwner(FileObject file) {
-        for (Iterator i = LaTeXGUIProjectFactorySourceFactory.instanceCreate().mainFile2Project.values().iterator(); i.hasNext(); ) {
+        for (Iterator i = LaTeXGUIProjectFactorySourceFactory.get().mainFile2Project.values().iterator(); i.hasNext(); ) {
             LaTeXGUIProject p = (LaTeXGUIProject) i.next();
             
             if (p.contains(file)) {
                 return p;
+            }
+            
+            if (Arrays.asList(LaTeXSharabilityQuery.IGNORED_EXTENSIONS).contains(file.getExt())) {
+                FileObject brother = FileUtil.findBrother(file, "tex");
+                
+                if (brother != null && p.contains(brother)) {
+                    return p;
+                }
             }
         }
         

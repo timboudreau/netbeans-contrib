@@ -7,26 +7,21 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.guiproject;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
-import org.netbeans.api.project.Project;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.LaTeXSourceFactory;
-import org.netbeans.spi.project.ProjectFactory;
-import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 
@@ -44,15 +39,16 @@ public class LaTeXGUIProjectFactorySourceFactory extends LaTeXSourceFactory {
         mainFile2Project = new WeakHashMap();
     }
     
-    private static LaTeXGUIProjectFactorySourceFactory instance = null;
-    
-    public synchronized static LaTeXGUIProjectFactorySourceFactory instanceCreate() {
-//        Thread.dumpStack();
-        if (instance == null) {
-            instance = new LaTeXGUIProjectFactorySourceFactory();
+    public synchronized static LaTeXGUIProjectFactorySourceFactory get() {
+        for (Iterator i = Lookup.getDefault().lookup(new Lookup.Template(LaTeXSourceFactory.class)).allInstances().iterator(); i.hasNext(); ) {
+            LaTeXSourceFactory fact = (LaTeXSourceFactory) i.next();
+            
+            if (fact instanceof LaTeXGUIProjectFactorySourceFactory) {
+                return (LaTeXGUIProjectFactorySourceFactory) fact;
+            }
         }
         
-        return instance;
+        return null;
     }
     
     public boolean supports(Object file) {
@@ -71,6 +67,7 @@ public class LaTeXGUIProjectFactorySourceFactory extends LaTeXSourceFactory {
     private LaTeXGUIProject findProject(Object file) {
 //        System.err.println("findProject");
 //        System.err.println("file = " + file );
+//        System.err.println("mainFile2Project=" + mainFile2Project);
         LaTeXGUIProject mainProj = (LaTeXGUIProject) mainFile2Project.get(file);
 
 //        System.err.println("mainProj = " + mainProj );
@@ -82,13 +79,9 @@ public class LaTeXGUIProjectFactorySourceFactory extends LaTeXSourceFactory {
             LaTeXGUIProject p = (LaTeXGUIProject) i.next();
             
 //            System.err.println("p = " + p );
-            DocumentNode dn = p.getSource().getDocument(); //TODO:no locking? (currently intentionally)
+            if (p.contains((FileObject) file))
+                return p;
             
-//            System.err.println("dn = " + dn );
-            if (dn != null) {
-                if (dn.getFiles().contains(file))
-                    return p;
-            }
         }
         return null;
     }
