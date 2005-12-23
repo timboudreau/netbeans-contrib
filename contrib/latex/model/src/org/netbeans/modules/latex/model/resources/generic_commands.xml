@@ -583,7 +583,7 @@ Microsystems, Inc. All Rights Reserved.
 <command name="\newcommand">
   <argument type="mandatory">
     <attribute name="#no-parse" value="true" />
-
+    <attribute name="#command-def" value="true" />
     <attribute name="#code" value="true" />
   </argument>
 
