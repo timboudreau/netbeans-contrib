@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.codetemplatetools.ui.view;
 
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,10 +23,18 @@ import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import org.netbeans.lib.editor.codetemplates.CodeTemplateInsertHandler;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
+import org.netbeans.lib.editor.codetemplates.spi.CodeTemplateParameter;
+import org.netbeans.modules.codetemplatetools.SelectionCodeTemplateProcessor;
 import org.netbeans.modules.editor.options.BaseOptions;
+import org.openide.ErrorManager;
 import org.openide.windows.WindowManager;
 
 /**
@@ -36,29 +45,62 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
     
     public static void createCodeTemplate(JEditorPane editorPane) {
         JDialog dialog = new JDialog(WindowManager.getDefault().getMainWindow(),
-                "Create Template",
-                true);
+        "Create Template",
+        true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setContentPane(new CreateCodeTemplatePanel(editorPane));
-        dialog.setBounds(200,200, 400, 450);
+        dialog.setBounds(200,200, 600, 450);
         dialog.setVisible(true);
     }
     
     private JEditorPane editorPane;
     
+    private static String[] parameters = new String[] {
+        "${" + CodeTemplateParameter.CURSOR_PARAMETER_NAME + "}",
+        "${"+ SelectionCodeTemplateProcessor.SELECTION_PARAMETER + " " + CodeTemplateParameter.EDITABLE_HINT_NAME + "=false}",
+    };
+    
     /** Creates new form CreateCodeTemplatePanel */
     public CreateCodeTemplatePanel(JEditorPane editorPane) {
         initComponents();
-        this.editorPane = editorPane;                
+        this.editorPane = editorPane;
         
         templateTextEditorPane.setContentType(editorPane.getContentType());
         templateTextEditorPane.setText(editorPane.getSelectedText());
+        
+        templateTextEditorPane.addCaretListener(new CaretListener() {
+            public void caretUpdate(CaretEvent e) {
+                parameterizeButton.setEnabled(templateTextEditorPane.getSelectedText() != null);
+            }
+        });
         
         showTemplatesButton.setIcon(Icons.SHOW_TEMPLATES_ICON);
         
         showTemplatesButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 CodeTemplatesPanel.promptAndInsertCodeTemplate(CreateCodeTemplatePanel.this.editorPane);
+            }
+        });
+        
+        insertParameterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String parameter = (String) JOptionPane.showInputDialog(
+                WindowManager.getDefault().getMainWindow(),
+                "Select a parameter to insert:",
+                "Insert parameter",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                parameters,
+                parameters[0]);
+                if (parameter != null) {
+                    insertText(parameter);
+                }
+            }
+        });
+        
+        parameterizeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                parameterize();
             }
         });
         
@@ -99,12 +141,41 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         });
         
         adjustButtonState();
+        parameterizeButton.setEnabled(templateTextEditorPane.getSelectedText() != null);
     }
     
     public void addNotify() {
         super.addNotify();
         
         SwingUtilities.getRootPane(this).setDefaultButton(saveButton);
+    }
+    
+    private void insertText(String text) {
+        try {
+            templateTextEditorPane.getDocument().insertString(templateTextEditorPane.getCaretPosition(), text, null);
+        } catch (BadLocationException ble) {
+            ErrorManager.getDefault().notify(ble);
+        }
+    }
+    
+    private void parameterize() {
+        String selection = templateTextEditorPane.getSelectedText();
+        if (selection == null) {
+            Toolkit.getDefaultToolkit().beep();
+            return;
+        }
+        
+        int start = Math.min(templateTextEditorPane.getSelectionStart(), templateTextEditorPane.getSelectionEnd());
+        int end = Math.max(templateTextEditorPane.getSelectionStart(), templateTextEditorPane.getSelectionEnd());
+        try {
+            templateTextEditorPane.getDocument().remove(start, (end-start));
+            templateTextEditorPane.getDocument().insertString(
+                start,
+                "${" + selection + "}",
+                null);
+        } catch (BadLocationException ble) {
+            ErrorManager.getDefault().notify(ble);
+        }
     }
     
     private void saveTemplate() {
@@ -123,9 +194,9 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
                 String existingTemplateText = (String) abbreviationsMap.get(templateName);
                 if (existingTemplateText != null) {
                     if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
-                            "Code Template " + templateName + " already exists. Overwrite?",
-                            "Overwrite exiting Code Template",
-                            JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
+                    "Code Template " + templateName + " already exists. Overwrite?",
+                    "Overwrite exiting Code Template",
+                    JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
                         return;
                     }
                     // fall through
@@ -178,6 +249,8 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         templateTextEditorPane = new javax.swing.JEditorPane();
         buttonsPanel = new javax.swing.JPanel();
         showTemplatesButton = new javax.swing.JButton();
+        insertParameterButton = new javax.swing.JButton();
+        parameterizeButton = new javax.swing.JButton();
         saveButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
 
@@ -225,7 +298,18 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
 
         showTemplatesButton.setMnemonic('w');
         showTemplatesButton.setText("Show Templates...");
+        showTemplatesButton.setToolTipText("Show Templates...");
         buttonsPanel.add(showTemplatesButton);
+
+        insertParameterButton.setMnemonic('I');
+        insertParameterButton.setText("Insert ${}...");
+        insertParameterButton.setToolTipText("Insert Parameter...");
+        buttonsPanel.add(insertParameterButton);
+
+        parameterizeButton.setMnemonic('P');
+        parameterizeButton.setText("${...}");
+        parameterizeButton.setToolTipText("Parameterize the selected text");
+        buttonsPanel.add(parameterizeButton);
 
         saveButton.setMnemonic('S');
         saveButton.setText("Save");
@@ -249,6 +333,8 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonsPanel;
     private javax.swing.JButton cancelButton;
+    private javax.swing.JButton insertParameterButton;
+    private javax.swing.JButton parameterizeButton;
     private javax.swing.JButton saveButton;
     private javax.swing.JButton showTemplatesButton;
     private javax.swing.JLabel templateNameLabel;

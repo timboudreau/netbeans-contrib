@@ -41,7 +41,7 @@ public final class CreateTemplateAction extends CookieAction {
                     }
                 }
             }
-        }        
+        }
     }
     
     protected int mode() {

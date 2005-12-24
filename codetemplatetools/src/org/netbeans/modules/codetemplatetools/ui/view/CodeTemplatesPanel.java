@@ -40,8 +40,9 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setContentPane(new CodeTemplatesPanel(editorPane));
-        dialog.setBounds(200,200, 400, 450);
+        dialog.setBounds(200,200, 600, 450);
         dialog.setVisible(true);
+        
     }
     
     private JEditorPane editorPane;
