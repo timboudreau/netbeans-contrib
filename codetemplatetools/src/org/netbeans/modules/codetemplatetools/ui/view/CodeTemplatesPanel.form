@@ -85,17 +85,24 @@
         <Property name="alignment" type="int" value="2"/>
       </Layout>
       <SubComponents>
+        <Component class="javax.swing.JButton" name="insertButon">
+          <Properties>
+            <Property name="mnemonic" type="int" value="73"/>
+            <Property name="text" type="java.lang.String" value="Insert"/>
+            <Property name="toolTipText" type="java.lang.String" value="Insert selected template"/>
+          </Properties>
+        </Component>
         <Component class="javax.swing.JButton" name="newButton">
           <Properties>
             <Property name="mnemonic" type="int" value="78"/>
             <Property name="text" type="java.lang.String" value="New..."/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="insertButon">
+        <Component class="javax.swing.JButton" name="deleteButton">
           <Properties>
-            <Property name="mnemonic" type="int" value="73"/>
-            <Property name="text" type="java.lang.String" value="Insert"/>
-            <Property name="toolTipText" type="java.lang.String" value="Insert selected template"/>
+            <Property name="mnemonic" type="int" value="68"/>
+            <Property name="text" type="java.lang.String" value="Delete..."/>
+            <Property name="toolTipText" type="java.lang.String" value="Delete selected template"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="closeButton">

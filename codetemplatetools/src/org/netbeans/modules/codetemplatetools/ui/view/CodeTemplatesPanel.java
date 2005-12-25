@@ -17,15 +17,19 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.AbstractListModel;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Document;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
+import org.netbeans.modules.editor.options.BaseOptions;
 import org.openide.windows.WindowManager;
 
 /**
@@ -36,8 +40,8 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     
     public static void promptAndInsertCodeTemplate(JEditorPane editorPane) {
         JDialog dialog = new JDialog(WindowManager.getDefault().getMainWindow(),
-                "Templates",
-                true);
+        "Templates",
+        true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setContentPane(new CodeTemplatesPanel(editorPane));
         dialog.setBounds(200,200, 600, 450);
@@ -50,7 +54,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     /** Creates new form CodeTemplatesPanel */
     public CodeTemplatesPanel(JEditorPane editorPane) {
         initComponents();
-        this.editorPane = editorPane;  
+        this.editorPane = editorPane;
         loadModel();
         templatesList.setCellRenderer(new CodeTemplateListCellRenderer());
         templatesList.addListSelectionListener(new ListSelectionListener() {
@@ -60,7 +64,14 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 adjustButtonState();
             }
         });
+        
         templateTextEditorPane.setContentType(editorPane.getContentType());
+        
+        insertButon.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                insertTemplate();
+            }
+        });
         
         newButton.setIcon(Icons.NEW_TEMPLATE_ICON);
         
@@ -70,13 +81,14 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 // New templates may have been added.
                 loadModel();
             }
-        });        
+        });
         
-        insertButon.addActionListener(new ActionListener() {
+        deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                insertTemplate();
+                deleteTemplate((CodeTemplate) templatesList.getSelectedValue());
             }
         });
+        
         
         closeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -105,9 +117,36 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     private void insertTemplate() {
         CodeTemplate selectedCodeTemplate = (CodeTemplate) templatesList.getSelectedValue();
         if (selectedCodeTemplate != null) {
-            selectedCodeTemplate.insert(editorPane);            
+            selectedCodeTemplate.insert(editorPane);
         }
         done();
+    }
+    
+    private void deleteTemplate(CodeTemplate template) {
+        if (template == null) {
+            return;
+        }
+        String templateName = template.getAbbreviation();
+        if (templateName == null || templateName.length() == 0) {
+            return;
+        }
+        if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
+                    "Delete Code Template : " + templateName + " ?",
+                    "Delete Code Template",
+                    JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
+            return;
+        }
+        
+        Class kitClass = editorPane.getEditorKit().getClass();
+        BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
+        Map abbreviationsMap = baseOptions.getAbbrevMap();
+        if (abbreviationsMap == null) {
+            // ?
+            return;
+        } 
+        abbreviationsMap.remove(templateName);
+        baseOptions.setAbbrevMap(abbreviationsMap);
+        loadModel();
     }
     
     private void close() {
@@ -124,6 +163,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     
     private void adjustButtonState() {
         insertButon.setEnabled(editorPane.isEditable() && templatesList.getSelectedIndex() != -1);
+        deleteButton.setEnabled(templatesList.getSelectedIndex() != -1);
     }
     
     private void showCodeTemplate(CodeTemplate codeTemplate) {
@@ -150,8 +190,9 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         templateTextScrollPane = new javax.swing.JScrollPane();
         templateTextEditorPane = new javax.swing.JEditorPane();
         buttonsPanel = new javax.swing.JPanel();
-        newButton = new javax.swing.JButton();
         insertButon = new javax.swing.JButton();
+        newButton = new javax.swing.JButton();
+        deleteButton = new javax.swing.JButton();
         closeButton = new javax.swing.JButton();
 
         setLayout(new java.awt.GridBagLayout());
@@ -201,14 +242,19 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
 
         buttonsPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
 
-        newButton.setMnemonic('N');
-        newButton.setText("New...");
-        buttonsPanel.add(newButton);
-
         insertButon.setMnemonic('I');
         insertButon.setText("Insert");
         insertButon.setToolTipText("Insert selected template");
         buttonsPanel.add(insertButon);
+
+        newButton.setMnemonic('N');
+        newButton.setText("New...");
+        buttonsPanel.add(newButton);
+
+        deleteButton.setMnemonic('D');
+        deleteButton.setText("Delete...");
+        deleteButton.setToolTipText("Delete selected template");
+        buttonsPanel.add(deleteButton);
 
         closeButton.setMnemonic('C');
         closeButton.setText("Close");
@@ -227,6 +273,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonsPanel;
     private javax.swing.JButton closeButton;
+    private javax.swing.JButton deleteButton;
     private javax.swing.JButton insertButon;
     private javax.swing.JButton newButton;
     private javax.swing.JEditorPane templateTextEditorPane;
@@ -251,5 +298,5 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         public Object getElementAt(int index) {
             return codeTemplates[index];
         }
-    }  
+    }
 }
