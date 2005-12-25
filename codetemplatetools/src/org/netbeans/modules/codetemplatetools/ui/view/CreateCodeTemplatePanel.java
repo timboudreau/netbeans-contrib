@@ -53,6 +53,16 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         dialog.setVisible(true);
     }
     
+    public static void modifyCodeTemplate(JEditorPane editorPane, CodeTemplate codeTemplate) {
+        JDialog dialog = new JDialog(WindowManager.getDefault().getMainWindow(),
+        "Modify Template",
+        true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setContentPane(new CreateCodeTemplatePanel(editorPane, codeTemplate));
+        dialog.setBounds(200,200, 600, 450);
+        dialog.setVisible(true);
+    }
+    
     private JEditorPane editorPane;
     
     private static String[] parameters = new String[] {
@@ -62,6 +72,11 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
     
     /** Creates new form CreateCodeTemplatePanel */
     public CreateCodeTemplatePanel(JEditorPane editorPane) {
+        this(editorPane, null);
+    }
+    
+    /** Creates new form CreateCodeTemplatePanel */
+    public CreateCodeTemplatePanel(JEditorPane editorPane, CodeTemplate codeTemplate) {
         initComponents();
         this.editorPane = editorPane;
         
@@ -72,7 +87,7 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
             public void caretUpdate(CaretEvent e) {
                 parameterizeButton.setEnabled(templateTextEditorPane.getSelectedText() != null);
             }
-        });
+        });        
         
         showTemplatesButton.setIcon(Icons.SHOW_TEMPLATES_ICON);
         
@@ -104,12 +119,23 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
             }
         });
         
-        saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveTemplate();
-            }
-        });
-        
+        if (codeTemplate == null) {
+            saveButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    saveTemplate(false);
+                }
+            });    
+        } else {
+            templateNameTextField.setEditable(false);
+            templateNameTextField.setText(codeTemplate.getAbbreviation());
+            templateTextEditorPane.setText(codeTemplate.getParametrizedText());
+            saveButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    saveTemplate(true);
+                }
+            });
+        }
+                        
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 cancel();
@@ -178,7 +204,7 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         }
     }
     
-    private void saveTemplate() {
+    private void saveTemplate(boolean modifying) {
         try {
             String templateName = templateNameTextField.getText().trim();
             String templateText = templateTextEditorPane.getText();
@@ -191,15 +217,17 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
             if (abbreviationsMap == null) {
                 abbreviationsMap = new HashMap();
             } else {
-                String existingTemplateText = (String) abbreviationsMap.get(templateName);
-                if (existingTemplateText != null) {
-                    if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
-                    "Code Template " + templateName + " already exists. Overwrite?",
-                    "Overwrite exiting Code Template",
-                    JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
-                        return;
+                if (!modifying) {
+                    String existingTemplateText = (String) abbreviationsMap.get(templateName);
+                    if (existingTemplateText != null) {
+                        if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
+                        "Code Template " + templateName + " already exists. Overwrite?",
+                        "Overwrite exiting Code Template",
+                        JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
+                            return;
+                        }
+                        // fall through
                     }
-                    // fall through
                 }
             }
             abbreviationsMap.put(templateName, templateText);

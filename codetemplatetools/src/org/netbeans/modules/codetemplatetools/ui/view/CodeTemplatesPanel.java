@@ -83,12 +83,19 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
             }
         });
         
+        modifyButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                CreateCodeTemplatePanel.modifyCodeTemplate(CodeTemplatesPanel.this.editorPane, (CodeTemplate) templatesList.getSelectedValue());
+                // Templates may have been modified.
+                loadModel();
+            }
+        });
+        
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 deleteTemplate((CodeTemplate) templatesList.getSelectedValue());
             }
-        });
-        
+        });        
         
         closeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -164,6 +171,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     private void adjustButtonState() {
         insertButon.setEnabled(editorPane.isEditable() && templatesList.getSelectedIndex() != -1);
         deleteButton.setEnabled(templatesList.getSelectedIndex() != -1);
+        modifyButton.setEnabled(templatesList.getSelectedIndex() != -1);
     }
     
     private void showCodeTemplate(CodeTemplate codeTemplate) {
@@ -186,13 +194,14 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         templatesLabel = new javax.swing.JLabel();
         templatesScrollPane = new javax.swing.JScrollPane();
         templatesList = new javax.swing.JList();
+        newButton = new javax.swing.JButton();
+        modifyButton = new javax.swing.JButton();
+        deleteButton = new javax.swing.JButton();
         templateTextLabel = new javax.swing.JLabel();
         templateTextScrollPane = new javax.swing.JScrollPane();
         templateTextEditorPane = new javax.swing.JEditorPane();
         buttonsPanel = new javax.swing.JPanel();
         insertButon = new javax.swing.JButton();
-        newButton = new javax.swing.JButton();
-        deleteButton = new javax.swing.JButton();
         closeButton = new javax.swing.JButton();
 
         setLayout(new java.awt.GridBagLayout());
@@ -202,6 +211,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(templatesLabel, gridBagConstraints);
@@ -212,17 +222,51 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridheight = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         add(templatesScrollPane, gridBagConstraints);
+
+        newButton.setMnemonic('N');
+        newButton.setText("New...");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
+        add(newButton, gridBagConstraints);
+
+        modifyButton.setMnemonic('M');
+        modifyButton.setText("Modify...");
+        modifyButton.setToolTipText("Modify selected template");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
+        add(modifyButton, gridBagConstraints);
+
+        deleteButton.setMnemonic('D');
+        deleteButton.setText("Delete...");
+        deleteButton.setToolTipText("Delete selected template");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
+        add(deleteButton, gridBagConstraints);
 
         templateTextLabel.setDisplayedMnemonic('T');
         templateTextLabel.setText("Template Text");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(templateTextLabel, gridBagConstraints);
@@ -232,7 +276,8 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
@@ -247,22 +292,14 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         insertButon.setToolTipText("Insert selected template");
         buttonsPanel.add(insertButon);
 
-        newButton.setMnemonic('N');
-        newButton.setText("New...");
-        buttonsPanel.add(newButton);
-
-        deleteButton.setMnemonic('D');
-        deleteButton.setText("Delete...");
-        deleteButton.setToolTipText("Delete selected template");
-        buttonsPanel.add(deleteButton);
-
         closeButton.setMnemonic('C');
         closeButton.setText("Close");
         buttonsPanel.add(closeButton);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
@@ -275,6 +312,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     private javax.swing.JButton closeButton;
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton insertButon;
+    private javax.swing.JButton modifyButton;
     private javax.swing.JButton newButton;
     private javax.swing.JEditorPane templateTextEditorPane;
     private javax.swing.JLabel templateTextLabel;
