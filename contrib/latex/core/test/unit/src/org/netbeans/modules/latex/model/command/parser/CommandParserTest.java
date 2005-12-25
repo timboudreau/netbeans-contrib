@@ -131,4 +131,30 @@ public class CommandParserTest extends NbTestCase {
         }
     }
     
+    public void testNewCommand1() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testNewCommand1.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Collection errors = new ArrayList();
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        
+        DocumentNode node = new CommandParser().parse(lsi, errors);
+        
+        assertTrue("Errors: " + errors, errors.isEmpty());
+    }
+    
+    public void testNewCommand2() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testNewCommand2.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Collection errors = new ArrayList();
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        
+        DocumentNode node = new CommandParser().parse(lsi, errors);
+        
+        assertTrue("Errors: " + errors, errors.isEmpty());
+    }
+    
 }
