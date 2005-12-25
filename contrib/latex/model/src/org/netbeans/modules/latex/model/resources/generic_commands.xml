@@ -136,7 +136,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <command name="\textit">
   <attribute name="hide-command" value="true" />
-  <argument type="free">
+  <argument type="mandatory">
     <attribute name="#text" value="true" />
     <attribute name="font-style" value="italic" />
     <attribute name="hide-surrounding-brackets" value="true" />
@@ -245,7 +245,7 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\textrm">
-  <argument type="free">
+  <argument type="mandatory">
     <attribute name="#text" value="true" />
   </argument>
 </command>
@@ -260,7 +260,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <command name="\emph">
   <attribute name="hide-command" value="true" />
-  <argument type="free">
+  <argument type="mandatory">
     <attribute name="#text" value="true" />
     <attribute name="font-style" value="emphesise" />
     <attribute name="hide-surrounding-brackets" value="true" />
@@ -366,6 +366,7 @@ Microsystems, Inc. All Rights Reserved.
 <command name="\bibliography">
   <argument type="mandatory">
     <attribute name="#code" value="true" />
+    <attribute name="#input" value="true" />
     <attribute name="use-file-argument" value="true" />
     <attribute name="use-file-argument-extensions" value="bib" />
     <attribute name="files-separator" value="," />
@@ -564,7 +565,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <command name="\textbf">
   <attribute name="hide-command" value="true" />
-  <argument type="free">
+  <argument type="mandatory">
     <attribute name="#text" value="true" />
     <attribute name="font-style" value="bold" />
     <attribute name="hide-surrounding-brackets" value="true" />
