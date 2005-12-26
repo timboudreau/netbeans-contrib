@@ -56,6 +56,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         initComponents();
         this.editorPane = editorPane;
         loadModel();
+        mimeTypeLabel.setText("Mime type: " + editorPane.getContentType());
         templatesList.setCellRenderer(new CodeTemplateListCellRenderer());
         templatesList.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
@@ -192,6 +193,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         templatesLabel = new javax.swing.JLabel();
+        mimeTypeLabel = new javax.swing.JLabel();
         templatesScrollPane = new javax.swing.JScrollPane();
         templatesList = new javax.swing.JList();
         newButton = new javax.swing.JButton();
@@ -211,10 +213,16 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(templatesLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
+        add(mimeTypeLabel, gridBagConstraints);
 
         templatesList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         templatesScrollPane.setViewportView(templatesList);
@@ -312,6 +320,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     private javax.swing.JButton closeButton;
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton insertButon;
+    private javax.swing.JLabel mimeTypeLabel;
     private javax.swing.JButton modifyButton;
     private javax.swing.JButton newButton;
     private javax.swing.JEditorPane templateTextEditorPane;

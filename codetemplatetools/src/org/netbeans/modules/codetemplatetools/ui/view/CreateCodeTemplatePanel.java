@@ -80,6 +80,8 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         initComponents();
         this.editorPane = editorPane;
         
+        mimeTypeLabel.setText("Mime type: " + editorPane.getContentType());
+        
         templateTextEditorPane.setContentType(editorPane.getContentType());
         templateTextEditorPane.setText(editorPane.getSelectedText());
         
@@ -271,6 +273,7 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         templateNameLabel = new javax.swing.JLabel();
+        mimeTypeLabel = new javax.swing.JLabel();
         templateNameTextField = new javax.swing.JTextField();
         templateTextLabel = new javax.swing.JLabel();
         templateTextScrollPane = new javax.swing.JScrollPane();
@@ -289,13 +292,21 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(templateNameLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
+        add(mimeTypeLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
@@ -306,6 +317,7 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(templateTextLabel, gridBagConstraints);
@@ -315,6 +327,7 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
@@ -351,6 +364,7 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
@@ -362,6 +376,7 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
     private javax.swing.JPanel buttonsPanel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton insertParameterButton;
+    private javax.swing.JLabel mimeTypeLabel;
     private javax.swing.JButton parameterizeButton;
     private javax.swing.JButton saveButton;
     private javax.swing.JButton showTemplatesButton;
