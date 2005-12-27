@@ -1,20 +1,18 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.codetemplatetools.actions;
 
 import javax.swing.JEditorPane;
-import org.netbeans.modules.codetemplatetools.ui.view.CodeTemplatesPanel;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -26,7 +24,7 @@ import org.openide.windows.TopComponent;
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public final class ShowTemplatesAction extends CookieAction { 
+public final class CutToRegisterAction extends CookieAction {
     
     protected void performAction(Node[] activatedNodes) {
         EditorCookie ec = (EditorCookie) activatedNodes[0].getCookie(EditorCookie.class);
@@ -36,7 +34,7 @@ public final class ShowTemplatesAction extends CookieAction {
                 TopComponent activetc = TopComponent.getRegistry().getActivated();
                 for (int i = 0; i < panes.length; i++) {
                     if (activetc.isAncestorOf(panes[i])) {
-                        CodeTemplatesPanel.promptAndInsertCodeTemplate(panes[i]);
+                        RegisterManager.cutToRegister(panes[i]);
                         break;
                     }
                 }
@@ -49,7 +47,7 @@ public final class ShowTemplatesAction extends CookieAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(ShowTemplatesAction.class, "CTL_ShowTemplatesAction");
+        return NbBundle.getMessage(CutToRegisterAction.class, "CTL_CutToRegisterAction");
     }
     
     protected Class[] cookieClasses() {
@@ -58,8 +56,10 @@ public final class ShowTemplatesAction extends CookieAction {
         };
     }
     
-    protected String iconResource() {
-        return "org/netbeans/modules/codetemplatetools/resources/templates.gif";
+    protected void initialize() {
+        super.initialize();
+        // see org.openide.util.actions.SystemAction.iconResource() javadoc for more details
+        putValue("noIconInMenu", Boolean.TRUE);
     }
     
     public HelpCtx getHelpCtx() {
@@ -69,4 +69,6 @@ public final class ShowTemplatesAction extends CookieAction {
     protected boolean asynchronous() {
         return false;
     }
+    
 }
+
