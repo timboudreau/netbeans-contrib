@@ -14,18 +14,15 @@
  */
 package org.netbeans.modules.latex.ui;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,12 +38,13 @@ import javax.swing.ImageIcon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.latex.model.IconsStorage;
+import org.netbeans.modules.latex.model.IconsStorage.ChangeableIcon;
 import org.netbeans.modules.latex.model.Queue;
-import org.netbeans.modules.latex.ui.IconsCreator;
 
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -55,6 +53,9 @@ import org.openide.util.RequestProcessor;
 public final class IconsStorageImpl extends IconsStorage {
     
     private Map/*<String, List<String>>*/ cathegory2Names;
+    
+    private Icon waitIcon;
+    private Icon noIcons;
     
     /** Creates a new instance of IconsStorageImpl */
     public IconsStorageImpl() {
@@ -65,6 +66,14 @@ public final class IconsStorageImpl extends IconsStorage {
         iconsCreator  = new RequestProcessor("LaTeX Icons Creator");
         
         iconsCreator.post(new IconCreatorTask());
+        
+        Image waitIconImage = Utilities.loadImage("org/netbeans/modules/latex/ui/resources/hodiny.gif");
+        
+        waitIcon = new ImageIcon(waitIconImage);
+        
+        Image noIconsImage = Utilities.loadImage("org/netbeans/modules/latex/ui/resources/no_icon.gif");
+        
+        noIcons = new ImageIcon(noIconsImage);
     }
 
     public ChangeableIcon getIcon(String command) {
@@ -72,7 +81,7 @@ public final class IconsStorageImpl extends IconsStorage {
     }
 
     public boolean getIconsInstalled() {
-        return IconsCreator.getDefault().isConfigurationUsable();
+        return true;
     }
 
     public List getIconNamesForCathegory(String catName) {
@@ -223,25 +232,38 @@ public final class IconsStorageImpl extends IconsStorage {
             if (!iconFile.exists()) {
                 IconsCreator creator = IconsCreator.getDefault();
                 
-                creator.createIconForExpression(icon.getText(), constructSizeString(icon));
+                if (!creator.createIconForExpression(icon.getText(), constructSizeString(icon)))
+                    iconFile = null;
             }
             
-            i = new ImageIcon(iconFile.getAbsolutePath());
+            if (iconFile != null)
+                i = new ImageIcon(iconFile.getAbsolutePath());
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
-            i = new ImageIcon();
+            i = null;
         }
         
-        icon.setIcon(i);
+        if (i != null)
+            icon.setIcon(i);
     }
     
-    private ChangeableIcon getIconForExpressionImpl(String expression, int sizeX, int sizeY) {
-        DelegatingIcon icon = new DelegatingIcon(expression, sizeX, sizeY);
+    private void setWaitingIcon(DelegatingIcon icon) {
+        if (IconsCreator.getDefault().isConfigurationUsable()) {
+            icon.setIcon(waitIcon);
+        } else {
+            icon.setIcon(noIcons);
+        }
         
         synchronized (iconsToCreate) {
             iconsToCreate.put(icon);
             iconsToCreate.notifyAll();
         }
+    }
+    
+    private ChangeableIcon getIconForExpressionImpl(String expression, int sizeX, int sizeY) {
+        DelegatingIcon icon = new DelegatingIcon(expression, sizeX, sizeY);
+        
+        setWaitingIcon(icon);
         
         return icon;
     }
@@ -264,6 +286,16 @@ public final class IconsStorageImpl extends IconsStorage {
         }
         
         return i;
+    }
+    
+    void configurationChanged() {
+        for (Iterator i = new ArrayList(expression2Icon.values()).iterator(); i.hasNext(); ) {
+            DelegatingIcon icon = (DelegatingIcon) ((Reference) i.next()).get();
+            
+            if (icon != null && (icon.delegateTo == waitIcon || icon.delegateTo == noIcons)) {
+                setWaitingIcon(icon);
+            }
+        }
     }
     
     private Map/*<DelegatingIcon, ChangeListener or List<ChangeListener>>*/ listeners;

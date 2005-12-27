@@ -7,7 +7,7 @@
  *
  * The Original Code is the DocSup module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -119,8 +119,8 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
     public void focusLost(FocusEvent e) {
     }
     
+    private PaletteController pc;
     private MyProxyLookup lookup = null;
-    private PaletteController pc = null;
     
     public synchronized Lookup getLookup() {
         if (lookup == null) {
@@ -129,7 +129,7 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
             
             Lookup palette = null;
             
-            pc = PaletteFactory.createPalette(new RootNode(), new PaletteActionsImpl());
+            pc = PaletteFactory.createPalette(new RootNode(this), new PaletteActionsImpl());
             
             pc.addPropertyChangeListener(this);
             palette = Lookups.fixed(new Object[] {pc});
@@ -214,6 +214,10 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
             target.requestFocus();
             target.requestFocusInWindow();
         }
+    }
+
+    public void refresh() {
+        pc.refresh();
     }
     
     private static final class PaletteActionsImpl extends PaletteActions {

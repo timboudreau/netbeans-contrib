@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.netbeans.modules.latex.model.IconsStorage;
+import org.netbeans.modules.latex.ui.TexCloneableEditor;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -28,11 +29,17 @@ import org.openide.nodes.Node;
 public class RootNode extends AbstractNode {
     
     /** Creates a new instance of RootNode */
-    public RootNode() {
-        super(new RootChildren());
+    public RootNode(TexCloneableEditor editor) {
+        super(new RootChildren(editor));
     }
     
     private static final class RootChildren extends Children.Keys {
+        
+        private TexCloneableEditor editor;
+        
+        public RootChildren(TexCloneableEditor editor) {
+            this.editor = editor;
+        }
         
         protected void addNotify() {
             List cath = new ArrayList(IconsStorage.getDefault().getCathegories());
@@ -48,7 +55,7 @@ public class RootNode extends AbstractNode {
         }
         
         protected Node[] createNodes(Object key) {
-            return new Node[] {new CategoryNode((String) key)};
+            return new Node[] {new CategoryNode(editor, (String) key)};
         }
         
     }

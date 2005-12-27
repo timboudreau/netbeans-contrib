@@ -320,4 +320,7 @@ Contributor(s): Jan Lahoda
         </folder>
     </folder>
     
+    <folder name="OptionsDialog">
+        <file name="org-netbeans-modules-latex-ui-options-LaTeXOption.instance" />
+    </folder>
 </filesystem>

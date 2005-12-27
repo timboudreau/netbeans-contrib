@@ -17,11 +17,11 @@ package org.netbeans.modules.latex.ui.palette;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.latex.model.IconsStorage;
 import org.netbeans.modules.latex.model.IconsStorage.ChangeableIcon;
+import org.netbeans.modules.latex.ui.TexCloneableEditor;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 
@@ -33,12 +33,14 @@ public class IconNode extends AbstractNode implements ChangeListener {
     
     private String command;
     private ChangeableIcon icon;
+    private TexCloneableEditor editor;
     
     /** Creates a new instance of IconNode */
-    public IconNode(String command) {
+    public IconNode(TexCloneableEditor editor, String command) {
         super(Children.LEAF);
         this.command = command;
         this.icon = IconsStorage.getDefault().getIcon(command);
+        this.editor = editor;
         
         this.icon.addChangeListener(this);
     }
@@ -63,6 +65,8 @@ public class IconNode extends AbstractNode implements ChangeListener {
     public void stateChanged(ChangeEvent e) {
         fireIconChange();
         fireOpenedIconChange();
+        //the palette does not listen on these changes, force redraw:
+        editor.refresh();
     }
 
     public String getCommand() {

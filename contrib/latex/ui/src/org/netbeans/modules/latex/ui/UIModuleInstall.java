@@ -14,6 +14,7 @@
  */
 package org.netbeans.modules.latex.ui;
 
+import org.netbeans.modules.latex.model.command.DebuggingSupport;
 import org.netbeans.modules.latex.ui.wizards.install.PostInstallWizard;
 import org.openide.modules.ModuleInstall;
 
@@ -29,6 +30,8 @@ public class UIModuleInstall extends ModuleInstall {
 
     public void restored() {
         PostInstallWizard.getDefault().showWizard(false);
+        DebuggingSupport.getDefault().addPropertyChangeListener(new DebugImpl());
+        Autodetector.registerAutodetection();
         
         super.restored();
     }

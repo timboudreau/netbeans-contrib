@@ -64,6 +64,7 @@ import org.openide.ErrorManager;
         
         if (settings == null) {
             configurationUsable = false;
+            ((IconsStorageImpl) IconsStorageImpl.getDefault()).configurationChanged();
             return ;
         }
         
@@ -78,6 +79,8 @@ import org.openide.ErrorManager;
         configurationUsable = !(    latex == null || latex_quality == null || !latex_quality.booleanValue()
                                  || dvips == null || dvips_quality == null || !dvips_quality.booleanValue()
                                  || gs    == null || gs_quality    == null || !gs_quality.booleanValue());
+        
+        ((IconsStorageImpl) IconsStorageImpl.getDefault()).configurationChanged();
     }
     
     public boolean isConfigurationUsable() {

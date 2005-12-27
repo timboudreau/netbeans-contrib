@@ -15,6 +15,7 @@ package org.netbeans.modules.latex.ui.palette;
 
 import java.util.Collections;
 import org.netbeans.modules.latex.model.IconsStorage;
+import org.netbeans.modules.latex.ui.TexCloneableEditor;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -30,8 +31,8 @@ public class CategoryNode extends AbstractNode {
     /**
      * Creates a new instance of CategoryNode
      */
-    public CategoryNode(String cathegory) {
-        super(new CathegoryChildren(cathegory));
+    public CategoryNode(TexCloneableEditor editor, String cathegory) {
+        super(new CathegoryChildren(editor, cathegory));
         this.cathegory = cathegory;
     }
     
@@ -42,10 +43,13 @@ public class CategoryNode extends AbstractNode {
     private static final class CathegoryChildren extends Children.Keys {
 
         private String cathegory;
+        private TexCloneableEditor editor;
         
-        public CathegoryChildren(String cathegory) {
+        public CathegoryChildren(TexCloneableEditor editor, String cathegory) {
             this.cathegory = cathegory;
+            this.editor = editor;
         }
+        
         protected void addNotify() {
             setKeys(IconsStorage.getDefault().getIconNamesForCathegory(cathegory));
         }
@@ -55,7 +59,7 @@ public class CategoryNode extends AbstractNode {
         }
         
         protected Node[] createNodes(Object key) {
-            return new Node[] {new IconNode((String) key)};
+            return new Node[] {new IconNode(editor, (String) key)};
         }
         
     }
