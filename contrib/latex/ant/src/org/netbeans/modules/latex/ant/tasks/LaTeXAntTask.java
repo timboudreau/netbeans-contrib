@@ -143,7 +143,7 @@ public class LaTeXAntTask extends Task implements TaskContainer {
                 
                 File baseDir = absoluteMainFile.getParentFile();
                 
-                Execute exec = new Execute(new org.netbeans.modules.latex.ant.tasks.LaTeXPumpStreamHandler(baseDir));
+                Execute exec = new Execute(new org.netbeans.modules.latex.ant.tasks.LaTeXPumpStreamHandler(getProject(), baseDir));
                 
                 exec.setCommandline(cmdLine.getCommandline());
                 exec.setWorkingDirectory(baseDir);

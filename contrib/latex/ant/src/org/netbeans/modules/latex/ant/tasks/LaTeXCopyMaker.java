@@ -22,10 +22,10 @@ import java.io.OutputStreamWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.tools.ant.Project;
 
 /** This class may not use System.err! (it is redirected by the ant!)
  *
@@ -42,9 +42,11 @@ import java.util.regex.Pattern;
     private boolean done = false;
     private Stack currentFile;
     
+    private Project project;
     private File baseDir;
     
-    LaTeXCopyMaker(File baseDir, InputStream is, OutputStream os) {
+    LaTeXCopyMaker(Project project, File baseDir, InputStream is, OutputStream os) {
+        this.project = project;
         this.baseDir = baseDir;
         this.os = new PrintWriter(new OutputStreamWriter(os));
         this.is = new BufferedReader(new InputStreamReader(is));
@@ -62,8 +64,10 @@ import java.util.regex.Pattern;
         
         public boolean process(String line) throws IOException {
             Matcher m = pattern.matcher(line);
-            
+
             if (m.find() && !currentFile.isEmpty()) {
+                project.log("Pattern: \"" + pattern.pattern() + "\" found on line \"" + line + "\"", Project.MSG_DEBUG);
+                
                 String lineNum = m.group(1);
                 try {
                     int lineNumber = Integer.parseInt(lineNum);
@@ -80,13 +84,15 @@ import java.util.regex.Pattern;
                     
                     return true;
                 } catch (NumberFormatException e) {
-                    //ignored...
+                    project.log("NumberFormatException: " + e.getMessage(), Project.MSG_VERBOSE);
                 }
             }
             
             return false;
         }
     }
+    
+    private static Pattern pageDef = Pattern.compile("^\\[[0-9]+\\]", Pattern.MULTILINE);
     
     private class OverfullErrorPattern extends ErrorPattern {
         public OverfullErrorPattern(Pattern pattern) {
@@ -107,7 +113,7 @@ import java.util.regex.Pattern;
                     os.println(line);
                     if (autoflush) os.flush();
                     
-                    while (!"".equals(line = is.readLine()) && !(line.charAt(0) != '[') && (line != null)) { //??sufficient
+                    while (!"".equals(line = is.readLine()) && line != null && !pageDef.matcher(line).find()) { //??sufficient
                         os.println(line);
                         
                         if (autoflush) os.flush();
@@ -149,12 +155,15 @@ import java.util.regex.Pattern;
                     switch (line.charAt(cntr)) {
                         case '(':
                             String file = readFileName(line, cntr + 1);
-                            //                                System.err.println("adding file: " + file);
+                            
+                            project.log("adding file: " + file, Project.MSG_DEBUG);
+                            
                             currentFile.push(file);
                             break;
                         case ')':
                             if (!currentFile.isEmpty())
-                            /*System.err.println(*/currentFile.pop()/*.toString())*/;
+                                project.log("removing file: " + currentFile.pop().toString(), Project.MSG_DEBUG);
+                            
                             break;
                     }
                 }

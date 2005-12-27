@@ -20,6 +20,7 @@ import java.io.PipedOutputStream;
 import java.io.PipedInputStream;
 import java.io.OutputStream;
 import java.io.File;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.ExecuteStreamHandler;
 import org.apache.tools.ant.taskdefs.PumpStreamHandler;
 
@@ -31,8 +32,11 @@ import org.apache.tools.ant.taskdefs.PumpStreamHandler;
 
     private LaTeXCopyMaker output;
     private File baseDir;
+    private Project project;
+    
     /** Creates a new instance of LaTeXPumpStream */
-    public LaTeXPumpStreamHandler(File baseDir) {
+    public LaTeXPumpStreamHandler(Project project, File baseDir) {
+        this.project = project;
         this.baseDir = baseDir;
     }
     
@@ -46,7 +50,7 @@ import org.apache.tools.ant.taskdefs.PumpStreamHandler;
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in = new PipedInputStream(out);
         
-        output = new LaTeXCopyMaker(baseDir, is, out);
+        output = new LaTeXCopyMaker(project, baseDir, is, out);
         
         super.setProcessOutputStream(in);
         } catch (IOException e) {
