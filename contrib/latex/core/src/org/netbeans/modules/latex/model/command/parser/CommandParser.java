@@ -667,10 +667,10 @@ public final class CommandParser {
                 ParserUtilities.updateBracketStack(bracketStack, read);
         }
         
-        node.setEndingPosition(input.getPosition());
-        
         if (input.hasNext())
             input.next();
+        
+        node.setEndingPosition(input.getPosition());
         
         currentCommandDefiningNode = lastCommandDefiningNode;
         
