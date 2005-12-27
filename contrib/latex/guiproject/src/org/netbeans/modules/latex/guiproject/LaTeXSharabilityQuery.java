@@ -59,6 +59,10 @@ public class LaTeXSharabilityQuery implements SharabilityQueryImplementation {
             return SharabilityQuery.NOT_SHARABLE;
         }
         
+        //private.xml should not be sharable:
+        if (FileUtil.toFileObject(file) == p.getProjectDirectory().getFileObject("private.xml"))
+            return SharabilityQuery.NOT_SHARABLE;
+        
         return SharabilityQuery.SHARABLE;
     }
     
