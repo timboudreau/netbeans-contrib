@@ -51,20 +51,22 @@ public class AnalyseBib {
     }
     
     public static final class BibRecord  {
-        private String ref;
-        private String title;
+        private PublicationEntry entry;
         
-        public BibRecord(String ref, String title) {
-            this.ref = ref;
-            this.title = title;
+        public BibRecord(PublicationEntry entry) {
+            this.entry = entry;
         }
         
         public String getRef() {
-            return ref;
+            return entry.getTag();
         }
         
         public String getTitle() {
-            return title;
+            return entry.getTitle();
+        }
+        
+        public PublicationEntry getEntry() {
+            return entry;
         }
     }
     
@@ -87,7 +89,7 @@ public class AnalyseBib {
             if (e instanceof PublicationEntry) {
                 PublicationEntry pEntry = (PublicationEntry) e;
                 
-                result.add(new BibRecord(pEntry.getTag(), pEntry.getTitle()));
+                result.add(new BibRecord(pEntry));
             }
         }
         

@@ -42,6 +42,8 @@ public class TexColoringNames {
 
     public static final String ENUM_ARG_INCORRECT = "mod-enum-arg-incorrect";
     public static final String ENUM_ARG_CORRECT   = "mod-enum-arg-correct";
+    
+    public static final String ARG_INCORRECT      = "mod-arg-incorrect";
 
     public static final String WORD_BAD           = "mod-word-bad";
     public static final String WORD_INCORRECT     = "mod-word-incorrect";

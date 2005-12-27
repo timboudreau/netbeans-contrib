@@ -18,14 +18,19 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.text.Document;
+import org.netbeans.modules.latex.editor.AnalyseBib.BibRecord;
 import org.netbeans.modules.latex.model.LabelInfo;
 import org.netbeans.modules.latex.model.Utilities;
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
+import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.InputNode;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
+import org.openide.awt.StatusDisplayer;
 
 /**
  *
@@ -46,7 +51,7 @@ public final class LaTeXGoToImpl {
         return instance;
     }
     
-    public Node getGoToNode(Document doc, int offset, boolean  doOpen) {
+    public int[] getGoToNode(Document doc, int offset, boolean  doOpen) {
         LaTeXSource source   = Utilities.getDefault().getSource(doc);
         
         if (source == null)
@@ -69,17 +74,21 @@ public final class LaTeXGoToImpl {
                 ArgumentNode anode = (ArgumentNode) node;
                 CommandNode  cnode = anode.getCommand();
                 
-                if ("\\ref".equals(cnode.getCommand().getCommand())) {
+                if (anode.hasAttribute("#ref")) {
                     if (doOpen)
                         openRef(source, anode);
                     
-                    return anode;
+                    return getSpanForNode(anode);
                 } else {
                     if (cnode.getCommand().isInputLike()) {
                         if (doOpen)
                             openInput(source, cnode);
                         
-                        return anode;
+                        return getSpanForNode(anode);
+                    } else {
+                        if (anode.hasAttribute("#cite")) {
+                            return handleCite(anode, offset, doOpen);
+                        }
                     }
                 }
                 
@@ -97,14 +106,14 @@ public final class LaTeXGoToImpl {
                         if (doOpen)
                             openAtCommand(source, bnode.getEndCommand());
                         
-                        return node;
+                        return getSpanForNode(node);
                     }
                     
                     if (bnode.getEndCommand() == node) {
                         if (doOpen)
                             openAtCommand(source, bnode.getBeginCommand());
                         
-                        return node;
+                        return getSpanForNode(node);
                     }
                 }
             }
@@ -144,5 +153,63 @@ public final class LaTeXGoToImpl {
         
         Utilities.getDefault().openPosition(cnode.getStartingPosition());
     }
+    
+    private int[] handleCite(ArgumentNode anode, int offset, boolean  doOpen) {
+        int start = anode.getStartingPosition().getOffsetValue();
+        int end   = anode.getEndingPosition().getOffsetValue();
+//                            int[] fullArgSpan = getSpanForNode(anode);
+        String content = anode.getFullText().toString();
+        
+        if (anode.getArgument().getType() != Command.Param.FREE) {
+            start++;
+            end--;
+            content = content.substring(1, content.length() - 1);
+        }
+        
+        String[] parts = content.split(",");
+        int currentStart = start;
+        
+        for (int cntr = 0; cntr < parts.length; cntr++) {
+            if (currentStart <= offset && offset <= currentStart + parts[cntr].length()) {
+                if (doOpen) {
+                    List references = org.netbeans.modules.latex.editor.Utilities.getAllBibReferences(anode.getDocumentNode().getSource());
+                    boolean     found = false;
+                    
+                    for (Iterator i = references.iterator(); i.hasNext(); ) {
+                        BibRecord record = (BibRecord) i.next();
+                        PublicationEntry entry = record.getEntry();
+                        
+                        if (parts[cntr].equals(entry.getTag())) {
+                            Utilities.getDefault().openPosition(entry.getStartPosition());
+                            found = true;
+                            
+                            break;
+                        }
+                        
+                    }
+                    
+                    if (!found) {
+                        StatusDisplayer.getDefault().setStatusText("Cannot open BiBTeX entry: " + parts[cntr]);
+                    }
+                }
+                
+                return new int[] {currentStart, currentStart + parts[cntr].length()};
+            }
+            
+            currentStart += parts[cntr].length() + 1;
+        }
+        
+        return null;
+    }
 
+    private int[] getSpanForNode(Node node) {
+        int[] result = new int[] {node.getStartingPosition().getOffsetValue(), node.getEndingPosition().getOffsetValue()};
+        
+        if (node instanceof ArgumentNode && ((ArgumentNode) node).getArgument().getType() != Command.Param.FREE) {
+            result[0]++;
+            result[1]--;
+        }
+        
+        return result;
+    }
 }

@@ -35,7 +35,7 @@ Contributor(s): Jan Lahoda
                     <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                 </file>
                 
-                <attr name="Separatorb-tc.instance/org-openide-windows-TopComponent" boolvalue="true"/>
+                <attr name="Separatorb-tc.instance/org-netbeans-modules-editor-NbSelectInPopupAction.instance" boolvalue="true"/>
 <!--                <file name="Separator1a.instance">
                     <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                 </file>

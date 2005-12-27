@@ -73,6 +73,7 @@ public class TexSettingsInitializer extends Settings.AbstractInitializer {
             settingsMap.put(TexColoringNames.DEFINITION        + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(PLAIN, Coloring.FONT_MODE_APPLY_STYLE, new Color(128, 128, 0), null));
             settingsMap.put(TexColoringNames.ENUM_ARG_INCORRECT + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, new Color(0, 0, 245), null, null, null, Color.RED));
             settingsMap.put(TexColoringNames.ENUM_ARG_CORRECT   + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, new Color(0, 0, 245), null));
+            settingsMap.put(TexColoringNames.ARG_INCORRECT      + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, null, null, null, null, Color.RED));
             settingsMap.put(TexColoringNames.WORD_BAD           + SettingsNames.COLORING_NAME_SUFFIX, new Coloring());
             settingsMap.put(TexColoringNames.WORD_INCORRECT     + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, null, null, null, null, Color.RED));
             settingsMap.put(TexColoringNames.WORD_INCOMPLETE    + SettingsNames.COLORING_NAME_SUFFIX, new Coloring(null, Coloring.FONT_MODE_DEFAULT, null, null, null, null, Color.GRAY));

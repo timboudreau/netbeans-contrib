@@ -34,9 +34,9 @@ public class LaTeXHyperlinkProvider implements HyperlinkProvider {
     }
     
     public void performClickAction(Document doc, int offset) {
-        Node found = LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, true);
+        int[] span = LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, true);
         
-        if (found == null) {
+        if (span == null) {
             Toolkit.getDefaultToolkit().beep();
         }
     }
@@ -46,18 +46,7 @@ public class LaTeXHyperlinkProvider implements HyperlinkProvider {
     }
     
     public int[] getHyperlinkSpan(Document doc, int offset) {
-        Node node = LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, false);
-        
-        if (node == null)
-            return null;
-        
-        int[] result = new int[] {node.getStartingPosition().getOffsetValue(), node.getEndingPosition().getOffsetValue()};
-        
-        if (node instanceof ArgumentNode && ((ArgumentNode) node).getArgument().getType() != Command.Param.FREE) {
-            result[0]++;
-        }
-        
-        return result;
+        return LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, false);
     }
 
 }

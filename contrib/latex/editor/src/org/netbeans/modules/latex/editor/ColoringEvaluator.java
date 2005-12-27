@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -18,10 +18,7 @@ package org.netbeans.modules.latex.editor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.AbstractSet;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -37,11 +34,11 @@ import org.netbeans.api.lexer.TokenId;
 import org.netbeans.editor.Coloring;
 import org.netbeans.editor.Settings;
 import org.netbeans.editor.SettingsNames;
+import org.netbeans.modules.latex.model.LabelInfo;
 import org.netbeans.modules.latex.model.Queue;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.Command;
-import org.netbeans.modules.latex.model.command.CommandCollection;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
@@ -228,10 +225,12 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
             case TexLanguage.COMMAND_INT:
             case TexLanguage.WORD_INT:
                 return true;
-                
             default:
                 return false;
         }
+//        //XXX: this causes that the coloring is quite slow, but without this the #ref arguments will not be colored
+//        //properly...
+//        return true;
     }
     
     public synchronized Coloring getColoring(Token token) {
@@ -341,6 +340,8 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         if (org.netbeans.modules.latex.editor.Utilities.isTextWord(token)) {
             proposed = findWordColoring(token, proposed);
         }
+        
+        proposed = checkRefArgument(token, proposed);
         
         return proposed;
     }
@@ -495,6 +496,45 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
             } catch (IOException e) {
                 ErrorManager.getDefault().notify(e);
             }
+        }
+        
+        return proposed;
+    }
+    
+    private Coloring checkRefArgument(Token token, Coloring proposed) {
+        LaTeXSource source = LaTeXSource.get(org.netbeans.modules.latex.model.Utilities.getDefault().getFile(document));
+        int  offset = org.netbeans.modules.latex.editor.Utilities.getTokenOffset(document, token);
+        
+        try {
+            Node n = source.findNode(document, offset);
+            
+            if (n instanceof ArgumentNode) {
+                ArgumentNode anode = (ArgumentNode) n;
+                
+                if (anode.hasAttribute("#ref")) {
+                    //check validity of the ref:
+                    String proposedLabel = anode.getText().toString();
+                    boolean found = false;
+                    
+                    for (Iterator i = org.netbeans.modules.latex.model.Utilities.getDefault().getLabels(source).iterator(); i.hasNext(); ) {
+                        LabelInfo info = (LabelInfo) i.next();
+                        
+                        if (proposedLabel.equals(info.getLabel())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!found) {
+                        //do not color the surrounding brackets:
+                        if (anode.getStartingPosition().getOffsetValue() < offset && offset < anode.getEndingPosition().getOffsetValue() - 1) {
+                            proposed = getColoringForName(TexColoringNames.ARG_INCORRECT).apply(proposed);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
         }
         
         return proposed;
