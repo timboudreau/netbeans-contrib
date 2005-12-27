@@ -159,7 +159,7 @@ public class UnitUtilities extends ProxyLookup {
                     doc = new DefaultStyledDocument();//new PlainDocument();
                     
                     doc.insertString(0, test.toString(), null);
-                    doc.putProperty(Document.StreamDescriptionProperty,  obj);
+                    doc.putProperty(Document.StreamDescriptionProperty,  DataObject.find((FileObject) obj));
                     
                     if ("tex".equals(file.getExt())) {
                         doc.putProperty("mime-type", "text/x-tex");
