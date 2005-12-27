@@ -58,7 +58,7 @@ public class MyDataLoader extends UniFileLoader {
         super.initialize();
         
         ExtensionList extensions = new ExtensionList();
-        extensions.addExtension("bib");
+        extensions.addMimeType("text/x-bibtex");
         setExtensions(extensions);
     }
     

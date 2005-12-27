@@ -22,5 +22,22 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
     
+    <folder name="Navigator">
+        <folder name="Panels">
+            <folder name="text">
+                <folder name="x-bibtex">
+                    <file name="org-netbeans-modules-latex-bibtex-navigator-BiBTeXNavigatorPanel.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
+    <folder name="Services">
+        <folder name="MIMEResolver">
+          <file name="org-netbeans-module-latex-bibtex-mime-resolver.xml" url="mime-resolver.xml">
+          </file>
+        </folder>
+    </folder>
+    
 </filesystem>
 

@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -16,39 +16,26 @@ package org.netbeans.modules.latex.bibtex;
 
 import java.awt.Dialog;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import javax.swing.AbstractAction;
 import org.netbeans.modules.latex.model.bibtex.Entry;
 import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
-
-
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.nodes.BeanNode;
 import org.openide.nodes.Node;
-import org.openide.windows.TopComponent;
+import org.openide.util.HelpCtx;
+import org.openide.util.actions.NodeAction;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class EditEntryAction extends AbstractAction implements PropertyChangeListener {
+public class EditEntryAction extends NodeAction {
     
     /** Creates a new instance of EditEntryAction */
     public EditEntryAction() {
-        putValue(NAME, "Edit Entry");
-        
-        //Temporary hack. (leaks etc...)
-        TopComponent.getRegistry().addPropertyChangeListener(this);
-        
-        updateEnabledState();
     }
     
-    public void actionPerformed(ActionEvent e) {
-        Node node = TopComponent.getRegistry().getActivatedNodes()[0];
-        Entry entry = (Entry) node.getLookup().lookup(Entry.class); //see propertyChange
+    protected void performAction(Node[] activatedNodes) {
+        Entry entry = (Entry) activatedNodes[0].getLookup().lookup(Entry.class); //see propertyChange
         
         if (entry instanceof PublicationEntry) {
             PublicationEntry pEntry = (PublicationEntry) entry;
@@ -68,22 +55,22 @@ public class EditEntryAction extends AbstractAction implements PropertyChangeLis
             Toolkit.getDefaultToolkit().beep();
         }
     }
-    
-    public void propertyChange(PropertyChangeEvent evt) {
-        updateEnabledState();
-    }
-    
-    private void updateEnabledState() {
-        Node[] activatedNodes = TopComponent.getRegistry().getActivatedNodes();
-        
-        if (activatedNodes.length != 1) {
-            setEnabled(false);
-            return ;
-        }
+
+    protected boolean enable(Node[] activatedNodes) {
+        if (activatedNodes.length != 1)
+            return false;
         
         Node active = activatedNodes[0];
         
-        setEnabled(active.getLookup().lookup(Entry.class) != null);
+        return active.getLookup().lookup(Entry.class) != null;
+    }
+
+    public String getName() {
+        return "Edit Entry";
+    }
+
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
     }
     
 }

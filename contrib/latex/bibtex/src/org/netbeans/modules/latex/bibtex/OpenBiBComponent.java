@@ -41,7 +41,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.DefaultEditorKit;
 import org.netbeans.modules.latex.bibtex.loaders.BiBTexDataObject;
-import org.netbeans.modules.latex.bibtex.loaders.MyDataNode.PublicationEntryNode;
+import org.netbeans.modules.latex.bibtex.nodes.PublicationEntryNode;
 import org.netbeans.modules.latex.bibtex.table.SortingTable;
 import org.openide.ErrorManager;
 import org.openide.explorer.ExplorerManager;
