@@ -17,4 +17,8 @@
 <project name="org.netbeans.modules.latex.guiproject" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.latex.guiproject.</description>
     <import file="nbproject/build-impl.xml"/>
+    <target name="test-build" depends="-build-latex-core-tests,projectized-common.test-build" />
+    <target name="-build-latex-core-tests">
+       <ant dir="../core" target="test-build" inheritAll="false" />
+    </target>
 </project>

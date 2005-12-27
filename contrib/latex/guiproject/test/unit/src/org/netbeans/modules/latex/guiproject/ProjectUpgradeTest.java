@@ -34,6 +34,7 @@ import org.netbeans.modules.latex.UnitUtilities;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataLoaderPool;
 import org.openide.util.SharedClassObject;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
@@ -101,6 +102,12 @@ public class ProjectUpgradeTest extends NbTestCase {
         FileObject project = FileUtil.toFileObject(projectFile);
         
         assertNotNull(project);
+        
+        FileObject       buildScriptFile = project.getFileObject("build", "xml");//NOI18N
+
+        assertNotNull(buildScriptFile);
+        
+        DataLoaderPool.setPreferredLoader(buildScriptFile, AntProjectDataLoader.getLoader(AntProjectDataLoader.class));
         
         Project p = ProjectManager.getDefault().findProject(project);
         

@@ -15,29 +15,23 @@ package org.netbeans.modules.latex.editor.completion.latex;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JEditorPane;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.editor.completion.CompletionImpl;
 import org.netbeans.modules.editor.completion.CompletionItemComparator;
 import org.netbeans.modules.editor.completion.CompletionResultSetImpl;
-import org.netbeans.modules.latex.model.ParseError;
+import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionTask;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
 import org.openide.text.NbDocument;
 
 
@@ -103,7 +97,7 @@ public class TexCompletionTest extends NbTestCase {
 
     protected void setUp() throws Exception {
         UnitUtilities.initLookup();
-        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[] {new TestUtilities()});
+        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[0]);
     }
     
     public void testrefargsorted() throws Exception {
