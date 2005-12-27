@@ -1,0 +1,15 @@
+\documentclass{article}
+
+\newcommand{\AA}{}
+
+\begin{document}
+
+\begin{itemize}
+\item{\AA}
+\end{itemize}
+
+\AA
+
+\include{testRenameCommandMF2}
+
+\end{document}

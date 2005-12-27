@@ -1,0 +1,5 @@
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesLabelMF1.tex, line=4, column=6, offset=49]-Position:[file=testFindUsagesLabelMF1.tex, line=4, column=10, offset=53]
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesLabelMF1.tex, line=7, column=10, offset=81]-Position:[file=testFindUsagesLabelMF1.tex, line=7, column=14, offset=85]
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesLabelMF1.tex, line=13, column=4, offset=132]-Position:[file=testFindUsagesLabelMF1.tex, line=13, column=8, offset=136]
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesLabelMF2.tex, line=1, column=10, offset=26]-Position:[file=testFindUsagesLabelMF2.tex, line=1, column=14, offset=30]
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesLabelMF2.tex, line=7, column=4, offset=77]-Position:[file=testFindUsagesLabelMF2.tex, line=7, column=8, offset=81]

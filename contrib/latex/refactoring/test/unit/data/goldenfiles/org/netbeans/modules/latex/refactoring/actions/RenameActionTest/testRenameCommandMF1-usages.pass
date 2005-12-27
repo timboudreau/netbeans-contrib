@@ -1,0 +1,5 @@
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testRenameCommandMF1.tex, line=2, column=11, offset=36]-Position:[file=testRenameCommandMF1.tex, line=2, column=18, offset=43]
+class org.netbeans.modules.latex.model.command.impl.CommandNodeImpl:Position:[file=testRenameCommandMF1.tex, line=7, column=6, offset=87]-Position:[file=testRenameCommandMF1.tex, line=7, column=11, offset=92]
+class org.netbeans.modules.latex.model.command.impl.CommandNodeImpl:Position:[file=testRenameCommandMF1.tex, line=10, column=0, offset=109]-Position:[file=testRenameCommandMF1.tex, line=10, column=5, offset=114]
+class org.netbeans.modules.latex.model.command.impl.CommandNodeImpl:Position:[file=testRenameCommandMF2.tex, line=1, column=6, offset=22]-Position:[file=testRenameCommandMF2.tex, line=1, column=11, offset=27]
+class org.netbeans.modules.latex.model.command.impl.CommandNodeImpl:Position:[file=testRenameCommandMF2.tex, line=4, column=0, offset=44]-Position:[file=testRenameCommandMF2.tex, line=4, column=5, offset=49]

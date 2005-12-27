@@ -1,0 +1,16 @@
+\documentclass{article}
+
+\begin{document}
+
+\label{AA}
+
+\begin{itemize}
+\item{\ref{AA}}
+\item{\ref{YY}}
+\end{itemize}
+
+\ref{YY}
+
+\ref{AA}
+
+\end{document}
