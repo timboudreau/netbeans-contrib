@@ -13,11 +13,15 @@
 
 package org.netbeans.modules.codetemplatetools.actions;
 
+import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import org.netbeans.modules.editor.options.BaseOptions;
 import org.openide.windows.WindowManager;
 
@@ -70,19 +74,21 @@ public class RegisterManager {
     private static String lastUsedRegister = "0";
     
     public static String promptRegister(String prompt) {
-        String register = (String) JOptionPane.showInputDialog(
-            WindowManager.getDefault().getMainWindow(),
-            prompt,
-            "Select Register",
-            JOptionPane.PLAIN_MESSAGE,
-            null,
-            REGISTERS,
-            lastUsedRegister
-        );
-        if (register != null) {
-            lastUsedRegister = register;
+        JPanel panel = new JPanel(new BorderLayout(5,5));
+        panel.add(new JLabel(prompt), BorderLayout.NORTH);
+        JComboBox registersList = new JComboBox(REGISTERS);
+        panel.add(registersList, BorderLayout.SOUTH);
+        registersList.setSelectedItem(lastUsedRegister);        
+        if (JOptionPane.showConfirmDialog(
+                WindowManager.getDefault().getMainWindow(),
+                panel,
+                "Select Register",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {       
+            lastUsedRegister = (String) registersList.getSelectedItem();
+            return lastUsedRegister;
         }
-        return register;
+        return null;
     }
     
     public static void cutToRegister(JEditorPane editorPane) {
@@ -99,7 +105,7 @@ public class RegisterManager {
             return;
         }
         
-        String register = promptRegister("Select the Register to Cut to:");
+        String register = promptRegister("Cut to Register:");
         if (register == null) {
             return;
         }
@@ -134,7 +140,7 @@ public class RegisterManager {
             return;
         }
         
-        String register = promptRegister("Select the Register to Copy to:");
+        String register = promptRegister("Copy to Register:");
         if (register == null) {
             return;
         }
@@ -158,7 +164,7 @@ public class RegisterManager {
             return;
         }
         
-        String register = promptRegister("Select the Register to Paste from:");
+        String register = promptRegister("Paste from Register:");
         if (register == null) {
             return;
         }
