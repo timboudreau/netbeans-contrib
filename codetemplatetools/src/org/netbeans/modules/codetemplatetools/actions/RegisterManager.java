@@ -22,6 +22,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import org.netbeans.modules.editor.options.BaseOptions;
 import org.openide.windows.WindowManager;
 
@@ -69,20 +70,26 @@ public class RegisterManager {
         "Z",
     };
     
-    public static final String REGISTER_PREFIX = "REG_";
+    // Let a system property org.netbeans.modules.codetemplatetools.REGISTER_PREFIX override the prefix for register names
+    public static final String REGISTER_PREFIX = System.getProperties().getProperty("org.netbeans.modules.codetemplatetools.REGISTER_PREFIX", "_REG_");
     
     private static String lastUsedRegister = "0";
     
     public static String promptRegister(String prompt) {
         JPanel panel = new JPanel(new BorderLayout(5,5));
         panel.add(new JLabel(prompt), BorderLayout.NORTH);
-        JComboBox registersList = new JComboBox(REGISTERS);
+        JComboBox registersList = new JComboBox(REGISTERS) {
+            public void addNotify() {
+                super.addNotify();
+                SwingUtilities.invokeLater(new Runnable() { public void run() {requestFocus(); }});
+            }
+        };
+        registersList.setSelectedItem(lastUsedRegister);
         panel.add(registersList, BorderLayout.SOUTH);
-        registersList.setSelectedItem(lastUsedRegister);        
         if (JOptionPane.showConfirmDialog(
                 WindowManager.getDefault().getMainWindow(),
                 panel,
-                "Select Register",
+                "Select a Register",
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {       
             lastUsedRegister = (String) registersList.getSelectedItem();
