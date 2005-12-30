@@ -16,7 +16,6 @@ package org.netbeans.modules.j2ee.ejbfreeform;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.netbeans.modules.ant.freeform.FreeformProjectType;
 import org.netbeans.modules.ant.freeform.spi.support.Util;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
@@ -129,12 +128,12 @@ public class EJBProjectGenerator {
         Element props = Util.findElement(parent, "properties", EJBProjectGenerator.NS_GENERAL); // NOI18N
         if (props == null) {
             // create the <properties> element if it doesn't exist, which it should (#56344)
-            props = doc.createElementNS(FreeformProjectType.NS_GENERAL, "properties");
+            props = doc.createElementNS(NS_GENERAL, "properties");
             Util.appendChildElement(parent, props, rootElementsOrder);
         }
         Element property = findPropertyElement(props, key);
         if (property == null) {
-            property = doc.createElementNS(FreeformProjectType.NS_GENERAL, "property"); // NOI18N
+            property = doc.createElementNS(NS_GENERAL, "property"); // NOI18N
             property.setAttribute("name", key); // NOI18N
             props.appendChild(property);
         } else {
@@ -147,7 +146,7 @@ public class EJBProjectGenerator {
     private static Element findPropertyElement(Element parent, String key) {
         for (Iterator i = Util.findSubElements(parent).iterator(); i.hasNext();) {
             Element element = (Element)i.next();
-            if (element.getLocalName().equals("property") && element.getNamespaceURI().equals(FreeformProjectType.NS_GENERAL)) { // NOI18N
+            if (element.getLocalName().equals("property") && element.getNamespaceURI().equals(NS_GENERAL)) { // NOI18N
                 if (element.getAttribute("name").equals(key)) // NOI18N
                     return element;
             }
