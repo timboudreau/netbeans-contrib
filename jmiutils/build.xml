@@ -30,4 +30,8 @@ Microsystems, Inc. All Rights Reserved.
     
     <target name="netbeans-extra" depends="release"/>
 
+    <target name="clean" depends="projectized-common.clean">
+        <ant dir="../jmiutils" target="clean" inheritall="false"/>
+    </target>
+
 </project>
