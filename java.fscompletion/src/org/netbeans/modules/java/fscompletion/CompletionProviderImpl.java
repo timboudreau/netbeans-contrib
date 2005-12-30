@@ -59,7 +59,7 @@ public class CompletionProviderImpl implements CompletionProvider {
                         
                         TokenItem item = nbJavaSup.getTokenChain(caretOffset, caretOffset);
                         
-                        if (item.getTokenID() == JavaTokenContext.STRING_LITERAL) {
+                        if (item != null && item.getTokenID() == JavaTokenContext.STRING_LITERAL) {
                             int start = item.getOffset() + 1;
                             
                             JavaModel.setClassPath(file);
