@@ -18,37 +18,25 @@ import java.awt.Dialog;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.editor.BaseAction;
 import org.netbeans.editor.DialogSupport;
-import org.netbeans.editor.ext.ExtKit;
+import org.netbeans.editor.ext.ExtKit.GotoDeclarationAction;
 import org.netbeans.modules.latex.model.LabelInfo;
-import org.netbeans.modules.latex.model.command.ArgumentNode;
-import org.netbeans.modules.latex.model.command.CommandNode;
-import org.netbeans.modules.latex.model.command.InputNode;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.Node;
-import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.openide.cookies.LineCookie;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
-import org.openide.text.Line;
 
 /**
  *
@@ -56,7 +44,6 @@ import org.openide.text.Line;
  */
 public final class ActionsFactory {
     
-    public static final String GO_TO_DECLARATION_ACTION = "go-to-declaration-action"; //NOI18N
     public static final String CITE_ACTION = "cite-action"; //NOI18N
     public static final String REF_ACTION = "ref-action"; //NOI18N
     public static final String WORD_COUNT_ACTION = "word-count-action"; //NOI18N
@@ -173,10 +160,9 @@ public final class ActionsFactory {
         
     }
 
-    public static class GoToDeclarationAction extends BaseAction {
+    public static class GoToDeclarationActionImpl extends GotoDeclarationAction {
         
-        public GoToDeclarationAction() {
-            super(GO_TO_DECLARATION_ACTION, SAVE_POSITION);
+        public GoToDeclarationActionImpl() {
         }
         
         public void actionPerformed(ActionEvent actionEvent, JTextComponent target) {

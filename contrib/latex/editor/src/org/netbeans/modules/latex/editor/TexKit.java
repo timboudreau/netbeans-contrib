@@ -93,7 +93,7 @@ public class TexKit extends NbEditorKit {
     
     protected Action[] createActions() {
         Action[] texActions = new Action[] {
-            new ActionsFactory.GoToDeclarationAction(),
+            new ActionsFactory.GoToDeclarationActionImpl(),
             new ActionsFactory.WordCountAction(),
             new ActionsFactory.CiteAction(ActionsFactory.CiteAction.CITE),
             new ActionsFactory.CiteAction(ActionsFactory.CiteAction.REF),

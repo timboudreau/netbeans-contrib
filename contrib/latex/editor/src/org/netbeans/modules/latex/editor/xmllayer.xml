@@ -66,7 +66,11 @@ Contributor(s): Jan Lahoda
                     <file name="coloring.xml" url="NetBeans-LaTeX-fontsColors.xml" />
                 </folder>
             </folder>
-          </folder>
+
+            <folder name="Defaults">
+                <file name="keybindings.xml" url="DefaultKeyBindings.xml" />
+            </folder>
+         </folder>
           
          <folder name="x-bibtex">
 <!--            <file name="Settings.settings" url="TexOptions.settings"/>-->

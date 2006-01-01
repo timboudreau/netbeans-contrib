@@ -95,12 +95,6 @@ public class TexSettingsInitializer extends Settings.AbstractInitializer {
                 TexColoringNames.WORD_INCORRECT     ,
                 TexColoringNames.WORD_INCOMPLETE    ,
             }));
-            SettingsUtil.updateListSetting(settingsMap, SettingsNames.KEY_BINDING_LIST, new MultiKeyBinding[] {
-                new MultiKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK), ActionsFactory.WORD_COUNT_ACTION),
-                new MultiKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.ALT_DOWN_MASK), ActionsFactory.GO_TO_DECLARATION_ACTION),
-                new MultiKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK), ExtKit.commentAction),
-                new MultiKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_D, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK), ExtKit.uncommentAction),
-            });
         }
 
     }
