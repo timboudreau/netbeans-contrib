@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-linetools-actions-MoveLineUp.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.MoveLineUp"/>
+            </file>
+            <file name="org-netbeans-modules-linetools-actions-MoveLineDown.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.MoveLineDown"/>
+            </file>
+            <file name="org-netbeans-modules-linetools-actions-CopyLineUp.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.CopyLineUp"/>
+            </file>
+            <file name="org-netbeans-modules-linetools-actions-CopyLineDown.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.CopyLineDown"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Edit">
+            <attr name="org-netbeans-modules-editor-MainMenuAction$StopMacroRecordingAction.instance/Line" boolvalue="true"/>
+            <folder name="Line">
+
+                <file name="org-netbeans-modules-linetools-actions-MoveLineUp.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineUp.instance"/>
+                </file>
+                <file name="org-netbeans-modules-linetools-actions-MoveLineDown.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineDown.instance"/>
+                </file>
+                <attr name="org-netbeans-modules-linetools-actions-MoveLineUp.shadow/org-netbeans-modules-linetools-actions-MoveLineDown.shadow" boolvalue="true"/>
+                <file name="org-netbeans-modules-linetools-actions-CopyLineUp.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineUp.instance"/>
+                </file>
+                <attr name="org-netbeans-modules-linetools-actions-MoveLineDown.shadow/org-netbeans-modules-linetools-actions-CopyLineUp.shadow" boolvalue="true"/>
+                <file name="org-netbeans-modules-linetools-actions-CopyLineDown.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineDown.instance"/>
+                </file>
+                <attr name="org-netbeans-modules-linetools-actions-CopyLineUp.shadow/org-netbeans-modules-linetools-actions-CopyLineDown.shadow" boolvalue="true"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Line">
+            <file name="org-netbeans-modules-linetools-actions-MoveLineUp.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineUp.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-linetools-actions-MoveLineUp.shadow/org-netbeans-modules-linetools-actions-MoveLineDown.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-linetools-actions-MoveLineDown.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineDown.instance"/>
+            </file>
+            <file name="org-netbeans-modules-linetools-actions-CopyLineUp.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineUp.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-linetools-actions-MoveLineDown.shadow/org-netbeans-modules-linetools-actions-CopyLineUp.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-linetools-actions-CopyLineDown.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineDown.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-linetools-actions-CopyLineUp.shadow/org-netbeans-modules-linetools-actions-CopyLineDown.shadow" boolvalue="true"/>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="O-S-UP.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineUp.instance"/>
+        </file>
+        <file name="O-S-DOWN.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineDown.instance"/>
+        </file>
+        <file name="D-S-UP.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineUp.instance"/>
+        </file>
+        <file name="D-S-DOWN.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineDown.instance"/>
+        </file>
+    </folder>
+</filesystem>
