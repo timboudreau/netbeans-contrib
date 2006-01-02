@@ -15,35 +15,30 @@ Microsystems, Inc. All Rights Reserved.
 <filesystem>
     <folder name="Actions">
         <folder name="Edit">
-            <file name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.CreateTemplateAction"/>
-            </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance/org-netbeans-modules-codetemplatetools-actions-CutToRegisterAction.instance" boolvalue="false"/>
             <file name="org-netbeans-modules-codetemplatetools-actions-CutToRegisterAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.CutToRegisterAction"/>
             </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-CutToRegisterAction.instance/org-netbeans-modules-codetemplatetools-actions-CopyToRegisterAction.instance" boolvalue="true"/>
             <file name="org-netbeans-modules-codetemplatetools-actions-CopyToRegisterAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.CopyToRegisterAction"/>
             </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-CopyToRegisterAction.instance/org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.instance" boolvalue="true"/>
             <file name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.PasteFromRegisterAction"/>
             </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.instance/org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.CreateTemplateAction"/>
+            </file>
             <file name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.ShowTemplatesAction"/>
             </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.instance/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance" boolvalue="true"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance/org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.instance" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="Menu">
         <folder name="Edit">
-            <attr name="Separator2.instance/org-netbeans-modules-codetemplatetools-actions-CopyToRegisterAction.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow" url="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction_1.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance"/>
+            <attr name="SeparatorAfterProjectsSearch.instance/org-netbeans-modules-codetemplatetools-separatorBefore.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-codetemplatetools-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
             </file>
+            <attr name="org-netbeans-modules-codetemplatetools-separatorBefore.instance/org-netbeans-modules-codetemplatetools-actions-CutToRegisterAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-codetemplatetools-actions-CutToRegisterAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-CutToRegisterAction.instance"/>
             </file>
@@ -51,42 +46,24 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-codetemplatetools-actions-CopyToRegisterAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-CopyToRegisterAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-CopyToRegisterAction.shadow/org-openide-actions-FindAction.instance" boolvalue="true"/>
             <attr name="org-netbeans-modules-codetemplatetools-actions-CopyToRegisterAction.shadow/org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.shadow/org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance" boolvalue="true"/>
-            <file name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow" url="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow">
+            <attr name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.shadow/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow/org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.instance"/>
             </file>
-            <file name="org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance">
+            <attr name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow/org-netbeans-modules-codetemplatetools-separatorAfter.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-codetemplatetools-separatorAfter.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
             </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance/org-netbeans-modules-codetemplatetools-actions-CutToRegisterAction.shadow" boolvalue="false"/>
-            <attr name="Separator2.instance/org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance" boolvalue="true"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.shadow/org-netbeans-modules-editor-MainMenuAction$FindSelectionAction.instance" boolvalue="true"/>
-            <attr name="Separator2.instance/org-netbeans-modules-codetemplatetools-actions-CutToRegisterAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance/org-netbeans-modules-editor-MainMenuAction$FindSelectionAction.instance" boolvalue="true"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.shadow/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow/org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow/org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance" boolvalue="false"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-codetemplatetools-actions-separatorAfter_1.instance" url="org-netbeans-modules-codetemplatetools-actions-separatorAfter_1.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-            </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance/org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow" boolvalue="false"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow/org-netbeans-modules-codetemplatetools-actions-separatorAfter_1.instance" boolvalue="true"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow/org-netbeans-modules-codetemplatetools-actions-separatorAfter_1.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-codetemplatetools-separatorAfter.instance/org-netbeans-modules-editor-MainMenuAction$StartMacroRecordingAction.instance" boolvalue="true"/>
         </folder>
-        <attr name="Edit/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow" boolvalue="true"/>
-        <attr name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow/Source" boolvalue="true"/>
-        <folder name="Source">
-            <attr name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow/org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow/org-netbeans-modules-editor-java-JavaFixAllImports$MainMenuWrapper.instance" boolvalue="true"/>
-        </folder>
-        <file name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow_hidden"/>
     </folder>
     <folder name="Toolbars">
         <folder name="Edit">
@@ -103,67 +80,67 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
     <folder name="Editors">
         <folder name="text">
-            <folder name="base">            
+            <folder name="base">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="css">            
+            <folder name="css">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="html">            
+            <folder name="html">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="plain">            
+            <folder name="plain">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="x-ant+xml">            
+            <folder name="x-ant+xml">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="x-java">            
+            <folder name="x-java">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="x-jsf+xml">            
+            <folder name="x-jsf+xml">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="x-jsp">            
+            <folder name="x-jsp">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="x-properties">            
+            <folder name="x-properties">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="x-sql">            
-                <folder name="CodeTemplateProcessorFactories">
-                    <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
-                </folder>
-            </folder>            
-            <folder name="x-struts+xml">            
+            <folder name="x-sql">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="x-tag">            
+            <folder name="x-struts+xml">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
-            <folder name="xml">            
+            <folder name="x-tag">
+                <folder name="CodeTemplateProcessorFactories">
+                    <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
+                </folder>
+            </folder>
+            <folder name="xml">
                 <folder name="CodeTemplateProcessorFactories">
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
