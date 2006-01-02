@@ -4,5 +4,7 @@
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="htmleditor" basedir=".">
     <description>Builds the module suite htmleditor.</description>
-    <import file="nbproject/build-impl.xml"/>
+    <mkdir dir="build/jnlp/netbeans/" />
+
+    <import file="nbproject/build-impl.xml"/>    
 </project>
