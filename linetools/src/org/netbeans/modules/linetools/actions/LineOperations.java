@@ -54,6 +54,8 @@ public class LineOperations {
                         int lineEndOffset = lineElement.getEndOffset();
                         String lineText = doc.getText(lineStartOffset, (lineEndOffset - lineStartOffset));
 
+                        int column = offset - lineStartOffset;
+
                         // remove the line
                         doc.remove(lineStartOffset, (Math.min(doc.getLength() - 1, lineEndOffset) - lineStartOffset));
 
@@ -63,7 +65,7 @@ public class LineOperations {
                         doc.insertString(previousLineStartOffset, lineText, null);
 
                         // set caret position
-                        textComponent.setCaretPosition(previousLineStartOffset);
+                        textComponent.setCaretPosition(previousLineStartOffset + column);
                     } catch (BadLocationException ex) {
                         ErrorManager.getDefault().notify(ex);
                     }
@@ -104,6 +106,8 @@ public class LineOperations {
                         int lineEndOffset = lineElement.getEndOffset();
                         String lineText = doc.getText(lineStartOffset, (lineEndOffset - lineStartOffset));
 
+                        int column = offset - lineStartOffset;
+
                         // insert it after next line
                         Element nextLineElement = rootElement.getElement(zeroBaseLineNumber + 1);
                         int nextLineStartOffset = nextLineElement.getStartOffset();
@@ -114,7 +118,7 @@ public class LineOperations {
                         doc.remove(lineStartOffset, (lineEndOffset - lineStartOffset));
 
                         // set caret position
-                        textComponent.setCaretPosition(Math.min(doc.getLength() - 1, nextLineEndOffset - (lineEndOffset - lineStartOffset)));
+                        textComponent.setCaretPosition(Math.min(doc.getLength() - 1, nextLineEndOffset + column - (lineEndOffset - lineStartOffset)));
                     } catch (BadLocationException ex) {
                         ErrorManager.getDefault().notify(ex);
                     }
@@ -152,11 +156,13 @@ public class LineOperations {
                         int lineEndOffset = lineElement.getEndOffset();
                         String lineText = doc.getText(lineStartOffset, (lineEndOffset - lineStartOffset));
 
+                        int column = offset - lineStartOffset;
+
                         // insert it
                         doc.insertString(lineStartOffset, lineText, null);
 
                         // set caret position
-                        textComponent.setCaretPosition(Math.min(doc.getLength() - 1, lineStartOffset));
+                        textComponent.setCaretPosition(Math.min(doc.getLength() - 1, lineStartOffset + column));
                     } catch (BadLocationException ex) {
                         ErrorManager.getDefault().notify(ex);
                     }
@@ -194,11 +200,13 @@ public class LineOperations {
                         int lineEndOffset = lineElement.getEndOffset();
                         String lineText = doc.getText(lineStartOffset, (lineEndOffset - lineStartOffset));
 
+                        int column = offset - lineStartOffset;
+
                         // insert it after
                         doc.insertString(Math.min(doc.getLength() - 1, lineEndOffset), lineText, null);
 
                         // set caret position
-                        textComponent.setCaretPosition(Math.min(doc.getLength() - 1, lineEndOffset));
+                        textComponent.setCaretPosition(Math.min(doc.getLength() - 1, lineEndOffset + column));
                     } catch (BadLocationException ex) {
                         ErrorManager.getDefault().notify(ex);
                     }
