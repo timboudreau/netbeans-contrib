@@ -7,7 +7,7 @@
  *
  * The Original Code is the DocSup module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -34,7 +34,7 @@ public class TexSyntaxSupport extends ExtSyntaxSupport {
         super(doc);
     }
     
-    public int[] findMatchingBlock(int offset, boolean simpleSearch)
+    public int[] findMatchingBlockX(int offset, boolean simpleSearch)
     throws BadLocationException {
         char bracketChar = getDocument().getChars(offset, 1)[0];
         //isBracket?:
@@ -43,6 +43,7 @@ public class TexSyntaxSupport extends ExtSyntaxSupport {
         
         Object file = Utilities.getDefault().getFile(getDocument());
         LaTeXSource source = LaTeXSource.get(file);
+
         LaTeXSource.Lock lock = null;
         
         try {
