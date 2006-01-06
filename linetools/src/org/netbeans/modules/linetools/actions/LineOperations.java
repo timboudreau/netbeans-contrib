@@ -57,7 +57,7 @@ public class LineOperations {
                         int column = offset - lineStartOffset;
 
                         // remove the line
-                        doc.remove(lineStartOffset, (Math.min(doc.getLength() - 1, lineEndOffset) - lineStartOffset));
+                        doc.remove(lineStartOffset, Math.min(doc.getLength() - lineStartOffset,lineEndOffset - lineStartOffset));
 
                         // insert the text before the previous line
                         Element previousLineElement = rootElement.getElement(zeroBaseLineNumber - 1);
@@ -95,8 +95,8 @@ public class LineOperations {
                     // could not get line number
                     beep();
                     return;
-                } else if (zeroBaseLineNumber >= (rootElement.getElementCount() - 1)) {
-                    // already last line
+                } else if (zeroBaseLineNumber >= (rootElement.getElementCount() - 2)) {
+                    // already last or penultimate line (due to a getLength() bug)
                     return;
                 } else {
                     try {
@@ -191,6 +191,10 @@ public class LineOperations {
                 if (zeroBaseLineNumber == -1) {
                     // could not get line number
                     beep();
+                    return;
+                }  else if (zeroBaseLineNumber >= (rootElement.getElementCount() - 2)) {
+                    // already last or penultimate line (due to a getLength() bug)
+                     beep();
                     return;
                 } else {
                     try {
