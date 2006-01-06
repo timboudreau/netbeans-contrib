@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.usertasks.model;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,14 +26,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TimerTask;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.ValidationException;
-
-import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
 import org.openide.DialogDescriptor;
@@ -44,7 +42,6 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
-import org.netbeans.modules.tasklist.core.util.ActivityListener;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
 
 import org.netbeans.modules.tasklist.usertasks.*;
@@ -131,6 +128,21 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
     private static UserTaskList tasklist = null;
     
     /**
+     * Copies the content of one stream to another.
+     *
+     * @param is input stream
+     * @param os output stream
+     */
+    private static void copyStream(InputStream is, OutputStream os) 
+    throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = is.read(buffer)) != -1) {
+            os.write(buffer, 0, read);
+        }
+    }
+    
+    /**
      * Returns the default task list
      *
      * @return default task list
@@ -150,10 +162,17 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
                 NbBundle.getMessage(UserTaskList.class,
                     "CannotCreateDir", dir.getAbsolutePath())); // NOI18N
         }
-        if (!f.createNewFile()) {
-            throw new IOException(
-                NbBundle.getMessage(UserTaskList.class,
-                    "CannotCreateFile", f.getAbsolutePath())); // NOI18N
+        OutputStream os = new FileOutputStream(f);
+        try {
+            InputStream is = UserTaskList.class.getResourceAsStream(
+                    "/org/netbeans/modules/tasklist/usertasks/tasklist.ics"); // NOI18N
+            try {
+                copyStream(is, os);
+            } finally {
+                is.close();
+            }
+        } finally {
+            os.close();
         }
 
         tasklist = readDocument(FileUtil.toFileObject(f));

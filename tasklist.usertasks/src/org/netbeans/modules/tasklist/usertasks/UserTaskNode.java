@@ -35,6 +35,7 @@ import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
+import org.netbeans.modules.tasklist.usertasks.actions.CopyHoursToClipboardAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
@@ -188,6 +189,7 @@ public final class UserTaskNode extends AbstractNode {
                 null,
                 SystemAction.get(PurgeTasksAction.class),
                 SystemAction.get(ClearCompletedAction.class),
+                new CopyHoursToClipboardAction(),
                 null,
                 SystemAction.get(ExpandAllUserTasksAction.class),
                 SystemAction.get(CollapseAllAction.class),

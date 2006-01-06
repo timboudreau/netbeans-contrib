@@ -87,7 +87,7 @@ import org.openide.util.NbBundle;
  */
 public class ICalExportFormat implements ExportImportFormat {
     private final static String PRODID = 
-        "-//Netbeans User Tasks//NONSGML 1.0//EN"; // NOI18N
+        "-//NetBeans User Tasks//NONSGML 1.0//EN"; // NOI18N
     protected final static String 
         CHOOSE_FILE_PANEL_PROP = "ChooseFilePanel"; // NOI18N
     

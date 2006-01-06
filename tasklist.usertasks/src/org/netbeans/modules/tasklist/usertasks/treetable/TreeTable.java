@@ -24,21 +24,19 @@ import javax.swing.DefaultCellEditor;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.List;
 import java.util.logging.Level;
-import javax.swing.ActionMap;
 import javax.swing.Icon;
 import javax.swing.InputMap;
 
@@ -852,6 +850,12 @@ public class TreeTable extends JTable {
 	 * row will be drawn at 0,0.
 	 */
 	public void paint(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+        
             Rectangle oldClip = g.getClipBounds();
             Rectangle clip;
             //if (border == null)
