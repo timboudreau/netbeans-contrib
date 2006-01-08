@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.accelerators
 OpenIDE-Module-Layer: ro/level7/netbeans/mf-layer.xml
 OpenIDE-Module-Localizing-Bundle: ro/level7/netbeans/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.5
+OpenIDE-Module-Specification-Version: 0.6.1
 
