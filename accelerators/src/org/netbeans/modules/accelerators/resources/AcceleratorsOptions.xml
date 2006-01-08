@@ -14,6 +14,10 @@ All Rights Reserved.
 
 Contributor(s): Andrei Badea
 -->
-<project basedir="." default="netbeans" name="accelerators">
-    <import file="../nbbuild/templates/projectized.xml"/>
-</project>
+<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+<settings version="1.0">
+    <module name="org.netbeans.modules.accelerators"/>
+    <instanceof class="net.openide.options.SystemOption"/>
+    <instanceof class="org.netbeans.modules.accelerators.AcceleratorsOptions"/>
+    <instance class="org.netbeans.modules.accelerators.AcceleratorsOptions"/>
+</settings>
