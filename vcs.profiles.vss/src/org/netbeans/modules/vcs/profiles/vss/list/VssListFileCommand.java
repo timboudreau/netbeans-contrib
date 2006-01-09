@@ -20,8 +20,10 @@ import java.util.Iterator;
 import java.util.Set;
 import java.io.*;
 
+import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
@@ -152,6 +154,11 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
                 stderrListener.outputLine("Unknown command: "+diffCmd);
                 return false;
             }
+            // We need to expand the data regex because of issue #59591.
+            cmd = (VcsCommand) ((UserCommand) cmd).clone();
+            String dataRegex = (String) cmd.getProperty("data.regex");
+            dataRegex = Variables.expand(fileSystem.getVariablesAsHashtable(), dataRegex, false);
+            cmd.setProperty("data.regex", dataRegex);
             Table files = new Table();
             files.put(file, fileSystem.findFileObject(file));
             final boolean[] differ = new boolean[1];
