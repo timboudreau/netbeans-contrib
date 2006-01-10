@@ -1,4 +1,6 @@
 jemmysupport/src/**/Bundle*.properties
+jemmysupport/src/**/*.png
 jemmysupport/javahelp/**/*.html
 jemmysupport/javahelp/**/*.xml
 jemmysupport/javahelp/**/*.hs
+jemmysupport/javahelp/**/*.png
