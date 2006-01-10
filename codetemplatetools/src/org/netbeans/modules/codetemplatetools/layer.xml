@@ -158,4 +158,10 @@ Microsystems, Inc. All Rights Reserved.
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.instance"/>
         </file>
     </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+          <file name="org-netbeans-modules-codetemplatetools-help-set.xml" url="help-set.xml"/>
+          <attr name="org-netbeans-modules-usersguide-below-regular.txt/org-netbeans-modules-codetemplatetools-help-set.xml" boolvalue="true"/>
+        </folder>
+    </folder>
 </filesystem>
