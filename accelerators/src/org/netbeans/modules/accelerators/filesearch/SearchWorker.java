@@ -16,9 +16,9 @@
 
 package org.netbeans.modules.accelerators.filesearch;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.queries.VisibilityQuery;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Enumerations;
@@ -34,7 +34,7 @@ class SearchWorker implements Runnable {
     
     private RequestProcessor rp;
     
-    private FileObject[] roots;
+    private SourceGroup[] groups;
     private FileSearchResult result;
     private SearchFilter filter;
     
@@ -43,12 +43,12 @@ class SearchWorker implements Runnable {
     private volatile boolean hasFilterTask;
     private Task filterTask;
     
-    public SearchWorker(RequestProcessor rp, FileObject[] roots, FileSearchResult result) {
+    public SearchWorker(RequestProcessor rp, SourceGroup[] groups, FileSearchResult result) {
         assert rp != null;
-        assert roots != null;
+        assert groups != null;
         assert result != null;
         this.rp = rp;
-        this.roots = roots;
+        this.groups = groups;
         this.result = result;
     }
     
@@ -110,8 +110,8 @@ class SearchWorker implements Runnable {
     }
     
     public void run() {
-        for (int i = 0; i < roots.length; i++) {
-            Enumeration e = getFileObjectChildren(roots[i]);
+        for (int i = 0; i < groups.length; i++) {
+            Enumeration e = getFileObjects(groups[i]);
             
             while (e.hasMoreElements()) {
                 FileObject fo = (FileObject)e.nextElement();
@@ -154,17 +154,19 @@ class SearchWorker implements Runnable {
         }
     }
     
-    private static Enumeration getFileObjectChildren(FileObject fo) {
+    private static Enumeration getFileObjects(final SourceGroup group) {
         
         class WithChildren implements Enumerations.Processor {
+            
             public Object process(Object obj, Collection toAdd) {
                 FileObject fo = (FileObject) obj;
 
                 if (fo.isFolder()) {
                     FileObject[] children = fo.getChildren();
                     for (int i = 0 ;i < children.length; i++) {
-                        if (VisibilityQuery.getDefault().isVisible(children[i])) {
-                            toAdd.add(children[i]);
+                        FileObject child = children[i];
+                        if (child.isValid() && group.contains(child) && VisibilityQuery.getDefault().isVisible(child)) {
+                            toAdd.add(child);
                         }
                     }
                 }
@@ -173,9 +175,11 @@ class SearchWorker implements Runnable {
             }
         }
 
-        if (VisibilityQuery.getDefault().isVisible(fo)) {
-            Enumeration init = Enumerations.singleton(fo);
-            if (fo.isData()) {
+        FileObject rootFolder = group.getRootFolder();
+        // root should contain rootFolder, not testing for that
+        if (rootFolder.isValid() && VisibilityQuery.getDefault().isVisible(rootFolder)) {
+            Enumeration init = Enumerations.singleton(rootFolder);
+            if (rootFolder.isData()) {
                 return init;
             } else {
                 return Enumerations.queue(init, new WithChildren());

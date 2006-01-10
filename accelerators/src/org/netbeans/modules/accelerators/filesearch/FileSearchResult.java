@@ -126,7 +126,7 @@ public class FileSearchResult {
     
     private void fireListenersReal() {
         if (LOG) {
-            LOGGER.log(ErrorManager.INFORMATIONAL, "Firing listeners"); // NOI18N
+            LOGGER.log(ErrorManager.INFORMATIONAL, "Firing listeners at " + System.currentTimeMillis()); // NOI18N
         }
         ArrayList listenersCopy = null;
         synchronized (listeners) {

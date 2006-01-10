@@ -16,32 +16,16 @@
 
 package org.netbeans.modules.accelerators.filesearch;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 
 /**
+ * A search filter accepting files (not folders) only.
  *
  * @author Andrei Badea
  */
-public class DelegatingSearchFilter implements SearchFilter {
+public class FileSearchFilter implements SearchFilter {
     
-    final SearchFilter[] delegates;
-    
-    public DelegatingSearchFilter(SearchFilter delegate1, SearchFilter delegate2) {
-        this(new SearchFilter[] { delegate1, delegate2 });
-    }
-    
-    public DelegatingSearchFilter(SearchFilter[] delegates) {
-        this.delegates = delegates;
-    }
-
     public boolean accept(FileObject fo) {
-        // ErrorManager.getDefault().log(ErrorManager.WARNING, "Trying " + fo);        
-        for (int i = 0; i < delegates.length; i++) {
-            if (!delegates[i].accept(fo)) {
-                return false;
-            }
-        }
-        return true;
+        return fo.isData();
     }
 }

@@ -45,8 +45,7 @@ public class FileSearch {
     private SearchFilter currentFilter;
     
     // the filters which make up currentFilter
-    private SearchFilter validDataFilefilter = new ValidDataFileSearchFilter();
-    private SearchFilter fileOwnerFilter;
+    private SearchFilter fileFilter = new FileSearchFilter();
     
     private String prefix;
     private boolean caseSensitive;
@@ -57,17 +56,15 @@ public class FileSearch {
         assert project != null;
         assert result != null;
         
-        fileOwnerFilter = new FileOwnerSearchFilter(project);
-        
         synchronized (this) {
             this.result = result;
         }
 
-        FileObject[]roots = findSearchRoots(project);
+        SourceGroup[] groups = ProjectUtils.getSources(project).getSourceGroups(Sources.TYPE_GENERIC);
         if (LOG) {
-            LOGGER.log(ErrorManager.INFORMATIONAL, "Roots: " + Arrays.asList(roots)); // NOI18N
+            LOGGER.log(ErrorManager.INFORMATIONAL, "Source groups: " + Arrays.asList(groups)); // NOI18N
         }
-        worker = new SearchWorker(rp, roots, result);
+        worker = new SearchWorker(rp, groups, result);
     }
     
     public void search(String prefix, boolean caseSensitive) {
@@ -163,17 +160,7 @@ public class FileSearch {
     }
     
     private void setCurrentFilter(SearchFilter filter) {
-        // order "filter, fileOwnerFilter" is faster than the other way around
-        currentFilter = new DelegatingSearchFilter(validDataFilefilter, filter, fileOwnerFilter);
-    }
-    
-    private static FileObject[] findSearchRoots(Project project) {
-        SourceGroup[] groups = ProjectUtils.getSources(project).getSourceGroups(Sources.TYPE_GENERIC);
-        FileObject[] roots = new FileObject[groups.length];
-        for (int i = 0; i < groups.length; i++) {
-            roots[i] = groups[i].getRootFolder();
-        }
-        return roots;
+        currentFilter = new DelegatingSearchFilter(fileFilter, filter);
     }
     
     /**
