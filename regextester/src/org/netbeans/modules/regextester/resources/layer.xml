@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-netbeans-modules-regextester-RegexAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="RegexAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-regextester-RegexAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="MIMEResolver">
+            <file name="regexresolver.xml" url="regexresolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.regextester.Bundle"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name="Other">
+            <file name="regexTemplate.regex" url="regexTemplate.regex">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.regextester.Bundle"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-regex">
+                <file name="Settings.settings" url="../options/RegexOptions.settings"/>
+                <file name="EditorKit.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.regextester.editor.RegexEditorKit"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="RegexTopComponent.settings" url="RegexTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="output">
+                <file name="RegexTopComponent.wstcref" url="RegexTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
