@@ -15,24 +15,21 @@ Microsystems, Inc. All Rights Reserved.
 <project name="avk-plugin" default="netbeans" basedir=".">
   <import file="../../../nbbuild/templates/projectized.xml"/>
 
-    <!--target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+  <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
         <mkdir dir="build"/>
         <makenbm file="build/${nbm}"
-                 productdir="${cdp.dest.dir}/${cluster.dir}"
+                 productdir="${cluster}"
                  module="${module.jar}"
-                 homepage="http://${nbm.domain}.${homepage.base}/"
+                 homepage="${nbm.homepage}"
                  distribution="http://${dist.base}/${nbm}"
                  needsrestart="${nbm.needs.restart}"
                  releasedate="${nbm.release.date}"
-		 moduleauthor="${nbm.module.author}"
-                 >
-            <license file="${license.file}"/>
+		 moduleauthor="${nbm.module.author}">
+            <license name="avk-plugin-license.txt">
+                <file location="../../external/javke1.4.2_fcs-netbeanslicense.txt"/>
+            </license>
         </makenbm>
-
-        
-    </target-->    
-
- 
+    </target>
    
     
         <target name="files-init" depends="basic-init">
@@ -42,7 +39,7 @@ Microsystems, Inc. All Rights Reserved.
             <include name="${module.jar}"/>
             <include name="${javahelp.jar}" if="has.javahelp"/>
             <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
-            <include name="javke1.4.1/**"/>           
+            <include name="javke/**"/>           
         </patternset>
     </target>
 </project>
