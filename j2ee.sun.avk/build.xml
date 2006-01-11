@@ -36,15 +36,13 @@ Microsystems, Inc. All Rights Reserved.
    
     
         <target name="files-init" depends="basic-init">
-         <unzip src="release/javke.zip" dest="${netbeans.dest.dir}/${cluster.dir}/javke"/>
+         <unzip src="../../external/javke1.4.2_fcs-netbeans.zip" dest="${netbeans.dest.dir}/${cluster.dir}"/>
 
         <patternset id="module.files">
             <include name="${module.jar}"/>
             <include name="${javahelp.jar}" if="has.javahelp"/>
             <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
-            <include name="javke1.4.1/**"/>
-
-            
+            <include name="javke1.4.1/**"/>           
         </patternset>
     </target>
 </project>
