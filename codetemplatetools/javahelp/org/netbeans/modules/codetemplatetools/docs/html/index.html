@@ -1,33 +1,33 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
     <head>
-        <title>About Code Template Tools Module</title>
+        <title>Code Template Tools Module</title>
         <link rel="StyleSheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
     </head>
     <body> 
-        <h1>Code Template Tools </h1>
+        <h1>Code Template Tools</h1>
         <p>
         </p>
         <h2>Features </h2>
         <ul>
-            <li>Interactively create, modify or delete a code template </li>
-            <li>Interactively insert a code template </li>
-            <li>Cut, Copy and Paste to Register 0 through 9 and A- Z. The
-            registers are implemented as Code Templates with name <code>REG_ +
-            registerName</code> </li>
+            <li>Interactively create, modify or delete code templates </li>
+            <li>Interactively insert code templates </li>
+            <li>Cut, Copy and Paste to Register 0 through 9 and A through Z</li>
         </ul>
-        <p><code>Ctrl+J R X</code> is the shortcut for Cut to Register action. <code>Ctrl+J
-        R C</code> is the shortcut for Copy to Register action. <code>Ctrl+J R
-        V</code> is the shortcut for Paste from Register action </p>
-        <p></p>
+        <table border="0" cellspacing="4" cellpadding="4">
+            <tr><th>Action</th><th>Key bindings</th></tr>
+            <tr><td>Cut to Register</td><td><code>Ctrl+J R X</code></td></tr>
+            <tr><td>Copy to Register</td><td><code>Ctrl+J R C</code></td></tr>
+            <tr><td>Paste from Register</td><td><code>Ctrl+J R V</code></td></tr>
+        </table>
         <h2>How to Use </h2>
         <h3>To create a Code Template from selection in the editor </h3>
         <ul>
-            <li>Select text in editor. </li>
-            <li>Invoke "Create Template..." action </li>
+            <li>Select text in editor </li>
+            <li>Invoke <img alt="Create Template..." src="newtemplate.gif"/> <b>Create Template...</b> action </li>
             <li>Name the template and insert any parameters using the <code>${parameter-name}</code>
             syntax </li>
-            <li>Supports additonal parameter ${selection}. If the text editor had
+            <li>Supports additonal parameter <code>${selection}</code>. If the text editor had
             any selection, that selection will be inserted at the location of
             ${selection} parameter. Use ${selection editable=false} to prevent
             editing of inserted text </li>
@@ -39,42 +39,47 @@
         <p></p>
         <h3>To insert a Code Template </h3>
         <ul>
-            <li>Invoke "Show Templates ..." action </li>
+            <li>Invoke  <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
             <li>Select a template from the list and preview it </li>
-            <li>Click on Insert to insert the selected Code Template. </li>
+            <li>Click on Insert to insert the selected Code Template </li>
         </ul>
         <p><img alt="templates.jpg"
             src="templates.jpg">
         </p>
-        <p></p>
+        <p>NOTE: The templates which use the ${selection} parameter are shown with <img alt="Templates with ${selection} parameter" src="templateforselection.gif"/> icon.</p>
         <h3>To create a Code Template </h3>
         <ul>
-            <li>Invoke "Show Templates ..." action </li>
-            <li>Click on New... to create a template. </li>
+            <li>Invoke <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
+            <li>Click on <img alt="Create Template..." src="newtemplate.gif"/> <b>New...</b> to create a template. </li>
         </ul>
         <p>
         </p>
         <h3>To modify or delete a Code Template </h3>
         <ul>
-            <li>Invoke "Show Templates ..." action </li>
+            <li>Invoke <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
             <li>Select a template from the list and preview it </li>
-            <li>Click on Modify... to modify the selected template </li>
-            <li>Click on Delete... to delete the selected template </li>
+            <li>Click on <b>Modify...</b> to modify the selected template </li>
+            <li>Click on <b>Delete...</b> to delete the selected template </li>
         </ul>
         <p>
         </p>
         <h3>To use Registers </h3>
         <ul>
             <li>Select text in editor </li>
-            <li>Invoke "Cut to Register..." <code>Ctrl+J R X</code>, select the
+            <li>Invoke <b>Cut to Register...</b> ( <code>Ctrl+J R X</code> ), select the
             Register from the dialog and click Ok. The selection is cut to selected
             Register. </li>
-            <li>Invoke "Copy to Register..." <code>Ctrl+J R C</code>, select the
+            <li>Invoke <b>Copy to Register...</b> ( <code>Ctrl+J R C</code> ), select the
             Register from the dialog and click Ok. The selection is copied to
             selected Register. </li>
-            <li>Invoke "Paste from Register..." <code>Ctrl+J R V</code>, select the
+            <li>Invoke <b>Paste from Register...</b> ( <code>Ctrl+J R V</code> ), select the
             Register from the dialog and click Ok. The contents of the selected
             Register are pasted. </li>
         </ul>
+        <p>
+        The Registers are implemented as Code Templates with name <code>REG_ +  registerName</code>.
+        The <code>REG_</code> can be overridden using the System property
+        <code>-Dorg.netbeans.modules.codetemplatetools.REGISTER_PREFIX=prefix</code>.
+        </p>
     </body>
 </html>
