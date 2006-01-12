@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+<filesystem>
+    <folder name="J2EE">
+        <folder name="DeploymentPlugins">
+            <folder name="SUNWebserver7">
+                <file name="Descriptor" url="nbdep.xml"/>
+                <file name="Factory.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentFactory.create"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentFactory"/>
+                    <attr name="instanceOf" stringvalue="javax.enterprise.deploy.spi.factories.DeploymentFactory"/>
+                </file>
+                <file name="RegistryNodeFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70NodeFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70NodeFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.api.RegistryNodeFactory"/>
+                </file>
+                <file name="ConfigurationSupport.instance">
+                     <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70ConfigurationSupportImpl"/>
+                     <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.api.ConfigurationSupport"/>
+                </file>
+                <file name="OptionalFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70OptionalFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70OptionalFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.api.OptionalDeploymentManagerFactory"/>
+                </file>
+                <file name="SunPlatformFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70J2eePlatformFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70J2eePlatformFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformFactory"/>
+                </file>                                
+                <folder name="DeploymentFileNames">
+                    <folder name="WAR">                        
+                        <file name="WEB-INF\sun-web.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

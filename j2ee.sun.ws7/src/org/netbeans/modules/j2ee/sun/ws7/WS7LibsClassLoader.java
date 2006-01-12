@@ -13,9 +13,7 @@
 
 /*
  * WS7LibsClassLoader.java
- *
- * 
-*/
+ */
 
 package org.netbeans.modules.j2ee.sun.ws7;
 
@@ -30,9 +28,8 @@ import java.net.MalformedURLException;
 
 
 
-public class WS7LibsClassLoader extends URLClassLoader {
-    
-    /** Creates new pluginClassLoader  _mapping is key=value;key=value....*/
+public class WS7LibsClassLoader extends URLClassLoader {  
+
     public WS7LibsClassLoader() throws MalformedURLException, RuntimeException {
         super(new URL[0]);
     }
@@ -43,19 +40,17 @@ public class WS7LibsClassLoader extends URLClassLoader {
        
         
     public void addURL(File f) throws MalformedURLException, RuntimeException {
-            if (f.isFile()){
-                addURL(f.toURL());
-            }
+        if (f.isFile()){
+            addURL(f.toURL());
+        }
     }
     
-public Class loadClass(String  name)throws ClassNotFoundException{
-    //System.err.println("WS7:LOADCLASS:CLASSLOADER: "+name);
-    return super.loadClass(name);
-}
-protected Class findClass(String  name) throws ClassNotFoundException{
-    //System.err.println("WS7:FINDCLASS:CLASSLOADER: "+name);
-    return super.findClass(name);
-}  
+    public Class loadClass(String  name)throws ClassNotFoundException{    
+        return super.loadClass(name);
+    }
+    protected Class findClass(String  name) throws ClassNotFoundException{    
+        return super.findClass(name);
+    }  
 
     protected PermissionCollection getPermissions(CodeSource _cs) {
         Permissions p = new Permissions();
