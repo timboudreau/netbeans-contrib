@@ -17,7 +17,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import javax.xml.parsers.SAXParser;
@@ -61,7 +65,7 @@ public class EJBProjectGeneratorTest extends TestBase {
         super(testName);
     }
     
-    private AntProjectHelper createEmptyProject(String projectFolder, String projectName) throws Exception {
+    private AntProjectHelper createEmptyProject(String projectFolder, String projectName, boolean notSoEmpty) throws Exception {
         File base = new File(getWorkDir(), projectFolder);
         base.mkdir();
         File antScript = new File(base, "build.xml");
@@ -82,36 +86,68 @@ public class EJBProjectGeneratorTest extends TestBase {
         EJBProjectGenerator.EJBModule ejbMod = new EJBProjectGenerator.EJBModule();
         ejbMod.j2eeSpecLevel = "1.4";
         ejbMod.classpath = "";
-        ejbMod.configFiles = Util.relativizeLocation(base, base, FileUtil.normalizeFile(conf));
+        ejbMod.configFiles = conf.getAbsolutePath();
         List mods = new ArrayList();
         mods.add(ejbMod);
         AntProjectHelper helper = FreeformProjectGenerator.createProject(base, base, projectName, null);
         EJBProjectGenerator.putEJBModules(helper, Util.getAuxiliaryConfiguration(helper), mods);
         EJBProjectGenerator.putServerID(helper, "GENERIC");
         
-        //srcFolders
-        JavaProjectGenerator.SourceFolder sf = new JavaProjectGenerator.SourceFolder();
-        sf.label = "src";
-        sf.type = "java";
-        sf.style = "packages";
-        sf.location = src.getAbsolutePath();
-        ArrayList sources = new ArrayList();
-        sources.add(sf);
-        JavaProjectGenerator.putSourceFolders(helper, sources, null);
+        putSrcRoot(helper); //workaround for issue 71363
+        
         List l = new ArrayList();
-        String s = Util.relativizeLocation(base, base, FileUtil.normalizeFile(src));
+        String s = conf.getAbsolutePath();
         l.add(s);
-        l.add(src.getName());
+        l.add(conf.getName());
         EJBProjectGenerator.putEJBSourceFolder(helper, l);
+        
+        if (notSoEmpty) {
+            ArrayList sources = new ArrayList();
+            JavaProjectGenerator.SourceFolder sf = new JavaProjectGenerator.SourceFolder();
+            sf.label = "src";
+            sf.type = "java";
+            sf.style = "packages";
+            sf.location = src.getAbsolutePath();
+            sources.add(sf);
+            sf = new JavaProjectGenerator.SourceFolder();
+            sf.label = "test";
+            sf.type = "java";
+            sf.style = "packages";
+            sf.location = test.getAbsolutePath();
+            sources.add(sf);
+            JavaProjectGenerator.putSourceFolders(helper, sources, "java");
+            JavaProjectGenerator.putSourceViews(helper, sources, "packages");
+            
+            ArrayList compUnits = new ArrayList();
+            JavaProjectGenerator.JavaCompilationUnit cu = new JavaProjectGenerator.JavaCompilationUnit();
+            JavaProjectGenerator.JavaCompilationUnit.CP cp = new JavaProjectGenerator.JavaCompilationUnit.CP();
+            cp.classpath = lib1.getAbsolutePath();
+            cp.mode = "compile";
+            cu.classpath = Collections.singletonList(cp);
+            cu.sourceLevel = "1.4";
+            cu.packageRoots = Collections.singletonList(src.getAbsolutePath());
+            compUnits.add(cu);
+            cu = new JavaProjectGenerator.JavaCompilationUnit();
+            cp = new JavaProjectGenerator.JavaCompilationUnit.CP();
+            cp.classpath = lib2.getAbsolutePath();
+            cp.mode = "compile";
+            cu.classpath = Collections.singletonList(cp);
+            cu.sourceLevel = "1.4";
+            cu.packageRoots = Collections.singletonList(test.getAbsolutePath());
+            cu.isTests = true;
+            compUnits.add(cu);
+            JavaProjectGenerator.putJavaCompilationUnits(helper, Util.getAuxiliaryConfiguration(helper), compUnits);
+        }
         
         return helper;
     }
     
     public void testEJBModules() throws Exception {
-        AntProjectHelper helper = createEmptyProject("proj1", "proj-1");
+        AntProjectHelper helper = createEmptyProject("proj1", "proj-1", false);
         FileObject base = helper.getProjectDirectory();
         Project p = ProjectManager.getDefault().findProject(base);
         assertNotNull("Project was not created", p);
+//        ProjectManager.getDefault().saveProject(p);
         validate(p);
         assertEquals("Project folder is incorrect", base, p.getProjectDirectory());
         ProjectInformation pi = ProjectUtils.getInformation(p);
@@ -122,12 +158,38 @@ public class EJBProjectGeneratorTest extends TestBase {
                 e.getDeploymentDescriptor());
         assertEquals("Incorrect J2EE spec. version.", "1.4", e.getJ2eePlatformVersion());
         Element ejb = ((AuxiliaryConfiguration) p.getLookup().lookup(AuxiliaryConfiguration.class))
-            .getConfigurationFragment("ejb-data", EJBProjectNature.NS_EJB, true);
+        .getConfigurationFragment("ejb-data", EJBProjectNature.NS_EJB, true);
         assertNotNull(ejb);
         List/*<Element>*/ ejbModules = Util.findSubElements(ejb);
         assertEquals("One ejb-module element should be found.", 1, ejbModules.size());
         Element module = (Element) ejbModules.get(0);
         assertEquals("Classpath element is not empty.", "" , Util.findElement(module, "classpath", EJBProjectNature.NS_EJB).getTextContent());
+    }
+    
+    public void testSourceFolders() throws Exception {
+        AntProjectHelper helper = createEmptyProject("proj-2", "proj-2", true);
+        FileObject base = helper.getProjectDirectory();
+        Project p = ProjectManager.getDefault().findProject(base);
+//        ProjectManager.getDefault().saveProject(p);
+        assertNotNull("Project was not created", p);
+        validate(p);
+        assertEquals("Project folder is incorrect", base, p.getProjectDirectory());
+        ProjectInformation pi = ProjectUtils.getInformation(p);
+        assertEquals("Project name was not set", "proj-2", pi.getName());
+        EjbJar e = EjbJar.getEjbJar(FileUtil.toFileObject(conf));
+        assertNotNull("EjbJar not found", e);
+        Set srcRoots = new HashSet();
+        srcRoots.add(FileUtil.toFileObject(src));
+        Set testRoots = new HashSet();
+        testRoots.add(FileUtil.toFileObject(test));
+        //in current implementation EjbJar.getJavaSources() returns
+        //all source roots (java+tests)
+        FileObject[] fos = e.getJavaSources();
+        Set s = new HashSet();
+        for (int i = 0; i < fos.length; i++) {
+            s.add(fos[i]);
+        }
+        assertTrue("There are missing java src roots", s.containsAll(srcRoots));
     }
     
     // create real Jar otherwise FileUtil.isArchiveFile returns false for it
@@ -156,13 +218,13 @@ public class EJBProjectGeneratorTest extends TestBase {
         f.setValidating(true);
         SAXParser p = f.newSAXParser();
         p.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-            "http://www.w3.org/2001/XMLSchema");
+                "http://www.w3.org/2001/XMLSchema");
         p.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", getSchemas());
         try {
             p.parse(xml.toURI().toString(), new Handler());
         } catch (SAXParseException e) {
             assertTrue("Validation of XML document "+xml+" against schema failed. Details: "+
-            e.getSystemId() + ":" + e.getLineNumber() + ": " + e.getLocalizedMessage(), false);
+                    e.getSystemId() + ":" + e.getLineNumber() + ": " + e.getLocalizedMessage(), false);
         }
     }
     
@@ -187,5 +249,28 @@ public class EJBProjectGeneratorTest extends TestBase {
             throw e;
         }
     }
-
+    
+    // Issue 71363 WA
+    private void putSrcRoot(AntProjectHelper helper) {
+        JavaProjectGenerator.SourceFolder sf = new JavaProjectGenerator.SourceFolder();
+        sf.label = "src";
+        sf.type = "java";
+        sf.style = "packages";
+        sf.location = src.getAbsolutePath();
+        ArrayList sources = new ArrayList();
+        sources.add(sf);
+        JavaProjectGenerator.putSourceFolders(helper, sources, null);
+        JavaProjectGenerator.putSourceViews(helper, sources, null);
+        ArrayList compUnits = new ArrayList();
+        JavaProjectGenerator.JavaCompilationUnit cu = new JavaProjectGenerator.JavaCompilationUnit();
+        JavaProjectGenerator.JavaCompilationUnit.CP cp = new JavaProjectGenerator.JavaCompilationUnit.CP();
+        cp.classpath = lib1.getAbsolutePath();
+        cp.mode = "compile";
+        cu.classpath = Collections.singletonList(cp);
+        cu.sourceLevel = "1.4";
+        cu.packageRoots = Collections.singletonList(src.getAbsolutePath());
+        compUnits.add(cu);
+        JavaProjectGenerator.putJavaCompilationUnits(helper, Util.getAuxiliaryConfiguration(helper), compUnits);
+    }
+    
 }
