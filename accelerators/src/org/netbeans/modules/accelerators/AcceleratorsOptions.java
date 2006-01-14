@@ -47,9 +47,9 @@ public class AcceleratorsOptions extends SystemOption {
         } else if (Utilities.isWindows()) {
             // use command.com on win9x, cmd.exe on other
             if ((Utilities.getOperatingSystem() & (Utilities.OS_WIN95 | Utilities.OS_WIN98)) != 0) {
-                return "command.com"; // NOI18N
+                return "command.com /c start command.com"; // NOI18N
             } else {
-                return "cmd.exe"; // NOI18N
+                return "cmd.exe /c start cmd.exe"; // NOI18N
             }
         } else if (System.getProperty("Env-GNOME_DESKTOP_SESSION_ID") != null) { // NOI18N
             return "gnome-terminal"; // NOI18N
