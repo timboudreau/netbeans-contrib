@@ -243,8 +243,8 @@ public class FileSearchPanel extends javax.swing.JPanel {
         // see JavaFastOpen.boundScrollingKey()
         boolean isListScrollAction = "selectPreviousRow".equals(actionKey) || // NOI18N
                 "selectNextRow".equals(actionKey) || // NOI18N
-                "selectFirstRow".equals(actionKey) || // NOI18N
-                "selectLastRow".equals(actionKey) || // NOI18N
+                //"selectFirstRow".equals(actionKey) || // NOI18N
+                //"selectLastRow".equals(actionKey) || // NOI18N
                 "scrollUp".equals(actionKey) || // NOI18N
                 "scrollDown".equals(actionKey); // NOI18N
         
