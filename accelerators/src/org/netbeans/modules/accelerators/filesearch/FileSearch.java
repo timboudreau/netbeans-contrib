@@ -33,7 +33,7 @@ import org.openide.util.RequestProcessor;
  */
 public class FileSearch {
     
-    private static final ErrorManager LOGGER = ErrorManager.getDefault().getInstance("net.movzx.netbeans.filesearch.FileSearch"); // NOI18N
+    private static final ErrorManager LOGGER = ErrorManager.getDefault().getInstance("org.netbeans.modules.accelerators.filesearch"); // NOI18N
     private static final boolean LOG = LOGGER.isLoggable(ErrorManager.INFORMATIONAL);
     
     private final RequestProcessor rp = new RequestProcessor("FileSearch Request Processor", 1, true); // NOI18N

@@ -41,7 +41,7 @@ import org.openide.loaders.DataObjectNotFoundException;
  */
 public class FileSearchResult {
     
-    private static final ErrorManager LOGGER = ErrorManager.getDefault().getInstance("net.movzx.netbeans.filesearch.FileSearch"); // NOI18N
+    private static final ErrorManager LOGGER = ErrorManager.getDefault().getInstance("org.netbeans.modules.accelerators.filesearch"); // NOI18N
     private static final boolean LOG = LOGGER.isLoggable(ErrorManager.INFORMATIONAL);
     
     private Set items = new HashSet();
@@ -69,7 +69,6 @@ public class FileSearchResult {
             dirty = true;
             items.clear();
         }
-        fireListeners();
     }
     
     /**
