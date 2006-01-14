@@ -36,36 +36,61 @@ public class LineOperations {
             }
             try {
                 Element rootElement = doc.getDefaultRootElement();
+
                 Caret caret = textComponent.getCaret();
-                int offset = textComponent.getCaretPosition();
-                int zeroBaseLineNumber = rootElement.getElementIndex(offset);
-                if (zeroBaseLineNumber == -1) {
+                boolean selection = false;
+                int start = textComponent.getCaretPosition();
+                int end = start;
+
+                // check if there is a selection
+                if (caret.isSelectionVisible()) {
+                    int selStart = caret.getDot();
+                    int selEnd = caret.getMark();
+                    start = Math.min(selStart, selEnd);
+                    end =   Math.max(selStart, selEnd) - 1;
+                    selection = true;
+                }
+
+                int zeroBaseStartLineNumber = rootElement.getElementIndex(start);
+                int zeroBaseEndLineNumber = rootElement.getElementIndex(end);
+
+                if (zeroBaseStartLineNumber == -1) {
                     // could not get line number
                     beep();
                     return;
-                } else if (zeroBaseLineNumber == 0) {
+                } else if (zeroBaseStartLineNumber == 0) {
                     // already first line
                     return;
                 } else {
                     try {
                         // get line text
-                        Element lineElement = rootElement.getElement(zeroBaseLineNumber);
-                        int lineStartOffset = lineElement.getStartOffset();
-                        int lineEndOffset = lineElement.getEndOffset();
-                        String lineText = doc.getText(lineStartOffset, (lineEndOffset - lineStartOffset));
+                        Element startLineElement = rootElement.getElement(zeroBaseStartLineNumber);
+                        int startLineStartOffset = startLineElement.getStartOffset();
 
-                        int column = offset - lineStartOffset;
+                        Element endLineElement = rootElement.getElement(zeroBaseEndLineNumber);
+                        int endLineEndOffset = endLineElement.getEndOffset();
+
+                        String linesText = doc.getText(startLineStartOffset, (endLineEndOffset - startLineStartOffset));
+
+                        Element previousLineElement = rootElement.getElement(zeroBaseStartLineNumber - 1);
+                        int previousLineStartOffset = previousLineElement.getStartOffset();
+
+                        int column = (selection ? 0 : start - startLineStartOffset);
 
                         // remove the line
-                        doc.remove(lineStartOffset, Math.min(doc.getLength() - lineStartOffset,lineEndOffset - lineStartOffset));
+                        doc.remove(startLineStartOffset, Math.min(doc.getLength(),endLineEndOffset) - startLineStartOffset);
 
                         // insert the text before the previous line
-                        Element previousLineElement = rootElement.getElement(zeroBaseLineNumber - 1);
-                        int previousLineStartOffset = previousLineElement.getStartOffset();
-                        doc.insertString(previousLineStartOffset, lineText, null);
+                        doc.insertString(previousLineStartOffset, linesText, null);
 
-                        // set caret position
-                        textComponent.setCaretPosition(previousLineStartOffset + column);
+                        if (selection) {
+                            // select moved lines
+                            caret.setDot(previousLineStartOffset + (endLineEndOffset - startLineStartOffset));
+                            caret.moveDot(previousLineStartOffset);
+                        } else {
+                            // set caret position
+                            textComponent.setCaretPosition(previousLineStartOffset + column);
+                        }
                     } catch (BadLocationException ex) {
                         ErrorManager.getDefault().notify(ex);
                     }
@@ -88,37 +113,62 @@ public class LineOperations {
             }
             try {
                 Element rootElement = doc.getDefaultRootElement();
+
                 Caret caret = textComponent.getCaret();
-                int offset = textComponent.getCaretPosition();
-                int zeroBaseLineNumber = rootElement.getElementIndex(offset);
-                if (zeroBaseLineNumber == -1) {
+                boolean selection = false;
+                int start = textComponent.getCaretPosition();
+                int end = start;
+
+                // check if there is a selection
+                if (caret.isSelectionVisible()) {
+                    int selStart = caret.getDot();
+                    int selEnd = caret.getMark();
+                    start = Math.min(selStart, selEnd);
+                    end =   Math.max(selStart, selEnd) - 1;
+                    selection = true;
+                }
+
+                int zeroBaseStartLineNumber = rootElement.getElementIndex(start);
+                int zeroBaseEndLineNumber = rootElement.getElementIndex(end);
+
+                if (zeroBaseEndLineNumber == -1) {
                     // could not get line number
                     beep();
                     return;
-                } else if (zeroBaseLineNumber >= (rootElement.getElementCount() - 2)) {
+                } else if (zeroBaseEndLineNumber >= (rootElement.getElementCount() - 2)) {
                     // already last or penultimate line (due to a getLength() bug)
                     return;
                 } else {
                     try {
                         // get line text
-                        Element lineElement = rootElement.getElement(zeroBaseLineNumber);
-                        int lineStartOffset = lineElement.getStartOffset();
-                        int lineEndOffset = lineElement.getEndOffset();
-                        String lineText = doc.getText(lineStartOffset, (lineEndOffset - lineStartOffset));
+                        Element startLineElement = rootElement.getElement(zeroBaseStartLineNumber);
+                        int startLineStartOffset = startLineElement.getStartOffset();
 
-                        int column = offset - lineStartOffset;
+                        Element endLineElement = rootElement.getElement(zeroBaseEndLineNumber);
+                        int endLineEndOffset = endLineElement.getEndOffset();
 
-                        // insert it after next line
-                        Element nextLineElement = rootElement.getElement(zeroBaseLineNumber + 1);
+                        String linesText = doc.getText(startLineStartOffset, (endLineEndOffset - startLineStartOffset));
+
+                        Element nextLineElement = rootElement.getElement(zeroBaseEndLineNumber + 1);
                         int nextLineStartOffset = nextLineElement.getStartOffset();
                         int nextLineEndOffset = nextLineElement.getEndOffset();
-                        doc.insertString(nextLineEndOffset, lineText, null);
+
+                        int column = (selection ? 0 : start - startLineStartOffset);
+
+                        // insert it after next line
+                        doc.insertString(nextLineEndOffset, linesText, null);
 
                         // remove original line
-                        doc.remove(lineStartOffset, (lineEndOffset - lineStartOffset));
+                        doc.remove(startLineStartOffset, (endLineEndOffset - startLineStartOffset));
 
-                        // set caret position
-                        textComponent.setCaretPosition(Math.min(doc.getLength() - 1, nextLineEndOffset + column - (lineEndOffset - lineStartOffset)));
+                        if (selection) {
+                            // select moved lines
+                            caret.setDot(nextLineEndOffset  - (endLineEndOffset - startLineStartOffset));
+                            caret.moveDot(nextLineEndOffset);
+                        } else {
+                            // set caret position
+                            textComponent.setCaretPosition(Math.min(doc.getLength() - 1, nextLineEndOffset + column - (endLineEndOffset - startLineStartOffset)));
+                        }
                     } catch (BadLocationException ex) {
                         ErrorManager.getDefault().notify(ex);
                     }
@@ -194,7 +244,7 @@ public class LineOperations {
                     return;
                 }  else if (zeroBaseLineNumber >= (rootElement.getElementCount() - 2)) {
                     // already last or penultimate line (due to a getLength() bug)
-                     beep();
+                    beep();
                     return;
                 } else {
                     try {

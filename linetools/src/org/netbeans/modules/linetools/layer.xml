@@ -60,10 +60,10 @@
         </folder>
     </folder>
     <folder name="Shortcuts">
-        <file name="O-S-UP.shadow">
+        <file name="O-UP.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineUp.instance"/>
         </file>
-        <file name="O-S-DOWN.shadow">
+        <file name="O-DOWN.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineDown.instance"/>
         </file>
         <file name="D-S-UP.shadow">
