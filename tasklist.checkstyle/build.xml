@@ -18,22 +18,45 @@ Microsystems, Inc. All Rights Reserved.
     <target name="netbeans-extra" depends="release"/>
     
     <target name="release" depends="build-init">
-        <available file="../external/checkstyle-all.jar" property="checkstyle-all.present" />
-        <fail unless="checkstyle-all.present" message="Missing library. Read README for proper setup." />
+        <loadfile property="readme.txt" srcfile="README" />
+        
+        <available file="../external/checkstyle.jar" property="checkstyle.present" />
+        <fail unless="checkstyle.present"> Missing library.
+            ${readme.txt} 
+        </fail>
+        <available file="../external/antlr.jar" property="antlr.present" />
+        <fail unless="antlr.present">Missing library.
+            ${readme.txt} 
+        </fail>
+        <available file="../external/checkstyle.jar" property="commons-beanutils-core.present" />
+        <fail unless="commons-beanutils-core.present"> Missing library.
+            ${readme.txt} 
+        </fail>
+        <available file="../external/checkstyle.jar" property="commons-cli.present" />
+        <fail unless="commons-cli.present"> Missing library.
+            ${readme.txt} 
+        </fail>
+        <available file="../external/checkstyle.jar" property="commons-collections.present" />
+        <fail unless="commons-collections.present">Missing library.
+            ${readme.txt} 
+        </fail>
         <available file="../external/checkstyle_checks.xml" property="checkstyle-rule.present" />
-        <fail unless="checkstyle-rule.present" message="Missing ruleset. Read README for proper setup."/>
+        <fail unless="checkstyle-rule.present">Missing library.
+            ${readme.txt}
+        </fail>
+        
         <mkdir dir="${cluster}/modules/ext"/>
         <copy todir="${cluster}/modules/ext">
             <fileset dir="../external">
-                <include name="checkstyle-all.jar"/>
+                <include name="checkstyle.jar"/>
+                <include name="antlr.jar"/>
+                <include name="commons-beanutils-core.jar"/>
+                <include name="commons-cli.jar"/>
+                <include name="commons-collections.jar"/>
             </fileset>
         </copy>
        <mkdir dir="${cluster}/configs"/>
-       <copy todir="${cluster}/configs">
-         <fileset dir="../external">
-           <include name="checkstyle.xml"/>
-         </fileset>
-       </copy>
+       <copy tofile="${cluster}/configs/checkstyle.xml" file="../external/checkstyle_checks.xml"/>
     </target>
     
     <target name="changelog">

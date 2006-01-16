@@ -1,9 +1,7 @@
 /*
  *                 Sun Public License Notice
  * 
- * The contents of this file are subject to the Sun Public License
- * Version 1.0 (the "License"). You may not use this file except in
- * compliance with the License. A copy of the License is available at
+ * The contents of this file are subject to the Sun Public Licensense is available at
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
@@ -75,10 +73,10 @@ public class ViolationProvider extends DocumentSuggestionProvider
      * methods. */
     private List tasks = null;
     
-    public List scan(SuggestionContext env) {
+    public List scan(final SuggestionContext env) {
         tasks = null;
-
-        SuggestionManager manager = SuggestionManager.getDefault();
+        this.env = env;
+        final SuggestionManager manager = SuggestionManager.getDefault();
         if (!manager.isEnabled(TYPE)) {
             return null;
         }
@@ -106,14 +104,13 @@ public class ViolationProvider extends DocumentSuggestionProvider
         
         // Checkstyle doesn't seem to have an API where I can pass in
         // a string reader - it wants to read the files directly!
-        FileObject fo = env.getFileObject();
-        DataObject dobj = null;
+        final FileObject fo = env.getFileObject();
         try {
-            dobj = DataObject.find(fo);
+            dataobject = DataObject.find(fo);
         } catch (DataObjectNotFoundException e) {
             ErrorManager.getDefault().notify(e);
         }
-        File file = (dobj != null && dobj.isModified() == false) ? FileUtil.toFile(fo) : null;
+        final File file = (dataobject != null && dataobject.isModified() == false) ? FileUtil.toFile(fo) : null;
 
         if (file != null) {
             try {
@@ -127,10 +124,10 @@ public class ViolationProvider extends DocumentSuggestionProvider
         } else {
             Writer out = null;
             try {
-                File tmp = File.createTempFile("tl_cs", "tmp"); // NOI18N
+                final File tmp = File.createTempFile("tl_cs", "tmp"); // NOI18N
                 tmp.deleteOnExit();
                 out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(tmp)));
-                CharSequence chars = env.getCharSequence();
+                final CharSequence chars = env.getCharSequence();
                 for (int i=0; i<chars.length(); i++) {
                     out.write(chars.charAt(i));
                 }
@@ -155,22 +152,23 @@ public class ViolationProvider extends DocumentSuggestionProvider
         return tasks;
     }
 
-    private boolean callCheckstyle(File file) {
+    private boolean callCheckstyle(final File file) {
         // TODO: this should only be done once, not for each scan!!!
         try {
-            Checker checker = new Checker();
+            final Checker checker = new Checker();
             ModuleFactory moduleFactory = null;
             checker.setModuleFactory(moduleFactory);
             Configuration config = null;
-            Properties props = System.getProperties();
-                // For now, grab the configuration from the module
-                File f = org.openide.modules.InstalledFileLocator.getDefault().locate("configs/checkstyle.xml", "org.netbeans.modules.tasklist.checkstyle", false);
-                //System.out.println("FILE LOCATED = " + f);
-                if (f == null) {
-                    ErrorManager.getDefault().log("Couldn't find configs/checkstyle.xml");
-                    return false;
-                }
-                config = ConfigurationLoader.loadConfiguration(f.getPath(), new PropertiesExpander(props));
+            final Properties props = System.getProperties();
+            // For now, grab the configuration from the module
+            final File f = org.openide.modules.InstalledFileLocator.getDefault().locate("configs/checkstyle.xml", "org.netbeans.modules.tasklist.checkstyle", false);
+            //System.out.println("FILE LOCATED = " + f);
+            if (f == null) {
+                ErrorManager.getDefault().log("Couldn't find configs/checkstyle.xml");
+                return false;
+            }
+
+            config = ConfigurationLoader.loadConfiguration(f.getPath(), new PropertiesExpander(props));
             checker.configure(config);
             checker.addListener(this);
             checker.process(new File[] { file }); // Yuck!
@@ -233,21 +231,23 @@ public class ViolationProvider extends DocumentSuggestionProvider
         //System.out.println("addError(" + aEvt + ")");
         
         try {
-            // Violation line numbers seem to be 0-based
-            final Line line = TLUtils.getLineByNumber(dataobject, aEvt.getLine());
+            final int lineNo = Math.max(1,aEvt.getLine());
+            final Line line = TLUtils.getLineByNumber(dataobject, lineNo);
                     
-            SuggestionPerformer action = null;
-            action = null;
-            String description = aEvt.getLocalizedMessage().getMessage();
+            final SuggestionPerformer action = getAction(aEvt);
+            final String description = aEvt.getLocalizedMessage().getMessage();
                     
-            SuggestionManager manager = SuggestionManager.getDefault();
-            SuggestionAgent s = manager.createSuggestion(
+            final SuggestionManager manager = SuggestionManager.getDefault();
+
+            final SuggestionAgent s = manager.createSuggestion(
+                        env.getFileObject(),
                         TYPE,
                         description,
                         action,
                         this);
 
-            SeverityLevel sv = aEvt.getSeverityLevel();
+            final SeverityLevel sv = aEvt.getSeverityLevel();
+            
             if (sv == SeverityLevel.IGNORE) {
                 s.setPriority(SuggestionPriority.LOW);
             } else if (sv == SeverityLevel.INFO) {
@@ -263,13 +263,39 @@ public class ViolationProvider extends DocumentSuggestionProvider
             } 
             
             s.setLine(line);
+            
             if (tasks == null) {
                 tasks = new ArrayList(40); // initial guess
             }
-            tasks.add(s);
+            tasks.add(s.getSuggestion());
+
         } catch (Exception e) {
             ErrorManager.getDefault().notify(e);
         }
+    }
+
+    private SuggestionPerformer getAction(
+            final AuditEvent aEvt) {
+        
+        final String key = aEvt.getLocalizedMessage().getKey();
+        if( key != null ){
+            System.out.println(key);
+            
+            if( key.contains("trailing")  // FIXME i18n me. problem is that this comes from the checkstyle.xml
+                    && key.contains("spaces") ){ // and can be specified in any language with a common key.
+                return new TrailingSpacesSuggestionPerformer(env.getDocument(),aEvt.getLine());
+            }else if( "import.unused".equals(key) ){
+                return new DeleteLineSuggestionPerformer(env.getDocument(),aEvt.getLine());
+            }else if( "ws.notPreceded".equals(key) ){
+                return new InsertSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
+            }else if( "ws.notFollowed".equals(key) ){
+                return new InsertSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
+            }else if( "final.parameter".equals(key) ){
+                return new InsertFinalKeywordSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
+            }
+           
+        }
+        return null;
     }
     
     
