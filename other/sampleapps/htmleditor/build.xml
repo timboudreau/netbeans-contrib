@@ -4,7 +4,13 @@
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="htmleditor" basedir=".">
     <description>Builds the module suite htmleditor.</description>
-    <mkdir dir="build/jnlp/netbeans/" />
 
-    <import file="nbproject/build-impl.xml"/>    
+    <import file="nbproject/build-impl.xml"/>  
+  
+    
+    <target name="build-static-jnlp" depends="build,-jdk-init" description="Builds a static JNLP version of the app." >
+        <ant antfile="${harness.dir}/jnlp.xml" target="build-jnlp-nowar">
+            <property name="jnlp.codebase" value="http://www.netbeans.org/download/samples/jnlp/htmleditor/" />
+        </ant>
+    </target>
 </project>
