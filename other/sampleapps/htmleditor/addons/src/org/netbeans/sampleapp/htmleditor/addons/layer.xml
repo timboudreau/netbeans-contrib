@@ -1,6 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Menu">
+        <folder name="Edit">
+            <file name="org-netbeans-core-actions-JumpNextAction.shadow_hidden"/>
+            <file name="org-netbeans-core-actions-JumpPrevAction.shadow_hidden"/>
+        </folder>
+        <folder name="Help">
+            <file name="platform-tutorial.url" url="platform-tutorial.url">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.sampleapp.htmleditor.addons.Bundle"/>
+            </file>
+            <attr name="platform-tutorial.url/Separator1.instance" boolvalue="true"/>
+            <attr name="Separator1.instance/Tutorials" boolvalue="true"/>
+            <attr name="Tutorials/master-help.xml" boolvalue="true"/>
+            <attr name="master-help.xml/Separator1_1.instance" boolvalue="true"/>
+            <file name="Separator1_1.instance" url="Separator1_1_1.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="Separator1_1.instance/org-netbeans-core-actions-AboutAction.instance" boolvalue="true"/>
+            <file name="Tutorials_hidden"/>
+            <file name="netbeans-kb.url_hidden"/>
+            <file name="relnotes.url_hidden"/>
+            <file name="shortcuts.xml_hidden"/>
+            <file name="utilities-sep-2.instance_hidden"/>
+            <file name="utilities-sep-3.instance_hidden"/>
+            <file name="utilities-sep-5.instance_hidden"/>
+        </folder>
+        <folder name="Tools">
+            <attr name="org-netbeans-modules-favorites-templates-TemplatesAction.instance/Separator1_1.instance" boolvalue="true"/>
+            <file name="Separator1_1.instance" url="Separator1_1.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="Separator1_1.instance/org-netbeans-core-actions-OptionsAction.instance" boolvalue="true"/>
+            <file name="Separator2.instance_hidden"/>
+            <file name="org-netbeans-core-actions-ConfigureShortcutsAction.instance_hidden"/>
+        </folder>
+    </folder>
     <folder name="Templates">
         <folder name="Other">
             <file name="sample.html" url="sample.html">
@@ -23,5 +58,53 @@
                 <file name="favorites.wstcref" url="favoritesWstcref.xml"/>
             </folder>
         </folder>
+    </folder>
+    
+    <folder name="Shortcuts">
+        <file name="C-S.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.SaveAction"/>
+        </file>
+        <file name="CS-S.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.SaveAllAction"/>
+        </file>
+        <file name="C-P.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.PrintAction"/>
+        </file>
+        
+        <!-- edit menu -->
+        <file name="C-C.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.CopyAction"/>
+        </file>
+        <file name="C-V.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.PasteAction"/>
+        </file>
+        <file name="C-X.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.CutAction"/>
+        </file>
+        <file name="DELETE.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.DeleteAction"/>
+        </file>
+        <file name="C-Z.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.UndoAction"/>
+        </file>
+        <file name="CS-Z.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.RedoAction"/>
+        </file>
+        <file name="C-F.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.FindAction"/>
+        </file>
+        <file name="C-H.instance">
+            <attr name="instanceCreate" newvalue="org.openide.actions.ReplaceAction"/>
+        </file>
+        
+        <!-- webbrowser -->
+        <file name="CS-V.instance">
+            <attr name="instanceCreate" newvalue="org.netbeans.core.actions.HTMLViewAction"/>
+        </file>
+        <file name="CS-F.instance">
+            <attr name="instanceCreate" newvalue="org.netbeans.core.actions.HTMLViewAction"/>
+        </file>
+        
+        
     </folder>
 </filesystem>
