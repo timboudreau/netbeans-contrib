@@ -71,6 +71,7 @@ public class TestBase extends NbTestCase {
         assertNotNull("found projdir", prjDir);
         Project _ejbFF = ProjectManager.getDefault().findProject(prjDir);
         assertNotNull("have a project", _ejbFF);
+        EJBProjectGeneratorTest.validate(_ejbFF);
         ejbFF = (FreeformProject)_ejbFF;
         ejbJarXml = prjDir.getFileObject("conf/ejb-jar.xml");
         assertNotNull("found ejb-jar.xml", ejbJarXml);
