@@ -39,6 +39,7 @@ public class LineOperations {
 
                 Caret caret = textComponent.getCaret();
                 boolean selection = false;
+                boolean backwardSelection = false;
                 int start = textComponent.getCaretPosition();
                 int end = start;
 
@@ -49,6 +50,7 @@ public class LineOperations {
                     start = Math.min(selStart, selEnd);
                     end =   Math.max(selStart, selEnd) - 1;
                     selection = true;
+                    backwardSelection = (selStart >= selEnd);
                 }
 
                 int zeroBaseStartLineNumber = rootElement.getElementIndex(start);
@@ -75,7 +77,7 @@ public class LineOperations {
                         Element previousLineElement = rootElement.getElement(zeroBaseStartLineNumber - 1);
                         int previousLineStartOffset = previousLineElement.getStartOffset();
 
-                        int column = (selection ? 0 : start - startLineStartOffset);
+                        int column = start - startLineStartOffset;
 
                         // remove the line
                         doc.remove(startLineStartOffset, Math.min(doc.getLength(),endLineEndOffset) - startLineStartOffset);
@@ -85,8 +87,13 @@ public class LineOperations {
 
                         if (selection) {
                             // select moved lines
-                            caret.setDot(previousLineStartOffset + (endLineEndOffset - startLineStartOffset) - (endLineEndOffset - end - 1));
-                            caret.moveDot(previousLineStartOffset + (start - startLineStartOffset));
+                            if (backwardSelection) {
+                                caret.setDot(previousLineStartOffset + column);                                
+                                caret.moveDot(previousLineStartOffset + (endLineEndOffset - startLineStartOffset) - (endLineEndOffset - end - 1));
+                            } else {
+                                caret.setDot(previousLineStartOffset + (endLineEndOffset - startLineStartOffset) - (endLineEndOffset - end - 1));
+                                caret.moveDot(previousLineStartOffset + column);
+                            }
                         } else {
                             // set caret position
                             textComponent.setCaretPosition(previousLineStartOffset + column);
@@ -116,6 +123,7 @@ public class LineOperations {
 
                 Caret caret = textComponent.getCaret();
                 boolean selection = false;
+                boolean backwardSelection = false;
                 int start = textComponent.getCaretPosition();
                 int end = start;
 
@@ -126,6 +134,7 @@ public class LineOperations {
                     start = Math.min(selStart, selEnd);
                     end =   Math.max(selStart, selEnd) - 1;
                     selection = true;
+                    backwardSelection = (selStart >= selEnd);
                 }
 
                 int zeroBaseStartLineNumber = rootElement.getElementIndex(start);
@@ -153,7 +162,7 @@ public class LineOperations {
                         int nextLineStartOffset = nextLineElement.getStartOffset();
                         int nextLineEndOffset = nextLineElement.getEndOffset();
 
-                        int column = (selection ? 0 : start - startLineStartOffset);
+                        int column = start - startLineStartOffset;
 
                         // insert it after next line
                         doc.insertString(nextLineEndOffset, linesText, null);
@@ -163,8 +172,13 @@ public class LineOperations {
 
                         if (selection) {
                             // select moved lines
-                            caret.setDot(nextLineEndOffset  - (endLineEndOffset - startLineStartOffset) + (start - startLineStartOffset));
-                            caret.moveDot(nextLineEndOffset - (endLineEndOffset - end - 1));
+                            if (backwardSelection) {
+                                caret.setDot(nextLineEndOffset  - (endLineEndOffset - startLineStartOffset) + column);
+                                caret.moveDot(nextLineEndOffset - (endLineEndOffset - end - 1));
+                            } else {
+                                caret.setDot(nextLineEndOffset - (endLineEndOffset - end - 1));                                
+                                caret.moveDot(nextLineEndOffset  - (endLineEndOffset - startLineStartOffset) + column);
+                            }
                         } else {
                             // set caret position
                             textComponent.setCaretPosition(Math.min(doc.getLength() - 1, nextLineEndOffset + column - (endLineEndOffset - startLineStartOffset)));
