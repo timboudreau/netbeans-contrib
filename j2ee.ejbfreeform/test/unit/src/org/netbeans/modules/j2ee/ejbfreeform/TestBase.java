@@ -18,6 +18,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.junit.*;
 import org.netbeans.modules.ant.freeform.FreeformProject;
+import org.netbeans.modules.java.platform.JavaPlatformProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
@@ -117,15 +118,18 @@ public class TestBase extends NbTestCase {
         
         public Lkp() {
             super(new Lookup[] {
-                Lookups.fixed(new Object[] {"repo"}, new Conv()),
+                Lookups.fixed(new Object[] {"repo", new DummyJavaPlatformProvider()}, new Conv()),
                 Lookups.metaInfServices(Lkp.class.getClassLoader()),
-                Lookups.singleton(Lkp.class.getClassLoader()),
+                Lookups.singleton(Lkp.class.getClassLoader())
             });
         }
         
         private static final class Conv implements InstanceContent.Convertor {
             public Conv() {}
             public Object convert(Object obj) {
+                if (obj instanceof JavaPlatformProvider) {
+                    return obj;
+                }
                 assert obj == "repo";
                 try {
                     return new Repo();
@@ -141,6 +145,9 @@ public class TestBase extends NbTestCase {
                 return obj.toString();
             }
             public Class type(Object obj) {
+                if (obj instanceof JavaPlatformProvider) {
+                    return JavaPlatformProvider.class;
+                }
                 assert obj == "repo";
                 return Repository.class;
             }
