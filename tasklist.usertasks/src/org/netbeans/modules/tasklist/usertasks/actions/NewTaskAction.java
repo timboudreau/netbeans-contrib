@@ -48,6 +48,7 @@ import org.openide.util.actions.NodeAction;
  *
  * @author Tor Norbye
  * @author Trond Norbye
+ * @author tl
  */
 public class NewTaskAction extends NodeAction {
 

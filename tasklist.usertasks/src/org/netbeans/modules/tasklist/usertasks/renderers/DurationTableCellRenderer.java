@@ -69,13 +69,4 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
             new Integer(duration.minutes)
         }).trim();
     }
-
-    // workaround for a Swing bug (?)
-    protected void paintComponent(java.awt.Graphics g) {
-        //g.setClip(oldClip.x, oldClip.y, 
-        //    oldClip.width - 1, 
-        //    oldClip.height - 1);
-        super.paintComponent(g);
-        //g.setClip(oldClip);
-    }    
 }

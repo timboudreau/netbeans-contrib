@@ -14,6 +14,8 @@
 package org.netbeans.modules.tasklist.timerwin;
 
 import java.awt.BorderLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -30,6 +32,14 @@ public final class ShowViewAction extends CallableSystemAction {
     public void performAction() {
         if (win == null) {
             win = new JDialog();
+            win.setLocation(TimerWindowModuleInstall.WINDOW_POSITION);
+            win.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    TimerWindowModuleInstall.WINDOW_POSITION.setLocation(
+                            e.getWindow().getLocation());
+                    TimerWindowModuleInstall.writeSettings();
+                }
+            });
             win.setUndecorated(true);
             new MoveWindowMouseListener(win.getContentPane());
             win.getContentPane().add(new TimeAccPanel(), BorderLayout.CENTER);

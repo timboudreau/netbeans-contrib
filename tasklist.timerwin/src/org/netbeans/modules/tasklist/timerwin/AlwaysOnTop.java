@@ -13,10 +13,9 @@
 
 package org.netbeans.modules.tasklist.timerwin;
 
-import java.lang.reflect.InvocationTargetException;
+import java.awt.Window;
 import java.lang.reflect.Method;
 import javax.swing.JDialog;
-import javax.swing.JWindow;
 
 /**
  * "Always on top" attribute for dialogs. 
@@ -29,7 +28,7 @@ public class AlwaysOnTop {
     
     static {
         try {
-            setAlwaysOnTopMethod = JWindow.class.getDeclaredMethod(
+            setAlwaysOnTopMethod = Window.class.getDeclaredMethod(
                     "setAlwaysOnTop", // NOI18N
                     new Class[] {Boolean.TYPE});
         } catch (Throwable t) {

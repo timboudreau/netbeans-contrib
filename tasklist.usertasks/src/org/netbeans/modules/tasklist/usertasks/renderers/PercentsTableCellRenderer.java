@@ -45,9 +45,8 @@ public class PercentsTableCellRenderer extends JPanel implements TableCellRender
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
         progressBar.setOpaque(true);
-        progressBar.setBorderPainted(true);
-        progressBar.setBorder(new LineBorder(UIManager.getColor("Table.background"))); // NOI18N
-        
+        progressBar.setBorderPainted(false);
+
         setLayout(new BorderLayout());
         add(progressBar, BorderLayout.CENTER);
     }
@@ -71,22 +70,8 @@ public class PercentsTableCellRenderer extends JPanel implements TableCellRender
 	if (hasFocus) {
 	    setBorder( UIManager.getBorder("Table.focusCellHighlightBorder") ); // NOI18N
 	} else {
-	    setBorder(noFocusBorder);
+	    setBorder(null);
 	}
         return this;
     }
-    
-    // workaround for a Swing bug (?)
-    protected void paintComponent(java.awt.Graphics g) {
-        Rectangle oldClip = g.getClipBounds();
-        Rectangle r = getBounds();
-        r.width--;
-        r.height--;
-        r.x = 0;
-        r.y = 0;
-        Rectangle.intersect(oldClip, r, r);
-        g.setClip(r);
-        super.paintComponent(g);
-        g.setClip(oldClip);
-    }   
 }

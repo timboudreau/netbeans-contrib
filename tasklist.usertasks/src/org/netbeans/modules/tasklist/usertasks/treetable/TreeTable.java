@@ -172,7 +172,7 @@ public class TreeTable extends JTable {
 	setShowGrid(false);
 
 	// No intercell spacing
-	setIntercellSpacing(new Dimension(0, 0));	
+	//setIntercellSpacing(new Dimension(0, 0));	
 
 	// And update the height of the trees row to match that of
 	// the table.
@@ -180,14 +180,6 @@ public class TreeTable extends JTable {
 	    // Metal looks better like this.
 	    setRowHeight(18);
 	}
-        
-        addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                if (e.getPropertyName() == "rowMargin") { // NOI18N
-                    tree.intercellSpacing = getIntercellSpacing();
-                }
-            }
-        });
         
         this.sortingModel = new SortingModel();
         
@@ -796,7 +788,6 @@ public class TreeTable extends JTable {
 	/** Last table/tree row asked to renderer. */
 	protected int visibleRow;
         private Border border;
-        private Dimension intercellSpacing = new Dimension(1, 1);
 
 	public TreeTableCellRenderer(TreeModel model) {
 	    super(model); 
@@ -828,7 +819,7 @@ public class TreeTable extends JTable {
 	 * Sets the row height of the tree, and forwards the row height to
 	 * the table.
 	 */
-	public void setRowHeight(int rowHeight) { 
+	public void setRowHeight(int rowHeight) {
 	    if (rowHeight > 0) {
 		super.setRowHeight(rowHeight); 
 		if (TreeTable.this != null &&
@@ -856,23 +847,12 @@ public class TreeTable extends JTable {
             g2.setRenderingHint(RenderingHints.KEY_RENDERING,
                 RenderingHints.VALUE_RENDER_QUALITY);
         
-            Rectangle oldClip = g.getClipBounds();
-            Rectangle clip;
-            //if (border == null)
-                clip = oldClip.intersection(
-                    new Rectangle(0, 0, 
-                        getWidth() - intercellSpacing.width, 
-                        getRowHeight() - intercellSpacing.height));
-            /*else 
-                clip = oldClip.intersection(
-                    new Rectangle(1, 1, getWidth() - 2, getRowHeight() - 2));*/
-            g.setClip(clip);
 	    g.translate(0, -visibleRow * getRowHeight());
 	    super.paint(g);
             g.translate(0, visibleRow * getRowHeight());
-            g.setClip(oldClip);
             if (border != null)
-                border.paintBorder(this, g, 0, 0, getWidth(), getRowHeight());
+                border.paintBorder(this, g, 0, 0, getWidth(), 
+                        getRowHeight() - TreeTable.this.getRowMargin());
 	}
 
 	/**

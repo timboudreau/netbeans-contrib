@@ -67,18 +67,4 @@ implements TableCellRenderer {
         setSelected((value != null && ((Boolean)value).booleanValue()));
         return this;
     }
-    
-    // workaround for a Swing bug (?)
-    protected void paintComponent(java.awt.Graphics g) {
-        Rectangle oldClip = g.getClipBounds();
-        Rectangle r = getBounds();
-        r.width--;
-        r.height--;
-        r.x = 0;
-        r.y = 0;
-        Rectangle.intersect(oldClip, r, r);
-        g.setClip(r);
-        super.paintComponent(g);
-        g.setClip(oldClip);
-    }   
 }

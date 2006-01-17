@@ -256,10 +256,13 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     /**
      * Fires the appropriate events if a child object was added
      *
-     * @param obj new child nodes objects
+     * @param obj new child nodes object
      */
     protected void fireChildObjectAdded(Object obj) {
         if (children != null) {
+            if (!accept(obj))
+                return;
+            
             AdvancedTreeTableNode cn = createChildNode(obj);
             
             int index;
@@ -271,8 +274,10 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
                 index = -1;
                 Iterator it = getChildrenObjectsIterator();
                 while (it.hasNext()) {
-                    index++;
                     Object next = it.next();
+                    if (!accept(next))
+                        continue;
+                    index++;
                     if (next == obj)
                         break;
                 }
@@ -297,7 +302,8 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
         AdvancedTreeTableNode parent = (AdvancedTreeTableNode) getParent(); 
         TreeTableNode[] path = parent.getPathToRoot();
 
-        assert parent.getIndex(this) != -1 : "parent=" + parent + " this=" + this +  // NOI18N
+        assert parent.getIndex(this) != -1 : "parent=" + parent + // NOI18N
+            " this=" + this +  // NOI18N
             " parent.getChildCount=" + parent.getChildCount() +  // NOI18N
             " parent.getChild(0)=" + parent.getChildAt(0); // NOI18N
         model.fireTreeNodesChanged(model, path, 
@@ -322,5 +328,9 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
                 fireChildObjectRemoved(child.getObject());
             }
         }
+    }
+
+    public boolean isLeaf() {
+        return getChildren().length == 0;
     }
 }

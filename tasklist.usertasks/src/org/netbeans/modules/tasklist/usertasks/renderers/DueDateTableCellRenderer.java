@@ -64,10 +64,18 @@ TreeTableRenderer {
             UserTaskTreeTableNode n = (UserTaskTreeTableNode) node;
             UserTask ut = (UserTask) n.getUserTask();
             Date due = ut.getDueDate();
-            boolean b = !ut.isDone() && due != null && 
-                due.getTime() >= System.currentTimeMillis();
-            setFont(b ? normalFont : boldFont);
-            if (!isSelected && !b)
+            boolean overdue = false;
+            if (!ut.isDone()) {
+                if (due != null &&
+                    due.getTime() < System.currentTimeMillis())
+                    overdue = true;
+            } else {
+                if (due != null &&
+                        due.getTime() < ut.getCompletedDate())
+                    overdue = true;
+            }
+            setFont(overdue ? boldFont : normalFont);
+            if (!isSelected && overdue)
                 setForeground(Color.RED);
         }
         return this;

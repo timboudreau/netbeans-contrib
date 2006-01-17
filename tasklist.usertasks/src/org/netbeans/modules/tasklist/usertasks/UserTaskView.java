@@ -539,9 +539,12 @@ FilteredTopComponent {
         
         assert tt != null : "tt == null"; // NOI18N
         TreePath tp = tt.findPath(task);
-        assert tp != null : "tp == null"; // NOI18N
-        tt.expandPath(tp.getParentPath());
-        tt.select(tp);
+        
+        // tp could be null if a filter is in use
+        if (tp != null) {
+            tt.expandPath(tp.getParentPath());
+            tt.select(tp);
+        }
     }
     
     /**
