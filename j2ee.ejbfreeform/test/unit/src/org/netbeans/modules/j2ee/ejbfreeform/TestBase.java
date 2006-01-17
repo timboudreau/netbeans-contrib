@@ -14,9 +14,13 @@
 package org.netbeans.modules.j2ee.ejbfreeform;
 
 import java.io.File;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.junit.*;
+import org.netbeans.modules.ant.freeform.FreeformProject;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.MultiFileSystem;
 import org.openide.filesystems.Repository;
@@ -36,6 +40,13 @@ public class TestBase extends NbTestCase {
         System.setProperty("org.openide.util.Lookup", Lkp.class.getName());
     }
     
+    protected File egdir;
+    protected FileObject buildXml;
+    protected FreeformProject ejbFF;
+    protected FileObject ejbJarXml;
+    protected FileObject bean;
+    protected FileObject schema;
+
     public TestBase(java.lang.String testName) {
         super(testName);
     }
@@ -53,6 +64,24 @@ public class TestBase extends NbTestCase {
         assertNotNull("have J2EE", j2eeFolder);
     }
     
+    protected void setUpProject() throws Exception {
+        egdir = FileUtil.normalizeFile(getDataDir());
+        assertTrue("data dir " + egdir + " exists", egdir.exists());
+        FileObject prjDir = FileUtil.toFileObject(egdir).getFileObject("test-app");
+        assertNotNull("found projdir", prjDir);
+        Project _ejbFF = ProjectManager.getDefault().findProject(prjDir);
+        assertNotNull("have a project", _ejbFF);
+        ejbFF = (FreeformProject)_ejbFF;
+        ejbJarXml = prjDir.getFileObject("conf/ejb-jar.xml");
+        assertNotNull("found ejb-jar.xml", ejbJarXml);
+        bean = prjDir.getFileObject("src/beans/ent/CustomerLocal.java");
+        assertNotNull("found CustomerLocal", bean);
+        schema = prjDir.getFileObject("resources/APP_test-app.dbschema");
+        assertNotNull("found dbschema", schema);
+        buildXml = prjDir.getFileObject("build.xml");
+        assertNotNull("found build.xml", buildXml);
+    }
+
     protected boolean runInEQ() {
         return true;
     }
@@ -116,4 +145,5 @@ public class TestBase extends NbTestCase {
             }
         }
     }
+
 }
