@@ -1,0 +1,870 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar version="2.1" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd">
+    <display-name>test-app</display-name>
+    <enterprise-beans>
+        <session>
+            <display-name>FirstSessionSB</display-name>
+            <ejb-name>FirstSessionBean</ejb-name>
+            <local-home>first.FirstSessionLocalHome</local-home>
+            <local>first.FirstSessionLocal</local>
+            <ejb-class>first.FirstSessionBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+        </session>
+        <session>
+            <display-name>SecondSessionSB</display-name>
+            <ejb-name>SecondSessionBean</ejb-name>
+            <local-home>sec.SecondSessionLocalHome</local-home>
+            <local>sec.SecondSessionLocal</local>
+            <ejb-class>sec.SecondSessionBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+        </session>
+        <session>
+            <display-name>RunSessionSB</display-name>
+            <ejb-name>RunSessionBean</ejb-name>
+            <home>mix.RunSessionRemoteHome</home>
+            <remote>mix.RunSessionRemote</remote>
+            <ejb-class>mix.RunSessionBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+        </session>
+        <session>
+            <display-name>WSEndpointSB</display-name>
+            <ejb-name>WSEndpoint</ejb-name>
+            <service-endpoint>ws.WSEndpointSEI</service-endpoint>
+            <ejb-class>ws.WSEndpointBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+        </session>
+        <entity>
+            <description>jdbc:derby://localhost:1527/sample [app on APP]</description>
+            <display-name>ProductEB</display-name>
+            <ejb-name>ProductBean</ejb-name>
+            <local-home>ent.ProductLocalHome</local-home>
+            <local>ent.ProductLocal</local>
+            <ejb-class>ent.ProductBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>false</reentrant>
+            <abstract-schema-name>Product</abstract-schema-name>
+            <cmp-field>
+                <field-name>productId</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>purchaseCost</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>quantityOnHand</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>markup</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>available</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>description</field-name>
+            </cmp-field>
+            <primkey-field>productId</primkey-field>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByProductId</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(p) FROM Product AS p WHERE p.productId = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByPurchaseCost</method-name>
+                    <method-params>
+                        <method-param>java.math.BigDecimal</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(p) FROM Product AS p WHERE p.purchaseCost = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByQuantityOnHand</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(p) FROM Product AS p WHERE p.quantityOnHand = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByMarkup</method-name>
+                    <method-params>
+                        <method-param>java.math.BigDecimal</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(p) FROM Product AS p WHERE p.markup = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByAvailable</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(p) FROM Product AS p WHERE p.available = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByDescription</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(p) FROM Product AS p WHERE p.description = ?1</ejb-ql>
+            </query>
+        </entity>
+        <entity>
+            <description>jdbc:derby://localhost:1527/sample [app on APP]</description>
+            <display-name>ProductCodeEB</display-name>
+            <ejb-name>ProductCodeBean</ejb-name>
+            <local-home>ent.ProductCodeLocalHome</local-home>
+            <local>ent.ProductCodeLocal</local>
+            <ejb-class>ent.ProductCodeBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.String</prim-key-class>
+            <reentrant>false</reentrant>
+            <abstract-schema-name>ProductCode</abstract-schema-name>
+            <cmp-field>
+                <field-name>prodCode</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>discountCode</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>description</field-name>
+            </cmp-field>
+            <primkey-field>prodCode</primkey-field>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByProdCode</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(p) FROM ProductCode AS p WHERE p.prodCode = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByDiscountCode</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(p) FROM ProductCode AS p WHERE p.discountCode = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByDescription</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(p) FROM ProductCode AS p WHERE p.description = ?1</ejb-ql>
+            </query>
+        </entity>
+        <entity>
+            <description>jdbc:derby://localhost:1527/sample [app on APP]</description>
+            <display-name>DiscountCodeEB</display-name>
+            <ejb-name>DiscountCodeBean</ejb-name>
+            <local-home>ent.DiscountCodeLocalHome</local-home>
+            <local>ent.DiscountCodeLocal</local>
+            <ejb-class>ent.DiscountCodeBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.String</prim-key-class>
+            <reentrant>false</reentrant>
+            <abstract-schema-name>DiscountCode</abstract-schema-name>
+            <cmp-field>
+                <field-name>discountCode</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>rate</field-name>
+            </cmp-field>
+            <primkey-field>discountCode</primkey-field>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByDiscountCode</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(d) FROM DiscountCode AS d WHERE d.discountCode = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByRate</method-name>
+                    <method-params>
+                        <method-param>java.math.BigDecimal</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(d) FROM DiscountCode AS d WHERE d.rate = ?1</ejb-ql>
+            </query>
+        </entity>
+        <entity>
+            <description>jdbc:derby://localhost:1527/sample [app on APP]</description>
+            <display-name>OrdersEB</display-name>
+            <ejb-name>OrdersBean</ejb-name>
+            <local-home>ent.OrdersLocalHome</local-home>
+            <local>ent.OrdersLocal</local>
+            <ejb-class>ent.OrdersBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>false</reentrant>
+            <abstract-schema-name>Orders</abstract-schema-name>
+            <cmp-field>
+                <field-name>orderNum</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>quantity</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>shippingCost</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>salesDate</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>shippingDate</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>freightCompany</field-name>
+            </cmp-field>
+            <primkey-field>orderNum</primkey-field>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByOrderNum</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(o) FROM Orders AS o WHERE o.orderNum = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByQuantity</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(o) FROM Orders AS o WHERE o.quantity = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByShippingCost</method-name>
+                    <method-params>
+                        <method-param>java.math.BigDecimal</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(o) FROM Orders AS o WHERE o.shippingCost = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByFreightCompany</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(o) FROM Orders AS o WHERE o.freightCompany = ?1</ejb-ql>
+            </query>
+        </entity>
+        <entity>
+            <description>jdbc:derby://localhost:1527/sample [app on APP]</description>
+            <display-name>CustomerEB</display-name>
+            <ejb-name>CustomerBean</ejb-name>
+            <local-home>ent.CustomerLocalHome</local-home>
+            <local>ent.CustomerLocal</local>
+            <ejb-class>ent.CustomerBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>false</reentrant>
+            <abstract-schema-name>Customer</abstract-schema-name>
+            <cmp-field>
+                <field-name>customerId</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>zip</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>name</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>addressline1</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>addressline2</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>city</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>state</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>phone</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>fax</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>email</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>creditLimit</field-name>
+            </cmp-field>
+            <primkey-field>customerId</primkey-field>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByCustomerId</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.customerId = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByZip</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.zip = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.name = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByAddressline1</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.addressline1 = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByAddressline2</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.addressline2 = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByCity</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.city = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByState</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.state = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByPhone</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.phone = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByFax</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.fax = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByEmail</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.email = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByCreditLimit</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(c) FROM Customer AS c WHERE c.creditLimit = ?1</ejb-ql>
+            </query>
+        </entity>
+        <entity>
+            <description>jdbc:derby://localhost:1527/sample [app on APP]</description>
+            <display-name>MicroMarketsEB</display-name>
+            <ejb-name>MicroMarketsBean</ejb-name>
+            <local-home>ent.MicroMarketsLocalHome</local-home>
+            <local>ent.MicroMarketsLocal</local>
+            <ejb-class>ent.MicroMarketsBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.String</prim-key-class>
+            <reentrant>false</reentrant>
+            <abstract-schema-name>MicroMarkets</abstract-schema-name>
+            <cmp-field>
+                <field-name>zipCode</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>radius</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>areaLength</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>areaWidth</field-name>
+            </cmp-field>
+            <primkey-field>zipCode</primkey-field>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByZipCode</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM MicroMarkets AS m WHERE m.zipCode = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByRadius</method-name>
+                    <method-params>
+                        <method-param>java.lang.Double</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM MicroMarkets AS m WHERE m.radius = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByAreaLength</method-name>
+                    <method-params>
+                        <method-param>java.lang.Double</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM MicroMarkets AS m WHERE m.areaLength = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByAreaWidth</method-name>
+                    <method-params>
+                        <method-param>java.lang.Double</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM MicroMarkets AS m WHERE m.areaWidth = ?1</ejb-ql>
+            </query>
+        </entity>
+        <entity>
+            <description>jdbc:derby://localhost:1527/sample [app on APP]</description>
+            <display-name>ManufactureEB</display-name>
+            <ejb-name>ManufactureBean</ejb-name>
+            <local-home>ent.ManufactureLocalHome</local-home>
+            <local>ent.ManufactureLocal</local>
+            <ejb-class>ent.ManufactureBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>false</reentrant>
+            <abstract-schema-name>Manufacture</abstract-schema-name>
+            <cmp-field>
+                <field-name>manufactureId</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>name</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>addressline1</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>addressline2</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>city</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>state</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>zip</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>phone</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>fax</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>email</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>rep</field-name>
+            </cmp-field>
+            <primkey-field>manufactureId</primkey-field>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByManufactureId</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.manufactureId = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.name = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByAddressline1</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.addressline1 = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByAddressline2</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.addressline2 = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByCity</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.city = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByState</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.state = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByZip</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.zip = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByPhone</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.phone = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByFax</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.fax = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByEmail</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.email = ?1</ejb-ql>
+            </query>
+            <query>
+                <description>auto generated method</description>
+                <query-method>
+                    <method-name>findByRep</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(m) FROM Manufacture AS m WHERE m.rep = ?1</ejb-ql>
+            </query>
+        </entity>
+        </enterprise-beans>
+    <relationships>
+        <ejb-relation>
+            <ejb-relation-name>ProductBean-ManufactureBean</ejb-relation-name>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>ProductBean</ejb-relationship-role-name>
+                <multiplicity>Many</multiplicity>
+                <cascade-delete/>
+                <relationship-role-source>
+                    <ejb-name>ProductBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>manufactureId</cmr-field-name>
+                </cmr-field>
+            </ejb-relationship-role>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>ManufactureId</ejb-relationship-role-name>
+                <multiplicity>One</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>ManufactureBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>productBean</cmr-field-name>
+                    <cmr-field-type>java.util.Collection</cmr-field-type>
+                </cmr-field>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relation-name>ProductBean-ProductCodeBean</ejb-relation-name>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>ProductBean</ejb-relationship-role-name>
+                <multiplicity>Many</multiplicity>
+                <cascade-delete/>
+                <relationship-role-source>
+                    <ejb-name>ProductBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>productCode</cmr-field-name>
+                </cmr-field>
+            </ejb-relationship-role>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>ProductCode</ejb-relationship-role-name>
+                <multiplicity>One</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>ProductCodeBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>productBean</cmr-field-name>
+                    <cmr-field-type>java.util.Collection</cmr-field-type>
+                </cmr-field>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relation-name>OrdersBean-CustomerBean</ejb-relation-name>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>OrdersBean</ejb-relationship-role-name>
+                <multiplicity>Many</multiplicity>
+                <cascade-delete/>
+                <relationship-role-source>
+                    <ejb-name>OrdersBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>customerId</cmr-field-name>
+                </cmr-field>
+            </ejb-relationship-role>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>CustomerId</ejb-relationship-role-name>
+                <multiplicity>One</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>CustomerBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>ordersBean</cmr-field-name>
+                    <cmr-field-type>java.util.Collection</cmr-field-type>
+                </cmr-field>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relation-name>OrdersBean-ProductBean</ejb-relation-name>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>OrdersBean</ejb-relationship-role-name>
+                <multiplicity>Many</multiplicity>
+                <cascade-delete/>
+                <relationship-role-source>
+                    <ejb-name>OrdersBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>productId</cmr-field-name>
+                </cmr-field>
+            </ejb-relationship-role>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>ProductId</ejb-relationship-role-name>
+                <multiplicity>One</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>ProductBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>ordersBean</cmr-field-name>
+                    <cmr-field-type>java.util.Collection</cmr-field-type>
+                </cmr-field>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relation-name>CustomerBean-DiscountCodeBean</ejb-relation-name>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>CustomerBean</ejb-relationship-role-name>
+                <multiplicity>Many</multiplicity>
+                <cascade-delete/>
+                <relationship-role-source>
+                    <ejb-name>CustomerBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>discountCode</cmr-field-name>
+                </cmr-field>
+            </ejb-relationship-role>
+            <ejb-relationship-role>
+                <ejb-relationship-role-name>DiscountCode</ejb-relationship-role-name>
+                <multiplicity>One</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>DiscountCodeBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>customerBean</cmr-field-name>
+                    <cmr-field-type>java.util.Collection</cmr-field-type>
+                </cmr-field>
+            </ejb-relationship-role>
+        </ejb-relation>
+        </relationships>
+    <assembly-descriptor>
+        <container-transaction>
+            <method>
+                <ejb-name>FirstSessionBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>SecondSessionBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>RunSessionBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>ProductBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>ProductCodeBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>DiscountCodeBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>OrdersBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>CustomerBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>MicroMarketsBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>ManufactureBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        </assembly-descriptor>
+    </ejb-jar>

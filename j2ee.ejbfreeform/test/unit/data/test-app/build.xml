@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="test-app" default="dist" basedir=".">
+    <description>Builds, tests, and runs the project .</description>
+    <target name="init">
+        <echo>Target: init</echo>
+    </target>
+    <target name="clean" depends="init">
+        <echo>Target: clean</echo>
+    </target>
+    <target name="build" depends="init">
+        <echo>Target: build</echo>
+    </target>
+    <target name="jar" depends="build">
+        <echo>Target: jar</echo>
+    </target>
+    <target name="deploy" depends="jar">
+        <echo>Target: deploy</echo>
+    </target>
+    <target name="run" depends="deploy">
+        <echo>Target: run</echo>
+    </target>
+    <target name="javadoc" depends="init">
+        <echo>Target: javadoc</echo>
+    </target>
+    <target name="test" depends="build">
+        <echo>Target: test</echo>
+    </target>
+    <target name="dist" depends="jar,javadoc">
+        <echo>Target: dist</echo>
+    </target>
+</project>
