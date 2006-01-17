@@ -15,7 +15,7 @@
             <properties>
                 <property name="resource.dir">resources</property>
                 <property name="j2ee.platform">1.4</property>
-                <property name="j2ee.server.type">J2EE</property>
+                <property name="j2ee.server.type">GENERIC</property>
             </properties>
             <folders>
                 <source-folder>
