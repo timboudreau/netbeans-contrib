@@ -85,8 +85,8 @@ public class LineOperations {
 
                         if (selection) {
                             // select moved lines
-                            caret.setDot(previousLineStartOffset + (endLineEndOffset - startLineStartOffset));
-                            caret.moveDot(previousLineStartOffset);
+                            caret.setDot(previousLineStartOffset + (endLineEndOffset - startLineStartOffset) - (endLineEndOffset - end - 1));
+                            caret.moveDot(previousLineStartOffset + (start - startLineStartOffset));
                         } else {
                             // set caret position
                             textComponent.setCaretPosition(previousLineStartOffset + column);
@@ -163,8 +163,8 @@ public class LineOperations {
 
                         if (selection) {
                             // select moved lines
-                            caret.setDot(nextLineEndOffset  - (endLineEndOffset - startLineStartOffset));
-                            caret.moveDot(nextLineEndOffset);
+                            caret.setDot(nextLineEndOffset  - (endLineEndOffset - startLineStartOffset) + (start - startLineStartOffset));
+                            caret.moveDot(nextLineEndOffset - (endLineEndOffset - end - 1));
                         } else {
                             // set caret position
                             textComponent.setCaretPosition(Math.min(doc.getLength() - 1, nextLineEndOffset + column - (endLineEndOffset - startLineStartOffset)));
