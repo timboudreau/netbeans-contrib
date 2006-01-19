@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <xsl:stylesheet version="1.0"
@@ -37,6 +37,8 @@ Microsystems, Inc. All Rights Reserved.
 </information>
 <offline-allowed/>
 <security/>
+<!-- XXX do acc. to configuration -->
+<!-- XXX all-permissions does not work; need signature; see apisupport/harness/release/jnlp.xml for ideas -->
  <!-- <j2ee-application-client-permissions/> 
 </security>-->
 <resources>

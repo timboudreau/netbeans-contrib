@@ -7,48 +7,43 @@
 * http://www.sun.com/
 *
 * The Original Code is NetBeans. The Initial Developer of the Original
-* Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+* Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 * Microsystems, Inc. All Rights Reserved.
 */
-/*
- * PackagerCustomizer.java
- *
- * Created on May 26, 2004, 3:40 AM
- */
 
 package org.netbeans.modules.packager.ui;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyListener;
+import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionListener;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.packager.PackagerProject;
-import org.netbeans.modules.project.ant.Util;
 import org.netbeans.spi.project.SubprojectProvider;
-import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * Customizer to allow selection of included projects.
  *
  * @author  Tim Boudreau
  */
-public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.event.FocusListener, java.awt.event.ActionListener, javax.swing.event.ListSelectionListener, java.awt.event.KeyListener, java.beans.PropertyChangeListener {
+public class PackagerCustomizer extends JPanel implements FocusListener, ActionListener, ListSelectionListener, KeyListener, PropertyChangeListener {
     private CustomizerAsWizardPanel panel;
     private PackagerCustomizer() {
         initComponents();

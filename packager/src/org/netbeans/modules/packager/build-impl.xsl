@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <xsl:stylesheet version="1.0"
@@ -190,8 +190,8 @@ Microsystems, Inc. All Rights Reserved.
                 <ant target="{$subtarget}" inheritall="false" antfile="${{project.{$subproj}}}/{$script}"/>
                 <xsl:if test="$copyfiles='true'">
                     <!--XXX test for is.mac here & also copy to jnlp dir -->
-                    <mkdir dir="dist/Macintosh/{$projname}.app/Contents/Resources"/>
-                    <copy todir="dist/Macintosh/{$projname}.app/Contents/Resources" file="${{reference.{$subproj}.jar}}"/>
+                    <mkdir dir="dist/Macintosh/{$name}.app/Contents/Resources"/>
+                    <copy todir="dist/Macintosh/{$name}.app/Contents/Resources" file="${{reference.{$subproj}.jar}}"/>
 
                     <!--XXX don't always do this, and get it to match the URL in the jnlp file -->
                     <mkdir dir="dist/WebStart/dist"/>

@@ -7,24 +7,33 @@
 * http://www.sun.com/
 *
 * The Original Code is NetBeans. The Initial Developer of the Original
-* Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+* Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 * Microsystems, Inc. All Rights Reserved.
 */
-/*
- * PackagerProject.java
- *
- * Created on May 26, 2004, 3:05 AM
- */
 
 package org.netbeans.modules.packager;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
+import org.netbeans.api.project.ant.AntArtifact;
+import org.netbeans.api.project.ant.AntArtifactQuery;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.SubprojectProvider;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
@@ -33,33 +42,18 @@ import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.netbeans.spi.project.support.ant.ProjectGenerator;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.ReferenceHelper;
+import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 import org.openide.util.MutexException;
+import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.project.ant.AntArtifact;
-import org.netbeans.api.project.ant.AntArtifactQuery;
-import org.netbeans.spi.project.ant.AntArtifactProvider;
-import org.netbeans.spi.project.ui.ProjectOpenedHook;
-import java.io.*;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
-import org.openide.filesystems.FileLock;
-import org.openide.util.Utilities;
 
 /**
  * A project type which takes the build products of other projects and
@@ -239,9 +233,12 @@ public class PackagerProject implements Project {
                     AntArtifact[] artifacts = AntArtifactQuery.findArtifactsByType(
                         projects[i], JavaProjectConstants.ARTIFACT_TYPE_JAR);
                     for (int j=0; j < artifacts.length; j++) {
-                        refHelper.addReference(artifacts[j]);
-                        if (isMainClassProject && mainClassJar == null) {
-                            mainClassJar = findJarFor (projects[i], artifacts[j], mainClass);
+                        URI[] locations = artifacts[j].getArtifactLocations();
+                        for (int k = 0; k < locations.length; k++) {
+                            refHelper.addReference(artifacts[j], locations[k]);
+                            if (isMainClassProject && mainClassJar == null) {
+                                mainClassJar = findJarFor(projects[i], artifacts[j], mainClass, locations[k]);
+                            }
                         }
                     }
                 }
@@ -282,7 +279,7 @@ public class PackagerProject implements Project {
      * Locate the jar file which will contain the main class, for generating
      * the jnlp descriptor.  XXX needs some work.
      */
-    private static String findJarFor (Project proj, AntArtifact art, String className) {
+    private static String findJarFor (Project proj, AntArtifact art, String className, URI location) {
         Sources sources = ProjectUtils.getSources(proj);
         String toFind = Utilities.replaceString(className, ".", "/");
         System.err.println("Scanning " + sources + " from " + proj.getProjectDirectory().getPath() + " for " + toFind);
@@ -292,7 +289,7 @@ public class PackagerProject implements Project {
             File f = new File(File.separator + groups[i].getRootFolder().getPath() + File.separator + toFind + ".java");
             System.err.println("Check exists " + f.getPath());
             if (f.exists()) {
-                String jarname = art.getArtifactLocation().toString(); //XXX probably wrong
+                String jarname = location.toString(); //XXX probably wrong
                 System.err.println("Found " + f.getPath() + " jar is " + jarname);
                 return jarname;
             }
