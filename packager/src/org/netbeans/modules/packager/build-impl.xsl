@@ -115,7 +115,9 @@ Microsystems, Inc. All Rights Reserved.
                 <echo message="Unix build not implemented yet"/>
             </target>
             
-            <target name="build" depends="init,deps-build,build-mac,build-jnlp,build-windows,build-unix"/>
+            <target name="build" depends="init,deps-build,build-mac,build-jnlp,build-windows,build-unix">
+                <!-- XXX also add one-jar, e.g.: http://voxel.dl.sourceforge.net/sourceforge/one-jar/one-jar-boot-0.95.jar -->
+            </target>
             
             <target name="run" depends="build">
                 <exec executable="open">
