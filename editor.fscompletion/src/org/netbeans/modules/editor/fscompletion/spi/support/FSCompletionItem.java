@@ -82,6 +82,7 @@ final class FSCompletionItem implements CompletionItem {
     
     public void defaultAction(JTextComponent component) {
         doSubstitute(component, null, 0);
+        Completion.get().hideAll();
     }
     
     public void processKeyEvent(KeyEvent evt) {
