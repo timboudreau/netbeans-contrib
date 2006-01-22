@@ -38,9 +38,6 @@ Microsystems, Inc. All Rights Reserved.
 <command name="\indent">
 </command>
 
-<command name="\hline">
-</command>
-
 <command name="\subsection*">
   <attribute name="#section-command" value="subsection" />
   <attribute name="#caption-command" value="true" />
@@ -76,13 +73,13 @@ Microsystems, Inc. All Rights Reserved.
 
   <argument type="mandatory">
     <attribute name="#no-parse" value="true" />
-
+    <attribute name="#environment-begin-spec" value="true" />
     <attribute name="#code" value="true" />
   </argument>
 
   <argument type="mandatory">
     <attribute name="#no-parse" value="true" />
-
+    <attribute name="#environment-end-spec" value="true" />
     <attribute name="#code" value="true" />
   </argument>
 </command>
@@ -370,37 +367,6 @@ Microsystems, Inc. All Rights Reserved.
     <attribute name="use-file-argument" value="true" />
     <attribute name="use-file-argument-extensions" value="bib" />
     <attribute name="files-separator" value="," />
-  </argument>
-</command>
-
-<command name="\newenvironment">
-  <attribute name="#enviroment-defining-command" value="true" />
-  
-  <argument type="mandatory">
-    <attribute name="#code" value="true" />
-    <attribute name="#envname" value="true" />
-  </argument>
-
-  <argument type="nonmandatory">
-    <attribute name="#code" value="true" />
-    <attribute name="#argcountargument" value="true" />
-  </argument>
-
-  <argument type="nonmandatory">
-    <attribute name="#code" value="true" />
-    <attribute name="#nonmandargvalueargument" value="true" />
-  </argument>
-
-  <argument type="mandatory">
-    <attribute name="#no-parse" value="true" />
-
-    <attribute name="#code" value="true" />
-  </argument>
-
-  <argument type="mandatory">
-    <attribute name="#no-parse" value="true" />
-
-    <attribute name="#code" value="true" />
   </argument>
 </command>
 
@@ -771,4 +737,20 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\paperheight">
+</command>
+
+<command name="\tableofcontents">
+</command>
+
+<command name="\cleardoublepage">
+</command>
+
+<command name="\pagenumbering">
+    <argument type="mandatory">
+        <value value="arabic" />
+        <value value="roman" />
+        <value value="Roman" />
+        <value value="alph" />
+        <value value="Alph" />
+    </argument>
 </command>

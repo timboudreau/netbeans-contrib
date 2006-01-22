@@ -35,6 +35,9 @@ Microsystems, Inc. All Rights Reserved.
         <file name="amsfonts.xml" url="amsfonts.xml">
             <attr name="command-package" stringvalue="true" />
         </file>
+        <file name="amsmath.xml" url="amsmath.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
         <file name="amsthm.xml" url="amsthm.xml">
             <attr name="command-package" stringvalue="true" />
         </file>

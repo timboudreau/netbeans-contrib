@@ -117,7 +117,14 @@ Microsystems, Inc. All Rights Reserved.
 
 <environment name="flushright"></environment>
 
-<environment name="tabular"></environment>
+<environment name="tabular">
+    <commands>
+        <command name="\hline">
+        </command>
+        <command name="\cline">
+        </command>
+    </commands>
+</environment>
 
 <environment name="enumerate">
     <attribute name="hide-environment-boundary" value="true" />
@@ -151,3 +158,5 @@ Microsystems, Inc. All Rights Reserved.
 </environment>
 
 <environment name="minipage"></environment>
+
+<environment name="equation"></environment>
