@@ -19,6 +19,7 @@ import java.awt.event.KeyEvent;
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 import javax.swing.JEditorPane;
@@ -142,9 +143,16 @@ final class RegexTopComponent extends TopComponent {
             return RegexTopComponent.getDefault();
         }
     }
+    
     private void test() {
-        
-        Matcher matcher = getMatcher(pattern.getText(), input.getText());
+        Matcher matcher = null;
+        try {
+            matcher = getMatcher(pattern.getText(), input.getText());
+        } catch (PatternSyntaxException ex) {
+            matchTextField.setText("Wrong pattern syntax: " + ex.getDescription() + " near index " + ex.getIndex());
+            matchTextField.setForeground(Color.RED);
+            return;
+        }
         
         boolean found = false;
         String result = "";
@@ -166,7 +174,7 @@ final class RegexTopComponent extends TopComponent {
         }
     }
     
-    private static Matcher getMatcher(String patternStr, String input) {
+    private static Matcher getMatcher(String patternStr, String input) throws PatternSyntaxException {
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(input);
         return matcher;
