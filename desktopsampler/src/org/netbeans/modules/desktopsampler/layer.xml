@@ -18,4 +18,10 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-desktopsampler-ui-DesktopSamplerAction.instance"/>            
         </folder>
     </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+          <file name="org-netbeans-modules-desktopsampler-help-set.xml" url="help-set.xml"/>
+          <attr name="org-netbeans-modules-usersguide-below-regular.txt/org-netbeans-modules-desktopsampler-help-set.xml" boolvalue="true"/>
+        </folder>
+    </folder>
 </filesystem>

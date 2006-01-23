@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title></title>
+  <meta content="Sandip Chitale" name="author">
+</head>
+<body>
+<h2>Desktop Sample Module</h2>
+The Desktop Sampler module installs a toolbar with Color Sampler and
+Magnifier tools.<br>
+<h2>Source</h2>
+The latest sources are at <br>
+<br>
+<code>http://www.netbeans.org/source/browse/contrib/DesktopSampler/</code><br>
+<h2>Features</h2>
+<ul>
+  <li>Color Sampler tool</li>
+  <ul>
+    <li>Supports various color string formats<br>
+    </li>
+  </ul>
+  <li>Magnifier Tool</li>
+  <ul>
+    <li>Supports 1:1 to 1:16 magnification scale<br>
+    </li>
+  </ul>
+  <li>Demonstration of the use of above tools as a custom Color Chooser
+Panel in a javax.swing.JColorChooser.</li>
+</ul>
+<h3>Java API Used In This Module</h3>
+<p>The java.awt.Robot
+class which was added to the J2SE in version 1.3. has couple of
+interesting APIs:</p>
+<pre>public Color getPixelColor(int x, int y)</pre>
+The <code>getPixel()</code> API returns the color of a pixel at the
+given screen coordinates. Use this API to build a Color Sampler that
+can pick up the color from any pixel on the desktop. Color sampling
+tools are found on the tool palettes of most modern painting programs
+such as Adobe Photoshop(TM). This tool comes in very handy every time
+you need to specify a color by providing the Hex, RGB or HSB color
+value.
+<pre>public BufferedImage createScreenCapture(Rectangle screenRect)</pre>
+The <code>createScreenCapture()</code> API creates an image containing
+pixels read from the screen. Use this API to build a Magnifier that
+selects any area of the desktop and views it at various magnification
+levels. Such a Magnifier tool can for instance increase readability and
+therefor accessibility for vision impaired users.
+<h3>Applications of a Color Chooser</h3>
+<p>This module uses the Magnifier in conjunction with the Color Sampler
+to
+create a new NetBeans toolbar for very precise color sampling.<br>
+</p>
+<p>The NetBeans IDE supports
+creating Web GUIs using HTML/CSS/JSP and Java Beans. All of
+these development activities involve defining color settings and
+require you to provide a precise Hex, RGB or HSB color value. </p>
+<p>In these various contexts, color values have to be formatted in
+different ways: </p>
+<ul>
+  <li>In HTML files, you define color as hex RGB values in the <code>#hhhhhh</code>
+format; </li>
+  <li>in CSS files, you use either hex <code>#hhhhhh</code> or <code>rgb(r,g,b)</code>;
+  </li>
+  <li>in JSP files, colors are specified in the <code>#hhhhhh</code>
+format; </li>
+  <li>in Property sheets, you specify the color typed property values
+as <code>[r,g,b]</code>; </li>
+  <li>whereas Java initialization strings in the JavaBeans property
+editor require <code>new Color(r,g,b)</code>. </li>
+</ul>
+<p>The Color Sampler can help you quickly enter the appropriate color
+format because the value of the color sampled can be output in
+different ways. The NetBeans
+IDE benefits greatly from the functionality of the Color Sampler
+and the Magnifier tool in this domain.<br>
+</p>
+<h2>Desktop Sampler Toolbar</h2>
+The following screen shot shows the Desktop Sampler Toolbar.<br>
+<br>
+<img alt="Desktop Sampler Toolbar" src="DesktopSamplerToolbar.jpg"
+ style="width: 410px; height: 34px;"><br>
+<!-- ===================== TUTORIAL SUBSECTION ============================ -->
+<h2>How the Color Sampler Tool works</h2>
+<p>The ColorSampler tool makes use of the <code>public
+Color getPixelColor(int x, int y)</code> API from java.awt.Robot.
+It creates a <code>color sampler</code> label with a dropper icon [<img
+ style="width: 16px; height: 16px;" alt="Color Sampler dropper"
+ src="ColorSampler.gif">] as
+shown in the following screen shot.</p>
+<p><img style="width: 298px; height: 25px;" alt="Color Sampler tool"
+ src="ColorSampler.jpg"></p>
+<p>The tool registers a mouse listener and a mouse motion listener
+on the label. In the <code>mousePressed</code>, <code>mouseDragged</code>
+and <code>mouseReleased</code> callbacks, it samples the color of the
+pixel under the mouse cursor using the <code>getPixelColor()</code>
+API. Then it sets the background color of the Color Preview label to
+the sampled color, and sets the content of the Color Value text field
+to the sampled color value in the selected format. The Color Value text
+field also supports dragging&amp;dropping of the color value string. </p>
+<p>You select the color format to be used with the Color Format dialog.
+The Color Format dialog is invoked by clicking on the button with the
+pencil icon [<img style="width: 16px; height: 16px;"
+ alt="Select color format" src="Format.gif">]. </p>
+<p><img style="width: 268px; height: 119px;"
+ alt="Select Color format dialog" src="SelectColorFormat.jpg"></p>
+<p>The following formats are supported:</p>
+<ul>
+  <li>#XXXXXX - for HTML/CSS </li>
+  <li>rgb(r,g,b) - For CSS </li>
+  <li>new Color(r,g,,b) - for JavaBeans - Java initialization string </li>
+  <li>XXXXXX - for HTML/CSS </li>
+  <li>[r,g,b] - for NetBeans property sheet </li>
+  <li>r,g,b </li>
+</ul>
+<!-- ========================= Magnifier ====================================== -->
+<h2>How the Magnifier Tool works</h2>
+<p>The Magnifier tool makes use of <code>public
+BufferedImage createScreenCapture(Rectangle screenRect)</code>
+API from java.awt.Robot.
+The tool creates a Magnifier label with a size of 256x256 pixels. It
+also creates a slider with a range of integer values from 1 to 16. The
+slider is initialliy set to 16, as you can see in the following
+screen shot. </p>
+<p><a href="DesktopSamplerToolbar_files/Magnifier.jpg"><img
+ style="width: 320px; height: 265px;" alt="Magnifier tool"
+ src="Magnifier.jpg"></a> </p>
+<p>The Magnifier tool registers a mouse listener and mouse motion
+listener on the Magnifier label. In the <code>mousePressed</code>, <code>mouseDragged</code>
+and <code>mouseReleased</code> callbacks, the square area at the mouse
+coordinates on the desktop is sampled using the <code>createScreenCapture()</code>
+API. The user can magnify any area of the desktop by dragging the mouse
+on the Magnifier label. </p>
+<p>The size of the sampled area depends on the current setting of the
+slider. If the slider is set to 16, the tool samples a 16x16 square
+pixel area and scales the sampled image to 256x256 square pixels
+corresponding to a 1:16 magnification. If the slider is set to 8, the
+tool samples a 128x128 square pixel area and scales the sampled image
+to 256x256 square pixels corresponding to a 1:2 magnification.<br>
+</p>
+<p>On the right hand side of the Color Value field, the tool provides a
+toggle button to show [<img style="width: 16px; height: 16px;"
+ alt="Show Magnifier" src="ShowMagnifier.gif">] and
+hide [<img style="width: 16px; height: 16px;" alt="Hide Magnifier"
+ src="HideMagnifier.gif">] the
+Magnifier tool. </p>
+</body>
+</html>
