@@ -39,8 +39,7 @@ import org.netbeans.modules.j2ee.sun.ws7.j2ee.ResourceType;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.PropertiesAction;
-import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.StartServerAction;
-import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.StopServerAction;
+import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.StartStopServerAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewTargetServerLogAction;
 
 /**
@@ -91,16 +90,21 @@ public class WS70TargetNode extends AbstractNode implements Node.Cookie{
     }  
     public Action[] getActions(boolean context) {
         return new SystemAction[] {               
-            SystemAction.get(StartServerAction.class),
-            SystemAction.get(StopServerAction.class),
+            SystemAction.get(StartStopServerAction.class),            
             null,
             SystemAction.get(ViewTargetServerLogAction.class),
         };
     }
     
     public boolean isRunning(){
-        return manager.isRunning(target);
+        return manager.isRunning(configName);
     }
+    public boolean startTarget(){
+        return manager.startServer(configName);        
+    }
+    public boolean stopTarget(){
+        return manager.stopServer(configName);        
+    }    
     private void setMyDisplayName(){        
         this.setDisplayName(target.getName());
     }

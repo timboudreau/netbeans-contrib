@@ -25,6 +25,8 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewAdminConsoleAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewAdminServerLogAction;
+import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
+
 import javax.swing.Action;
 
 import java.util.Collection;
@@ -34,10 +36,11 @@ import java.util.Collection;
  */
 public class WS70ManagerNode extends AbstractNode implements Node.Cookie{
     static java.util.Collection bogusNodes = java.util.Arrays.asList(new Node[] { Node.EMPTY, Node.EMPTY });
-    
+    private WS70SunDeploymentManager manager;
     /** Creates a new instance of WS70ManagerNode */
     public WS70ManagerNode(DeploymentManager dm) {
-        super(new MyChildren(bogusNodes));        
+        super(new MyChildren(bogusNodes));
+        manager = (WS70SunDeploymentManager)dm;
         setDisplayName(NbBundle.getMessage(WS70ManagerNode.class, "LBL_WS70_MANAGER_NODE_NAME")); //NOI18N
         setIconBaseWithExtension("org/netbeans/modules/j2ee/sun/ws7/resources/ServerInstanceIcon.gif");
         getCookieSet().add(this);
@@ -56,6 +59,10 @@ public class WS70ManagerNode extends AbstractNode implements Node.Cookie{
             SystemAction.get(ViewAdminServerLogAction.class),
             null            
         };
+    }
+   public String  getAdminURL() {
+        return "http://" + manager.getHost() + ":" + // NOI18N
+            String.valueOf(manager.getPort());
     }
    
   

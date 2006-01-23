@@ -101,6 +101,12 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     public String getUri(){
         return uri;
     }
+    public String getHost(){
+        return host;        
+    }
+    public int getPort(){
+        return port;
+    }
     public boolean isLocalServer(){
         //TBD Find a more accurate way
         //May be asking the user.
@@ -351,15 +357,28 @@ public class WS70SunDeploymentManager implements DeploymentManager{
  
 
     // Extended methods
-   public boolean startServer(String configName, String nodeName){
-       return true;
+   public boolean startServer(String configName){
+        try{
+            Method startServer = dmClass.getDeclaredMethod("startServer", new Class[]{String.class});
+            Boolean retVal = (Boolean)startServer.invoke(this.ws70DM, new Object[]{configName});
+            return retVal.booleanValue();
+            
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }        
+        return false;
    }
-   public boolean stopServer(String configName, String nodeName){
-       return true;
+   public boolean stopServer(String configName){
+        try{
+            Method stopServer = dmClass.getDeclaredMethod("stopServer", new Class[]{String.class});
+            Boolean retVal = (Boolean)stopServer.invoke(this.ws70DM, new Object[]{configName});
+            return retVal.booleanValue();
+            
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }        
+        return false;
    }
-    public String getServerStatus(String configName, String nodeName){
-        return "Server Status";
-    }
 
     public List getJVMOptions(String configName, Boolean debugOptions, String profilerName){
         try{
@@ -524,13 +543,11 @@ public class WS70SunDeploymentManager implements DeploymentManager{
 
     }
     
-    public boolean isRunning(Target target){
-        if(target==null){
+    public boolean isRunning(String configName){
+        if(configName==null){
             return isRunning();
-        }
-        String configName = null;
-        try{            
-            configName = this.getConfigNameFromTarget(target);
+        }        
+        try{
             Method isRunning = dmClass.getDeclaredMethod("isServerRunning",  new Class[]{String.class});
             Boolean retVal= (Boolean)isRunning.invoke(this.ws70DM, new Object[]{configName});            
             return retVal.booleanValue();
