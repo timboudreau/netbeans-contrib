@@ -73,9 +73,9 @@ public class StartStopServerAction extends NodeAction{
     
     public String getName(){
         if(!running){
-            return NbBundle.getMessage(StartServerAction.class, "LBL_StartInstanceAction");
+            return NbBundle.getMessage(StartStopServerAction.class, "LBL_StartInstanceAction");
         }else{
-            return NbBundle.getMessage(StartServerAction.class, "LBL_StopInstanceAction");
+            return NbBundle.getMessage(StartStopServerAction.class, "LBL_StopInstanceAction");
         }
     }
     

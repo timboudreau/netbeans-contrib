@@ -22,6 +22,11 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 
+import org.netbeans.modules.j2ee.sun.ws7.nodes.WS70ManagerNode;
+
+import java.net.URL;
+import org.openide.awt.HtmlBrowser.URLDisplayer;
+
 /**
  *
  * @author Administrator
@@ -32,7 +37,20 @@ public class ViewAdminConsoleAction extends NodeAction{
     public ViewAdminConsoleAction() {
     }
    protected void performAction(Node[] nodes){
+        if ((nodes == null) || (nodes.length < 1)) {
+            return;
+        }
+        WS70ManagerNode managerNode = (WS70ManagerNode)nodes[0].getCookie(WS70ManagerNode.class);        
+        if (managerNode != null) {
+            
 
+            try {
+                URLDisplayer.getDefault().showURL(new URL(managerNode.getAdminURL()));
+            }
+            catch (Exception e) {
+                return;
+            }
+        }
     }
     
     protected boolean enable(Node[] nodes){
