@@ -66,10 +66,10 @@
         <file name="O-DOWN.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineDown.instance"/>
         </file>
-        <file name="D-S-UP.shadow">
+        <file name="O-S-UP.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineUp.instance"/>
         </file>
-        <file name="D-S-DOWN.shadow">
+        <file name="O-S-DOWN.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineDown.instance"/>
         </file>
     </folder>
