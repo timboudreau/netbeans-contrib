@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the Accelerators module. 
+The Initial Developer of the Original Code is Andrei Badea. 
+Portions Copyright 2005-2006 Andrei Badea.
+All Rights Reserved.
+
+Contributor(s): Andrei Badea, Leon Chiver
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+
+    <!-- Install the action -->
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-accelerators-terminal-RunTerminalAction.instance"/>
+        </folder>
+    </folder>
+         
+    <!-- Install the action shortcut -->
+    <folder name="Shortcuts">
+        <file name="DS-Enter.shadow">
+            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-accelerators-terminal-RunTerminalAction.instance"/>
+        </file>
+    </folder>
+    
+    <!-- Install the options item for the Run Terminal action-->
+    <folder name="Services">
+        <file name="TerminalOptions.settings" url="TerminalOptions.xml"/>
+    </folder>
+    
+    <!-- Show the options item in the right folder in the Options dialog -->
+    <folder name="UI">
+        <folder name="Services">
+            <folder name="IDEConfiguration">
+                <folder name="ServerAndExternalToolSettings">
+                    <file name="TerminalOptions.shadow">
+                        <attr name="originalFile" stringvalue="Services/TerminalOptions.settings"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
+</filesystem>
