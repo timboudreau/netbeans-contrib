@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.xtest.actions;
@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Properties;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -23,13 +24,17 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+import org.apache.tools.ant.module.api.AntProjectCookie;
 import org.apache.tools.ant.module.api.support.ActionUtils;
+import org.apache.tools.ant.module.api.support.TargetLister;
 import org.netbeans.api.project.Project;
 import org.openide.ErrorManager;
 import org.openide.awt.Actions;
 import org.openide.awt.Mnemonics;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Lookup;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
@@ -50,9 +55,11 @@ import org.openide.execution.ExecutorTask;
  *  --------------------------
  *  Build unit Tests
  *  Run unit Tests
+ *  Measure unit Tests Coverage
  *  --------------------------
  *  Build qa-functional Tests
  *  Run qa-functional Tests
+ *  Measure qa-functional Tests Coverage
  * </pre>
  *
  * <p>The menu is available only for projects that contains some tests.
@@ -138,6 +145,12 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
             // "Run "+testTypes[i]+" Tests"
             actions.add(createAction(NbBundle.getMessage(XTestProjectMenuItem.class, "CTL_MenuItem_RunTests", testTypes[i]), // NOI18N
                                      project, testTypes[i], new String[] {"runtests"}, true)); // NOI18N
+            if(targetExists(findTestBuildXml(project), "coverage")) { //NOI18N
+                // "Measure "+testTypes[i]+" Tests Coverage"
+                actions.add(createAction(NbBundle.getMessage(XTestProjectMenuItem.class, "CTL_MenuItem_MeasureCoverage", testTypes[i]), // NOI18N
+                                         project, testTypes[i], new String[] {"coverage"}, true)); // NOI18N
+            }
+            // add separator
             if(testTypes.length-1 > i) {
                 actions.add(null);
             }
@@ -167,7 +180,11 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
                     task.addTaskListener(new TaskListener() {
                         public void taskFinished(Task task) {
                             if(((ExecutorTask)task).result() == 0 && showResults) {
-                                showTestResults(project);
+                                if(targets[0].equals("coverage")) { //NOI18N
+                                    showCoverageResults(project);
+                                } else {
+                                    showTestResults(project);
+                                }
                             }
                         }
                     });
@@ -176,6 +193,29 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
                 }
             }
         };
+    }
+    
+    /** Returns true if target is available in build script. */
+    private static boolean targetExists(FileObject buildXml, String targetName) {
+        DataObject d = null;
+        try {
+            d = DataObject.find(buildXml);
+        } catch (DataObjectNotFoundException ex) {
+            ErrorManager.getDefault().notify(ex);
+        }
+        AntProjectCookie apc = (AntProjectCookie)d.getCookie(AntProjectCookie.class);
+        Iterator iter = null;
+        try {
+            iter = TargetLister.getTargets(apc).iterator();
+        } catch (IOException ex) {
+            ErrorManager.getDefault().notify(ex);
+        }
+        while(iter.hasNext()) {
+            if(((TargetLister.Target)iter.next()).getName().equals(targetName)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /** Returns FileObject representing test/build.xml or null if it doesn't exist. */
@@ -187,7 +227,20 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
      * @param project project to open test results for
      */
     private static void showTestResults(Project project) {
-        FileObject resultsFO = project.getProjectDirectory().getFileObject("test/results/index.html"); // NOI18N
+        showBrowser(project.getProjectDirectory().getFileObject("test/results/index.html")); // NOI18N
+    }
+
+    /** Opens test/coverage/coverage.html in browser.
+     * @param project project to open test results for
+     */
+    private static void showCoverageResults(Project project) {
+        showBrowser(project.getProjectDirectory().getFileObject("test/coverage/coverage.html")); // NOI18N
+    }
+
+    /** Opens location in browser.
+     * @param resultsFO FileObject to be opened in browser
+     */
+    private static void showBrowser(FileObject resultsFO) {
         if(resultsFO != null) {
             try {
                 HtmlBrowser.URLDisplayer.getDefault().showURL(resultsFO.getURL());
