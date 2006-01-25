@@ -444,7 +444,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     public void addJDBCResource(String configName, String resName, Map resElements){
         
     }    
-    //NB50:Methods to be used for Resource method invocations, remove all other resource related method
+    
     public void setResource(ResourceType resType, String configName, String resName, Map resElements) throws Exception{
         try{
             String methodName = null;
@@ -465,7 +465,21 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             throw ex;            
         }        
     }
-    //REMOVE all del methods
+    public void setUserResourceProp(String configName, String resourceType, 
+                        String jndiName, String propType, List userProps) throws Exception {
+         try{
+
+            Method setUserProps = dmClass.getDeclaredMethod("setUserResourceProp", 
+                        new Class[]{String.class, String.class, String.class, String.class, List.class});
+            setUserProps.invoke(this.ws70DM, new Object[]{configName, resourceType, 
+                                        jndiName, propType, userProps});
+            
+        }catch(Exception ex){
+            ex.printStackTrace();
+            throw ex;            
+        }               
+    }    
+    
     public void deleteResource(ResourceType resType, String configName, String resName)throws Exception{
         try{
             String methodName = null;

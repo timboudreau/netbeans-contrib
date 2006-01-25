@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Iterator;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
@@ -105,12 +106,15 @@ public class WS70Resource extends WS70ManagedObjectBase {
         }
         return new Attribute(attribute, value);        
     }
-    public String setResourceProperty(String type, HashMap props) throws Exception{
-        if(properties==null || properties.get(type)==null){
-            return "error";
-        }
-        properties.put(type, props);
-        return "success";
+    private void setResourceProperty(String type, HashMap props, ArrayList list) throws Exception{
+        try{ 
+            manager.setUserResourceProp(configName, resType.toString(), 
+                    getJndiName(), type, list);
+ 
+        }catch(Exception ex){
+            throw ex;
+        }        
+        properties.put(type, props);        
     }
     
 
@@ -199,43 +203,32 @@ public class WS70Resource extends WS70ManagedObjectBase {
     PropertySupport createExtraProperties(final String name, final Map props) {
         return new PropertySupport.ReadWrite(
             name, 
-            NameValuePairsPropertyEditor.class,
-            NbBundle.getMessage(WS70Resource.class, "LBL_ExtParams"),//NOI18N
+            NameValuePairsPropertyEditor.class, name,
                 NbBundle.getMessage(WS70Resource.class, "DSC_ExtParams")){//NOI18N 
             Map values = props;
             String type = name;
-            //Map attribute = attr;
             public Object getValue() {                
                 return values;
             }
               
             public void setValue(Object obj) {
                 if(obj instanceof Object[]){
-                    //Map containing previous set of properties
-                    //java.util.Map attributeMap = (java.util.Map)attribute.getValue();
-                                                            
                     //Create a an array of updated properties
                     Object[] currentVal = (Object[])obj;
-                    //NameValuePair[] pairs = getNameValuePairs(currentVal);
+                    
                     HashMap propertyList = new HashMap();
-                    //Object[] props = new Object[pairs.length];
+                    ArrayList list = new ArrayList();
                     for(int i=0; i<currentVal.length; i++){
                         NameValuePair pair = (NameValuePair)currentVal[i];
-                        //Attribute attr = new Attribute(pairs[i].getParamName(), pairs[i].getParamValue());
-                        //props[i] = attr;
                         propertyList.put(pair.getParamName(), pair.getParamValue());
+                        list.add(pair.getParamName()+"="+pair.getParamValue());
                     }
                     try{
-                        String retval = setResourceProperty(name, propertyList);
-                        values = propertyList;
-                        Util.showInformation(retval);
+                        setResourceProperty(name, propertyList, list);
+                        values = propertyList;                        
                     }catch(Exception ex){
                         Util.showError(ex.getLocalizedMessage());
-                    }
-                    //parent.updateExtraProperty(props, attributeMap);
-                    
-                    //Required to do this set to update UI
-                    //attribute = new Attribute(getName(), propertyList);
+                    }                    
                 }                    
             }
             public PropertyEditor getPropertyEditor(){
