@@ -24,6 +24,7 @@ import org.netbeans.modules.metrics.options.MetricSettings;
 import java.awt.*;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
+import javax.swing.UIManager;
 
 public abstract class AbstractMetric implements Metric {
     protected ClassMetrics classMetrics;
@@ -143,14 +144,19 @@ public abstract class AbstractMetric implements Metric {
 	    }
             String text = getAsText();
 	    Color oldColor = g.getColor();
-	    g.clearRect(r.x, r.y, r.width, r.height);
+            Color bgColor = UIManager.getColor("TextField.background"); //NOI18N
+            if (bgColor == null)
+                bgColor = Color.white;
+            g.setColor(bgColor);
+	    g.fillRect(r.x, r.y, r.width, r.height);
 	    g.setColor(color);
 	    FontMetrics fm = g.getFontMetrics();
 	    int h = fm.getAscent() + fm.getDescent();
 	    int y = ((r.height - h) / 2) + fm.getAscent() + r.y;
-	    g.drawString(text, 0, y);
+	    g.drawString(text, PAD, y);
 	    g.setColor(oldColor);
 	}
+        private static final int PAD = 3;  // 3 pixel inset
 
         public String getAsText() {
             return getValue().toString();
