@@ -1,0 +1,6 @@
+<toc version="2.0">
+    <tocitem text="Metrics">
+       <tocitem text="Metrics Module" target="metrics-module"/>
+       <tocitem text="Metrics Definitions" target="org.netbeans.modules.metrics.MetricsNode"/>
+    </tocitem>
+</toc>

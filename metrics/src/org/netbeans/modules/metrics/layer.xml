@@ -57,6 +57,10 @@
                <attr name="instanceOf" stringvalue="org.netbeans.modules.metrics.MetricFactory"/>
           </file>
         </folder> <!-- Metrics -->
+        <folder name="JavaHelp">
+          <file name="org-netbeans-modules-metrics-helpset.xml" url="resources/helpset.xml"/>
+          <attr name="org-netbeans-modules-usersguide-below-regular.txt/org-netbeans-modules-metrics-helpset.xml" boolvalue="true"/>
+        </folder>
     </folder> <!-- Services -->
 
     <folder name="UI">

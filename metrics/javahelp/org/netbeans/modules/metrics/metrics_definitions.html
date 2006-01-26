@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+   <!--
+   -                 Sun Public License Notice
+   - 
+   - The contents of this file are subject to the Sun Public License
+   - Version 1.0 (the "License"). You may not use this file except in
+   - compliance with the License. A copy of the License is available at
+   - http://www.sun.com/
+   - 
+   - The Original Code is NetBeans. The Initial Developer of the Original
+   - Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+   - Microsystems, Inc. All Rights Reserved.
+  -->
+  <title>Metrics Definitions</title>
+  <link rel="StyleSheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+</head>
+<body>
+<h1>Metrics Definitions</h1>
+<p><small><a href="#seealso">See Also</a></small></p>
+<p>The metrics module currently supports the following metrics:</p>
+<ul>
+  <li><b>WMC</b>, or <b>Weighted Methods in a Class</b>, is defined as the sum of the complexities 
+ of all methods in a class.  The problem is that no one agrees on the definition 
+ of a method's complexity, so many metrics tools just punt and assign one 
+(1) to each method.  In this module I use a variant on McCabe's Cyclomatic 
+Complexity metric, so that methods with more code paths are weighted more 
+heavily.  </li>
+</ul>
+<blockquote>
+  <p>A high WMC metric value may indicate unnecessary complexity, such as 
+ a "hairball" class design or a complex method which could use refactoring. 
+  It can also indicate a procedural design hiding in an object-oriented 
+wrapper.  </p>
+  </blockquote>
+  <ul>
+<li><b>CBO</b>, or <b>Coupling Between Objects</b>, is defined as the sum of the
+  classes referenced by a class and the number of classes which reference
+a class.  Good object-oriented design recommends that classes be as lightly-
+ coupled as possible, so high CBO metrics may indicate poor design.  A class
+ which is tightly coupled with other classes is also more sensitive to changes
+ in those classes, increasing the risk of regressions.   </li>
+  </ul>
+  <ul>
+<li><b>RFC</b>, or <b>Response For Class</b>, is defined as the sum of all external
+ methods called by a class, plus all methods those  methods call.  A class
+ with a high RFC is also more sensitive to regressions.  It can also be more
+ expensive to maintain, because more knowledge of the called libraries is
+needed to do effective maintenance.  An example of this is to compare a javax.swing
+ method call and a java.util call:  because  Swing is a much more complex
+API, it can take longer to make a correct change to its client code than
+a java.util class.   </li>
+  </ul>
+  <ul>
+<li><b>MPC</b>, or <b>Message Passing Coupling</b>, is defined as the sum of the number
+ of method calls made by all methods in a class.  Like RFC and CBO, MPC is
+ a measure of a class' complexity.  Classes with high MPC metrics may be
+doing  too much work, and should  be split into smaller, more narrowly focused 
+classes.    </li>
+  </ul>
+  <ul>
+    <li><b>DIT</b>, or <b>Depth of Inheritance Tree</b>, is equal to the number of superclasses 
+ of a class.  Classes with lots of superclasses have their behavior scattered 
+ in lots of places, requiring more effort to maintain them.  This is the hidden
+ cost of  subclassing, often overlooked in OO designs.   </li>
+  </ul>
+  <ul>
+    <li><b>NOC</b>, or <b>Number Of Children</b>, is the number of child classes. Classes
+ with lots of child classes need to be very carefully modified to avoid regressions 
+ in those children.   </li>
+  </ul>
+  <ul>
+    <li><b>NT</b>, or <b>Number of Tramps</b>, is the number of parameters in a class'
+methods which are not referenced by its code.  While there may be valid reasons
+for unreferenced parameters (such as a default implementation in an abstract 
+ base class), in general they can add unnecessary complexity both for clients 
+ and sustaining engineers.  Worse, their lack of use may indicate a potential 
+ bug.   Methods which don't reference any instance variables may be better 
+ implemented as static methods, as this may improve performance on many VMs.</li>
+  </ul>
+<table>
+  <tr> 
+    <th colspan=2 align=left><a name="seealso">See Also</a></th>
+  </tr>
+  <tr> 
+    <td width="23"></td>
+    <td> <a href="metrics_module.html">NetBeans Metrics Module</a> <br>
+</table>
+</body>
+</html>

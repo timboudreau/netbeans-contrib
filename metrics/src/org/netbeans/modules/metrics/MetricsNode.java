@@ -22,6 +22,7 @@ package org.netbeans.modules.metrics;
 import java.util.ResourceBundle;
 import org.openide.nodes.*;
 import org.openide.actions.*;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 
@@ -174,5 +175,9 @@ class MetricsNode extends AbstractNode implements Cloneable {
 
     static String getString(String key) {
         return bundle.getString(key);
+    }
+
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx(MetricsNode.class);
     }
 }

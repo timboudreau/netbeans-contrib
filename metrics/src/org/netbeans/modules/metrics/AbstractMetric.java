@@ -96,7 +96,7 @@ public abstract class AbstractMetric implements Metric {
      * Children) requires that all other classes which possibly
      * subclass from this class must first be scanned, so the NOC
      * metric would return <b>true</b> for this method.  A metric
-     * such as RFC (Response For a Class) references other classes,
+     * such as RFC (Response For Class) references other classes,
      * but does so bytaking its list of dependencies and
      * scanning those classes as well.  It would therefore return
      * <b>false</b>.

@@ -1,0 +1,13 @@
+<index version="2.0">
+	
+  <indexitem text="Metrics Module" target="metrics-module"/>
+  <indexitem text="Metrics Definitions" target="org.netbeans.modules.metrics.MetricsNode"/>
+  <indexitem text="CBO Metric" target="org.netbeans.modules.metrics.MetricsNode"/>
+  <indexitem text="DIT Metric" target="org.netbeans.modules.metrics.MetricsNode"/>
+  <indexitem text="MPC Metric" target="org.netbeans.modules.metrics.MetricsNode"/>
+  <indexitem text="NOC Metric" target="org.netbeans.modules.metrics.MetricsNode"/>
+  <indexitem text="NT Metric" target="org.netbeans.modules.metrics.MetricsNode"/>
+  <indexitem text="RFC Metric" target="org.netbeans.modules.metrics.MetricsNode"/>
+  <indexitem text="WMC Metric" target="org.netbeans.modules.metrics.MetricsNode"/>
+	
+</sindex>
