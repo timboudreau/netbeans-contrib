@@ -120,8 +120,11 @@ implements ChangeListener {
         magnifierWindow.setLocation(
         (screenSize.width - magnifierWindowSize.width)/2,
         (screenSize.height - magnifierWindowSize.height)/2);
+        
+        // set the border to deal with layout bug on certain look and feels e.g. Metal and Ocean.
+        setBorder(BorderFactory.createEmptyBorder());
     }
-    
+      
     public void stateChanged(ChangeEvent ce) {
         StringSelection colorStringSelection = new StringSelection(colorSampler.format(colorSampler.getSelectedColor()));
         
