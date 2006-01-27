@@ -1,0 +1,242 @@
+<html>
+    <head>
+        <title>Freeform Project Extras—General Metadata</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>General Metadata</h2>
+        <p>
+            <!-- XXX -->
+        </p>
+<pre>
+&lt;general-data xmlns="http://www.netbeans.org/ns/freeform-project/1"&gt;
+
+This is the main section for the project, and it is mandatory.
+
+
+&lt;name&gt;Stuff&lt;/name&gt; [required] - gives a display name for the project will be
+used throughout the IDE.
+
+
+&lt;properties&gt; [optional] - defines some Ant properties that can be referenced
+elsewhere in project.xml, using the same ${propertyname} syntax as Ant uses.
+There are two kinds of subelements:
+
+&lt;property name="key"&gt;value&lt;/property&gt; - defines a property 'key' with the value
+'value'. Similar to Ant &lt;property name="key" value="value"/&gt;. As with Ant, the
+value can use other Ant properties defined earlier in &lt;properties&gt;.
+
+&lt;property-file&gt;file.properties&lt;/property-file&gt; - loads 'file.properties' for its
+definitions. Similar to Ant &lt;property file="file.properties"/&gt;. The filename can
+use other Ant properties. As with Ant, the definitions in the file can refer to
+other Ant properties defined earlier in &lt;properties&gt;; or even other Ant
+properties defined in 'file.properties' (so long as there is not a cyclic
+definition, of course).
+
+
+&lt;folders&gt; [optional] - enumerates file locations that are "owned" by this project.
+
+By default, everything underneath the main project directory (parent of
+'nbproject') is owned by this project, unless it is part of a nested project.
+"Ownership" in the IDE can easily be seen by selecting a file in the Projects,
+Files, or Favorites tab and checking the title bar of the main window. A project
+decides how files it owns should be treated for purposes of compilation, etc.
+
+Using &lt;folders&gt; you can specify that externally located files are also to be
+owned by this project. Permitted child elements are &lt;source-folder&gt; and
+&lt;build-folder&gt;.
+
+&lt;source-folder&gt;
+    &lt;label&gt;Project Sources&lt;/label&gt;
+    &lt;location&gt;${home}&lt;/location&gt;
+&lt;/source-folder&gt;
+
+This specifies that everything under ${home} (which must have been defined using
+&lt;properties&gt;, above) is owned by this project. This directory will be displayed
+as e.g. '&lt;project name&gt; - Project Sources' in the Files tab. If you use File &gt;
+New to add a text file to the project, 'Project Sources' will be offered as a
+possible location.
+
+&lt;source-folder&gt;
+    &lt;label&gt;Main Java Sources&lt;/label&gt;
+    &lt;type&gt;java&lt;/type&gt;
+    &lt;location&gt;${home}/java&lt;/location&gt;
+&lt;/source-folder&gt;
+
+This specifies that ${home}/java should be treated as a folder of Java sources
+arranged in a package structure. File &gt; New will offer this as a choice for
+where to put new Java classes.
+
+Note that the '/' in '${home}/java' works on Windows as well as Unix, just as in
+Ant; '\' is permitted and equivalent. Also note that relative paths are resolved
+against the project directory, just as they would be from a build.xml at top
+level using basedir="." (or no explicit basedir).
+
+&lt;build-folder&gt;
+    &lt;location&gt;${build}&lt;/location&gt;
+&lt;/build-folder&gt;
+
+This specifies that ${build} is a folder which contains build products from the
+project. It is thus to be "owned" by the project but not expected to be shared
+with other users (e.g. in version control). Not much used yet, but planned to
+be:
+
+http://www.netbeans.org/issues/show_bug.cgi?id=66597
+
+
+&lt;ide-actions&gt; [optional] - binds predefined actions in the IDE GUI (e.g. Build
+Project) to Ant targets of your choice. You can make simple bindings to actions
+which take effect on the whole project, as well as "context-aware" bindings that
+let you somehow process particular files which have been selected (in the
+editor, Projects/Files tabs, etc.).
+
+&lt;action name="rebuild"&gt;
+    &lt;script&gt;${home}/build.xml&lt;/script&gt;
+    &lt;target&gt;clean&lt;/target&gt;
+    &lt;target&gt;build&lt;/target&gt;
+    &lt;property name="set-from-ide"&gt;true&lt;/property&gt;
+&lt;/action&gt;
+
+This binds the IDE action "Clean and Build Project" to targets in the Ant script
+in ${home}/build.xml. (Default script if not specified: 'build.xml', i.e. at top
+level in the project.) &lt;target&gt; may be specified once, or several times (to run
+in sequence), or not at all (to use the default target) - all as on the Ant
+command line. You can use &lt;property&gt; elements to pass some special definitions
+to the target(s), just like -D on the Ant command line.
+
+&lt;action name="debug.fix"&gt;
+    &lt;target&gt;debug-fix-nb&lt;/target&gt;
+    &lt;context&gt;
+        &lt;property&gt;fix.file&lt;/property&gt;
+        &lt;folder&gt;src&lt;/folder&gt;
+        &lt;pattern&gt;\.java$&lt;/pattern&gt;
+        &lt;format&gt;relative-path-noext&lt;/format&gt;
+        &lt;arity&gt;
+            &lt;one-file-only/&gt;
+        &lt;/arity&gt;
+    &lt;/context&gt;
+&lt;/action&gt;
+
+This binds the IDE action "Fix" (used by the debugger) to a target
+'debug-fix-nb'. It will be enabled for a selection consisting of one *.java file
+in the project's 'src' subdirectory (the regular expression must match the
+relative path, using '/' as a separator, from the root folder); the path to the
+source (in the format 'org/foo/pkg/Clazz' for a file src/org/foo/pkg/Clazz.java)
+will be passed to the target in the property named 'fix.file'.
+
+The possible formats are:
+
+absolute-path       - the full path to the file in native format
+absolute-path-noext - the full path to the file, minus any .ext
+relative-path       - the relative path from the folder ('/' separated)
+relative-path-noext - the relative path minus any .ext
+java-name           - a no-extension path with '.', e.g. 'org.foo.pkg.Clazz'
+
+Currently you can only pass one "context" property at a time, which can be
+cumbersome:
+
+http://www.netbeans.org/issues/show_bug.cgi?id=48079
+
+&lt;action name="compile.single"&gt;
+    &lt;target&gt;compile-selected-files&lt;/target&gt;
+    &lt;context&gt;
+        &lt;property&gt;includes&lt;/property&gt;
+        &lt;folder&gt;src&lt;/folder&gt;
+        &lt;pattern&gt;\.java$&lt;/pattern&gt;
+        &lt;format&gt;relative-path&lt;/format&gt;
+        &lt;arity&gt;
+            &lt;separated-files&gt;,&lt;/separated-files&gt;
+        &lt;/arity&gt;
+    &lt;/context&gt;
+&lt;/action&gt;
+
+This binds "Compile Single" to the target 'compile-selected-files'. It will be
+enabled for one or more Java sources in 'src'. The context is equivalent to
+calling command-line Ant something like this:
+
+ant -Dincludes=org/foo/pkg/Clazz1.java,org/foo/pkg/Clazz2.java compile-selected-files
+
+Currently you cannot have the action be enabled on a folder (or package):
+
+http://www.netbeans.org/issues/show_bug.cgi?id=53622
+
+
+&lt;export&gt; [optional, may be repeated] - defines a build product of the project
+that may be seen by other IDE projects or IDE features. Permits this project to
+be used as a subproject of a plain Java project, for example.
+
+&lt;export&gt;
+    &lt;type&gt;jar&lt;/type&gt;
+    &lt;location&gt;${build.dir}/${build.jar}&lt;/location&gt;
+    &lt;!-- optional: &lt;script&gt;${home}/build.xml&lt;/script&gt; --&gt;
+    &lt;build-target&gt;jar&lt;/build-target&gt;
+    &lt;clean-target&gt;clean&lt;/clean-target&gt; &lt;!-- optional --&gt;
+&lt;/export&gt;
+
+Declares that the file ${build.dir}/${build.jar} is to be exported as a JAR
+build product of this project. (&lt;type&gt; should always be 'folder' or 'jar' for
+use from plain Java projects, but other project types may define other kinds of
+exports.) If used as a subproject of a plain Java project,
+${build.dir}/${build.jar} will be added to the parent project's classpath;
+build-impl.xml in the parent project will call this project's build.xml#jar when
+"building dependencies", and build.xml#clean when "cleaning dependencies".
+
+
+&lt;view&gt; [optional] - specifies what to show in the Projects tab, in the intended
+order. Entries may be
+
+&lt;source-folder style="packages"&gt;
+    &lt;label&gt;Sources&lt;/label&gt;
+    &lt;location&gt;${src.dir}&lt;/location&gt;
+&lt;/source-folder&gt;
+
+Shows a package list view of ${src.dir}, labelled "Sources". (The label is
+optional.)
+
+&lt;source-folder style="tree"&gt;
+    &lt;label&gt;Docs&lt;/label&gt;
+    &lt;location&gt;docs&lt;/location&gt;
+&lt;/source-folder&gt;
+
+Shows the subdir 'docs' in a plain tree.
+
+&lt;source-file&gt;
+    &lt;label&gt;Build Script&lt;/label&gt;
+    &lt;location&gt;build.xml&lt;/location&gt;
+&lt;/source-file&gt;
+
+Shows 'build.xml'.
+
+After view items you may specify project-specific context menu items for the
+project's root node:
+
+&lt;context-menu&gt;
+    &lt;ide-action name="build"/&gt;
+    &lt;ide-action name="clean"/&gt;
+    &lt;ide-action name="rebuild"/&gt;
+    &lt;separator/&gt;
+    &lt;action&gt;
+        &lt;!-- optional: &lt;script&gt;build.xml&lt;/script --&gt;
+        &lt;label&gt;Format Sources&lt;/label&gt;
+        &lt;target&gt;jalopy&lt;/target&gt;
+        &lt;!-- optional: &lt;property name="..."&gt;...&lt;/property&gt; --&gt;
+    &lt;/action&gt;
+&lt;/context-menu&gt;
+
+The &lt;ide-action&gt;s must refer to context-free predefined actions, as above. For
+the rest you can specify an action inline by just giving a label and an Ant
+target.
+
+
+&lt;subprojects&gt; [optional] - informs the IDE of other projects which should be
+considered "required projects" for purposes of the Open Required Projects
+context menu item, the checkbox in the Open Project dialog, etc.
+
+&lt;subprojects&gt;
+    &lt;project&gt;subdir-with-project&lt;/project&gt;
+    &lt;project&gt;${other.project.dir}&lt;/project&gt;
+&lt;/subprojects&gt;
+</pre>
+    </body>
+</html>

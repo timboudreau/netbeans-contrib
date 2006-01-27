@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+<toc version="2.0">
+    <tocitem text="Freeform Project Extras">
+        <tocitem text="Introduction" target="about"/>
+        <tocitem text="Project Templates &amp; Samples">
+            <tocitem text="Empty" target="template-empty"/>
+            <tocitem text="Skeletal" target="template-skeletal"/>
+            <tocitem text="Anagram Sample" target="template-anagram"/>
+        </tocitem>
+        <tocitem text="Custom Context Commands" target="custom-commands"/>
+        <tocitem text="Project Format Reference">
+            <tocitem text="Introduction" target="format-intro"/>
+            <tocitem text="Format Overview" target="format-overview"/>
+            <tocitem text="General Metadata" target="format-general"/>
+            <tocitem text="Java-Specific Metadata" target="format-java"/>
+            <tocitem text="J2EE-Specific Metadata" target="format-j2ee"/>
+            <tocitem text="Best Practices" target="format-recommendations"/>
+        </tocitem>
+    </tocitem>
+</toc>

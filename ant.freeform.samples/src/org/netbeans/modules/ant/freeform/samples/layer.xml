@@ -18,6 +18,12 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-ant-freeform-customcommands-NewCommandAction.instance"/>
         </folder>
     </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <attr name="org-netbeans-modules-usersguide-below-regular.txt/helpset.xml" boolvalue="true"/>
+            <file name="helpset.xml" url="helpset.xml"/>
+        </folder>
+    </folder>
     <folder name="Templates">
         <folder name="Project">
             <folder name="Standard">

@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <title>Freeform Project Extras—Java Metadata</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>Java-Specific Metadata</h2>
+        <p>
+            <!-- XXX -->
+        </p>
+<pre>
+&lt;java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2"&gt;
+
+This section describes any Java-language-specific aspects of the project.
+http://www.netbeans.org/ns/freeform-project-java/1 can be used as well, for
+compatibility with older IDE versions, but lacks some features; refer to the
+schemas for details.
+
+
+&lt;compilation-unit&gt; - the &lt;java-data&gt; section can contain any number of
+compilation units. A compilation unit is a collection of Java source roots which
+are compiled at once and share the same classpath and other attributes.
+
+&lt;compilation-unit&gt;
+    &lt;package-root&gt;${src.dir}&lt;/package-root&gt;
+    &lt;classpath mode="compile"&gt;${lib.dir}/x.jar:${lib.dir}/y.jar&lt;/classpath&gt;
+    &lt;built-to&gt;${classes.dir}&lt;/built-to&gt;
+    &lt;built-to&gt;${jar.file}&lt;/built-to&gt;
+    &lt;javadoc-built-to&gt;${javadoc.dir}&lt;/javadoc-built-to&gt;
+    &lt;source-level&gt;1.5&lt;/source-level&gt;
+&lt;/compilation-unit&gt;
+
+Declares that the directory named by ${src.dir} contains Java sources. They are
+expected to be compiled using the named classpath (as usual, '/' and '\' can be
+used interchangeably, as can ':' and ';'), so the IDE can offer code completion
+and other features accordingly. The classes will be compiled to the directory
+${classes.dir} and later packed into ${jar.file}, so any other project using
+either of these locations in its classpath will show sources from ${src.dir} in
+code completion, Go to Source, etc. Javadoc may be built to the directory
+${javadoc.dir}, so if other projects use this source root, and ${javadoc.dir}
+exists, it may be used in Javadoc search. The sources are to be compiled with
+-source 1.5, i.e. they may contain generics and other JDK 5 language features.
+</pre>
+    </body>
+</html>
