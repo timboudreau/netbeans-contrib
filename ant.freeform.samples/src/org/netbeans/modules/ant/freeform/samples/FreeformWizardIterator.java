@@ -114,11 +114,13 @@ public class FreeformWizardIterator implements WizardDescriptor.InstantiatingIte
                 jc.putClientProperty("WizardPanel_contentData", steps);
             }
         }
+        wiz.putProperty("help", Templates.getTemplate(wiz).getAttribute("help"));
     }
     
     public void uninitialize(WizardDescriptor wiz) {
         this.wiz.putProperty("projdir", null);
         this.wiz.putProperty("name", null);
+        this.wiz.putProperty("help", null);
         this.wiz = null;
         panels = null;
     }

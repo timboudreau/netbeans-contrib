@@ -43,7 +43,12 @@ public class FreeformWizardPanel implements WizardDescriptor.Panel,
     }
     
     public HelpCtx getHelp() {
-        return new HelpCtx(FreeformWizardPanel.class);
+        String help = (String) wizardDescriptor.getProperty("help");
+        if (help != null) {
+            return new HelpCtx(help);
+        } else {
+            return null;
+        }
     }
     
     public boolean isValid() {

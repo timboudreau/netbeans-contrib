@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN" "http://java.sun.com/products/javahelp/map_2_0.dtd">
 <map version="2.0">
-    <mapID target="about" url="about.html"/>
-    <mapID target="template-empty" url="template-empty.html"/>
-    <mapID target="template-skeletal" url="template-skeletal.html"/>
-    <mapID target="template-anagram" url="template-anagram.html"/>
-    <mapID target="custom-commands" url="custom-commands.html"/>
-    <mapID target="format-intro" url="format-intro.html"/>
-    <mapID target="format-overview" url="format-overview.html"/>
-    <mapID target="format-general" url="format-general.html"/>
-    <mapID target="format-general-name" url="format-general-name.html"/>
-    <mapID target="format-general-properties" url="format-general-properties.html"/>
-    <mapID target="format-general-folders" url="format-general-folders.html"/>
-    <mapID target="format-general-actions" url="format-general-actions.html"/>
-    <mapID target="format-general-artifacts" url="format-general-artifacts.html"/>
-    <mapID target="format-general-view" url="format-general-view.html"/>
-    <mapID target="format-general-subprojects" url="format-general-subprojects.html"/>
-    <mapID target="format-java" url="format-java.html"/>
-    <mapID target="format-j2ee" url="format-j2ee.html"/>
-    <mapID target="format-recommendations" url="format-recommendations.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.about" url="about.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.template-empty" url="template-empty.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.template-skeletal" url="template-skeletal.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.template-anagram" url="template-anagram.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.custom-commands" url="custom-commands.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-intro" url="format-intro.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-overview" url="format-overview.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-general" url="format-general.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-general-name" url="format-general-name.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-general-properties" url="format-general-properties.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-general-folders" url="format-general-folders.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-general-actions" url="format-general-actions.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-general-artifacts" url="format-general-artifacts.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-general-view" url="format-general-view.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-general-subprojects" url="format-general-subprojects.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-java" url="format-java.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-j2ee" url="format-j2ee.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.format-recommendations" url="format-recommendations.html"/>
 </map>

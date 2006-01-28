@@ -35,6 +35,7 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.ant.freeform.samples.FreeformWizardIterator.createIterator"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/samples/EmptyFreeformDescription.html"/>
                     <attr name="template" boolvalue="true"/>
+                    <attr name="help" stringvalue="org.netbeans.modules.ant.freeform.samples.template-empty"/>
                 </file>
                 <attr name="EmptyFreeformProject.zip/SkeletalFreeformProject.zip" boolvalue="true"/>
                 <file name="SkeletalFreeformProject.zip" url="SkeletalFreeformProject.zip">
@@ -43,6 +44,7 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.ant.freeform.samples.FreeformWizardIterator.createIterator"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/samples/SkeletalFreeformDescription.html"/>
                     <attr name="template" boolvalue="true"/>
+                    <attr name="help" stringvalue="org.netbeans.modules.ant.freeform.samples.template-skeletal"/>
                 </file>
             </folder>
             <folder name="Samples">
@@ -54,6 +56,7 @@ Microsystems, Inc. All Rights Reserved.
                         <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.ant.freeform.samples.FreeformWizardIterator.createIterator"/>
                         <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/samples/AnagramFreeformDescription.html"/>
                         <attr name="template" boolvalue="true"/>
+                        <attr name="help" stringvalue="org.netbeans.modules.ant.freeform.samples.template-anagram"/>
                     </file>
                 </folder>
             </folder>

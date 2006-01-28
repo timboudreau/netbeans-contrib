@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 <toc version="2.0">
-    <tocitem text="Freeform Project Extras" target="about">
+    <tocitem text="Freeform Project Extras" target="org.netbeans.modules.ant.freeform.samples.about">
         <tocitem text="Project Templates &amp; Samples">
-            <tocitem text="Empty" target="template-empty"/>
-            <tocitem text="Skeletal" target="template-skeletal"/>
-            <tocitem text="Anagram Sample" target="template-anagram"/>
+            <tocitem text="Empty" target="org.netbeans.modules.ant.freeform.samples.template-empty"/>
+            <tocitem text="Skeletal" target="org.netbeans.modules.ant.freeform.samples.template-skeletal"/>
+            <tocitem text="Anagram Sample" target="org.netbeans.modules.ant.freeform.samples.template-anagram"/>
         </tocitem>
-        <tocitem text="Custom Context Commands" target="custom-commands"/>
-        <tocitem text="Project Format Reference" target="format-intro">
-            <tocitem text="Format Overview" target="format-overview"/>
-            <tocitem text="General Metadata" target="format-general">
-                <tocitem text="Project Name" target="format-general-name"/>
-                <tocitem text="Ant Properties" target="format-general-properties"/>
-                <tocitem text="Source and Build Folders" target="format-general-folders"/>
-                <tocitem text="Action Bindings" target="format-general-actions"/>
-                <tocitem text="Exported Artifacts" target="format-general-artifacts"/>
-                <tocitem text="View and Context Menu" target="format-general-view"/>
-                <tocitem text="Subprojects" target="format-general-subprojects"/>
+        <tocitem text="Custom Context Commands" target="org.netbeans.modules.ant.freeform.samples.custom-commands"/>
+        <tocitem text="Project Format Reference" target="org.netbeans.modules.ant.freeform.samples.format-intro">
+            <tocitem text="Format Overview" target="org.netbeans.modules.ant.freeform.samples.format-overview"/>
+            <tocitem text="General Metadata" target="org.netbeans.modules.ant.freeform.samples.format-general">
+                <tocitem text="Project Name" target="org.netbeans.modules.ant.freeform.samples.format-general-name"/>
+                <tocitem text="Ant Properties" target="org.netbeans.modules.ant.freeform.samples.format-general-properties"/>
+                <tocitem text="Source and Build Folders" target="org.netbeans.modules.ant.freeform.samples.format-general-folders"/>
+                <tocitem text="Action Bindings" target="org.netbeans.modules.ant.freeform.samples.format-general-actions"/>
+                <tocitem text="Exported Artifacts" target="org.netbeans.modules.ant.freeform.samples.format-general-artifacts"/>
+                <tocitem text="View and Context Menu" target="org.netbeans.modules.ant.freeform.samples.format-general-view"/>
+                <tocitem text="Subprojects" target="org.netbeans.modules.ant.freeform.samples.format-general-subprojects"/>
             </tocitem>
-            <tocitem text="Java-Specific Metadata" target="format-java"/>
-            <tocitem text="J2EE-Specific Metadata" target="format-j2ee"/>
-            <tocitem text="Best Practices" target="format-recommendations"/>
+            <tocitem text="Java-Specific Metadata" target="org.netbeans.modules.ant.freeform.samples.format-java"/>
+            <tocitem text="J2EE-Specific Metadata" target="org.netbeans.modules.ant.freeform.samples.format-j2ee"/>
+            <tocitem text="Best Practices" target="org.netbeans.modules.ant.freeform.samples.format-recommendations"/>
         </tocitem>
     </tocitem>
 </toc>

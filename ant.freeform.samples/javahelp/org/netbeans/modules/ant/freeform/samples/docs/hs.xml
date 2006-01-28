@@ -3,7 +3,7 @@
 <helpset version="2.0">
     <title>Freeform Project Extras Help</title>
     <maps>
-        <homeID>about</homeID>
+        <homeID>org.netbeans.modules.ant.freeform.samples.about</homeID>
         <mapref location="map.xml"/>
     </maps>
     <view mergetype="javax.help.AppendMerge">
