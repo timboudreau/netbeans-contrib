@@ -9,6 +9,13 @@
     <mapID target="format-intro" url="format-intro.html"/>
     <mapID target="format-overview" url="format-overview.html"/>
     <mapID target="format-general" url="format-general.html"/>
+    <mapID target="format-general-name" url="format-general-name.html"/>
+    <mapID target="format-general-properties" url="format-general-properties.html"/>
+    <mapID target="format-general-folders" url="format-general-folders.html"/>
+    <mapID target="format-general-actions" url="format-general-actions.html"/>
+    <mapID target="format-general-artifacts" url="format-general-artifacts.html"/>
+    <mapID target="format-general-view" url="format-general-view.html"/>
+    <mapID target="format-general-subprojects" url="format-general-subprojects.html"/>
     <mapID target="format-java" url="format-java.html"/>
     <mapID target="format-j2ee" url="format-j2ee.html"/>
     <mapID target="format-recommendations" url="format-recommendations.html"/>

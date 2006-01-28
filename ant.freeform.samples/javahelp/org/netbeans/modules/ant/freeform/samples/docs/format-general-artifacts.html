@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Freeform Project Extras—General Metadata—Artifacts</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>General Metadata—Artifacts</h2>
+        <p>
+            <code>&lt;export&gt;</code> [optional, may be repeated]: defines a build product of the project
+            that may be seen by other IDE projects or IDE features. Permits this project to
+            be used as a subproject of a plain Java project, for example.
+        </p>
+        <pre>
+&lt;export&gt;
+    &lt;type&gt;jar&lt;/type&gt;
+    &lt;location&gt;${build.dir}/${build.jar}&lt;/location&gt;
+    <i>&lt;!-- optional: &lt;script&gt;${home}/build.xml&lt;/script&gt; --&gt;</i>
+    &lt;build-target&gt;jar&lt;/build-target&gt;
+    &lt;clean-target&gt;clean&lt;/clean-target&gt; <i>&lt;!-- optional --&gt;</i>
+&lt;/export&gt;
+        </pre>
+        <p>
+            Declares that the file <code>${build.dir}/${build.jar}</code> is to be exported as a JAR
+            build product of this project. (<code>&lt;type&gt;</code> should always be <code>folder</code> or <code>jar</code> for
+            use from plain Java projects, but other project types may define other kinds of
+            exports.) If used as a subproject of a plain Java project,
+            <code>${build.dir}/${build.jar}</code> will be added to the parent project’s classpath;
+            <code>build-impl.xml</code> in the parent project will call this project’s <code>build.xml#jar</code> when
+            "building dependencies", and <code>build.xml#clean</code> when "cleaning dependencies".
+        </p>
+    </body>
+</html>

@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>Freeform Project Extras—General Metadata—Subprojects</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>General Metadata—Subprojects</h2>
+        <p>
+            <code>&lt;subprojects&gt;</code> <em>[optional]</em>: informs the IDE of other projects which should be
+            considered "required projects" for purposes of the <b>Open Required Projects</b>
+            context menu item, the checkbox in the <b>Open Project</b> dialog, etc.
+        </p>
+        <pre>
+&lt;subprojects&gt;
+    &lt;project&gt;subdir-with-project&lt;/project&gt;
+    &lt;project&gt;${other.project.dir}&lt;/project&gt;
+&lt;/subprojects&gt;
+        </pre>
+    </body>
+</html>

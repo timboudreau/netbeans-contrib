@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <title>Freeform Project Extras—General Metadata—Folders</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>General Metadata—Folders</h2>
+        <p>
+            <code>&lt;folders&gt;</code> <em>[optional]</em>: enumerates file locations that are "owned" by this project.
+        </p>
+        <p>
+            By default, everything underneath the main project directory (parent of
+            <code>nbproject</code>) is owned by this project, unless it is part of a nested project.
+            "Ownership" in the IDE can easily be seen by selecting a file in the Projects,
+            Files, or Favorites tab and checking the title bar of the main window. A project
+            decides how files it owns should be treated for purposes of compilation, etc.
+        </p>
+        <p>
+            Using <code>&lt;folders&gt;</code> you can specify that externally located files are also to be
+            owned by this project. Permitted child elements are <code>&lt;source-folder&gt;</code> and
+            <code>&lt;build-folder&gt;</code>.
+        </p>
+        <pre>
+&lt;source-folder&gt;
+    &lt;label&gt;Project Sources&lt;/label&gt;
+    &lt;location&gt;${home}&lt;/location&gt;
+&lt;/source-folder&gt;
+        </pre>
+        <p>
+            This specifies that everything under <code>${home}</code> (which must have been defined using
+            <code>&lt;properties&gt;</code>, above) is owned by this project. This directory will be displayed
+            as e.g. <code>&lt;project name&gt; - Project Sources</code> in the Files tab. If you use File &gt;
+            New to add a text file to the project, <code>Project Sources</code> will be offered as a
+            possible location.
+        </p>
+        <pre>
+&lt;source-folder&gt;
+    &lt;label&gt;Main Java Sources&lt;/label&gt;
+    &lt;type&gt;java&lt;/type&gt;
+    &lt;location&gt;${home}/java&lt;/location&gt;
+&lt;/source-folder&gt;
+        </pre>
+        <p>
+            This specifies that <code>${home}/java</code> should be treated as a folder of Java sources
+            arranged in a package structure. File &gt; New will offer this as a choice for
+            where to put new Java classes.
+        </p>
+        <p>
+            Note that the <code>/</code> in <code>${home}/java</code> works on Windows as well as Unix, just as in
+            Ant; <code>\</code> is permitted and equivalent. Also note that relative paths are resolved
+            against the project directory, just as they would be from a <code>build.xml</code> at top
+            level using <code>basedir="."</code> (or no explicit basedir).
+        </p>
+        <pre>
+&lt;build-folder&gt;
+    &lt;location&gt;${build}&lt;/location&gt;
+&lt;/build-folder&gt;
+        </pre>
+        <p>
+            This specifies that <code>${build}</code> is a folder which contains build products from the
+            project. It is thus to be "owned" by the project but not expected to be shared
+            with other users (e.g. in version control). Not much used yet, but planned to
+            be:
+        </p>
+        <p>
+            <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                <param name="content" value="http://www.netbeans.org/issues/show_bug.cgi?id=66597">
+                <param name="text" value="<html><u>Issue #66597</u></html>">
+                <param name="textFontSize" value="medium">
+                <param name="textColor" value="blue">
+            </object>
+        </p>
+    </body>
+</html>

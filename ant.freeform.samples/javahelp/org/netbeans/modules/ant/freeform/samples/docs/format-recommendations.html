@@ -7,28 +7,25 @@
     <body>
         <h2>Metadata Best Practices</h2>
         <p>
-            <!-- XXX -->
+            The first thing to keep in mind is that a freeform <code>project.xml</code> does not
+            determine <em>how</em> a project is built or run—that is done by an Ant script. The
+            <code>project.xml</code> <em>declares</em> to the IDE what the project contains and produces, and
+            which parts of the Ant script should be exposed in the IDE’s GUI to the
+            developer. So you should always start by writing a well-structured and flexible
+            Ant script that does what you want it to do (either on the command line or by
+            invoking targets from the IDE). Then you can create a freeform project wrapper
+            that presents the project in an attractive and efficient way and lets IDE
+            features such as code completion work the way you expect.
         </p>
-<pre>
-The first thing to keep in mind is that a freeform project.xml does not
-determine _how_ a project is built or run - that is done by an Ant script. The
-project.xml _declares_ to the IDE what the project contains and produces, and
-which parts of the Ant script should be exposed in the IDE's GUI to the
-developer. So you should always start by writing a well-structured and flexible
-Ant script that does what you want it to do (either on the command line or by
-invoking targets from the IDE). Then you can create a freeform project wrapper
-that presents the project in an attractive and efficient way and lets IDE
-features such as code completion work the way you expect.
-
-Ant properties can be used to good effect in your project.xml. Typically you
-will have some property definitions which are contained in one or more
-*.properties files and will define important aspects of the project, such as JAR
-files to include in the classpath, build locations, etc. The Ant script can load
-these properties files and the IDE can too. If you need to make configuration
-changes, make them in the properties files - the Ant build will honor them and
-the IDE should as well.
-
-XXX
-<pre>
+        <p>
+            Ant properties can be used to good effect in your <code>project.xml</code>. Typically you
+            will have some property definitions which are contained in one or more
+            <code>*.properties</code> files and will define important aspects of the project, such as JAR
+            files to include in the classpath, build locations, etc. The Ant script can load
+            these properties files and the IDE can too. If you need to make configuration
+            changes, make them in the properties files—the Ant build will honor them and
+            the IDE should as well.
+        </p>
+        <!-- XXX -->
     </body>
 </html>

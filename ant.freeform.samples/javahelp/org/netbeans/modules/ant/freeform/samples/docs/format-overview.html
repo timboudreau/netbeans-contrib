@@ -7,41 +7,79 @@
     <body>
         <h2>Metadata Overview</h2>
         <p>
-            <!-- XXX -->
+            A freeform project is defined to be a directory containing a subdirectory named
+            <code>nbproject</code> inside of which is a file <code>project.xml</code> matching the pattern
         </p>
-<pre>
-A freeform project is defined to be a directory containing a subdirectory named
-'nbproject' inside of which is a file 'project.xml' matching the pattern
-
+        <pre>
 &lt;project xmlns="http://www.netbeans.org/ns/project/1"&gt;
     &lt;type&gt;org.netbeans.modules.ant.freeform&lt;/type&gt;
     &lt;configuration&gt;
-        &lt;!-- metadata blocks ... --&gt;
+        <i>&lt;!-- metadata blocks … --&gt;</i>
     &lt;/configuration&gt;
 &lt;/project&gt;
-
-The metadata blocks must consist of at least a &lt;general-data&gt; section, and
-possibly some domain-specific sections such as &lt;java-data&gt; in different
-namespaces. The currently available XML schemas for validation are as follows:
-
-http://www.netbeans.org/ns/freeform-project/1.xsd
-http://www.netbeans.org/ns/freeform-project-java/1.xsd
-http://www.netbeans.org/ns/freeform-project-java/2.xsd
-http://www.netbeans.org/ns/freeform-project-web/1.xsd
-http://www.netbeans.org/ns/freeform-project-ejb/1.xsd
-
-Revisions of schemas are marked numerically, so .../freeform-project-java/2.xsd
-is an updated variant of .../freeform-project-java/1.xsd. The namespaces defined
-by the schemas are the same as the above URLs but without the ".xsd" suffix.
-
-Other than project.xml, there is no mandatory layout for a freeform project
-(hence its name!). It is common for there to be an Ant build script named
-'build.xml' at top level but this is not required.
-
-The behavior of the project inside the IDE is controlled by the contents of
-project.xml, together with any other files referenced by it. The permitted
-metadata sections are described in turn, followed by "best-practices"
-recommendations on how the complete project should be structured.
-</pre>
+        </pre>
+        <p>
+            The metadata blocks must consist of at least a <code>&lt;general-data&gt;</code> section, and
+            possibly some domain-specific sections such as <code>&lt;java-data&gt;</code> in different
+            namespaces. The currently available XML schemas for validation are as follows:
+        </p>
+        <ul>
+            <li>
+                <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                    <param name="content" value="http://www.netbeans.org/ns/freeform-project/1.xsd">
+                    <param name="text" value="<html><u>http://www.netbeans.org/ns/freeform-project/1.xsd</u></html>">
+                    <param name="textFontSize" value="medium">
+                    <param name="textColor" value="blue">
+                </object>
+            </li>
+            <li>
+                <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                    <param name="content" value="http://www.netbeans.org/ns/freeform-project-java/1.xsd">
+                    <param name="text" value="<html><u>http://www.netbeans.org/ns/freeform-project-java/1.xsd</u></html>">
+                    <param name="textFontSize" value="medium">
+                    <param name="textColor" value="blue">
+                </object>
+            </li>
+            <li>
+                <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                    <param name="content" value="http://www.netbeans.org/ns/freeform-project-java/2.xsd">
+                    <param name="text" value="<html><u>http://www.netbeans.org/ns/freeform-project-java/2.xsd</u></html>">
+                    <param name="textFontSize" value="medium">
+                    <param name="textColor" value="blue">
+                </object>
+            </li>
+            <li>
+                <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                    <param name="content" value="http://www.netbeans.org/ns/freeform-project-web/1.xsd">
+                    <param name="text" value="<html><u>http://www.netbeans.org/ns/freeform-project-web/1.xsd</u></html>">
+                    <param name="textFontSize" value="medium">
+                    <param name="textColor" value="blue">
+                </object>
+            </li>
+            <li>
+                <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                    <param name="content" value="http://www.netbeans.org/ns/freeform-project-ejb/1.xsd">
+                    <param name="text" value="<html><u>http://www.netbeans.org/ns/freeform-project-ejb/1.xsd</u></html>">
+                    <param name="textFontSize" value="medium">
+                    <param name="textColor" value="blue">
+                </object>
+            </li>
+        </ul>
+        <p>
+            Revisions of schemas are marked numerically, so <code>…/freeform-project-java/2.xsd</code>
+            is an updated variant of <code>…/freeform-project-java/1.xsd</code>. The namespaces defined
+            by the schemas are the same as the above URLs but without the ".xsd" suffix.
+        </p>
+        <p>
+            Other than <code>project.xml</code>, there is no mandatory layout for a freeform project
+            (hence its name!). It is common for there to be an Ant build script named
+            <code>build.xml</code> at top level but this is not required.
+        </p>
+        <p>
+            The behavior of the project inside the IDE is controlled by the contents of
+            <code>project.xml</code>, together with any other files referenced by it. The permitted
+            metadata sections are described in turn, followed by "best-practices"
+            recommendations on how the complete project should be structured.
+        </p>
     </body>
 </html>

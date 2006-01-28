@@ -7,21 +7,20 @@
     <body>
         <h2>Java-Specific Metadata</h2>
         <p>
-            <!-- XXX -->
+            <code>&lt;java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2"&gt;</code>
         </p>
-<pre>
-&lt;java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2"&gt;
-
-This section describes any Java-language-specific aspects of the project.
-http://www.netbeans.org/ns/freeform-project-java/1 can be used as well, for
-compatibility with older IDE versions, but lacks some features; refer to the
-schemas for details.
-
-
-&lt;compilation-unit&gt; - the &lt;java-data&gt; section can contain any number of
-compilation units. A compilation unit is a collection of Java source roots which
-are compiled at once and share the same classpath and other attributes.
-
+        <p>
+            This section describes any Java-language-specific aspects of the project.
+            <code>http://www.netbeans.org/ns/freeform-project-java/1</code> can be used as well, for
+            compatibility with older IDE versions, but lacks some features; refer to the
+            schemas for details.
+        </p>
+        <p>
+            <code>&lt;compilation-unit&gt;</code>: the <code>&lt;java-data&gt;</code> section can contain any number of
+            compilation units. A <dfn>compilation unit</dfn> is a collection of Java source roots which
+            are compiled at once and share the same classpath and other attributes.
+        </p>
+        <pre>
 &lt;compilation-unit&gt;
     &lt;package-root&gt;${src.dir}&lt;/package-root&gt;
     &lt;classpath mode="compile"&gt;${lib.dir}/x.jar:${lib.dir}/y.jar&lt;/classpath&gt;
@@ -30,17 +29,27 @@ are compiled at once and share the same classpath and other attributes.
     &lt;javadoc-built-to&gt;${javadoc.dir}&lt;/javadoc-built-to&gt;
     &lt;source-level&gt;1.5&lt;/source-level&gt;
 &lt;/compilation-unit&gt;
-
-Declares that the directory named by ${src.dir} contains Java sources. They are
-expected to be compiled using the named classpath (as usual, '/' and '\' can be
-used interchangeably, as can ':' and ';'), so the IDE can offer code completion
-and other features accordingly. The classes will be compiled to the directory
-${classes.dir} and later packed into ${jar.file}, so any other project using
-either of these locations in its classpath will show sources from ${src.dir} in
-code completion, Go to Source, etc. Javadoc may be built to the directory
-${javadoc.dir}, so if other projects use this source root, and ${javadoc.dir}
-exists, it may be used in Javadoc search. The sources are to be compiled with
--source 1.5, i.e. they may contain generics and other JDK 5 language features.
-</pre>
+        </pre>
+        <p>
+            Declares that the directory named by <code>${src.dir}</code> contains Java sources. They are
+            expected to be compiled using the named classpath (as usual, <code>/</code> and <code>\</code> can be
+            used interchangeably, as can <code>:</code> and <code>;</code>), so the IDE can offer code completion
+            and other features accordingly.
+        </p>
+        <p>
+            The classes will be compiled to the directory
+            <code>${classes.dir}</code> and later packed into <code>${jar.file}</code>, so any other project using
+            either of these locations in its classpath will show sources from <code>${src.dir}</code> in
+            code completion, <b>Go to Source</b>, etc.
+        </p>
+        <p>
+            Javadoc may be built to the directory
+            <code>${javadoc.dir}</code>, so if other projects use this source root, and <code>${javadoc.dir}</code>
+            exists, it may be used in Javadoc search.
+        </p>
+        <p>
+            The sources are to be compiled with
+            <code>-source 1.5</code>, i.e. they may contain generics and other JDK 5 language features.
+        </p>
     </body>
 </html>

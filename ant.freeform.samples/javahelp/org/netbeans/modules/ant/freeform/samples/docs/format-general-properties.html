@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title>Freeform Project Extras—General Metadata—Properties</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>General Metadata—Properties</h2>
+        <p>
+            <code>&lt;properties&gt;</code> <em>[optional]</em>: defines some Ant properties that can be referenced
+            elsewhere in <code>project.xml</code>, using the same <code>${propertyname}</code> syntax as Ant uses.
+            There are two kinds of subelements:
+        </p>
+        <p>
+            <code>&lt;property name="key"&gt;value&lt;/property&gt;</code>: defines a property <code>key</code> with the value
+            <code>value</code>. Similar to Ant <code>&lt;property name="key" value="value"/&gt;</code>. As with Ant, the
+            value can use other Ant properties defined earlier in <code>&lt;properties&gt;</code>.
+        </p>
+        <p>
+            <code>&lt;property-file&gt;file.properties&lt;/property-file&gt;</code>: loads <code>file.properties</code> for its
+            definitions. Similar to Ant <code>&lt;property file="file.properties"/&gt;</code>. The filename can
+            use other Ant properties. As with Ant, the definitions in the file can refer to
+            other Ant properties defined earlier in <code>&lt;properties&gt;</code>; or even other Ant
+            properties defined in <code>file.properties</code> (so long as there is not a cyclic
+            definition, of course).
+        </p>
+    </body>
+</html>

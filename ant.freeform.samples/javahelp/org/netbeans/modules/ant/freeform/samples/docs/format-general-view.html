@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <title>Freeform Project Extras—General Metadata—View</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>General Metadata—View</h2>
+        <p>
+            <code>&lt;view&gt;</code> <em>[optional]</em>: specifies what to show in the Projects tab, in the intended
+            order. Entries may be
+        </p>
+        <pre>
+&lt;source-folder style="packages"&gt;
+    &lt;label&gt;Sources&lt;/label&gt;
+    &lt;location&gt;${src.dir}&lt;/location&gt;
+&lt;/source-folder&gt;
+        </pre>
+        <p>
+            Shows a package list view of <code>${src.dir}</code>, labelled <b>Sources</b>. (The label is
+            optional.)
+        </p>
+        <pre>
+&lt;source-folder style="tree"&gt;
+    &lt;label&gt;Docs&lt;/label&gt;
+    &lt;location&gt;docs&lt;/location&gt;
+&lt;/source-folder&gt;
+        </pre>
+        <p>
+            Shows the subdir <code>docs</code> in a plain tree.
+        </p>
+        <pre>
+&lt;source-file&gt;
+    &lt;label&gt;Build Script&lt;/label&gt;
+    &lt;location&gt;build.xml&lt;/location&gt;
+&lt;/source-file&gt;
+        </pre>
+        <p>
+            Shows <code>build.xml</code>.
+        </p>
+        <p>
+            After view items you may specify project-specific context menu items for the
+            project’s root node:
+        </p>
+        <pre>
+&lt;context-menu&gt;
+    &lt;ide-action name="build"/&gt;
+    &lt;ide-action name="clean"/&gt;
+    &lt;ide-action name="rebuild"/&gt;
+    &lt;separator/&gt;
+    &lt;action&gt;
+        <i>&lt;!-- optional: &lt;script&gt;build.xml&lt;/script --&gt;</i>
+        &lt;label&gt;Format Sources&lt;/label&gt;
+        &lt;target&gt;jalopy&lt;/target&gt;
+        <i>&lt;!-- optional: &lt;property name="…"&gt;…&lt;/property&gt; --&gt;</i>
+    &lt;/action&gt;
+&lt;/context-menu&gt;
+        </pre>
+        <p>
+            The <code>&lt;ide-action&gt;</code>s must refer to context-free predefined actions:
+        </p>
+        <p>
+            <a href="format-general-actions.html">General Metadata—Actions</a>
+        </p>
+        <p>
+            For the rest you can specify an action inline by just giving a label and an Ant target.
+        </p>
+    </body>
+</html>

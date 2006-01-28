@@ -1,0 +1,115 @@
+<html>
+    <head>
+        <title>Freeform Project Extras—General Metadata—Actions</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>General Metadata—Actions</h2>
+        <p>
+            <code>&lt;ide-actions&gt;</code> <em>[optional]</em>: binds predefined actions in the IDE GUI (e.g. Build
+            Project) to Ant targets of your choice. You can make simple bindings to actions
+            which take effect on the whole project, as well as "context-aware" bindings that
+            let you somehow process particular files which have been selected (in the
+            editor, <b>Projects</b> / <b>Files</b> tabs, etc.).
+        </p>
+        <pre>
+&lt;action name="rebuild"&gt;
+    &lt;script&gt;${home}/build.xml&lt;/script&gt;
+    &lt;target&gt;clean&lt;/target&gt;
+    &lt;target&gt;build&lt;/target&gt;
+    &lt;property name="set-from-ide"&gt;true&lt;/property&gt;
+&lt;/action&gt;
+        </pre>
+        <p>
+            This binds the IDE action <b>Clean and Build Project</b> to targets in the Ant script
+            in <code>${home}/build.xml</code>. (Default script if not specified: <code>build.xml</code>, i.e. at top
+            level in the project.) <code>&lt;target&gt;</code> may be specified once, or several times (to run
+            in sequence), or not at all (to use the default target)—all as on the Ant
+            command line. You can use <code>&lt;property&gt;</code> elements to pass some special definitions
+            to the target(s), just like <code>-D</code> on the Ant command line.
+        </p>
+        <pre>
+&lt;action name="debug.fix"&gt;
+    &lt;target&gt;debug-fix-nb&lt;/target&gt;
+    &lt;context&gt;
+        &lt;property&gt;fix.file&lt;/property&gt;
+        &lt;folder&gt;src&lt;/folder&gt;
+        &lt;pattern&gt;\.java$&lt;/pattern&gt;
+        &lt;format&gt;relative-path-noext&lt;/format&gt;
+        &lt;arity&gt;
+            &lt;one-file-only/&gt;
+        &lt;/arity&gt;
+    &lt;/context&gt;
+&lt;/action&gt;
+        </pre>
+        <p>
+            This binds the IDE action <b>Fix</b> (used by the debugger) to a target
+            <code>debug-fix-nb</code>. It will be enabled for a selection consisting of one <code>*.java</code> file
+            in the project’s <code>src</code> subdirectory (the regular expression must match the
+            relative path, using <code>/</code> as a separator, from the root folder); the path to the
+            source (in the format <code>org/foo/pkg/Clazz</code> for a file <code>src/org/foo/pkg/Clazz.java</code>)
+            will be passed to the target in the property named <code>fix.file</code>.
+        </p>
+        <p>
+            The possible formats are:
+        </p>
+        <dl>
+            <dt><code>absolute-path</code></dt>
+            <dd>the full path to the file in native format</dd>
+            <dt><code>absolute-path-noext</code></dt>
+            <dd>the full path to the file, minus any <code>.ext</code></dd>
+            <dt><code>relative-path</code></dt>
+            <dd>the relative path from the folder (<code>/</code> separated)</dd>
+            <dt><code>relative-path-noext</code></dt>
+            <dd>the relative path minus any <code>.ext</code></dd>
+            <dt><code>java-name</code></dt>
+            <dd>a no-extension path with <code>.</code>, e.g. <code>org.foo.pkg.Clazz</code></dd>
+        </dl>
+        <p>
+            Currently you can only pass one "context" property at a time, which can be
+            cumbersome:
+        </p>
+        <p>
+            <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                <param name="content" value="http://www.netbeans.org/issues/show_bug.cgi?id=48079">
+                <param name="text" value="<html><u>Issue #48079</u></html>">
+                <param name="textFontSize" value="medium">
+                <param name="textColor" value="blue">
+            </object>
+        </p>
+        <pre>
+&lt;action name="compile.single"&gt;
+    &lt;target&gt;compile-selected-files&lt;/target&gt;
+    &lt;context&gt;
+        &lt;property&gt;includes&lt;/property&gt;
+        &lt;folder&gt;src&lt;/folder&gt;
+        &lt;pattern&gt;\.java$&lt;/pattern&gt;
+        &lt;format&gt;relative-path&lt;/format&gt;
+        &lt;arity&gt;
+            &lt;separated-files&gt;,&lt;/separated-files&gt;
+        &lt;/arity&gt;
+    &lt;/context&gt;
+&lt;/action&gt;
+        </pre>
+        <p>
+            This binds <b>Compile Single</b> to the target <code>compile-selected-files</code>. It will be
+            enabled for one or more Java sources in <code>src</code>. The context is equivalent to
+            calling command-line Ant something like this:
+        </p>
+        <pre>
+ant -Dincludes=org/foo/pkg/Clazz1.java,org/foo/pkg/Clazz2.java compile-selected-files
+        </pre>
+        <p>
+            Currently you cannot have the action be enabled on a folder (or package):
+        </p>
+        <p>
+            <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                <param name="content" value="http://www.netbeans.org/issues/show_bug.cgi?id=53622">
+                <param name="text" value="<html><u>Issue #53622</u></html>">
+                <param name="textFontSize" value="medium">
+                <param name="textColor" value="blue">
+            </object>
+        </p>
+    </body>
+</html>
