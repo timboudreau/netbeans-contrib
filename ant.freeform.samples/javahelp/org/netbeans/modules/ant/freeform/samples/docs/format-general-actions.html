@@ -7,7 +7,7 @@
     <body>
         <h2>General Metadata—Actions</h2>
         <p>
-            <code>&lt;ide-actions&gt;</code> <em>[optional]</em>: binds predefined actions in the IDE GUI (e.g. Build
+            <code>&lt;ide-actions&gt;</code> <em>[optional]</em> binds predefined actions in the IDE GUI (e.g. Build
             Project) to Ant targets of your choice. You can make simple bindings to actions
             which take effect on the whole project, as well as "context-aware" bindings that
             let you somehow process particular files which have been selected (in the
@@ -110,6 +110,21 @@ ant -Dincludes=org/foo/pkg/Clazz1.java,org/foo/pkg/Clazz2.java compile-selected-
                 <param name="textFontSize" value="medium">
                 <param name="textColor" value="blue">
             </object>
+        </p>
+        <p>
+            Common examples of these configurations can be found online:
+        </p>
+        <p>
+            <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                <param name="content" value="http://www.netbeans.org/kb/41/freeform-config.html">
+                <param name="text" value="<html><u>http://www.netbeans.org/kb/41/freeform-config.html</u></html>">
+                <param name="textFontSize" value="medium">
+                <param name="textColor" value="blue">
+            </object>
+        </p>
+        <p>
+            The <a href="template-skeletal.html">Skeletal Project Template</a> can also be used
+            as a source of examples.
         </p>
     </body>
 </html>

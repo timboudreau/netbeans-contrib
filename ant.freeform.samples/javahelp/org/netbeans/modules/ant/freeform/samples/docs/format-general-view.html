@@ -7,7 +7,7 @@
     <body>
         <h2>General Metadata—View</h2>
         <p>
-            <code>&lt;view&gt;</code> <em>[optional]</em>: specifies what to show in the Projects tab, in the intended
+            <code>&lt;view&gt;</code> <em>[optional]</em> specifies what to show in the <b>Projects</b> tab, in the intended
             order. Entries may be
         </p>
         <pre>
@@ -18,7 +18,7 @@
         </pre>
         <p>
             Shows a package list view of <code>${src.dir}</code>, labelled <b>Sources</b>. (The label is
-            optional.)
+            optional; just defaults to folder name without path.)
         </p>
         <pre>
 &lt;source-folder style="tree"&gt;
@@ -27,7 +27,7 @@
 &lt;/source-folder&gt;
         </pre>
         <p>
-            Shows the subdir <code>docs</code> in a plain tree.
+            Shows the subdir <code>docs</code> in a plain tree. Again the label is optional.
         </p>
         <pre>
 &lt;source-file&gt;
@@ -36,7 +36,8 @@
 &lt;/source-file&gt;
         </pre>
         <p>
-            Shows <code>build.xml</code>.
+            Shows <code>build.xml</code>. Again the label is optional (defaults to
+            file name without path).
         </p>
         <p>
             After view items you may specify project-specific context menu items for the
