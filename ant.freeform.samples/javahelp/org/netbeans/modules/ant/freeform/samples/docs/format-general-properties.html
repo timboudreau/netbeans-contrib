@@ -9,7 +9,7 @@
         <p>
             <code>&lt;properties&gt;</code> <em>[optional]</em> defines some Ant properties that can be referenced
             elsewhere in <code>project.xml</code>, using the same <code>${propertyname}</code> syntax as Ant uses.
-            There are two kinds of subelements:
+            There are two kinds of subelements which may occur (order is significant):
         </p>
         <p>
             <code>&lt;property name="key"&gt;value&lt;/property&gt;</code> defines a property <code>key</code> with the value
@@ -23,6 +23,26 @@
             other Ant properties defined earlier in <code>&lt;properties&gt;</code>; or even other Ant
             properties defined in <code>file.properties</code> (so long as there is not a cyclic
             definition, of course).
+        </p>
+        <p>
+            Some properties are predefined, as in Ant itself, such as Java system properties passed to the IDE.
+            Also the IDE will predefine properties for environment variables: <code>${env-foo}</code> refers to
+            an environment variable named <code>foo</code>, <code>FOO</code>, <code>Foo</code>, etc.; and
+            <code>${Env-Foo}</code> refers to an environment variable named exactly <code>Foo</code>.
+            Of course it is usually unwise to rely on such variables in portable build scripts.
+        </p>
+        <p>
+            The variable <code>${basedir}</code> (also <code>.</code> in places where a file path is expected)
+            is always defined to be the directory containing the <code>nbproject</code> directory, <em>regardless</em>
+            of any <code>basedir</code> attribute in your Ant script(s):
+        </p>
+        <p>
+            <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                <param name="content" value="http://www.netbeans.org/issues/show_bug.cgi?id=71973">
+                <param name="text" value="<html><u>Issue #71973</u></html>">
+                <param name="textFontSize" value="medium">
+                <param name="textColor" value="blue">
+            </object>
         </p>
     </body>
 </html>

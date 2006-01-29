@@ -52,5 +52,11 @@
             The sources are to be compiled with
             <code>-source 1.5</code>, i.e. they may contain generics and other JDK 5 language features.
         </p>
+        <p>
+            It is important to specify an accurate <code>&lt;built-to&gt;</code> (available in the <b>Properties</b> dialog
+            in the <b>Output</b> tab) <em>even if no other code compiles against the output</em>. This is because
+            the IDE’s background Java parser can run much faster on large source trees when most of the classes have
+            been compiled already and it knows where they are.
+        </p>
     </body>
 </html>

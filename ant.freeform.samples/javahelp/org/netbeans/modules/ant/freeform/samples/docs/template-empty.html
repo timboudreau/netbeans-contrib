@@ -1,3 +1,4 @@
+<!-- Cf. issue #49029 -->
 <html>
     <head>
         <title>Freeform Project Extras—Empty Project</title>
@@ -7,7 +8,29 @@
     <body>
         <h2>Empty Project Template</h2>
         <p>
-            <!-- XXX -->
+            This bare-bones project template just creates a minimal
+            <code>nbproject/project.xml</code>. No Ant build script is created.
+            In fact the "project" does not really do anything; it is essentially
+            a placeholder for some files that you can open and close like a project
+            for convenience, rather than using the <b>Favorites</b> tab.
+        </p>
+        <p>
+            You might use this template to create a non-code project to hold design
+            documents or similar files. If you actually want an Ant-based freeform
+            project, but want to use your own custom project skeleton (e.g. based on
+            company-mandated build scripts or source structures), take a look at:
+        </p>
+        <p>
+            <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                <param name="content" value="http://www.netbeans.org/issues/show_bug.cgi?id=49646">
+                <param name="text" value="<html><u>Issue #49646</u></html>">
+                <param name="textFontSize" value="medium">
+                <param name="textColor" value="blue">
+            </object>
+        </p>
+        <p>
+            <a href="nbdocs:/org/netbeans/modules/apisupport/project/docs/create_plugin/filelevel_create/about_project_templates.html">About Project Templates</a>
+            (requires use of NetBeans plug-in module development support, but is very flexible)
         </p>
     </body>
 </html>

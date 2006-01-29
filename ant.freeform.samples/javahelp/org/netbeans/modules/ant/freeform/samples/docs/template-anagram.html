@@ -7,7 +7,36 @@
     <body>
         <h2>Anagram Sample Project Pair</h2>
         <p>
-            <!-- XXX -->
+            This wizard creates a pair of freeform projects which together implement the
+            same application as the IDE’s standard <b>Anagram Game</b> project sample.
+            One project holds a nonvisual library (with accompanying unit tests), and the
+            other project depends on the library and contains a runnable Swing-based GUI.
         </p>
+        <p>
+            The main point of interest for this sample beyond what is available in the
+            <a href="template-skeletal.html">Skeletal Project Template</a> is that you
+            can see an interproject dependency in action, working much like dependencies
+            between regular Java projects:
+        </p>
+        <ol>
+            <li>
+                <p>
+                    Building the GUI project automatically builds the library project as well.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The classes built by the library project are included in the classpath of
+                    the GUI project; code completion, <b>Go to Source</b>, and other IDE features
+                    work across the projects as you would expect.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The library project is treated as a subproject of the GUI project for purposes
+                    of <b>Open Project</b> and <b>Open Required Projects</b>.
+                </p>
+            </li>
+        </ol>
     </body>
 </html>

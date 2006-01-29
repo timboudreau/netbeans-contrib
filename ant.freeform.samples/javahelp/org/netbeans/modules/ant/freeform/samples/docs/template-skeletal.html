@@ -7,7 +7,37 @@
     <body>
         <h2>Skeletal Project Template</h2>
         <p>
-            <!-- XXX -->
+            This project creates an empty but fully configured freeform project with
+            most of the same capabilities as a regular Java project. For example, you
+            can compile and run the project or individual classes with a <code>main</code> method,
+            compile and run JUnit tests individually or together, build Javadoc, debug the project
+            or JUnit tests (including <b>Run &gt; Apply Code Changes</b>!), and run the NetBeans
+            Profiler on your code. In addition, you can add this project as a subproject of any
+            regular Java project and have everything work as expected.
+        </p>
+        <p>
+            Unlike a regular Java project, the <b>Properties</b> dialog is the same as for any
+            freeform project, i.e. it only <em>describes</em> how the project works. If you wish
+            to customize the behavior of any targets, you may simply edit the Ant scripts, or
+            edit configuration in <code>build.properties</code>. There is not currently any way
+            to get a <b>Properties</b> dialog that works like that for a regular Java project:
+        </p>
+        <p>
+            <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                <param name="content" value="http://www.netbeans.org/issues/show_bug.cgi?id=46485">
+                <param name="text" value="<html><u>Issue #46485</u></html>">
+                <param name="textFontSize" value="medium">
+                <param name="textColor" value="blue">
+            </object>
+        </p>
+        <p>
+            This template is also a great way to understand how to make customizations to your own
+            existing freeform project to support various actions. To explore the implementation, look
+            in <code>project.xml</code> for IDE bindings; <code>build.properties</code> for configuration;
+            <code>build.xml</code> for basic targets; <code>file-targets.xml</code> for targets which
+            apply to a specific file selection rather than the whole project; and <code>netbeans-targets.xml</code>
+            for special targets which can only be run inside the NetBeans IDE and serve to integrate Ant
+            functionality with the rest of the IDE.
         </p>
     </body>
 </html>

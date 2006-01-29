@@ -126,5 +126,23 @@ ant -Dincludes=org/foo/pkg/Clazz1.java,org/foo/pkg/Clazz2.java compile-selected-
             The <a href="template-skeletal.html">Skeletal Project Template</a> can also be used
             as a source of examples.
         </p>
+        <p>
+            For <em>certain</em> commands, the IDE can set up basic bindings and Ant targets
+            automatically. For example, try selecting <b>Compile File</b> from the context menu
+            of a Java source in your project—if you do not already have a binding for
+            <code>compile.single</code>, one will be created for you. (You may have to customize
+            the Ant target to exactly match your requirements, but at least you have a starting
+            point.) Similarly, you can try selecting <b>Debug Project</b> from the project’s
+            context menu to create a <code>debug</code> binding. However, other IDE actions have
+            not yet been implemented:
+        </p>
+        <p>
+            <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+                <param name="content" value="http://www.netbeans.org/issues/show_bug.cgi?id=46886">
+                <param name="text" value="<html><u>Issue #46886</u></html>">
+                <param name="textFontSize" value="medium">
+                <param name="textColor" value="blue">
+            </object>
+        </p>
     </body>
 </html>
