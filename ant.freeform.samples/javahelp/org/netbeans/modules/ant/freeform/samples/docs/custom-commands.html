@@ -7,7 +7,80 @@
     <body>
         <h2>Custom Context-Sensitive Commands</h2>
         <p>
-            <!-- XXX -->
+            It is straightforward to add support for custom menu items in the context
+            menu of a freeform project’s root node. Just open the project’s <b>Properties</b>
+            dialog, and in <b>Build and Run</b> add entries to the <b>Custom Menu Items</b>
+            table.
+        </p>
+        <p>
+            It is also not too hard to bind standard context-sensitive actions in the IDE,
+            such as <b>Compile File</b> or <b>Run File</b>, to Ant targets. Details:
+        </p>
+        <p>
+            <a href="format-general-actions.html">General Metadata—Actions</a>
+        </p>
+        <p>
+            However on occasion you may wish to create your own context-sensitive actions
+            <em>and</em> bind them to targets in one or more freeform projects. This module
+            helps you do so:
+        </p>
+        <ol>
+            <li>
+                <p>
+                    First edit your <code>project.xml</code> and <code>build.xml</code>
+                    to include one or more bindings for a new
+                    context-sensitive action. Pick any action name you like. For example:
+                </p>
+                <pre>
+&lt;action name="reformat"&gt;
+    &lt;target&gt;run-jalopy-on-files&lt;/target&gt;
+    &lt;context&gt;
+        &lt;property&gt;includes&lt;/property&gt;
+        &lt;folder&gt;${src.dir}&lt;/folder&gt;
+        &lt;pattern&gt;\.java$&lt;/pattern&gt;
+        &lt;format&gt;relative-path&lt;/format&gt;
+        &lt;arity&gt;
+            &lt;separated-files&gt;,&lt;/separated-files&gt;
+        &lt;/arity&gt;
+    &lt;/context&gt;
+&lt;/action&gt;
+                </pre>
+                <pre>
+&lt;target name="run-jalopy-on-files"&gt;
+    &lt;jalopy …options…&gt;
+        &lt;fileset dir="${src.dir}" includes="${includes}"/&gt;
+    &lt;/jalopy&gt;
+&lt;/target&gt;
+                </pre>
+            </li>
+            <li>
+                <p>
+                    Right-click the project and select <b>Create Custom Command...</b> from the context menu.
+                    The <b>Command</b> should be preselected (here, <code>reformat</code>).
+                    Choose a display name (e.g. <b>Custom Reformat</b>).
+                    Pick a menu (e.g. <b>Source</b>) and position (e.g. <b>Reformat Code ↔ Shift Left</b>).
+                    Click <b>Finish</b>.
+                </p>
+            </li>
+            <li>
+                <p>
+                    Now you should be able to select some Java sources in your project
+                    and select <b>Source &gt; Custom Reformat 3 Files</b> to run Jalopy on them.
+                </p>
+            </li>
+            <li>
+                <p>
+                    You should be able to use <b>Tools &gt; Options &gt; Keymap</b> to add keyboard
+                    bindings. To add a toolbar button, find the new action in
+                    <b>Tools &gt; Options &gt; Advanced Options &gt; IDE Configuration &gt;
+                    Look and Feel &gt; Actions</b>, copy it, and paste to a subfolder of <b>Toolbars</b>.
+                </p>
+            </li>
+        </ol>
+        <p>
+            This feature should be considered experimental. In particular, there is not yet any way
+            to customize the action name or display name once it is created; you will need to delete
+            the old action from <b>Menu Bar</b> and rerun the wizard.
         </p>
     </body>
 </html>

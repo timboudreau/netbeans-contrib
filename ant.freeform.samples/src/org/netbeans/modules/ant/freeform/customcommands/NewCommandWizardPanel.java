@@ -39,7 +39,7 @@ public class NewCommandWizardPanel implements WizardDescriptor.Panel {
     }
     
     public HelpCtx getHelp() {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx("org.netbeans.modules.ant.freeform.samples.custom-commands");
     }
     
     public boolean isValid() {
