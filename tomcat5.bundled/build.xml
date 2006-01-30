@@ -76,6 +76,7 @@ Microsystems, Inc. All Rights Reserved.
     </genlist>
   </target>
 
+  <target name="conditional-nbm" depends="nbm"/>
   <target name="nbm" depends="netbeans" description="Prepare the module for distribution via Auto Update.">
     <makenbm file="bundledtomcat.nbm"
            productdir="${cluster}"
