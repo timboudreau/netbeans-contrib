@@ -22,6 +22,12 @@ Microsystems, Inc. All Rights Reserved.
         <attr name="url_key" stringvalue="MavenURL"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
+      <file name="sc.settings" url="sc.settings">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/updatecenters/resources/updateAction.gif"/>
+        <attr name="url_key" stringvalue="SCURL"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
     </folder>
 
   </folder> <!-- Services -->
