@@ -35,14 +35,8 @@ public class ShowMetricsAction extends NodeAction {
     private static final boolean debug = false;
 
     protected boolean enable(Node[] arr) {
-        if ((arr == null) || (arr.length == 0)) return false;
-
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i].getCookie (DataObject.class) == null) {
-                return false;
-            }
-        }
-
+        if ((arr == null) || (arr.length == 0)) 
+            return false;
         return true;
     }
 

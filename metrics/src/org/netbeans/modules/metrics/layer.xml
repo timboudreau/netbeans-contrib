@@ -3,8 +3,8 @@
 <filesystem>
     <folder name="Actions">
         <folder name="Tools">
-            <file name="org-netbeans-modules-metrics-ApproveMetricAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.metrics.ApproveMetricAction"/>
+            <file name="org-netbeans-modules-metrics-ApproveMetricsAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.metrics.ApproveMetricsAction"/>
             </file>
             <file name="org-netbeans-modules-metrics-ShowMetricsAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.metrics.ShowMetricsAction"/>
@@ -16,11 +16,11 @@
             <file name="org-netbeans-modules-metrics-ShowMetricsAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-metrics-ShowMetricsAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-metrics-ShowMetricsAction.shadow/org-netbeans-modules-metrics-ApproveMetricAction.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-metrics-ApproveMetricAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-metrics-ApproveMetricAction.instance"/>
+            <attr name="org-netbeans-modules-metrics-ShowMetricsAction.shadow/org-netbeans-modules-metrics-ApproveMetricsAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-metrics-ApproveMetricsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-metrics-ApproveMetricsAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-metrics-ApproveMetricAction.shadow/org-netbeans-modules-metrics-separatorAfter.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-metrics-ApproveMetricsAction.shadow/org-netbeans-modules-metrics-separatorAfter.instance" boolvalue="true"/>
             <file name="org-netbeans-modules-metrics-separatorAfter.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
             </file>
