@@ -441,9 +441,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             throw ex;            
         }        
     }    
-    public void addJDBCResource(String configName, String resName, Map resElements){
-        
-    }    
+
     
     public void setResource(ResourceType resType, String configName, String resName, Map resElements) throws Exception{
         try{
@@ -512,13 +510,49 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         }
         return null;                
     }
-    public void addCustomResource(String configName, String resName, Map resElements){
+    public void addJdbcResource(String configName, String resName, 
+                                Map resAttrs, Map resProps) throws Exception{
+        try{
+            Method addJdbcResource = dmClass.getDeclaredMethod("addJDBCResource", 
+                    new Class[]{String.class, String.class, Map.class});
+            addJdbcResource.invoke(this.ws70DM, new Object[]{configName, resName, resAttrs});            
+        }catch(Exception ex){
+            throw ex;            
+        }                   
+        
+    }        
+    public void addCustomResource(String configName, String resName, 
+                                Map resAttrs, Map resProps) throws Exception{
+        try{
+            Method addCustomResource = dmClass.getDeclaredMethod("addCustomResource", 
+                    new Class[]{String.class, String.class, Map.class});
+            addCustomResource.invoke(this.ws70DM, new Object[]{configName, resName, resAttrs});            
+        }catch(Exception ex){
+            throw ex;            
+        }                   
         
     }
 
-    public void addJNDIResource(String configName, String resName, Map resElements){
-        
+    public void addJNDIResource(String configName, String resName, 
+                                Map resAttrs, Map resProps) throws Exception{
+        try{
+            Method addJNDIResource = dmClass.getDeclaredMethod("addJNDIResource", 
+                    new Class[]{String.class, String.class, Map.class});
+            addJNDIResource.invoke(this.ws70DM, new Object[]{configName, resName, resAttrs});            
+        }catch(Exception ex){
+            throw ex;            
+        }                   
     }
+    public void addMailResource(String configName, String resName, 
+                                Map resAttrs, Map resProps) throws Exception{
+        try{
+            Method addMailResource = dmClass.getDeclaredMethod("addMailResource", 
+                    new Class[]{String.class, String.class, Map.class});
+            addMailResource.invoke(this.ws70DM, new Object[]{configName, resName, resAttrs});            
+        }catch(Exception ex){
+            throw ex;            
+        }                          
+    }    
     public String setJVMOptions(String configName, List jvmOptions, Boolean debugOptions, 
                                 String profilerName) throws Exception {
           try{
@@ -531,7 +565,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         }          
     }
     public String setJVMProps(String configName, Map jvmElements) throws Exception {
-          try{
+        try{
             Method setJVMProps = dmClass.getDeclaredMethod("setJVMProps", 
                     new Class[]{String.class, Map.class});
             String message = (String)setJVMProps.invoke(this.ws70DM, new Object[]{configName, jvmElements});
@@ -540,9 +574,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             throw ex;            
         }                  
     }
-    public void addMailResource(String configName, String resName, Map resElements){
-        
-    }
+
     
     public boolean isRunning(){        
        try {
