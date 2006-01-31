@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<metaDD>
+        <extends>org.netbeans.modules.j2ee.sun.ws7.serverresources.dd.SunBaseBean</extends>
+	<meta-element>
+		<dtd-name>resources</dtd-name>
+		<bean-name>WS70Resources</bean-name>
+		<implements>org.netbeans.modules.j2ee.sun.ws7.serverresources.dd.WS70Resources</implements>
+	</meta-element>
+	<meta-element>
+		<dtd-name>custom-resource</dtd-name>
+		<bean-name>WS70CustomResource</bean-name>
+		<implements>org.netbeans.modules.j2ee.sun.ws7.serverresources.dd.WS70CustomResource</implements>
+	</meta-element>
+	<meta-element>
+		<dtd-name>external-jndi-resource</dtd-name>
+		<bean-name>WS70ExternalJndiResource</bean-name>
+		<implements>org.netbeans.modules.j2ee.sun.ws7.serverresources.dd.WS70ExternalJndiResource</implements>
+	</meta-element>
+	<meta-element>
+		<dtd-name>jdbc-resource</dtd-name>
+		<bean-name>WS70JdbcResource</bean-name>
+		<implements>org.netbeans.modules.j2ee.sun.ws7.serverresources.dd.WS70JdbcResource</implements>
+	</meta-element>
+	<meta-element>
+		<dtd-name>mail-resource</dtd-name>
+		<bean-name>WS70MailResource</bean-name>
+		<implements>org.netbeans.modules.j2ee.sun.ws7.serverresources.dd.WS70MailResource</implements>
+	</meta-element>
+	<meta-element>
+		<dtd-name>property</dtd-name>
+		<bean-name>PropertyElement</bean-name>
+		<implements>org.netbeans.modules.j2ee.sun.ws7.serverresources.dd.PropertyElement</implements>
+	</meta-element>
+</metaDD>

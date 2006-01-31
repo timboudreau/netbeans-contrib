@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!-- 
+XML DTD for resources 
+
+Copyright (c) 2003 by Sun Microsystems, Inc. All Rights Reserved.
+-->
+
+<!ELEMENT resources ((custom-resource | external-jndi-resource | jdbc-resource |
+     mail-resource )*)>
+
+<!-- Textual description of a configured entity -->
+<!ELEMENT description (#PCDATA)>
+
+<!-- Syntax for supplying properties as name value pairs -->
+<!ELEMENT property (description?)>
+
+<!ATTLIST property  name  CDATA  #REQUIRED
+                      value CDATA  #REQUIRED >
+
+<!ELEMENT custom-resource (description? , property*)>
+<!ATTLIST custom-resource jndi-name     CDATA  #REQUIRED
+                          res-type      CDATA  #REQUIRED
+                          factory-class CDATA  #REQUIRED
+                          enabled       CDATA "true">
+
+<!ELEMENT external-jndi-resource (description? , property*)>
+<!ATTLIST external-jndi-resource  jndi-name        CDATA  #REQUIRED
+                                    external-jndi-name CDATA  #REQUIRED
+                                    res-type         CDATA  #REQUIRED
+                                    factory-class    CDATA  #REQUIRED 
+                                    enabled          CDATA "true">
+
+<!ELEMENT jdbc-resource (description? , property*)>
+<!ATTLIST jdbc-resource    jndi-name      CDATA #REQUIRED
+                           datasource-class                  CDATA  #REQUIRED                                  
+                           min-connections                   CDATA  "8"
+                           max-connections                   CDATA  "32"
+                           idle-timeout                      CDATA "60"
+                           wait-timeout                      CDATA "60"                                  
+                           isolation-level                   (read-committed | 
+                                                              read-uncommitted | 
+                                                              repeatable-read |
+                                                              serializable| default )  "default"
+                           isolation-level-guaranteed        CDATA  "false"                                  
+                           connection-validation       (auto-commit | 
+                                                                      meta-data | 
+                                                                      table  | false)  "false"
+                           connection-validation-table-name  CDATA  #IMPLIED
+                           fail-all-connections              CDATA  "false"  
+                           enabled                           CDATA "true">
+
+
+<!ELEMENT mail-resource (description?)>
+<!ATTLIST mail-resource    jndi-name                CDATA  #REQUIRED
+                           store-protocol           CDATA  "imap"
+                           store-protocol-class     CDATA  "com.sun.mail.imap.IMAPStore"
+                           transport-protocol       CDATA  "smtp"
+                           transport-protocol-class CDATA  "com.sun.mail.smtp.SMTPTransport"
+                           host                     CDATA  #REQUIRED
+                           user                     CDATA  #REQUIRED
+                           from                     CDATA  #REQUIRED                           
+                           enabled                  CDATA  "true">
+
+
