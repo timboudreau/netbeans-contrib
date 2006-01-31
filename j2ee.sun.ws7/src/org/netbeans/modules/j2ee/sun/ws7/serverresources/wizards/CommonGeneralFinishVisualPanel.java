@@ -178,8 +178,7 @@ public class CommonGeneralFinishVisualPanel extends javax.swing.JPanel implement
                 jComboBox.getAccessibleContext().setAccessibleDescription(bundle.getString("ToolTip_" + fields[i].getName()));  
                 String tags[] = FieldHelper.getTags(fields[i]);
                 boolean isVendorField = false;
-                if(this.getPanelType()==this.TYPE_JDBC_RESOURCE&& fields[i].getName().equals(__DatabaseVendor)){
-                    System.err.println("MUKESH CHANGED COMBO BOX");
+                if(this.getPanelType()==this.TYPE_JDBC_RESOURCE&& fields[i].getName().equals(__DatabaseVendor)){                    
                     Field vendorField = FieldHelper.getField(groups[0], __DatabaseVendor);
                     tags = FieldHelper.getTags(vendorField);
                     dbVendors = FieldHelper.getTags(vendorField);

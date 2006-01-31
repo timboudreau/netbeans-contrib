@@ -249,7 +249,17 @@ public class WS70SunDeploymentManager implements DeploymentManager{
 
     public Target[] getTargets() throws IllegalStateException {
         Target[] targets = ws70DM.getTargets();
-        if(targets.length==1){            
+        InstanceProperties ip =  InstanceProperties.getInstanceProperties(this.getUri());
+        String config = ip.getProperty("configName");                
+        if(targets.length==1){       
+            if(config==null){
+                try{
+                    String cname = this.getConfigNameFromTarget(targets[0]);
+                    ip.setProperty("configName", cname);
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+            }
             return targets;
         }
         
@@ -265,8 +275,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             }
         }
         
-        InstanceProperties ip =  InstanceProperties.getInstanceProperties(this.getUri());
-        String config = ip.getProperty("configName");        
+
         if(config==null){ 
             //perheps this is the first time
             WS70ConfigSelectDialog d = new WS70ConfigSelectDialog(configs);        
