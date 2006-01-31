@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE wizard>
+<wizard>
+    <name>jdbc-resource</name>
+    <field-group>
+        <name>general</name>
+        <field field-type="string" required="true">
+            <name>jndi-name</name>
+            <field-value>
+                <default-field-value>jdbc/</default-field-value>
+            </field-value>
+        </field>
+        <field field-type="list">
+            <name>enabled</name>
+            <field-value>
+                <default-field-value>true</default-field-value>
+            </field-value>
+            <tag>
+                <tag-item>true</tag-item>
+                <tag-item>false</tag-item>
+            </tag>
+        </field>
+        <field field-type="list">
+            <name>database-vendor</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+            <tag>
+                <tag-item>oracle</tag-item>
+                <tag-item>oracle-sjs-jdbc</tag-item>
+                <tag-item>db2</tag-item>
+                <tag-item>db2-sjs-jdbc</tag-item>
+                <tag-item>sybase</tag-item> 
+                <tag-item>sybase-sjs-jdbc</tag-item>
+                <tag-item>mssql</tag-item>
+                <tag-item>mssql-sjs-jdbc</tag-item>
+                <tag-item>mysql</tag-item> 
+                <tag-item>informix</tag-item> 
+                <tag-item>informix-sjs-jdbc</tag-item> 
+                <tag-item>postgresql</tag-item> 
+                <tag-item>apache-derby</tag-item>
+                <tag-item>pointbase</tag-item>
+                <tag-item>other</tag-item>
+            </tag>            
+        </field>
+        <field field-type="string">
+            <name>datasource-class</name>
+            <field-value>
+                <default-field-value></default-field-value>
+                <option-value-pair>
+                    <option-name>oracle</option-name>
+                    <conditional-value>oracle.jdbc.pool.OracleDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                     <option-name>oracle-sjs-jdbc</option-name>
+                    <conditional-value>com.sun.sql.jdbcx.oracle.OracleDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                     <option-name>db2</option-name>
+                    <conditional-value>com.ibm.db2.jdbc.DB2DataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                     <option-name>db2-sjs-jdbc</option-name>
+                    <conditional-value>com.sun.sql.jdbcx.db2.DB2DataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                     <option-name>sybase</option-name>
+                    <conditional-value>com.sybase.jdbcx.SybDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                     <option-name>sybase-sjs-jdbc</option-name>
+                    <conditional-value>com.sun.sql.jdbcx.sybase.SybaseDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                    <option-name>mssql</option-name>
+                    <conditional-value>com.ddtek.jdbcx.sqlserver.SQLServerDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                    <option-name>mssql-sjs-jdbc</option-name>
+                    <conditional-value>com.sun.sql.jdbcx.sqlserver.SQLServerDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                    <option-name>mysql</option-name>
+                    <conditional-value>org.gjt.mm.mysql.jdbc2.optional.MysqlDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                    <option-name>informix</option-name>
+                    <conditional-value>com.informix.jdbcx.IfxDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                    <option-name>informix-sjs-jdbc</option-name>
+                    <conditional-value>com.sun.sql.jdbcx.informix.InformixDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                    <option-name>postgresql</option-name>
+                    <conditional-value>org.postgresql.ds.PGSimpleDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                    <option-name>apache-derby</option-name>
+                    <conditional-value>org.apache.derby.jdbc.ClientDataSource</conditional-value>
+                </option-value-pair>
+                <option-value-pair>
+                    <option-name>pointbase</option-name>
+                    <conditional-value>com.pointbase.jdbc.jdbcDataSource</conditional-value>
+                </option-value-pair>
+            </field-value>
+        </field>
+        <field field-type="textarea">
+            <name>description</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>                
+    </field-group>
+    <field-group>
+        <name>connection-setting</name>
+        <field field-type="int">
+            <name>min-connections</name>
+            <field-value>
+                <default-field-value>8</default-field-value>
+            </field-value>
+        </field>
+        <field field-type="int">
+            <name>max-connections</name>
+            <field-value>
+                <default-field-value>32</default-field-value>
+            </field-value>
+        </field>
+        <field field-type="int">
+            <name>wait-timeout</name>
+            <field-value>
+                <default-field-value>60000</default-field-value>
+            </field-value>
+        </field>
+        <field field-type="int">
+            <name>idle-timeout</name>
+            <field-value>
+                <default-field-value>300</default-field-value>
+            </field-value>
+        </field>
+        <field field-type="list">
+            <name>isolation-level</name>
+            <field-value>
+                <default-field-value>default</default-field-value>
+            </field-value>
+            <tag>
+                <tag-item>read-uncommitted</tag-item>
+                <tag-item>read-committed</tag-item>
+                <tag-item>repeatable-read</tag-item>
+                <tag-item>serializable</tag-item>
+                <tag-item>default</tag-item>
+            </tag>
+        </field>
+        <field field-type="list">
+            <name>isolation-level-guaranteed</name>
+            <field-value>
+                <default-field-value>true</default-field-value>
+            </field-value>
+            <tag>
+                <tag-item>true</tag-item>
+                <tag-item>false</tag-item>
+            </tag>
+        </field>
+        <field field-type="list">
+            <name>connection-validation</name>
+            <field-value>
+                <default-field-value>false</default-field-value>
+            </field-value>
+            <tag>
+                <tag-item>false</tag-item>
+                <tag-item>auto-commit</tag-item>
+                <tag-item>meta-data</tag-item>
+                <tag-item>table</tag-item>
+            </tag>
+        </field>
+        <field field-type="string">
+            <name>connection-validation-table-name</name>
+            <field-value>
+                <default-field-value>TAB_NAME</default-field-value>
+            </field-value>
+        </field>
+        <field field-type="list">
+            <name>fail-all-connections</name>
+            <field-value>
+                <default-field-value>false</default-field-value>
+            </field-value>
+            <tag>
+                <tag-item>true</tag-item>
+                <tag-item>false</tag-item>
+            </tag>
+        </field>
+    </field-group>
+
+    <field-group>
+        <name>properties</name>
+        <field field-type="string">
+            <name>URL</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>                
+        <field field-type="string">
+            <name>User</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>
+        <field field-type="string">
+            <name>Password</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>
+        <field field-type="string">
+            <name>serverName</name>
+            <field-value>
+                <default-field-value></default-field-value>
+                <option-value-pair>
+                    <option-name>derby_net</option-name>
+                    <conditional-value>NA</conditional-value>
+                </option-value-pair>
+            </field-value>
+        </field>        
+        <field field-type="string">
+            <name>databaseName</name>
+            <field-value>
+                <default-field-value></default-field-value>
+                <option-value-pair>
+                    <option-name>pointbase</option-name>
+                    <conditional-value>jdbc:pointbase://#HOST$:#PORT$/#DB$</conditional-value>
+                </option-value-pair>
+            </field-value>
+        </field>
+        <field field-type="string">
+            <name>description</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>
+        <field field-type="string">
+            <name>networkProtocol</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>
+        <field field-type="string">
+            <name>portNumber</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>
+        <field field-type="string">
+            <name>roleName</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field> 
+        <field field-type="string">
+            <name>PortNumber</name>
+            <field-value>
+                <default-field-value></default-field-value>
+                <option-value-pair>
+                    <option-name>derby_net</option-name>
+                    <conditional-value>NA</conditional-value>
+                </option-value-pair>
+            </field-value>
+        </field>
+        <field field-type="string">
+            <name>DatabaseName</name>
+            <field-value>
+                <default-field-value></default-field-value>
+                <option-value-pair>
+                    <option-name>derby_net</option-name>
+                    <conditional-value>NA</conditional-value>
+                </option-value-pair>
+            </field-value>
+        </field>
+        <field field-type="string">
+            <name>connectionAttributes</name>
+            <field-value>
+                <default-field-value></default-field-value>
+                <option-value-pair>
+                    <option-name>derby_net</option-name>
+                    <conditional-value>NA</conditional-value>
+                </option-value-pair>
+            </field-value>
+        </field>
+    </field-group>        
+</wizard>

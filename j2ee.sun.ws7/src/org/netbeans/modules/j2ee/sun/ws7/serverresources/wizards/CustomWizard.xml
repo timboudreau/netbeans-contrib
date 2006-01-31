@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE wizard>
+<wizard>
+    <name>custom-resource</name>
+    <field-group>
+        <name>general</name>
+        <field field-type="string" required="true">
+            <name>jndi-name</name>
+            <field-value>
+                <default-field-value>custom-resource</default-field-value>
+            </field-value>
+        </field> 
+        <field field-type="string" required="true">
+            <name>res-type</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>
+        <field field-type="string" required="true">
+            <name>factory-class</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>
+        <field field-type="list">
+            <name>enabled</name>
+            <field-value>
+                <default-field-value>true</default-field-value>
+            </field-value>
+            <tag>
+                <tag-item>true</tag-item>
+                <tag-item>false</tag-item>
+            </tag>
+        </field>
+        <field field-type="textarea">
+            <name>description</name>
+            <field-value>
+                <default-field-value></default-field-value>
+            </field-value>
+        </field>
+    </field-group>
+    <field-group>
+        <name>properties</name>
+        <field field-type="string">
+        </field>
+    </field-group>
+</wizard>
