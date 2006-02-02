@@ -188,6 +188,10 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- FileAttributes private contract -->
                 <package>org.netbeans.modules.vcscore.turbo</package>
                 <package>org.netbeans.modules.vcscore.turbo.local</package>
+                <!-- Because of newly treated secondary dependencies -->
+                <package>org.netbeans.modules.vcscore.search</package>
+                <package>org.netbeans.modules.vcscore.util.virtuals</package>
+                <package>org.netbeans.modules.vcscore.objectintegrity</package>
             </public-packages>
         </data>
     </configuration>
