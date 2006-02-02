@@ -28,6 +28,11 @@ Microsystems, Inc. All Rights Reserved.
         <attr name="url_key" stringvalue="SCURL"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
+      <file name="nbextras.settings" url="nbextras_autoupdate.settings">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_nbextras"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
     </folder>
 
   </folder> <!-- Services -->
