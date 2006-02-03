@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?> <!-- -*- sgml-indent-step: 2 -*- -->
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
                 Sun Public License Notice
 
@@ -8,101 +8,57 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
+<project name="tomcatint/tomcat5/bundled" basedir="." default="netbeans">
 
-<project name="tomcatint-tomcat5-bundled" basedir="." default="netbeans">
-  <import file="../../../nbbuild/default.xml"/> 
+    <import file="../../../nbbuild/templates/projectized.xml"/>
 
-  <property name="tomcat.filename" value="jakarta-tomcat-5.5.9"/>
+    <target name="netbeans-extra" depends="build-init">
+        <unzip src="../../external/${tomcat.filename}.zip" dest="${cluster}"/>
+        <!-- monitor -->
+        <copy file="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" 
+            tofile="${cluster}/jakarta-tomcat-5.5.9/common/lib/org-netbeans-modules-schema2beans.jar"/>
+        <copy file="${monitor.dir}/modules/ext/org-netbeans-modules-web-httpmonitor.jar"
+            tofile="${cluster}/jakarta-tomcat-5.5.9/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
+        <chmod perm="ugo+x">
+            <fileset dir="${cluster}/${tomcat.filename}/bin">
+                <include name="*.sh"/>
+            </fileset>
+        </chmod>
 
-  <target name="init" depends="default.init">
-    <patternset id="tomcatint/tomcat5/bundled.files">
-      <include name="modules/eager/tomcat5-bundled.jar"/>
-      <include name="${tomcat.filename}/**"/>
-    </patternset>
-  </target>
+        <!-- XXX:copy IDE-README.txt
+        <copy file="torelease/IDE-README.txt" tofile="netbeans/${tomcat.filename}/IDE-README.txt" includeEmptyDirs="false"/> -->
+        <mkdir dir="${cluster}/${tomcat.filename}/logs"/>
+        <echo file="${cluster}/${tomcat.filename}/logs/dummy"/>
+        <mkdir dir="${cluster}/${tomcat.filename}/temp"/>
+        <echo file="${cluster}/${tomcat.filename}/temp/dummy"/>
+        <mkdir dir="${cluster}/${tomcat.filename}/work"/>
+        <echo file="${cluster}/${tomcat.filename}/work/dummy"/>
+        <mkdir dir="${cluster}/${tomcat.filename}/common/classes"/>
+        <echo file="${cluster}/${tomcat.filename}/common/classes/dummy"/>
+    </target>
 
-  <target name="jars" depends="init">
-    <mkdir dir="${cluster}/modules/eager"/>
-    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="${cluster}/modules/eager/tomcat5-bundled.jar"
-         manifest="manifest-subst.mf"
-         basedir="src"
-         excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-         compress="false">
-      <include name="org/netbeans/modules/tomcat5/bundled/**"/>
-    </jar>
-  </target>
-
-  <target name="release" depends="init,jars">
-    <unzip src="../../external/${tomcat.filename}.zip" dest="${cluster}" />
-    <!-- monitor -->
-    <copy file="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" 
-          tofile="${cluster}/jakarta-tomcat-5.5.9/common/lib/org-netbeans-modules-schema2beans.jar"/>
-    <copy file="${monitor.dir}/modules/ext/org-netbeans-modules-web-httpmonitor.jar"
-          tofile="${cluster}/jakarta-tomcat-5.5.9/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
-    <chmod perm="ugo+x">
-      <fileset dir="${cluster}/${tomcat.filename}/bin">
-        <include name="*.sh"/>
-      </fileset>
-    </chmod>
-
-    <!-- XXX:copy IDE-README.txt
-    <copy file="torelease/IDE-README.txt" tofile="netbeans/${tomcat.filename}/IDE-README.txt" includeEmptyDirs="false"/> -->
-    <!-- copy dummy to empty directories -->
-    <copy file="torelease/dummy" tofile="${cluster}/${tomcat.filename}/logs/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="${cluster}/${tomcat.filename}/temp/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="${cluster}/${tomcat.filename}/work/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="${cluster}/${tomcat.filename}/common/classes/dummy" includeEmptyDirs="false"/>
-  </target>
-
-  <target name="modulexml" depends="init">
-    <mkdir dir="${cluster}/config/Modules"/>
-    <createmodulexml xmldir="${cluster}/config/Modules">
-      <eager dir="${cluster}">
-        <include name="modules/eager/tomcat5-bundled.jar"/>
-      </eager>
-    </createmodulexml>
-  </target>
-
-  <target name="netbeans" depends="jars,release,modulexml" description="Builds the module">
-    <genlist outputfiledir="${cluster}" module="modules/eager/tomcat5-bundled.jar">
-       <fileset dir="${cluster}">
-         <patternset refID="tomcatint/tomcat5/bundled.files"/>
-       </fileset>
-    </genlist>
-  </target>
-
-  <target name="conditional-nbm" depends="nbm"/>
-  <target name="nbm" depends="netbeans" description="Prepare the module for distribution via Auto Update.">
-    <makenbm file="bundledtomcat.nbm"
-           productdir="${cluster}"
-           module="modules/eager/tomcat5-bundled.jar"
-           homepage="http://tomcatint.${homepage.base}/"
-           distribution="http://${dist.base}/bundledtomcat.nbm">
-      <license name="bundledtomcat-license.txt">
-        <text>For the integration module:</text>
-        <file location="${license.file}"/>
-        <text>For Tomcat:</text>
-        <file location="${nb_all}/tomcatint/external/jakarta-tomcat-5.5.9-license.txt"/>
-      </license>
-      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-    </makenbm>
-  </target>
-
-  <target name="clean" depends="init" description="Clean all build products.">
-        <delete file="manifest-subst.mf"/>
-        <delete file="bundledtomcat.nbm"/>
-        <delete dir="test"/>
-        <delete>
-          <fileset dir="${cluster}">
-            <patternset refID="tomcatint/tomcat5/bundled.files"/>
-          </fileset>
-        </delete>
-  </target>
-
+    <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">
+        <mkdir dir="build"/>
+        <makenbm file="build/${nbm}"
+                 productdir="${cluster}"
+                 module="${module.jar}"
+                 homepage="${nbm.homepage}"
+                 distribution="${nbm.distribution}"
+                 needsrestart="${nbm.needs.restart}"
+                 global="${nbm.is.global}"
+                 releasedate="${nbm.release.date}"
+		 moduleauthor="${nbm.module.author}">
+            <license name="bundledtomcat-license.txt">
+                <text>For the integration module:</text>
+                <file location="${license.file}"/>
+                <text>For Tomcat:</text>
+                <file location="../../external/jakarta-tomcat-5.5.9-license.txt"/>
+            </license>
+            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+        </makenbm>
+    </target>
 
 </project>
