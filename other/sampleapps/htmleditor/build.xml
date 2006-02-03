@@ -14,11 +14,5 @@
         <ant antfile="${harness.dir}/jnlp.xml" target="build-jnlp-nowar">
             <property name="jnlp.codebase" value="http://www.netbeans.org/download/samples/jnlp/htmleditor/" />
         </ant>
-        
-        <copy todir="build/jnlp">
-            <fileset dir="web">
-                <include name="*"/>
-            </fileset>
-        </copy>
     </target>
 </project>
