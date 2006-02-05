@@ -121,6 +121,9 @@ public final class NewCommandAction extends AbstractAction implements ContextAwa
     }
 
     private static String[] findLikelyCommandNames(Project p) throws IOException, SAXException {
+        if (p == null) {
+            return null; // #72266
+        }
         FileObject projectXml = p.getProjectDirectory().getFileObject("nbproject/project.xml"); // NOI18N
         if (projectXml == null) {
             return null;
