@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Project">
+            <file name="org-netbeans-modules-omnidebugger-DebugFileAction.instance"/>
+            <file name="org-netbeans-modules-omnidebugger-DebugProjectAction.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.omnidebugger.DebugProjectAction.createProjectSensitiveAction"/>
+            </file>
+            <file name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.omnidebugger.DebugProjectAction.createMainProjectSensitiveAction"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Actions">
+                    <attr name="DebugFile.instance/org-netbeans-modules-omnidebugger-DebugFileAction.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugFileAction.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow/java-project-separator-3.instance" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="RunProject">
+            <attr name="org-netbeans-modules-project-ui-DebugMainProject.shadow/org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugMainProjectAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow/org-netbeans-modules-project-ui-TestProject.shadow" boolvalue="true"/>
+            <folder name="RunOther">
+                <attr name="org-netbeans-modules-project-ui-DebugSingle.shadow/org-netbeans-modules-omnidebugger-DebugFileAction.shadow" boolvalue="true"/>
+                <file name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugFileAction.instance"/>
+                </file>
+                <attr name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow/org-netbeans-modules-project-ui-TestSingle.shadow" boolvalue="true"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="OptionsDialog">
+        <folder name="Actions">
+            <folder name="Run">
+                <file name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugFileAction.instance"/>
+                </file>
+                <file name="org-netbeans-modules-omnidebugger-DebugProjectAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugProjectAction.instance"/>
+                </file>
+                <file name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugMainProjectAction.instance"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Projects">
+        <folder name="Actions">
+            <file name="org-netbeans-modules-omnidebugger-DebugProjectAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugProjectAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="ProjectsTabActions">
+        <attr name="org-netbeans-modules-project-ui-DebugMainProject.shadow/org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow" boolvalue="true"/>
+        <file name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow">
+            <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugMainProjectAction.instance"/>
+        </file>
+        <attr name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow/sep-4.instance" boolvalue="true"/>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Build">
+            <attr name="org-netbeans-modules-project-ui-DebugMainProject.shadow/org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugMainProjectAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow/org-netbeans-modules-debugger-ui-actions-ConnectAction.shadow" boolvalue="true"/>
+        </folder>
+    </folder>
+</filesystem>
