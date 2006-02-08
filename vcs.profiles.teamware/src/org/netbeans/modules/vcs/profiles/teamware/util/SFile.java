@@ -48,10 +48,10 @@ import java.util.Stack;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import org.netbeans.api.diff.Difference;
+import org.netbeans.modules.vcs.profiles.teamware.util.diff.TWBuiltInDiffProvider;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
 import org.netbeans.spi.diff.DiffProvider;
-import org.openide.util.Lookup;
 
 public class SFile {
     
@@ -1123,17 +1123,7 @@ public class SFile {
     }
     
     private static DiffProvider getBuiltInDiffProvider() {
-        // The built-in diff provider works better with dos/unix line endings,
-        // so use that if it is available
-        Lookup.Template template = new Lookup.Template(DiffProvider.class,
-                "SL[/DiffProviders/org-netbeans-modules-diff-builtin-provider-BuiltInDiffProvider", null);
-        DiffProvider provider = (DiffProvider)
-                Lookup.getDefault().lookupItem(template).getInstance();
-        if (provider == null) {
-            provider = (DiffProvider)
-                    Lookup.getDefault().lookup(DiffProvider.class);
-        }
-        return provider;
+        return new TWBuiltInDiffProvider();
     }
     
     private String createDelGetTestCase() throws IOException {

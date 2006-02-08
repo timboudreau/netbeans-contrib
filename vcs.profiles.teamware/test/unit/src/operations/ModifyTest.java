@@ -108,7 +108,7 @@ public class ModifyTest extends SCCSTest {
                 int ch = in.read();
                 baos.write(ch);
             } else {
-                for (int ch; (ch = in.read()) != '\n';) {
+                for (int ch; (ch = in.read()) != '\n' && ch != -1;) {
                     baos.write(ch);
                 }
                 baos.write('\n');
