@@ -150,9 +150,10 @@ class Debug {
     }
     
     private static FileObject createBuildXml(FileObject dir, FileObject clazz, String clazzname, ClassPath cp) throws IOException {
+        Project prj = FileOwnerQuery.getOwner(clazz);
         int kind = getKind(clazz);
         assert kind != KIND_NONE;
-        Document doc = createScript(clazz, kind, cp, clazzname);
+        Document doc = createScript(clazz, kind, cp, clazzname, dir, prj);
         FileObject buildXml = FileUtil.createData(dir, "omnidebug.xml"); // NOI18N
         FileLock lock = buildXml.lock();
         try {
@@ -165,16 +166,21 @@ class Debug {
         } finally {
             lock.releaseLock();
         }
-        writeDefaults(dir, kind, cp);
+        writeDefaults(dir, kind, cp, prj);
         return buildXml;
     }
     
-    private static Document createScript(FileObject clazz, int kind, ClassPath cp, String clazzname) {
+    private static Document createScript(FileObject clazz, int kind, ClassPath cp, String clazzname, FileObject dir, Project prj) {
         Document doc = XMLUtil.createDocument("project", "antlib:org.apache.tools.ant", null, null); // NOI18N
         Element root = doc.getDocumentElement();
         root.setAttribute("default", "debug"); // NOI18N
-        Project prj = FileOwnerQuery.getOwner(clazz);
-        root.setAttribute("name", prj != null ? "omnidebug-" + ProjectUtils.getInformation(prj).getName() : "omnidebug"); // NOI18N
+        if (prj != null) {
+            root.setAttribute("name", "omnidebug-" + ProjectUtils.getInformation(prj).getName()); // NOI18N
+            // So you can use something=${basedir}/... in your system properties:
+            root.setAttribute("basedir", FileUtil.toFile(prj.getProjectDirectory()).getAbsolutePath()); // NOI18N
+        } else {
+            root.setAttribute("name", "omnidebug"); // NOI18N
+        }
         Element targ = doc.createElement("target"); // NOI18N
         root.appendChild(targ);
         targ.setAttribute("name", "debug"); // NOI18N
@@ -182,6 +188,7 @@ class Debug {
         targ.appendChild(java);
         java.setAttribute("fork", "true"); // NOI18N
         java.setAttribute("classname", "com.lambda.Debugger.Debugger"); // NOI18N
+        java.setAttribute("dir", FileUtil.toFile(dir).getAbsolutePath()); // NOI18N
         if (kind == KIND_JUNIT) {
             Element arg = doc.createElement("arg"); // NOI18N
             java.appendChild(arg);
@@ -190,6 +197,15 @@ class Debug {
         Element arg = doc.createElement("arg"); // NOI18N
         java.appendChild(arg);
         arg.setAttribute("value", clazzname); // NOI18N
+        Element jvmarg = doc.createElement("jvmarg"); // NOI18N
+        java.appendChild(jvmarg);
+        // XXX too much? too little?
+        jvmarg.setAttribute("value", "-Xmx256m"); // NOI18N
+        /* XXX -ea crashes unit tests using AntProjectHelperSingleton; apparently debugger has odd eval order for <clinit>:
+        jvmarg = doc.createElement("jvmarg"); // NOI18N
+        java.appendChild(jvmarg);
+        jvmarg.setAttribute("value", "-ea"); // NOI18N
+         */
         Element classpath = doc.createElement("classpath"); // NOI18N
         java.appendChild(classpath);
         Element pathelement = doc.createElement("pathelement"); // NOI18N
@@ -279,7 +295,7 @@ class Debug {
             "DontRecordMethod:	\"java.lang.Object	 new\"\n" + // NOI18N
             "UserSelectedField:	\"com.lambda.Debugger.DemoThing	 name\"\n"; // NOI18N
 
-    private static void writeDefaults(FileObject dir, int kind, ClassPath cp) throws IOException {
+    private static void writeDefaults(FileObject dir, int kind, ClassPath cp, Project prj) throws IOException {
         /* XXX would be OK but need to replace existing SourceDirectory and OnlyInstrument directives
         FileObject defFile = dir.getFileObject(".debuggerDefaults"); // NOI18N
         if (defFile != null) {
@@ -309,6 +325,10 @@ class Debug {
                             }
                             // Make all source roots in exec CP available for browsing.
                             ps.println("SourceDirectory:	\"" + path + "\""); // NOI18N
+                        }
+                        if (prj != null && FileOwnerQuery.getOwner(sourceRoots[i]) != prj) {
+                            // Sources not in same project. Probably prefer not to instrument.
+                            continue;
                         }
                         Enumeration packages = sourceRoots[i].getFolders(true);
                         while (packages.hasMoreElements()) {
