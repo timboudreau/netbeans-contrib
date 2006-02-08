@@ -70,6 +70,11 @@
         </file>
         <attr name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow/sep-4.instance" boolvalue="true"/>
     </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="omnidebugger-helpset.xml" url="omnidebugger-helpset.xml"/>
+        </folder>
+    </folder>
     <folder name="Toolbars">
         <folder name="Build">
             <attr name="org-netbeans-modules-project-ui-DebugMainProject.shadow/org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow" boolvalue="true"/>

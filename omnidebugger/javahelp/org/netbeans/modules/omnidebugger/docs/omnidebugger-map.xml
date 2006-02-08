@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN" "http://java.sun.com/products/javahelp/map_2_0.dtd">
+<map version="2.0">
+    <mapID target="org.netbeans.modules.omnidebugger.about" url="about.html"/>
+    <mapID target="org.netbeans.modules.omnidebugger.usage" url="usage.html"/>
+    <mapID target="org.netbeans.modules.omnidebugger.bugs" url="bugs.html"/>
+    <mapID target="org.netbeans.modules.omnidebugger.bundled.license" url="jar:nbinst:/modules/ext/omni-debugger.jar!/COPYING"/>
+    <!-- XXX these will not be indexed for search! -->
+    <mapID target="org.netbeans.modules.omnidebugger.bundled.description" url="jar:nbinst:/modules/ext/omni-debugger.jar!/docs/ODBDescription.html"/>
+    <mapID target="org.netbeans.modules.omnidebugger.bundled.manual" url="jar:nbinst:/modules/ext/omni-debugger.jar!/docs/ODBUserManual.html"/>
+</map>

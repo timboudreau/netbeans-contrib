@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+<toc version="2.0">
+    <tocitem text="Omniscient Debugger" target="org.netbeans.modules.omnidebugger.about">
+        <tocitem text="Usage" target="org.netbeans.modules.omnidebugger.usage"/>
+        <tocitem text="Bugs &amp; Limitations" target="org.netbeans.modules.omnidebugger.bugs"/>
+        <tocitem text="Bundled Documentation">
+            <tocitem text="Overview" target="org.netbeans.modules.omnidebugger.bundled.description"/>
+            <tocitem text="User Manual" target="org.netbeans.modules.omnidebugger.bundled.manual"/>
+            <tocitem text="GNU General Public License" target="org.netbeans.modules.omnidebugger.bundled.license"/>
+        </tocitem>
+    </tocitem>
+</toc>
