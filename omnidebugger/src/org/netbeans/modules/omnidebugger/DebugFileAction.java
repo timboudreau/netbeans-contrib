@@ -19,6 +19,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
+import org.openide.ErrorManager;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -78,7 +79,7 @@ public class DebugFileAction extends AbstractAction implements ContextAwareActio
             try {
                 Debug.start(selection);
             } catch (IOException x) {
-                x.printStackTrace();
+                ErrorManager.getDefault().notify(x);
             }
         }
 

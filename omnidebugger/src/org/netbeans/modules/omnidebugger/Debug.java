@@ -32,6 +32,7 @@ import org.netbeans.spi.project.CacheDirectoryProvider;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.PropertyProvider;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
+import org.openide.ErrorManager;
 import org.openide.cookies.SourceCookie;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileLock;
@@ -120,8 +121,20 @@ class Debug {
     }
     
     public static ExecutorTask start(FileObject clazz) throws IOException {
+        ClassPath sourceCP = ClassPath.getClassPath(clazz, ClassPath.SOURCE);
+        assert sourceCP != null;
+        ClassPath cp = ClassPath.getClassPath(clazz, ClassPath.EXECUTE);
+        assert cp != null;
+        FileObject compiledClazz = cp.findResource(sourceCP.getResourceName(clazz, '/', false) + ".class"); // NOI18N
+        if (compiledClazz == null || compiledClazz.lastModified().getTime() < clazz.lastModified().getTime()) {
+            // #72385: not yet compiled?
+            IOException e = new IOException("uncompiled: " + clazz); // NOI18N
+            String msg = "You must compile " + FileUtil.getFileDisplayName(clazz) + " before debugging."; // XXX I18N
+            ErrorManager.getDefault().annotate(e, ErrorManager.USER, null, msg, null, null);
+            throw e;
+        }
         FileObject dir = getWorkingDir(clazz);
-        FileObject buildXml = createBuildXml(dir, clazz);
+        FileObject buildXml = createBuildXml(dir, clazz, sourceCP.getResourceName(clazz, '.', false), cp);
         return ActionUtils.runTarget(buildXml, null, null);
     }
     
@@ -136,12 +149,10 @@ class Debug {
         return FileUtil.toFileObject(new File(System.getProperty("java.io.tmpdir"))); // NOI18N
     }
     
-    private static FileObject createBuildXml(FileObject dir, FileObject clazz) throws IOException {
+    private static FileObject createBuildXml(FileObject dir, FileObject clazz, String clazzname, ClassPath cp) throws IOException {
         int kind = getKind(clazz);
         assert kind != KIND_NONE;
-        ClassPath cp = ClassPath.getClassPath(clazz, ClassPath.EXECUTE);
-        assert cp != null;
-        Document doc = createScript(clazz, kind, cp);
+        Document doc = createScript(clazz, kind, cp, clazzname);
         FileObject buildXml = FileUtil.createData(dir, "omnidebug.xml"); // NOI18N
         FileLock lock = buildXml.lock();
         try {
@@ -158,7 +169,7 @@ class Debug {
         return buildXml;
     }
     
-    private static Document createScript(FileObject clazz, int kind, ClassPath cp) {
+    private static Document createScript(FileObject clazz, int kind, ClassPath cp, String clazzname) {
         Document doc = XMLUtil.createDocument("project", "antlib:org.apache.tools.ant", null, null); // NOI18N
         Element root = doc.getDocumentElement();
         root.setAttribute("default", "debug"); // NOI18N
@@ -176,11 +187,9 @@ class Debug {
             java.appendChild(arg);
             arg.setAttribute("value", "junit.textui.TestRunner"); // NOI18N
         }
-        ClassPath sourceCP = ClassPath.getClassPath(clazz, ClassPath.SOURCE);
-        assert sourceCP != null;
         Element arg = doc.createElement("arg"); // NOI18N
         java.appendChild(arg);
-        arg.setAttribute("value", sourceCP.getResourceName(clazz, '.', false)); // NOI18N
+        arg.setAttribute("value", clazzname); // NOI18N
         Element classpath = doc.createElement("classpath"); // NOI18N
         java.appendChild(classpath);
         Element pathelement = doc.createElement("pathelement"); // NOI18N

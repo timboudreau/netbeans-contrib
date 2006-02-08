@@ -24,6 +24,7 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
 import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Utilities;
 
@@ -82,7 +83,7 @@ public class DebugProjectAction implements ProjectActionPerformer {
         try {
             Debug.start(findMainClass(project));
         } catch (IOException x) {
-            x.printStackTrace();
+            ErrorManager.getDefault().notify(x);
         }
     }
     
