@@ -19,6 +19,7 @@ package org.netbeans.modules.vcs.profiles.teamware.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -436,11 +438,13 @@ public class SFile {
     
     private static boolean dataNeedsEncoding(byte[] data) {
         for (int i = 0; i < data.length; i++) {
-            byte b = data[i];
-            if (b > 127 || b < 32) {
+            int b = (int) data[i] & 0xff;
+            if (b < 32) {
                 if (b != '\t' && b != '\n' && b != '\r') {
                     return true;
                 }
+            } else if (b >= 127 && b < 160) {
+                return true;
             }
         }
         return false;
@@ -874,6 +878,45 @@ public class SFile {
         public void includeLine(String line) {
             out.outputLine(line);
         }
+    }
+    
+    public class DecoderWrapper extends LineVisitor {
+        private LineVisitor out;
+        private ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        boolean decoding;
+        public DecoderWrapper(LineVisitor out) {
+            this.out = out;
+            this.decoding = isEncoded();
+        }
+        public void includeLine(String line) {
+            if (decoding) {
+                try {
+                    UU.decode(line, baos);
+                } catch (IOException e) {
+                    try {
+                        decoding = false;
+                        flush();
+                    } catch (IOException e2) { }
+                    out.includeLine(line);
+                }
+            } else {
+                out.includeLine(line);
+            }
+        }
+        public void flush() throws IOException {
+            if (decoding) {
+                BufferedReader r = new BufferedReader(
+                        new InputStreamReader(
+                        new ByteArrayInputStream(baos.toByteArray())));
+                for (String line; (line = r.readLine()) != null;) {
+                    out.includeLine(line);
+                }
+            }
+        }
+    }
+    
+    public DecoderWrapper getDecoder(CommandOutputListener out) {
+        return new DecoderWrapper(new LineVisitorWrapper(out));
     }
     
     /** LineReader is like BufferedReader, but it includes trailing carriage

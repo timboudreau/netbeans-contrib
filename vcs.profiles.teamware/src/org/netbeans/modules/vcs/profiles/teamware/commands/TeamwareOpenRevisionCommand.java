@@ -40,8 +40,9 @@ public class TeamwareOpenRevisionCommand implements VcsAdditionalCommand {
         SRevisionItem revision = sFile.getRevisions()
             .getRevisionByName((String) vars.get("REVISION"));
         try {
-            sFile.retrieveRevision(new SFile.LineVisitorWrapper(stdout),
-                revision, true);
+            SFile.DecoderWrapper decoder = sFile.getDecoder(stdout);
+            sFile.retrieveRevision(decoder, revision, true);
+            decoder.flush();
             return true;
         } catch (IOException e) {
             stderr.outputLine(e.toString());
