@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties PUBLIC "-//NetBeans//DTD Editor Properties settings 1.0//EN" "http://www.netbeans.org/dtds/EditorProperties-1_0.dtd">
+<properties>
+    <property class="java.lang.String" name="indentEngine" value="SL[/IndentEngine/org-netbeans-modules-editor-SimpleIndentEngine"/>
+    <property class="java.lang.Boolean" name="code-folding-enable" value="true"/>
+</properties>

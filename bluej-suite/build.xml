@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="bluej-suite" basedir=".">
+    <description>Builds the module suite bluej-suite.</description>
+    <import file="nbproject/build-impl.xml"/>
+    
+    <!-- custom build target -->
+    <target name="build" depends="suite.build">        
+        <ant antfile="../projectimport/bluej/build.xml" target="netbeans" inheritAll="false"/>
+        <ant antfile="../bluej-ui/build.xml" target="netbeans" inheritAll="false"/>
+        <ant antfile="bluej-welcome/build.xml" target="netbeans" inheritAll="false"/>
+        <copy todir="${cluster}">
+            <fileset dir="../../nbbuild/netbeans/extra">
+                <include name="**/*bluej*"/>
+            </fileset>
+        </copy>
+        <copy todir="${cluster}">
+            <fileset dir="changing-defaults"/>
+        </copy>
+    </target>
+
+    <!-- custom clean target -->
+    <target name="clean" depends="suite.clean">
+        <ant antfile="../projectimport/bluej/build.xml" target="clean" inheritAll="false"/>
+        <ant antfile="../bluej-ui/build.xml" target="clean" inheritAll="false"/>
+        <ant antfile="bluej-welcome/build.xml" target="clean" inheritAll="false"/>
+    </target>
+    
+    <!-- custom run target -->
+    <target name="run" depends="build">
+        <ant antfile="run.xml" target="run"/>
+    </target>
+    
+</project>

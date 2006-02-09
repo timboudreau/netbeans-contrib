@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.bluej.welcome
+OpenIDE-Module-Layer: org/netbeans/bluej/welcome/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/bluej/welcome/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
