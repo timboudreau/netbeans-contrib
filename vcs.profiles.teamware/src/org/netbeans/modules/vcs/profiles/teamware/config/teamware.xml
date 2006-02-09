@@ -28,7 +28,7 @@ Contributor(s): Daniel Blaukopf.
             <value>"Checked in", "Local", "Editing", "Ignored", "Needs checkout", "Writable but not checked out for editing", ""</value>
         </variable>
         <variable basic="false" name="GENERIC_STATUS_MODIFIED">
-            <value>"Editing", "Writable but not checked out for editing"</value>
+            <value>"Local", "Editing", "Writable but not checked out for editing"</value>
         </variable>
         <variable basic="false" name="GENERIC_STATUS_UP_TO_DATE">
             <value>"Checked in", ""</value>
