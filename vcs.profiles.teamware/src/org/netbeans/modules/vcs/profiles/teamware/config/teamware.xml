@@ -36,6 +36,17 @@ Contributor(s): Daniel Blaukopf.
         <variable basic="false" name="GENERIC_STATUS_MISSING">
             <value>"Needs checkout"</value>
         </variable>
+        <variable name="ICONS_FOR_FILE_STATUSES" basic="false">
+            <value>
+                "org/netbeans/modules/vcs/profiles/resources/badgeUpToDate.gif",
+                "",
+                "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif",
+                "",
+                "org/netbeans/modules/vcs/profiles/resources/badgeLocRemoved.gif",
+                "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif",
+                ""
+            </value>
+        </variable>
     </variables>
     
     <commands>
