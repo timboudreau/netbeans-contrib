@@ -68,6 +68,8 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     private String serverLocation;
     private String host;
     private int port;
+    // Target config selected by the user for deployment
+    private Target defaultTarget;
 
     
     /** Creates a new instance of WS70SunDeploymentManager */
@@ -116,7 +118,11 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         }
         return false;
     }
-    
+    // returns the default config Target selected by the user.
+    // used by JSPServletFinder
+    public Target getDefaultTarget(){
+        return defaultTarget;
+    }
     public DeploymentConfiguration createConfiguration(DeployableObject deplObj)
         throws InvalidModuleException {
         if (!ModuleType.WAR.equals(deplObj.getType())) {
@@ -260,6 +266,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
                     ex.printStackTrace();
                 }
             }
+            defaultTarget = targets[0];
             return targets;
         }
         
@@ -300,7 +307,8 @@ public class WS70SunDeploymentManager implements DeploymentManager{
                     cname = "";
                     ex.printStackTrace();
                 }                
-                if(config.equals(cname)){                    
+                if(config.equals(cname)){
+                    defaultTarget = targets[i];
                     return new Target[]{targets[i]};                    
                 }
             }            
@@ -314,13 +322,15 @@ public class WS70SunDeploymentManager implements DeploymentManager{
                     cname = "";
                     ex.printStackTrace();
                 }                                
-                if(config.equals(cname)){                                        
+                if(config.equals(cname)){
+                    defaultTarget = targets[j];
                     return new Target[]{targets[j]};                    
                 }
             }
         }
 
         System.err.println("ERROR in GETTARGETS returning "+targets[0].getName());
+        defaultTarget = targets[0];
         return new Target[]{targets[0]};
     }
     

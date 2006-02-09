@@ -50,6 +50,12 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     
     
     private static final String WS70_JAR =  "lib/pwc.jar"; //NOI18N
+    private static final String JWSDP20_JAR =  "lib/webserv-jwsdp.jar"; //NOI18N
+    private static final String JSTL_JAR =  "lib/webserv-jstl.jar"; //NOI18N
+    private static final String MAIL_JAR =  "lib/mail.jar"; //NOI18N
+    private static final String JAXRPC_API_JAR =  "lib/jaxrpc-api.jar"; //NOI18N
+    private static final String JAXRPC_IMPL_JAR =  "lib/jaxrpc-impl.jar"; //NOI18N
+    
     private List libraries  = new ArrayList();          
           
     
@@ -86,6 +92,12 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
             List l = new ArrayList();            
 
             l.add(fileToUrl(new File(root, WS70_JAR)));
+            l.add(fileToUrl(new File(root, JWSDP20_JAR)));            
+            l.add(fileToUrl(new File(root, MAIL_JAR)));
+            l.add(fileToUrl(new File(root, JSTL_JAR)));
+            l.add(fileToUrl(new File(root, JAXRPC_API_JAR)));
+            l.add(fileToUrl(new File(root, JAXRPC_IMPL_JAR)));
+
 
             lib.setContent(J2eeLibraryTypeProvider.VOLUME_TYPE_CLASSPATH, l);
 
@@ -125,7 +137,11 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
      *         <code>false</code> otherwise.
      */
     public boolean isToolSupported(String toolName) {
-        return false;
+        if(toolName.equals("wscompile")){
+            return true;
+        }else{
+            return false;
+        }
     }
     
     /**
@@ -138,7 +154,11 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     }
     
     public File[] getToolClasspathEntries(String toolName) {
-        return null;
+        return new File[] {
+            new File(root, JWSDP20_JAR),
+            new File(root, JAXRPC_API_JAR),
+            new File(root, JAXRPC_IMPL_JAR)
+        };
     }
     
     /**
@@ -170,7 +190,10 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     }    
     
     public Set/*<String>*/ getSupportedJavaPlatformVersions(){
-        return null;
+        Set versions = new HashSet();
+        versions.add("1.4"); // NOI18N
+        versions.add("1.5"); // NOI18N
+        return versions;
     }
     
     /**

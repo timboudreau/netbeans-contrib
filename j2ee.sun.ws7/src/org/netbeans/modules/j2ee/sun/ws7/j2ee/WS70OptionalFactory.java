@@ -23,6 +23,8 @@ import org.netbeans.modules.j2ee.deployment.plugins.api.TargetModuleIDResolver;
 
 import org.openide.WizardDescriptor;
 import org.netbeans.modules.j2ee.sun.ws7.ui.WS70ServerUIWizardIterator;
+import org.netbeans.modules.j2ee.sun.ws7.j2ee.jsp.JSPServletFinder;
+import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
 
 
 /** Factory for optional deployment functionality that a plugin can provide.
@@ -50,8 +52,14 @@ public class WS70OptionalFactory extends OptionalDeploymentManagerFactory {
     /** Create FindJSPServlet for given DeploymentManager.
      * The instance returned by this method will be cached by the j2eeserver.
      */
-    public FindJSPServlet getFindJSPServlet (DeploymentManager dm) {                                // XXX 
-        return null;//TBD
+    public FindJSPServlet getFindJSPServlet (DeploymentManager dm) {
+        // can view Servlet for JSP if server is colocated.
+        if(((WS70SunDeploymentManager)dm).isLocalServer()){
+            return new JSPServletFinder(dm);
+        }else{
+            return null;
+        }
+        
     }
     
     
