@@ -424,6 +424,23 @@ the last check-in, without deleting changes.</value>
                 <value>2</value>
             </property>
         </command>
+        <command name="VERIFY_ACTION">
+            <property name="exec">
+                <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareVerifyCommand.class</value>
+            </property>
+            <property name="runOnMultipleFiles">
+              <value>true</value>
+            </property>
+            <property name="generalCommandActionClassName">
+              <value>org.netbeans.modules.vcscore.grouping.VerifyGroupAction</value>
+            </property>
+            <property name="concurrentExec">
+                <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+            </property>
+            <property name="executionPriority">
+                <value>1</value> <!-- HIGH PRIORITY -->
+            </property>
+        </command>
     </commands>
     
 </configuration>
