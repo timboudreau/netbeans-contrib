@@ -22,6 +22,9 @@ import java.util.Hashtable;
 import org.netbeans.modules.vcscore.cmdline.VcsListCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.openide.nodes.Node;
+import org.openide.util.RequestProcessor;
+import org.openide.windows.TopComponent;
 
 public class TeamwareRefreshCommand extends VcsListCommand {
     
@@ -47,6 +50,16 @@ public class TeamwareRefreshCommand extends VcsListCommand {
                 filesByName.put(data[1], data);
             }
         }
+        // Reset the toolbar buttons
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                Node[] nodes = TopComponent.getRegistry().getCurrentNodes();
+                if (nodes != null) {
+                    TopComponent.getRegistry().getActivated().setActivatedNodes(new Node[0]);
+                    TopComponent.getRegistry().getActivated().setActivatedNodes(nodes);
+                }
+            }
+        });
         return true;
     }
     
