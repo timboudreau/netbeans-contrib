@@ -15,6 +15,8 @@ package org.netbeans.bluej.ui.window;
 import javax.swing.SwingUtilities;
 import org.netbeans.bluej.api.BluejLogicalViewProvider;
 import org.netbeans.bluej.api.BluejOpenCloseCallback;
+import org.openide.util.RequestProcessor;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -32,16 +34,22 @@ public class OpenCloseImpl implements BluejOpenCloseCallback {
                 BluejLogicalViewProvider provider = (BluejLogicalViewProvider) project.getLookup().lookup(BluejLogicalViewProvider.class);
                 final BluejViewTopComponent tc = BluejViewTopComponent.findInstance();
                 tc.setRootNode(provider.getBigIconRootNode());
-                tc.open();
-                tc.requestActive();
-                // hack - get to perform after the default projects view.
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        tc.requestActive();
-                    }
-                });
+
+                if (WindowManager.getDefault().getMainWindow().isVisible()) {
+                    RequestProcessor.getDefault().post(new Runnable() {
+                        public void run() {
+                            // hack - get to perform after the default projects view.
+                            SwingUtilities.invokeLater(new Runnable() {
+                                public void run() {
+                                    tc.open();
+                                    tc.requestActive();
+                                }
+                            });
+                        }
+                    }, 300);
+                }
             }
-            
+
         });
     }
     
