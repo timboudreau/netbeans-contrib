@@ -21,7 +21,7 @@ final class BluejWelcomeTopComponent extends TopComponent {
     
     private static BluejWelcomeTopComponent instance;
     /** path to the icon used by the component and its open action */
-    static final String ICON_PATH = "org/netbeans/bluej/welcome/frame_bluebeans.gif";
+    static final String ICON_PATH = "org/netbeans/bluej/welcome/frame.gif";
     
     private static final String PREFERRED_ID = "BluejWelcomeTopComponent";
     
