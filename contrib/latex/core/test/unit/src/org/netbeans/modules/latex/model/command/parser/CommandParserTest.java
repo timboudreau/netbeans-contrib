@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import javax.swing.text.StyledDocument;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -31,11 +32,15 @@ import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.InputNode;
+import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.TextNode;
 import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
+import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.text.NbDocument;
 
 /**
  *
@@ -174,6 +179,67 @@ public class CommandParserTest extends NbTestCase {
         DocumentNode node = new CommandParser().parse(lsi, errors);
         
         assertTrue("Errors: " + errors, errors.isEmpty());
+    }
+    
+    public void testEnvironmentsWithCommandDefinitions() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testEnvironmentsWithCommandDefinitions.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Collection errors = new ArrayList();
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        
+        LaTeXSource.Lock lock = lsi.lock(true);
+        
+        try {
+            DataObject od = DataObject.find(testFileObject);
+            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+            StyledDocument doc = ec.openDocument();
+            
+            int offset = NbDocument.findLineOffset(doc, 8) + 3;
+            Node node = lsi.findNode(doc, offset);
+            assertTrue(node instanceof CommandNode);
+            assertEquals("\\test", ((CommandNode) node).getCommand().getCommand());
+        } finally {
+            lsi.unlock(lock);
+        }
+    }
+    
+    public void testEnvironmentInEnvironment() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testEnvironmentInEnvironment.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Collection errors = new ArrayList();
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        
+        DocumentNode node = new CommandParser().parse(lsi, errors);
+        
+        assertTrue("Errors: " + errors, errors.isEmpty());
+    }
+    
+    public void testIncludeDefiningCommands() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testInclude.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Collection errors = new ArrayList();
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        
+        LaTeXSource.Lock lock = lsi.lock(true);
+        
+        try {
+            DataObject od = DataObject.find(testFileObject);
+            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+            StyledDocument doc = ec.openDocument();
+            
+            int offset = NbDocument.findLineOffset(doc, 7) + 3;
+            Node node = lsi.findNode(doc, offset);
+            assertTrue(node instanceof CommandNode);
+            assertEquals("\\test", ((CommandNode) node).getCommand().getCommand());
+        } finally {
+            lsi.unlock(lock);
+        }
     }
     
 }

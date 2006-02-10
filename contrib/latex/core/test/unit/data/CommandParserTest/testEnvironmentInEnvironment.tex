@@ -1,0 +1,13 @@
+\documentclass{article}
+
+\newenvironment{aaa}{}{}
+\newenvironment{bbb}{
+\begin{aaa}
+}{
+\end{aaa}
+}
+
+\begin{document}
+\begin{bbb}
+\end{bbb}
+\end{document}

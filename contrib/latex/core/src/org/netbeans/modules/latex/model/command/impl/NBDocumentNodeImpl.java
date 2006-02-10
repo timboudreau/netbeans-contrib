@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -16,38 +16,31 @@ package org.netbeans.modules.latex.model.command.impl;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-
-
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import java.util.Set;
 import org.netbeans.modules.latex.model.command.Command;
-
-import org.openide.filesystems.*;
-
-import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.TraverseHandler;
 import org.netbeans.modules.latex.model.command.CommandCollection;
+import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
+import org.netbeans.modules.latex.model.command.TraverseHandler;
 import org.netbeans.modules.latex.test.TestCertificate;
-
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode/*, FileChangeListener*/ {
+public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode {
     
     private List/*<FileObject>*/ files;
     private boolean      uptoDate;
     
     private LaTeXSource source;
+    private FileSystem  memoryFS;
     
     private String documentClass = "<unknown>";
     
@@ -73,39 +66,14 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode/*, 
         files.add(file);
     }
     
-//    public void setFiles(Object[] files) {
-//        Object[] oldFiles = this.files;
-//        
-//        Set newF = new HashSet(Arrays.asList(files));
-//        Set old  = oldFiles == null ? new HashSet() : new HashSet(Arrays.asList(oldFiles));
-//        
-//        Set toRemove = new HashSet(old);
-//        
-//        toRemove.removeAll(newF);
-//        
-//        Set toAdd    = new HashSet(newF);
-//        
-//        toAdd.removeAll(old);
-//        
-//        Iterator toRemoveIterator = toRemove.iterator();
-//        
-//        //This does not make much sense, as below a weak listener is added, and here "hard" listener is
-//        //being removed.
-//        while (toRemoveIterator.hasNext()) {
-//            ((FileObject) toRemoveIterator.next()).removeFileChangeListener(this);
-//        }
-//        
-//        Iterator toAddIterator    = toAdd.iterator();
-//        
-//        while (toAddIterator.hasNext()) {
-//            FileObject fo = (FileObject) toAddIterator.next();
-//            
-//            fo.addFileChangeListener(WeakListener.fileChange(this, fo));
-//        }
-//        
-//        this.files = (FileObject[] ) newF.toArray(new FileObject[newF.size()]);
-//    }
-//    
+    public synchronized FileSystem getTemporaryFS() {
+        if (memoryFS == null) {
+            memoryFS = FileUtil.createMemoryFileSystem();
+        }
+        
+        return memoryFS;
+    }
+    
     public DocumentNode getDocumentNode() {
         return this;
     }
@@ -114,35 +82,9 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode/*, 
         return uptoDate;
     }
     
-//    public void performUpToDate(Runnable r) {
-//        //.....
-//    }
-    
-//    public CommandCollection getCommands() {
-//        return commands;
-//    }
-//    
     public CharSequence getText() {
         return "article"; //TODO: this is only test impl.
     }
-    
-//    public void fileAttributeChanged(FileAttributeEvent fe) {
-//    }
-//    
-//    public void fileChanged(FileEvent fe) {
-//    }
-//    
-//    public void fileDataCreated(FileEvent fe) {
-//    }
-//    
-//    public void fileDeleted(FileEvent fe) {
-//    }
-//    
-//    public void fileFolderCreated(FileEvent fe) {
-//    }
-//    
-//    public void fileRenamed(FileRenameEvent fe) {
-//    }
     
     public void traverse(TraverseHandler th) {
 //        if (!th.argumentStart(this))

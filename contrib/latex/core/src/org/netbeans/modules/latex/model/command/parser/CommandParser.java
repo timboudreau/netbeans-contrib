@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -15,12 +15,13 @@
 package org.netbeans.modules.latex.model.command.parser;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import javax.swing.text.AbstractDocument;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.latex.editor.TexLanguage;
 import org.netbeans.modules.latex.model.ParseError;
@@ -33,7 +34,6 @@ import org.netbeans.modules.latex.model.command.CommandCollection;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.Environment;
-import org.netbeans.modules.latex.model.command.GroupNode;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.command.TextNode;
@@ -47,9 +47,10 @@ import org.netbeans.modules.latex.model.command.impl.NBDocumentNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.NodeImpl;
 import org.netbeans.modules.latex.model.command.impl.ParagraphNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.TextNodeImpl;
-import org.netbeans.modules.latex.model.command.parser.ParserInput;
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
 
 /** LaTeX command parser. Generates tree of commands. The model is in
  *  {@link org.netbeans.modules.latex.model.command}.
@@ -69,6 +70,9 @@ public final class CommandParser {
     
     private Collection/*<ParseError>*/  errors;
     private Collection/*<String>*/ labels;
+    
+    private Map<Environment, FileObject> env2BeginText = new HashMap();
+    private Map<Environment, FileObject> env2EndText   = new HashMap();
     
 //    public synchronized DocumentNode parseAndLeaveLocked(LaTeXSourceImpl source, Collection coll, Collection/*<ParseError>*/ errors) throws IOException {
 //        this.errors    = errors;
@@ -220,7 +224,7 @@ public final class CommandParser {
     
     private TextNodeImpl parseTextNode(ParserInput input, TextNodeImpl node) throws IOException {
 //        return parseGroup(input, node, false, false, false, true, true);
-        NodeImpl lastCommandDefiningNode = currentCommandDefiningNode;
+//        NodeImpl lastCommandDefiningNode = currentCommandDefiningNode;
 
         boolean useParagraphs = true;
         
@@ -273,7 +277,7 @@ public final class CommandParser {
         if (useParagraphs)
             lastParagraph.setEndingPosition(input.getPosition());
         
-        currentCommandDefiningNode = lastCommandDefiningNode;
+//        currentCommandDefiningNode = lastCommandDefiningNode;
         
         return node;
     }
@@ -508,6 +512,8 @@ public final class CommandParser {
                 String envName = null;
                 int    argNumber = 0;
                 String nonmandatoryArgDefault = "";
+                String envBeginText = null;
+                String envEndText = null;
                 
                 for (int cntr = 0; cntr < cni.getArgumentCount(); cntr++) {
                     ArgumentNode an = cni.getArgument(cntr);
@@ -535,6 +541,14 @@ public final class CommandParser {
                         if (an.isPresent())
                             nonmandatoryArgDefault = ParserUtilities.getArgumentValue(an).toString();
                     }
+                    
+                    if (param.hasAttribute("#environment-begin-spec")) {
+                        envBeginText = ParserUtilities.getArgumentValue(an).toString();
+                    }
+                    
+                    if (param.hasAttribute("#environment-end-spec")) {
+                        envEndText = ParserUtilities.getArgumentValue(an).toString();
+                    }
                 }
                 
                 Environment newEnvironment = new Environment(envName, argNumber);
@@ -544,6 +558,20 @@ public final class CommandParser {
                 coll.addEnvironment(newEnvironment);
                 cni.setCommandCollection(coll);
                 currentCommandDefiningNode = cni;
+                
+                if (envBeginText != null) {
+                    FileObject file = createUnique((NBDocumentNodeImpl) cni.getDocumentNode(), "env-begin-" + envName);
+                    
+                    dumpText(file, envBeginText);
+                    env2BeginText.put(newEnvironment, file);
+                }
+                
+                if (envEndText != null) {
+                    FileObject file = createUnique((NBDocumentNodeImpl) cni.getDocumentNode(), "env-end-" + envName);
+                    
+                    dumpText(file, envEndText);
+                    env2EndText.put(newEnvironment, file);
+                }
             }
         }
 
@@ -592,6 +620,37 @@ public final class CommandParser {
         }
         
         return cni;
+    }
+    
+    private FileObject createUnique(NBDocumentNodeImpl dni, String prefix) throws IOException {
+        int count = (int) System.currentTimeMillis();
+        
+        count = count < 0 ? -count : count;
+        
+        FileSystem fs = dni.getTemporaryFS();
+        FileObject file = fs.getRoot();
+        
+        while (file.getFileObject(prefix + "-" + count + ".tex") != null) {
+            count++;
+        }
+        
+        return file.createData(prefix + "-" + count, "tex");
+    }
+    
+    private void dumpText(FileObject to, String text) throws IOException {
+        FileLock lock = null;
+        OutputStream out = null;
+        
+        try {
+            lock = to.lock();
+            out  = to.getOutputStream(lock);
+            
+            out.write(text.getBytes());
+        } finally {
+            out.close();
+            lock.releaseLock();
+        }
+        
     }
     
     private ArgumentNodeImpl parseVerbArgument(ParserInput input, ArgumentNodeImpl anode) throws IOException {
@@ -812,6 +871,25 @@ public final class CommandParser {
         return node;
     }
     
+    private void doIncludeForBlock(Map<Environment, FileObject> env2File, Environment env, TextNodeImpl node, SourcePosition pos) {
+        if (env2File.get(env) != null) {
+            try {
+                ParserInput newInput = openFile(env2File.get(env));
+                
+                if (newInput != null) {
+                    node.addChild(parseTextNode(newInput, new TextNodeImpl(node, currentCommandDefiningNode)));
+                    
+                    closeFile(newInput);
+                } else {
+                    errors.add(Utilities.getDefault().createError("Cannot correctly start environment \"" + env.getName() + "\" (internal error).", pos));
+                }
+            } catch (IOException e) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                errors.add(Utilities.getDefault().createError("Cannot correctly start environment \"" + env.getName() + "\" (internal error).", pos));
+            }
+        }
+    }
+    
     private BlockNodeImpl parseBlock(ParserInput input, CommandNodeImpl begin) throws IOException {
         NodeImpl lastCommandDefiningNode = currentCommandDefiningNode;
         
@@ -839,6 +917,8 @@ public final class CommandParser {
         bni.setContent(node);
         node.setStartingPosition(input.getPosition());
 
+        doIncludeForBlock(env2BeginText, env, node, bni.getStartingPosition());
+        
         boolean useParagraphs = true;
         
         TextNodeImpl lastParagraph = useParagraphs ? new ParagraphNodeImpl(node, currentCommandDefiningNode) : node;
