@@ -7,17 +7,20 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.refactoring;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
+import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
+import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
 
@@ -82,4 +85,31 @@ public class UsagesQuery {
         return result;
     }
     
+    public static List<Node> findEnvironmentUsages(LaTeXSource source, final Environment env) {
+        final List<Node> result = new ArrayList();
+        
+        source.traverse(new DefaultTraverseHandler() {
+            @Override
+            public boolean blockStart(BlockNode node) {
+                if (node.getEnvironment().equals(env)) {
+                    result.add(Utilities.getDefault().getArgumentWithAttribute(node.getBeginCommand(), "#environmentname"));
+                    result.add(Utilities.getDefault().getArgumentWithAttribute(node.getEndCommand(), "#environmentname"));
+                }
+                return true;
+            }
+            @Override
+            public boolean argumentStart(ArgumentNode node) {
+                if (node.hasAttribute("#envname")) {
+                    if (env.getName().contentEquals(getArgumentContent(node))) {
+                        result.add(node);
+                    }
+                }
+                return true;
+            }
+        }, LaTeXSource.HEAVY_LOCK);
+        
+        return result;
+    }
+    
+//#environmentname
 }

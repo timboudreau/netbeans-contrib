@@ -1,0 +1,5 @@
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesEnvironment2.tex, line=2, column=15, offset=40]-Position:[file=testFindUsagesEnvironment2.tex, line=2, column=21, offset=46]
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesEnvironment2.tex, line=8, column=6, offset=99]-Position:[file=testFindUsagesEnvironment2.tex, line=8, column=12, offset=105]
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesEnvironment2.tex, line=9, column=4, offset=110]-Position:[file=testFindUsagesEnvironment2.tex, line=9, column=10, offset=116]
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesEnvironment2.tex, line=13, column=6, offset=140]-Position:[file=testFindUsagesEnvironment2.tex, line=13, column=12, offset=146]
+class org.netbeans.modules.latex.model.command.impl.ArgumentNodeImpl:Position:[file=testFindUsagesEnvironment2.tex, line=14, column=4, offset=151]-Position:[file=testFindUsagesEnvironment2.tex, line=14, column=10, offset=157]

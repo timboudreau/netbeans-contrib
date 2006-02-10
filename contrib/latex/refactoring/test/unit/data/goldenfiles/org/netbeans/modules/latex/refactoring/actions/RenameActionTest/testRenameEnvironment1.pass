@@ -1,0 +1,17 @@
+\documentclass{article}
+
+\newenvironment{xxxx}{}{}
+
+\begin{document}
+
+\begin{itemize}
+\item{
+\begin{xxxx}
+\end{xxxx}
+}
+\end{itemize}
+
+\begin{xxxx}
+\end{xxxx}
+
+\end{document}

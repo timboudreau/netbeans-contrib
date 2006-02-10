@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -76,6 +76,18 @@ public class RenameActionTest extends NbTestCase {
     
     public void testRenameCommandMF() throws Exception {
         performRenameTest("testRenameCommandMF1", 11, 4, "\\AA");
+    }
+    
+    public void testRenameEnvironment1() throws Exception {
+        performRenameTest("testRenameEnvironment1", 9, 9, "xxxx");
+    }
+    
+    public void testRenameEnvironment2() throws Exception {
+        performRenameTest("testRenameEnvironment2", 2, 19, "xxxx");
+    }
+    
+    public void testRenameEnvironmentMF() throws Exception {
+        performRenameTest("testRenameEnvironmentMF1", 10, 9, "xxxx");
     }
     
     private void performRenameTest(String fileName, int line, int column, String newName) throws Exception {

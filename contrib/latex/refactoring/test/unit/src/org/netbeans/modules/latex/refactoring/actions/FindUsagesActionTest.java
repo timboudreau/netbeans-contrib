@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -76,6 +76,18 @@ public class FindUsagesActionTest extends NbTestCase {
     
     public void testFindUsagesCommandMF() throws Exception {
         performFindUsagesTest("testFindUsagesCommandMF1", 11, 4, "\\AA");
+    }
+    
+    public void testFindUsagesEnvironment1() throws Exception {
+        performFindUsagesTest("testFindUsagesEnvironment1", 9, 9, "xxxx");
+    }
+    
+    public void testFindUsagesEnvironment2() throws Exception {
+        performFindUsagesTest("testFindUsagesEnvironment2", 2, 19, "xxxx");
+    }
+    
+    public void testFindUsagesEnvironmentMF() throws Exception {
+        performFindUsagesTest("testFindUsagesEnvironmentMF1", 10, 9, "xxxx");
     }
     
     private void performFindUsagesTest(String fileName, int line, int column, String newName) throws Exception {
