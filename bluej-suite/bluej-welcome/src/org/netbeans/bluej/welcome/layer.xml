@@ -13,6 +13,11 @@
             </file>
         </folder>
     </folder>
+    <folder name="Toolbars">
+        <!-- override configuration from core/ide -->
+        <file name="Standard.xml" url="Standard.xml">
+        </file>
+    </folder>
     <folder name="Windows2">
         <folder name="Components">
             <file name="BluejWelcomeTopComponent.settings" url="BluejWelcomeTopComponentSettings.xml"/>
@@ -20,6 +25,17 @@
         <folder name="Modes">
             <folder name="editor">
                 <file name="BluejWelcomeTopComponent.wstcref" url="BluejWelcomeTopComponentWstcref.xml"/>
+            </folder>
+            <folder name="explorer">
+                <file name="projectTab_tc.wstcref" url="projects.wstcref"/>
+                <file name="runtime.wstcref" url="runtime.wstcref" />
+
+            </folder>
+            <folder name="navigator">
+                <file name="navigatorTC.wstcref" url="navigatorTC.wstcref"/>
+            </folder>
+            <folder name="output">
+                <file name="output.wstcref" url="output.wstcref"/>
             </folder>
         </folder>
     </folder>
