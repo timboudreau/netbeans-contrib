@@ -22,6 +22,8 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
@@ -41,10 +43,12 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.modules.InstalledFileLocator;
+import org.openide.nodes.Node;
 import org.openide.src.ClassElement;
 import org.openide.src.Identifier;
 import org.openide.src.Import;
 import org.openide.src.SourceElement;
+import org.openide.windows.TopComponent;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -311,6 +315,8 @@ class Debug {
             try {
                 PrintStream ps = new PrintStream(os);
                 ps.print(DEFAULT_DEFAULTS);
+                Set/*<String>*/ sourceDirectories = new TreeSet();
+                Set/*<String>*/ onlyInstruments = new TreeSet();
                 Iterator roots = cp.entries().iterator();
                 while (roots.hasNext()) {
                     ClassPath.Entry entry = (ClassPath.Entry) roots.next();
@@ -324,38 +330,59 @@ class Debug {
                                 path += File.separator;
                             }
                             // Make all source roots in exec CP available for browsing.
-                            ps.println("SourceDirectory:	\"" + path + "\""); // NOI18N
+                            sourceDirectories.add(path);
                         }
                         if (prj != null && FileOwnerQuery.getOwner(sourceRoots[i]) != prj) {
                             // Sources not in same project. Probably prefer not to instrument.
                             continue;
                         }
-                        Enumeration packages = sourceRoots[i].getFolders(true);
-                        while (packages.hasMoreElements()) {
-                            FileObject pkg = (FileObject) packages.nextElement();
-                            FileObject[] kids = pkg.getChildren();
-                            boolean hasSources = false;
-                            for (int j = 0; j < kids.length; j++) {
-                                if (kids[j].isData() && kids[j].hasExt("java")) { // NOI18N
-                                    hasSources = true;
-                                    break;
-                                }
+                        Enumeration files = sourceRoots[i].getChildren(true);
+                        while (files.hasMoreElements()) {
+                            FileObject file = (FileObject) files.nextElement();
+                            if (file.isData() && file.hasExt("java")) { // NOI18N
+                                String name = FileUtil.getRelativePath(sourceRoots[i], file).replace('/', '.');
+                                assert name.endsWith(".java");
+                                onlyInstruments.add(name.substring(0, name.length() - 5));
                             }
-                            if (!hasSources) {
-                                continue;
-                            }
-                            String name = FileUtil.getRelativePath(sourceRoots[i], pkg).replace('/', '.');
-                            // Ask to instrument any package for which we have sources available.
-                            // Note that the directive is a prefix, so this spuriously includes subpackages.
-                            // Hopefully we have sources for them too anyway.
-                            ps.println("OnlyInstrument:		\"" + name + ".\""); // NOI18N
                         }
                     }
                 }
                 if (kind == KIND_JUNIT) {
                     // Want to instrument System.exit and System.out.print commands, both in this package.
                     // No need to instrument e.g. scanning for test methods, which is in junit.framework.
-                    ps.println("OnlyInstrument:		\"junit.textui.\""); // NOI18N
+                    onlyInstruments.add("junit.textui."); // NOI18N
+                }
+                // Also instrument any package corresponding to an open file, since you are probably debugging them:
+                Iterator/*<TopComponent>*/ opened = TopComponent.getRegistry().getOpened().iterator();
+                while (opened.hasNext()) {
+                    TopComponent tc = (TopComponent) opened.next();
+                    Node[] nodes = tc.getActivatedNodes();
+                    if (nodes == null) {
+                        continue;
+                    }
+                    for (int i = 0; i < nodes.length; i++) {
+                        DataObject d = (DataObject) nodes[i].getCookie(DataObject.class);
+                        if (d != null) {
+                            FileObject f = d.getPrimaryFile();
+                            if (f.hasExt("java")) { // NOI18N
+                                ClassPath src = ClassPath.getClassPath(f, ClassPath.SOURCE);
+                                if (src != null) {
+                                    String name = src.getResourceName(f, '.', false);
+                                    assert name != null : f;
+                                    onlyInstruments.add(name);
+                                }
+                            }
+                        }
+                    }
+                }
+                // Write out all such directives in sorted order:
+                Iterator it = sourceDirectories.iterator();
+                while (it.hasNext()) {
+                    ps.println("SourceDirectory:	\"" + (String) it.next() + "\""); // NOI18N
+                }
+                it = onlyInstruments.iterator();
+                while (it.hasNext()) {
+                    ps.println("OnlyInstrument:		\"" + (String) it.next() + "\""); // NOI18N
                 }
             } finally {
                 os.close();
