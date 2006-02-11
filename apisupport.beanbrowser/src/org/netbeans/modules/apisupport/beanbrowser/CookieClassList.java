@@ -13,115 +13,64 @@
 
 package org.netbeans.modules.apisupport.beanbrowser;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import org.openide.ErrorManager;
-import org.openide.cookies.InstanceCookie;
-import org.openide.loaders.XMLDataObject;
-import org.openide.nodes.Node;
-import org.openide.util.Lookup;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-/** Permit other modules to add their own list of cookies to recognize.
- * See enhancement #11911, and http://www.netbeans.org/dtds/apisupport-cookie-class-list-1_0.dtd
+/**
+ * See enhancement #11911.
  * @author Jesse Glick
  */
-public final class CookieClassList implements InstanceCookie, XMLDataObject.Processor {
+public final class CookieClassList {
     
-    private XMLDataObject xml = null;
+    private static final String[] CLASS_NAMES = {
+        "org.apache.tools.ant.module.api.AntProjectCookie", // NOI18N
+        "org.apache.tools.ant.module.api.ElementCookie", // NOI18N
+        "org.apache.tools.ant.module.api.IntrospectionCookie", // NOI18N
+        "org.netbeans.modules.xml.core.cookies.CookieManagerCookie", // NOI18N
+        "org.netbeans.modules.xml.tax.cookies.TreeDocumentCookie", // NOI18N
+        "org.netbeans.modules.xml.tax.cookies.TreeEditorCookie", // NOI18N
+        "org.openide.cookies.CloseCookie", // NOI18N
+        "org.openide.cookies.EditCookie", // NOI18N
+        "org.openide.cookies.EditorCookie", // NOI18N
+        "org.openide.cookies.EditorCookie$Observable", // NOI18N
+        "org.openide.cookies.InstanceCookie", // NOI18N
+        "org.openide.cookies.InstanceCookie$Of", // NOI18N
+        "org.openide.cookies.LineCookie", // NOI18N
+        "org.openide.cookies.OpenCookie", // NOI18N
+        "org.openide.cookies.PrintCookie", // NOI18N
+        "org.openide.cookies.SaveCookie", // NOI18N
+        "org.openide.cookies.SourceCookie", // NOI18N
+        "org.openide.cookies.SourceCookie$Editor", // NOI18N
+        "org.openide.cookies.ViewCookie", // NOI18N
+        "org.openide.loaders.DataObject", // NOI18N
+        "org.openide.loaders.DataFolder", // NOI18N
+        "org.openide.loaders.XMLDataObject$Processor", // NOI18N
+        "org.openide.nodes.Index", // NOI18N
+        "org.openide.src.InitializerElement", // NOI18N
+        "org.openide.src.SourceElement", // NOI18N
+        "org.openide.src.ClassElement", // NOI18N
+        "org.openide.src.FieldElement", // NOI18N
+        "org.openide.src.ConstructorElement", // NOI18N
+        "org.openide.src.MethodElement", // NOI18N
+    };
     
-    public void attachTo(XMLDataObject xmlDO) {
-        xml = xmlDO;
-        //System.err.println("CookieClassList.attachTo: " + xml);
-    }
+    private static Class[] clazzes;
     
-    public Class instanceClass() {
-        //System.err.println("CookieClassList.instanceClass");
-        return ActualList.class;
-    }
-    
-    public String instanceName() {
-        //System.err.println("CookieClassList.instanceName");
-        return ActualList.class.getName();
-    }
-    
-    public Object instanceCreate() throws IOException, ClassNotFoundException {
-        //System.err.println("CookieClassList.instanceCreate: " + xml);
-        try {
-            Document doc = xml.getDocument();
-            Element el = doc.getDocumentElement();
-            NodeList nl = el.getElementsByTagName("class"); // NOI18N
-            Class[] clazzes = new Class[nl.getLength()];
-            for (int i = 0; i < clazzes.length; i++) {
-                Element clazz = (Element) nl.item(i);
-                clazzes[i] = Class.forName(clazz.getAttribute("name"), // NOI18N
-                        false,
-                        (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class));
-                if (! Node.Cookie.class.isAssignableFrom(clazzes[i])) {
-                    throw new ClassNotFoundException("Not a Node.Cookie: " + clazzes[i].getName()); // NOI18N
-                }
-            }
-            return new ActualList(clazzes, xml.getPrimaryFile().getPath());
-        } catch (SAXException saxe) {
-            IOException ioe = new IOException(saxe.toString());
-            ErrorManager.getDefault().annotate(ioe, saxe);
-            throw ioe;
-        }
-    }
-    
-    private static final class ActualList {
-        private final Class[] clazzes;
-        private final String origin;
-        ActualList(Class[] clazzes, String origin) {
-            this.clazzes = clazzes;
-            this.origin = origin;
-            //System.err.println("new CookieClassList.ActualList: " + java.util.Arrays.asList (clazzes));
-        }
-        public Class[] getClasses() {
-            return clazzes;
-        }
-        public String toString() {
-            StringBuffer buf = new StringBuffer("ActualList["); // NOI18N
-            buf.append(origin);
-            buf.append(": "); // NOI18N
-            for (int i = 0; i < clazzes.length; i++) {
-                if (i > 0) {
-                    buf.append(", "); // NOI18N
-                }
-                buf.append(clazzes[i].getName());
-            }
-            buf.append("]"); // NOI18N
-            return buf.toString();
-        }
-    }
-    
-    private static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.apisupport.beanbrowser.CookieClassList"); // NOI18N
-    private static Lookup.Result clazzes = null; // Lookup.Result<CookieClassList.ActualList>
-    public static Class[] getCookieClasses() {
+    public static synchronized Class[] getCookieClasses() {
         if (clazzes == null) {
-            err.log("Looking up ActualList instances...");
-            clazzes = Lookup.getDefault().lookup(new Lookup.Template(CookieClassList.ActualList.class));
+            List/*<Class>*/ _clazzes = new ArrayList();
+            ClassLoader l = Thread.currentThread().getContextClassLoader();
+            for (int i = 0; i < CLASS_NAMES.length; i++) {
+                try {
+                    _clazzes.add(Class.forName(CLASS_NAMES[i], true, l));
+                } catch (ClassNotFoundException e) {
+                    // ignore, module not available or whatever
+                }
+            }
+            clazzes = (Class[]) _clazzes.toArray(new Class[_clazzes.size()]);
         }
-        List cookies = new ArrayList(); // List<Class>
-        Collection actualLists = clazzes.allInstances(); // Collection<ActualList>
-        err.log("actualLists=" + actualLists);
-        if (actualLists.isEmpty()) {
-            err.log(ErrorManager.WARNING, "Warning: #11965 still broken, Bean Browser may not show cookies");
-        }
-        Iterator it = actualLists.iterator();
-        while (it.hasNext()) {
-            ActualList list = (ActualList)it.next();
-            cookies.addAll(Arrays.asList(list.getClasses()));
-        }
-        //System.err.println("Cookies: " + cookies);
-        return (Class[])cookies.toArray(new Class[cookies.size()]);
+        return clazzes;
     }
     
 }
