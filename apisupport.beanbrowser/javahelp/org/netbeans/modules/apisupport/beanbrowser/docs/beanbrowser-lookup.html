@@ -1,0 +1,44 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<html><head>
+<title>API Support Module - Bean Browser and Lookup</title>
+<link rel="stylesheet" href="../../usersguide/ide.css" type="text/css">
+</head><body>
+
+<h2>Bean Browser - Lookup Helper</h2>
+
+<p>Under <b>Runtime&nbsp;| Bean&nbsp;Browser&nbsp;| Lookup&nbsp;results</b>
+you can find out what is currently in the lookup system. Right click on this
+node and select <b>Add&nbsp;Superclass/interface</b>. You will be asked for a
+class name. Type in the fully qualified name of any class in the APIs or modules,
+for example <samp>org.openide.filesystems.MIMEResolver</samp> or
+<samp>org.openide.awt.HtmlBrowser$Factory</samp>.
+
+<p>Now browse underneath the lookup node and you will see all instances of that class
+registered in the system's default lookup. Each instance can be explored using the
+Bean Browser. Also the tooltip for an instance gives you the lookup item ID
+(for example, the name of the data object with which an instance was registered).
+If the contents of lookup change (e.g. because of module installation), the result
+node will be refreshed.
+
+<p>As instances become available, queries for their class (and superclasses and
+implemented interfaces) are added for you automatically.
+
+<p>To help you understand how the property editor for <code>java.lang.Object</code>
+works that is part of the UI of services, the lookup node also has a property
+using this property editor restricted to the class you are looking up. Its pulldown
+shows the user-oriented displays of the available instances, and its custom property
+editor permits you to select one from a tree view of services.
+
+</body></html>

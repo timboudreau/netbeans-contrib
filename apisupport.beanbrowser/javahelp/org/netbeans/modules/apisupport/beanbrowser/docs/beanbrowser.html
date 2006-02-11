@@ -1,0 +1,106 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<html><head>
+<title>API Support Module - Bean Browser</title>
+<link rel="stylesheet" href="../../usersguide/ide.css" type="text/css">
+</head><body>
+
+<h2>Bean Browser</h2>
+
+<p>The Bean Browser facility lets you look at the structure of objects
+live in the IDE, provided they can be represented as JavaBeans (which
+many API-related objects can). There are several ways to use the Bean
+Browser:
+
+<ul>
+
+<li>Flip to the <b>Runtime</b> tab in the Explorer and look under the
+<b>Bean Browser</b> node - you will see some important folders in the system filesystem.
+You will also see the <a href="beanbrowser-lookup.html">lookup helper</a>.
+
+<li>Use the Bean Tester executor on some object with a public default
+constructor. An instance will be constructed and displayed, permitting
+you to examine its structure in detail, live inside the IDE.
+
+<li>Select some node and choose <b>Tools&nbsp;| Bean&nbsp;Browse&nbsp;Node</b> from the context menu.
+You will see the tree rooted at that node.
+
+<li>Select some window and choose <b>Tools&nbsp;| Bean&nbsp;Browse&nbsp;Window</b> from the main menu.
+You will be able to see the tree of JavaBean components present in the selected
+window.
+
+</ul>
+
+<p>In the Bean Browser, by default nodes just show up as themselves, but they
+will show extra children. First of all, their regular children are displayed in
+a special subnode, to separate them from other things. Other subnodes may be
+displayed, including:
+
+<ul>
+
+<li>A list of all properties of the node, broken up by property set. These display
+as object nodes, which means they can in turn show hierarchy for e.g. Java
+collections or arrays, etc. Properties which are themselves beans will show up
+as bean nodes, i.e. their default representation.
+
+<li>A list of all computed properties of the node (if it represents a Bean with an
+instance), under <b>Raw&nbsp;bean&nbsp;properties</b>. Here, <code>BeanInfo</code>
+is simply ignored, and all getter methods are treated as fair game--even if they
+are not public methods. Useful for classes which have <code>BeanInfo</code> which
+does not include all the information you might to debug with.
+
+<li>Any node with an <code>InstanceCookie</code> will show that instance as a Bean.
+
+<li><code>Node</code> properties will appear as themselves, after an introduction.
+
+<li><code>Container</code> properties (i.e. visual beans) will show the AWT
+component hierarchy.
+
+<li><code>FileSystem</code> properties additionally display the root folder.
+This lets you browse to a specific file in the filesystem.
+
+<li><code>FileObject</code> properties additionally display the data object
+(from which you can also see the node delegate). And you get a list of file
+attributes by name.
+File objects which are part of a <code>MultiFileSystem</code> will show the
+original filesystem which produced them. In the case of file objects in the
+system filesystem, you can see the <em>provenance</em> of the file, indicating
+whether it was defined in a module (including the core - generally some XML
+layer); the user directory (global setting); the installation directory (rarer);
+or the current project.
+
+<li><code>Clipboard</code> objects show the objects associated
+with each currently supported data flavor in their
+transferables. Go to <code>java.awt.Clipboard</code> under <b>Lookup&nbsp;results</b> for
+example. Also <code>ExClipboard</code> objects will update this
+information when it changes, and <code>MultiTransferObject</code>
+objects are broken apart into constituent flavors.
+
+<li>Instances of <code>Lookup.Provider</code> method (such as nodes, data objects, and so on)
+will be examined for a list of all standard cookie types, and these cookies will be shown
+in a separate sublist for examination.
+<a href="beanbrowser-lookup.html">(Details...)</a>
+It is possible to recognize your own cookie types, too;
+if your module defines a cookie you wish to see listed, simply add an XML file to its layer
+underneath <samp>Services/Hidden/</samp> matching the DTD at
+<a href="http://www.netbeans.org/dtds/apisupport-cookie-class-list-1_0.dtd"><samp>http://www.netbeans.org/dtds/apisupport-cookie-class-list-1_0.dtd</samp></a>.
+
+<li>When browsing objects representing nodes themselves, you can see:
+the clone of the node (from <code>Node.cloneNode()</code>) to test your
+cloning logic; the visualizer, to see which subnodes have been created
+already; and the original node, when working with <code>FilterNode</code>s.
+
+</ul>
+
+</body></html>

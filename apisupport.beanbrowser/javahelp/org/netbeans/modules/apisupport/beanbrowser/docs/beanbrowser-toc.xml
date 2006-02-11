@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+<toc version="2.0">
+    <tocitem text="NetBeans Runtime Inspector" target="org.netbeans.modules.apisupport.beanbrowser">
+        <tocitem text="Lookup Helper" target="org.netbeans.modules.apisupport.beanbrowser.lookup"/>
+        <tocitem text="Demo" target="org.netbeans.modules.apisupport.beanbrowser.eg"/>
+    </tocitem>
+</toc>
