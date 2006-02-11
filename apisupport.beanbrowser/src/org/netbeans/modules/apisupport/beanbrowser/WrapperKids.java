@@ -181,11 +181,6 @@ class WrapperKids extends Children.Keys implements Cloneable {
     }
     
     protected void removeNotify() {
-        doUnListen();
-        setKeys(Collections.EMPTY_SET);
-    }
-    
-    private void doUnListen() {
         if (nListener != null) {
             original.removeNodeListener(nListener);
             nListener = null;
@@ -195,10 +190,7 @@ class WrapperKids extends Children.Keys implements Cloneable {
             fsListener = null;
             fileSystemToListenOn = null;
         }
-    }
-    
-    protected void finalize() {
-        doUnListen();
+        setKeys(Collections.EMPTY_SET);
     }
     
     /** Make a list of property set keys.

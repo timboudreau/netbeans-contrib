@@ -44,18 +44,13 @@ public class ContainerKids extends Children.Keys {
             container.addContainerListener(containerListener);
         }
     }
-    private void cleanUp() {
+
+    protected void removeNotify() {
         if (containerListener != null) {
             container.removeContainerListener(containerListener);
             containerListener = null;
         }
-    }
-    protected void removeNotify() {
-        cleanUp();
         setKeys(Collections.EMPTY_SET);
-    }
-    protected void finalize() {
-        cleanUp();
     }
     
     private void updateKeys() {

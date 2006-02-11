@@ -49,18 +49,13 @@ public class ClipboardKids extends Children.Keys {
             ((ExClipboard) clip).addClipboardListener(list);
         }
     }
-    private void cleanUp() {
+
+    protected void removeNotify() {
         if (list != null) {
             ((ExClipboard) clip).removeClipboardListener(list);
             list = null;
         }
-    }
-    protected void removeNotify() {
-        cleanUp();
         setKeys(Collections.EMPTY_SET);
-    }
-    protected void finalize() {
-        cleanUp();
     }
     
     private void updateKeys() {

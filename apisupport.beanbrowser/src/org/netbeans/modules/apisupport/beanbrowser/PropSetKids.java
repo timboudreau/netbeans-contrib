@@ -108,18 +108,11 @@ public class PropSetKids extends Children.Keys {
         return keys.iterator();
     }
     
-    /** Remove the listener. */
-    private void doUnListen() {
+    protected void removeNotify() {
         if (pcListener != null) {
             original.removePropertyChangeListener(pcListener);
             pcListener = null;
         }
-    }
-    protected void finalize() throws Exception {
-        doUnListen();
-    }
-    protected void removeNotify() {
-        doUnListen();
         setKeys0(Collections.EMPTY_SET);
     }
     
