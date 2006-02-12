@@ -30,6 +30,7 @@ import org.netbeans.api.java.queries.SourceForBinaryQuery;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.queries.FileBuiltQuery;
 import org.netbeans.spi.project.CacheDirectoryProvider;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.PropertyProvider;
@@ -129,8 +130,8 @@ class Debug {
         assert sourceCP != null;
         ClassPath cp = ClassPath.getClassPath(clazz, ClassPath.EXECUTE);
         assert cp != null;
-        FileObject compiledClazz = cp.findResource(sourceCP.getResourceName(clazz, '/', false) + ".class"); // NOI18N
-        if (compiledClazz == null || compiledClazz.lastModified().getTime() < clazz.lastModified().getTime()) {
+        FileBuiltQuery.Status status = FileBuiltQuery.getStatus(clazz);
+        if (status != null && !status.isBuilt()) {
             // #72385: not yet compiled?
             IOException e = new IOException("uncompiled: " + clazz); // NOI18N
             String msg = "You must compile " + FileUtil.getFileDisplayName(clazz) + " before debugging."; // XXX I18N
