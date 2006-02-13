@@ -84,8 +84,6 @@ public class WS70URIManager {
             }else{
                 retval =  url.substring(0, index);
             }
-        }else{
-            retval = "";
         }
         return retval;        
     }

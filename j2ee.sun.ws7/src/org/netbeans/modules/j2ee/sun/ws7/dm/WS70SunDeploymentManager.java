@@ -53,6 +53,8 @@ import org.netbeans.modules.j2ee.sun.ws7.ui.WS70ConfigSelectDialog;
 
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.ErrorManager;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -79,15 +81,19 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         this.uri = uri;
         this.userName = username;
         this.password = password;
-        dmClass = ws70DM.getClass();
-        serverLocation = WS70URIManager.getLocation(uri);
-        host = WS70URIManager.getHostFromURI(uri);
-        String p = WS70URIManager.getPortFromURI(uri);
-        try{
-            port = Integer.parseInt(p);
-        }catch(java.lang.NumberFormatException n){
-            System.err.println("Error parsing adminport");
-        }                
+        // ws70DM can be null in getDisconnectedDeploymentManager case if
+        // Web project's target server was removed and the IDE restarts
+        if(ws70DM!=null){
+            dmClass = ws70DM.getClass();
+            serverLocation = WS70URIManager.getLocation(uri);
+            host = WS70URIManager.getHostFromURI(uri);
+            String p = WS70URIManager.getPortFromURI(uri);
+            try{
+                port = Integer.parseInt(p);
+            }catch(java.lang.NumberFormatException n){
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, n);
+            }                
+        }
     }
     
     public String getUserName() {
@@ -126,7 +132,8 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     public DeploymentConfiguration createConfiguration(DeployableObject deplObj)
         throws InvalidModuleException {
         if (!ModuleType.WAR.equals(deplObj.getType())) {
-            throw new InvalidModuleException ("Only WAR modules are supported for SunWebDeploymentManager"); // NOI18N
+            throw new InvalidModuleException(
+                      NbBundle.getMessage(WS70SunDeploymentManager.class, "Invalid_MODULE"));
         }
 
         return new SunONEDeploymentConfiguration(deplObj);
@@ -170,11 +177,13 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         } // end of try-catch            
 
         String ctxRoot = null;
-        if (swa == null) {
-            System.err.println("DeploymentManager: swa is null");
+        if (swa == null) {            
+            ErrorManager.getDefault().log(
+                    ErrorManager.ERROR, NbBundle.getMessage(WS70SunDeploymentManager.class, "ERR_NULL_SWA"));
         }else{
             ctxRoot = swa.getContextRoot();
-            System.err.println("Distribute, contextRoot is "+ctxRoot);
+            ErrorManager.getDefault().log(
+                    ErrorManager.USER, NbBundle.getMessage(WS70SunDeploymentManager.class, "MSG_CONTEXTROOT", ctxRoot));
         }
         
         try{
@@ -229,7 +238,8 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     public void setDConfigBeanVersion(DConfigBeanVersionType version)
         throws DConfigBeanVersionUnsupportedException {
         if (!DConfigBeanVersionType.V1_4.equals(version)) {
-            throw new DConfigBeanVersionUnsupportedException("unsupported version"); // NOI18N
+            throw new DConfigBeanVersionUnsupportedException(
+                    NbBundle.getMessage(WS70SunDeploymentManager.class, "Invalid_CONFIG_VERSION"));
         }
     }
 
@@ -256,12 +266,12 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     public Target[] getTargets() throws IllegalStateException {
         Target[] targets = ws70DM.getTargets();
         InstanceProperties ip =  InstanceProperties.getInstanceProperties(this.getUri());
-        String config = ip.getProperty("configName");                
+        String config = ip.getProperty("configName");// NO I18N
         if(targets.length==1){       
             if(config==null){
                 try{
                     String cname = this.getConfigNameFromTarget(targets[0]);
-                    ip.setProperty("configName", cname);
+                    ip.setProperty("configName", cname);// NO I18N
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
@@ -292,12 +302,12 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             if(config==null){
                 //if some error set the first target as default
                 try{
-                    ip.setProperty("configName", this.getConfigNameFromTarget(targets[0]));
+                    ip.setProperty("configName", this.getConfigNameFromTarget(targets[0]));// NO I18N
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
             }else{
-                ip.setProperty("configName", config);
+                ip.setProperty("configName", config);// NO I18N
             }
             for(int i=0;i<targets.length;i++){
                 String cname = null;
@@ -329,7 +339,9 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             }
         }
 
-        System.err.println("ERROR in GETTARGETS returning "+targets[0].getName());
+        ErrorManager.getDefault().log(ErrorManager.WARNING, 
+                NbBundle.getMessage(WS70SunDeploymentManager.class, 
+                "ERR_GETTARGETS", targets[0].getName()));
         defaultTarget = targets[0];
         return new Target[]{targets[0]};
     }
@@ -342,13 +354,15 @@ public class WS70SunDeploymentManager implements DeploymentManager{
                                    InputStream inputStream,
                                    InputStream inputStream2)
         throws IllegalStateException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("SunWebDeploymentManager.redeploy not supported yet."); // NOI18N
+        throw new UnsupportedOperationException(NbBundle.getMessage(
+                WS70SunDeploymentManager.class, "UNSUPPORTED_REDPLOY"));
     }
 
     public ProgressObject redeploy(TargetModuleID[] tmID, File file,
                                    File file2)
         throws IllegalStateException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("SunWebDeploymentManager.redeploy not supported yet."); // NOI18N
+        throw new UnsupportedOperationException(NbBundle.getMessage(
+                WS70SunDeploymentManager.class, "UNSUPPORTED_REDPLOY"));
     }
 
     
@@ -378,7 +392,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     // Extended methods
    public boolean startServer(String configName){
         try{
-            Method startServer = dmClass.getDeclaredMethod("startServer", new Class[]{String.class});
+            Method startServer = dmClass.getDeclaredMethod("startServer", new Class[]{String.class}); //NOI18N
             Boolean retVal = (Boolean)startServer.invoke(this.ws70DM, new Object[]{configName});
             return retVal.booleanValue();
             
@@ -389,7 +403,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
    }
    public boolean stopServer(String configName){
         try{
-            Method stopServer = dmClass.getDeclaredMethod("stopServer", new Class[]{String.class});
+            Method stopServer = dmClass.getDeclaredMethod("stopServer", new Class[]{String.class});//NOI18N
             Boolean retVal = (Boolean)stopServer.invoke(this.ws70DM, new Object[]{configName});
             return retVal.booleanValue();
             
@@ -401,7 +415,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
 
     public List getJVMOptions(String configName, Boolean debugOptions, String profilerName){
         try{
-            Method getJVMOptions = dmClass.getDeclaredMethod("getJVMOptions", new Class[]{String.class, Boolean.class, String.class});
+            Method getJVMOptions = dmClass.getDeclaredMethod("getJVMOptions", new Class[]{String.class, Boolean.class, String.class});//NOI18N
             List options = (List)getJVMOptions.invoke(this.ws70DM, new Object[]{configName, debugOptions, profilerName});
             return options;
             
@@ -412,7 +426,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     }
     public Map getJVMProps(String configName) throws IllegalStateException {
         try{
-            Method getJvmProps = dmClass.getDeclaredMethod("getJVMProps", new Class[]{String.class});
+            Method getJvmProps = dmClass.getDeclaredMethod("getJVMProps", new Class[]{String.class});//NOI18N
             Map options = (Map)getJvmProps.invoke(this.ws70DM, new Object[]{configName});
             return options;
             
@@ -420,16 +434,6 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             ex.printStackTrace();
         }        
         return null;        
-    }
-    public String addJVMOption(String configName, String OptionValue ,Boolean debugOptions, Boolean profilerOptions){
-        return "added jvm option";
-    }   
-
-    public String deleteJVMOption(String configName, String OptionValue ,Boolean debugOptions, Boolean profilerOptions){
-        return "deleted jvm option";
-    }
-    public List getNodes(String configName){
-        return null;
     }
     public boolean deployAndReconfig(String configName, String nodeName){
         return true;
@@ -443,13 +447,13 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     public List getResources(ResourceType resType, String configName) throws Exception{
         String methodName = null;
         if(resType.eqauls(ResourceType.JDBC)){
-            methodName = "getJDBCResources";                
+            methodName = "getJDBCResources";//NOI18N
         }else if(resType.eqauls(ResourceType.JNDI)){
-            methodName = "getJNDIResources";
+            methodName = "getJNDIResources";//NOI18N
         }else if(resType.eqauls(ResourceType.MAIL)){
-            methodName = "getMailResources";
+            methodName = "getMailResources";//NOI18N
         }else if(resType.eqauls(ResourceType.CUSTOM)){
-            methodName = "getCustomResources";
+            methodName = "getCustomResources";//NOI18N
         }
         try{            
             Method getResources = dmClass.getDeclaredMethod(methodName, new Class[]{String.class});
@@ -466,13 +470,13 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         try{
             String methodName = null;
             if(resType.eqauls(ResourceType.JDBC)){
-                methodName = "setJDBCResource";                
+                methodName = "setJDBCResource";//NOI18N
             }else if(resType.eqauls(ResourceType.JNDI)){
-                methodName = "setJNDIResource";
+                methodName = "setJNDIResource";//NOI18N
             }else if(resType.eqauls(ResourceType.MAIL)){
-                methodName = "setMailResource";
+                methodName = "setMailResource";//NOI18N
             }else if(resType.eqauls(ResourceType.CUSTOM)){
-                methodName = "setCustomResource";
+                methodName = "setCustomResource";//NOI18N
             }
             Method setResource = dmClass.getDeclaredMethod(methodName, new Class[]{String.class, String.class, Map.class});
             setResource.invoke(this.ws70DM, new Object[]{configName, resName, resElements});
@@ -501,13 +505,13 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         try{
             String methodName = null;
             if(resType.eqauls(ResourceType.JDBC)){
-                methodName = "delJDBCResource";                
+                methodName = "delJDBCResource";//NOI18N
             }else if(resType.eqauls(ResourceType.JNDI)){
-                methodName = "delJNDIResource";
+                methodName = "delJNDIResource";//NOI18N
             }else if(resType.eqauls(ResourceType.MAIL)){
-                methodName = "delMailResource";
+                methodName = "delMailResource";//NOI18N
             }else if(resType.eqauls(ResourceType.CUSTOM)){
-                methodName = "delCustomResource";
+                methodName = "delCustomResource";//NOI18N
             }
             Method delResource = dmClass.getDeclaredMethod(methodName, new Class[]{String.class, String.class});
             delResource.invoke(this.ws70DM, new Object[]{configName, resName});
