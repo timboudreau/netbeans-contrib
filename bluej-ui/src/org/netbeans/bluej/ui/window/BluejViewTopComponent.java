@@ -39,6 +39,7 @@ import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.ListView;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -51,9 +52,9 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
     
     private static BluejViewTopComponent instance;
     /** path to the icon used by the component and its open action */
-//    static final String ICON_PATH = "SET/PATH/TO/ICON/HERE";
+    static final String ICON_PATH = "org/netbeans/bluej/ui/window/bluejview.png"; //NOI18N
     
-    private static final String PREFERRED_ID = "BluejViewTopComponent";
+    private static final String PREFERRED_ID = "BluejViewTopComponent"; //NOI18N
     private ListView view;
     private ExplorerManager manager;
     private JButton upButton;
@@ -73,7 +74,7 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
         initComponents();
         setName(NbBundle.getMessage(BluejViewTopComponent.class, "CTL_BluejViewTopComponent"));
         setToolTipText(NbBundle.getMessage(BluejViewTopComponent.class, "HINT_BluejViewTopComponent"));
-//        setIcon(Utilities.loadImage(ICON_PATH, true));
+        setIcon(Utilities.loadImage(ICON_PATH, true));
         view = new ListView() {
             protected JList createList() {
                 JList list = super.createList();
