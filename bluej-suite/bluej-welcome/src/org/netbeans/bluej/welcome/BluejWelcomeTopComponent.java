@@ -1,13 +1,12 @@
 package org.netbeans.bluej.welcome;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.LayoutManager;
 import java.io.Serializable;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -39,52 +38,42 @@ final class BluejWelcomeTopComponent extends TopComponent {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        jPanel1 = jPanel1 = new ImagePanel();
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "Welcome");
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, "to");
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, "NetBeans 5.0 with BlueJ integration modules");
+        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 451, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 375, Short.MAX_VALUE)
+        );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jLabel1))
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jLabel2))
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jLabel3)))
-                .addContainerGap(144, Short.MAX_VALUE))
+                .addContainerGap()
+                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel2)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel3)
-                .addContainerGap(231, Short.MAX_VALUE))
+                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
+    
     
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
@@ -139,6 +128,22 @@ final class BluejWelcomeTopComponent extends TopComponent {
         private static final long serialVersionUID = 1L;
         public Object readResolve() {
             return BluejWelcomeTopComponent.getDefault();
+        }
+    }
+    
+    
+    public class ImagePanel extends javax.swing.JPanel {
+        
+        public ImagePanel() {
+        }
+        
+        /** Paint custom background. */
+        public void paint(Graphics g) {
+            
+            int xx = getWidth();
+            int yy = getHeight();            
+            Image image = Utilities.loadImage("org/netbeans/bluej/welcome/welcome-placeholder.png");  // NOI18N
+            g.drawImage(image, (xx-607)/2, (yy-422)/2, this);
         }
     }
     
