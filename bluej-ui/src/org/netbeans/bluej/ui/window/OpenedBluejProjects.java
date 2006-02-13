@@ -23,9 +23,7 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectInformation;
-
-import org.openide.util.Lookup;
+import org.netbeans.api.project.ProjectUtils;
 
 /**
  * Class holding opened BlueJ projects and providing ComboBoxModel
@@ -98,8 +96,7 @@ public class OpenedBluejProjects {
     }
     
     private String getProjectDisplayName(Project prj) {
-        ProjectInformation pi = (ProjectInformation) prj.getLookup().lookup(ProjectInformation.class);
-        return pi.getDisplayName();
+        return ProjectUtils.getInformation(prj).getDisplayName();
     }
     
 }
