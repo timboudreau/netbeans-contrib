@@ -13,25 +13,24 @@
 
 package org.netbeans.modules.apisupport.beanbrowser;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.Action;
-import org.openide.ErrorManager;
-import org.openide.actions.OpenLocalExplorerAction;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
-import org.openide.loaders.DataFilter;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.loaders.RepositoryNodeFactory;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
-import org.openide.util.actions.SystemAction;
+import org.openide.windows.TopComponent;
 
 /** Node to browse various important stuff. */
 public class MainNode extends AbstractNode {
@@ -39,14 +38,12 @@ public class MainNode extends AbstractNode {
     public MainNode() {
         super(new MainChildren());
         setName("BeanBrowserMainNode");
-        setDisplayName("Bean Browser");
+        setDisplayName("NetBeans Runtime");
         setIconBaseWithExtension("org/netbeans/modules/apisupport/beanbrowser/BeanBrowserIcon.gif");
     }
     
     public Action[] getActions(boolean context) {
-        return new Action[] {
-            SystemAction.get(OpenLocalExplorerAction.class),
-        };
+        return new Action[0];
     }
     
     public HelpCtx getHelpCtx() {
@@ -67,7 +64,6 @@ public class MainNode extends AbstractNode {
     private static class MainChildren extends Children.Keys {
         
         private static final Object LOOKUP_NODE = "lookupNode"; // NOI18N
-        private static final Object REPOSITORY = "repository"; // NOI18N
         
         protected void addNotify() {
             refreshKeys();
@@ -76,22 +72,17 @@ public class MainNode extends AbstractNode {
         private void refreshKeys() {
             List l = new LinkedList();
             l.add(LOOKUP_NODE);
-            l.add(REPOSITORY);
-            String[] folders = {
-                "UI/Services", // NOI18N
-                "UI/Runtime", // NOI18N
-                "", // NOI18N
-            };
-            for (int i = 0; i < folders.length; i++) {
-                FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource(folders[i]);
-                if (fo != null) {
-                    try {
-                        l.add(DataObject.find(fo));
-                    } catch (DataObjectNotFoundException e) {
-                        ErrorManager.getDefault().notify(e);
+            l.add(Repository.getDefault().getDefaultFileSystem());
+            File[] roots = File.listRoots();
+            if (roots != null) {
+                for (int i = 0; i < roots.length; i++) {
+                    FileObject f = FileUtil.toFileObject(roots[i]);
+                    if (f != null) {
+                        l.add(f);
                     }
                 }
             }
+            l.add(TopComponent.getRegistry());
             setKeys(l);
         }
         
@@ -102,23 +93,35 @@ public class MainNode extends AbstractNode {
         protected Node[] createNodes(Object key) {
             if (key == LOOKUP_NODE) {
                 return new Node[] {new LookupNode()};
-            } else if (key == REPOSITORY) {
-                return new Node[] {Wrapper.make(RepositoryNodeFactory.getDefault().repository(DataFilter.ALL))};
-            } else {
-                DataObject d = (DataObject)key;
-                Node n = d.getNodeDelegate();
-                final String title;
-                if (d.getPrimaryFile().isRoot()) {
-                    title = "Root of system filesystem";
-                } else {
-                    title = d.getPrimaryFile().getPath() + " in system filesystem";
+            } else if (key instanceof FileSystem) {
+                Node orig;
+                try {
+                    orig = DataObject.find(((FileSystem) key).getRoot()).getNodeDelegate();
+                } catch (DataObjectNotFoundException e) {
+                    throw new AssertionError(e);
                 }
-                Node n2 = new FilterNode(n) {
+                return new Node[] {Wrapper.make(new FilterNode(orig) {
                     public String getDisplayName() {
-                        return title;
+                        return "System FS (All Layers)";
                     }
-                };
-                return new Node[] {Wrapper.make(n2)};
+                })};
+            } else if (key instanceof FileObject) {
+                final FileObject f = (FileObject) key;
+                Node orig;
+                try {
+                    orig = DataObject.find(f).getNodeDelegate();
+                } catch (DataObjectNotFoundException e) {
+                    throw new AssertionError(e);
+                }
+                return new Node[] {Wrapper.make(new FilterNode(orig) {
+                    public String getDisplayName() {
+                        return FileUtil.getFileDisplayName(f);
+                    }
+                })};
+            } else if (key instanceof TopComponent.Registry) {
+                return new Node[] {new TopComponentsNode((TopComponent.Registry) key)};
+            } else {
+                throw new AssertionError(key);
             }
         }
         

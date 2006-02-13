@@ -54,6 +54,7 @@ public class RefinedBeanNode extends BeanNode {
         } else {
             return a;
         }
+        // XXX should offer to open Java class implementing bean?
     }
     
     private static final class FileObjectEditorSupport extends CloneableEditorSupport implements EditCookie, CloseCookie, PrintCookie, EditorCookie.Observable {

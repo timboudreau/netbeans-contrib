@@ -12,37 +12,20 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <html><head>
-<title>API Support Module - Bean Browser</title>
+<title>NetBeans Runtime Inspector</title>
 <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
 </head><body>
 
-<h2>Bean Browser</h2>
+<h2>NetBeans Runtime Inspector</h2>
 
-<p>The Bean Browser facility lets you look at the structure of objects
+<p>The NetBeans Runtime Inspector facility lets you look at the structure of objects
 live in the IDE, provided they can be represented as JavaBeans (which
-many API-related objects can). There are several ways to use the Bean
-Browser:
-
-<ul>
-
-<li>Flip to the <b>Runtime</b> tab in the Explorer and look under the
-<b>Bean Browser</b> node - you will see some important folders in the system filesystem.
+many API-related objects can). To use the inspector,
+Flip to the <b>Runtime</b> tab in the Explorer and look under the
+<b>NetBeans Runtime</b> node - you will see some important folders in the system filesystem.
 You will also see the <a href="beanbrowser-lookup.html">lookup helper</a>.
 
-<li>Use the Bean Tester executor on some object with a public default
-constructor. An instance will be constructed and displayed, permitting
-you to examine its structure in detail, live inside the IDE.
-
-<li>Select some node and choose <b>Tools&nbsp;| Bean&nbsp;Browse&nbsp;Node</b> from the context menu.
-You will see the tree rooted at that node.
-
-<li>Select some window and choose <b>Tools&nbsp;| Bean&nbsp;Browse&nbsp;Window</b> from the main menu.
-You will be able to see the tree of JavaBean components present in the selected
-window.
-
-</ul>
-
-<p>In the Bean Browser, by default nodes just show up as themselves, but they
+<p>In the inspector, by default nodes just show up as themselves, but they
 will show extra children. First of all, their regular children are displayed in
 a special subnode, to separate them from other things. Other subnodes may be
 displayed, including:
@@ -96,10 +79,8 @@ if your module defines a cookie you wish to see listed, simply add an XML file t
 underneath <samp>Services/Hidden/</samp> matching the DTD at
 <a href="http://www.netbeans.org/dtds/apisupport-cookie-class-list-1_0.dtd"><samp>http://www.netbeans.org/dtds/apisupport-cookie-class-list-1_0.dtd</samp></a>.
 
-<li>When browsing objects representing nodes themselves, you can see:
-the clone of the node (from <code>Node.cloneNode()</code>) to test your
-cloning logic; the visualizer, to see which subnodes have been created
-already; and the original node, when working with <code>FilterNode</code>s.
+<li>When browsing objects representing <code>FilterNode</code>s, you can see
+the original node.
 
 </ul>
 

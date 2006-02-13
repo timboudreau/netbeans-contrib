@@ -306,17 +306,8 @@ class WrapperKids extends Children.Keys implements Cloneable {
                     toret.add(Wrapper.make(PropSetKids.makeErrorNode(e)));
                 }
             }
-            // Show the clone.
-            marker = new AbstractNode(new Children.Array()) {
-                public HelpCtx getHelpCtx() {
-                    return new HelpCtx("org.netbeans.modules.apisupport.beanbrowser");
-                }
-            };
-            marker.setName("Its clone (annotated and raw):");
-            marker.setIconBaseWithExtension("org/netbeans/modules/apisupport/beanbrowser/BeanBrowserIcon.gif");
-            marker.getChildren().add(new Node[] {PropSetKids.makeObjectNode(((Node)key).cloneNode()), ((Node)key).cloneNode()});
-            toret.add(marker);
-            return (Node[])toret.toArray(new Node[toret.size()]);
+            return (Node[]) toret.toArray(new Node[toret.size()]);
+            // XXX should show getActions(true/false) rather than getActions()/getContextActions()
         } else if (key instanceof Container) {
             // An AWT Container with its subcomponents.
             Children kids = new ContainerKids((Container) key);
