@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -15,29 +15,30 @@ package org.netbeans.bluej.ui.window;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.text.DefaultEditorKit;
-import org.netbeans.spi.project.ActionProvider;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.bluej.api.BluejLogicalViewProvider;
 import org.openide.ErrorManager;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
-import org.openide.explorer.view.BeanTreeView;
-import org.openide.explorer.view.IconView;
 import org.openide.explorer.view.ListView;
-import org.openide.explorer.view.TreeView;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
-import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -57,6 +58,9 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
     private ExplorerManager manager;
     private JButton upButton;
     
+    private JComboBox projectsCombo;
+    private OpenedBluejProjects openedProjects;
+    
     private BluejViewTopComponent() {
         manager = new ExplorerManager();
         ActionMap map = getActionMap();
@@ -64,7 +68,8 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
         map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
         map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
 //TODO        map.put("delete", new DelegatingAction(ActionProvider.COMMAND_DELETE, ExplorerUtils.actionDelete(manager, true)));
-        
+
+        openedProjects = new OpenedBluejProjects();
         initComponents();
         setName(NbBundle.getMessage(BluejViewTopComponent.class, "CTL_BluejViewTopComponent"));
         setToolTipText(NbBundle.getMessage(BluejViewTopComponent.class, "HINT_BluejViewTopComponent"));
@@ -96,8 +101,29 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
                 }
             }
         });
-        toolbarPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        toolbarPanel.add(upButton);
+        
+        toolbarPanel.setLayout(new BorderLayout());
+        toolbarPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        toolbarPanel.add(upButton, BorderLayout.WEST);
+        
+        projectsCombo = new JComboBox();
+        projectsCombo.setEditable(false);
+        projectsCombo.setModel(openedProjects.getComboModel());
+        projectsCombo.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                // change main project and selected project in the BJ view
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    Project project = (Project) openedProjects.getProject((String) e.getItem());
+                    OpenProjects.getDefault().setMainProject(project);
+                    BluejLogicalViewProvider provider = (BluejLogicalViewProvider) project.getLookup().lookup(BluejLogicalViewProvider.class);
+                    setRootNode(provider.getBigIconRootNode());
+                }
+            }
+        });
+        projectsCombo.setMinimumSize(new Dimension(150, 22));
+        projectsCombo.setPreferredSize(new Dimension(150, 22));
+        toolbarPanel.add(projectsCombo, BorderLayout.EAST);
+        
         add(toolbarPanel, BorderLayout.NORTH);
     }
     
@@ -173,12 +199,25 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
     protected String preferredID() {
         return PREFERRED_ID;
     }
-
     
     final static class ResolvableHelper implements Serializable {
         private static final long serialVersionUID = 1L;
         public Object readResolve() {
             return BluejViewTopComponent.getDefault();
+        }
+    }
+    
+    public void addProject(Project prj) {
+        openedProjects.addProject(prj);
+    }
+    
+    public void removeProject(Project prj) {
+        openedProjects.removeProject(prj);
+    }
+    
+    public void closeIfEmpty() {
+        if (openedProjects.isEmpty()) {
+            close();
         }
     }
     
