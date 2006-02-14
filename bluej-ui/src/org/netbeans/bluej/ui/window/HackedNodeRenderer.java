@@ -89,24 +89,24 @@ public class HackedNodeRenderer extends NodeRenderer {
 
         Image image = useOpenedIcon ? vis.getOpenedIcon(iconType) : vis.getIcon(iconType);
         Icon icon = new ImageIcon(image);
-        if (icon.getIconWidth() > 24) {
+        if (icon.getIconWidth() == 55) {
             ren.setIconTextGap(4);
         } else if (icon.getIconWidth() > 0) {
             //Max annotated icon width is 24, so to have all the text and all
             //the icons come out aligned, set the icon text gap to the difference
             //plus a two pixel margin
-            ren.setIconTextGap(24 - icon.getIconWidth());
+            ren.setIconTextGap(55 - icon.getIconWidth() + 4);
         } else {
             //If the icon width is 0, fill the space and add in
             //the extra two pixels so the node names are aligned (btw, this
             //does seem to waste a frightful amount of horizontal space in
             //a tree that can use all it can get)
-            ren.setIndent(26);
+            ren.setIndent(55 + 4);
         }
 
         ren.setIcon(icon);
 
-        return (icon.getIconWidth() == 0) ? 24 : icon.getIconWidth();
+        return (icon.getIconWidth() == 0) ? 55 : icon.getIconWidth();
     }
 
     /** Utility method to find a visualizer node for the object passed to
