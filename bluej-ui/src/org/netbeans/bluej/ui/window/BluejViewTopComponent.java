@@ -68,7 +68,7 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
         map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
         map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
         map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
-//TODO        map.put("delete", new DelegatingAction(ActionProvider.COMMAND_DELETE, ExplorerUtils.actionDelete(manager, true)));
+        map.put("delete", ExplorerUtils.actionDelete(manager, true));
 
         openedProjects = new OpenedBluejProjects();
         initComponents();
