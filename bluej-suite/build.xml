@@ -7,10 +7,12 @@
     <import file="nbproject/build-impl.xml"/>
     
     <!-- custom build target -->
-    <target name="build" depends="suite.build">        
+    <target name="build" depends="suite.build">
+        <!-- this was necessary only because the three projects were not registered in project.xml of this suite
         <ant antfile="../projectimport/bluej/build.xml" target="netbeans" inheritAll="false"/>
         <ant antfile="../bluej-ui/build.xml" target="netbeans" inheritAll="false"/>
         <ant antfile="bluej-welcome/build.xml" target="netbeans" inheritAll="false"/>
+        -->
         <copy todir="${cluster}">
             <fileset dir="../../nbbuild/netbeans/extra">
                 <include name="**/*bluej*"/>
@@ -22,13 +24,17 @@
     </target>
 
     <!-- custom clean target -->
+    <!-- this was necessary only because the three projects were not registered in project.xml of this suite
     <target name="clean" depends="suite.clean">
         <ant antfile="../projectimport/bluej/build.xml" target="clean" inheritAll="false"/>
         <ant antfile="../bluej-ui/build.xml" target="clean" inheritAll="false"/>
         <ant antfile="bluej-welcome/build.xml" target="clean" inheritAll="false"/>
     </target>
+    -->
     
     <!-- custom run target -->
+    <!-- this custom run.xml is needed because we need to put our cluster as the first one in the list of clusters
+         it is the only change in the run.xml file we have, see the comment line in this run.xml -->
     <target name="run" depends="build">
         <ant antfile="run.xml" target="run"/>
     </target>
