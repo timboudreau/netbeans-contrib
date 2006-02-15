@@ -28,6 +28,8 @@ import org.openide.util.actions.NodeAction;
 
 /**
  * Moves a task up
+ *
+ * @author tl
  */
 public class MoveUpAction extends NodeAction {
     /**
@@ -54,7 +56,6 @@ public class MoveUpAction extends NodeAction {
         if (!(activatedNodes[0] instanceof UserTaskNode))
             return false;
         
-        UTUtils.LOGGER.fine("checking the index"); // NOI18N
         UserTaskNode n = (UserTaskNode) activatedNodes[0];
         UserTask ut = n.getTask();
 

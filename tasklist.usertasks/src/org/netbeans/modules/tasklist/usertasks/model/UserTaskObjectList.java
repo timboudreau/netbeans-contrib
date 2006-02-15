@@ -52,14 +52,33 @@ public class UserTaskObjectList extends ObjectList {
     public ObjectList.Owner getOwner() {
         return parent;
     }
+
+    /**
+     * Searches an element with ==.
+     *
+     * @param ut a task
+     * @return index of the task or -1
+     */
+    public int identityIndexOf(UserTask ut) {
+        for (int i = 0; i < size(); i++) {
+            if (get(i) == ut)
+                return i;
+        }
+        return -1;
+    }
     
     public void add(int index, Object element) {
+        UserTask ut = (UserTask) element;
+        if (ut.getParent() != null)
+            ut.getParent().getSubtasks().remove(ut);
+        else
+            ut.getList().getSubtasks().remove(ut);
         if (parent instanceof UserTask) {
-            ((UserTask) element).setParent((UserTask) parent);
-            ((UserTask) element).setList(((UserTask) parent).getList());
+            ut.setParent((UserTask) parent);
+            ut.setList(((UserTask) parent).getList());
         } else {
-            ((UserTask) element).setParent(null);
-            ((UserTask) element).setList((UserTaskList) parent);
+            ut.setParent(null);
+            ut.setList((UserTaskList) parent);
         }
         super.add(index, element);
     }

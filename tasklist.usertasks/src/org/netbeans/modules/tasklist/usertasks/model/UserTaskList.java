@@ -205,8 +205,10 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      */
     private boolean expiredTask;
     
-    /** Timer which keeps track of outstanding save requests - that way
-     * deleting multiple items for example will not cause multiple saves. */
+    /** 
+     * Timer which keeps track of outstanding save requests - that way
+     * deleting multiple items for example will not cause multiple saves. 
+     */
     private Timer runTimer = null;
 
 

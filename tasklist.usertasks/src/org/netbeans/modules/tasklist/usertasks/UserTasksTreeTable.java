@@ -51,12 +51,14 @@ import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.PercentsTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.SummaryTreeCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.transfer.MyTransferHandler;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableDragGestureRecognizer;
 import org.openide.explorer.ExplorerManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -132,6 +134,8 @@ public class UserTasksTreeTable extends NodesTreeTable {
         );
         
         setColumnsConfig(createDefaultColumnsConfig());
+        TreeTableDragGestureRecognizer.enableDnD(this);
+        setTransferHandler(new MyTransferHandler());
     }
 
     /**

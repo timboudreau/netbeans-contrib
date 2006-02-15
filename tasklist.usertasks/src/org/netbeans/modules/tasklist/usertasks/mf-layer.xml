@@ -40,9 +40,6 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
 
     <folder name="Services">
-        <folder name="Hidden">
-            <file name="org-netbeans-modules-tasklist-usertasks-UserTaskTransfer.instance"/>
-        </folder>
         <folder name="JavaHelp">
             <!-- Merge after Core IDE Help: -->
             <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-tasklist-usertasks-helpsetref.xml" boolvalue="true"/>

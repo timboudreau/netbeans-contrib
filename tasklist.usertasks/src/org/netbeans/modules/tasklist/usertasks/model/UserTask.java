@@ -173,6 +173,32 @@ ObjectList.Owner {
      */
     public static String getPriorityName(int p) {
         return PRIORITIES[p - 1];
+    }    
+    
+    /**
+     * Reduces a list of tasks in such a way that none of tasks is an 
+     * ancestor of another.
+     *
+     * @param tasks user tasks from one task list. None of the element
+     * could be included twice.
+     * @return reduced array
+     */
+    public static UserTask[] reduce(UserTask[] tasks) {
+        List res = new ArrayList();
+        for (int i = 0; i < tasks.length; i++) {
+            boolean ok = true;
+            for (int j = 0; j < tasks.length; j++) {
+                if (j != i) {
+                    if (tasks[j].isAncestorOf(tasks[i])) {
+                        ok = false;
+                        break;
+                    }
+                }
+            }
+            if (ok)
+                res.add(tasks[i]);
+        }
+        return (UserTask[]) res.toArray(new UserTask[res.size()]);
     }
     
     /**
@@ -1540,27 +1566,17 @@ ObjectList.Owner {
      * possibly by r's read() method which it calls
      * @return A new task object which represents the
      * data read from the reader
-     * @todo Finish the implementation
      * @see generate
      */
-    public static UserTask parse(Reader r) throws IOException {
-        UTUtils.LOGGER.fine("parsing"); // NOI18N
-
+    public static UserTask[] parse(Reader r) throws IOException {
+        UserTaskList utl = new UserTaskList();
         BufferedReader reader = new BufferedReader(r);
-        List lines = new ArrayList();
         String line;
+        List res = new ArrayList();
         while ((line = reader.readLine()) != null) {
-            lines.add(line);
+            res.add(new UserTask(line, utl));
         }
-        if (lines.size() == 1)
-            return new UserTask((String) lines.get(0), (UserTaskList) null);
-        
-        UserTask ut = new UserTask("---", null); // NOI18N
-        for (int i = 0; i < lines.size(); i++) {
-            ut.getSubtasks().add(new UserTask((String) lines.get(i), null));
-        }
-        
-        return ut;
+        return (UserTask[]) res.toArray(new UserTask[res.size()]);
     }
 
     /**
@@ -1582,7 +1598,7 @@ ObjectList.Owner {
      * Clones task's properies without its
      * membership relations (parent).
      */
-    final UserTask cloneTask() {
+    public UserTask cloneTask() {
         // Does not work well as we subclass a suggestion that is 1:1 to its agent 
         UserTask clone = (UserTask) clone();
         clone.parent = null;
@@ -1591,7 +1607,6 @@ ObjectList.Owner {
 
     /**
      * Get the summary of the task.
-     * <p>
      *
      * @return The summary of the task.
      */

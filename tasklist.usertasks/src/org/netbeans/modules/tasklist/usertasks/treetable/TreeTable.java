@@ -22,15 +22,13 @@ import javax.swing.JTextField;
 import javax.swing.DefaultCellEditor;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.event.MouseListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -217,6 +215,16 @@ public class TreeTable extends JTable {
             return null;
         
         return tree.getPathForRow(row);
+    }
+
+    /**
+     * Tests whether the column contains the tree.
+     *
+     * @param column column index in the view
+     * @return true = it is the column with the tree
+     */
+    public boolean isTreeColumn(int column) {
+        return getColumnClass(column) == TreeTableModel.class;
     }
     
     /**
@@ -1027,6 +1035,16 @@ public class TreeTable extends JTable {
 	public boolean isCellEditable(EventObject e) {
 	    if (e instanceof MouseEvent) {
 		MouseEvent me = (MouseEvent)e;
+                
+                if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
+                    UTUtils.LOGGER.fine("mouse listeners:"); // NOI18N
+                    MouseListener[] ml = TreeTable.this.getMouseListeners();
+                    for (int i = 0; i < ml.length; i++) {
+                        UTUtils.LOGGER.fine("mouse listener: " + 
+                                ml[i]);
+                    }
+                }
+                
 		// If the modifiers are not 0 (or the left mouse button),
                 // tree may try and toggle the selection, and table
                 // will then try and toggle, resulting in the

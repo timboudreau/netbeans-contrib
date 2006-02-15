@@ -24,12 +24,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
-import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -56,7 +52,10 @@ import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.UTCopyAction;
+import org.netbeans.modules.tasklist.usertasks.actions.UTCutAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTDeleteAction;
+import org.netbeans.modules.tasklist.usertasks.actions.UTPasteAction;
 import org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter;
 import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
 import org.netbeans.modules.tasklist.usertasks.translators.HtmlExportFormat;
@@ -67,10 +66,7 @@ import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
-import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
-import org.openide.NotifyDescriptor;
-import org.openide.NotifyDescriptor.Message;
 import org.openide.actions.FindAction;
 import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.ExplorerManager;
@@ -205,7 +201,7 @@ FilteredTopComponent {
         assert initialized : 
             "#37438 dangling componentActivated event, no componentOpened()" +  // NOI18N
             " called at " + this; // NOI18N
-        ExplorerUtils.activateActions(manager, true);
+
         RemoveFilterAction removeFilter =
             (RemoveFilterAction) SystemAction.get(RemoveFilterAction.class);
         removeFilter.enable();
@@ -680,8 +676,7 @@ FilteredTopComponent {
             return;
         }
         initialized = true;
-        ExplorerUtils.activateActions(manager, false);
-        ExplorerUtils.activateActions(manager, true);
+
         UserTaskViewRegistry.getInstance().setLastActivated(this);
     }
 
@@ -702,7 +697,6 @@ FilteredTopComponent {
         assert initialized : 
             "#37438 dangling componentDeactivated event, " + // NOI18N
                 "no componentOpened() called at " + this; // NOI18N
-        ExplorerUtils.activateActions(manager, false);
     }
 
     /**
@@ -859,12 +853,12 @@ FilteredTopComponent {
         
         ActionMap map = getActionMap();
         map.put(javax.swing.text.DefaultEditorKit.copyAction, 
-            ExplorerUtils.actionCopy(manager));
+            new UTCopyAction(this));
         map.put(javax.swing.text.DefaultEditorKit.cutAction, 
-            ExplorerUtils.actionCut(manager));
+            new UTCutAction(this));
         map.put(javax.swing.text.DefaultEditorKit.pasteAction, 
-            ExplorerUtils.actionPaste(manager));
-        // old code:  ExplorerUtils.actionDelete(manager, true)
+            new UTPasteAction(this));
+
         map.put("delete", new UTDeleteAction(tt));  // NOI18N
         map.put("moveUp", MoveUpAction.get(MoveUpAction.class)); // NOI18N
         map.put("moveDown", MoveDownAction.get(MoveDownAction.class)); // NOI18N

@@ -52,6 +52,7 @@ import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityPropertyEditor;
+import org.netbeans.modules.tasklist.usertasks.transfer.UserTasksTransferable;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
@@ -460,7 +461,7 @@ public final class UserTaskNode extends AbstractNode {
                 final MultiTransferObject mto = (MultiTransferObject)
                     t.getTransferData(ExTransferable.multiFlavor);
                 if (mto.areDataFlavorsSupported(
-                    new DataFlavor[] {UserTaskTransfer.TODO_FLAVOR})) {
+                    new DataFlavor[] {UserTasksTransferable.USER_TASKS_FLAVOR})) {
                     return new UserTaskNode.TodoPaste(target, t);
                 }
             } catch (UnsupportedFlavorException e) {
@@ -470,7 +471,7 @@ public final class UserTaskNode extends AbstractNode {
             }
         } 
         
-        if (t.isDataFlavorSupported(UserTaskTransfer.TODO_FLAVOR)) {
+        if (t.isDataFlavorSupported(UserTasksTransferable.USER_TASKS_FLAVOR)) {
             return new TodoPaste(target, t);
         } 
         return null;
@@ -517,7 +518,7 @@ public final class UserTaskNode extends AbstractNode {
     public Transferable clipboardCopy() throws IOException {
         UTUtils.LOGGER.fine("entering"); // NOI18N
         final UserTask copy = (UserTask) item.clone();
-        return new ExTransferable.Single(UserTaskTransfer.TODO_FLAVOR) {
+        return new ExTransferable.Single(UserTasksTransferable.USER_TASKS_FLAVOR) {
             protected Object getData() {
                 return copy;
             }
@@ -584,7 +585,7 @@ public final class UserTaskNode extends AbstractNode {
         }
         
         public String getName() {
-            return NbBundle.getMessage(UserTaskTransfer.class, 
+            return NbBundle.getMessage(UserTasksTransferable.class, 
                 "LBL_todo_paste_as_subtask"); // NOI18N
         }
         
@@ -599,21 +600,21 @@ public final class UserTaskNode extends AbstractNode {
                     final MultiTransferObject mto = (MultiTransferObject)
                         t.getTransferData(ExTransferable.multiFlavor);
                     if (mto.areDataFlavorsSupported(
-                        new DataFlavor[] {UserTaskTransfer.TODO_FLAVOR})) {
+                        new DataFlavor[] {UserTasksTransferable.USER_TASKS_FLAVOR})) {
                         for (int i = 0; i < mto.getCount(); i++) {
                             UserTask item = (UserTask)
-                                mto.getTransferData(i, UserTaskTransfer.TODO_FLAVOR);
+                                mto.getTransferData(i, UserTasksTransferable.USER_TASKS_FLAVOR);
                             addTask(item);
                         }
                         return null;
                     }
                 } 
                 
-                if (t.isDataFlavorSupported(UserTaskTransfer.TODO_FLAVOR)) {
+                if (t.isDataFlavorSupported(UserTasksTransferable.USER_TASKS_FLAVOR)) {
                     UTUtils.LOGGER.fine(t.getTransferData(
-                        UserTaskTransfer.TODO_FLAVOR).getClass().getName());
+                        UserTasksTransferable.USER_TASKS_FLAVOR).getClass().getName());
                     UserTask item = 
-                        (UserTask) t.getTransferData(UserTaskTransfer.TODO_FLAVOR);
+                        (UserTask) t.getTransferData(UserTasksTransferable.USER_TASKS_FLAVOR);
                     addTask(item);
                 } 
             } catch (UnsupportedFlavorException ufe) {
