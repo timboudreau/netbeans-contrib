@@ -38,5 +38,18 @@
     <target name="run" depends="build">
         <ant antfile="run.xml" target="run"/>
     </target>
-    
+
+    <!-- custom build-zip target -->
+    <target name="build-zip" depends="build">
+        <mkdir dir="dist"/>
+        <zip destfile="dist/${app.name}.zip">
+            <zipfileset dir="${cluster}" prefix="${mycluster}">
+                <exclude name="**/lib/nbbluej"/>
+            </zipfileset>
+            <zipfileset dir="${cluster}" filemode="755" prefix="${mycluster}">
+                <include name="**/lib/nbbluej"/>
+            </zipfileset>
+        </zip>
+    </target>
+
 </project>
