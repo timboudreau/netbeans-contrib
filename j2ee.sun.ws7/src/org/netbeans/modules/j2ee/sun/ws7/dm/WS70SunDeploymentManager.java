@@ -435,8 +435,16 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         }        
         return null;        
     }
-    public boolean deployAndReconfig(String configName, String nodeName){
-        return true;
+    public boolean deployAndReconfig(String configName){
+        try{                                                                  
+            Method deployAndReconfig = dmClass.getDeclaredMethod("deployAndReconfig",  new Class[]{String.class});
+            Boolean retVal= (Boolean)deployAndReconfig.invoke(this.ws70DM, new Object[]{configName});            
+            return retVal.booleanValue();
+            
+        }catch(Exception ex){            
+            ex.printStackTrace();
+            return false;
+        }                 
     }
     public boolean changeDebugStatus(String configName, boolean enableDisable){
         return true;
@@ -466,7 +474,8 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     }    
 
     
-    public void setResource(ResourceType resType, String configName, String resName, Map resElements) throws Exception{
+    public void setResource(ResourceType resType, String configName, 
+            String resName, Map resElements, boolean reconfig) throws Exception{
         try{
             String methodName = null;
             if(resType.eqauls(ResourceType.JDBC)){
@@ -480,6 +489,9 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             }
             Method setResource = dmClass.getDeclaredMethod(methodName, new Class[]{String.class, String.class, Map.class});
             setResource.invoke(this.ws70DM, new Object[]{configName, resName, resElements});
+            if(reconfig){
+                this.deployAndReconfig(configName);
+            }
             
         }catch(Exception ex){
             ex.printStackTrace();
@@ -487,13 +499,16 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         }        
     }
     public void setUserResourceProp(String configName, String resourceType, 
-                        String jndiName, String propType, List userProps) throws Exception {
+                        String jndiName, String propType, List userProps, boolean reconfig) throws Exception {
          try{
 
             Method setUserProps = dmClass.getDeclaredMethod("setUserResourceProp", 
                         new Class[]{String.class, String.class, String.class, String.class, List.class});
             setUserProps.invoke(this.ws70DM, new Object[]{configName, resourceType, 
                                         jndiName, propType, userProps});
+            if(reconfig){
+                this.deployAndReconfig(configName);
+            }
             
         }catch(Exception ex){
             ex.printStackTrace();
@@ -515,6 +530,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             }
             Method delResource = dmClass.getDeclaredMethod(methodName, new Class[]{String.class, String.class});
             delResource.invoke(this.ws70DM, new Object[]{configName, resName});
+            this.deployAndReconfig(configName);
             
         }catch(Exception ex){
             ex.printStackTrace();
@@ -534,7 +550,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         return null;                
     }
     public void addJdbcResource(String configName, String resName, 
-                                Map resAttrs, Map resProps) throws Exception{
+                                Map resAttrs) throws Exception{
         try{
             Method addJdbcResource = dmClass.getDeclaredMethod("addJDBCResource", 
                     new Class[]{String.class, String.class, Map.class});
@@ -545,7 +561,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         
     }        
     public void addCustomResource(String configName, String resName, 
-                                Map resAttrs, Map resProps) throws Exception{
+                                Map resAttrs) throws Exception{
         try{
             Method addCustomResource = dmClass.getDeclaredMethod("addCustomResource", 
                     new Class[]{String.class, String.class, Map.class});
@@ -557,7 +573,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     }
 
     public void addJNDIResource(String configName, String resName, 
-                                Map resAttrs, Map resProps) throws Exception{
+                                Map resAttrs) throws Exception{
         try{
             Method addJNDIResource = dmClass.getDeclaredMethod("addJNDIResource", 
                     new Class[]{String.class, String.class, Map.class});
@@ -567,7 +583,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         }                   
     }
     public void addMailResource(String configName, String resName, 
-                                Map resAttrs, Map resProps) throws Exception{
+                                Map resAttrs) throws Exception{
         try{
             Method addMailResource = dmClass.getDeclaredMethod("addMailResource", 
                     new Class[]{String.class, String.class, Map.class});
@@ -576,23 +592,23 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             throw ex;            
         }                          
     }    
-    public String setJVMOptions(String configName, List jvmOptions, Boolean debugOptions, 
+    public void setJVMOptions(String configName, List jvmOptions, Boolean debugOptions, 
                                 String profilerName) throws Exception {
           try{
             Method setJVMOptions = dmClass.getDeclaredMethod("setJVMOptions", 
                     new Class[]{String.class, List.class, Boolean.class, String.class});
-            String message = (String)setJVMOptions.invoke(this.ws70DM, new Object[]{configName, jvmOptions, debugOptions, profilerName});
-            return message;            
+            setJVMOptions.invoke(this.ws70DM, new Object[]{configName, jvmOptions, debugOptions, profilerName});            
+            this.deployAndReconfig(configName);            
         }catch(Exception ex){
             throw ex;            
         }          
     }
-    public String setJVMProps(String configName, Map jvmElements) throws Exception {
+    public void setJVMProps(String configName, Map jvmElements) throws Exception {
         try{
             Method setJVMProps = dmClass.getDeclaredMethod("setJVMProps", 
                     new Class[]{String.class, Map.class});
-            String message = (String)setJVMProps.invoke(this.ws70DM, new Object[]{configName, jvmElements});
-            return message;            
+            setJVMProps.invoke(this.ws70DM, new Object[]{configName, jvmElements});            
+            this.deployAndReconfig(configName);
         }catch(Exception ex){
             throw ex;            
         }                  

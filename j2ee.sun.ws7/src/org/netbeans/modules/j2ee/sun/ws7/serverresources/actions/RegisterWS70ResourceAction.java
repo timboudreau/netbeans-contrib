@@ -68,10 +68,10 @@ public class RegisterWS70ResourceAction extends NodeAction implements WS70Wizard
             //
             manager= (WS70SunDeploymentManager)dm;
             configName = target.getProperty("configName");
-            System.err.println("managet username is "+manager.getUserName());
-            System.err.println("Instance is "+configName);
-        }else{
-            System.err.println("Target is NULL");
+        }else{            
+            Util.showWarning(NbBundle.getMessage(RegisterWS70ResourceAction.class, "Msg_invalid_server"),
+                        NbBundle.getMessage(RegisterWS70ResourceAction.class, "Title_invalid_server")
+                        );
             return;
         }                        
         try{

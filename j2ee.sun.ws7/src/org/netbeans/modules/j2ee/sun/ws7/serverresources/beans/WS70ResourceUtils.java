@@ -65,8 +65,11 @@ import org.netbeans.modules.j2ee.sun.ide.editors.IsolationLevelEditor;
 import org.netbeans.modules.j2ee.sun.ws7.serverresources.wizards.ResourceConfigData;
 import org.netbeans.modules.j2ee.sun.ws7.serverresources.dd.*;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
+import org.netbeans.modules.j2ee.sun.ws7.j2ee.ResourceType;
+import org.netbeans.modules.j2ee.sun.ws7.ui.Util;
 
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+
 
 
 /*
@@ -87,16 +90,17 @@ public class WS70ResourceUtils implements WS70WizardConstants{
         try {             
             res.write(FileUtil.toFile(resFile));
         }catch(Exception ex){
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex); 
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex); 
         }
     } 
     public static void registerResource(WS70Resources resources, String resourceType, String config, 
                                            WS70SunDeploymentManager dm) throws Exception{    
-        
+        boolean added = false;
+        String jndiName = null;
         if(resourceType==WS70WizardConstants.__MailResource){
             WS70MailResource mailres = resources.getWS70MailResource(0);
             HashMap attrMap = new HashMap();
-            String jndiName = mailres.getJndiName();
+            jndiName = mailres.getJndiName();
             attrMap.put(WS70WizardConstants.__Host, mailres.getHost());
             attrMap.put(WS70WizardConstants.__User, mailres.getUser());
             attrMap.put(WS70WizardConstants.__From, mailres.getFrom());
@@ -105,37 +109,79 @@ public class WS70ResourceUtils implements WS70WizardConstants{
             attrMap.put(WS70WizardConstants.__TransportProtocol, mailres.getTransportProtocol());
             attrMap.put(WS70WizardConstants.__TransportProtocolClass, mailres.getTransportProtocolClass());
             attrMap.put(WS70WizardConstants.__Enabled, mailres.getEnabled());
-            attrMap.put(WS70WizardConstants.__Description, mailres.getDescription());            
-            dm.addMailResource(config, jndiName, attrMap, null);
+            attrMap.put(WS70WizardConstants.__Description, mailres.getDescription());
+
+            if(!isAlreadyRegisterdResource(jndiName, config, ResourceType.MAIL, dm)){
+                ErrorManager.getDefault().log(ErrorManager.USER, 
+                    NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Registering_Resource", jndiName));
+                dm.addMailResource(config, jndiName, attrMap);
+                added = true;
+            }else{
+                ErrorManager.getDefault().log(ErrorManager.USER, 
+                    NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Updating_Resource", jndiName)); 
+                dm.setResource(ResourceType.MAIL, config, jndiName, attrMap, false);
+            }
+            ErrorManager.getDefault().log(ErrorManager.USER, 
+                NbBundle.getMessage(WS70ResourceUtils.class, "MSG_DeployConfig"));
+             
+            dm.deployAndReconfig(config);
         }else if(resourceType==WS70WizardConstants.__CustomResource){
             WS70CustomResource customres = resources.getWS70CustomResource(0);
             HashMap attrMap = new HashMap();
-            String jndiName = customres.getJndiName();
+            jndiName = customres.getJndiName();
             attrMap.put(WS70WizardConstants.__ResType, customres.getResType());
             attrMap.put(WS70WizardConstants.__FactoryClass, customres.getFactoryClass());
             attrMap.put(WS70WizardConstants.__Enabled, customres.getEnabled());
             attrMap.put(WS70WizardConstants.__Description, customres.getDescription());
-            HashMap props = getExtraProperties(customres.getPropertyElement());
-            dm.addCustomResource(config, jndiName, attrMap, props);            
-            
+            List props = getExtraProperties(customres.getPropertyElement());
+            if(!isAlreadyRegisterdResource(jndiName, config, ResourceType.CUSTOM, dm)){
+                ErrorManager.getDefault().log(ErrorManager.USER, 
+                    NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Registering_Resource", jndiName));
+                 
+                dm.addCustomResource(config, jndiName, attrMap);
+                added = true;
+            }else{
+                ErrorManager.getDefault().log(ErrorManager.USER, 
+                    NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Updating_Resource", jndiName));
+ 
+                dm.setResource(ResourceType.CUSTOM, config, jndiName, attrMap, false);
+            }
+            dm.setUserResourceProp(config, WS70WizardConstants.__CustomResource, jndiName, "property", props, false);
+            ErrorManager.getDefault().log(ErrorManager.USER, 
+                NbBundle.getMessage(WS70ResourceUtils.class, "MSG_DeployConfig"));
+             
+            dm.deployAndReconfig(config);
         }else if(resourceType==WS70WizardConstants.__ExternalJndiResource){
             WS70ExternalJndiResource extres = resources.getWS70ExternalJndiResource(0);
             HashMap attrMap = new HashMap();
-            String jndiName = extres.getJndiName();           
+            jndiName = extres.getJndiName();           
             attrMap.put(WS70WizardConstants.__ExternalJndiName, extres.getExternalJndiName());
             attrMap.put(WS70WizardConstants.__ResType, extres.getResType());            
             attrMap.put(WS70WizardConstants.__FactoryClass, extres.getFactoryClass());
             attrMap.put(WS70WizardConstants.__Enabled, extres.getEnabled());
             attrMap.put(WS70WizardConstants.__Description, extres.getDescription());
-            HashMap props = getExtraProperties(extres.getPropertyElement());
-            
-            dm.addJNDIResource(config, jndiName, attrMap, props);            
-
-            
+            List props = getExtraProperties(extres.getPropertyElement());
+            if(!isAlreadyRegisterdResource(jndiName, config, ResourceType.JNDI, dm)){
+                ErrorManager.getDefault().log(ErrorManager.USER, 
+                    NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Registering_Resource", jndiName));
+                 
+                dm.addJNDIResource(config, jndiName, attrMap);
+                added = true;
+            }else{
+                ErrorManager.getDefault().log(ErrorManager.USER, 
+                    NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Updating_Resource", jndiName));
+ 
+                dm.setResource(ResourceType.JNDI, config, jndiName, attrMap, false);
+            }
+            dm.setUserResourceProp(config, WS70WizardConstants.__ExternalJndiResource, jndiName, "property", props, false);
+            ErrorManager.getDefault().log(ErrorManager.USER, 
+                NbBundle.getMessage(WS70ResourceUtils.class, "MSG_DeployConfig"));
+             
+            dm.deployAndReconfig(config);
         }else if(resourceType==WS70WizardConstants.__JdbcResource){
             WS70JdbcResource jdbcres = resources.getWS70JdbcResource(0);
             HashMap attrMap = new HashMap();
-            String jndiName = jdbcres.getJndiName();
+            jndiName = jdbcres.getJndiName();
             attrMap.put(__DatasourceClassname, jdbcres.getDatasourceClass());                
             attrMap.put(__MinConnections, jdbcres.getMinConnections());                
             attrMap.put(__MaxConnections, jdbcres.getMaxConnections());                
@@ -148,23 +194,62 @@ public class WS70ResourceUtils implements WS70WizardConstants{
             attrMap.put(__FailAllConnections, jdbcres.getFailAllConnections());
             attrMap.put(WS70WizardConstants.__Enabled, jdbcres.getEnabled());
             attrMap.put(WS70WizardConstants.__Description, jdbcres.getDescription());            
-            HashMap props = getExtraProperties(jdbcres.getPropertyElement());
-            dm.addJdbcResource(config, jndiName, attrMap, props);            
-            
+            List props = getExtraProperties(jdbcres.getPropertyElement());
+            if(!isAlreadyRegisterdResource(jndiName, config, ResourceType.JDBC, dm)){
+                ErrorManager.getDefault().log(ErrorManager.USER, 
+                    NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Registering_Resource", jndiName));
+                 
+                dm.addJdbcResource(config, jndiName, attrMap);
+                added = true;
+            }else{
+                ErrorManager.getDefault().log(ErrorManager.USER, 
+                    NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Updating_Resource", jndiName));
+ 
+                dm.setResource(ResourceType.JDBC, config, jndiName, attrMap, false);
+            }
+            dm.setUserResourceProp(config, WS70WizardConstants.__JdbcResource, jndiName, "property", props, false);
+            ErrorManager.getDefault().log(ErrorManager.USER, 
+                NbBundle.getMessage(WS70ResourceUtils.class, "MSG_DeployConfig"));
+             
+            dm.deployAndReconfig(config);                
         }else{
-            // log error
+            Util.showError(NbBundle.getMessage(WS70ResourceUtils.class, "ERR_UNKNOWN_RESOURCE"),
+                NbBundle.getMessage(WS70ResourceUtils.class, "ERR_UNKNOWN_RESOURCE")
+            );
+            return;
         }
+        String msg = null;
+        if(added){
+            msg = NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Resource_Added", jndiName);
+        }else{
+            msg = NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Resource_Updated", jndiName);
+        }
+        Util.showInformation(msg);
     }
-    private static HashMap getExtraProperties(PropertyElement[] props) throws Exception {
-        HashMap mapProps = new HashMap();
+    private static boolean isAlreadyRegisterdResource(String jndiName, String configName, 
+                            ResourceType resType, WS70SunDeploymentManager manager) throws Exception{
+        List resources = manager.getResources(resType, configName);
+
+        Object[] res = resources.toArray();                       
+        for (int i = 0; i < res.length; i ++){
+            String name = (String)((HashMap)res[i]).get("jndi-name");
+            if(name!=null && name.equals(jndiName)){
+                return true;
+            }
+         }        
+        return false;
+    }
+    private static List getExtraProperties(PropertyElement[] props) throws Exception {        
+        ArrayList list = new ArrayList();
         for(int i=0; i<props.length; i++){
             String name = props[i].getName();
             String value = props[i].getValue();
             if(value != null && value.trim().length() != 0){
-                mapProps.put(name, value);
+                list.add(name+"="+value);
+                
             }
         }
-        return mapProps;
+        return list;
     }    
     
     public static void saveJDBCResourceDatatoXml(ResourceConfigData dsData) {

@@ -62,11 +62,12 @@ public class WS70JVMManagedObject extends WS70ManagedObjectBase{
         HashMap map = new HashMap();
         map.put(attribute, value.toString());        
         try{            
-            String retval = manager.setJVMProps(configName, map);
+            manager.setJVMProps(configName, map);
             if(attributes.containsKey(attribute)){
                 attributes.put(attribute, value);
             }
-            Util.showInformation(retval);            
+            Util.showInformation(
+                    NbBundle.getMessage(WS70JVMManagedObject.class, "MSG_RESTART_SERVER")); // NOI18N);
         }catch(Exception ex){
             throw ex;
         }
@@ -74,8 +75,9 @@ public class WS70JVMManagedObject extends WS70ManagedObjectBase{
     }
     private String setJVMOptions(List options) throws Exception{
         try{
-            return manager.setJVMOptions(configName, options, 
-                                         java.lang.Boolean.FALSE, null);            
+            manager.setJVMOptions(configName, options, 
+                                         java.lang.Boolean.FALSE, null);
+            return NbBundle.getMessage(WS70JVMManagedObject.class, "MSG_RESTART_SERVER"); // NOI18N
         }catch(Exception ex){
             throw ex;
         }

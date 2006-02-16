@@ -97,7 +97,7 @@ public class WS70Resource extends WS70ManagedObjectBase {
         try{
             HashMap map = new HashMap();
             map.put(attribute, value.toString());
-            manager.setResource(resType, configName, getJndiName(), map);
+            manager.setResource(resType, configName, getJndiName(), map, true);
             if(attributes.containsKey(attribute)){
                 attributes.put(attribute, value);
             }
@@ -109,7 +109,7 @@ public class WS70Resource extends WS70ManagedObjectBase {
     private void setResourceProperty(String type, HashMap props, ArrayList list) throws Exception{
         try{ 
             manager.setUserResourceProp(configName, resType.toString(), 
-                    getJndiName(), type, list);
+                    getJndiName(), type, list, true);
  
         }catch(Exception ex){
             throw ex;
