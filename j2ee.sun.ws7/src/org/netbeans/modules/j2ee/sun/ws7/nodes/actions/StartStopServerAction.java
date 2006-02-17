@@ -11,15 +11,20 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+
+
 /*
  * StartStopServerAction.java  
  */
+
+
 
 package org.netbeans.modules.j2ee.sun.ws7.nodes.actions;
 
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.ErrorManager;
 import org.openide.util.actions.NodeAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.WS70TargetNode;
 
@@ -27,31 +32,34 @@ import org.netbeans.modules.j2ee.sun.ws7.nodes.WS70TargetNode;
  *
  * @author Administrator
  */
+
 public class StartStopServerAction extends NodeAction{
-    private boolean running;
-    
+
+    private boolean running;    
+
     /** Creates a new instance of StartStopServerAction */
+
     public StartStopServerAction() {
     }
+
    protected void performAction(Node[] nodes){
         WS70TargetNode target = (WS70TargetNode)nodes[0].getCookie(WS70TargetNode.class);
         if(target==null){
-            System.err.println("TARGET IS NULL");
+            ErrorManager.getDefault().log(
+                ErrorManager.ERROR, NbBundle.getMessage(StartStopServerAction.class, "ERR_NULL_TARGET", this.getClass().getName()));            
             return;
         }
+
         if(!running){
-            target.startTarget();            
+            target.startTarget();
         }else{
             target.stopTarget();
-            
         }
-    }
-    
+    }   
+
     protected boolean enable(Node[] nodes){       
-        
         if(nodes.length > 0) {
             Node node = nodes[0];
-            
             Object obj = nodes[0].getCookie(WS70TargetNode.class);
             if(obj instanceof WS70TargetNode){
                 WS70TargetNode target = (WS70TargetNode)obj;
@@ -60,15 +68,14 @@ public class StartStopServerAction extends NodeAction{
                         running = true;
                     } else {
                         running = false;
-                    }               
-                }else{
-                    System.err.println("Target is null when enable is called on StartStopServer");
+                    }
+                }else{                    
+                    ErrorManager.getDefault().log(
+                        ErrorManager.ERROR, NbBundle.getMessage(StartStopServerAction.class, "ERR_NULL_TARGET", this.getClass().getName()));
                 }
             }
-        }       
-  
-        return nodes.length==1;        
- 
+        }
+        return nodes.length==1;
     }
     
     public String getName(){
@@ -78,9 +85,8 @@ public class StartStopServerAction extends NodeAction{
             return NbBundle.getMessage(StartStopServerAction.class, "LBL_StopInstanceAction");
         }
     }
-    
     public HelpCtx getHelpCtx(){
         return HelpCtx.DEFAULT_HELP;
-    }        
-    
+    }
 }
+

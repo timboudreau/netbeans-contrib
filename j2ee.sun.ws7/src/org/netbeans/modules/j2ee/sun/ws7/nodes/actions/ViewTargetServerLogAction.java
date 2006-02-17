@@ -20,7 +20,9 @@ package org.netbeans.modules.j2ee.sun.ws7.nodes.actions;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.ErrorManager;
 import org.openide.util.actions.NodeAction;
+import org.netbeans.modules.j2ee.sun.ws7.nodes.WS70TargetNode;
 
 
 /**
@@ -33,7 +35,13 @@ public class ViewTargetServerLogAction extends NodeAction{
     public ViewTargetServerLogAction() {
     }
     protected void performAction(Node[] nodes){
-
+        WS70TargetNode target = (WS70TargetNode)nodes[0].getCookie(WS70TargetNode.class);
+        if(target==null){
+        ErrorManager.getDefault().log(
+                ErrorManager.ERROR, NbBundle.getMessage(ViewTargetServerLogAction.class, "ERR_NULL_TARGET", this.getClass().getName()));
+            return;
+        }
+        target.invokeLogViewer();
     }
     
     protected boolean enable(Node[] nodes){

@@ -22,14 +22,19 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
+import org.openide.ErrorManager;
 import org.openide.util.actions.SystemAction;
+import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
+
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewAdminConsoleAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewAdminServerLogAction;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
+import org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70LogViewer;
 
 import javax.swing.Action;
 
 import java.util.Collection;
+import java.io.File;
 /**
  *
  * @author Administrator
@@ -60,11 +65,24 @@ public class WS70ManagerNode extends AbstractNode implements Node.Cookie{
             null            
         };
     }
-   public String  getAdminURL() {
+    public String  getAdminURL() {
         return "http://" + manager.getHost() + ":" + // NOI18N
             String.valueOf(manager.getPort());
     }
-   
+    public void invokeLogViewer(){
+        String uri = manager.getUri();
+        String location = manager.getServerLocation();
+        location = location+File.separator+"admin-server"+
+                File.separator+"logs"+File.separator+"errors";
+
+        WS70LogViewer logViewer = new WS70LogViewer(new File(location));
+        
+        try{
+            logViewer.showLogViewer(UISupport.getServerIO(uri));
+        }catch(Exception ex){
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
+        }
+    }
   
     public static class MyChildren extends Children.Array {
         public MyChildren(Collection nodes) {

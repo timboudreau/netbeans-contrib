@@ -25,6 +25,9 @@ import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 
+import java.io.File;
+import org.openide.windows.InputOutput;
+import org.openide.windows.IOProvider;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +37,7 @@ import javax.swing.Action;
 import java.awt.Image;
 import org.openide.util.Utilities;
 import org.openide.util.NbBundle;
+import org.openide.ErrorManager;
 
 import org.netbeans.modules.j2ee.sun.ws7.j2ee.ResourceType;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
@@ -41,6 +45,7 @@ import org.openide.util.actions.SystemAction;
 import org.openide.actions.PropertiesAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.StartStopServerAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewTargetServerLogAction;
+import org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70LogViewer;
 
 /**
  *
@@ -100,11 +105,28 @@ public class WS70TargetNode extends AbstractNode implements Node.Cookie{
         return manager.isRunning(configName);
     }
     public boolean startTarget(){
-        return manager.startServer(configName);        
+        boolean retVal = manager.startServer(configName);
+        invokeLogViewer();
+        return retVal;
     }
     public boolean stopTarget(){
         return manager.stopServer(configName);        
-    }    
+    }
+    public void invokeLogViewer(){
+        String location = manager.getServerLocation();
+        location = location+File.separator+"https-"+configName+
+                File.separator+"logs"+File.separator+"errors";
+        String logName = NbBundle.getMessage(WS70TargetNode.class, "LBL_WS70_MANAGER_NODE_NAME")+
+                "--"+configName;
+        WS70LogViewer logViewer = new WS70LogViewer(new File(location));
+        InputOutput io = IOProvider.getDefault().getIO(logName, false);
+        try{
+            logViewer.showLogViewer(io);
+        }catch(Exception ex){
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
+        }
+        
+    }
     private void setMyDisplayName(){        
         this.setDisplayName(target.getName());
     }

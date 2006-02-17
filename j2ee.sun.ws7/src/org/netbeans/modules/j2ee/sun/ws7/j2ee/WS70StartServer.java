@@ -23,8 +23,9 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.netbeans.modules.j2ee.deployment.plugins.api.ServerDebugInfo;
 import org.netbeans.modules.j2ee.deployment.plugins.api.StartServer;
+import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
-
+import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
@@ -48,7 +49,7 @@ import java.io.File;
  */
 public class WS70StartServer extends StartServer implements ProgressObject, Runnable{
     
-    private WS70SunDeploymentManager dm;
+    private WS70SunDeploymentManager dm;    
     private ProgressEventSupport pes;
     private CommandType cmdType;
 
@@ -135,7 +136,7 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
      * Returns true if the admin server should be started before server deployment configuration.
      */
     public boolean needsStartForConfigure() {
-        return true;
+        return false;
     }
     
     /**
@@ -151,7 +152,7 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
      * Returns true if the admin server should be started before admininistrative configuration.
      */
     public boolean needsStartForAdminConfig() {
-        return true;
+        return false;
     }
     
     
@@ -210,13 +211,11 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
     public boolean isRunning(Target target){
         return true;
     }
-    public ProgressObject startTarget(Target target){        
+    public ProgressObject startTarget(Target target){
         return null;
-        
     }   
     public ProgressObject stoptTarget(Target target){
-        return null;
-        
+        return null;    
     }   
     public boolean supportsStartTarget(Target target){
         return false;
@@ -226,6 +225,7 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
         if (cmdType.equals(CommandType.START)) {
             try{
                 runProcess(makeProcessString("start"), true);
+                this.viewAdminLogs();
                 pes.fireHandleProgressEvent(null,
                                         new Status(ActionType.EXECUTE, cmdType,
                                                    NbBundle.getMessage(WS70StartServer.class, "MSG_ADMIN_SERVER_STARTED"),
@@ -240,6 +240,7 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
         } else if(cmdType.equals(CommandType.STOP)) {
             try{
                 runProcess(makeProcessString("stop"), true);
+                this.viewAdminLogs();
                 pes.fireHandleProgressEvent(null,
                                         new Status(ActionType.EXECUTE, cmdType,
                                                    NbBundle.getMessage(WS70StartServer.class, "MSG_ADMIN_SERVER_STOPPED"),
@@ -313,5 +314,19 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
             return ((WS70SunDeploymentManager)dm).getServerLocation()+File.separator +
                     "admin-server" + File.separator+"bin" + File.separator + process; //NO I18N
         }
-    }        
+    }
+    private void viewAdminLogs(){
+        String uri = dm.getUri();
+        String location = dm.getServerLocation();
+        location = location+File.separator+"admin-server"+
+                File.separator+"logs"+File.separator+"errors";
+
+        WS70LogViewer logViewer = new WS70LogViewer(new File(location));
+        
+        try{
+            logViewer.showLogViewer(UISupport.getServerIO(uri));
+        }catch(Exception ex){
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
+        }        
+    }
 }
