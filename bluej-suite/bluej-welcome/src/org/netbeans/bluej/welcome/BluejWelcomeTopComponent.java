@@ -143,7 +143,7 @@ final class BluejWelcomeTopComponent extends TopComponent {
             int xx = getWidth();
             int yy = getHeight();            
             Image image = Utilities.loadImage("org/netbeans/bluej/welcome/welcome-placeholder.png");  // NOI18N
-            g.drawImage(image, (xx-607)/2, (yy-422)/2, this);
+            g.drawImage(image, (xx-632)/2, (yy-447)/2, this);
         }
     }
     
