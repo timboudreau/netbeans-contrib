@@ -5,6 +5,7 @@
     <mapID target="org.netbeans.modules.ant.freeform.samples.template-empty" url="template-empty.html"/>
     <mapID target="org.netbeans.modules.ant.freeform.samples.template-skeletal" url="template-skeletal.html"/>
     <mapID target="org.netbeans.modules.ant.freeform.samples.template-anagram" url="template-anagram.html"/>
+    <mapID target="org.netbeans.modules.ant.freeform.samples.jdk" url="jdk.html"/>
     <mapID target="org.netbeans.modules.ant.freeform.samples.custom-commands" url="custom-commands.html"/>
     <mapID target="org.netbeans.modules.ant.freeform.samples.format-intro" url="format-intro.html"/>
     <mapID target="org.netbeans.modules.ant.freeform.samples.format-overview" url="format-overview.html"/>

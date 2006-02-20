@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="@NAME@" basedir="." default="jar">
-    
-    <target name="-init">
+
+    <property file="nbproject/nbjdk.properties"/>
+    <property name="user.properties.file" location="${netbeans.user}/build.properties"/>
+    <property file="${user.properties.file}"/>
+    <import file="nbproject/jdk.xml"/>
+
+    <target name="-init" depends="-jdk-init">
         <property file="user.build.properties"/>
         <property file="build.properties"/>
     </target>
-    
+
     <target name="compile" depends="-init" description="Compile main sources.">
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.5" debug="${debug}" deprecation="${deprecation}">
@@ -16,13 +21,13 @@
             <fileset dir="${src.dir}" excludes="${jar.excludes}"/>
         </copy>
     </target>
-    
+
     <target name="jar" depends="compile" description="Build JAR file for main sources.">
         <jar jarfile="${jar}" compress="true"><!-- manifest="${manifest}" -->
             <fileset dir="${classes.dir}"/>
         </jar>
     </target>
-    
+
     <target name="run" depends="compile" description="Run application.">
         <fail unless="main.class">Must set property 'main.class' (e.g. in build.properties)</fail>
         <java classname="${main.class}" fork="true" failonerror="true">
@@ -30,7 +35,7 @@
             <jvmarg value="-ea"/>
         </java>
     </target>
-    
+
     <target name="compile-tests" depends="compile">
         <mkdir dir="${test.classes.dir}"/>
         <javac srcdir="${test.dir}" destdir="${test.classes.dir}" source="1.5" debug="true" deprecation="${deprecation}">
@@ -41,7 +46,7 @@
             <fileset dir="${test.dir}" excludes="${jar.excludes}"/>
         </copy>
     </target>
-    
+
     <target name="run-tests" depends="compile-tests" description="Run JUnit tests.">
         <mkdir dir="${test.results.dir}"/>
         <junit failureproperty="tests.failed" showoutput="true" fork="true">
@@ -56,7 +61,7 @@
         </junit>
         <fail if="tests.failed">Some tests failed; see details above.</fail>
     </target>
-    
+
     <target name="javadoc" depends="-init" description="Build Javadoc.">
         <mkdir dir="${javadoc.dir}"/>
         <javadoc destdir="${javadoc.dir}" source="1.5">
@@ -67,14 +72,14 @@
             <fileset dir="src"/>
         </javadoc>
     </target>
-    
+
     <target name="clean" depends="-init" description="Clean build products.">
         <delete dir="${build.dir}"/>
     </target>
-    
+
     <!-- Has to be here for NB profiler to find it, alas: -->
     <target name="profile">
         <ant antfile="nbproject/netbeans-targets.xml" target="profile"/>
     </target>
-    
+
 </project>

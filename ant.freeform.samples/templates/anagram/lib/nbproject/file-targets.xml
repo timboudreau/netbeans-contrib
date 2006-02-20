@@ -8,7 +8,6 @@
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.4" debug="${debug}" deprecation="${deprecation}" includes="${includes}">
             <classpath path="${cp}"/>
-            <compilerarg value="-Xlint:unchecked"/>
         </javac>
     </target>
     
@@ -17,7 +16,6 @@
         <mkdir dir="${test.classes.dir}"/>
         <javac srcdir="${test.dir}" destdir="${test.classes.dir}" source="1.4" debug="true" deprecation="${deprecation}" includes="${includes}">
             <classpath path="${test.cp}"/>
-            <compilerarg value="-Xlint:unchecked"/>
         </javac>
     </target>
     

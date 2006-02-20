@@ -8,7 +8,6 @@
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.4" debug="${debug}" deprecation="${deprecation}" includes="${includes}">
             <classpath path="${cp}"/>
-            <compilerarg value="-Xlint:unchecked"/>
         </javac>
     </target>
     

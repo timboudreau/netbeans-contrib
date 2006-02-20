@@ -3,7 +3,7 @@
 
     <import file="../build.xml"/>
     
-    <target name="debug" depends="compile">
+    <target name="debug" depends="compile,-jdk-presetdef-nbjpdastart">
         <nbjpdastart addressproperty="jpda.address" name="@NAME@" transport="dt_socket">
             <classpath path="${run.cp}"/>
         </nbjpdastart>
@@ -17,7 +17,7 @@
         </java>
     </target>
     
-    <target name="debug-test" depends="compile-tests">
+    <target name="debug-test" depends="compile-tests,-jdk-presetdef-nbjpdastart">
         <fail unless="test">Must set property 'test'</fail>
         <mkdir dir="${test.results.dir}"/>
         <nbjpdastart addressproperty="jpda.address" name="@NAME@" transport="dt_socket">
@@ -34,7 +34,7 @@
         </java>
     </target>
     
-    <target name="debug-fix">
+    <target name="debug-fix" depends="-init">
         <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.5" debug="true" deprecation="${deprecation}">
             <classpath path="${cp}"/>
             <compilerarg value="-Xlint:unchecked"/>
