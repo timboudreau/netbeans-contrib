@@ -22,6 +22,7 @@ import org.netbeans.api.project.ProjectUtils;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Utilities;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
@@ -42,6 +43,8 @@ public class ConfigHandler {
     private static final String RUN_SCRIPT = "launch4j.run";
     private static final String XML_CONFIG = "launch4jconfig.xml";
     private static final String PROJECT_PROPS = "project.properties";
+    private static final String WIN_EXT = ".exe";
+    private static final String MAC_EXT = ".app";
     
     private Project project;
     
@@ -286,7 +289,10 @@ public class ConfigHandler {
         
         String projName = ProjectUtils.getInformation(project).getName();
         elem = doc.createElement("outfile");
-        elem.appendChild(doc.createTextNode(distFO.getPath() + "/" + projName + ".exe"));
+        // OS aware extension
+        String ext = Utilities.isWindows() ? WIN_EXT 
+                : Utilities.getOperatingSystem() == Utilities.OS_MAC ? MAC_EXT : "";
+        elem.appendChild(doc.createTextNode(distFO.getPath() + "/" + projName + ext));
         rewriteElem(root, elem);
         
         elem = doc.createElement("customProcName");
