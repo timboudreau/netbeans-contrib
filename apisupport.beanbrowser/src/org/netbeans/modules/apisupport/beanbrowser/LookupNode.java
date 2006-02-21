@@ -32,10 +32,7 @@ import javax.swing.event.ChangeListener;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
-import org.openide.actions.DeleteAction;
 import org.openide.actions.NewAction;
-import org.openide.actions.OpenLocalExplorerAction;
-import org.openide.actions.ToolsAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -175,11 +172,6 @@ public final class LookupNode extends AbstractNode {
     public Action[] getActions(boolean context) {
         return new Action[] {
             SystemAction.get(NewAction.class),
-            SystemAction.get(DeleteAction.class),
-            null,
-            SystemAction.get(OpenLocalExplorerAction.class),
-            null,
-            SystemAction.get(ToolsAction.class),
         };
     }
     
@@ -209,13 +201,6 @@ public final class LookupNode extends AbstractNode {
                 }
             }
         }};
-    }
-    
-    public boolean canDestroy() {
-        return clazz != Object.class;
-    }
-    public void destroy() throws IOException {
-        clazzes.remove(clazz);
     }
     
     private static final class ClassSet {
@@ -394,11 +379,7 @@ public final class LookupNode extends AbstractNode {
         }
         
         public Action[] getActions(boolean context) {
-            return new Action[] {
-                SystemAction.get(OpenLocalExplorerAction.class),
-                null,
-                SystemAction.get(ToolsAction.class),
-            };
+            return new Action[0];
         }
         
         public HelpCtx getHelpCtx() {

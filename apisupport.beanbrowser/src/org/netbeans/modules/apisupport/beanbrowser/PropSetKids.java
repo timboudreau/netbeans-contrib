@@ -178,7 +178,13 @@ public class PropSetKids extends Children.Keys {
             } catch (IntrospectionException e) {
                 objnode = makeErrorNode(e);
             }
-            objnode.setShortDescription("String value: `" + val + "'; short description: " + objnode.getShortDescription());
+            String stringval;
+            try {
+                stringval = "\"" + val + "\"";
+            } catch (RuntimeException e) {
+                stringval = e.toString();
+            }
+            objnode.setShortDescription(stringval + ": " + objnode.getShortDescription());
             objnode.setDisplayName(objnode.getDisplayName() + " (class " + val.getClass().getName() + ")");
             return Wrapper.make(objnode);
         }

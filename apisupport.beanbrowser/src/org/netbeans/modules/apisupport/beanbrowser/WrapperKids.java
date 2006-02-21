@@ -42,6 +42,7 @@ import org.openide.nodes.Node;
 import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.NodeListener;
 import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -53,11 +54,6 @@ import org.openide.util.lookup.Lookups;
 class WrapperKids extends Children.Keys implements Cloneable {
     
     // Special keys:
-    private static final Object normalKey = new Object() {
-        public String toString() {
-            return "Key for normal children.";
-        }
-    };
     private static final Object instanceKey = new Object() {
         public String toString() {
             return "Key for instance cookie.";
@@ -68,6 +64,15 @@ class WrapperKids extends Children.Keys implements Cloneable {
             return "Key for raw bean properties.";
         }
     };
+    private static final class NormalChildKey {
+        private final Node child;
+        public NormalChildKey(Node child) {
+            this.child = child;
+        }
+        public Node wrap() {
+            return Wrapper.make(child);
+        }
+    }
     private static final class LookupProviderKey {
         public final Lookup.Provider p;
         public LookupProviderKey(Lookup.Provider p) {
@@ -104,12 +109,9 @@ class WrapperKids extends Children.Keys implements Cloneable {
         Children.MUTEX.postWriteRequest(new Runnable() { public void run() {
             List newkeys = new ArrayList();
             // Don't make the original list for leaf or childless nodes:
-            if (original.getChildren().getNodes().length > 0) {
-                newkeys.add(normalKey);
-                //System.err.println ("updateKeys: " + original.getDisplayName () + " had some children");
-            } else {
-                //System.err.println ("updateKeys: " + original.getDisplayName () + " had no children");
-                //System.err.println ("children object of original: " + original.getChildren ());
+            Node[] children = original.getChildren().getNodes(/*intentionally:*/false);
+            for (int i = 0; i < children.length; i++) {
+                newkeys.add(new NormalChildKey(children[i]));
             }
             newkeys.addAll(makePSKeys());
             // For BeanNode, we assume that we already are displaying the "instance" right here anyway.
@@ -146,15 +148,15 @@ class WrapperKids extends Children.Keys implements Cloneable {
                             updateKeys(false);
                         }
                     }
-                    // These two only really matter if adding the first child(ren), or removing the last.
                     public void childrenAdded(NodeMemberEvent ev) {
                         updateKeys(false);
                     }
                     public void childrenRemoved(NodeMemberEvent ev) {
                         updateKeys(false);
                     }
-                    // Do not need to check childrenReordered because this class only cares if there are kids, or not.
-                    // NormalKids will handle that.
+                    public void childrenReordered(NodeReorderEvent ev) {
+                        updateKeys(false);
+                    }
                 };
                 original.addNodeListener(nListener);
                 if (fileSystemToListenOn != null) {
@@ -229,16 +231,8 @@ class WrapperKids extends Children.Keys implements Cloneable {
      * @return the (one) node to display for it
      */
     protected Node[] createNodes(Object key) {
-        if (key == normalKey) {
-            // Regular children of the node.
-            AbstractNode n = new AbstractNode(new NormalKids(original)) {
-                public HelpCtx getHelpCtx() {
-                    return new HelpCtx("org.netbeans.modules.apisupport.beanbrowser");
-                }
-            };
-            n.setName("Children...");
-            n.setIconBaseWithExtension("org/netbeans/modules/apisupport/beanbrowser/BeanBrowserIcon.gif");
-            return new Node[] { n };
+        if (key instanceof NormalChildKey) {
+            return new Node[] {((NormalChildKey) key).wrap()};
         } else if (key instanceof Node.PropertySet) {
             // A property set with subnodes for the properties.
             return new Node[] { new PropSet(original, (Node.PropertySet) key) };
