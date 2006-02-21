@@ -13,8 +13,7 @@
 
 package org.netbeans.modules.apisupport.beanbrowser;
 
-import java.awt.EventQueue;
-import java.io.IOException;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,26 +25,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
-import org.openide.actions.NewAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.nodes.PropertySupport;
-import org.openide.nodes.Sheet;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
+import org.openide.util.Lookup.Item;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
-import org.openide.util.Mutex;
 import org.openide.util.RequestProcessor;
-import org.openide.util.actions.SystemAction;
-import org.openide.util.datatransfer.NewType;
 
 public final class LookupNode extends AbstractNode {
     
@@ -126,7 +121,6 @@ public final class LookupNode extends AbstractNode {
      */
     public LookupNode() {
         this(Lookup.getDefault(), globalClazzes());
-        // XXX why doesn't the override work?
         setDisplayName("Global Lookup");
         setShortDescription("The contents of Lookup.getDefault().");
     }
@@ -136,12 +130,7 @@ public final class LookupNode extends AbstractNode {
      * Will start off showing an Object query, i.e. all items, and probe for common cookies.
      */
     public LookupNode(Lookup l) {
-        this(l, new Class[] {Object.class});
-        Class[] cookies = cookieClazzes();
-        for (int i = 0; i < cookies.length; i++) {
-            // Just probing the cookies should get them to appear in the Object query.
-            l.lookup(cookies[i]);
-        }
+        this(l, cookieClazzes());
         setDisplayName("Local Lookup");
         setShortDescription("The contents of a local Lookup.");
     }
@@ -161,46 +150,38 @@ public final class LookupNode extends AbstractNode {
         this.clazzes = clazzes;
         setIconBaseWithExtension("org/netbeans/modules/apisupport/beanbrowser/BeanBrowserIcon.gif");
         setName("LookupNode:" + clazz.getName()); // NOI18N
-        setDisplayName("Lookup: " + clazz.getName().replace('$', '.'));
-        setShortDescription("The contents of a Lookup restricted to some subtype.");
-    }
-    
-    public Node cloneNode() {
-        return new LookupNode(l, clazz, clazzes);
+        setDisplayName((clazz.isInterface() ? "interface " : "class ") + clazz.getName().replace('$', '.'));
     }
     
     public Action[] getActions(boolean context) {
-        return new Action[] {
-            SystemAction.get(NewAction.class),
-        };
+        if (clazz == Object.class) {
+            return new Action[] {
+                new AddClassAction(),
+            };
+        } else {
+            return new Action[0];
+        }
+    }
+    
+    private final class AddClassAction extends AbstractAction {
+        public AddClassAction() {
+            super("Add Superclass/interface");
+        }
+        public void actionPerformed(ActionEvent e) {
+            NotifyDescriptor.InputLine desc = new NotifyDescriptor.InputLine("Superclass or interface:", "Add New Lookup Class");
+            if (DialogDisplayer.getDefault().notify(desc) == NotifyDescriptor.OK_OPTION) {
+                try {
+                    Class clazz = ((ClassLoader) Lookup.getDefault().lookup(ClassLoader.class)).loadClass(desc.getInputText());
+                    clazzes.add(clazz);
+                } catch (ClassNotFoundException cnfe) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, cnfe);
+                }
+            }
+        }
     }
     
     public HelpCtx getHelpCtx() {
         return new HelpCtx("org.netbeans.modules.apisupport.beanbrowser.lookup");
-    }
-    
-    public NewType[] getNewTypes() {
-        return new NewType[] {new NewType() {
-            public String getName() {
-                return "Superclass/interface";
-            }
-            public HelpCtx getHelpCtx() {
-                return new HelpCtx("org.netbeans.modules.apisupport.beanbrowser.lookup");
-            }
-            public void create() throws IOException {
-                NotifyDescriptor.InputLine desc = new NotifyDescriptor.InputLine("Superclass or interface:", "Add New Lookup Class");
-                if (DialogDisplayer.getDefault().notify(desc) == NotifyDescriptor.OK_OPTION) {
-                    try {
-                        Class clazz = ((ClassLoader)Lookup.getDefault().lookup(ClassLoader.class)).loadClass(desc.getInputText());
-                        clazzes.add(clazz);
-                    } catch (ClassNotFoundException cnfe) {
-                        IOException ioe = new IOException(cnfe.toString());
-                        ErrorManager.getDefault().annotate(ioe, cnfe);
-                        throw ioe;
-                    }
-                }
-            }
-        }};
     }
     
     private static final class ClassSet {
@@ -229,22 +210,19 @@ public final class LookupNode extends AbstractNode {
             }
         }
         
-        public void add(Class c) {
-            assert EventQueue.isDispatchThread();
+        public synchronized void add(Class c) {
             if (clazzes.add(c)) {
                 fireChange();
             }
         }
         
-        public void remove(Class c) {
-            assert EventQueue.isDispatchThread();
+        public synchronized void remove(Class c) {
             if (clazzes.remove(c)) {
                 fireChange();
             }
         }
         
-        public void addAll(Class c) {
-            assert EventQueue.isDispatchThread();
+        public synchronized void addAll(Class c) {
             if (addAll0(c)) {
                 fireChange();
             }
@@ -263,13 +241,18 @@ public final class LookupNode extends AbstractNode {
             return success;
         }
         
-        public Collection/*<Class>*/ getSubtypes(Class c) {
-            assert EventQueue.isDispatchThread();
+        public synchronized Collection/*<Class>*/ getSubtypes(Class c) {
             Comparator comp = new Comparator() {
                 public int compare(Object o1, Object o2) {
                     Class c1 = (Class)o1;
                     Class c2 = (Class)o2;
-                    return c1.getName().compareTo(c2.getName());
+                    if (c1.isInterface() && !c2.isInterface()) {
+                        return 1;
+                    } else if (!c1.isInterface() && c2.isInterface()) {
+                        return -1;
+                    } else {
+                        return c1.getName().compareTo(c2.getName());
+                    }
                 }
             };
             SortedSet/*<Class>*/ s = new TreeSet(comp);
@@ -279,7 +262,6 @@ public final class LookupNode extends AbstractNode {
                 if (c2 == c) {
                     continue;
                 }
-                /*
                 if (c == Object.class) {
                     // All top-level classes and interfaces.
                     if (c2.isInterface()) {
@@ -292,7 +274,7 @@ public final class LookupNode extends AbstractNode {
                         }
                     }
                 } else if (c.isInterface()) {
-                    // Direct subinterfaces, and classes directly implementing it.
+                    // Direct subinterfaces and directly implementing classes.
                     if (Arrays.asList(c2.getInterfaces()).contains(c)) {
                         s.add(c2);
                     }
@@ -302,23 +284,21 @@ public final class LookupNode extends AbstractNode {
                         s.add(c2);
                     }
                 }
-                 */
-                if (c.isAssignableFrom(c2)) {
-                    s.add(c2);
-                }
             }
             return s;
         }
         
     }
     
-    private static final class LookupChildren extends Children.Keys/*<Class|INSTANCES_KEY>*/ implements ChangeListener {
+    private static final class LookupChildren extends Children.Keys/*<Class|Lookup.Item>*/ implements ChangeListener, LookupListener {
         
-        private static final Object INSTANCES_KEY = "instances"; // NOI18N
+        private static final Object KEY_PLEASE_WAIT = "wait"; // NOI18N
+        private static final RequestProcessor RP = new RequestProcessor(LookupChildren.class.getName());
         
         private final Lookup l;
         private final Class clazz;
         private final ClassSet clazzes;
+        private Lookup.Result result;
         
         public LookupChildren(Lookup l, Class clazz, ClassSet clazzes) {
             this.l = l;
@@ -327,164 +307,31 @@ public final class LookupNode extends AbstractNode {
         }
         
         private void updateKeys() {
-            List l = new ArrayList();
-            l.add(INSTANCES_KEY);
-            l.addAll(clazzes.getSubtypes(clazz));
-            setKeys(l);
-        }
-        
-        protected void addNotify() {
-            Mutex.EVENT.writeAccess(new Runnable() {
+            RP.post(new Runnable() {
                 public void run() {
-                    updateKeys();
-                }
-            });
-            clazzes.addChangeListener(this);
-        }
-        
-        protected void removeNotify() {
-            clazzes.removeChangeListener(this);
-            setKeys(Collections.EMPTY_SET);
-        }
-        
-        protected Node[] createNodes(Object key) {
-            if (key instanceof Class) {
-                return new Node[] {new LookupNode(l, (Class)key, clazzes)};
-            } else {
-                return new Node[] {new LookupResultNode(l, clazz, clazzes)};
-            }
-        }
-        
-        public void stateChanged(ChangeEvent e) {
-            updateKeys();
-        }
-        
-    }
-    
-    private static final class LookupResultNode extends AbstractNode {
-        
-        private final Lookup l;
-        private final Class clazz;
-        private final ClassSet clazzes;
-        
-        public LookupResultNode(Lookup l, Class clazz, ClassSet clazzes) {
-            super(new LookupResultChildren(l, clazz, clazzes));
-            this.l = l;
-            this.clazz = clazz;
-            this.clazzes = clazzes;
-            setIconBaseWithExtension("org/netbeans/modules/apisupport/beanbrowser/BeanBrowserIcon.gif");
-            setName(clazz.getName());
-            setDisplayName("All instances...");
-            setShortDescription("A lookup query on " + clazz.getName().replace('$', '.'));
-        }
-        
-        public Action[] getActions(boolean context) {
-            return new Action[0];
-        }
-        
-        public HelpCtx getHelpCtx() {
-            return new HelpCtx("org.netbeans.modules.apisupport.beanbrowser.lookup");
-        }
-        
-        public Node cloneNode() {
-            return new LookupResultNode(l, clazz, clazzes);
-        }
-        
-        private static final class LookupResultHandle implements Node.Handle {
-            private static final long serialVersionUID = 45626587265263L;
-            private final Class clazz;
-            public LookupResultHandle(Class clazz) {
-                this.clazz = clazz;
-            }
-            public Node getNode() throws IOException {
-                return new LookupResultNode(Lookup.getDefault(), clazz, new ClassSet(new Class[] {clazz}));
-            }
-        }
-        public Node.Handle getHandle() {
-            if (l == Lookup.getDefault()) {
-                return new LookupResultHandle(clazz);
-            } else {
-                return super.getHandle();
-            }
-        }
-        
-        protected Sheet createSheet() {
-            Sheet s = super.createSheet();
-            if (clazz == Object.class) {
-                // Too slow, and useless anyway.
-                return s;
-            }
-            Sheet.Set ss = Sheet.createPropertiesSet();
-            class SampleProp extends PropertySupport.ReadWrite {
-                Object value = null;
-                public SampleProp() {
-                    super("prop", Object.class, // NOI18N
-                            "Sample Property",
-                            "An example property of type " + clazz.getName());
-                    this.setValue("superClass", clazz); // NOI18N
-                    this.setValue("nullValue", "<null>");
-                    this.setValue("lookup", l); // NOI18N
-                }
-                public Object getValue() {
-                    return value;
-                }
-                public void setValue(Object value) {
-                    this.value = value;
-                    LookupResultNode.this.firePropertyChange("id", null, null); // NOI18N
-                }
-            }
-            final SampleProp prop = new SampleProp();
-            ss.put(prop);
-            class IDProp extends PropertySupport.ReadOnly {
-                public IDProp() {
-                    super("id", String.class, // NOI18N
-                            "Lookup ID",
-                            "The ID of the lookup item (if any) matching the current property selection.");
-                }
-                public Object getValue() {
-                    Object value = prop.getValue();
-                    if (value != null) {
-                        Iterator it = l.lookup(new Lookup.Template(clazz, null, value)).
-                                allItems().iterator();
-                        if (it.hasNext()) {
-                            return ((Lookup.Item)it.next()).getId();
-                        } else {
-                            return "<no ID>";
+                    List keys = new ArrayList();
+                    Iterator it = result.allItems().iterator();
+                    while (it.hasNext()) {
+                        Lookup.Item item = (Item) it.next();
+                        Object o = item.getInstance();
+                        if (o == null) { // dead item, rare but possible
+                            continue;
                         }
-                    } else {
-                        return "<null>";
+                        Class c = o.getClass();
+                        if (c == clazz) {
+                            keys.add(item);
+                        }
+                        clazzes.addAll(c);
                     }
-                }
-            }
-            ss.put(new IDProp());
-            s.put(ss);
-            return s;
-        }
-        
-    }
-    
-    // key class: Lookup.Item
-    private static final class LookupResultChildren extends Children.Keys/*<Lookup.Item|KEY_PLEASE_WAIT>*/ implements LookupListener {
-        
-        private static final Object KEY_PLEASE_WAIT = "wait"; // NOI18N
-        
-        private final Lookup l;
-        private final Class clazz;
-        private final ClassSet clazzes;
-        private Lookup.Result result;
-        
-        public LookupResultChildren(Lookup l, Class clazz, ClassSet clazzes) {
-            this.l = l;
-            this.clazz = clazz;
-            this.clazzes = clazzes;
-        }
-        
-        private void updateKeys() {
-            // Do not run in EQ, too slow.
-            setKeys(Collections.singleton(KEY_PLEASE_WAIT));
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    setKeys(result.allItems());
+                    it = clazzes.getSubtypes(clazz).iterator();
+                    while (it.hasNext()) {
+                        Class c = (Class) it.next();
+                        clazzes.addAll(c);
+                        if (!l.lookup(new Lookup.Template(c)).allItems().isEmpty()) {
+                            keys.add(c);
+                        }
+                    }
+                    setKeys(keys);
                 }
             });
         }
@@ -492,36 +339,32 @@ public final class LookupNode extends AbstractNode {
         protected void addNotify() {
             result = l.lookup(new Lookup.Template(clazz));
             result.addLookupListener(this);
+            clazzes.addChangeListener(this);
+            setKeys(Collections.singleton(KEY_PLEASE_WAIT));
             updateKeys();
         }
         
         protected void removeNotify() {
+            clazzes.removeChangeListener(this);
             result.removeLookupListener(this);
-            result = null;
             setKeys(Collections.EMPTY_SET);
         }
         
         protected Node[] createNodes(Object key) {
             if (key == KEY_PLEASE_WAIT) {
                 return new Node[] {PropSetKids.makePlainNode("Please wait...")};
-            }
-            Lookup.Item item = (Lookup.Item)key;
-            Object o = item.getInstance();
-            if (o != null) {
-                Node n = PropSetKids.makeObjectNode(o);
-                n.setShortDescription("ID='" + item.getId() + "' " + n.getShortDescription());
-                // Also try to list lookup results for anything it implements.
-                final Class c = o.getClass();
-                // Calling setKeys from inside createNodes seems to be bad.
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() {
-                        clazzes.addAll(c);
-                    }
-                });
-                return new Node[] {n};
+            } else if (key instanceof Class) {
+                return new Node[] {new LookupNode(l, (Class) key, clazzes)};
             } else {
-                return new Node[] {PropSetKids.makePlainNode("<cancelled lookup item>")};
+                Lookup.Item item = (Item) key;
+                Node n = PropSetKids.makeObjectNode(item.getInstance());
+                n.setShortDescription("Lookup item ID: " + item.getId());
+                return new Node[] {n};
             }
+        }
+        
+        public void stateChanged(ChangeEvent e) {
+            updateKeys();
         }
         
         public void resultChanged(LookupEvent ev) {
