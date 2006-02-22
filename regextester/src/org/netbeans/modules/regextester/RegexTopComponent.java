@@ -17,6 +17,9 @@ import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -28,7 +31,10 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.EditorKit;
-import javax.swing.text.JTextComponent;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -153,18 +159,42 @@ final class RegexTopComponent extends TopComponent {
             matchTextField.setForeground(Color.RED);
             return;
         }
-        
+
+        StyledDocument doc = resultTextPane.getStyledDocument();
+        addStylesToDocument(doc);
+
+        List initStyles = new ArrayList();
+        initStyles.add("red");
+        initStyles.add("green");
+        initStyles.add("blue");
         boolean found = false;
         String result = "";
-        while(matcher.find()) {
-            result += "Text \"" + matcher.group() + "\" found at <" + matcher.start() +
-                    ", " + matcher.end() + ">\n";
-            found = true;
+        Iterator stylesIterator = initStyles.iterator();
+        try {
+            doc.remove(0, doc.getLength());
+            doc.insertString(0, input.getText(), null);
+
+            while(matcher.find()) {
+                if (!stylesIterator.hasNext()) {
+                    stylesIterator = initStyles.iterator();
+                }
+                doc.remove(matcher.start(), matcher.group().length());
+                doc.insertString(matcher.start(), matcher.group(), doc.getStyle((String) stylesIterator.next()));
+                result += "\nText \"" + matcher.group() + "\" found at <" + matcher.start() +
+                        ", " + matcher.end() + ">";
+                found = true;
+            }
+        
+            if (!found) {
+                result = ("No match found");
+                doc.remove(0, doc.getLength());
+                doc.insertString(0, result, null);
+            } else {
+                doc.insertString(doc.getLength(), result, null);
+            }
+        } catch (BadLocationException ble) {
+            System.err.println("Couldn't insert initial text into text pane.");
         }
-        if (!found) {
-            result = ("No match found");
-        }
-        resultTextArea.setText(result);
         if (matcher.matches()) {
             matchTextField.setText("Input matches pattern.\n");
             matchTextField.setForeground(defaultForegroundColor);
@@ -172,6 +202,19 @@ final class RegexTopComponent extends TopComponent {
             matchTextField.setText("Input doesn't match pattern.\n");
             matchTextField.setForeground(Color.RED);
         }
+    }
+    
+    protected void addStylesToDocument(StyledDocument doc) {
+        Style def = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
+
+        Style s = doc.addStyle("red", def);
+        StyleConstants.setForeground(s, Color.RED);
+
+        s = doc.addStyle("green", def);
+        StyleConstants.setForeground(s, Color.GREEN);
+
+        s = doc.addStyle("blue", def);
+        StyleConstants.setForeground(s, Color.BLUE);
     }
     
     private static Matcher getMatcher(String patternStr, String input) throws PatternSyntaxException {
@@ -218,7 +261,7 @@ final class RegexTopComponent extends TopComponent {
         jLabel3 = new javax.swing.JLabel();
         input = new javax.swing.JEditorPane();
         jScrollPane3 = new javax.swing.JScrollPane();
-        resultTextArea = new javax.swing.JTextArea();
+        resultTextPane = new javax.swing.JTextPane();
         pattern = new javax.swing.JEditorPane();
         matchTextField = new javax.swing.JTextField();
 
@@ -231,11 +274,7 @@ final class RegexTopComponent extends TopComponent {
         input.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         input.setMaximumSize(new java.awt.Dimension(9, 17));
 
-        resultTextArea.setColumns(20);
-        resultTextArea.setRows(5);
-        resultTextArea.setMaximumSize(new java.awt.Dimension(20, 10));
-        resultTextArea.setPreferredSize(new java.awt.Dimension(160, 20));
-        jScrollPane3.setViewportView(resultTextArea);
+        jScrollPane3.setViewportView(resultTextPane);
 
         pattern.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         pattern.setDocument(pattern.getDocument());
@@ -264,8 +303,8 @@ final class RegexTopComponent extends TopComponent {
                             .add(jLabel3))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(matchTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
                             .add(pattern, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
+                            .add(matchTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
                             .add(input, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
@@ -276,19 +315,16 @@ final class RegexTopComponent extends TopComponent {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel1)
                     .add(input, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel2))
-                    .add(layout.createSequentialGroup()
-                        .add(8, 8, 8)
-                        .add(pattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel2)
+                    .add(pattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(matchTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 74, Short.MAX_VALUE)
+                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -306,7 +342,7 @@ final class RegexTopComponent extends TopComponent {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField matchTextField;
     private javax.swing.JEditorPane pattern;
-    private javax.swing.JTextArea resultTextArea;
+    private javax.swing.JTextPane resultTextPane;
     // End of variables declaration//GEN-END:variables
     
 }

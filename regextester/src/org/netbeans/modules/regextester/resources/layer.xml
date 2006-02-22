@@ -8,9 +8,11 @@
     </folder>
     <folder name="Menu">
         <folder name="Window">
+            <attr name="SwitchToRecentDocumentAction.shadow/RegexAction.shadow" boolvalue="true"/>
             <file name="RegexAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-regextester-RegexAction.instance"/>
             </file>
+            <attr name="RegexAction.shadow/Separator3.instance" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="Services">
