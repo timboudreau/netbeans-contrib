@@ -14,11 +14,8 @@
 
 package org.netbeans.modules.launch4jint;
 
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.text.MessageFormat;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.Project;
@@ -27,14 +24,9 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
-import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
-import org.openide.nodes.Node;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CookieAction;
 
 public final class MakeExecAction implements ProjectActionPerformer {
 
@@ -81,9 +73,8 @@ public final class MakeExecAction implements ProjectActionPerformer {
             return;
         }
         
-        ExecutorTask task = null;
         try {
-            task = ActionUtils.runTarget(script, null, null);
+            ActionUtils.runTarget(script, null, null);
         } catch (IllegalArgumentException ex) {
             ex.printStackTrace();
         } catch (IOException ex) {

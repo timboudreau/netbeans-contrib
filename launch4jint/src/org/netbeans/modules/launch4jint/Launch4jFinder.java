@@ -13,20 +13,11 @@
 
 package org.netbeans.modules.launch4jint;
 
-import java.awt.Dialog;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ResourceBundle;
-import javax.swing.JFileChooser;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
-import org.openide.options.SystemOption;
-import org.openide.util.NbBundle;
 
 /** Handles location of Launch4j installation, asks the user and persists
  * received information.  
@@ -35,7 +26,6 @@ import org.openide.util.NbBundle;
  */
 public class Launch4jFinder {
     
-    private static final String DIR_NAME = "Launch4j";
     private static final String JAR_NAME = "launch4j.jar";
     
     private static final String KEY_DIR = "launch4jDir";
