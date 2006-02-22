@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE>Launch4j NetBeans Integration How-To</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="your_name_here">
+	<META NAME="CREATED" CONTENT="20060215;18415028">
+	<META NAME="CHANGEDBY" CONTENT="Dafe Simonek">
+	<META NAME="CHANGED" CONTENT="20060222;18401331">
+</HEAD>
+<BODY LANG="cs-CZ" DIR="LTR">
+<H1>Launch4j NetBeans Integration How-To</H1>
+<P>Contributed and maintained by <A HREF="mailto:david.simonek@sun.com"><I>Dafe
+Simonek</I></A></P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><A HREF="#Exercise_0">1.
+	Installing Launch4j Integration module</A> 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><A HREF="#Exercise_1">2. Creating
+	Windows .exe File for NetBeans Project</A> 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><A HREF="#Exercise_2">3.
+	Customizing .exe Configuration</A> 
+	</P>
+</UL>
+<P><!-- ===================================================================================== --><BR><BR>
+</P>
+<H2><A NAME="Exercise_0"></A>1. Installing Launch4j Integration
+module</H2>
+<OL>
+	<LI><P>Choose Tools -&gt; Update Center</P>
+	<LI><P>Select nbextras.org Update Center (perform <A HREF="http://www.nbextras.org/pages/howto-use.html">Howto
+	use nbextras</A> first if nbextras isn't listed), then click Next. 
+	</P>
+	<LI><P>Select module called &bdquo;Launch4j Integration&ldquo; from
+	the left list and add it using Add button, then click Next.</P>
+	<LI><P>Go through licence information, wait for download completion
+	and then click Next button.</P>
+	<LI><P>Select the checkbox on the left side of module name and
+	confirm, then finish the installation by clicking Finish button.   
+	</P>
+</OL>
+<P><!-- ===================================================================================== --><BR><BR>
+</P>
+<H2><A NAME="Exercise_1"></A>2: Creating Windows .exe File for
+NetBeans Project</H2>
+<P>Creating and editing source files is the most important function
+that the IDE serves. After all, that's probably what you spend most
+of your day doing. The IDE provides a wide range of tools that can
+compliment any developer's 
+</P>
+<OL>
+	<LI><P>Select some NetBeans project either in Projects View or Files
+	View.</P>
+	<LI><P>Choose Build -&gt; Launch4j Executable menu option.</P>
+	<LI><P>Configuration dialog appears &ndash; Click Download
+	Launch4j... button and go through Launch4j installation. If you have
+	Launch4j already installed, continue with next step.</P>
+	<LI><P>Click Browse... button and point to the directory where you
+	installed Launch4j product.</P>
+	<LI><P>Note that Launch4j location text field and label turns from
+	red to black and OK button is enabled, signalizing that Launch4j
+	install dir was recognized. Click OK</P>
+</OL>
+<P>That's it! You'll see informations printed in Output window about
+the executable being generated, and your project with executable is
+ready for running and distribution. Executable is generated into the
+&bdquo;dist&ldquo; subdirectory of the project.</P>
+<P>Module remembers Launch4j location, so you have to specify it only
+the very first time or when Launch4j installation directory changes. 
+</P>
+<P><BR><BR>
+</P>
+<H2><A NAME="Exercise_2"></A>3: Customizing .exe Configuration</H2>
+<P>Launch4j product (<A HREF="http://launch4j.sourceforge.net/">http://launch4j.sourceforge.net</A>)
+allows you to specify various interesting properties of created
+Windows exe, such as application icon or splash screen (see <A HREF="http://launch4j.sourceforge.net/">Launch4j
+homepage</A> for whole list of features). These properties are stored
+in xml config file and can be altered either by direct editing of xml
+config file or using UI contained in Launch4j product.</P>
+<P>NetBeans Launch4j integration module generates Launch4j config
+file for you, into &lt;NB_PROJECT_DIR&gt;/nbproject/launch4jconfig.xml
+file. Config file is regenerated smartly, only core options are
+overwritten by the module, others are left untouched. See comment
+contained in config file for details.</P>
+<P>So, to give your exe an icon or splash screen or other properties,
+either edit &lt;NB_PROJECT_DIR&gt;/nbproject/launch4jconfig.xml
+directly or edit it with Launch4j UI.</P>
+<P><!-- ======================================================================================== --><BR><BR>
+</P>
+<H2><A NAME="nextsteps"></A>Next Steps</H2>
+<P>To send comments and suggestions, get support, and keep informed
+on the latest developments on the NetBeans IDE J2EE development
+features, join the <A HREF="mailto:nbusers@netbeans.org">nbusers@netbeans.org</A>
+mailing list. 
+</P>
+</BODY>
+</HTML>
