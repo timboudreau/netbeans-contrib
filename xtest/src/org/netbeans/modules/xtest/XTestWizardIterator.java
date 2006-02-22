@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.xtest;
@@ -129,7 +129,7 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
         FileObject cfgFunctionalFO = templateFolderFO.getFileObject("TestingTools/cfg-functional.xml");  // NOI18N
         DataObject cfgFunctionalDO = DataObject.find(cfgFunctionalFO.copy(testFO, "cfg-functional", "xml"));  // NOI18N
         createdObjects.add(cfgFunctionalDO);
-        
+
         addXTestTestRoots(project);
         return createdObjects;
     }
@@ -208,6 +208,12 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
      * Directories are created if needed.
      */
     private static void addXTestTestRoots(Project project) throws IOException, IllegalArgumentException {
+        FileObject unitSrcFO = FileUtil.createFolder(project.getProjectDirectory(), "test/unit/src"); // NOI18N
+        FileObject functionalSrcFO = FileUtil.createFolder(project.getProjectDirectory(), "test/functional/src"); // NOI18N
+        if(!(project instanceof J2SEProject)) {
+            // add new source roots for J2SEProject only. NbModuleProject should add new sources automatically.
+            return;
+        }
         SourceRoots testRoots = ((J2SEProject)project).getTestSourceRoots();
         URL[] oldRoots = testRoots.getRootURLs();
         FileObject[] oldRootsFO = testRoots.getRoots();
@@ -232,9 +238,9 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
                 newRootsLabels.add(testRoots.getRootDisplayName(oldNames[i], oldProperties[i]));
             }
         }
-        newRoots.add(FileUtil.createFolder(project.getProjectDirectory(), "test/unit/src").getURL()); // NOI18N
+        newRoots.add(unitSrcFO.getURL());
         newRootsLabels.add("Unit Test Packages"); //NOI18N
-        newRoots.add(FileUtil.createFolder(project.getProjectDirectory(), "test/functional/src").getURL()); // NOI18N
+        newRoots.add(functionalSrcFO.getURL());
         newRootsLabels.add("Functional Test Packages"); //NOI18N
         testRoots.putRoots((URL[])newRoots.toArray(new URL[0]), (String[])newRootsLabels.toArray(new String[0]));
         ProjectManager.getDefault().saveProject(project);
