@@ -28,6 +28,9 @@ import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 
+/** Action which is sensitive to currently selected project,
+ * configures and runs Launch4j through ant task
+ */
 public final class MakeExecAction implements ProjectActionPerformer {
 
     public static final Action createAction () {

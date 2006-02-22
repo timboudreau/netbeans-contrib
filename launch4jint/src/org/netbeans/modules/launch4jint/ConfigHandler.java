@@ -31,7 +31,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-/**
+/** Handles generation of ant script needed to run Launch4j and also
+ * generation and updates of Launch4j config xml file, based on properties
+ * of asociated project. 
  *
  * @author Dafe Simonek
  */

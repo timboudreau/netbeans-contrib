@@ -26,7 +26,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.awt.HtmlBrowser;
 import org.openide.util.NbBundle;
 
-/**
+/** UI for process of downloading and locating of Launch4j.
  *
  * @author  Dafe Simonek
  */
