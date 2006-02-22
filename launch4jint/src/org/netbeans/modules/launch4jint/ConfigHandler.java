@@ -43,8 +43,6 @@ public class ConfigHandler {
     private static final String RUN_SCRIPT = "launch4j.run";
     private static final String XML_CONFIG = "launch4jconfig.xml";
     private static final String PROJECT_PROPS = "project.properties";
-    private static final String WIN_EXT = ".exe";
-    private static final String MAC_EXT = ".app";
     
     private Project project;
     
@@ -289,10 +287,7 @@ public class ConfigHandler {
         
         String projName = ProjectUtils.getInformation(project).getName();
         elem = doc.createElement("outfile");
-        // OS aware extension
-        String ext = Utilities.isWindows() ? WIN_EXT 
-                : Utilities.getOperatingSystem() == Utilities.OS_MAC ? MAC_EXT : "";
-        elem.appendChild(doc.createTextNode(distFO.getPath() + "/" + projName + ext));
+        elem.appendChild(doc.createTextNode(distFO.getPath() + "/" + projName + ".exe"));
         rewriteElem(root, elem);
         
         elem = doc.createElement("customProcName");
