@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Build">
+            <file name="org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.instance"/>
+        </folder>
+        <folder name="Edit">
+            <file name="org-netbeans-modules-searchandreplace-SearchAndReplaceAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.searchandreplace.SearchAndReplaceAction"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="folder">
+            <folder name="any">
+                <folder name="Actions">
+                    <attr name="Separator2.instance/org-netbeans-modules-searchandreplace-separatorBefore.instance" boolvalue="true"/>
+                    <file name="org-netbeans-modules-searchandreplace-separatorBefore.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="org-netbeans-modules-searchandreplace-separatorBefore.instance/org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-searchandreplace-SearchAndReplaceAction.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow/org-netbeans-modules-searchandreplace-separatorAfter.instance" boolvalue="true"/>
+                    <file name="org-netbeans-modules-searchandreplace-separatorAfter.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="org-netbeans-modules-searchandreplace-separatorAfter.instance/DeleteAction.instance" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <attr name="RescanAction.instance/org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-searchandreplace-SearchAndReplaceAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow/Separator3.instance" boolvalue="true"/>
+        </folder>
+        <folder name="Window">
+            <attr name="InspectorAction.shadow/org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.shadow/SwitchToRecentDocumentAction.shadow" boolvalue="true"/>
+        </folder>
+    </folder>
+
+    <folder name="Projects">
+        <folder name="Actions">
+            <file name="org-netbeans-modules-searchandreplace-SearchProjectAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="DO-R.shadow">
+            <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.instance"/>
+        </file>
+    </folder>
+</filesystem>
