@@ -108,7 +108,6 @@ class WrapperKids extends Children.Keys implements Cloneable {
         //System.err.println ("original's class: " + original.getClass ().getName ());
         Children.MUTEX.postWriteRequest(new Runnable() { public void run() {
             List newkeys = new ArrayList();
-            // Don't make the original list for leaf or childless nodes:
             Node[] children = original.getChildren().getNodes(/*intentionally:*/false);
             for (int i = 0; i < children.length; i++) {
                 newkeys.add(new NormalChildKey(children[i]));
@@ -148,6 +147,7 @@ class WrapperKids extends Children.Keys implements Cloneable {
                             updateKeys(false);
                         }
                     }
+                    // Could instead override filterChildren* methods:
                     public void childrenAdded(NodeMemberEvent ev) {
                         updateKeys(false);
                     }
