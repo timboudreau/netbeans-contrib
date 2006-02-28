@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project name="contrib/docbook" basedir="." default="netbeans">
@@ -79,7 +79,7 @@ Microsystems, Inc. All Rights Reserved.
                  releasedate="${nbm.release.date}"
 		 moduleauthor="${nbm.module.author}">
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-            <license name="docbook-license.txt">
+            <license>
                 <text>For the module itself:</text>
                 <file location="${license.file}"/>
                 <text>For the included DocBook stylesheets and Slides DTD:</text>

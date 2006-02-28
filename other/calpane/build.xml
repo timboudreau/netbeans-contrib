@@ -41,7 +41,7 @@
                  module="netbeans/modules/calpane.jar"
                  homepage="http://contrib.netbeans.org/">
         </makenbm>
-        <license name="calpane-license.txt">
+        <license>
             <text>For the Calpane HTML component:</text>
             <file location="external/calpane-license.txt"/>
 	    <text>For the NetBeans integration module:</text>

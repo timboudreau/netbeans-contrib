@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?> <!-- -*- sgml-indent-step: 2 -*- -->
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
                 Sun Public License Notice
 
@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -25,7 +25,7 @@ Microsystems, Inc. All Rights Reserved.
                  needsrestart="${nbm.needs.restart}"
                  releasedate="${nbm.release.date}"
 		 moduleauthor="${nbm.module.author}">
-            <license name="avk-plugin-license.txt">
+            <license>
                 <file location="../../external/javke1.4.2_fcs-netbeanslicense.txt"/>
             </license>
         </makenbm>

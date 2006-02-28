@@ -25,7 +25,7 @@
                  global="${nbm.is.global}"
                  releasedate="${nbm.release.date}"
 		 moduleauthor="${nbm.module.author}">
-            <license name="omnidebugger-license.txt">
+            <license>
                 <text>For the integration module:</text>
                 <file location="${license.file}"/>
                 <text>For the Omniscient Debugger program:</text>
