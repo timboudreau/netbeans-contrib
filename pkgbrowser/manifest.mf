@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.pkgbrowser
+OpenIDE-Module-Layer: org/netbeans/modules/pkgbrowser/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/pkgbrowser/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
