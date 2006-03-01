@@ -45,9 +45,11 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
     <folder name="Menu">
-        <folder name="File">
-            <attr name="RescanAction.instance/org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow" boolvalue="true"/>
+        <folder name="Edit">
+            <attr name="org-openide-actions-ReplaceAction/org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow" boolvalue="true"/>
+            <attr name="org-openide-actions-ReplaceAction.instance/org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.searchandreplace.Bundle"/>
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-searchandreplace-SearchAndReplaceAction.instance"/>
             </file>
             <attr name="org-netbeans-modules-searchandreplace-SearchAndReplaceAction.shadow/Separator3.instance" boolvalue="true"/>
@@ -55,6 +57,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="Window">
             <attr name="InspectorAction.shadow/org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.shadow">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.searchandreplace.Bundle"/>
                 <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.instance"/>
             </file>
             <attr name="org-netbeans-modules-searchandreplace-SearchAndReplaceWindowAction.shadow/SwitchToRecentDocumentAction.shadow" boolvalue="true"/>
