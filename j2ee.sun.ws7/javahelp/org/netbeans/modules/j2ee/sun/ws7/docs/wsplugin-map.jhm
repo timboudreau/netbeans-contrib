@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+                     "http://java.sun.com/products/javahelp/map_1_0.dtd">
+<!-- 
+*     Copyright (c) 2006 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+
+
+<map version="1.0">
+	<mapID target="wsplugin_credits" url="credits.html"/>
+	<mapID target="wsplugin_webserver7_plugin_help" url="wsplugin_registering_server.html"/>
+	<mapID target="wsplugin_hierarchyofserverinstancenodes" url="wsplugin_hierarchyofserverinstancenodes.html"/>
+	<mapID target="wsplugin_configfiles" url="wsplugin_configfiles.html"/>
+</map>
