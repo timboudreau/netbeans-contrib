@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -29,6 +29,7 @@ import javax.swing.border.Border;
 import org.netbeans.api.diff.Difference;
 import org.netbeans.api.diff.StreamSource;
 import org.netbeans.jemmy.util.PNGEncoder;
+import org.netbeans.modules.project.ui.ProjectTab;
 //import org.netbeans.modules.merge.builtin.visualizer.MergeDialogComponent;
 //import org.netbeans.modules.merge.builtin.visualizer.MergePanel;
 import org.netbeans.spi.diff.DiffProvider;
@@ -185,18 +186,15 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
      * @param fo FileObject to be opened in source editor. It should be java
      * DataObject
      */
-    private void openInEditor(FileObject fo) {
+    private void openInEditor(final FileObject fo) {
         try {
             DataObject dob = DataObject.find(fo);
-            // selects node in projects view
-            /* it would be nice to do it. But we are only able to find the right node.
-            org.netbeans.api.project.Project p = org.netbeans.api.project.FileOwnerQuery.getOwner(fo);
-            if(p != null) {
-                org.netbeans.spi.project.ui.LogicalViewProvider lvp = (org.netbeans.spi.project.ui.LogicalViewProvider)p.getLookup().lookup(org.netbeans.spi.project.ui.LogicalViewProvider.class);
-                org.openide.nodes.Node node = lvp.findPath(lvp.createLogicalView(), fo);
-                System.out.println("NODE="+node);
-            }
-             */
+            // selects node in projects view (must be called from AWT event queue)
+            Mutex.EVENT.writeAccess(new Runnable() {
+                public void run () {
+                    ProjectTab.findDefault(ProjectTab.ID_LOGICAL).selectNodeAsync(fo);
+                }
+            });
             // open in editor
             ((EditorCookie)dob.getCookie(EditorCookie.class)).open();
         } catch (Exception e) {
