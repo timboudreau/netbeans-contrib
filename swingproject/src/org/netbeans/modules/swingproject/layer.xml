@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="Desktop">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.swingproject.Bundle"/>
+                <file name="BasicSwingApplicationProject.zip" url="BasicSwingApplicationProject.zip">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.swingproject.Bundle"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.swingproject.BasicSwingApplicationWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/swingproject/BasicSwingApplicationDescription.html"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
