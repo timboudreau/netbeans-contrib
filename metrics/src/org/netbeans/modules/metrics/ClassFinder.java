@@ -36,16 +36,18 @@ public final class ClassFinder {
         ClassPath cp = ClassPath.getClassPath(f, ClassPath.SOURCE);
         String clsName = cp.getResourceName(f, '/', false) + ".class";
         cp = ClassPath.getClassPath(f, ClassPath.EXECUTE);
-        FileObject cls = cp.findResource(clsName);
-        if (cls != null) {
-            classes.add(cls);
-            FileObject pkg = cls.getParent();
-            String baseName = cls.getName() + '$';
-            FileObject[] children = pkg.getChildren();
-            for (int i = 0; i < children.length; i++) {
-                FileObject child = children[i];
-                if (child.getName().startsWith(baseName))
-                    classes.add(child);
+        if (cp != null) { // true for core classes
+            FileObject cls = cp.findResource(clsName);
+            if (cls != null) {
+                classes.add(cls);
+                FileObject pkg = cls.getParent();
+                String baseName = cls.getName() + '$';
+                FileObject[] children = pkg.getChildren();
+                for (int i = 0; i < children.length; i++) {
+                    FileObject child = children[i];
+                    if (child.getName().startsWith(baseName))
+                        classes.add(child);
+                }
             }
         }
         return classes;
