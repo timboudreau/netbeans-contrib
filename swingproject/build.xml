@@ -10,7 +10,19 @@
     
     <property name="SwingAppTemplateSourceZip" 
      value="src/org/netbeans/modules/swingproject/BasicSwingApplicationProject.zip"/>
+
+    <target name="clean" depends="projectized-common.clean">
+        <!-- Delete the old zip file in our module sources -->
+        <delete file="${SwingAppTemplateSourceZip}" failonerror="true"/>
+        
+        <!-- First clean the project so we don't bundle .class files, etc. -->
+        <ant inheritall="false" antfile="templates/SwingTemplate/build.xml" target="clean">
+            <property file="templates/SwingTemplate/nbproject/project.properties"/>
+            <property file="templates/SwingTemplate/nbproject/private/private.properties"/>
+        </ant>
+    </target>
     
+     
     <target name="compile" depends="projectized-common.compile">
         
         <!-- To add additional project templates, simply add additional 
@@ -26,7 +38,7 @@
         </ant>
 
         <!-- Delete the old zip file in our module sources -->
-        <delete file="${SwingAppTemplateSourceZip}" failonerror="false"/>
+        <delete file="${SwingAppTemplateSourceZip}" failonerror="true"/>
         
         <!-- Now create a new zip file with the latest version of our template -->
         <zip basedir="templates/SwingTemplate" 
