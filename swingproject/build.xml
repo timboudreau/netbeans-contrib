@@ -5,4 +5,34 @@
 <project name="org.netbeans.modules.swingproject" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.swingproject.</description>
     <import file="nbproject/build-impl.xml"/>
+
+    <!-- Pointer to the zip file that will be bundled into our module -->
+    
+    <property name="SwingAppTemplateSourceZip" 
+     value="src/org/netbeans/modules/swingproject/BasicSwingApplicationProject.zip"/>
+    
+    <target name="compile" depends="projectized-common.compile">
+        
+        <!-- To add additional project templates, simply add additional 
+        project templates in the module, and then duplicate these steps for
+        the source directory for each one -->
+        
+        <echo message="Rebuilding embedded project zip from sources"/>
+        
+        <!-- First clean the project so we don't bundle .class files, etc. -->
+        <ant inheritall="false" antfile="templates/SwingTemplate/build.xml" target="clean">
+            <property file="templates/SwingTemplate/nbproject/project.properties"/>
+            <property file="templates/SwingTemplate/nbproject/private/private.properties"/>
+        </ant>
+
+        <!-- Delete the old zip file in our module sources -->
+        <delete file="${SwingAppTemplateSourceZip}" failonerror="false"/>
+        
+        <!-- Now create a new zip file with the latest version of our template -->
+        <zip basedir="templates/SwingTemplate" 
+             zipfile="${SwingAppTemplateSourceZip}" 
+             compress="9"/>
+             
+    </target>
+    
 </project>

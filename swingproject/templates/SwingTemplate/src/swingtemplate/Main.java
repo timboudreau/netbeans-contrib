@@ -6,10 +6,13 @@
 
 package swingtemplate;
 
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 
 public class Main {
     private JFrame mainFrame;
-    private appDefaults = new UIDefaults();
+    // private appDefaults = new UIDefaults();
     
     private void initialize(String[] args) {
 	mainFrame = new JFrame("<Project Name>");
