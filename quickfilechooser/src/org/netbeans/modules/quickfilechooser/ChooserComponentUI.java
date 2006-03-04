@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -336,13 +336,34 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                     } finally {
                         currentDirectoryChanging = false;
                     }
+                } else if ((JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(name) ||
+                        JFileChooser.SELECTED_FILES_CHANGED_PROPERTY.equals(name)) && !currentDirectoryChanging) {
+                    currentDirectoryChanging = true;
+                    try {
+                        File f = getFileChooser().getSelectedFile();
+                        String t;
+                        if (f != null) {
+                            if (f.isDirectory() && getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY) {
+                                // Works best when called from
+                                // org.netbeans.modules.project.ui.actions.OpenProject.actionPerformed
+                                t = f.getAbsolutePath() + File.separatorChar;
+                            } else {
+                                t = f.getAbsolutePath();
+                            }
+                        } else {
+                            t = "";
+                        }
+                        text.setText(t);
+                        text.setCaretPosition(t.length());
+                    } finally {
+                        currentDirectoryChanging = false;
+                    }
                 } else if (JFileChooser.CONTROL_BUTTONS_ARE_SHOWN_CHANGED_PROPERTY.equals(name)) {
                     buttons.setVisible(getFileChooser().getControlButtonsAreShown());
                 } else if (JFileChooser.FILE_FILTER_CHANGED_PROPERTY.equals(name)) {
                     refreshCompletions();
                     updateFilterDisplay();
                 }
-                // XXX may have to handle JFileChooser.FILE_CHANGED_PROPERTY too
             }
         };
     }

@@ -7,29 +7,34 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.quickfilechooser;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Arrays;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.filechooser.FileView;
 
 public class Demo {
     
     public static void main(String[] args) {
         Install.main(null);
-        JFileChooser chooser = new JFileChooser();
+        final JFileChooser chooser = new JFileChooser();
         chooser.setMultiSelectionEnabled(true);
-        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        chooser.setCurrentDirectory(new File(System.getProperty("java.io.tmpdir")));
-        //chooser.setAccessory(new JLabel("extra"));
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        //chooser.setCurrentDirectory(new File(System.getProperty("java.io.tmpdir")));
+        chooser.setCurrentDirectory(new File("/space/src/nb_all/contrib"));
+        chooser.setSelectedFiles(new File[] {new File("/space/src/nb_all/contrib/docbook")});
         chooser.setFileView(new FileView() {
             public Icon getIcon(File f) {
                 if (f.getName().endsWith(".gif") || f.getName().endsWith(".png")) {
@@ -53,6 +58,33 @@ public class Demo {
         });
          */
         //chooser.setControlButtonsAreShown(false);
+        class Accessory extends JTextArea implements PropertyChangeListener {
+            public Accessory() {
+                super(4, 20);
+                setLineWrap(true);
+                update();
+                chooser.addPropertyChangeListener(this);
+            }
+            private void update() {
+                StringBuffer buf = new StringBuffer();
+                buf.append("Selected file: ");
+                buf.append(chooser.getSelectedFile());
+                buf.append('\n');
+                buf.append("Selected file list: ");
+                buf.append(Arrays.asList(chooser.getSelectedFiles()));
+                buf.append('\n');
+                buf.append("Current dir: ");
+                buf.append(chooser.getCurrentDirectory());
+                setText(buf.toString());
+                setCaretPosition(getText().length());
+            }
+            public void propertyChange(PropertyChangeEvent evt) {
+                update();
+            }
+        }
+        JScrollPane accessory = new JScrollPane(new Accessory());
+        accessory.setBorder(BorderFactory.createTitledBorder("Chooser Properties"));
+        chooser.setAccessory(accessory);
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             System.out.println("Selected: " + Arrays.asList(chooser.getSelectedFiles()));
         }
