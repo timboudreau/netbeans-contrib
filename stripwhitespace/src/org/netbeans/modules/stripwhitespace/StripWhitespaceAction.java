@@ -14,9 +14,6 @@ package org.netbeans.modules.stripwhitespace;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
@@ -25,17 +22,22 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
+import org.netbeans.editor.GuardedDocument;
 import org.openide.util.NbBundle;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.MarkBlock;
 import org.netbeans.editor.Registry;
 import org.openide.ErrorManager;
 import org.openide.util.WeakListeners;
 
 public final class StripWhitespaceAction extends AbstractAction implements ChangeListener {
     
+    private static final ErrorManager LOGGER = ErrorManager.getDefault().getInstance("org.netbeans.modules.stripwhitespace.StripWhitespaceAction"); // NOI18N
+    private static final boolean LOG = LOGGER.isLoggable(ErrorManager.INFORMATIONAL);
+
     public StripWhitespaceAction() {
         putValue (Action.NAME, NbBundle.getMessage(StripWhitespaceAction.class, 
-                "LBL_Action"));
+                "LBL_StripWhitespaceAction"));
         Registry.addChangeListener (WeakListeners.change(this, Registry.class));
     }
 
@@ -70,23 +72,39 @@ public final class StripWhitespaceAction extends AbstractAction implements Chang
         
         public void run() {
             int ct = d.getDefaultRootElement().getElementCount();
-            System.err.println(ct + " elements to strip length " + d.getLength() );
+            if (LOG) {
+                LOGGER.log(ErrorManager.INFORMATIONAL, ct + " elements to strip, document length " + d.getLength() ); // NOI18N
+            }
             try {
                 for (int i=ct-1; i >=0; i--) {
                     Element curr = d.getDefaultRootElement().getElement(i);
                     String s = d.getText(curr.getStartOffset(), curr.getEndOffset() - curr.getStartOffset());
                     int toRemove = 0;
                     for (int j=s.length()-1; j >= 0; j--) {
-                        if (Character.isWhitespace(s.charAt(j))) {
+                        if (d.isWhitespace(s.charAt(j))) {
                             toRemove++;
                         } else {
                             break;
                         }
                     }
-                    if (toRemove > 0) {
-                        if (curr.getEndOffset() < d.getLength()) {
-                            System.err.println("Remove from " + (curr.getEndOffset() - (toRemove)) + " " + toRemove + " chars ");
-                            d.remove(curr.getEndOffset() - (toRemove), toRemove-1);
+                    if (toRemove > 1) {
+                        int removeStartOffset = curr.getEndOffset() - toRemove;
+                        int removeLength = toRemove - 1;
+                        boolean remove = true;
+
+                        if (d instanceof GuardedDocument) {
+                            GuardedDocument gd = (GuardedDocument)d;
+                            int comp = gd.getGuardedBlockChain().compareBlock(removeStartOffset, removeStartOffset + removeLength);
+                            if ((comp & MarkBlock.OVERLAP) != 0) {
+                                remove = false;
+                            }
+                        }
+
+                        if (remove) {
+                            if (LOG) {
+                                LOGGER.log(ErrorManager.INFORMATIONAL, "Remove from " + removeStartOffset + " " + removeLength + " chars "); // NOI18N
+                            }
+                            d.remove(removeStartOffset, removeLength);
                         }
                     }
                 }
