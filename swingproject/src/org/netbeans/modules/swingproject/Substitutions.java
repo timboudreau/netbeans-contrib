@@ -1,12 +1,15 @@
 /*
- * Substitutions.java
- *
- * Created on March 3, 2006, 4:37 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.swingproject;
 
 import java.io.BufferedInputStream;
@@ -22,6 +25,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Utilities;
 
 /**
@@ -72,7 +76,7 @@ final class Substitutions {
                     originalSize);
         }
         ByteArrayOutputStream temp = new ByteArrayOutputStream ((int) originalSize);
-        copy (input, temp);
+        FileUtil.copy (input, temp);
         byte[] b = temp.toByteArray();
 
         //XXX do we want default charset, or UTF-8 - UTF-8 I think...
@@ -97,22 +101,5 @@ final class Substitutions {
 
         return new ByteArrayInputStream (data.getBytes());
     }
-
-    public static void copy(InputStream is, OutputStream os)
-    throws IOException {
-        final byte[] BUFFER = new byte[4096];
-        int len;
-
-        for (;;) {
-            len = is.read(BUFFER);
-
-            if (len == -1) {
-                return;
-            }
-
-            os.write(BUFFER, 0, len);
-        }
-    }
-    
 }
 
