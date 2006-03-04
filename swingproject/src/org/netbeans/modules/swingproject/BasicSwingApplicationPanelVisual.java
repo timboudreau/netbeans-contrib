@@ -1,6 +1,8 @@
 package org.netbeans.modules.swingproject;
 
 import java.io.File;
+import java.util.Locale;
+import java.util.StringTokenizer;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
@@ -10,6 +12,7 @@ import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Utilities;
 
 public class BasicSwingApplicationPanelVisual extends JPanel implements DocumentListener {
     
@@ -47,12 +50,14 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
         browseButton = new javax.swing.JButton();
         createdFolderLabel = new javax.swing.JLabel();
         createdFolderTextField = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        packageTextField = new javax.swing.JTextField();
 
         projectNameLabel.setLabelFor(projectNameTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(projectNameLabel, "Project &Name:");
+        org.openide.awt.Mnemonics.setLocalizedText(projectNameLabel, "Project &Name");
 
         projectLocationLabel.setLabelFor(projectLocationTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(projectLocationLabel, "Project &Location:");
+        org.openide.awt.Mnemonics.setLocalizedText(projectLocationLabel, "Project &Location");
 
         org.openide.awt.Mnemonics.setLocalizedText(browseButton, "Br&owse...");
         browseButton.setActionCommand("BROWSE");
@@ -63,9 +68,12 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
         });
 
         createdFolderLabel.setLabelFor(createdFolderTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(createdFolderLabel, "Project &Folder:");
+        org.openide.awt.Mnemonics.setLocalizedText(createdFolderLabel, "Project &Folder");
 
         createdFolderTextField.setEditable(false);
+
+        jLabel1.setLabelFor(packageTextField);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "Java &Package");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -74,16 +82,26 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(projectNameLabel)
-                    .add(projectLocationLabel)
-                    .add(createdFolderLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, projectNameTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, projectLocationTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, createdFolderTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(browseButton)
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(projectNameLabel)
+                            .add(createdFolderLabel)
+                            .add(jLabel1))
+                        .add(14, 14, 14)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(createdFolderTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, packageTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+                                    .add(projectNameTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE))
+                                .add(85, 85, 85))))
+                    .add(layout.createSequentialGroup()
+                        .add(projectLocationLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(projectLocationTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(browseButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -95,14 +113,18 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
                     .add(projectNameTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(packageTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(projectLocationLabel)
                     .add(projectLocationTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(browseButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(createdFolderLabel)
-                    .add(createdFolderTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(213, Short.MAX_VALUE))
+                    .add(createdFolderTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(createdFolderLabel))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     
@@ -134,6 +156,8 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
     private javax.swing.JButton browseButton;
     private javax.swing.JLabel createdFolderLabel;
     private javax.swing.JTextField createdFolderTextField;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JTextField packageTextField;
     private javax.swing.JLabel projectLocationLabel;
     private javax.swing.JTextField projectLocationTextField;
     private javax.swing.JLabel projectNameLabel;
@@ -147,7 +171,8 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
     }
     
     boolean valid(WizardDescriptor wizardDescriptor) {
-        
+        //TODO - localize all these messages
+
         if (projectNameTextField.getText().length() == 0) {
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
                     "Project Name is not a valid folder name.");
@@ -184,6 +209,37 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
                     "Project Folder already exists and is not empty.");
             return false;
         }
+
+        String pkg = packageTextField.getText();
+        if (pkg.indexOf(" ") >= 0) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    "Package names cannot contain spaces.");
+            return false;
+        }
+        for (StringTokenizer tok = new StringTokenizer (pkg, "."); tok.hasMoreTokens();) {
+            String curr = tok.nextToken();
+            if (!Utilities.isJavaIdentifier(curr)) {
+                wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                        curr + "is not a valid a Java identifier.");
+                return false;
+            }
+        }
+        char[] c = pkg.toCharArray();
+        for (int i=0; i < c.length; i++) {
+            if (i == 0 && !Character.isJavaIdentifierStart(c[i])) {
+                wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                        "Package names start with " + c[i]);
+                return false;
+            } else {
+                if (!Character.isJavaIdentifierPart(c[i]) && c[i] != '.') {
+                    wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                            "Package names cannot contain the character '" +
+                            c[i] + "'");
+                    return false;
+                }
+            }
+        }
+
         wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
         return true;
     }
@@ -194,6 +250,8 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
         
         d.putProperty("projdir", new File(folder));
         d.putProperty("name", name);
+        d.putProperty("projectDisplayName", name);
+        d.putProperty("basepackage", packageTextField.getText().trim());
     }
     
     void read(WizardDescriptor settings) {
@@ -205,9 +263,14 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
         }
         this.projectLocationTextField.setText(projectLocation.getAbsolutePath());
         
-        String projectName = (String) settings.getProperty("name");
+        String projectName = (String) settings.getProperty("projectDisplayName");
         if(projectName == null) {
             projectName = "BasicSwingApplication";
+        }
+
+        String pkg = (String) settings.getProperty ("basepackage");
+        if (pkg != null) {
+            packageTextField.setText(pkg);
         }
         this.projectNameTextField.setText(projectName);
         this.projectNameTextField.selectAll();
@@ -239,7 +302,11 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
             firePropertyChange(PROP_PROJECT_NAME,null,this.projectNameTextField.getText());
         }
     }
-    
+
+
+    String lastBasePackage = "";
+    boolean updatingPackage = false;
+
     /** Handles changes in the Project name and project directory, */
     private void updateTexts(DocumentEvent e) {
         
@@ -250,13 +317,31 @@ public class BasicSwingApplicationPanelVisual extends JPanel implements Document
             
             String projectName = projectNameTextField.getText();
             String projectFolder = projectLocationTextField.getText();
+            String projectNameLower = Utilities.replaceString(
+                    projectName.toLowerCase(Locale.getDefault()),
+                    " ", "_");
             
             //if (projectFolder.trim().length() == 0 || projectFolder.equals(oldName)) {
-            createdFolderTextField.setText(projectFolder + File.separatorChar + projectName);
+            createdFolderTextField.setText(projectFolder + File.separatorChar +
+                    projectNameLower);
             //}
-            
+            String pkg = packageTextField.getText().trim();
+            if (pkg.equals(lastBasePackage) || pkg.equals("")) {
+                updatingPackage = true;
+                try {
+                    packageTextField.setText(lastBasePackage = createPackageName(projectName));
+                } finally {
+                    updatingPackage = false;
+                }
+            }
+        } else if (!updatingPackage && doc == packageTextField.getDocument()) {
+            String packageName = packageTextField.getText().trim();
         }
         panel.fireChangeEvent(); // Notify that the panel changed
+    }
+
+    private String createPackageName (String s) {
+        return s.toLowerCase().replaceAll(" ", "_");
     }
     
 }

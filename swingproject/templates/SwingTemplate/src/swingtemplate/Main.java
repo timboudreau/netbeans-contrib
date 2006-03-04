@@ -1,21 +1,17 @@
-/*
- * Main.java
- *
- * Created on March 3, 2006, 8:43 AM
- */
-
 package swingtemplate;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-
+/**
+ * @author USER_NAME
+ */
 public class Main {
     private JFrame mainFrame;
     // private appDefaults = new UIDefaults();
     
     private void initialize(String[] args) {
-	mainFrame = new JFrame("<Project Name>");
+	mainFrame = new JFrame("APP_NAME");
 	MainPanel mainPanel = new MainPanel();
 	mainFrame.add(mainPanel);
     }

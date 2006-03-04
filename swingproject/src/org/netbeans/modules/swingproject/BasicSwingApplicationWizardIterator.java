@@ -56,7 +56,15 @@ public class BasicSwingApplicationWizardIterator implements WizardDescriptor.Ins
         
         FileObject template = Templates.getTemplate(wiz);
         FileObject dir = FileUtil.toFileObject(dirF);
-        unZipFile(template.getInputStream(), dir);
+
+        String projectDisplayName = (String) wiz.getProperty ("projectDisplayName");
+        String projectPackage = (String) wiz.getProperty("basepackage");
+        if (projectDisplayName == null) {
+            projectDisplayName = "My Application";
+        }
+
+        unZipFile(template.getName(), projectPackage, projectDisplayName,
+                template.getInputStream(), dir);
         
         // Always open top dir as a project:
         resultSet.add(dir);
@@ -143,20 +151,25 @@ public class BasicSwingApplicationWizardIterator implements WizardDescriptor.Ins
     public final void addChangeListener(ChangeListener l) {}
     public final void removeChangeListener(ChangeListener l) {}
     
-    private static void unZipFile(InputStream source, FileObject projectRoot) throws IOException {
+    private static void unZipFile(String templateName, String basePackage, String projectName, InputStream source, FileObject projectRoot) throws IOException {
+        //XXX project root getName() is probably not what we want here:
+        Substitutions substitutions = new Substitutions (templateName, projectName, basePackage);
         try {
             ZipInputStream str = new ZipInputStream(source);
             ZipEntry entry;
             while ((entry = str.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
-                    FileUtil.createFolder(projectRoot, entry.getName());
+                    FileUtil.createFolder(projectRoot,
+                            substitutions.substitutePath(entry.getName()));
                 } else {
-                    FileObject fo = FileUtil.createData(projectRoot, entry.getName());
+                    FileObject fo = FileUtil.createData(projectRoot, substitutions.substitutePath(entry.getName()));
                     FileLock lock = fo.lock();
                     try {
                         OutputStream out = fo.getOutputStream(lock);
                         try {
-                            FileUtil.copy(str, out);
+                            InputStream substituted = substitutions.substituteContent(entry.getSize(),
+                                    str, entry.getName());
+                            FileUtil.copy(substituted, out);
                         } finally {
                             out.close();
                         }
