@@ -20,7 +20,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.BooleanStateAction;
 
 /**
- * The action to enable and disble highlihting of matching regular expressions in editor windows.
+ * The action to enable and disble removing of duplicate lines while sorting.
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
