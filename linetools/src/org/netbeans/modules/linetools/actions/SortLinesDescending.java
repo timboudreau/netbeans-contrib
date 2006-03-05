@@ -20,7 +20,7 @@ import org.openide.util.NbBundle;
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public final class SortLinesDescending extends AbstarctLineAction {
+public final class SortLinesDescending extends AbstractLineAction {
 
     protected void doLineOperation(JTextComponent textComponent) {
         LineOperations.sortLinesDescending(textComponent);
