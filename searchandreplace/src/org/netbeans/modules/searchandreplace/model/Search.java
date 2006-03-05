@@ -194,14 +194,21 @@ public final class Search {
         if (!UNIT_TESTING) {
             FileObject fob = FileUtil.toFileObject(f);
             if (fob != null) {
-                return !fob.getMIMEType().startsWith("text"); //NOI18N
+                String mimeType = fob.getMIMEType();
+                if (f.getName().endsWith(".properties")) {
+                    //Properties module doesn't do content type correctly,
+                    //.properties files show up as content/unknown.
+                    //Need to check others.
+                    return false;
+                }
+                return !mimeType.startsWith("text"); //NOI18N
                 //XXX deal with content/unknown?
             }
             return true;
         } else {
             //Hack for unit tests
             return f.getName().endsWith(".jar") || f.getName().endsWith( //NOI18N
-                    ".class"); //NOI18N
+                    ".class") || f.getName().endsWith(".exe"); //NOI18N
         }
     }
 

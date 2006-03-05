@@ -82,10 +82,6 @@ final class OneFileItem extends Item {
                 firstEnd = end;
             }
         }
-        if (items.size() == 1) {
-            this.location.setLocation(firstStart, firstEnd);
-            items = null;
-        }
     }
 
     public List getItems() {
@@ -188,23 +184,34 @@ final class OneFileItem extends Item {
         if (text == null) {
             ByteBuffer buf = getByteBuffer();
             if (buf != null) {
-                //XXX figure out the encoding
-                CharBuffer cbuf = Charset.defaultCharset().decode(buf);
+                boolean binary = Search.isBinaryFile(getFile());
+
+                //For binary, get us a string of 8-bit characters that will
+                //map back to bytes
+                Charset charset = binary ? Charset.forName("UTF-8") :
+                    Charset.defaultCharset();
+
+                CharBuffer cbuf = charset.decode(buf);
                 String terminator = System.getProperty ("line.separator"); //NOI18N
                 boolean notNewline = !"\n".equals(terminator); //NOI18N
-                if (notNewline && !Search.isBinaryFile(getFile())) {
-                    Matcher matcher = Pattern.compile(terminator).matcher(cbuf);
-                    if (matcher.find() && !Search.isBinaryFile(getFile())) {
-                        wasCrLf = true;
-                        matcher.reset();
-                        text = new StringBuffer(matcher.replaceAll("\n"));
-                    } else {
-                        text = new StringBuffer(cbuf);
+
+                if (!binary) {
+                    if (notNewline) {
+                        Matcher matcher = Pattern.compile(terminator).matcher(cbuf);
+                        if (matcher.find() && !Search.isBinaryFile(getFile())) {
+                            wasCrLf = true;
+                            matcher.reset();
+                            text = new StringBuffer(matcher.replaceAll("\n"));
+                        } else {
+                            text = new StringBuffer(cbuf);
+                        }
                     }
+                } else {
+                    text = new StringBuffer (cbuf);
                 }
             }
         }
-        return text;
+        return text == null ? new StringBuffer() : text;
     }
 
     private ByteBuffer getByteBuffer() throws IOException {
@@ -310,12 +317,20 @@ final class OneFileItem extends Item {
     private void write() throws IOException {
         if (text != null) {
             if (Search.reallyWrite) {
-                if (wasCrLf && !Search.isBinaryFile(getFile())) {
+                boolean binary = Search.isBinaryFile(getFile());
+
+                //For binary, get us a string of 8-bit characters that will
+                //map back to bytes
+                Charset charset = binary ? Charset.forName("UTF-8") :
+                    Charset.defaultCharset();
+
+                if (wasCrLf && !binary) {
+                    String terminator = System.getProperty ("line.separator"); //NOI18N
                     //XXX use constant - i.e. on mac, only \r, etc.
                     text = new StringBuffer(text.toString().replace("\n", //NOI18N
-                            "\r\n")); //NOI18N
+                           terminator)); //NOI18N
                 }
-                ByteBuffer buffer = Charset.defaultCharset().encode(
+                ByteBuffer buffer = charset.encode(
                         text.toString());
 
                 FileOutputStream fos = new FileOutputStream (getFile());
@@ -339,7 +354,8 @@ final class OneFileItem extends Item {
         if (items != null) {
             return "OneFileItem subitems" + items + " in " + getName();
         } else {
-            return "OneFileItem @ " + location + " in " + getName();
+            return "OneFileItem @ " + location.x + ":" + location.y
+                    + " in " + getName();
         }
     }
 
@@ -386,7 +402,9 @@ final class OneFileItem extends Item {
         }
 
         public String toString() {
-            return "SubItem " + location.x + " in " + getName();
+            return "SubItem @ " + location.x + " thru " + location.y +
+                    " in " + getName() + " will do crlf conversion "
+                    + wasCrLf;
         }
 
         public void setShouldReplace (boolean val) {

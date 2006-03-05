@@ -10,9 +10,10 @@
     <target name="clean-testdata">
         <delete dir="${tempdir}"/>
         <delete dir="${goldendir}"/>
+        <delete dir="${resultsdir}"/>
     </target>
 
-    <target name="test-preinit" depends="init">
+    <target name="test-preinit" depends="clean-testdata,init">
         <echo message="Unpacking test data"/>
         <mkdir dir="${tempdir}"/>
         <unzip dest="${tempdir}">

@@ -16,6 +16,7 @@ package org.netbeans.modules.searchandreplace.model;
 import java.awt.Point;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -25,12 +26,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.StringTokenizer;
 import junit.framework.TestCase;
 import junit.framework.*;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.searchandreplace.Cancel;
-import org.netbeans.modules.searchandreplace.model.ItemComparator;
 
 /**
  *
@@ -88,15 +89,183 @@ public class SearchTest extends TestCase {
             fail ("Test results data not unpacked to " + f.getPath() + " - check the " +
                     "ant task test-preinit");
         }
+
+        testSingleRoot = new File (testRoot, "newpackage");
+        testSingleResultsRoot = new File (resultsRoot, "newpackage");
+        test0resultsRoot = new File (resultsRoot, "GUIFormExamples");
+        assertTrue (test0resultsRoot.exists());
+        assertTrue (testSingleRoot.exists());
+        assertTrue (testSingleResultsRoot.exists());
+
+        binAndSelectiveRoot = new File (testRoot, "binAndSelective");
+        assertTrue (binAndSelectiveRoot + " is missing",
+                binAndSelectiveRoot.exists());
+
+        binAndSelectiveGoldenRoot = new File (testRoot, "binAndSelective");
+        assertTrue (binAndSelectiveGoldenRoot + " is missing",
+                binAndSelectiveGoldenRoot.exists());
+
+        binaryFile = new File (binAndSelectiveRoot, "nb.exe");
+        assertTrue (binaryFile + " is missing", binaryFile.exists());
+
+        selectiveFile = new File (binAndSelectiveRoot, "foo.txt");
+        assertTrue (selectiveFile + " is missing ", selectiveFile.exists());
+
+        goldenSelectiveFile = new File (binAndSelectiveGoldenRoot, "foo.txt");
+        assertTrue (goldenSelectiveFile + " is missing ", goldenSelectiveFile .exists());
+
+        goldenBinaryFile = new File (binAndSelectiveGoldenRoot, "nb.exe");
+        assertTrue (goldenBinaryFile + " is missing", goldenBinaryFile.exists());
     }
+
+    public void testSelectiveReplacement() throws Exception {
+        System.out.println("testSelectiveReplacement");
+        SearchDescriptor descriptor = new SearchDescriptor("hello",
+                "goodbye", true, true, false, true, true);
+
+        Search s = new Search (Collections.singleton(selectiveFile),
+                descriptor, new Cancel());
+
+        ProgressHandle handle = ProgressHandleFactory.createHandle("Do stuff");
+        handle.start();
+        Item[] items = s.search(handle);
+        Arrays.sort(items, new ItemComparator());
+
+        for (int i=0; i < items.length; i++) {
+            items[i].setShouldReplace(i % 2 == 0);
+        }
+        for (int i=0; i < items.length; i++) {
+            if (items[i].isShouldReplace()) {
+                items[i].replace();
+            }
+        }
+
+        assertTrue (readFile(selectiveFile).indexOf("goodbye") >= 0);
+        System.out.println("FILE:\n\n" + readFile (selectiveFile) + "\n\n");
+
+        boolean even = true;
+        int ct = 0;
+        for (StringTokenizer tok = new StringTokenizer (readFile(selectiveFile), "\n"); tok.hasMoreElements();) {
+            String s1 = tok.nextToken().trim();
+            if ("hello".equals(s) || "goodbye".equals(s1)) {
+                if (even) {
+                    assertEquals ("hello", s1);
+                } else {
+                    assertEquals ("goodbye", s1);
+                    ct++;
+                }
+            }
+            even = !even;
+        }
+
+        SearchDescriptor descriptor1 = new SearchDescriptor("goodbye",
+                "hello", true, true, false, true, true);
+
+        Search s1 = new Search (Collections.singleton(selectiveFile),
+                descriptor1, new Cancel());
+
+        handle = ProgressHandleFactory.createHandle("Do stuff");
+        handle.start();
+        Item[] items1 = s1.search(handle);
+        Arrays.sort (items1, new ItemComparator());
+        assertEquals (ct, items1.length);
+        assertEquals (items.length / 2, items1.length);
+        for (int i=0; i < items1.length; i++) {
+            items1[i].replace();
+        }
+        assertFalse (readFile(selectiveFile).indexOf("goodbye") >= 0);
+
+        assertIdentical (goldenSelectiveFile, selectiveFile);
+    }
+
+    public void testReplaceOverBinaryFilesIsReversible() throws Exception {
+        System.out.println("testReplaceOverBinaryFilesIsReversible");
+        SearchDescriptor descriptor = new SearchDescriptor("harness",
+                "poodlehoover", true, true, true, true, true);
+
+        Search s = new Search (Collections.singleton(binaryFile),
+                descriptor, new Cancel());
+
+        System.out.println("\n\nFILE:\n" + readFile (binaryFile) + "\n\n");
+
+        ProgressHandle handle = ProgressHandleFactory.createHandle("Do stuff");
+        handle.start();
+        Item[] items = s.search(handle);
+        Arrays.sort(items, new ItemComparator());
+        assertTrue (items.length > 0);
+        for (int i=0; i < items.length; i++) {
+            items[i].replace();
+        }
+
+        assertTrue (readFile(binaryFile).indexOf("poodlehoover") >= 0);
+
+        SearchDescriptor descriptor1 = new SearchDescriptor("poodlehoover",
+                "harness", true, true, true, true, true);
+
+        Search s1 = new Search (Collections.singleton(binaryFile),
+                descriptor1, new Cancel());
+
+        handle = ProgressHandleFactory.createHandle("Do more stuff");
+        handle.start();
+
+        Item[] items1 = s1.search (handle);
+        Arrays.sort (items1, new ItemComparator());
+        assertTrue (items1.length > 0);
+        for (int i=0; i < items1.length; i++) {
+            items1[i].replace();
+        }
+        assertFalse (readFile(binaryFile).indexOf("poodlehoover") >= 0);
+        assertTrue (readFile(binaryFile).indexOf("harness") >= 0);
+
+        assertIdentical (goldenBinaryFile, binaryFile);
+    }
+
+    private File goldenSelectiveFile = null;
+    private File binAndSelectiveGoldenRoot = null;
+    private File goldenBinaryFile = null;
+    private File selectiveFile = null;
+    private File binaryFile = null;
+    private File binAndSelectiveRoot = null;
+    private File test0resultsRoot = null;
+    private File testSingleRoot = null;
+    private File testSingleResultsRoot = null;
 
     protected void tearDown() throws Exception {
     }
 
     public static Test suite() {
         TestSuite suite = new TestSuite(SearchTest.class);
-        
         return suite;
+    }
+
+    public void testSingleItemsAreReplaced() throws Exception {
+        System.out.println("testSingleItemsAreReplaced");
+        SearchDescriptor descriptor = new SearchDescriptor("\"OK\"",
+                "Utils.OK", true, true, false, true, true);
+
+        Search s = new Search (Collections.singleton(testSingleRoot),
+                descriptor, new Cancel());
+
+        ProgressHandle handle1 = ProgressHandleFactory.createHandle("Do stuff");
+        handle1.start();
+        Item[] items = s.search(handle1);
+
+        Arrays.sort (items, new ItemComparator());
+
+        for (int i=0; i < items.length; i++) {
+            if (items[i].getName().startsWith("Util")) {
+                items[i].setShouldReplace(false);
+                System.err.println("Marking " + items[i] + " as non-replace");
+            }
+        }
+        for (int i=0; i < items.length; i++) {
+            if (items[i].isShouldReplace()) {
+                items[i].replace();
+                System.err.println("Replaced item " + items[i]);
+                items[i].setReplaced(true);
+            }
+        }
+        assertIdentical (testSingleResultsRoot, testSingleRoot);
     }
 
     public void testReversableSearch() throws Exception {
@@ -123,42 +292,14 @@ public class SearchTest extends TestCase {
 
         assertTrue (items.length > 0);
 
-        items[2].setShouldReplace(false);
-
         for (int i=0; i < items.length; i++) {
-            if (items[i].isShouldReplace()) {
-                items[i].replace();
-                items[i].setReplaced(true);
-            }
+            assertTrue (items[i].isShouldReplace());
+//            System.err.println("Performing replace on " + items[i]);
+            items[i].replace();
         }
 
-        File f = null;
-        CharSequence seq = null;
-        boolean fileChanged = true;
-        for (int i=0; i < items.length; i++) {
-            if (i != 2) {
-                assertTrue ("Not replaced: " + i + ":" + items[i], items[i].isReplaced());
-                File curr = items[i].getFile();
-                if (!curr.equals(f)) {
-                    f = curr;
-                    seq = readFile (f);
-                    fileChanged = true;
-                } else {
-                    //offsets may be wrong so only test the first item for now
-                    fileChanged = false;
-                }
-                if (fileChanged) {
-                    Point p = items[i].getLocation();
-                    if (p.y < seq.length() - 1) {
-                        String test = seq.subSequence(p.x, p.y).toString();
-                        assertEquals ("At " + i + " in " + f.getPath() +
-                                " string not replaced by " + items[i], "fwaddle", test);
-                    }
-                }
-            } else {
-                assertFalse (items[i].isReplaced());
-            }
-        }
+//        System.err.println("Enter assert identical");
+        assertIdentical (test0dir, test0resultsRoot);
 
         SearchDescriptor descriptor2 = new SearchDescriptor("fwaddle",
                 "swing", true, true, false, true, true);
@@ -173,7 +314,7 @@ public class SearchTest extends TestCase {
         Item[] items2 = s2.search(handle2);
         Arrays.sort (items2, new ItemComparator());
 
-        assertEquals (items.length - 2, items2.length);
+        assertEquals (items.length, items2.length);
 
         for (int i = 0; i < items2.length; i++) {
             items2[i].replace();
@@ -182,17 +323,69 @@ public class SearchTest extends TestCase {
         assertIdentical (test0goldenDir, test0dir);
     }
 
+    public void testAssertIdenticalSanity() throws Exception {
+        System.out.println("testAssertIdenticalSanity");
+        File a = new File (System.getProperty("java.io.tmpdir") + File.separator + "a.txt");
+        File b = new File (System.getProperty("java.io.tmpdir") + File.separator + "a.txt");
+        if (a.exists()) {
+            assertTrue ("file locked", a.delete());
+            Thread.currentThread().sleep(400);
+        }
+        if (b.exists()) {
+            assertTrue ("file locked", b.delete());
+            Thread.currentThread().sleep(400);
+        }
+        a.createNewFile();
+        b.createNewFile();
+        a.deleteOnExit();
+        b.deleteOnExit();
+        FileOutputStream oa = new FileOutputStream (a);
+        FileOutputStream ob = new FileOutputStream (b);
+        String content = "This is some useless content\n\n murble wurble\n";
+        FileChannel ac = oa.getChannel();
+        FileChannel bc = ob.getChannel();
+        ByteBuffer buf = ByteBuffer.wrap (content.getBytes());
+        ac.write(buf);
+        bc.write(buf);
+        ac.force(true);
+        bc.force(true);
+        ac.close();
+        bc.close();
+        assertIdentical (a, b);
+    }
+
+    public void testReadFileSanity() throws Exception {
+        System.out.println("testReadFileSanity");
+        File a = new File (System.getProperty("java.io.tmpdir") + File.separator + "c.txt");
+        if (a.exists()) {
+            assertTrue ("file locked", a.delete());
+            Thread.currentThread().sleep(400);
+        }
+        assertTrue ("Tmpdir is broken", a.createNewFile());
+        a.deleteOnExit();
+        FileOutputStream oa = new FileOutputStream (a);
+        String content = "This is some useless content\n\n murble wurble\n";
+        FileChannel ac = oa.getChannel();
+        ByteBuffer buf = ByteBuffer.wrap (content.getBytes());
+        ac.write(buf);
+        ac.force(true);
+        ac.close();
+        assertEquals (content, readFile(a));
+    }
+
     private void assertIdentical (File a, File b) throws IOException {
         assertTrue ("One is a dir one isn't " + a.getPath() + " and " +
                 b.getPath(), a.isDirectory() == b.isDirectory());
         assertTrue (a.exists());
         assertTrue (b.exists());
+        assertTrue (a.getName().equals(b.getName()));
 
         if (a.isFile()) {
+//            System.err.println("Comparing files " + a.getName());
             assertTrue (a.getPath() + " is " +
                     a.length() + " bytes but " + b.getPath() + " is " +
-                    b.length() + " bytes:\n A:\n" + readFile(a) +
-                    "\n\nB:\n" + readFile(b), a.length() == b.length());
+                    b.length() + " bytes:\n EXPECTED:\n" + readFile(a) +
+                    "\n\nACTUAL:\n" + readFile(b), a.length() == b.length());
 
             ByteBuffer aBuffer = ByteBuffer.allocate((int) a.length());
             ByteBuffer bBuffer = ByteBuffer.allocate((int) b.length());
@@ -212,19 +405,27 @@ public class SearchTest extends TestCase {
             aBuffer.rewind();
             bBuffer.rewind();
 
-            int len = (int) a.length();
-            for (int i=0; i < len; i++) {
-                byte aByte = aBuffer.get();
-                byte bByte = bBuffer.get();
-                assertEquals ("Files " + a.getPath() + " and " +
-                        b.getPath() + " differ at byte " + i, aByte, bByte);
-            }
+            int len = (int) Math.min(a.length(), b.length());
+            assertEquals (aBuffer, bBuffer);
+//            for (int i=0; i < len; i++) {
+//                byte aByte = aBuffer.get();
+//                byte bByte = bBuffer.get();
+//                assertEquals ("Files " + a.getPath() + " and " +
+//                        b.getPath() + " differ at byte " + i + "\nEXPECTED:\n" 
+//                        + readFile(a) + "\n\nACTUAL:\n" + readFile(b), aByte,
+//                        bByte);
+//            }
         } else if (a.isDirectory()) {
             File[] aFiles = a.listFiles();
             File[] bFiles = b.listFiles();
+//            System.err.println("Comparing directories " + a.getName() + " and " + b.getName());
             Arrays.sort (aFiles, new FC());
             Arrays.sort (bFiles, new FC());
-            assertEquals (aFiles.length, bFiles.length);
+            assertEquals ("Mismatched number of files in directory - " + a.getPath() +
+                    " contains " + aFiles.length + ", " + b.getPath() + 
+                    " contains " + bFiles.length + "\nA-Files:" + list(aFiles) +
+                    "\nB-Files:" + list(bFiles), aFiles.length, bFiles.length);
+
             for (int i=0; i < aFiles.length; i++) {
                 assertEquals (aFiles[i].getName(), bFiles[i].getName());
                 assertIdentical (aFiles[i], bFiles[i]);
@@ -232,13 +433,41 @@ public class SearchTest extends TestCase {
         }
     }
 
-    private CharSequence readFile(File f) throws IOException {
+    private String list(File[] files) {
+        StringBuffer sb = new StringBuffer(" [");
+        for (int i=0; i < files.length; i++) {
+            sb.append (files[i].getName());
+            if (i != files.length-1) {
+                sb.append (", ");
+            }
+        }
+        sb.append("] ");
+        return sb.toString();
+    }
+
+    private static final int PADDING = 40;
+    private String context (Item item) throws IOException {
+        String all = readFile (item.getFile());
+        Point p = item.getLocation();
+        if (p.x < all.length() && p.y < all.length()) {
+            int end = Math.min (all.length() - 1, p.y + PADDING);
+            int start = Math.max (0, p.x - PADDING);
+            StringBuffer sb = new StringBuffer(all.substring(start, end));
+            sb.insert(PADDING, "[");
+            sb.insert((sb.length() + 1) - PADDING, "]");
+            return sb.toString();
+        }
+        return all;
+    }
+
+    private String readFile(File f) throws IOException {
         FileInputStream fis = new FileInputStream(f);
         FileChannel channel = fis.getChannel();
         ByteBuffer buf = ByteBuffer.allocate((int) f.length());
         channel.read(buf);
         channel.close();
-        return Charset.defaultCharset().decode(buf);
+        buf.rewind();
+        return Charset.defaultCharset().decode(buf).rewind().toString();
     }
 
     private static final class FC implements Comparator {
