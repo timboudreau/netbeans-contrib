@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import javax.swing.event.ChangeListener;
+import javax.swing.JComponent;
+import java.awt.Component;
 import java.util.NoSuchElementException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
         
@@ -84,6 +86,23 @@ public class WS70ServerUIWizardIterator implements WizardDescriptor.Instantiatin
         if(panel==null){
             panel = new WS70AddServerChoicePanel();
         }
+        Component c = panel.getComponent();
+        String[] steps = new String[1];
+        steps[0]=c.getName();
+        if (c instanceof JComponent) { // assume Swing components
+            JComponent jc = (JComponent) c;
+            // Sets steps names for a panel
+            jc.putClientProperty("WizardPanel_contentData", steps);         //NOI18N
+            // Turn on subtitle creation on each step
+            jc.putClientProperty("WizardPanel_autoWizardStyle",             //NOI18N
+                    Boolean.TRUE);
+            // Show steps on the left side with the image on the background
+            jc.putClientProperty("WizardPanel_contentDisplayed",            //NOI18N 
+                    Boolean.TRUE);
+            // Turn on numbering of all steps
+            jc.putClientProperty("WizardPanel_contentNumbered",             //NOI18N
+                    Boolean.TRUE);
+        }        
         return panel;
     }       
  

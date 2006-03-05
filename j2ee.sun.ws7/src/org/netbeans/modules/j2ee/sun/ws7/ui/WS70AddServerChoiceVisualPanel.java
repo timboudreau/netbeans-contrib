@@ -173,7 +173,9 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
             listeners.add(l);
         }
     }
-    
+    public String getName(){
+        return NbBundle.getMessage(WS70AddServerChoiceVisualPanel.class, "LBL_AddServerWizardTitle");
+    }
     public void removeChangeListener(ChangeListener l) {
         synchronized (listeners) {
             listeners.remove(l);
