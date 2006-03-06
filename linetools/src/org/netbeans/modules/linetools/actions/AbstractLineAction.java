@@ -26,7 +26,7 @@ import org.openide.windows.TopComponent;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public abstract class AbstractLineAction extends CookieAction {
-
+    
     protected void performAction(Node[] activatedNodes) {
         EditorCookie ec = (EditorCookie) activatedNodes[0].getCookie(EditorCookie.class);
         if (ec != null) {
@@ -42,23 +42,45 @@ public abstract class AbstractLineAction extends CookieAction {
             }
         }
     }
-
+    
+    protected boolean enable(Node[] activatedNodes) {
+        if (activatedNodes == null || activatedNodes.length == 0) {
+            return false;
+        }
+        EditorCookie ec = (EditorCookie) activatedNodes[0].getCookie(EditorCookie.class);
+        if (ec != null) {
+            JEditorPane[] panes = ec.getOpenedPanes();
+            if (panes != null) {
+                TopComponent activetc = TopComponent.getRegistry().getActivated();
+                for (int i = 0; i < panes.length; i++) {
+                    if (activetc.isAncestorOf(panes[i])) {
+                        if (panes[i].isEditable()) {
+                            return true;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
     protected abstract void doLineOperation(JTextComponent textComponent);
-
+    
     protected int mode() {
         return CookieAction.MODE_EXACTLY_ONE;
     }
-
+    
     protected Class[] cookieClasses() {
         return new Class[] {
             EditorCookie.class
         };
     }
-
+    
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
-
+    
     protected boolean asynchronous() {
         return false;
     }
