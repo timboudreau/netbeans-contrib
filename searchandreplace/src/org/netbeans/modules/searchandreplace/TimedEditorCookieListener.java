@@ -48,6 +48,8 @@ class TimedEditorCookieListener implements LookupListener, ActionListener, Runna
     private final int loc;
     private final Lookup.Result result;
 
+    static int TIMEOUT = 7000;
+
     private final int end;
     public TimedEditorCookieListener(Lookup lkp, int loc, int end) {
         this.loc = loc;
@@ -55,7 +57,7 @@ class TimedEditorCookieListener implements LookupListener, ActionListener, Runna
         result = lkp.lookup(new Lookup.Template(EditorCookie.class));
         if (!position()) {
             result.addLookupListener(this);
-            timer = new Timer (7000, this);
+            timer = new Timer (TIMEOUT, this);
             timer.start();
         } else {
             timer = null;
@@ -63,7 +65,9 @@ class TimedEditorCookieListener implements LookupListener, ActionListener, Runna
     }
 
     public void resultChanged(LookupEvent ev) {
-        position();
+        if (position()) {
+            shutdown();
+        }
     }
 
     public void cancel() {
