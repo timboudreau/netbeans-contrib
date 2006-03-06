@@ -106,7 +106,7 @@ public class TimedEditorCookieListenerTest extends TestCase {
         EC ec = new EC();
         ec.assertNotCalled();
 
-        //let half of the 7 second timeout expire
+        //let double the 7 second timeout expire
         Thread.currentThread().sleep(TimedEditorCookieListener.TIMEOUT * 2);
         ic.set(Collections.singleton(ec), null);
 
