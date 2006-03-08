@@ -50,6 +50,7 @@ import org.netbeans.modules.j2ee.sun.dd.api.web.SunWebApp;
 import org.netbeans.modules.j2ee.sun.ws7.j2ee.ResourceType;
 import org.netbeans.modules.j2ee.sun.ws7.ui.WS70URIManager;
 import org.netbeans.modules.j2ee.sun.ws7.ui.WS70ConfigSelectDialog;
+import org.netbeans.modules.j2ee.sun.ws7.ui.WS70ServerUIWizardIterator;
 
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -116,14 +117,15 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         return port;
     }
     public boolean isLocalServer(){
-        //TBD Find a more accurate way
-        //May be asking the user.
-        
-        if(host.equals("localhost")|| host.equals("127.0.0.1")){            
-            return true;
-        }
-        return false;
+        InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
+        String isLocal = ip.getProperty(WS70ServerUIWizardIterator.PROP_LOCAL_SERVER);
+        return Boolean.parseBoolean(isLocal);
     }
+    public boolean isAdminOnSSL(){
+        InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
+        String isSSL = ip.getProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT);
+        return Boolean.parseBoolean(isSSL);
+    }    
     // returns the default config Target selected by the user.
     // used by JSPServletFinder
     public Target getDefaultTarget(){

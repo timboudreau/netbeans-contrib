@@ -17,6 +17,7 @@
 
 package org.netbeans.modules.j2ee.sun.ws7.ui;
 import org.openide.WizardDescriptor;
+import org.openide.ErrorManager;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -42,7 +43,8 @@ public class WS70ServerUIWizardIterator implements WizardDescriptor.Instantiatin
     private final static String PROP_CONTENT_SELECTED_INDEX = "WizardPanel_contentSelectedIndex"; // NOI18N
     public final static String PROP_ERROR_MESSAGE = "WizardPanel_errorMessage"; // NOI18N
     private final static String PROP_DISPLAY_NAME = "ServInstWizard_displayName"; // NOI18N
-    
+    public final static String PROP_LOCAL_SERVER = "LocalServer"; // NOI18N
+    public final static String PROP_SSL_PORT = "SSLAdminPort"; // NOI18N
     private WS70AddServerChoicePanel panel;
     private WizardDescriptor wizard;
     /**
@@ -65,15 +67,17 @@ public class WS70ServerUIWizardIterator implements WizardDescriptor.Instantiatin
             String user = visualPanel.getAdminUserName();
             String password = visualPanel.getAdminPassword();
             String location  = visualPanel.getServerLocation();
-            String displayName = (String)wizard.getProperty(PROP_DISPLAY_NAME);            
+            String displayName = (String)wizard.getProperty(PROP_DISPLAY_NAME);
+            boolean localserver = visualPanel.isLocalServer();
+            boolean sslport = visualPanel.isAdminOnSSL();
             InstanceProperties ip = WS70URIManager.createInstanceProperties(location, host, port, user, password, displayName);
- 
+            ip.setProperty(PROP_LOCAL_SERVER, Boolean.toString(localserver));
+            ip.setProperty(PROP_SSL_PORT, Boolean.toString(sslport));
             Set result = new HashSet();
             result.add(ip);
             return result;
         } catch (Exception ex) {
-            ex.printStackTrace();
-            System.err.println("ERROR in creating Instance");
+            ErrorManager.getDefault().log(ErrorManager.EXCEPTION, ex.getMessage());
             return null;
         }
     }

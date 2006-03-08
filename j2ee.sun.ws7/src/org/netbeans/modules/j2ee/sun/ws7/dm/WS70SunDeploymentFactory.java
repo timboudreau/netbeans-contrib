@@ -20,11 +20,13 @@ import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
+import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.netbeans.modules.j2ee.sun.ws7.WS7LibsClassLoader;
 import org.netbeans.modules.j2ee.sun.ws7.ui.WS70URIManager;
+import org.netbeans.modules.j2ee.sun.ws7.ui.WS70ServerUIWizardIterator;
 import java.io.File;
 import java.util.HashMap;
 
@@ -32,6 +34,7 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
     private DeploymentFactory ws70DF;
     private static HashMap ws7ClassLoaders;
     private static HashMap connectedDepManagers;
+    private static final String HTTPS=":https";//NOI18N
     
     public static synchronized Object create(){
         try{            
@@ -92,8 +95,13 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
         
         ClassLoader origClassLoader=Thread.currentThread().getContextClassLoader();        
         try{
-            String ws70url = WS70URIManager.getURIWithoutLocation(uri);            
-            Thread.currentThread().setContextClassLoader(ws7Libloader);
+            String ws70url = WS70URIManager.getURIWithoutLocation(uri);
+            InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
+            String isSSL = ip.getProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT);
+            if(Boolean.parseBoolean(isSSL)){
+                ws70url=ws70url+HTTPS;
+            }
+            Thread.currentThread().setContextClassLoader(ws7Libloader);            
             DeploymentManager manager = new WS70SunDeploymentManager(ws70DF, ws70DF.getDeploymentManager(ws70url, uname,  passwd), 
                                                                         uri, uname, passwd);            
             if(connectedDepManagers!=null){
@@ -144,8 +152,13 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
         
         ClassLoader origClassLoader=Thread.currentThread().getContextClassLoader();        
         try{
-            String ws70url = WS70URIManager.getURIWithoutLocation(uri);            
-            Thread.currentThread().setContextClassLoader(ws7Libloader);
+            String ws70url = WS70URIManager.getURIWithoutLocation(uri);
+            InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
+            String isSSL = ip.getProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT);
+            if(Boolean.parseBoolean(isSSL)){
+                ws70url=ws70url+HTTPS;
+            }
+            Thread.currentThread().setContextClassLoader(ws7Libloader);            
             DeploymentManager manager = new WS70SunDeploymentManager(ws70DF, ws70DF.getDisconnectedDeploymentManager(ws70url),
                                                                         uri, null, null);            
             return manager;        

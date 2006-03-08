@@ -33,13 +33,15 @@ import org.openide.WizardDescriptor;
  *
  * @author  Administrator
  */
-public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {    
+public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
+    private static final String LOCALHOST="localhost";//NOI18N
     private String installDirName;    
-    private String hostName;
+    private String hostName=LOCALHOST;
     private String portNumber;
     private String userName;
     private String password;
     private final List listeners = new ArrayList();
+    
     /**
      * Creates new form WS70AddServerChoiceVisualPanel
      */
@@ -65,7 +67,12 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
     public String getServerLocation(){
         return jLocationTxt.getText().trim();
     }
-    
+    public boolean isLocalServer(){
+        return !jCBRemote.isSelected();
+    }
+    public boolean isAdminOnSSL(){
+        return jCBSSLPort.isSelected();
+    }    
     public boolean isValid(WizardDescriptor wizard){        
         if(!validateDirctory()){
             jLocationTxt.setFocusable(true);
@@ -218,6 +225,9 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
         jPasswordLbl = new javax.swing.JLabel();
         jPasswordTxt = new javax.swing.JPasswordField();
         jAdminInstructionsLbl = new javax.swing.JLabel();
+        jCBRemote = new javax.swing.JCheckBox();
+        jSeparator1 = new javax.swing.JSeparator();
+        jCBSSLPort = new javax.swing.JCheckBox();
 
         jServerInstructionsLbl.setText(NbBundle.getBundle(WS70AddServerChoiceVisualPanel.class).getString("LBL_AddServerVisualPanelTitle"));
         jServerInstructionsLbl.getAccessibleContext().setAccessibleName(NbBundle.getBundle(WS70AddServerChoiceVisualPanel.class).getString("A11Y_NAME_AddServerVisualPanelTitle"));
@@ -258,6 +268,8 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
         jAdminHostLbl.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_DESC_AddServerVisualPanelHost"));
         jAdminHostLbl.getAccessibleContext().setAccessibleParent(this);
 
+        jAdminHostTxt.setEditable(false);
+        jAdminHostTxt.setText(LOCALHOST);
         jAdminHostTxt.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jAdminHostTxtCaretUpdate(evt);
@@ -311,36 +323,69 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
         jAdminInstructionsLbl.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_DESC_AddServerVisualPanelAdmin"));
         jAdminInstructionsLbl.getAccessibleContext().setAccessibleParent(this);
 
+        jCBRemote.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_Remote_Mnem").charAt(0));
+        jCBRemote.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("LBL_RegisterRemoteServer"));
+        jCBRemote.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("ToolTip_RegisterRemoteServer"));
+        jCBRemote.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jCBRemote.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jCBRemote.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBRemoteActionPerformed(evt);
+            }
+        });
+        jCBRemote.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jCBRemoteStateChanged(evt);
+            }
+        });
+
+        jCBSSLPort.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_SSL_Mnem").charAt(0));
+        jCBSSLPort.setSelected(true);
+        jCBSSLPort.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("LBL_AddServerVisualPanelSSLPort"));
+        jCBSSLPort.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("Tooltip_AddServerVisualPanelSSLPort"));
+        jCBSSLPort.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jCBSSLPort.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jCBSSLPort.getAccessibleContext().setAccessibleName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_NAME_AddServerVisualPanelSSLPort"));
+        jCBSSLPort.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_DESC_AddServerVisualPanelSSLPort"));
+        jCBSSLPort.getAccessibleContext().setAccessibleParent(this);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(23, 23, 23)
+                .add(36, 36, 36)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jCBRemote)
+                    .add(layout.createSequentialGroup()
+                        .add(jAdminInstructionsLbl)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPasswordLbl)
+                            .add(jAdminHostLbl)
+                            .add(jAdminPortLbl)
+                            .add(jUserNameLbl))
+                        .add(31, 31, 31)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPasswordTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+                            .add(jUserNameTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+                            .add(jAdminHostTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+                            .add(layout.createSequentialGroup()
+                                .add(jAdminPortTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 112, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(25, 25, 25)
+                                .add(jCBSSLPort, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
+                                .add(84, 84, 84))))
+                    .add(layout.createSequentialGroup()
+                        .add(jDirectoryLbl)
+                        .add(16, 16, 16)
+                        .add(jLocationTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 176, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jBrowseBtn))
                     .add(jServerInstructionsLbl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 350, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel2)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                            .add(jDirectoryLbl)
-                            .add(16, 16, 16)
-                            .add(jLocationTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 176, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jBrowseBtn))
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(jAdminHostLbl)
-                                .add(jAdminPortLbl)
-                                .add(jUserNameLbl)
-                                .add(jPasswordLbl))
-                            .add(31, 31, 31)
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(jAdminPortTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-                                .add(jAdminHostTxt)
-                                .add(jUserNameTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-                                .add(jPasswordTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE))))
-                    .add(jAdminInstructionsLbl))
-                .addContainerGap(23, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -348,33 +393,56 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
                 .add(25, 25, 25)
                 .add(jServerInstructionsLbl)
                 .add(16, 16, 16)
-                .add(jLabel2)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel2)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(jLocationTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jDirectoryLbl)
+                        .add(jBrowseBtn)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLocationTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jDirectoryLbl)
-                    .add(jBrowseBtn))
-                .add(21, 21, 21)
+                .add(jCBRemote)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jAdminInstructionsLbl)
-                .add(26, 26, 26)
+                .add(16, 16, 16)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jAdminHostLbl)
-                    .add(jAdminHostTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
+                    .add(jAdminHostTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jAdminHostLbl))
+                .add(15, 15, 15)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jAdminPortLbl)
-                    .add(jAdminPortTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
+                    .add(jAdminPortTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jCBSSLPort))
+                .add(15, 15, 15)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jUserNameTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jUserNameLbl))
-                .add(18, 18, 18)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jPasswordTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jPasswordLbl))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(15, 15, 15)
+                        .add(jPasswordLbl))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(15, 15, 15)
+                        .add(jPasswordTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .add(20, 20, 20))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jCBRemoteStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCBRemoteStateChanged
+        if(!jCBRemote.isSelected()){
+            jAdminHostTxt.setText(LOCALHOST);
+            jAdminHostTxt.setEditable(false);            
+        }else{
+            if(!jAdminHostTxt.isEditable()){
+                jAdminHostTxt.setEditable(true);                
+            }
+        }
+    }//GEN-LAST:event_jCBRemoteStateChanged
+
+    private void jCBRemoteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBRemoteActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_jCBRemoteActionPerformed
 
     private void jLocationTxtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jLocationTxtFocusLost
         String dirName = jLocationTxt.getText().trim();
@@ -473,11 +541,14 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jAdminPortLbl;
     private javax.swing.JTextField jAdminPortTxt;
     private javax.swing.JButton jBrowseBtn;
+    private javax.swing.JCheckBox jCBRemote;
+    private javax.swing.JCheckBox jCBSSLPort;
     private javax.swing.JLabel jDirectoryLbl;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField jLocationTxt;
     private javax.swing.JLabel jPasswordLbl;
     private javax.swing.JPasswordField jPasswordTxt;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel jServerInstructionsLbl;
     private javax.swing.JLabel jUserNameLbl;
     private javax.swing.JTextField jUserNameTxt;
