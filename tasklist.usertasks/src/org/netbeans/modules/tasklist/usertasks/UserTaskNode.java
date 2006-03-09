@@ -54,6 +54,7 @@ import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.transfer.UserTasksTransferable;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;

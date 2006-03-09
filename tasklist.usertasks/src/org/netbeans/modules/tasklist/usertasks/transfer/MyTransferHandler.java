@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.transfer;
 
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -32,6 +33,8 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
 import org.netbeans.modules.tasklist.usertasks.renderers.UserTaskIconProvider;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.ErrorManager;
 
 /**
@@ -53,6 +56,9 @@ public class MyTransferHandler extends TransferHandler {
                 UTUtils.LOGGER.fine("User Tasks Flavor is supported"); // NOI18N
                 tasks = (UserTask[]) t.getTransferData(
                         UserTasksTransferable.USER_TASKS_FLAVOR);
+                for (int i = 0; i < tasks.length; i++) {
+                    tasks[i] = tasks[i].cloneTask();
+                }
             } else if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                 String text = (String) t.getTransferData(
                         DataFlavor.stringFlavor);
@@ -141,9 +147,11 @@ public class MyTransferHandler extends TransferHandler {
         if (obj instanceof UserTaskTreeTableNode) {
             target = ((UserTaskTreeTableNode) obj).getUserTask();
             list = target.getSubtasks();
-            for (int i = 0; i < tasks.length; i++) {
-                if (tasks[i].isAncestorOf(target)) {
-                    return false;
+            if (transferredTasks != null) {
+                for (int i = 0; i < transferredTasks.length; i++) {
+                    if (transferredTasks[i].isAncestorOf(target)) {
+                        return false;
+                    }
                 }
             }
         } else if (obj instanceof UserTaskListTreeTableNode) {
@@ -182,9 +190,17 @@ public class MyTransferHandler extends TransferHandler {
     }
 
     protected void exportDone(JComponent source, Transferable data, int action) {
+        UTUtils.LOGGER.fine("action = " + // NOI18N
+                action);
         if (action == MOVE && transferredTasks != null) {
-            UTUtils.LOGGER.fine("transferredTasks.length " + 
-                    transferredTasks.length);
+            UserTasksTreeTable tt = (UserTasksTreeTable) source;
+            
+            // TODO: any delete in the tree leads to
+            // clearing the selection in the table. This is a workaround:
+            TreePath[] sel = tt.getSelectedPaths();
+            
+            UTUtils.LOGGER.fine("sel.length= " + sel.length); // NOI18N
+            
             for (int i = 0; i < transferredTasks.length; i++) {
                 UserTask ut = transferredTasks[i];
                 if (ut.getParent() != null)
@@ -193,7 +209,46 @@ public class MyTransferHandler extends TransferHandler {
                     ut.getList().getSubtasks().remove(ut);
                 ut.destroy();
             }
+            
+            tt.select(sel);
         }
+        transferredTasks = null;
+    }
+
+    public void exportToClipboard(JComponent comp, Clipboard clip, int action) {
+        boolean exportSuccess = false;
+        Transferable t = null;
+
+	int clipboardAction = getSourceActions(comp) & action;
+	if (clipboardAction != NONE) {
+            t = createTransferable(comp);
+            if (t != null) {
+                clip.setContents(t, null);
+                exportSuccess = true;
+            }
+        }
+
+        if (exportSuccess && action == MOVE && transferredTasks != null) {
+            UserTasksTreeTable tt = (UserTasksTreeTable) comp;
+            TreePath next = null;
+            for (int i = 0; i < transferredTasks.length; i++) {
+                UserTask ut = transferredTasks[i];
+                if (i == transferredTasks.length - 1) {
+                    TreePath sel = tt.findPath(ut);
+                    AdvancedTreeTableNode ttn = (AdvancedTreeTableNode)
+                            ((AdvancedTreeTableNode) sel.getLastPathComponent()).
+                            findNextNodeAfterDelete();
+                    next = new TreePath(ttn.getPathToRoot());
+                }
+                if (ut.getParent() != null)
+                    ut.getParent().getSubtasks().remove(ut);
+                else
+                    ut.getList().getSubtasks().remove(ut);
+                ut.destroy();
+            }
+            tt.select(next);
+        }
+        
         transferredTasks = null;
     }
 }

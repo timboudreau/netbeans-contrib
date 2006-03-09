@@ -13,7 +13,6 @@
 
 package org.netbeans.modules.tasklist.usertasks.model;
 
-import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -33,6 +32,8 @@ import java.util.ResourceBundle;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.usertasks.util.UTTreeIntf;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
@@ -42,6 +43,7 @@ import org.openide.util.NbBundle;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.*;
 import org.netbeans.modules.tasklist.usertasks.annotations.UTAnnotation;
+import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
 
 
 /**
@@ -374,18 +376,18 @@ ObjectList.Owner {
     /**
      * Creates a task with the specified description
      *
-     * @param desc description
+     * @param summary description
      * @param list task list that this task belongs to
      */
-    public UserTask(String desc, UserTaskList list) {
-        this(desc, false, 3, "", "", null, list); // NOI18N
+    public UserTask(String summary, UserTaskList list) {
+        this(summary, false, 3, "", "", null, list); // NOI18N
     }
     
     /**
      *
      * Construct a new task with the given parameters.
      *
-     * @param desc description
+     * @param summary description
      * @param done true = the task is done
      * @param priority 1..5 (High..Low)
      * @param details details
@@ -393,13 +395,13 @@ ObjectList.Owner {
      * @param parent parent task
      * @param list task list that this task belongs to
      */    
-    public UserTask(String desc, boolean done, int priority, String details, 
+    public UserTask(String summary, boolean done, int priority, String details, 
     String category, UserTask parent, UserTaskList list) {
-    	this.summary = desc;
+    	this.summary = summary;
     	this.parent = parent;
         
         assert priority >= 1 && priority <= 5 : "priority ?"; // NOI18N
-        assert desc != null : "desc == null"; // NOI18N
+        assert summary != null : "desc == null"; // NOI18N
         assert details != null : "details == null"; // NOI18N
         assert category != null : "category == null"; // NOI18N
 
@@ -711,13 +713,30 @@ ObjectList.Owner {
     }
     
     /**
+     * Test whether all tasks that this one depends on are done.
+     *
+     * @return all dependencies are done
+     */
+    public boolean areDependenciesDone() {
+        List deps = this.getDependencies();
+        for (int i = 0; i < deps.size(); i++) {
+            Dependency d = (Dependency) deps.get(i);
+            if (d.getType() == Dependency.END_BEGIN) {
+                if (!d.getDependsOn().isDone())
+                    return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
      * Checks whether this task could be started. This method als could
      * return true for a task that is currently running.
      *
      * @return true = this task could be started
      */
     public boolean isStartable() {
-        return !isSpentTimeComputed() && !isDone();
+        return !isSpentTimeComputed() && !isDone() && areDependenciesDone();
     }
     
     /**
@@ -959,7 +978,20 @@ ObjectList.Owner {
             setCompletedDate(System.currentTimeMillis());
         else
             setCompletedDate(0);
-            
+    
+        if (!isDone()) {
+            UserTask[] t = findTasksThatDependOnThisOne();
+            UTUtils.LOGGER.fine("t.length = " + t.length); // NOI18N
+            for (int i = 0; i < t.length; i++) {
+                Dependency d = t[i].findDependencyOn(this);
+                if (d.getType() == Dependency.END_BEGIN) {
+                    t[i].setDone(false);
+                    t[i].setSpentTime(0);
+                    t[i].getWorkPeriods().clear();
+                }
+            }
+        }
+        
         if (annotation != null) {
             annotation.setDone(isDone());
         }
@@ -1234,6 +1266,45 @@ ObjectList.Owner {
     }
     
     /**
+     * Finds a dependency on another task.
+     *
+     * @param ut another task
+     * @return found dependency of this task on <code>ut</code> or null
+     */
+    public Dependency findDependencyOn(UserTask ut) {
+        for (int i = 0; i < dependencies.size(); i++) {
+            Dependency d = (Dependency) dependencies.get(i);
+            if (d.getDependsOn() == ut)
+                return d;
+        }
+        return null;
+    }
+    
+    /**
+     * Searches in the whole task list for tasks that depend on this one.
+     *
+     * @return found tasks
+     */
+    public UserTask[] findTasksThatDependOnThisOne() {
+        List t = UTUtils.filter(new UTTreeIntf(getList()), new UnaryFunction() {
+            public Object compute(Object obj) {
+                if (obj instanceof UserTask) {
+                    UserTask ut = (UserTask) obj;
+                    // UTUtils.LOGGER.fine("testing " + ut);
+                    Boolean b = Boolean.valueOf(
+                            ut.findDependencyOn(UserTask.this) != null);
+                    //UTUtils.LOGGER.fine("b = " + b + " for " + 
+                    //        ut + " and " + UserTask.this);
+                    return b;
+                } else {
+                    return Boolean.FALSE;
+                }
+            }
+        });
+        return (UserTask[]) t.toArray(new UserTask[t.size()]);
+    }
+    
+    /**
      * Copy all the fields in the given task into this object.
      *         Should only be called on an object of the EXACT same type.
      *         Thus, if you're implementing a subclass of Task, say
@@ -1427,7 +1498,8 @@ ObjectList.Owner {
      * @return summary string 
      */
     public String toString() {
-        return "UserTask[\"" + getSummary() + "]"; // NOI18N
+        return "UserTask[" + getSummary() + ", " + 
+                getDetails() + "]"; // NOI18N
     }
 
     public void propertyChange(PropertyChangeEvent evt) {

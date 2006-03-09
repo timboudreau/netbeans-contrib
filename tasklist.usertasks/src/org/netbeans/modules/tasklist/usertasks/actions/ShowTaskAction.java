@@ -17,7 +17,7 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.openide.DialogDescriptor;

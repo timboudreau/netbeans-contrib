@@ -16,7 +16,7 @@ package org.netbeans.modules.tasklist.usertasks.translators;
 import java.util.ArrayList;
 import java.util.List;
 import net.fortuna.ical4j.data.CalendarBuilder;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  * Workaround for the X-NETBEANS-WORK-PERIOD;START=20050524T083759Z:76 and

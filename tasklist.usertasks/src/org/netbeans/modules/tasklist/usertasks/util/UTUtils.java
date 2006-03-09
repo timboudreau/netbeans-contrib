@@ -1,0 +1,275 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package org.netbeans.modules.tasklist.usertasks.util;
+
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JEditorPane;
+import org.netbeans.modules.tasklist.core.TLUtils;
+import org.openide.ErrorManager;
+
+import org.openide.cookies.EditorCookie;
+import org.openide.cookies.LineCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.URLMapper;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.Node;
+import org.openide.text.CloneableEditorSupport;
+import org.openide.text.Line;
+import org.openide.text.NbDocument;
+import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
+
+/**
+ * Utility methods for usertasks.
+ *
+ * @author tl
+ */
+public final class UTUtils {
+    public static final Logger LOGGER = TLUtils.getLogger(UTUtils.class);
+    
+    static {
+        LOGGER.setLevel(Level.OFF);
+    }
+
+    /**
+     * Prepares a (possibly) multi line text for showing as a tooltip
+     * (converts it to html).
+     *
+     * @param text a text
+     * @return a tooltip
+     */
+    public static String prepareForTooltip(String text) {
+        int index = text.indexOf('\n');
+        if (index == -1)
+            return text;
+        
+        StringBuffer sb = new StringBuffer("<html>"); // NOI18N
+        while (index >= 0) {
+            sb.append(text.substring(0, index));
+            sb.append("<br>"); // NOI18N
+            text = text.substring(index + 1);
+            index = text.indexOf('\n');
+        };
+        sb.append(text);
+        sb.append("</html>"); // NOI18N
+        return sb.toString();
+    }
+    
+    /**
+     * Compares 2 objects using equals(Object).
+     *
+     * @param obj1 an object or null
+     * @param obj2 an object or null
+     * @return true if obj1 == null && obj2 == null or obj1.equals(obj2)
+     */
+    public static boolean objectsEquals(Object obj1, Object obj2) {
+        if (obj1 == null && obj2 == null)
+            return true;
+        if (obj1 != null && obj2 == null)
+            return false;
+        if (obj1 == null && obj2 != null)
+            return false;
+        return obj1.equals(obj2);
+    }
+    
+    /**
+     * Utility method which attempts to find the activated nodes
+     *	for the currently showing topcomponent in the editor window.
+     *
+     * @return editor nodes or null
+     */
+    public static Node[] getEditorNodes() {
+        // First try to get the editor window itself; if you right click
+        // on a node in the Todo Window, that node becomes the activated
+        // node (which is good - it makes the properties window show the
+        // todo item's properties, etc.) but that means that we can't
+        // find the editor position via the normal means.
+        // So, we go hunting for the topmosteditor tab, and when we find it,
+        // ask for its nodes.
+        Node[] nodes = null;
+        WindowManager wm = WindowManager.getDefault();
+
+        // HACK ALERT !!! HACK ALERT!!! HACK ALERT!!!
+        // Look for the source editor window, and then go through its
+        // top components, pick the one that is showing - that's the
+        // front one!
+        Mode mode  = wm.findMode(CloneableEditorSupport.EDITOR_MODE);
+        if (mode == null) {
+            return null;
+        }
+        TopComponent [] tcs = mode.getTopComponents();
+        for (int j = 0; j < tcs.length; j++) {
+            // Found the source editor...
+            if (tcs[j].isShowing()) {
+                nodes = tcs[j].getActivatedNodes();
+                break;
+            }
+        }
+        return nodes;
+    }
+
+    /**
+     * Finds cursor position.
+     *
+     * @param nodes nodes to search. May be null
+     * @return found line object or null if nothing found.
+     */
+    public static Line findCursorPosition(Node[] nodes) {
+        if (nodes == null) {
+            UTUtils.LOGGER.fine("nodes == null"); // NOI18N
+            return null;
+        }
+
+        UTUtils.LOGGER.fine("searching in " + nodes.length + " nodes"); // NOI18N
+        for (int i = 0; i < nodes.length; i++) {
+            UTUtils.LOGGER.fine("searching in " + nodes[i]); // NOI18N
+            EditorCookie ec = (EditorCookie) nodes[i].getCookie(EditorCookie.class);
+
+            if (ec != null) {
+                UTUtils.LOGGER.fine("ec found"); // NOI18N
+                JEditorPane[] editorPanes = ec.getOpenedPanes();
+                if ((editorPanes != null) && (editorPanes.length > 0)) {
+                    UTUtils.LOGGER.fine("editorPanes found"); // NOI18N
+                    int line = NbDocument.findLineNumber(
+                        ec.getDocument(),
+                        editorPanes[0].getCaret().getDot());
+                    LineCookie lc = (LineCookie) nodes[i].
+                        getCookie(LineCookie.class);
+                    if (lc != null) {
+                        Line l = lc.getLineSet().getCurrent(line);
+                        if (l != null)
+                            return l;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds a FileObject corresponding to the specified file name.
+     *
+     * @param filename a filename
+     * @return found FileObject or null
+     */
+    public static FileObject getFileObjectForFile(String filename) {
+        return FileUtil.toFileObject(FileUtil.normalizeFile(new File(filename)));
+    }
+    
+    /** 
+     * Return the Line object for a particular line in a file.
+     *
+     * @param fo a file
+     * @param lineno line number: 0, 1, 2, 3, ...
+     * @return Line object or null
+     */
+    public static Line getLineByFile(FileObject fo, int lineno) {
+        DataObject dobj = null;
+        try {
+            dobj = DataObject.find(fo);
+        } catch (DataObjectNotFoundException e) {
+            ErrorManager.getDefault().log(
+                "No data object could be found for file object " + fo); // NOI18N
+        }
+
+        if (dobj == null) 
+            return null;
+
+        // Go to the given line
+        try {
+            LineCookie lc = (LineCookie)dobj.getCookie(LineCookie.class);
+            if (lc != null) {
+                Line.Set ls = lc.getLineSet();
+                if (ls != null) {
+                    // I'm subtracting 1 because empirically I've discovered
+                    // that the editor highlights whatever line I ask for plus 1
+                    Line l = ls.getCurrent(lineno);
+                    return l;
+                }
+            }
+        } catch (Exception e) {
+            ErrorManager.getDefault().
+                notify(ErrorManager.INFORMATIONAL, e);
+        }
+        return null;
+    }
+
+    /**
+     * Finds URL with the type URLMapper.ECTERNAL for the specified
+     * Line object.
+     *
+     * @param line a line objct
+     * @return found URL or null
+     */
+    public static URL getExternalURLForLine(Line line) {
+        DataObject dobj = (DataObject) line.getLookup().
+            lookup(DataObject.class);
+        URL url = null;
+        if (dobj != null) {
+            FileObject fo = dobj.getPrimaryFile();
+            url = URLMapper.findURL(fo, URLMapper.EXTERNAL);
+
+            /*
+            if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
+                UTUtils.LOGGER.fine("URLMapper.EXTERNAL" + 
+                    URLMapper.findURL(fo, URLMapper.EXTERNAL));
+                UTUtils.LOGGER.fine("URLMapper.INTERNAL" + 
+                    URLMapper.findURL(fo, URLMapper.INTERNAL));
+                UTUtils.LOGGER.fine("URLMapper.NETWORK" + 
+                    URLMapper.findURL(fo, URLMapper.NETWORK));
+            }
+             */
+        }
+        
+        return url;
+    }
+    
+    /**
+     * Searchs for nodes in a tree that pass a filter.
+     *
+     * @param t a tree
+     * @param filter Boolean f(Object). Filter function.
+     */
+    public static List filter(TreeIntf t, UnaryFunction filter) {
+        List r = new ArrayList();
+        filter(t, t.getRoot(), filter, r);
+        return r;
+    }
+    
+    /**
+     * Searches for nodes in a tree that pass a filter.
+     *
+     * @param t a tree
+     * @param node this node and all it's descendants will be filtered
+     * @param result nodes that passed the filter will be stored here
+     */
+    private static void filter(TreeIntf t, Object node, 
+            UnaryFunction filter, List result) {
+        if (((Boolean) filter.compute(node)).booleanValue())
+            result.add(node);
+        for (int i = 0; i < t.getChildCount(node); i++) {
+            filter(t, t.getChild(node, i), filter, result);
+        }
+    }
+}

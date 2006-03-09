@@ -16,15 +16,12 @@ package org.netbeans.modules.tasklist.usertasks.model;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.text.ParseException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.ListIterator;
 
 import junit.framework.Test;
-import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.model.ValidationException;
 
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
@@ -69,8 +66,9 @@ public class UserTaskListTest extends NbTestCase {
      */
     private UserTaskList saveAndLoad(UserTaskList utl) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Writer w = new OutputStreamWriter(out, "UTF-8");
         ICalExportFormat exp = new ICalExportFormat();
-        exp.writeList(utl, out);
+        exp.writeList(utl, w, true);
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         ICalImportFormat imp = new ICalImportFormat();
 
@@ -192,10 +190,11 @@ public class UserTaskListTest extends NbTestCase {
 
         // Write the list back out
         ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
+        Writer w = new OutputStreamWriter(out, "UTF-8");
 
         ICalExportFormat ef = new ICalExportFormat();
         try {
-            ef.writeList(list, out);
+            ef.writeList(list, w, true);
         } catch (Exception e) {
             throw e;
         }

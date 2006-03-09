@@ -18,6 +18,8 @@ import org.netbeans.modules.tasklist.usertasks.*;
 
 /**
  * Dependency for a task
+ *
+ * @author tl
  */
 public class Dependency implements Cloneable {
     /**
@@ -37,6 +39,12 @@ public class Dependency implements Cloneable {
     
     private UserTask dependsOn;
     
+    /**
+     * Constructor.
+     *
+     * @param dependsOn the task we depend on.
+     * @type one of END_BEGIN and BEGIN_BEGIN
+     */
     public Dependency(UserTask dependsOn, int type) {
         this.type = type;
         this.dependsOn = dependsOn;
@@ -54,7 +62,7 @@ public class Dependency implements Cloneable {
     /**
      * Returns type of this dependency
      *
-     * @return one of END_BEGINN and BEGIN_BEGIN
+     * @return one of END_BEGIN and BEGIN_BEGIN
      */
     public int getType() {
         return type;

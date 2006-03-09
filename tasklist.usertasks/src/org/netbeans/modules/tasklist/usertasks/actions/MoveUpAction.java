@@ -16,7 +16,7 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;

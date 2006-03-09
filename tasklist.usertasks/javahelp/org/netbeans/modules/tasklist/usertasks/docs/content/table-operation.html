@@ -2,18 +2,22 @@
 <html>
 <head>
 <!--
-   -                 Sun Public License Notice
-   - 
-   - The contents of this file are subject to the Sun Public License
-   - Version 1.0 (the "License"). You may not use this file except in
-   - compliance with the License. A copy of the License is available at
-   - http://www.sun.com/
-   - 
-   - The Original Code is NetBeans. The Initial Developer of the Original
-   - Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
-   - Microsystems, Inc. All Rights Reserved.
-  -->
+- Sun Public License Notice
+- - The contents of this file are subject to the Sun Public License
+- Version 1.0 (the "License"). You may not use this file except in
+- compliance with the License. A copy of the License is available at
+- http://www.sun.com/
+- - The Original Code is NetBeans. The Initial Developer of the Original
+- Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+- Microsystems, Inc. All Rights Reserved.
+-->
 
+
+
+  
+
+
+  
   
   
   <title>Using the Table</title>
@@ -23,46 +27,87 @@
 
 <body>
 
+
+
 <h2> Using the Task List Table</h2>
 
+
+
 <h3>Choosing visible columns/Sorting/Editing</h3>
+
+
 
 Tasks have many properties, and by default only a few of
 these properties are shown in the task list table. You can set
 the sorting column by simply clicking on a table header.
 Clicking repeatedly will reverse the sort order and turn off the
 sorting.
-Use F2 to start editing a cell. Note that you can also reorder columns
-by dragging
-them around. You can also change the visible columns by clicking the
-little icon (<img src="columns.gif" title="" alt="Columns" style="width: 12px; height: 12px;">) which
+Use F2 to start editing a cell.&nbsp;&nbsp;You can also change the visible columns by clicking the
+little icon (<img src="images/columns.gif" title="" alt="Columns" style="width: 12px; height: 12px;">)
+which
 appears to the right of the table headers,
 straight above the vertical scrollbar (see image below). You may select
 multiple tasks and change some properties of the selected tasks at
 once. The view also remembers selected tasks and scrollbar positions.
-Different icons are used for undone (<img src="task.gif" alt="Task" style="width: 16px; height: 16px;">) and done (<img src="doneItem.gif" alt="Done item" style="width: 16px; height: 16px;">) tasks.
+Different icons are used for undone (<img src="images/task.gif" alt="Task" style="width: 16px; height: 16px;">) and
+done (<img src="images/doneItem.gif" alt="Done item" style="width: 16px; height: 16px;">) tasks.
 The same icons are used in
-the editor if a line is associated with the task.
-<p><img src="table.gif" title="" alt="Table"><br>
+the editor if a line is associated with the task.<br>
+
+<br>
+
+Drag &amp; Drop support:<br>
+
+<ul>
+
+  <li>columns can be reordered&nbsp;by dragging
+them around</li>
+
+  <li>tasks can be moved and copied (use system specific modifier keys like Control in KDE)</li>
+
+  <li>dropping a task over an editor pastes it's summary</li>
+
+  <li>dropping some text over a task creates a new one (dragged text is used for summary of newly created task)</li>
+
+</ul>
+
+
+<p><img src="images/table.gif" title="" alt="Table"><br>
+
+
 
 </p>
 
+
+
 <h3>Available columns:</h3>
 
+
+
 <ul>
+
+
 
   <li>Summary - Summary for
 the task.</li>
 
+
+
   <li>Priority - Contains the
 priority of the task.</li>
+
+
 
   <li>Done - Shows whether
 a&nbsp; particular task is done. A task is done when it's percent
 complete value is 100%.</li>
 
+
+
   <li>Percent Complete - Shows
 completion status of a task.</li>
+
+
 
   <li>Effort - Effort cells are
 painted
@@ -70,46 +115,77 @@ in red using a bold font if the sum of the spent time and the remaining
 effort exceeds
 the planed effort.</li>
 
+
+
   <li>Rem. Effort - Remaining
 effort. This value is computed as Effort * (1 - Percent Complete)</li>
+
+
 
   <li>Spent Time - Shows the
 time that was spent working on this task.</li>
 
+
+
   <li>Details - Here you can
 write a longer description of the task</li>
+
+
 
   <li>File - Contains URL
 associated with the task.</li>
 
+
+
   <li>Line - Contains the line
 number in the associated file.</li>
+
+
 
   <li>Category - A possible
 category for the task. </li>
 
+
+
   <li>Created - The date when
 the task was created. </li>
 
+
+
   <li>Edited - The date when
 the task was last edited. </li>
+
+
 
   <li>Completed - This columns
 contains the date when a particular task was completed. It
 will be filled automatically if you mark a task as done.</li>
 
+
+
   <li>Due date - Due date is
 painted in red if the deadline was not met.</li>
+
+
 
   <li>Start - Planned start
 date for the task.</li>
 
-  <li>Spent Time Today - Shows the time that was spent working on the
+
+
+  <li>Spent Time Today - Shows the time that was spent working on
+the
 task today.<br>
+
+
 
   </li>
 
+
+
 </ul>
+
+
 
 <hr>Comments &amp; requests to <a href="mailto:dev@tasklist.netbeans.org"><code>dev@tasklist.netbeans.org</code></a>.
 Further information at <a href="http://tasklist.netbeans.org/"><code>http://tasklist.netbeans.org</code></a>.

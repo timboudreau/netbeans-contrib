@@ -13,10 +13,16 @@
 
 package org.netbeans.modules.tasklist.usertasks.translators;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
@@ -36,7 +42,6 @@ import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.model.component.VToDo;
-import net.fortuna.ical4j.model.component.XComponent;
 import net.fortuna.ical4j.model.parameter.XParameter;
 import net.fortuna.ical4j.model.property.Categories;
 import net.fortuna.ical4j.model.property.Completed;
@@ -63,7 +68,6 @@ import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
-import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
@@ -98,6 +102,23 @@ public class ICalExportFormat implements ExportImportFormat {
         new SimpleDateFormat(DATEFORMATZ);
     
     /**
+     * Converts a stream to default system line endings.
+     *
+     * @param r \r\n terminated strings
+     * @param w default system line endings
+     */
+    private static void convertToSystem(Reader r, Writer w) throws
+    IOException {
+        BufferedReader br = new BufferedReader(r);
+        final String EOL = System.getProperty("line.separator"); // NOI18N
+        String line;
+        while ((line = br.readLine()) != null) {
+            w.write(line);
+            w.write(EOL);
+        }
+    }
+    
+    /**
      * Constructor
      */
     public ICalExportFormat() {
@@ -109,12 +130,14 @@ public class ICalExportFormat implements ExportImportFormat {
         try {
             UserTaskList list = UserTaskViewRegistry.getInstance().
                     getCurrent().getUserTaskList();
-            FileOutputStream fos = new FileOutputStream(panel.getFile());
+            Writer w = new OutputStreamWriter(
+                    new BufferedOutputStream(
+                    new FileOutputStream(panel.getFile())), "UTF-8");
             try {
-                writeList(list, fos);
+                writeList(list, w, true);
             } finally {
                 try {
-                    fos.close();
+                    w.close();
                 } catch (IOException e) {
                     ErrorManager.getDefault().notify(e);
                 }
@@ -177,8 +200,10 @@ public class ICalExportFormat implements ExportImportFormat {
      *
      * @param list The tasklist to store
      * @param out The output stream object to use
+     * @param std true = use RFC 2445 line endings, false = system default
+     * line ending
      */
-    public void writeList(UserTaskList list, OutputStream out) 
+    public void writeList(UserTaskList list, Writer out, boolean std) 
     throws IOException, ValidationException, URISyntaxException, ParseException {
         Calendar cal = (Calendar) list.userObject;
         if (cal == null)
@@ -223,9 +248,16 @@ public class ICalExportFormat implements ExportImportFormat {
 
             cal.getComponents().add(td);
         }
-        
+
         CalendarOutputter co = new CalendarOutputter();
-        co.output(cal, out);
+        if (std) {
+            co.output(cal, out);
+        } else {
+            StringWriter sw = new StringWriter();
+            co.output(cal, sw);
+            StringReader sr = new StringReader(sw.getBuffer().toString());
+            convertToSystem(sr, out);
+        }
     }
     
     /**

@@ -40,8 +40,13 @@ public final class UTPasteAction extends UTViewAction {
     
     public void valueChanged(ListSelectionEvent e) {
         TreePath[] paths = utv.getTreeTable().getSelectedPaths();
-        setEnabled(paths.length == 1 && paths[0].getLastPathComponent() 
-                instanceof UserTaskTreeTableNode);
+        if (paths.length == 1) {
+            Object last = paths[0].getLastPathComponent();
+            setEnabled(last instanceof UserTaskTreeTableNode ||
+                    last instanceof UserTaskListTreeTableNode);
+        } else {
+            setEnabled(false);
+        }
     }
 
     public void actionPerformed(ActionEvent e) {

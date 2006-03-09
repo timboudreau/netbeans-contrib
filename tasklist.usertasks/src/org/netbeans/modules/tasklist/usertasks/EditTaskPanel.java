@@ -18,7 +18,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -35,11 +34,12 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.javahelp.Help;
 
 import org.netbeans.modules.tasklist.usertasks.dependencies.DependenciesPanel;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.renderers.PriorityListCellRenderer;
-import org.openide.ErrorManager;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.awt.Mnemonics;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
@@ -461,35 +461,18 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent actionEvent) {
         Object source = actionEvent.getSource();
         if (source == addSourceButton) {
-            HelpCtx help = new HelpCtx("org.netbeans.modules.tasklist.usertasks.AddTask"); // NOI18N
+            HelpCtx help = new HelpCtx(
+                    "org.netbeans.modules.tasklist.usertasks.AddTask"); // NOI18N
             
-            // This copied from openide/deprecated/.../TopManager.showHelp:
+            Help h = (Help) Lookup.getDefault().lookup(Help.class);
             
-            // Awkward but should work.
-            // XXX could instead just make tasklist-usertasks.jar
-            // depend on javahelp-api.jar.
-            ClassLoader systemClassLoader = (ClassLoader)Lookup.getDefault().
-            lookup(ClassLoader.class);
-            
-            try {
-                Class c = systemClassLoader.
-                loadClass("org.netbeans.api.javahelp.Help"); // NOI18N
-                Object o = Lookup.getDefault().lookup(c);
-                if (o != null) {
-                    Method m = c.getMethod("showHelp", // NOI18N
-                        new Class[] {HelpCtx.class});
-                    m.invoke(o, new Object[] {help});
-                    return;
-                }
-            } catch (ClassNotFoundException cnfe) {
-                // ignore - maybe javahelp module is not installed, not
-                // so strange
-            } catch (Exception e) {
-                // potentially more serious
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            if (h != null) {
+                h.showHelp(help);
+                return;
+            } else {
+                // Did not work.
+                Toolkit.getDefaultToolkit().beep();
             }
-            // Did not work.
-            Toolkit.getDefaultToolkit().beep();
         }
     }
     

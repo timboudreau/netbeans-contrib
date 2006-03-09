@@ -20,7 +20,7 @@ import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  * A table header that can work together with SortingModel

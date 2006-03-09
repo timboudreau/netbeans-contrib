@@ -15,11 +15,14 @@ package org.netbeans.modules.tasklist.usertasks.model;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.ValidationException;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -205,10 +209,8 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      */
     private boolean expiredTask;
     
-    /** 
-     * Timer which keeps track of outstanding save requests - that way
-     * deleting multiple items for example will not cause multiple saves. 
-     */
+    /** Timer which keeps track of outstanding save requests - that way
+     * deleting multiple items for example will not cause multiple saves. */
     private Timer runTimer = null;
 
 
@@ -460,9 +462,10 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
         
         FileLock lock = this.file.lock();
         try {
-            OutputStream fos = file.getOutputStream(lock);
+            Writer w = new OutputStreamWriter(new BufferedOutputStream(
+                    file.getOutputStream(lock)), "UTF-8");;
             try {
-                io.writeList(this, fos);
+                io.writeList(this, w, false);
             } catch (ParseException e) {
                 e.printStackTrace();
                 throw new IOException(e.getMessage());
@@ -474,7 +477,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
                 throw new IOException(e.getMessage());
             } finally {
                 try {
-                    fos.close();
+                    w.close();
                 } catch (IOException e) {
                     ErrorManager.getDefault().notify(e);
                 }

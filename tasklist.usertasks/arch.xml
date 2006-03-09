@@ -108,8 +108,9 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="arch-usecases">
   <ul>
-   <li>planning a project and monitor it's status</li>
-   <li>maintain a checklist</li>
+   <li><usecase name="Planning a project" id="planning">planning a project and monitor it's status</usecase></li>
+   <li><usecase name="Maintain a checklist" id="checklist">maintain a checklist</usecase></li>
+   <li><usecase name="Export a task list" id="export">export a tasklist as HTML, plain text or XML</usecase></li>
   </ul>
  </answer>
 
@@ -127,7 +128,8 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="arch-what">
   <p>
-   see the answer to <a href="#arch-usecases">arch-usecases</a>
+   The module can be used to plan a project and monitor it's status or to
+   maintain a checklist.
   </p>
  </answer>
 
@@ -176,8 +178,14 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="compat-standards">
   <p>
-   <a href="http://www.netbeans.org/download/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/i18n-branding.html">RFC 2445</a> 
+  <api name="RFC-2445" url="http://www.faqs.org/rfcs/rfc2445.html" category="standard" type="import" group="dtd">
    is used to store calendar files.
+  </api>
+  <api name="RFC-2445" url="http://www.faqs.org/rfcs/rfc2445.html" category="standard" type="import" group="dtd"/>
+  uses CR+LF as it's end-of-line marker on any platform including Linux. The 
+  code in User Tasks uses platform dependant end-of-line markers instead. It 
+  allows adding an .ics file as text to a CVS repository. Exporting as iCal 2.0
+  uses CR+LF as end-of-line marker on any platform.
   </p>
  </answer>
 
@@ -203,9 +211,9 @@ Microsystems, Inc. All Rights Reserved.
    top components. Usage of org.openide.options.SystemOption for storing 
    setting means compatibility with earlier and future versions of the module.
    Unknown or unsupported components and properties from
-   <a href="http://www.netbeans.org/download/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/i18n-branding.html">RFC 2445</a> 
+   <api name="RFC-2445" category="standard" type="import" group="dtd"/>
    will not be discarded during saving. It means that the compatibility with
-   other <a href="http://www.netbeans.org/download/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/i18n-branding.html">RFC 2445</a> 
+   other <api name="RFC-2445" category="standard" type="import" group="dtd"/>
    implementations and earlier and future versions of this module is 
    maintained.
   </p>
@@ -273,8 +281,27 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="dep-non-nb">
   <ul>
-   <li><a href="http://www.toedter.com/en/jcalendar/">JCalendar</a></li>
-   <li><a href="http://ical4j.sourceforge.net/">iCal4j</a></li>
+   <li><api 
+        name="jcalendar" 
+        group="java" 
+        category="third"  
+        type="import"
+        url="http://www.toedter.com/en/jcalendar/"
+        >
+            UI for calendar 
+        </api>
+   </li>
+   <li>
+        <api 
+        name="ical4j" 
+        group="java" 
+        category="third"  
+        type="import"
+        url="http://ical4j.sourceforge.net/"
+        >
+            Library to read and store ical files
+        </api>
+   </li>
   </ul>
  </answer>
 
@@ -310,9 +337,7 @@ Microsystems, Inc. All Rights Reserved.
         </question>
 -->
  <answer id="deploy-dependencies">
-  <p>
-   org.netbeans.modules.tasklist.usertasks/2 = 55
-  </p>
+  <defaultanswer generate='here'/>
  </answer>
 
 
@@ -339,8 +364,22 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="deploy-jar">
   <ul>
-   <li>ext/ical4j.jar - <a href="http://ical4j.sourceforge.net/">iCal4j</a></li>
-   <li>ext/calendar.jar - <a href="http://www.toedter.com/en/jcalendar/">JCalendar</a></li>
+   <li>
+        <api 
+        name="location-of-jcalendar" 
+        group="java.io.File" 
+        category="private"  
+        type="export"
+        >modules/ext/jcalendar.jar</api>
+   </li>
+   <li>
+        <api 
+        name="location-of-ical4j" 
+        group="java.io.File" 
+        category="private"  
+        type="export"
+        >modules/ext/ical4j.jar</api>   
+    </li>
   </ul>
  </answer>
 
@@ -542,12 +581,13 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="exec-property">
   <ul>
-   <li>netbeans.user is used to store user's task list.</li>   
-   <li>line.separator is used during XML export.</li>
-   <li>user.name is used to fill the owner property of a task.</li>
-   <li>ical4j.unfolding.relaxed is set to true to allow 
-    <a href="http://ical4j.sourceforge.net/">iCal4j</a> to parse files
-    that are incompatible with <a href="http://www.netbeans.org/download/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/i18n-branding.html">RFC 2445</a>
+   <li><api name="netbeans.user" type="import" category="stable" group="property">used to store user's task list</api></li>   
+   <li><api name="line.separator" type="import" category="stable" group="property">used during XML export</api></li>
+   <li><api name="user.name" type="import" category="stable" group="property">used to fill the owner property of a task</api></li>
+   <li><api name="ical4j.unfolding.relaxed" type="import" category="third" group="property" url="http://ical4j.sourceforge.net/"> 
+        is set to true to allow to parse files that are incompatible with
+        <api name="RFC-2445" category="standard" type="import" group="dtd"/>
+   </api>
    </li>
   </ul>
  </answer>
@@ -613,8 +653,8 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="format-clipboard">
   <ul>
-   <li>ExTransferable.multiFlavor</li>
-   <li>DataFlavor.stringFlavor</li>
+   <li>ExTransferable.multiFlavor when multiple tasks are selected</li>
+   <li>DataFlavor.stringFlavor (summary of a selected task)</li>
    <li>new DataFlavor(UserTask.class, "...")</li>
   </ul>
  </answer>
@@ -663,9 +703,15 @@ Microsystems, Inc. All Rights Reserved.
         </question>
 -->
  <answer id="format-types">
-  <p>
-   .ics - see <a href="http://www.netbeans.org/download/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/i18n-branding.html">RFC 2445</a>
-  </p>
+   <ul>
+    <li>.ics - see <api name="RFC-2445" url="http://www.faqs.org/rfcs/rfc2445.html" 
+            category="standard" type="import" group="dtd"></api>
+    </li>
+    <li>.xml - see <api name="xml" url="http://tasklist.netbeans.org/source/browse/tasklist/usertasks/src/org/netbeans/modules/tasklist/usertasks/translators/usertasks-1_2.dtd?rev=1.1&amp;content-type=text/vnd.viewcvs-markup" 
+            
+            category="stable" type="export" group="dtd"/>
+    </li>
+   </ul>
  </answer>
 
 
@@ -925,9 +971,26 @@ Microsystems, Inc. All Rights Reserved.
         </question>
 -->
  <answer id="resources-layer">
-  <p>
-   <a href="http://tasklist.netbeans.org/source/browse/tasklist/usertasks/src/org/netbeans/modules/tasklist/usertasks/mf-layer.xml">Yes.</a>
-  </p>
+  <ul>
+   <li>
+    <api name="layer-definition" type="import" group="layer" category="stable" url="http://tasklist.netbeans.org/source/browse/tasklist/usertasks/src/org/netbeans/modules/tasklist/usertasks/mf-layer.xml">
+     Registers menu, templates, convertors, javahelp, editor annotations, 
+     options dialog panel.    
+    </api>
+   </li>
+   <li>
+    <api name="xml" group="dtd" type="export" category="stable">
+     DTD with the public ID -//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.2//EN
+     is registered.
+    </api>
+   </li>
+   <li>
+    <api name="filters" category="friend" type="import" group="layer">
+     Repository for filters as defined by org.netbeans.modules.tasklist.core.filter.FilterRepository
+     is registered.
+    </api>
+   </li>
+  </ul>
  </answer>
 
 

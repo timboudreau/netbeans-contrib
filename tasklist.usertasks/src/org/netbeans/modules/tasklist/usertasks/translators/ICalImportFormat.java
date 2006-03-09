@@ -13,12 +13,15 @@
 
 package org.netbeans.modules.tasklist.usertasks.translators;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
@@ -28,8 +31,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
 import javax.swing.filechooser.FileSystemView;
 import net.fortuna.ical4j.data.CalendarBuilder;
@@ -52,7 +53,7 @@ import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.OpenFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
@@ -106,6 +107,22 @@ public class ICalImportFormat implements ExportImportFormat {
     }
     
     /**
+     * Converts a stream to RFC 2445 line endings.
+     *
+     * @param r default system line endings
+     * @param w \r\n terminated strings
+     */
+    private static void convertToRFC2445(Reader r, Writer w) throws
+    IOException {
+        BufferedReader br = new BufferedReader(r);
+        String line;
+        while ((line = br.readLine()) != null) {
+            w.write(line);
+            w.write("\r\n");
+        }
+    }
+    
+    /**
      * Constructor
      */
     public ICalImportFormat() {
@@ -125,10 +142,16 @@ public class ICalImportFormat implements ExportImportFormat {
         List dependencies = new ArrayList();
     
         UTUtils.LOGGER.fine("building calendar"); // NOI18N
-        Calendar cal = cb.build(is);
+        
+        Reader r = new InputStreamReader(is, "UTF-8");
+        StringWriter w = new StringWriter();
+        convertToRFC2445(r, w);
+        r = new StringReader(w.getBuffer().toString());
+        
+        Calendar cal = cb.build(r);
         for (Iterator i = cal.getComponents().iterator(); i.hasNext();) {
             Component component = (Component) i.next();
-            UTUtils.LOGGER.fine("component.name = " + component.getName()); // NOI18N
+            // UTUtils.LOGGER.fine("component.name = " + component.getName()); // NOI18N
             if (component.getName().equals(Component.VTODO)) {
                 readVTODO(utl, component, dependencies);
             }

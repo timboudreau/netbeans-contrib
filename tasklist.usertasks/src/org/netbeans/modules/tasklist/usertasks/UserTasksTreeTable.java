@@ -59,6 +59,7 @@ import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableDragGestureRecognizer;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.explorer.ExplorerManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;

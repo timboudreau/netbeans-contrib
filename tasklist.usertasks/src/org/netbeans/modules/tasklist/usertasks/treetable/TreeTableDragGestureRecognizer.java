@@ -19,7 +19,7 @@ import java.awt.dnd.DnDConstants;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  * Parts of this class were copied from the Linux JDK 1.4

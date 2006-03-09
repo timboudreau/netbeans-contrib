@@ -66,6 +66,7 @@ import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.ErrorManager;
 import org.openide.actions.FindAction;
 import org.openide.cookies.InstanceCookie;

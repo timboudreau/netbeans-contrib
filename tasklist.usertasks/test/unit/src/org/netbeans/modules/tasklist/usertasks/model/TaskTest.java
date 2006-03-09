@@ -16,8 +16,7 @@ package org.netbeans.modules.tasklist.usertasks.model;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  *
@@ -77,5 +76,30 @@ public class TaskTest extends TestCase {
         root.getSubtasks().add(b);
         
         assertEquals((50 + 225) * 100 / (500), root.getPercentComplete());
+    }
+    
+    /**
+     * Tests dependencies between tasks.
+     */
+    public void testDependencies() {
+        UserTaskList utl = new UserTaskList();
+        UserTask a = new UserTask("a", utl);
+        UserTask b = new UserTask("b", utl);
+        utl.getSubtasks().add(a);
+        utl.getSubtasks().add(b);
+        
+        a.getDependencies().add(new Dependency(b, Dependency.END_BEGIN));
+        
+        b.setDone(true);
+        assertTrue(b.isDone());
+        assertFalse(a.isDone());
+        
+        a.setDone(true);
+        assertTrue(b.isDone());
+        assertTrue(a.isDone());
+        
+        b.setDone(false);
+        assertFalse(b.isDone());
+        assertFalse(a.isDone());
     }
 }

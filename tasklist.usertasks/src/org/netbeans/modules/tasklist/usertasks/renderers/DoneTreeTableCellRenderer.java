@@ -14,8 +14,8 @@
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
 import java.awt.Component;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableRenderer;
 
@@ -43,9 +43,8 @@ implements TreeTableRenderer {
             return cmp;
         
         if (node instanceof UserTaskTreeTableNode) {
-            boolean b = ((UserTaskTreeTableNode) node).getUserTask().
-                    isProgressComputed();
-            setEnabled(!b);
+            UserTask ut = ((UserTaskTreeTableNode) node).getUserTask(); 
+            setEnabled(!ut.isProgressComputed() && ut.areDependenciesDone());
         }
         return this;
     }
