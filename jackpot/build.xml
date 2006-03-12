@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="netbeans" name="jackpot">
+    <description>Installs binary Jackpot modules into the common build.</description>
+    <import file="../nbbuild/templates/projectized.xml"/>
+
+    <target name="jar">
+        <copy todir="${cluster}/modules">
+            <fileset dir="external/modules">
+                <include name="org-netbeans-modules-jackpot.jar"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="javahelp" depends="init">
+        <copy todir="${cluster}/modules/docs">
+            <fileset dir="external/modules/docs">
+                <include name="org-netbeans-modules-jackpot.jar"/>
+            </fileset>
+        </copy>
+    </target>
+    
+</project>
