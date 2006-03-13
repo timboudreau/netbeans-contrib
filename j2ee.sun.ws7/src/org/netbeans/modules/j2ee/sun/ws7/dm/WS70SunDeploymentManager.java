@@ -116,6 +116,32 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     public int getPort(){
         return port;
     }
+    
+    // Called from Manager Node Customizer only
+    public void refreshInnerDM(String uname, String pword) {
+        if(uname.equals(userName) && pword.equals(password)){            
+            // Nothing is changed, take no action
+            return;
+        }
+        ClassLoader origClassLoader=Thread.currentThread().getContextClassLoader();
+        try{
+            String ws70url = WS70URIManager.getURIWithoutLocation(uri);
+            if(this.isAdminOnSSL()){
+                ws70url=ws70url+":https";
+            }
+            ClassLoader loader = WS70SunDeploymentFactory.getLibClassLoader(serverLocation);
+            if(loader!=null){
+                Thread.currentThread().setContextClassLoader(loader);                
+            }
+            ws70DM = ws70DF.getDeploymentManager(ws70url, uname, pword);
+            userName = uname;
+            password = pword;
+        }catch(DeploymentManagerCreationException ex){
+            ErrorManager.getDefault().log(ErrorManager.EXCEPTION, ex.getMessage());            
+        }finally{
+            Thread.currentThread().setContextClassLoader(origClassLoader);
+        }        
+    }
     public boolean isLocalServer(){
         InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
         String isLocal = ip.getProperty(WS70ServerUIWizardIterator.PROP_LOCAL_SERVER);

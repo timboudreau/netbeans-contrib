@@ -257,6 +257,9 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
         WS70SunDeploymentManager dm =  (WS70SunDeploymentManager)connectedDepManagers.get(uri);        
         return dm;
     }
+    public static ClassLoader getLibClassLoader(String location){
+        return (ClassLoader)ws7ClassLoaders.get(location);
+    }
     // Dummy class for WS70Deployment Factory to get classloader of this class
     public static class Dummy{
         

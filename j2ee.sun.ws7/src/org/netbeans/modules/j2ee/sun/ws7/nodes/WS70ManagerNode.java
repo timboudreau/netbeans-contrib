@@ -26,11 +26,14 @@ import org.openide.ErrorManager;
 import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 
+import org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformImpl;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewAdminConsoleAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewAdminServerLogAction;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
 import org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70LogViewer;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentFactory;
+import org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70J2eePlatformFactory;
+import org.netbeans.modules.j2ee.sun.ws7.ui.WS70Customizer;
 
 import javax.swing.Action;
 
@@ -67,6 +70,14 @@ public class WS70ManagerNode extends AbstractNode implements Node.Cookie{
             null            
         };
     }
+    public boolean hasCustomizer() {
+        return true;
+    }    
+    public java.awt.Component getCustomizer() {
+        WS70J2eePlatformFactory fact = new WS70J2eePlatformFactory();
+        J2eePlatformImpl platform = fact.getJ2eePlatformImpl(manager);
+        return new WS70Customizer(platform, manager);
+    }    
     public String  getAdminURL() {
         String url = null;
         WS70SunDeploymentManager cDm= WS70SunDeploymentFactory.getConnectedCachedDeploymentManager(manager.getUri());

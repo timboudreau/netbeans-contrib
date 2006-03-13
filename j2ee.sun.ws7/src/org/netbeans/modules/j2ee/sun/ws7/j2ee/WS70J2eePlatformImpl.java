@@ -100,7 +100,13 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
 
 
             lib.setContent(J2eeLibraryTypeProvider.VOLUME_TYPE_CLASSPATH, l);
-
+            
+            File doc = InstalledFileLocator.getDefault().locate("docs/j2eeri-1_4-doc-api.zip", null, false); // NOI18N
+            if (doc != null) {
+                l = new ArrayList();
+                l.add(fileToUrl(doc));
+                lib.setContent(J2eeLibraryTypeProvider.VOLUME_TYPE_JAVADOC, l);
+            }            
 
             libraries.add(lib);   
 
