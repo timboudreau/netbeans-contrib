@@ -15,10 +15,13 @@ import appframework.spi.AppImpl;
  *
  * @author TOSHIBA USER
  */
-public class DefaultImpl implements AppImpl {
+class DefaultImpl implements AppImpl {
     
     /** Creates a new instance of DefaultImpl */
     public DefaultImpl() {
+    }
+
+    public void init() {
     }
 
     public Object getDefaultObject(Object scope, String key) {
@@ -40,5 +43,4 @@ public class DefaultImpl implements AppImpl {
     public String getString(Object scope, String key) {
         return null;
     }
-    
 }

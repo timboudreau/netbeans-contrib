@@ -17,13 +17,22 @@ import appframework.spi.AppImpl;
  */
 public final class Application {
     private static Application instance = null;
-    protected Application(AppImpl impl) {
+    Application(AppImpl impl) {
         this.impl = impl;
         register (this);
     }
+
+    public static void initialize() {
+        getDefault().getImpl().init();
+    }
+
+    private static AppImpl lookupDefaultImpl() {
+        //XXX look up by class name from sysprp or metainf lookup, etc.
+        return new DefaultImpl();
+    }
     
     public Application() {
-        this (new DefaultImpl());
+        this (lookupDefaultImpl());
     }
     
     private static final void register (Application app) {
@@ -41,13 +50,14 @@ public final class Application {
         return impl;
     }
     
-    
-    
     public static String getString (Object scope, String key) {
         return getDefault().getImpl().getString (scope, key);
     }
     
     public static Application getDefault() {
+        if (instance == null) {
+            instance = new Application (lookupDefaultImpl());
+        }
         return instance;
     }
     
