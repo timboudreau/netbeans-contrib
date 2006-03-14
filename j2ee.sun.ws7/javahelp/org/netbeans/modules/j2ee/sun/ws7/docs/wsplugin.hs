@@ -13,13 +13,13 @@
 		<homeID>wsplugin_webserver7_plugin_help</homeID>
 		<mapref location="wsplugin-map.jhm"/>
 	</maps>
-	<view mergetype="javax.help.AppendMerge">
+	<view>
 		<name>TOC</name>
 		<label>Table of Contents</label>
 		<type>javax.help.TOCView</type>
 		<data>wsplugin-toc.xml</data>
 	</view>
-	<view mergetype="javax.help.AppendMerge">
+	<view>
 		<name>Index</name>
 		<label>Index</label>
 		<type>javax.help.IndexView</type>
