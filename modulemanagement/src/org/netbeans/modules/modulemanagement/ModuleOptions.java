@@ -42,7 +42,7 @@ public class ModuleOptions implements OptionProvider, NoArgumentProcessor<Void> 
             return;
         }
 
-        list = Option.withoutArgument((char)-1, "listmodules", this); // NOI18N
+        list = Option.withoutArgument(-1, "listmodules", this); // NOI18N
     }
 
     public Option[] getOptions() {
