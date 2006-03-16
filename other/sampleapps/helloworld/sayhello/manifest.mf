@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.samples.modulesystem.sayhello
+OpenIDE-Module-Install: org/netbeans/samples/modulesystem/sayhello/Installer.class
+OpenIDE-Module-Layer: org/netbeans/samples/modulesystem/sayhello/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/samples/modulesystem/sayhello/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

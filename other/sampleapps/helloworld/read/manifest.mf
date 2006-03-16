@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.samples.modulesystem.read
+OpenIDE-Module-Layer: org/netbeans/samples/modulesystem/read/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/samples/modulesystem/read/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
