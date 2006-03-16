@@ -53,6 +53,10 @@ public class HighlightWhitespace implements PropertyChangeListener {
     }
 
     public void install(final JTextComponent component) {
+        if (component == null) {
+            //No editors open
+            return;
+        }
         Mutex.EVENT.readAccess(new Runnable() {
 
             public void run() {
