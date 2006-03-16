@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: cz.solutions.simpleedit
+OpenIDE-Module-Layer: cz/solutions/simpleedit/layer.xml
+OpenIDE-Module-Localizing-Bundle: cz/solutions/simpleedit/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
