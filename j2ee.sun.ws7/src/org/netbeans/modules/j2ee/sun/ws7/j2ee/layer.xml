@@ -36,13 +36,14 @@
                 </folder>
             </folder>
         </folder>
-    </folder>
+    </folder>    
     <folder name="Services">
         <folder name="JavaHelp">
+            <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-j2ee-sun-ws7-helpset.xml" boolvalue="true"/>            
             <file name="org-netbeans-modules-j2ee-sun-ws7-helpset.xml" url="helpset-decl.xml"/>
-            <attr name="org-netbeans-modules-usersguide-below-regular.txt/org-netbeans-modules-j2ee-sun-ws7-helpset-decl.xml" boolvalue="true"/>
+            <attr name="org-netbeans-modules-j2ee-sun-ws7-helpset.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
         </folder>
-    </folder>    
+    </folder>
     <folder name="Templates">
     <folder name="SunWS70Resources">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.sun.ws7.serverresources.wizards.Bundle"/>
