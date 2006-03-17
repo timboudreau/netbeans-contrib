@@ -40,6 +40,8 @@ public class EnableDisableTest extends NbTestCase {
     protected void setUp() throws Exception {
         clearWorkDir();
 
+        System.setProperty("netbeans.user", getWorkDirPath() + File.separator + "userdir");
+
         // initialize whole infra
         Lookup.getDefault().lookup(ModuleInfo.class);
     }
