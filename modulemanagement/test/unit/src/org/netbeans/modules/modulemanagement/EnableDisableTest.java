@@ -86,15 +86,31 @@ public class EnableDisableTest extends NbTestCase {
         CommandLine.getDefault().parse(new String[] { "--disablemodules", "org.my.module"}, System.in, os, err, new File("."));
         assertEquals("No error", 0, err.size());
 
+        os.reset();
+        CommandLine.getDefault().parse(new String[] { "--listmodules" }, System.in, os, err, new File("."));
         if (os.toString().indexOf("org.my.module") < 0) {
             fail("our module should be found: " + os.toString());
         }
 
-        Matcher mac = Pattern.compile("org.my.module *disabled").matcher(os.toString());
+        Matcher mac = Pattern.compile("org.my.module/3 *disabled").matcher(os.toString());
         if (!mac.find()) {
             fail("and should be disabled now: " + os.toString());
         }
 
+        os.reset();
+        CommandLine.getDefault().parse(new String[] { "--enablemodules", "org.my.module"}, System.in, os, err, new File("."));
+        assertEquals("No error", 0, err.size());
+
+        os.reset();
+        CommandLine.getDefault().parse(new String[] { "--listmodules" }, System.in, os, err, new File("."));
+        if (os.toString().indexOf("org.my.module") < 0) {
+            fail("our module should be found: " + os.toString());
+        }
+
+        mac = Pattern.compile("org.my.module/3 *enabled").matcher(os.toString());
+        if (!mac.find()) {
+            fail("and should be disabled now: " + os.toString());
+        }
 
     }
 

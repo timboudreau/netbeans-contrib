@@ -15,6 +15,7 @@ package org.netbeans.modules.modulemanagement;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Collection;
@@ -45,6 +46,8 @@ public class ModuleOptions
 implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcessor<Void> {
     private Option<Void> list;
     private Option<Void> install;
+    private Option<Void> disable;
+    private Option<Void> enable;
     
     /** Creates a new instance of ModuleOptions */
     public ModuleOptions() {
@@ -57,11 +60,13 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
 
         list = Option.withoutArgument(-1, "listmodules", this); // NOI18N
         install = Option.additionalArguments(-1, "installmodules", this); // NOI18N
+        disable = Option.additionalArguments(-1, "disablemodules", this); // NOI18N
+        enable = Option.additionalArguments(-1, "enablemodules", this); // NOI18N
     }
 
     public Option[] getOptions() {
         init();
-        return new Option[] { list, install };
+        return new Option[] { list, install, disable, enable };
     }
 
     public Void process(Option option, Env env) throws CommandException {
@@ -177,6 +182,21 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
 
                     waitFor(cnb, true);
                 }
+                return null;
+            }
+
+            if (disable == option) {
+                for (String name : args) {
+                    changeModuleState(name, false);
+                }
+                return null;
+            }
+
+            if (enable == option) {
+                for (String name : args) {
+                    changeModuleState(name, true);
+                }
+                return null;
             }
         } catch (InterruptedException ex) {
             throw CommandException.exitCode(4, ex);
@@ -185,7 +205,7 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
         }
 
 
-        return null;
+        throw CommandException.exitCode(4);
     }
 
     private static void waitFor(final String codebase, final boolean shouldBeEnabled) throws IOException, InterruptedException {
@@ -212,18 +232,35 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
                     modules = res.allInstances();
 
                     Iterator it = modules.iterator();
+                    boolean found = false;
                     while (it.hasNext()) {
                         ModuleInfo m = (ModuleInfo)it.next();
                         if (m.getCodeNameBase().equals(codebase)) {
-                            if (shouldBeEnabled && m.isEnabled()) {
-                                return;
+                            found = true;
+                            if (shouldBeEnabled) {
+                                if (m.isEnabled()) {
+                                    return;
+                                }
+                            } else {
+                                if (!m.isEnabled()) {
+                                    return;
+                                }
                             }
+                            break;
                         }
+                    }
+
+                    if (!shouldBeEnabled && !found) {
+                        // all modules scanned but non of it has our codename base
+                        return;
                     }
 
                     synchronized (this) {
                         if (!go) {
-                            wait();
+                            wait(10000);
+                        }
+                        if (!go) {
+                            throw new InterruptedException();
                         }
                     }
                 }
@@ -234,6 +271,69 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
         res.addLookupListener(list);
         res.allItems();
         list.waitFor();
+    }
+
+    private void changeModuleState(String cnb, boolean enable) throws IOException, CommandException, InterruptedException {
+        {
+            int slash = cnb.indexOf('/');
+            if (slash >= 0) {
+                cnb = cnb.substring(0, slash);
+            }
+        }
+
+        final String codebase = cnb;
+        final FileObject root = Repository.getDefault().getDefaultFileSystem().getRoot();
+        final FileObject dir = FileUtil.createFolder(root, "Modules");
+        final String fn = cnb.replace('.', '-') + ".xml";
+        final FileObject conf = dir.getFileObject(fn);
+
+        if (conf == null) {
+            throw CommandException.exitCode(8);
+        }
+
+        byte[] arr = new byte[(int)conf.getSize()];
+        InputStream is = conf.getInputStream();
+        int len = is.read(arr);
+        if (len != arr.length) {
+            throw CommandException.exitCode(9);
+        }
+        is.close();
+
+        String config = new String(arr, "utf-8");
+
+        String what = "<param name=\"enabled\">false</param>"; // NOI18N
+        String with = "<param name=\"enabled\">true</param>"; // NOI18N
+        if (!enable) {
+            String s = what;
+            what = with;
+            with = s;
+        }
+
+        final String newConfig = config.replaceAll(what, with);
+
+        if (config.equals(newConfig)) {
+            throw CommandException.exitCode(10);
+        }
+
+        class Write implements FileSystem.AtomicAction {
+            public void run() throws IOException {
+                FileLock lock = conf.lock();
+                OutputStream os = null;
+                try {
+                    os = conf.getOutputStream(lock);
+                    os.write(newConfig.getBytes());
+                } finally {
+                    if (os != null) {
+                        os.close();
+                    }
+                    lock.releaseLock();
+                }
+            }
+        }
+        Write w = new Write();
+        conf.getFileSystem().runAtomicAction(w);
+
+        waitFor(cnb, enable);
     }
 }
 
