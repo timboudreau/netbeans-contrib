@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.ResourceBundle;
 import java.util.jar.JarFile;
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.AdditionalArgumentsProcessor;
@@ -113,6 +114,10 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
         }
     }
 
+    private static ResourceBundle bundle() {
+        return NbBundle.getBundle(ModuleOptions.class);
+    }
+
     public Void process(Option option, Env env, String[] args) throws CommandException {
         try {
             if (option == install) {
@@ -122,15 +127,13 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
                         f = new File(fileName);
                     }
                     if (!f.exists()) {
-                        env.getErrorStream().println("File does not exists " + f);
-                        throw CommandException.exitCode(5);
+                        throw CommandException.exitCode(5, bundle(), "ERR_FileNotFound", f); // NOI18N
                     }
 
                     JarFile jar = new JarFile(f);
                     String cnb = jar.getManifest().getMainAttributes().getValue("OpenIDE-Module"); // NOI18N
                     if (cnb == null) {
-                        env.getErrorStream().println("File does not seem to be a module " + f);
-                        throw CommandException.exitCode(6);
+                        throw CommandException.exitCode(6, bundle(), "ERR_NotModule", f); // NOI18N
                     }
                     {
                         int slash = cnb.indexOf('/');
@@ -174,8 +177,7 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
                     X x = new X();
 
                     if (x.conf != null) {
-                        env.getErrorStream().println("Module with code base " + cnb + " is already installed. Cannot install " + f);
-                        throw CommandException.exitCode(7);
+                        throw CommandException.exitCode(7, bundle(), "ERR_AlreadyInstalled", f, cnb); // NOI18N
                     }
 
                     dir.getFileSystem().runAtomicAction(x);
@@ -205,10 +207,10 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
         }
 
 
-        throw CommandException.exitCode(4);
+        throw new IllegalArgumentException("Unknown option: " + option); // NOI18N
     }
 
-    private static void waitFor(final String codebase, final boolean shouldBeEnabled) throws IOException, InterruptedException {
+    private static void waitFor(final String codebase, final boolean shouldBeEnabled) throws IOException, InterruptedException, CommandException {
         Lookup.Template t = new Lookup.Template(ModuleInfo.class);
         final Lookup.Result res = Lookup.getDefault().lookup(t);
         res.allInstances();
@@ -221,7 +223,7 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
                 go = true;
             }
 
-            public void waitFor() throws InterruptedException {
+            public void waitFor() throws CommandException, InterruptedException {
                 Collection modules;
 
                 for(;;) {
@@ -260,7 +262,7 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
                             wait(10000);
                         }
                         if (!go) {
-                            throw new InterruptedException();
+                            throw CommandException.exitCode(4, bundle(), "ERR_TimeOut", codebase, shouldBeEnabled ? 1 : 0); // NOI18N
                         }
                     }
                 }
@@ -288,14 +290,14 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
         final FileObject conf = dir.getFileObject(fn);
 
         if (conf == null) {
-            throw CommandException.exitCode(8);
+            throw CommandException.exitCode(8, bundle(), "ERR_ModuleNotFound", cnb);
         }
 
         byte[] arr = new byte[(int)conf.getSize()];
         InputStream is = conf.getInputStream();
         int len = is.read(arr);
         if (len != arr.length) {
-            throw CommandException.exitCode(9);
+            throw CommandException.exitCode(8);
         }
         is.close();
 
@@ -312,7 +314,7 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
         final String newConfig = config.replaceAll(what, with);
 
         if (config.equals(newConfig)) {
-            throw CommandException.exitCode(10);
+            throw CommandException.exitCode(8, bundle(), "ERR_ModuleChanged", cnb, config, newConfig);
         }
 
         class Write implements FileSystem.AtomicAction {
