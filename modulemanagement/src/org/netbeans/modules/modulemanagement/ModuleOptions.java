@@ -59,10 +59,15 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
             return;
         }
 
-        list = Option.withoutArgument(-1, "listmodules", this); // NOI18N
-        install = Option.additionalArguments(-1, "installmodules", this); // NOI18N
-        disable = Option.additionalArguments(-1, "disablemodules", this); // NOI18N
-        enable = Option.additionalArguments(-1, "enablemodules", this); // NOI18N
+        String b = "org.netbeans.modules.modulemanagement.Bundle";
+        list = Option.shortDescription(
+            Option.withoutArgument(-1, "listmodules", this), b, "MSG_ListModules"); // NOI18N
+        install = Option.shortDescription(
+            Option.additionalArguments(-1, "installmodules", this), b, "MSG_InstallModules"); // NOI18N
+        disable = Option.shortDescription(
+            Option.additionalArguments(-1, "disablemodules", this), b, "MSG_DisableModules"); // NOI18N
+        enable = Option.shortDescription(
+            Option.additionalArguments(-1, "enablemodules", this), b, "MSG_EnableModules"); // NOI18N
     }
 
     public Option[] getOptions() {
