@@ -57,7 +57,7 @@ public class StripWhitespaceOptions {
 
     public synchronized boolean getHighlightingEnabled() {
         String value = props.getProperty(PROP_HIGHLIGHTING_ENABLED, "true"); // NOI18N
-        return Boolean.parseBoolean(value);
+        return Boolean.valueOf(value).booleanValue();
     }
 
     public synchronized void setHighlightingEnabled(boolean highlightingEnabled) {
