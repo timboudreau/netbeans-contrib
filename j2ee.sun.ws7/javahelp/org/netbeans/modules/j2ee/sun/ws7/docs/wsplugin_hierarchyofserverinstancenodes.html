@@ -21,31 +21,51 @@
 <td colspan="2"><b>Sun Java System Web Server 7.0 Node</b></td>
 </tr>
 <tr valign="top">
-<td>Start/Stop Server</td>
-<td>Opens the Server Status dialog box where you can start and stop the local server.</td>
+<td>Start</td>
+<td>Starts the server and shows the status of the process in the Output window.</td>
+</tr>
+<tr valign="top">
+<td>Start in Debug Mode</td>
+<td>&nbsp;</td>
+</tr>
+<tr valign="top">
+<td>Restart</td>
+<td>Stops and restarts the server and shows the status of the process in the Output window.</td>
+</tr>
+<tr valign="top">
+<td>Stop</td>
+<td>Stop the server and shows the status of the process in the Output window.</td>
+</tr>
+<tr valign="top">
+<td>Refresh</td>
+<td>Refreshes the server status and shows the results of the process in the Output window.</td>
 </tr>
 <tr valign="top">
 <td>Remove</td>
 <td>Lets you remove the server registration from the IDE.</td>
 </tr>
 <tr valign="top">
-<td>Show Admin Console</td>
+<td>View Admin Console</td>
 <td>Launches the administration console for the server.</td>
+</tr>
+<tr valign="top">
+<td>View Server Logs</td>
+<td>Opens the server log file.</td>
+</tr>
+<tr valign="top">
+<td>Properties</td>
+<td>Opens the Server Manager dialog box with the properties of the Sun Java Web Server.</td>
 </tr>
 <tr valign="top">
 <td colspan="2"><b>Sun Java System Web Server 7.0 &gt; <em>server-instance</em> Node</b></td>
 </tr>
 <tr valign="top">
 <td>Start Instance/Stop Instance</td>
-<td>Lets you start and stop the local server instance.</td>
+<td>Lets you start and stop the local server instance. The results of the process are shown in the Output window.</td>
 </tr>
 <tr valign="top">
 <td>View Server Logs</td>
 <td>Displays server logs.</td>
-</tr>
-<tr valign="top">
-<td>View Access Logs</td>
-<td>Displays access logs.</td>
 </tr>
 </table>
 <ul class="note">
@@ -54,36 +74,22 @@
 <h3>Virtual Servers</h3>
 <p>Each server instance node has one or more virtual servers defined under its node. Web applications are deployed on a virtual server. </p>
 <p>Expand the server instance node to see the virtual servers configured for each server instance. One of the virtual servers will always be defined as the default server (<tt>Default</tt>). Whenever you deploy a web application, it will be deployed on this default virtual server. You can define another virtual server as the default server by right-clicking the virtual server node and choosing Set as Default from the pop-up menu.</p>
-<p>Each virtual server node has two subnodes:</p>
+<p>Each virtual server node has the following subnodes:</p>
 <ul>
-<li><b>Deployed Components.</b> Expand this node to see all the web applications deployed on the selected virtual server. Using the contextual menu on a web application node, you can perform the following actions:
+<li><b>Web Applications.</b> Expand this node to see the modules and application contexts deployed to the server.<br>
+Using the right-click menu on a web application node, you can perform the following actions:
 <ul>
 <li>Undeploy the web application.</li>
 <li>Disable the web application.</li>
 <li>Display the properties of the web application.</li>
 </ul></li>
-<li><b>Resources.</b> Expand this node to see all the JDBC resources configured for the selected server instance. Using the contextual menu on a JDBC resource node, you can perform the following actions:
-<ul>
-<li>Delete the resource.</li>
-<li>Display the properties of the JDBC resource.</li>
-</ul></li>
+</li>
+<li><b>JDBC Resources.</b> Expand this node to see the JDBC resources and Connection Pools registered with the server.</li>
+<li><b>External JNDI Resources.</b> Expand this node to see the external JNDI resources.</li>
+<li><b>Custom Resources.</b> Expand this node to see the custom JNDI resources.</li>
+<li><b>JavaMail Resources.</b> Expand this node to see the JavaMail Resources registered with the server.</li>
+<li><b>JVM.</b> Right-click this node to display the properties of the JVM. </li>
 </ul>
-<h3>Final Hierarchy</h3>
-<p>The final hierarchy of a Sun Java System Web Server 7.0 node may look like the one shown below.</p>
-<pre>
-Sun Java System Web Server 7.0
-  --- instance1
-      --- virtual-server1:80[Default]
-          --- Deployed Components
-              --- app1
-              --- app2
-          --- Resources
-              --- jdbc/res1
-      --- virtual-server2:81
-  --- instance2
-      --- virtual-server1:90
-      --- virtual-server2:91
-</pre>
 <dl>
 <dt><a name="seealso">See Also</a></dt>
 <dd><a href="wsplugin_registering_server.html" title="Registering a Sun Java System Web Server">Registering a Sun Java System Web Server</a></dd>
