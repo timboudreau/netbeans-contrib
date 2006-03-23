@@ -27,5 +27,20 @@ Microsystems, Inc. All Rights Reserved.
              <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.checkstyle.ViolationProvider"/>
           </file>
        </folder>
+       <file name="org-netbeans-modules-tasklist-checkstyle-options-CheckstyleSettings.settings" url="CheckstyleSettings.xml">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.checkstyle.options.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/checkstyle/checkstyle.gif"/>
+            <!-- Project specific? attr name="SystemFileSystem.layer"
+            stringvalue="project"/ Leave the decision on user, by default global. -->
+        </file>
   </folder>
+    <folder name="UI">
+        <folder name="Services">
+            <folder name="Editing">
+                <file name="org-netbeans-modules-tasklist-checkstyle-options-CheckstyleSettings.shadow">
+                    <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-checkstyle-options-CheckstyleSettings.settings"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>  
 </filesystem>

@@ -63,7 +63,7 @@ public final class DeleteLineSuggestionPerformer extends AbstractSuggestionPerfo
     }
 
     protected void performImpl(int docPosition) throws BadLocationException {
-        throw new UnsupportedOperationException("TrailingSpacesSuggestionProvider overrides perform(..) directly.");
+        throw new UnsupportedOperationException("DeleteLineSuggestionPerformer overrides perform(..) directly.");
     }
 
 }

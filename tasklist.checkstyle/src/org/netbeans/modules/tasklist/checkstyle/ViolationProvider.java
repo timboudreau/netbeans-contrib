@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Properties;
 import java.io.File;
 import java.io.IOException;
+import org.netbeans.modules.tasklist.checkstyle.options.CheckstyleSettings;
 
 import org.openide.cookies.SourceCookie;
 import org.openide.explorer.view.*;
@@ -35,6 +36,7 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
+import org.openide.util.SharedClassObject;
 import org.openide.util.Utilities;
 import org.openide.text.DataEditorSupport;
 
@@ -160,15 +162,18 @@ public class ViolationProvider extends DocumentSuggestionProvider
             checker.setModuleFactory(moduleFactory);
             Configuration config = null;
             final Properties props = System.getProperties();
-            // For now, grab the configuration from the module
-            final File f = org.openide.modules.InstalledFileLocator.getDefault().locate("configs/checkstyle.xml", "org.netbeans.modules.tasklist.checkstyle", false);
-            //System.out.println("FILE LOCATED = " + f);
-            if (f == null) {
-                ErrorManager.getDefault().log("Couldn't find configs/checkstyle.xml");
-                return false;
-            }
+//            // For now, grab the configuration from the module
+//            final File f = org.openide.modules.InstalledFileLocator.getDefault().locate("configs/checkstyle.xml", "org.netbeans.modules.tasklist.checkstyle", false);
+//            //System.out.println("FILE LOCATED = " + f);
+//            if (f == null) {
+//                ErrorManager.getDefault().log("Couldn't find configs/checkstyle.xml");
+//                return false;
+//            }
+            final CheckstyleSettings settings 
+                    = (CheckstyleSettings)SharedClassObject.findObject(CheckstyleSettings.class, true);
+            
 
-            config = ConfigurationLoader.loadConfiguration(f.getPath(), new PropertiesExpander(props));
+            config = ConfigurationLoader.loadConfiguration(settings.getCheckstyle(), new PropertiesExpander(props));
             checker.configure(config);
             checker.addListener(this);
             checker.process(new File[] { file }); // Yuck!
@@ -290,8 +295,14 @@ public class ViolationProvider extends DocumentSuggestionProvider
                 return new InsertSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
             }else if( "ws.notFollowed".equals(key) ){
                 return new InsertSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
-            }else if( "final.parameter".equals(key) ){
+            }else if( "ws.preceded".equals(key) ){
+                return new DeleteSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
+            }else if( "ws.followed".equals(key) ){
+                return new DeleteSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
+            }else if( "final.parameter".equalsIgnoreCase(key) ){
                 return new InsertFinalKeywordSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
+            }else if( "final.variable".equalsIgnoreCase(key) ){
+                return new InsertFinalVariableKeywordSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
             }
            
         }
