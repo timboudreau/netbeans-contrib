@@ -8,8 +8,13 @@
 
 
 <map version="1.0">
-	<mapID target="wsplugin_credits" url="credits.html"/>
-	<mapID target="wsplugin_webserver7_plugin_help" url="wsplugin_registering_server.html"/>
-	<mapID target="wsplugin_hierarchyofserverinstancenodes" url="wsplugin_hierarchyofserverinstancenodes.html"/>
 	<mapID target="wsplugin_configfiles" url="wsplugin_configfiles.html"/>
+	<mapID target="wsplugin_credits" url="credits.html"/>
+	<mapID target="wsplugin_hierarchyofserverinstancenodes" url="wsplugin_hierarchyofserverinstancenodes.html"/>
+	<mapID target="wsplugin_res_custom" url="wsplugin_res_custom.html"/>
+	<mapID target="wsplugin_res_extjndi" url="wsplugin_res_extjndi.html"/>
+	<mapID target="wsplugin_res_javamail" url="wsplugin_res_javamail.html"/>
+	<mapID target="wsplugin_res_jdbc" url="wsplugin_res_jdbc.html"/>
+	<mapID target="wsplugin_res_register" url="wsplugin_res_register.html"/>
+	<mapID target="wsplugin_webserver7_plugin_help" url="wsplugin_registering_server.html"/>
 </map>
