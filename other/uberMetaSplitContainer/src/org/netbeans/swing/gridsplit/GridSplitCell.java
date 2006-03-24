@@ -16,11 +16,9 @@ package org.netbeans.swing.gridsplit;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import org.apache.xpath.axes.IteratorPool;
 
 /**
  * A wrapper class for a component displayed in GridSplitPane.
