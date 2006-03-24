@@ -13,90 +13,171 @@
 
 package org.netbeans.bluej.ui.window;
 
-import java.awt.EventQueue;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Iterator;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.SwingUtilities;
 
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.bluej.api.BluejLogicalViewProvider;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  * Class holding opened BlueJ projects and providing ComboBoxModel
  *
  * @author Milan Kubec
  */
-public class OpenedBluejProjects {
+class OpenedBluejProjects implements PropertyChangeListener {
     
-    private ArrayList openedProjects;
     private DefaultComboBoxModel model;
-    private HashMap projectIndexMap;
+    private PropChange topComponentChanger;
     
     /** Creates a new instance of OpenedBluejProjects */
-    public OpenedBluejProjects() {
-        openedProjects = new ArrayList();
+    OpenedBluejProjects() {
         model = new DefaultComboBoxModel();
-        projectIndexMap = new HashMap();
+        topComponentChanger = new PropChange();
     }
     
-    public void addProject(Project prj) {
-        openedProjects.add(prj);
-        updateMap();
-        updateModel(prj);
+    public void addNotify() {
+        OpenProjects.getDefault().addPropertyChangeListener(this);
+//        doUpdate(false);
     }
     
-    public void removeProject(Project prj) {
-        openedProjects.remove(prj);
-        updateMap();
-        updateModel(null);
-    }
-    
-    public Project getProject(int index) {
-        return (Project) openedProjects.get(index);
-    }
-    
-    public Project getProject(String prjName) {
-        return (Project) openedProjects.get(((Integer) projectIndexMap.get(prjName)).intValue());
+    public void removeNotify() {
+        OpenProjects.getDefault().removePropertyChangeListener(this);
     }
     
     public ComboBoxModel getComboModel() {
         return model;
     }
     
-    public boolean isEmpty() {
-        return openedProjects.isEmpty();
+    public Project getSelectedProject() {
+        Object sel = model.getSelectedItem();
+        if (sel != null) {
+            return ((ComboWrapper)sel).getProject();
+        }
+        return null;
     }
     
-    private void updateModel(final Project prj) {
-        final Project[] op = (Project[]) openedProjects.toArray(new Project[] {});
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                model.removeAllElements();
-                for (int i = 0; i < op.length; i++) {
-                    model.addElement(getProjectDisplayName(op[i]));
-                }
-                if (prj != null) {
-                    model.setSelectedItem(getProjectDisplayName(prj));
-                }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (OpenProjects.PROPERTY_OPEN_PROJECTS.equals(evt.getPropertyName())) {
+            if (SwingUtilities.isEventDispatchThread()) {
+                doUpdate(true);
+            } else {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        doUpdate(true);
+                    }
+                });
             }
-        });
-    }
-    
-    private void updateMap() {
-        projectIndexMap.clear();
-        Iterator iter = openedProjects.iterator();
-        while (iter.hasNext()) {
-            Project p = (Project) iter.next();
-            projectIndexMap.put(getProjectDisplayName(p), new Integer(openedProjects.indexOf(p)));
         }
     }
     
-    private String getProjectDisplayName(Project prj) {
-        return ProjectUtils.getInformation(prj).getDisplayName();
+    private void doUpdate(boolean trapProjectsView) {
+        Collection existing = new ArrayList();
+        for (int i = 0; i < model.getSize(); i++) {
+            existing.add(((ComboWrapper)model.getElementAt(i)).getProject());
+        }
+        Collection newones = new ArrayList();
+        Project[] prjs = OpenProjects.getDefault().getOpenProjects();
+        for (int i = 0; i < prjs.length; i++) {
+            if (prjs[i].getLookup().lookup(BluejLogicalViewProvider.class) != null) {
+                if (existing.contains(prjs[i])) {
+                    existing.remove(prjs[i]);
+                } else {
+                    newones.add(prjs[i]);
+                }
+            }
+        }
+        Iterator it = existing.iterator();
+        while (it.hasNext()) {
+            Project elem = (Project) it.next();
+            for (int i = 0; i < model.getSize(); i++) {
+                if (elem == ((ComboWrapper)model.getElementAt(i)).getProject()) {
+                    model.removeElementAt(i);
+                    break;
+                }
+            }
+        }
+        if (newones.size() > 0) {
+            it = newones.iterator();
+            ComboWrapper wr = null;
+            while (it.hasNext()) {
+                Project elem = (Project) it.next();
+                wr = new ComboWrapper(elem);
+                model.addElement(wr);
+            }
+            if (trapProjectsView) {
+                model.setSelectedItem(wr);
+                topComponentChanger.projectWasOpened();
+            }
+        }
+        if (model.getSelectedItem() == null && model.getSize() > 0) {
+            model.setSelectedItem(model.getElementAt(0));
+        }
+        if (model.getSize() == 0 && model.getSelectedItem() != null) {
+            model.setSelectedItem(null);
+        }
+    }
+    
+    private static class ComboWrapper {
+        private Project project;
+        ComboWrapper(Project proj) {
+            project = proj;
+        }
+        
+        public String toString() {
+            return ProjectUtils.getInformation(project).getDisplayName();
+        }
+        
+        public Project getProject() {
+            return project;
+        }
+        
+    }
+    
+    private static class PropChange implements PropertyChangeListener{
+        private boolean listenerAdded = false;
+        PropChange() {
+        }
+        
+        void projectWasOpened() {
+            if (listenerAdded) {
+                return;
+            }
+            listenerAdded = true;
+            assert SwingUtilities.isEventDispatchThread();
+            TopComponent active = TopComponent.getRegistry().getActivated();
+            String id = WindowManager.getDefault().findTopComponentID(active);
+            if ("projectTabLogical_tc".equals(id)) {
+                BluejViewTopComponent.findInstance().open();
+                BluejViewTopComponent.findInstance().requestActive();
+            }
+            TopComponent.getRegistry().addPropertyChangeListener(this);
+        }
+        
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (TopComponent.Registry.PROP_ACTIVATED.equals(evt.getPropertyName())) {
+                TopComponent active = TopComponent.getRegistry().getActivated();
+                String id = WindowManager.getDefault().findTopComponentID(active);
+                if ("projectTabLogical_tc".equals(id)) {
+                    TopComponent.getRegistry().removePropertyChangeListener(this);
+                    listenerAdded = false;
+                    BluejViewTopComponent.findInstance().open();
+                    BluejViewTopComponent.findInstance().requestActive();
+                }
+            }
+        }
     }
     
 }

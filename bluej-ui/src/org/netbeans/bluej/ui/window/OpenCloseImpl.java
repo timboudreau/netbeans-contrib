@@ -12,6 +12,7 @@
  */
 package org.netbeans.bluej.ui.window;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.SwingUtilities;
@@ -31,40 +32,30 @@ public class OpenCloseImpl implements BluejOpenCloseCallback {
     }
     
     public void projectOpened(final org.netbeans.api.project.Project project) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                final BluejViewTopComponent tc = BluejViewTopComponent.findInstance();
-                tc.addProject(project);
-                if (WindowManager.getDefault().getMainWindow().isVisible()) {
-                    RequestProcessor.getDefault().post(new Runnable() {
-                        public void run() {
-                            // hack - get to perform after the default projects view.
-                            SwingUtilities.invokeLater(new Runnable() {
-                                public void run() {
-                                    tc.open();
-                                    tc.requestActive();
-                                }
-                            });
+        // very ugly, needs to be like this because the component listens on 
+        // opened project changes and needs to be opened to do so..
+        // a better solution would be to start listening on opened project changes right at the start of IDE
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() {
+                    if (WindowManager.getDefault().getMainWindow().isVisible()) {
+                        BluejViewTopComponent tc = BluejViewTopComponent.findInstance();
+                        if (!tc.isOpened()) {
+                            //TODO
+                            tc.open();
                         }
-                    }, 300);
+                    }
                 }
-            }
-        });
+            });
+        } catch (InvocationTargetException ex) {
+            ex.printStackTrace();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
     
     public void projectClosed(final org.netbeans.api.project.Project project) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                final BluejViewTopComponent tc = BluejViewTopComponent.findInstance();
-                tc.removeProject(project);
-                tc.closeIfEmpty();
-            }
-        });
-    }
-    
-    public org.netbeans.api.project.Project getCurrentOpenedProject() {
-        //TODO
-        return null;
+        //TODO possibly close when empty??
     }
     
 }

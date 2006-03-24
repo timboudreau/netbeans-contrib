@@ -22,9 +22,11 @@ import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
+import java.util.Arrays;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -37,6 +39,8 @@ import org.openide.ErrorManager;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.ListView;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -61,6 +65,7 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
     
     private JComboBox projectsCombo;
     private OpenedBluejProjects openedProjects;
+    private ItemListener itemListener;
     
     private BluejViewTopComponent() {
         manager = new ExplorerManager();
@@ -109,21 +114,20 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
         
         projectsCombo = new JComboBox();
         projectsCombo.setEditable(false);
-        projectsCombo.setModel(openedProjects.getComboModel());
-        projectsCombo.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                // change main project and selected project in the BJ view
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    Project project = (Project) openedProjects.getProject((String) e.getItem());
-                    OpenProjects.getDefault().setMainProject(project);
-                    BluejLogicalViewProvider provider = (BluejLogicalViewProvider) project.getLookup().lookup(BluejLogicalViewProvider.class);
-                    setRootNode(provider.getBigIconRootNode());
-                }
-            }
-        });
         projectsCombo.setMinimumSize(new Dimension(150, 22));
         projectsCombo.setPreferredSize(new Dimension(150, 22));
         toolbarPanel.add(projectsCombo, BorderLayout.EAST);
+        itemListener = new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                // change main project and selected project in the BJ view
+                if (e.getStateChange() == ItemEvent.SELECTED ||
+                    (e.getStateChange() == ItemEvent.DESELECTED && 
+                     e.getItemSelectable().getSelectedObjects() == null ||
+                     e.getItemSelectable().getSelectedObjects().length == 0)) {
+                    updateContent();
+                }
+            }
+        };
         
         add(toolbarPanel, BorderLayout.NORTH);
     }
@@ -132,8 +136,16 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
         return manager;
     }
     
-    public void setRootNode(Node nd) {
-        manager.setRootContext(nd);
+    private void updateContent() {
+        Project project = openedProjects.getSelectedProject();
+        if ( project != null && Arrays.asList(OpenProjects.getDefault().getOpenProjects()).contains(project)) {
+            // if it's not in the list of opened projects we probably are closing multiple projects as once (or shutting down)
+            OpenProjects.getDefault().setMainProject(project);
+            BluejLogicalViewProvider provider = (BluejLogicalViewProvider) project.getLookup().lookup(BluejLogicalViewProvider.class);
+            manager.setRootContext(provider.getBigIconRootNode());
+        } else {
+            manager.setRootContext(new AbstractNode(Children.LEAF));
+        }
     }
     
     /** This method is called from within the constructor to
@@ -185,11 +197,16 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
     }
     
     public void componentOpened() {
-        // TODO add custom code on component opening
+        openedProjects.addNotify();
+        projectsCombo.setModel(openedProjects.getComboModel());
+        updateContent();
+        projectsCombo.addItemListener(itemListener);
     }
     
     public void componentClosed() {
-        // TODO add custom code on component closing
+        openedProjects.removeNotify();
+        projectsCombo.removeItemListener(itemListener);
+        projectsCombo.setModel(new DefaultComboBoxModel());
     }
     
     /** replaces this in object stream */
@@ -207,19 +224,4 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
             return BluejViewTopComponent.getDefault();
         }
     }
-    
-    public void addProject(Project prj) {
-        openedProjects.addProject(prj);
-    }
-    
-    public void removeProject(Project prj) {
-        openedProjects.removeProject(prj);
-    }
-    
-    public void closeIfEmpty() {
-        if (openedProjects.isEmpty()) {
-            close();
-        }
-    }
-    
 }
