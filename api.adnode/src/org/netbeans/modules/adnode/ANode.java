@@ -23,9 +23,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.info.Identity;
+import org.netbeans.api.adaptable.info.Rename;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.PasteType;
@@ -72,7 +74,7 @@ implements ChangeListener {
     }
 
     public boolean canRename() {
-        throw new UnsupportedOperationException();
+        return a.lookup(Rename.class) != null;
     }
 
     public boolean canDestroy() {
@@ -131,8 +133,37 @@ implements ChangeListener {
         throw new UnsupportedOperationException();
     }
 
-    public void setName(String s) {
-        throw new UnsupportedOperationException();
+    public void setName(final String s) {
+        class IAE extends IllegalArgumentException {
+            public IAE(Throwable cause) {
+                if (cause != null) {
+                    initCause(cause);
+                }
+            }
+
+            public String getMessage() {
+                return "There is no rename adaptor"; // NOI18N
+            }
+
+            public String getLocalizedMessage() {
+                if (getCause() != null) {
+                    return getCause().getLocalizedMessage();
+                }
+
+                return NbBundle.getMessage(ANode.class, "EXC_NoRenameAdaptor", s); // NOI18N
+            }
+        }
+
+        Rename rename = a.lookup(Rename.class);
+        if (rename == null) {
+            throw new IAE(null);
+        }
+
+        try {
+            rename.rename(s);
+        } catch (Exception ex) {
+            throw new IAE(ex);
+        }
     }
 
     public void setShortDescription(String s) {
@@ -205,5 +236,16 @@ implements ChangeListener {
 
     public Enumeration<String> attributeNames() {
         throw new UnsupportedOperationException();
+    }
+
+    public int hashCode() {
+        return a.hashCode() + 1243;
+    }
+
+    public boolean equals(Object o) {
+        if (o instanceof ANode) {
+            return a.equals(((ANode)o).a);
+        }
+        return false;
     }
 }

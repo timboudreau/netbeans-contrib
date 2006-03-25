@@ -12,6 +12,8 @@
  */
 package org.netbeans.modules.adnode;
 
+import java.lang.reflect.Method;
+import java.util.TooManyListenersException;
 import junit.framework.TestCase;
 import junit.framework.*;
 import java.awt.Component;
@@ -23,7 +25,10 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
-import org.netbeans.api.adaptable.info.Identity;
+import org.netbeans.api.adaptable.Adaptor;
+import org.netbeans.api.adaptable.info.*;
+import org.netbeans.spi.adaptable.Adaptors;
+import org.netbeans.spi.adaptable.Singletonizer;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -35,11 +40,29 @@ import org.openide.util.datatransfer.PasteType;
  *
  * @author Jaroslav Tulach
  */
-public class ANodeTest extends TestCase {
+public class ANodeTest extends TestCase
+implements Singletonizer {
     private ANode instance;
+
+    private ChangeListener listener;
+    private Object obj = new Object();
+
+    private Object invokeObject;
+    private Method invokeMethod;
+    private Object[] invokeArgs;
+    private Object invokeReturn;
+
+
+    private Class isEnabledClass;
+    private boolean isEnabled;
 
     public ANodeTest(String testName) {
         super(testName);
+
+
+        Adaptor adapt = Adaptors.singletonizer(allClasses(), this);
+        Adaptable a = adapt.getAdaptable(obj);
+        instance = new ANode(a);
     }
 
     protected void setUp() throws Exception {
@@ -53,24 +76,26 @@ public class ANodeTest extends TestCase {
      * Test of getName method, of class org.netbeans.modules.adnode.ANode.
      */
     public void testGetName() {
-        String expResult = "";
+        String expResult = "myne";
+        invokeMethod = Identity.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+        invokeReturn = expResult;
+
         String result = instance.getName();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
      * Test of cloneNode method, of class org.netbeans.modules.adnode.ANode.
      */
     public void testCloneNode() {
-        Node expResult = null;
         Node result = instance.cloneNode();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertNotNull(result);
+        assertEquals("Should be equal", result, instance);
+        if (result == instance) {
+            fail("Should be different: " + result);
+        }
+        assertEquals(result.hashCode(), instance.hashCode());
     }
 
     /**
@@ -117,12 +142,51 @@ public class ANodeTest extends TestCase {
      * Test of canRename method, of class org.netbeans.modules.adnode.ANode.
      */
     public void testCanRename() {
-        boolean expResult = true;
         boolean result = instance.canRename();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue("Enabled if we do not return false from isEnabled", result);
+
+        isEnabledClass = Rename.class;
+        isEnabled = false;
+
+        result = instance.canRename();
+        assertTrue("Still Enabled if we do not fire change", result);
+
+        listener.stateChanged(new ChangeEvent(this));
+
+        result = instance.canRename();
+        assertFalse("Disabled finally", result);
+
+        try {
+            invokeObject = obj;
+            instance.setName("SomeStupidName");
+            fail("Rename shall not succeed as it is disabled");
+        } catch (IllegalArgumentException ex) {
+            // ok
+        }
+
+        isEnabled = true;
+
+        listener.stateChanged(new ChangeEvent(this));
+
+        result = instance.canRename();
+        assertTrue("Now Enabled", result);
+
+        invokeMethod = Rename.class.getDeclaredMethods()[0];
+        instance.setName("Kukuc");
+
+        assertEquals("One argument passed", 1, invokeArgs.length);
+        assertEquals("Kukuc", invokeArgs[0]);
+
+        invokeArgs = null;
+
+        IOException e = new IOException("Wrong");
+        invokeReturn = e;
+        try {
+            instance.setName("AnotherName");
+            fail("Rename throws exception");
+        } catch (IllegalArgumentException ex) {
+            assertEquals("Right localized message", e.getLocalizedMessage(), ex.getLocalizedMessage());
+        }
     }
 
     /**
@@ -294,18 +358,6 @@ public class ANodeTest extends TestCase {
         String s = "";
         
         instance.setDisplayName(s);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setName method, of class org.netbeans.modules.adnode.ANode.
-     */
-    public void testSetName() {
-        String s = "";
-        
-        instance.setName(s);
         
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -530,6 +582,50 @@ public class ANodeTest extends TestCase {
         
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
+    }
+
+
+    //
+    // expected calls
+    //
+
+    public boolean isEnabled(Class c) {
+        if (c == isEnabledClass) {
+            return isEnabled;
+        }
+        return true;
+    }
+
+    public Object invoke(Object obj, Method method, Object[] args) throws Throwable {
+        assertEquals(invokeMethod, method);
+        assertEquals(invokeObject, obj);
+
+        invokeArgs = args;
+
+        if (invokeReturn instanceof Throwable) {
+            throw (Throwable)invokeReturn;
+        }
+
+        return invokeReturn;
+    }
+
+    public synchronized void addChangeListener(ChangeListener listener) throws TooManyListenersException {
+        if (this.listener != null) {
+            throw new TooManyListenersException();
+        }
+        this.listener = listener;
+    }
+
+    public synchronized void removeChangeListener(ChangeListener listener) {
+        if (this.listener == listener) {
+            this.listener = null;
+        }
+    }
+
+    private static Class[] allClasses() {
+        return new Class[] {
+            Identity.class, Rename.class,
+        };
     }
     
 }
