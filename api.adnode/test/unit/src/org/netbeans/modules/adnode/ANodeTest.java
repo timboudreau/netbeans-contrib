@@ -15,6 +15,7 @@ package org.netbeans.modules.adnode;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.TooManyListenersException;
 import javax.swing.AbstractAction;
 import junit.framework.TestCase;
@@ -61,8 +62,8 @@ implements Singletonizer {
     private Object invokeReturn;
 
 
-    private Class isEnabledClass;
-    private boolean isEnabled;
+    private Class isEnabledClass = SubHierarchy.class;
+    private boolean isEnabled = false;
 
     public ANodeTest(String testName) {
         super(testName);
@@ -70,7 +71,7 @@ implements Singletonizer {
 
         Adaptor adapt = Adaptors.singletonizer(allClasses(), this);
         Adaptable a = adapt.getAdaptable(obj);
-        instance = new ANode(a);
+        instance = new ANode(a, adapt);
     }
 
     protected void setUp() throws Exception {
@@ -104,6 +105,36 @@ implements Singletonizer {
             fail("Should be different: " + result);
         }
         assertEquals(result.hashCode(), instance.hashCode());
+    }
+
+    public void testChildren() throws Exception {
+        assertEquals("By default we have no children as we do not have SubHierarchy", Children.LEAF, instance.getChildren());
+
+        isEnabled = true;
+        listener.stateChanged(new ChangeEvent(this));
+
+        Node n = instance.cloneNode(); // TBD. should work without clonning
+        if (n.getChildren() == Children.LEAF) {
+            fail("We should have children now");
+        }
+
+        ArrayList al = new ArrayList();
+        al.add(Integer.valueOf(3));
+        al.add(Integer.valueOf(7));
+        invokeReturn = al;
+        invokeMethod = SubHierarchy.class.getDeclaredMethod("getChildren");
+        invokeObject = obj;
+
+        Node[] arr = n.getChildren().getNodes(true);
+        assertEquals("two", 2, arr.length);
+
+
+        isEnabled = false;
+        listener.stateChanged(new ChangeEvent(this));
+
+        Node n2 = n.cloneNode(); // TBD. should work without clonning
+
+        assertEquals("No ch.", Children.LEAF, n2.getChildren());
     }
 
     /**
@@ -650,7 +681,8 @@ implements Singletonizer {
             Identity.class, Rename.class, DisplayName.class, HtmlDisplayName.class,
             ShortDescription.class, Customizable.class, HelpCtx.Provider.class,
             ActionProvider.class, Copy.class, Cut.class, SetOfProperties.class,
-            Drag.class, NewTypes.class, PasteTypes.class, Drop.class
+            Drag.class, NewTypes.class, PasteTypes.class, Drop.class, SubHierarchy.class,
+
         };
     }
     

@@ -38,7 +38,7 @@ public class AdaptableNodes {
      */
     public static Node create(Adaptor a, Object o) {
         Adaptable aa = a.getAdaptable(o);
-        return new org.netbeans.modules.adnode.ANode(aa);
+        return new org.netbeans.modules.adnode.ANode(aa, a);
     }
     
 }

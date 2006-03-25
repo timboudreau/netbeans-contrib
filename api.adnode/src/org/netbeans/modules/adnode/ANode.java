@@ -23,6 +23,7 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
+import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.api.adaptable.info.*;
 import org.netbeans.api.adnode.*;
 import org.openide.nodes.Children;
@@ -40,13 +41,30 @@ import org.openide.util.datatransfer.PasteType;
 final class ANode extends org.openide.nodes.Node 
 implements ChangeListener {
     private Adaptable a;
+    private Adaptor adaptor;
     
     /** Creates a new instance of ANode */
-    public ANode(Adaptable a) {
-        super(Children.LEAF);
+    public ANode(Adaptable a, Adaptor adaptor) {
+        super(computeChildren(a, adaptor, null));
         
         this.a = a;
+        this.adaptor = adaptor;
         a.addChangeListener(this);
+    }
+
+    private static Children computeChildren(Adaptable a, Adaptor adaptor, Children previous) {
+        SubHierarchy h = a.lookup(SubHierarchy.class);
+        if (h == null) {
+            return Children.LEAF;
+        }
+        if (previous instanceof MCh) {
+            MCh mch = (MCh)previous;
+            mch.hierarchy(h);
+            return mch;
+        }
+
+        MCh mch = new MCh(h, adaptor);
+        return mch;
     }
 
     public String getName() {
@@ -59,7 +77,7 @@ implements ChangeListener {
     }
 
     public Node cloneNode() {
-        return new ANode(a);
+        return new ANode(a, adaptor);
     }
 
     public Image getIcon(int type) {
@@ -271,5 +289,37 @@ implements ChangeListener {
             return a.equals(((ANode)o).a);
         }
         return false;
+    }
+
+    /** Implementation of keys over SubHierarchy
+     */
+    private static final class MCh extends Children.Keys {
+        private SubHierarchy h;
+        private Adaptor adaptor;
+
+        public MCh(SubHierarchy h, Adaptor adaptor) {
+            this.h = h;
+            this.adaptor = adaptor;
+        }
+
+        protected Node[] createNodes(Object key) {
+            Adaptable a = adaptor.getAdaptable(key);
+            return new Node[] { new ANode(a, adaptor) };
+        }
+
+        protected void addNotify() {
+            setKeys(h.getChildren());
+        }
+
+        protected void removeNotify() {
+            setKeys(Collections.emptyList());
+        }
+
+        private void hierarchy(SubHierarchy h) {
+            this.h = h;
+            addNotify();
+        }
+
+
     }
 }
