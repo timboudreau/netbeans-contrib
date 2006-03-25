@@ -18,6 +18,9 @@ package org.netbeans.spi.adaptable;
  * @author Jaroslav Tulach
  */
 public final class Adaptors extends java.lang.Object {
+    private Adaptors() {
+    }
+
     /**
      * Creates an Adaptor based on that support for sinletonization.
      * @param classes the interfaces that we can support 
