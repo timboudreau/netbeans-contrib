@@ -12,6 +12,7 @@
  */
 package org.netbeans.modules.adnode;
 
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
 import java.util.TooManyListenersException;
@@ -222,114 +223,116 @@ implements Singletonizer {
      * Test of getPropertySets method, of class org.netbeans.modules.adnode.ANode.
      */
     public void testGetPropertySets() {
-        Node.PropertySet[] expResult = null;
+        Node.PropertySet[] expResult = new Node.PropertySet[0];
+        invokeReturn = expResult;
+        invokeMethod = SetOfProperties.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+
         Node.PropertySet[] result = instance.getPropertySets();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertSame(expResult, result);
+
+        isEnabledClass = SetOfProperties.class;
+        isEnabled = false;
+
+        listener.stateChanged(new ChangeEvent(this));
+
+
+        assertEquals("Empty array", 0, instance.getPropertySets().length);
     }
 
     /**
      * Test of clipboardCopy method, of class org.netbeans.modules.adnode.ANode.
      */
     public void testClipboardCopy() throws Exception {
-        Transferable expResult = null;
+        assertTrue(instance.canCopy());
+
+        invokeReturn = new StringSelection("Haha");
+        invokeObject = obj;
+        invokeMethod = Copy.class.getDeclaredMethods()[0];
+
         Transferable result = instance.clipboardCopy();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(invokeReturn, result);
+
+        isEnabledClass = Copy.class;
+        isEnabled = false;
+
+        listener.stateChanged(new ChangeEvent(this));
+
+        assertFalse(instance.canCopy());
+        try {
+            instance.clipboardCopy();
+            fail("Should throw an exception");
+        } catch (IOException ex) {
+            // ok
+        }
     }
 
-    /**
-     * Test of clipboardCut method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testClipboardCut() throws Exception {
-        Transferable expResult = null;
+        assertTrue(instance.canCut());
+
+        invokeReturn = new StringSelection("Haha");
+        invokeObject = obj;
+        invokeMethod = Cut.class.getDeclaredMethods()[0];
+
         Transferable result = instance.clipboardCut();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(invokeReturn, result);
+
+        isEnabledClass = Cut.class;
+        isEnabled = false;
+
+        listener.stateChanged(new ChangeEvent(this));
+
+        assertFalse(instance.canCut());
+        try {
+            instance.clipboardCut();
+            fail("Should throw an exception");
+        } catch (IOException ex) {
+            // ok
+        }
     }
 
-    /**
-     * Test of drag method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testDrag() throws Exception {
-        Transferable expResult = null;
+        Transferable expResult = new StringSelection("kuk");
+
+        invokeReturn = expResult;
+        invokeMethod = Drag.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+
         Transferable result = instance.drag();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of canCopy method, of class org.netbeans.modules.adnode.ANode.
-     */
-    public void testCanCopy() {
-        boolean expResult = true;
-        boolean result = instance.canCopy();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of canCut method, of class org.netbeans.modules.adnode.ANode.
-     */
-    public void testCanCut() {
-        boolean expResult = true;
-        boolean result = instance.canCut();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getPasteTypes method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testGetPasteTypes() {
-        Transferable t = null;
-        
-        PasteType[] expResult = null;
-        PasteType[] result = instance.getPasteTypes(t);
+        PasteType[] expResult = new PasteType[5];
+
+        invokeReturn = expResult;
+        invokeMethod = PasteTypes.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+
+        PasteType[] result = instance.getPasteTypes(null);
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of getDropType method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testGetDropType() {
-        Transferable t = null;
-        int action = 0;
-        int index = 0;
-        
         PasteType expResult = null;
-        PasteType result = instance.getDropType(t, action, index);
+
+        invokeReturn = expResult;
+        invokeMethod = Drop.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+
+        PasteType result = instance.getDropType(null, 0, -1);
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of getNewTypes method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testGetNewTypes() {
-        NewType[] expResult = null;
+        NewType[] expResult = new NewType[5];
+
+        invokeReturn = expResult;
+        invokeMethod = NewTypes.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+
         NewType[] result = instance.getNewTypes();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     public void testGetCustomizer() {
@@ -646,7 +649,8 @@ implements Singletonizer {
         return new Class[] {
             Identity.class, Rename.class, DisplayName.class, HtmlDisplayName.class,
             ShortDescription.class, Customizable.class, HelpCtx.Provider.class,
-            ActionProvider.class,
+            ActionProvider.class, Copy.class, Cut.class, SetOfProperties.class,
+            Drag.class, NewTypes.class, PasteTypes.class, Drop.class
         };
     }
     

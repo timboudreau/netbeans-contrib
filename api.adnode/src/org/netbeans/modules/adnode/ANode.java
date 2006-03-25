@@ -84,39 +84,55 @@ implements ChangeListener {
     }
 
     public Node.PropertySet[] getPropertySets() {
-        throw new UnsupportedOperationException();
+        SetOfProperties p = a.lookup(SetOfProperties.class);
+        return p == null ? new Node.PropertySet[0] : p.getPropertySets();
     }
 
     public Transferable clipboardCopy() throws IOException {
-        throw new UnsupportedOperationException();
+        Copy c = a.lookup(Copy.class);
+        if (c == null) {
+            throw new IOException();
+        }
+        return c.copy();
     }
 
     public Transferable clipboardCut() throws IOException {
-        throw new UnsupportedOperationException();
+        Cut c = a.lookup(Cut.class);
+        if (c == null) {
+            throw new IOException();
+        }
+        return c.cut();
     }
 
     public Transferable drag() throws IOException {
-        throw new UnsupportedOperationException();
+        Drag d = a.lookup(Drag.class);
+        if (d == null) {
+            throw new IOException();
+        }
+        return d.drag();
     }
 
     public boolean canCopy() {
-        throw new UnsupportedOperationException();
+        return a.lookup(Copy.class) != null;
     }
 
     public boolean canCut() {
-        throw new UnsupportedOperationException();
+        return a.lookup(Cut.class) != null;
     }
 
     public PasteType[] getPasteTypes(Transferable t) {
-        throw new UnsupportedOperationException();
+        PasteTypes p = a.lookup(PasteTypes.class);
+        return p == null ? new PasteType[0] : p.getPasteTypes(t);
     }
 
     public PasteType getDropType(Transferable t, int action, int index) {
-        throw new UnsupportedOperationException();
+        Drop n = a.lookup(Drop.class);
+        return n == null ? null : n.getDropType(t, action, index);
     }
 
     public NewType[] getNewTypes() {
-        throw new UnsupportedOperationException();
+        NewTypes n = a.lookup(NewTypes.class);
+        return n == null ? new NewType[0] : n.getNewTypes();
     }
 
     public boolean hasCustomizer() {
