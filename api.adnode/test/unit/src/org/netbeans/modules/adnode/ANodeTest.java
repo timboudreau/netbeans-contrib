@@ -135,12 +135,22 @@ implements Singletonizer {
      * Test of getHelpCtx method, of class org.netbeans.modules.adnode.ANode.
      */
     public void testGetHelpCtx() {
-        HelpCtx expResult = null;
+        HelpCtx expResult = new HelpCtx(getClass());
+
+        invokeReturn = expResult;
+        invokeObject = obj;
+        invokeMethod = HelpCtx.Provider.class.getDeclaredMethods()[0];
+
         HelpCtx result = instance.getHelpCtx();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        isEnabledClass = HelpCtx.Provider.class;
+        isEnabled = false;
+
+        listener.stateChanged(new ChangeEvent(obj));
+
+
+        assertNull(instance.getHelpCtx());
     }
 
     /**
@@ -616,7 +626,7 @@ implements Singletonizer {
     private static Class[] allClasses() {
         return new Class[] {
             Identity.class, Rename.class, DisplayName.class, HtmlDisplayName.class,
-            ShortDescription.class, Customizable.class,
+            ShortDescription.class, Customizable.class, HelpCtx.Provider.class
         };
     }
     

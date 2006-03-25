@@ -71,7 +71,8 @@ implements ChangeListener {
     }
 
     public HelpCtx getHelpCtx() {
-        throw new UnsupportedOperationException();
+        HelpCtx.Provider p = a.lookup(HelpCtx.Provider.class);
+        return p == null ? null : p.getHelpCtx();
     }
 
     public boolean canRename() {
