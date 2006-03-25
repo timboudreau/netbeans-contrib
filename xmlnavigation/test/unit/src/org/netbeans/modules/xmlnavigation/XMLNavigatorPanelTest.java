@@ -98,29 +98,7 @@ public class XMLNavigatorPanelTest extends NbTestCase {
                 "<a id='there'>More stuff...</a>\n" + // 6
                 "</body>\n" // 7
                 )));
-    }
-    
-    public void testParseDocBook() throws Exception {
-        assertEquals("correct parse of some DocBook sections",
-            "1[section/title]First\n" +
-            "4[section/title]Second\n" +
-            "6[section/title]Notes on Second\n",
-            itemsSummary(parse(
-                "<article>\n" + // 0
-                " <section><title>First</title>\n" + // 1
-                "  <para>Stuff...</para>\n" + // 2
-                " </section>\n" + // 3
-                " <section><title>Second</title>\n" + // 4
-                "  <para>Stuff...</para>\n" + // 5
-                "  <section><title>Notes on Second</title>\n" + // 6
-                "   <para>Stuff...</para>\n" + // 7
-                "  </section>\n" + // 8
-                " </section>\n" + // 9
-                "</article>\n" // 10
-                )));
-        // XXX should DocBook subsections be marked differently?
         // XXX should try to also parse e.g. <h3><a name="section">Title here...</a></h3>
-        // as well as <section id="section"><title>Title here...</title>...</section>
     }
     
     public void testParseWithUnresolvedEntityRefs() throws Exception {
