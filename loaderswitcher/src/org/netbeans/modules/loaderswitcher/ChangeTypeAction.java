@@ -27,12 +27,11 @@ public class ChangeTypeAction extends CookieAction {
     /** generated Serialized Version UID */
     static final long serialVersionUID = 1352346576761226839L;
 
-    /* Returns false - action should be disabled when a window with no
-    * activated nodes is selected.
-    *
-    * @return false do not survive the change of focus
-    */
     protected boolean surviveFocusChange () {
+        return false;
+    }
+
+    protected boolean asynchronous() {
         return false;
     }
 
