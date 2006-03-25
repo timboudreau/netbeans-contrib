@@ -178,7 +178,8 @@ implements ChangeListener {
     }
 
     public Action[] getActions(boolean context) {
-        throw new UnsupportedOperationException();
+        ActionProvider p = a.lookup(ActionProvider.class);
+        return p == null ? new Action[0]: p.getActions();
     }
 
     public String getDisplayName() {
@@ -205,7 +206,8 @@ implements ChangeListener {
     }
 
     public Action getPreferredAction() {
-        throw new UnsupportedOperationException();
+        ActionProvider p = a.lookup(ActionProvider.class);
+        return p == null ? null : p.getPreferredAction();
     }
 
     public Object getValue(String attributeName) {

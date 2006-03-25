@@ -12,8 +12,10 @@
  */
 package org.netbeans.modules.adnode;
 
+import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
 import java.util.TooManyListenersException;
+import javax.swing.AbstractAction;
 import junit.framework.TestCase;
 import junit.framework.*;
 import java.awt.Component;
@@ -402,15 +404,44 @@ implements Singletonizer {
         fail("The test case is a prototype.");
     }
 
-    public void testGetActions() {
-        boolean context = true;
-        
-        Action[] expResult = null;
+    public void testGetActions() throws Exception {
+        doGetActions(true);
+    }
+
+    public void testGetActionsNoContext() throws Exception {
+        doGetActions(false);
+    }
+
+    private void doGetActions(boolean context) throws Exception {
+        class MyA extends AbstractAction {
+            public void actionPerformed(ActionEvent e) {
+            }
+        }
+
+        MyA my = new MyA();
+        invokeReturn = my;
+        invokeObject = obj;
+        invokeMethod = ActionProvider.class.getDeclaredMethod("getPreferredAction");
+
+        assertSame("The prefered action is delegated", invokeReturn, instance.getPreferredAction());
+
+        invokeReturn = new Action[] { my };
+        invokeObject = obj;
+        invokeMethod = ActionProvider.class.getDeclaredMethod("getActions");
+
         Action[] result = instance.getActions(context);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals("One action returned", 1, result.length);
+        assertEquals("It is mine", my, result[0]);
+
+        isEnabledClass = ActionProvider.class;
+        isEnabled = false;
+
+        listener.stateChanged(new ChangeEvent(obj));
+
+        assertNull(instance.getPreferredAction());
+        result = instance.getActions(context);
+        assertNotNull(result);
+        assertEquals("Empty", 0, result.length);
     }
 
     public void testGetDisplayName() {
@@ -489,18 +520,6 @@ implements Singletonizer {
         invokeReturn = null;
 
         assertNull("If disabled this method returns null", instance.getHtmlDisplayName());
-    }
-
-    /**
-     * Test of getPreferredAction method, of class org.netbeans.modules.adnode.ANode.
-     */
-    public void testGetPreferredAction() {
-        Action expResult = null;
-        Action result = instance.getPreferredAction();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     public void testGetValue() {
@@ -626,7 +645,8 @@ implements Singletonizer {
     private static Class[] allClasses() {
         return new Class[] {
             Identity.class, Rename.class, DisplayName.class, HtmlDisplayName.class,
-            ShortDescription.class, Customizable.class, HelpCtx.Provider.class
+            ShortDescription.class, Customizable.class, HelpCtx.Provider.class,
+            ActionProvider.class,
         };
     }
     
