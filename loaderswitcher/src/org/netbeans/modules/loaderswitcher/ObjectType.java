@@ -7,13 +7,19 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.loaderswitcher;
 
+import java.awt.BorderLayout;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 
 import org.openide.DialogDescriptor;
@@ -28,16 +34,25 @@ import java.util.ArrayList;
  *
  * @author  Jaroslav Tulach
  */
-final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFiles, java.beans.PropertyChangeListener {
+final class ObjectType extends JPanel
+implements DataLoader.RecognizedFiles, java.beans.PropertyChangeListener,
+ExplorerManager.Provider {
     /** dd we are included in */
     private DialogDescriptor dd;
+    /** associated explorer manager */
+    private ExplorerManager em = new ExplorerManager();
+
+
+    private static Logger LOG = Logger.getLogger(ObjectType.class.getName());
     
     /** Creates the components to allow choice of a loader for given
      * object.
      * @param obj the object to choose data for
      */
     private ObjectType(DataObject obj) {
-        DataLoader[] arr = findPossibleLoaders (obj);
+        setLayout(new BorderLayout());
+
+        DataLoader[] arr = findPossibleLoaders (obj, this);
         
         Node[] nodes = new Node[arr.length];
         for (int i = 0; i < arr.length; i++) {
@@ -55,22 +70,12 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
         getExplorerManager ().setRootContext (root);
         getExplorerManager ().setExploredContext(root, new Node[] { nodes[0] });
         
-        add (java.awt.BorderLayout.CENTER, new ListView ());
+        add (BorderLayout.CENTER, new ListView ());
         
         getExplorerManager ().addPropertyChangeListener(this);
     }
 
     
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) throws Exception {
-        FileObject fo = Repository.getDefault ().findResource (args[0]);
-        
-        DataObject obj = DataObject.find (fo);
-        convert (obj);
-    }
-        
     /** Does conversion of a data object to new values.
      */
     public static void convert (DataObject obj) {
@@ -89,7 +94,7 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
             java.awt.Dialog d = org.openide.DialogDisplayer.getDefault ().createDialog (dd);
 
 
-            d.show ();
+            d.setVisible(true);
 
             if (dd.getValue () == DialogDescriptor.OK_OPTION) {
                 Node n = reg.getExplorerManager ().getSelectedNodes ()[0];
@@ -98,14 +103,8 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
                 );
 
                 DataLoader pref = (DataLoader)ic.instanceCreate ();
-                System.out.println("pref: " + pref);
-
-                DataLoaderPool.setPreferredLoader (
-                    obj.getPrimaryFile (), pref
-                );
-                obj.setValid (false);
-                System.out.println("obj: " + obj.isValid ());
-                System.out.println("new: " + DataObject.find (obj.getPrimaryFile()));
+                LOG.fine("pref: " + pref);
+                convertTo(obj, pref);
                 return;
             }
             if (dd.getValue () == def) {
@@ -123,11 +122,22 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
         }
     }
 
+    static void convertTo(final DataObject obj, final DataLoader pref) throws DataObjectNotFoundException, IOException, PropertyVetoException {
+        DataLoaderPool.setPreferredLoader (
+            obj.getPrimaryFile (), pref
+        );
+        obj.setValid (false);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("obj: " + obj.isValid ());
+            LOG.fine("new: " + DataObject.find (obj.getPrimaryFile()));
+        }
+    }
+
     /** Computes the list of DataLoaders that are able to recognize given data object.
      * @param obj the object to check
      * @return list of loaders (first is the current that recognize the object)
      */
-    private DataLoader[] findPossibleLoaders (DataObject obj) {
+    static DataLoader[] findPossibleLoaders (DataObject obj, DataLoader.RecognizedFiles rec) {
         DataLoaderPool pool = DataLoaderPool.getDefault ();
         
         ArrayList recognize = new ArrayList ();
@@ -138,7 +148,7 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
         while (en.hasMoreElements ()) {
             l = (DataLoader)en.nextElement ();
             try {
-                DataObject newobj = l.findDataObject (obj.getPrimaryFile(), this);
+                DataObject newobj = l.findDataObject (obj.getPrimaryFile(), rec);
                 if (newobj == obj) {
                     continue;
                 }
@@ -168,6 +178,10 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
     
     public void propertyChange(java.beans.PropertyChangeEvent propertyChangeEvent) {
         dd.setValid (getExplorerManager ().getSelectedNodes ().length == 1);
+    }
+
+    public ExplorerManager getExplorerManager() {
+        return em;
     }
     
 }
