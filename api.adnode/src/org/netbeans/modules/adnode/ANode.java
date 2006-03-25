@@ -22,8 +22,7 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
-import org.netbeans.api.adaptable.info.Identity;
-import org.netbeans.api.adaptable.info.Rename;
+import org.netbeans.api.adaptable.info.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -129,10 +128,6 @@ implements ChangeListener {
         throw new UnsupportedOperationException();
     }
 
-    public void setDisplayName(String s) {
-        throw new UnsupportedOperationException();
-    }
-
     public void setName(final String s) {
         class IAE extends IllegalArgumentException {
             public IAE(Throwable cause) {
@@ -166,6 +161,10 @@ implements ChangeListener {
         }
     }
 
+    public void setDisplayName(String s) {
+        throw new UnsupportedOperationException();
+    }
+
     public void setShortDescription(String s) {
         throw new UnsupportedOperationException();
     }
@@ -179,11 +178,13 @@ implements ChangeListener {
     }
 
     public String getDisplayName() {
-        throw new UnsupportedOperationException();
+        DisplayName n = a.lookup(DisplayName.class);
+        return n == null ? getName() : n.getDisplayName();
     }
 
     public String getShortDescription() {
-        throw new UnsupportedOperationException();
+        ShortDescription d = a.lookup(ShortDescription.class);
+        return d == null ? getDisplayName() : d.getShortDescription();
     }
 
     public String toString() {
@@ -195,7 +196,8 @@ implements ChangeListener {
     }
 
     public String getHtmlDisplayName() {
-        throw new UnsupportedOperationException();
+        HtmlDisplayName d = a.lookup(HtmlDisplayName.class);
+        return d == null ? null : d.getHtmlDisplayName();
     }
 
     public Action getPreferredAction() {

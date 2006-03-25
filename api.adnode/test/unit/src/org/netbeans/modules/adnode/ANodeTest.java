@@ -356,11 +356,13 @@ implements Singletonizer {
      */
     public void testSetDisplayName() {
         String s = "";
-        
-        instance.setDisplayName(s);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        try {
+            instance.setDisplayName(s);
+            fail("Should not be supported");
+        } catch (UnsupportedOperationException ex) {
+            // ok
+        }
     }
 
     /**
@@ -368,11 +370,13 @@ implements Singletonizer {
      */
     public void testSetShortDescription() {
         String s = "";
-        
-        instance.setShortDescription(s);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        try {
+            instance.setShortDescription("");
+            fail("Should not be supported");
+        } catch (UnsupportedOperationException ex) {
+            // ok
+        }
     }
 
     /**
@@ -389,9 +393,6 @@ implements Singletonizer {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of getActions method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testGetActions() {
         boolean context = true;
         
@@ -403,45 +404,56 @@ implements Singletonizer {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of getDisplayName method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testGetDisplayName() {
-        String expResult = "";
+        String expResult = "myne";
+        invokeMethod = DisplayName.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+        invokeReturn = expResult;
+
         String result = instance.getDisplayName();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        isEnabledClass = DisplayName.class;
+        isEnabled = false;
+        listener.stateChanged(new ChangeEvent(this));
+
+        invokeMethod = Identity.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+        invokeReturn = "idmyne";
+
+        assertEquals("Now the display name is taken from identity", "idmyne", instance.getDisplayName());
     }
 
-    /**
-     * Test of getShortDescription method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testGetShortDescription() {
-        String expResult = "";
+        String expResult = "myne";
+        invokeMethod = ShortDescription.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+        invokeReturn = expResult;
+
         String result = instance.getShortDescription();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+
+        isEnabledClass = ShortDescription.class;
+        isEnabled = false;
+        listener.stateChanged(new ChangeEvent(this));
+
+        invokeMethod = DisplayName.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+        invokeReturn = "dispmyne";
+
+        assertEquals("Now the short d. is taken from display name", "dispmyne", instance.getShortDescription());
+
     }
 
-    /**
-     * Test of toString method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testToString() {
-        String expResult = "";
         String result = instance.toString();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        if (result.indexOf("ANode") == -1) {
+            fail("There should be name of the class: " + result);
+        }
     }
 
-    /**
-     * Test of destroy method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testDestroy() throws Exception {
         instance.destroy();
         
@@ -449,16 +461,25 @@ implements Singletonizer {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of getHtmlDisplayName method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testGetHtmlDisplayName() {
-        String expResult = "";
+        String expResult = "myne";
+        invokeMethod = HtmlDisplayName.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+        invokeReturn = expResult;
+
         String result = instance.getHtmlDisplayName();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+
+        isEnabledClass = HtmlDisplayName.class;
+        isEnabled = false;
+        listener.stateChanged(new ChangeEvent(this));
+
+        invokeMethod = null;
+        invokeObject = null;
+        invokeReturn = null;
+
+        assertNull("If disabled this method returns null", instance.getHtmlDisplayName());
     }
 
     /**
@@ -624,7 +645,8 @@ implements Singletonizer {
 
     private static Class[] allClasses() {
         return new Class[] {
-            Identity.class, Rename.class,
+            Identity.class, Rename.class, DisplayName.class, HtmlDisplayName.class,
+            ShortDescription.class
         };
     }
     
