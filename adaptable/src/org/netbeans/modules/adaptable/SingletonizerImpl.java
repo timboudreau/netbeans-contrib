@@ -298,7 +298,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
      */
     private static final class AdaptableRef extends java.lang.ref.WeakReference<AdaptableImpl> {
         /** queue we need to clear */
-        private static final java.lang.ref.ReferenceQueue QUEUE = new java.lang.ref.ReferenceQueue ();
+        private static final java.lang.ref.ReferenceQueue<AdaptableImpl> QUEUE = new java.lang.ref.ReferenceQueue<AdaptableImpl>();
         static {
             new AdaptableCleaner ();
         }
@@ -340,7 +340,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         
         public static final void cleanUpQueue (AdaptableRef ref) {
             if (ref == null) {
-                ref = (AdaptableRef)QUEUE.poll ();
+                ref = (AdaptableRef)(Object)QUEUE.poll ();
             }
             for (;;) {
                 if (ref == null) {
@@ -353,7 +353,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                     ref.getImpl().noListener.uninitialize (ref.getRepresentedObject());
                 }
                 ref.getImpl().removeObject(ref.getRepresentedObject());
-                ref = (AdaptableRef)QUEUE.poll ();
+                ref = (AdaptableRef)(Object)QUEUE.poll ();
             }
         }
     } // end of AdaptableRef
@@ -375,7 +375,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                 // to allow GC
                 ref = null;
                 try {
-                    ref = (AdaptableRef)AdaptableRef.QUEUE.remove ();
+                    ref = (AdaptableRef)(Object)AdaptableRef.QUEUE.remove ();
                     AdaptableRef.cleanUpQueue(ref);
                 } catch (InterruptedException ex) {
                     // go on

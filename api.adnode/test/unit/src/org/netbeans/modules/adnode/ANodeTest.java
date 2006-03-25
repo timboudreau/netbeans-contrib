@@ -23,7 +23,7 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
-import org.netbeans.spi.adnode.Name;
+import org.netbeans.api.adaptable.info.Identity;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;

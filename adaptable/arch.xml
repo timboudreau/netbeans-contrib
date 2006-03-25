@@ -72,12 +72,17 @@ Microsystems, Inc. All Rights Reserved.
   <p>
     Adaptable framework provides an abstraction for adding additional
     capabilities to any object. It <q>adapts</q> the object to requested
-    view. It contains two major parts:
+    view. It contains three major parts:
   </p>
 
   <ul>
       <li><api name="AdaptableAPI" category="devel" group="java" type="export" url="@TOP@org/netbeans/api/adaptable/package-summary.html">
           for clients to query additional capabilities of any object.
+        </api>
+      </li>
+      <li><api name="GeneralAdaptables" category="devel" group="java" type="export" url="@TOP@org/netbeans/api/adaptable/info/package-summary.html">
+          a set of general interfaces that shall be available in any version
+          of java and that can be queried from any adaptable object.
         </api>
       </li>
       <li><api name="AdaptableSPI" category="devel" group="java" type="export" url="@TOP@org/netbeans/spi/adaptable/package-summary.html">

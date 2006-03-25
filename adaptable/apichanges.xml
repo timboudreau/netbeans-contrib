@@ -15,9 +15,26 @@ Microsystems, Inc. All Rights Reserved.
 <apichanges>
 <apidefs>
     <apidef name="api">Adaptable API</apidef>
+    <apidef name="info">General Adaptable Capabilities</apidef>
     <apidef name="spi">Adaptable SPI</apidef>
 </apidefs>
 <changes>
+    <change id="identity">
+        <api name="info"/>
+        <summary>
+            Identity in the info package
+        </summary>
+        <version major="0" minor="3"/>
+        <date day="25" month="3" year="2006"/>
+        <author login="jtulach"/>
+        <compatibility semantic="compatible" source="compatible"/>
+        <description>
+            A new package with additional interfaces describing
+            generic (e.g. available on any java platform) capabilities
+            has been created.
+        </description>
+        <class package="org.netbeans.api.adaptable.info" name="Identity"/>
+    </change>
     <change id="initial">
         <api name="api"/>
         <summary>

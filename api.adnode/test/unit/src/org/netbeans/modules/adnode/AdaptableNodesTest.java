@@ -21,7 +21,7 @@ import junit.framework.*;
 import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.spi.adaptable.Adaptors;
 import org.netbeans.spi.adaptable.Singletonizer;
-import org.netbeans.spi.adnode.Name;
+import org.netbeans.api.adaptable.info.Identity;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeEvent;
 import org.openide.nodes.NodeListener;
@@ -57,7 +57,7 @@ implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
     }
 
     public void testCreate () {
-        Adaptor a = Adaptors.singletonizer (new Class[] { Name.class }, this);
+        Adaptor a = Adaptors.singletonizer (new Class[] { Identity.class }, this);
         class ToString {
             String name = "Nothing";
             
