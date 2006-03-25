@@ -17,12 +17,14 @@ import java.awt.Component;
 import java.awt.Image;
 import java.awt.datatransfer.Transferable;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Enumeration;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.info.*;
+import org.netbeans.api.adnode.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -117,11 +119,12 @@ implements ChangeListener {
     }
 
     public boolean hasCustomizer() {
-        throw new UnsupportedOperationException();
+        return a.lookup(Customizable.class) != null;
     }
 
     public Component getCustomizer() {
-        throw new UnsupportedOperationException();
+        Customizable c = a.lookup(Customizable.class);
+        return c == null ? null : c.getCustomizer();
     }
 
     public Node.Handle getHandle() {
@@ -188,7 +191,7 @@ implements ChangeListener {
     }
 
     public String toString() {
-        return super.toString() + " for " + a;
+        return getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(this)) + "[" + a + "]";
     }
 
     public void destroy() throws IOException {
@@ -205,7 +208,7 @@ implements ChangeListener {
     }
 
     public Object getValue(String attributeName) {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     public void setValue(String attributeName, Object value) {
@@ -225,19 +228,19 @@ implements ChangeListener {
     }
 
     public boolean isPreferred() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     public boolean isHidden() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     public boolean isExpert() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     public Enumeration<String> attributeNames() {
-        throw new UnsupportedOperationException();
+        return Collections.enumeration(Collections.<String>emptyList());
     }
 
     public int hashCode() {

@@ -27,8 +27,13 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.api.adaptable.info.*;
+
 import org.netbeans.spi.adaptable.Adaptors;
 import org.netbeans.spi.adaptable.Singletonizer;
+
+import org.netbeans.api.adnode.*;
+
+
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -315,28 +320,22 @@ implements Singletonizer {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of hasCustomizer method, of class org.netbeans.modules.adnode.ANode.
-     */
-    public void testHasCustomizer() {
-        boolean expResult = true;
-        boolean result = instance.hasCustomizer();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getCustomizer method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testGetCustomizer() {
-        Component expResult = null;
-        Component result = instance.getCustomizer();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue("we support customizer", instance.hasCustomizer());
+
+        invokeReturn = new java.awt.Button();
+        invokeMethod = Customizable.class.getDeclaredMethods()[0];
+        invokeObject = obj;
+
+        assertEquals("The right customizer", invokeReturn, instance.getCustomizer());
+
+        isEnabledClass = Customizable.class;
+        isEnabled = false;
+
+        listener.stateChanged(new ChangeEvent(obj));
+
+        assertFalse("no more customizer", instance.hasCustomizer());
+        assertNull("no customizer", instance.getCustomizer());
     }
 
     /**
@@ -494,18 +493,12 @@ implements Singletonizer {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of getValue method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testGetValue() {
-        String attributeName = "";
+        String attributeName = "anything";
         
         Object expResult = null;
         Object result = instance.getValue(attributeName);
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -514,35 +507,35 @@ implements Singletonizer {
     public void testSetValue() {
         String attributeName = "";
         Object value = null;
-        
-        instance.setValue(attributeName, value);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        try {
+            instance.setValue(attributeName, value);
+            fail("Should fail");
+        } catch (UnsupportedOperationException ex) {
+            // ok
+        }
     }
 
-    /**
-     * Test of setPreferred method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testSetPreferred() {
         boolean preferred = true;
-        
-        instance.setPreferred(preferred);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        try {
+            instance.setPreferred(preferred);
+            fail("Should fail");
+        } catch (UnsupportedOperationException ex) {
+            // ok
+        }
     }
 
-    /**
-     * Test of setHidden method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testSetHidden() {
         boolean hidden = true;
-        
-        instance.setHidden(hidden);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        try {
+            instance.setHidden(hidden);
+            fail("Should fail");
+        } catch (UnsupportedOperationException ex) {
+            // ok
+        }
     }
 
     /**
@@ -550,59 +543,36 @@ implements Singletonizer {
      */
     public void testSetExpert() {
         boolean expert = true;
-        
-        instance.setExpert(expert);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        try {
+            instance.setExpert(expert);
+            fail("Should fail");
+        } catch (UnsupportedOperationException ex) {
+            // ok
+        }
     }
 
-    /**
-     * Test of isPreferred method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testIsPreferred() {
-        boolean expResult = true;
+        boolean expResult = false;
         boolean result = instance.isPreferred();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of isHidden method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testIsHidden() {
-        boolean expResult = true;
+        boolean expResult = false;
         boolean result = instance.isHidden();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of isExpert method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testIsExpert() {
-        boolean expResult = true;
+        boolean expResult = false;
         boolean result = instance.isExpert();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of attributeNames method, of class org.netbeans.modules.adnode.ANode.
-     */
     public void testAttributeNames() {
-        Enumeration<String> expResult = null;
         Enumeration<String> result = instance.attributeNames();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertFalse("No attributes", result.hasMoreElements());
     }
 
 
@@ -646,7 +616,7 @@ implements Singletonizer {
     private static Class[] allClasses() {
         return new Class[] {
             Identity.class, Rename.class, DisplayName.class, HtmlDisplayName.class,
-            ShortDescription.class
+            ShortDescription.class, Customizable.class,
         };
     }
     
