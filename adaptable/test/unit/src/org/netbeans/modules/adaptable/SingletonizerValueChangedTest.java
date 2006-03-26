@@ -10,7 +10,7 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-package org.netbeans.modules.adnode;
+package org.netbeans.modules.adaptable;
 
 import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Method;
@@ -18,31 +18,29 @@ import java.util.TooManyListenersException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import junit.framework.*;
+import org.netbeans.api.adaptable.Adaptable;
+import org.netbeans.api.adaptable.AdaptableEvent;
+import org.netbeans.api.adaptable.AdaptableListener;
 import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.spi.adaptable.Adaptors;
 import org.netbeans.spi.adaptable.Singletonizer;
 import org.netbeans.api.adaptable.info.Identity;
 import org.netbeans.spi.adaptable.SingletonizerEvent;
 import org.netbeans.spi.adaptable.SingletonizerListener;
-import org.openide.nodes.Node;
-import org.openide.nodes.NodeEvent;
-import org.openide.nodes.NodeListener;
-import org.openide.nodes.NodeMemberEvent;
-import org.openide.nodes.NodeReorderEvent;
 
 /**
  *
  * @author Jaroslav Tulach
  */
-public class AdaptableNodesTest extends TestCase 
-implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
+public class SingletonizerValueChangedTest extends TestCase 
+implements org.netbeans.spi.adaptable.Singletonizer, AdaptableListener {
     private SingletonizerListener l;
 
     private String name;
 
     private int cnt;
     
-    public AdaptableNodesTest (String testName) {
+    public SingletonizerValueChangedTest (String testName) {
         super (testName);
     }
 
@@ -53,7 +51,7 @@ implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
     }
 
     public static Test suite () {
-        TestSuite suite = new TestSuite(AdaptableNodesTest.class);
+        TestSuite suite = new TestSuite(SingletonizerValueChangedTest.class);
         
         return suite;
     }
@@ -69,20 +67,22 @@ implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
         }
         ToString o = new ToString();
         
-        Node result = AdaptableNodes.create(a, o);
+        Adaptable result = a.getAdaptable(o);
         
-        assertEquals("Name is toString", "Nothing", result.getName ());
+        assertEquals("Name is toString", "Nothing", result.lookup(Identity.class).getId());
         assertNotNull("We have a listener", this.l);
         
-        result.addNodeListener(this);
+        result.addAdaptableListener(this);
         
         o.name = "New";
         this.l.stateChanged(SingletonizerEvent.aValueOfObjectChanged(this, o, Identity.class));
         
         assertEquals("One change in the node", 1, cnt);
-        assertEquals("Name changed", Node.PROP_NAME, name);
+        if (name.indexOf("Identity") == -1) {
+            fail("One of the change classes shall be identity: " + name);
+        }
         
-        assertEquals("Name is toString", "New", result.getName ());
+        assertEquals("Name is toString", "New", result.lookup(Identity.class).getId());
         
         
     }
@@ -109,20 +109,8 @@ implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
         this.l = null;
     }
 
-    public void childrenAdded(NodeMemberEvent ev) {
-    }
-
-    public void childrenRemoved(NodeMemberEvent ev) {
-    }
-
-    public void childrenReordered(NodeReorderEvent ev) {
-    }
-
-    public void nodeDestroyed(NodeEvent ev) {
-    }
-
-    public void propertyChange(PropertyChangeEvent evt) {
-        name = evt.getPropertyName();
+    public void stateChanged(AdaptableEvent e) {
+        name = e.getAffectedClasses().toString();
         cnt++;
     }
     

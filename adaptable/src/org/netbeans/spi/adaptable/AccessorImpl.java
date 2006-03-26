@@ -48,4 +48,8 @@ final class AccessorImpl extends org.netbeans.modules.adaptable.Accessor {
     protected Object getAffectedObject(SingletonizerEvent ev) {
         return ev.obj;
     }
+
+    protected Set<Class> getAffectedClasses(SingletonizerEvent ev) {
+        return ev.affected;
+    }
 }

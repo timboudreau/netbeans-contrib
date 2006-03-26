@@ -43,4 +43,9 @@ final class AccessorImpl extends org.netbeans.modules.adaptable.Accessor {
         assert false;
         return null;
     }
+
+    protected Set<Class> getAffectedClasses(SingletonizerEvent ev) {
+        assert false;
+        return null;
+    }
 }

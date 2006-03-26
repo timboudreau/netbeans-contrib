@@ -67,4 +67,8 @@ public abstract class Accessor {
     /** Gets affected object from an event.
      */
     protected abstract Object getAffectedObject(SingletonizerEvent ev);
+
+    /** Gets set of affected classes from the event.
+     */
+    protected abstract Set<Class> getAffectedClasses(SingletonizerEvent ev);
 }

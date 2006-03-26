@@ -123,6 +123,7 @@ implements ProviderImpl, SingletonizerListener {
     
     public void stateChanged (SingletonizerEvent e) {
         Object affected = Accessor.SPI.getAffectedObject(e);
+        Set<Class> types = Accessor.SPI.getAffectedClasses(e);
 
         if (affected == null) {
             // refresh all of them
@@ -131,7 +132,7 @@ implements ProviderImpl, SingletonizerListener {
                 Reference ref = (Reference)it.next ();
                 AdaptableImpl lkp = (AdaptableImpl)ref.get ();
                 if (lkp != null) {
-                    lkp.update ();
+                    lkp.update (types);
                 }
             }
         } else {
@@ -141,7 +142,7 @@ implements ProviderImpl, SingletonizerListener {
             }
             AdaptableImpl lkp = (AdaptableImpl)ref.get ();
             if (lkp != null) {
-                lkp.update ();
+                lkp.update(types);
             }
         }
     }
@@ -246,15 +247,18 @@ implements ProviderImpl, SingletonizerListener {
         }
         
         /** Updates its state. */
-        final void update () {
+        final void update (Set<Class> affectedByDefault) {
             Class<?>[] allSupportedClasses = proxy.getClass().getInterfaces ();
 
             byte[] prev = enabled;
             byte[] now = null;
-            Set<Class> af = Collections.emptySet();
+            Set<Class> af;
             if (prev != null) {
                 now = computeEnabledState(allSupportedClasses);
                 HashSet<Class> haf = new HashSet<Class>();
+                if (affectedByDefault != null) {
+                    haf.addAll(affectedByDefault);
+                }
                 for (int i = 0; i < allSupportedClasses.length; i++) {
                     int index = i / 8;
                     int offset = 1 << (i % 8);
@@ -263,6 +267,8 @@ implements ProviderImpl, SingletonizerListener {
                     }
                 }
                 af = Collections.unmodifiableSet(haf);
+            } else {
+                af = affectedByDefault == null ? Collections.<Class>emptySet() : Collections.unmodifiableSet(affectedByDefault);
             }
             enabled = now;
             
