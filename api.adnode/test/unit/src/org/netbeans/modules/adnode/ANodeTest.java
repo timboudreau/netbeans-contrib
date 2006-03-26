@@ -16,6 +16,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.TooManyListenersException;
@@ -33,6 +34,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.api.adaptable.info.*;
+import org.netbeans.junit.NbTestCase;
 
 import org.netbeans.spi.adaptable.Adaptors;
 import org.netbeans.spi.adaptable.Singletonizer;
@@ -55,8 +57,7 @@ import org.openide.util.datatransfer.PasteType;
  *
  * @author Jaroslav Tulach
  */
-public class ANodeTest extends TestCase
-implements Singletonizer {
+public class ANodeTest extends NbTestCase implements Singletonizer {
     private ANode instance;
 
     private ChangeListener listener;
@@ -74,12 +75,15 @@ implements Singletonizer {
     private PListener pListener;
     private NListener nListener;
 
+    private Adaptable a;
+    private Adaptor adapt;
+
     public ANodeTest(String testName) {
         super(testName);
 
 
-        Adaptor adapt = Adaptors.singletonizer(allClasses(), this);
-        Adaptable a = adapt.getAdaptable(obj);
+        adapt = Adaptors.singletonizer(allClasses(), this);
+        a = adapt.getAdaptable(obj);
         instance = new ANode(a, adapt);
 
         pListener = new PListener();
@@ -94,6 +98,10 @@ implements Singletonizer {
     }
 
     protected void tearDown() throws Exception {
+        WeakReference<Object> ref = new WeakReference<Object>(instance);
+        instance = null;
+        assertGC("Allow node to disappear", ref);
+
         nListener.assertEvents("during tear down no unexpected messages shall be seen");
         pListener.assertEvents("during tear down no unexpected messages shall be seen");
     }
@@ -135,7 +143,7 @@ implements Singletonizer {
             fail("We should have children now");
         }
 
-        ArrayList al = new ArrayList();
+        ArrayList<Integer> al = new ArrayList<Integer>();
         al.add(Integer.valueOf(3));
         al.add(Integer.valueOf(7));
         invokeReturn = al;
@@ -152,6 +160,8 @@ implements Singletonizer {
         Node n2 = n;
 
         assertEquals("No ch.", Children.LEAF, n2.getChildren());
+
+        nListener.assertEvents("Msgs", Node.PROP_LEAF, Node.PROP_LEAF, "childrenRemoved");
     }
 
     /**
@@ -286,6 +296,7 @@ implements Singletonizer {
 
 
         assertEquals("Empty array", 0, instance.getPropertySets().length);
+        nListener.assertEvents("We changed property sets", Node.PROP_PROPERTY_SETS);
     }
 
     /**
@@ -513,6 +524,8 @@ implements Singletonizer {
         invokeReturn = "idmyne";
 
         assertEquals("Now the display name is taken from identity", "idmyne", instance.getDisplayName());
+        nListener.assertEvents("display name changed", Node.PROP_DISPLAY_NAME);
+
     }
 
     public void testGetShortDescription() {
@@ -535,6 +548,7 @@ implements Singletonizer {
 
         assertEquals("Now the short d. is taken from display name", "dispmyne", instance.getShortDescription());
 
+        nListener.assertEvents("shrt msg is ok", Node.PROP_SHORT_DESCRIPTION);
     }
 
     public void testToString() {
@@ -664,7 +678,7 @@ implements Singletonizer {
         if (c == isEnabledClass) {
             return isEnabled;
         }
-        return true;
+        return c != SubHierarchy.class;
     }
 
     public Object invoke(Object obj, Method method, Object[] args) throws Throwable {
@@ -709,8 +723,8 @@ implements Singletonizer {
         final void append(String s) {
             if (events.length() > 0) {
                 events.append(',');
-                events.append(s);
             }
+            events.append(s);
         }
 
         public void propertyChange(PropertyChangeEvent evt) {

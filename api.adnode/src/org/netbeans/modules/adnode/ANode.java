@@ -32,6 +32,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.PasteType;
@@ -51,7 +52,7 @@ implements AdaptableListener {
         
         this.a = a;
         this.adaptor = adaptor;
-        a.addAdaptableListener(this);
+        a.addAdaptableListener(WeakListeners.create(AdaptableListener.class, this, a));
     }
 
     private static Children computeChildren(Adaptable a, Adaptor adaptor, Children previous) {
@@ -84,7 +85,20 @@ implements AdaptableListener {
             }
         }
 
-        fireNameChange(null, null);
+        if (affected.contains(SetOfProperties.class)) {
+            firePropertySetsChange(null, null);
+        }
+
+        if (affected.contains(Identity.class)) {
+            fireNameChange(null, null);
+        }
+
+        if (affected.contains(DisplayName.class)) {
+            fireDisplayNameChange(null, null);
+        }
+        if (affected.contains(ShortDescription.class)) {
+            fireShortDescriptionChange(null, null);
+        }
     }
 
     public Node cloneNode() {
