@@ -12,8 +12,11 @@
  */
 package org.netbeans.modules.adnode;
 
+import java.awt.Container;
+import java.awt.Graphics;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
+import java.beans.BeanInfo;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
@@ -21,6 +24,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.TooManyListenersException;
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import junit.framework.TestCase;
 import junit.framework.*;
 import java.awt.Component;
@@ -164,32 +169,28 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         nListener.assertEvents("Msgs", Node.PROP_LEAF, Node.PROP_LEAF, "childrenRemoved");
     }
 
-    /**
-     * Test of getIcon method, of class org.netbeans.modules.adnode.ANode.
-     */
-    public void testGetIcon() {
-        int type = 0;
-        
-        Image expResult = null;
-        Image result = instance.getIcon(type);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testGetIcon() throws Exception {
+        invokeMethod = Icon.class.getDeclaredMethod("paintIcon", Component.class, Graphics.class, int.class, int.class);
+        invokeObject = obj;
+
+        Image img = instance.getIcon(BeanInfo.ICON_COLOR_16x16);
+
+        assertNotNull("paintIcon method called", invokeArgs);
+
+        assertTrue("is component", invokeArgs[0] instanceof Component);
+        assertFalse("is not container", invokeArgs[0] instanceof Container);
     }
 
-    /**
-     * Test of getOpenedIcon method, of class org.netbeans.modules.adnode.ANode.
-     */
-    public void testGetOpenedIcon() {
-        int type = 0;
-        
-        Image expResult = null;
-        Image result = instance.getOpenedIcon(type);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testGetOpenedIcon() throws Exception {
+        invokeMethod = Icon.class.getDeclaredMethod("paintIcon", Component.class, Graphics.class, int.class, int.class);
+        invokeObject = obj;
+
+        Image img = instance.getOpenedIcon(BeanInfo.ICON_COLOR_16x16);
+
+        assertNotNull("paintIcon method called", invokeArgs);
+
+        assertTrue("is component", invokeArgs[0] instanceof Component);
+        assertTrue("is container", invokeArgs[0] instanceof Container);
     }
 
     /**
@@ -713,7 +714,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
             ShortDescription.class, Customizable.class, HelpCtx.Provider.class,
             ActionProvider.class, Copy.class, Cut.class, SetOfProperties.class,
             Drag.class, NewTypes.class, PasteTypes.class, Drop.class, SubHierarchy.class,
-
+            Icon.class
         };
     }
 

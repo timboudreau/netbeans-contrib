@@ -13,14 +13,19 @@
 
 package org.netbeans.modules.adnode;
 
+import java.awt.Canvas;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Image;
 import java.awt.datatransfer.Transferable;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
 import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.event.ChangeEvent;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.AdaptableEvent;
@@ -106,11 +111,25 @@ implements AdaptableListener {
     }
 
     public Image getIcon(int type) {
-        throw new UnsupportedOperationException();
+        Icon icon = a.lookup(Icon.class);
+        if (icon == null) {
+            return null;
+        }
+        Component c = new Canvas();
+        Image img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        icon.paintIcon(c, img.getGraphics(), 0, 0);
+        return img;
     }
 
     public Image getOpenedIcon(int type) {
-        throw new UnsupportedOperationException();
+        Icon icon = a.lookup(Icon.class);
+        if (icon == null) {
+            return null;
+        }
+        Component c = new Container();
+        Image img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        icon.paintIcon(c, img.getGraphics(), 0, 0);
+        return img;
     }
 
     public HelpCtx getHelpCtx() {
