@@ -15,7 +15,9 @@ package org.netbeans.modules.adaptable;
 
 import java.lang.ref.Reference;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.*;
@@ -243,10 +245,27 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         
         /** Updates its state. */
         final void update () {
-            enabled = null;
+            Class<?>[] allSupportedClasses = proxy.getClass().getInterfaces ();
+
+            byte[] prev = enabled;
+            byte[] now = null;
+            Set<Class> af = Collections.emptySet();
+            if (prev != null) {
+                now = computeEnabledState(allSupportedClasses);
+                HashSet<Class> haf = new HashSet<Class>();
+                for (int i = 0; i < allSupportedClasses.length; i++) {
+                    int index = i / 8;
+                    int offset = 1 << (i % 8);
+                    if ((prev[index] & offset) != (now[index] & offset)) {
+                        haf.add(allSupportedClasses[i]);
+                    }
+                }
+                af = Collections.unmodifiableSet(haf);
+            }
+            enabled = now;
             
             List<AdaptableListener> arr = null;
-            
+
             synchronized (this) {
                 if (this.listener == null) {
                     return;
@@ -254,10 +273,11 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
 
                 arr = this.listener;
             }
-            
-            
+
+
+            AdaptableEvent ev = Accessor.API.createEvent(this, af);
             for (AdaptableListener listener : arr) {
-                listener.stateChanged (new AdaptableEvent (this)); 
+                listener.stateChanged(ev);
             }
         }
         
@@ -265,20 +285,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         final boolean isEnabled (Class<?> clazz) {
             Class[] allSupportedClasses = proxy.getClass().getInterfaces ();
             if (enabled == null) {
-                enabled = new byte[(allSupportedClasses.length + 7) / 8];
-                int offset = 1;
-                int index = 0;
-                for (int i = 0; i < allSupportedClasses.length; i++) {
-                    if (ref.getImpl().getSingletonizer ().isEnabled (ref.getRepresentedObject(), allSupportedClasses[i])) {
-                        enabled[index] |= offset;
-                    }
-                    if (offset == 128) {
-                        index++;
-                        offset = 1;
-                    } else {
-                        offset = offset << 1;
-                    }
-                }
+                enabled = computeEnabledState(allSupportedClasses);
             }
 
             for (int i = 0; i < allSupportedClasses.length; i++) {
@@ -291,6 +298,24 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                 }
             }
             return false;
+        }
+
+        private byte[] computeEnabledState(final Class[] allSupportedClasses) {
+            byte[] arr = new byte[(allSupportedClasses.length + 7) / 8];
+            int offset = 1;
+            int index = 0;
+            for (int i = 0; i < allSupportedClasses.length; i++) {
+                if (ref.getImpl().getSingletonizer ().isEnabled(ref.getRepresentedObject(), allSupportedClasses[i])) {
+                    arr[index] |= offset;
+                }
+                if (offset == 128) {
+                    index++;
+                    offset = 1;
+                } else {
+                    offset = offset << 1;
+                }
+            }
+            return arr;
         }
     } // end of AdaptableImpl
 

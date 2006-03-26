@@ -14,6 +14,9 @@
 package org.netbeans.modules.adaptable;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.TooManyListenersException;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -151,8 +154,16 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         }
         assertNull ("ActionListener is not there still", lookup.lookup (java.awt.event.ActionListener.class)); 
         listenerRunnable.assertCount ("This one changed", 1);
+        listenerRunnable.assertAffected("Runnable has been changed", Runnable.class);
         listenerListener.assertCount ("This one as well", 1);
-        listenerRunnable2.assertCount ("No change in run2 or 1", fireChangeOnAllObjects ? 1 : 0);
+        listenerListener.assertAffected("Runnable has been changed", Runnable.class);
+        if (fireChangeOnAllObjects) {
+            listenerRunnable2.assertCount ("No change in run2 or 1", 1);
+            listenerRunnable2.assertAffected("Runnable has been changed", Runnable.class);
+        } else {
+            listenerRunnable2.assertCount ("No change in run2 or 1", 0);
+            listenerRunnable2.assertAffected("No Runnable has been changed");
+        }
 
         runImpl.isEnabled = true;
         if (fireChangeOnAllObjects) {
@@ -165,8 +176,16 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         assertNotNull ("Runnable2 is still there as nobody fired a change", lookup2.lookup (Runnable.class));
         assertNull ("ActionListener is not there still", lookup.lookup (java.awt.event.ActionListener.class));
         listenerRunnable.assertCount ("This one changed", 1);
+        listenerRunnable.assertAffected("again change in run", Runnable.class);
         listenerListener.assertCount ("This as well", 1);
-        listenerRunnable2.assertCount ("No change in run2 again or 1", fireChangeOnAllObjects ? 1 : 0);
+        listenerListener.assertAffected("again change in run", Runnable.class);
+        if (fireChangeOnAllObjects) {
+            listenerRunnable2.assertCount ("No change in run2 or 1", 1);
+            listenerRunnable2.assertAffected("Runnable has been changed", Runnable.class);
+        } else {
+            listenerRunnable2.assertCount ("No change in run2 or 1", 0);
+            listenerRunnable2.assertAffected("No Runnable has been changed");
+        }
         
         java.lang.ref.WeakReference refLookup2 = new java.lang.ref.WeakReference (lookup2);
         lookup2 = null;
@@ -224,6 +243,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     /** Counting listener */
     protected static final class Listener implements AdaptableListener {
         public int cnt;
+        public Set<Class> affected = new HashSet<Class>();
         
         public Listener (Adaptable res) {
             res.addAdaptableListener (this);
@@ -231,12 +251,34 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         public void stateChanged (AdaptableEvent ev) {
             cnt++;
+            affected.addAll(ev.getAffectedClasses());
+
+            try {
+                Iterator<?> it = ev.getAffectedClasses().iterator();
+                if (it.hasNext()) {
+                    it.next();
+                    it.remove();
+                    fail("Modifications to getAffectedClasses() must be prevented");
+                }
+            } catch (UnsupportedOperationException ex) {
+                // ok
+            }
         }
         
         public void assertCount (String msg, int cnt) {
             assertEquals (msg, cnt, this.cnt);
             this.cnt = 0;
         }
+
+        public void assertAffected(String msg, Class... what) {
+            Set<Class> a = new HashSet<Class>();
+            for (Class c : what) {
+                a.add(c);
+            }
+            assertEquals(msg, affected, a);
+            affected.clear();
+        }
+
     } // end of Listener
     
     /** Implementation of singletonizer */

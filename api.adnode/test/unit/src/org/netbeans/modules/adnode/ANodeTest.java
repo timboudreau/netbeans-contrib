@@ -113,7 +113,7 @@ implements Singletonizer {
         isEnabled = true;
         listener.stateChanged(new ChangeEvent(this));
 
-        Node n = instance.cloneNode(); // TBD. should work without clonning
+        Node n = instance;
         if (n.getChildren() == Children.LEAF) {
             fail("We should have children now");
         }
@@ -132,7 +132,7 @@ implements Singletonizer {
         isEnabled = false;
         listener.stateChanged(new ChangeEvent(this));
 
-        Node n2 = n.cloneNode(); // TBD. should work without clonning
+        Node n2 = n;
 
         assertEquals("No ch.", Children.LEAF, n2.getChildren());
     }

@@ -13,6 +13,8 @@
 
 package org.netbeans.api.adaptable;
 
+import java.util.Set;
+
 /** Implementation of accessor for friend access to hidden features
  * of the API.
  *
@@ -30,6 +32,10 @@ final class AccessorImpl extends org.netbeans.modules.adaptable.Accessor {
 
     public org.netbeans.modules.adaptable.ProviderImpl getProviderImpl(Adaptor adaptor) {
         return adaptor.impl;
+    }
+
+    public AdaptableEvent createEvent(Adaptable source, Set<Class> affected) {
+        return new AdaptableEvent(source, affected);
     }
     
 }

@@ -13,17 +13,29 @@
 package org.netbeans.api.adaptable;
 
 import java.util.EventObject;
+import java.util.Set;
 
 /** Event describing one change in an {@link Adaptable} object
  * delivered to {@link AdaptableListener}s.
  *
  * @author Jaroslav Tulach
  */
-public class AdaptableEvent extends EventObject {
+public final class AdaptableEvent extends EventObject {
+    private Set<Class> affected;
+
     
-    /** Just creates new event */
-    public AdaptableEvent(Object source) {
+    /** A usual trick to allow only our module to create these event objects
+     */
+    AdaptableEvent(Object source, Set<Class> affected) {
         super(source);
+        this.affected = affected;
     }
-    
+
+    /** Delivers the list of changed classes. Those classes may have
+     * been added, removed or just their value modified.
+     * @return an unmodifiable set of classes that has been affected by this event
+     */
+    public final Set<Class> getAffectedClasses() {
+        return affected;
+    }
 }

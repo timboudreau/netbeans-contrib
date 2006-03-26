@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.adaptable;
 
+import java.util.Set;
 import org.netbeans.api.adaptable.*;
 
 /** Class that allows "friend" calls to api package.
@@ -41,6 +42,10 @@ public abstract class Accessor {
      * @param impl the impl to pass to the provider
      */
     public abstract Adaptor createAspectProvider (ProviderImpl impl, Object data);
+
+    /** creates the AdaptableEvent.
+     */
+    public abstract AdaptableEvent createEvent(Adaptable source, Set<Class> affected);
     
     /** Gets the associated data */
     public abstract Object getData (Adaptor adaptor);

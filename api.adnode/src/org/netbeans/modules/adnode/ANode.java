@@ -19,6 +19,7 @@ import java.awt.datatransfer.Transferable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Set;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import org.netbeans.api.adaptable.Adaptable;
@@ -74,6 +75,15 @@ implements AdaptableListener {
     }
 
     public void stateChanged(AdaptableEvent e) {
+        Set<Class> affected = e.getAffectedClasses();
+
+        if (affected.contains(SubHierarchy.class)) {
+            Children ch = computeChildren(a, adaptor, getChildren());
+            if (ch != getChildren()) {
+                setChildren(ch);
+            }
+        }
+
         fireNameChange(null, null);
     }
 
