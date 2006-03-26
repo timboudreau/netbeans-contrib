@@ -269,7 +269,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                 int offset = 1;
                 int index = 0;
                 for (int i = 0; i < allSupportedClasses.length; i++) {
-                    if (ref.getImpl().getSingletonizer ().isEnabled (allSupportedClasses[i])) {
+                    if (ref.getImpl().getSingletonizer ().isEnabled (ref.getRepresentedObject(), allSupportedClasses[i])) {
                         enabled[index] |= offset;
                     }
                     if (offset == 128) {

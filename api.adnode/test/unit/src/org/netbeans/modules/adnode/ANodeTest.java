@@ -643,7 +643,7 @@ implements Singletonizer {
     // expected calls
     //
 
-    public boolean isEnabled(Class c) {
+    public boolean isEnabled(Object obj, Class c) {
         if (c == isEnabledClass) {
             return isEnabled;
         }

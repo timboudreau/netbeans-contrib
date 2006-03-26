@@ -90,7 +90,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         try {
             Adaptor provider = createSingletonizer (classes, new Singletonizer () {
-                public boolean isEnabled (Class c) {
+                public boolean isEnabled (Object obj, Class c) {
                     return false;
                 }
 
@@ -247,7 +247,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         public java.lang.reflect.Method method;
         public ChangeListener listener;
 
-        public boolean isEnabled (Class c) {
+        public boolean isEnabled (Object obj, Class c) {
             return isEnabled;
         }
 

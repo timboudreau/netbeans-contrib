@@ -89,7 +89,7 @@ implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
     // Singletonizer interface
     // 
 
-    public boolean isEnabled (Class c) {
+    public boolean isEnabled (Object obj, Class c) {
         return true;
     }
 

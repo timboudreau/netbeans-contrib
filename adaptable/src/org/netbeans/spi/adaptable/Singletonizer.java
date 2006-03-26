@@ -23,10 +23,11 @@ public interface Singletonizer {
     /** Checks whether the class is right now supported - e.g. whether 
      * its methods should be served.
      *
+     * @param obj the represented object that the query applies to
      * @param c the class its method is being called
      * @return true if call is allowed, false if not
      */
-    public boolean isEnabled (Class c);
+    public boolean isEnabled (Object obj, Class c);
 
     /** Invokes a method of given class on provided represented object.
      * @param obj the represented object that is making the call
