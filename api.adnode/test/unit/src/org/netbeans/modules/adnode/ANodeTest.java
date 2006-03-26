@@ -14,6 +14,8 @@ package org.netbeans.modules.adnode;
 
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.TooManyListenersException;
@@ -40,6 +42,10 @@ import org.netbeans.api.adnode.*;
 
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeEvent;
+import org.openide.nodes.NodeListener;
+import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
@@ -65,6 +71,9 @@ implements Singletonizer {
     private Class isEnabledClass = SubHierarchy.class;
     private boolean isEnabled = false;
 
+    private PListener pListener;
+    private NListener nListener;
+
     public ANodeTest(String testName) {
         super(testName);
 
@@ -72,6 +81,12 @@ implements Singletonizer {
         Adaptor adapt = Adaptors.singletonizer(allClasses(), this);
         Adaptable a = adapt.getAdaptable(obj);
         instance = new ANode(a, adapt);
+
+        pListener = new PListener();
+        nListener = new NListener();
+
+        instance.addNodeListener(nListener);
+        instance.addPropertyChangeListener(pListener);
     }
 
     protected void setUp() throws Exception {
@@ -79,6 +94,8 @@ implements Singletonizer {
     }
 
     protected void tearDown() throws Exception {
+        nListener.assertEvents("during tear down no unexpected messages shall be seen");
+        pListener.assertEvents("during tear down no unexpected messages shall be seen");
     }
 
     /**
@@ -685,5 +702,49 @@ implements Singletonizer {
 
         };
     }
-    
+
+    private static class PListener implements PropertyChangeListener {
+        final StringBuffer events = new StringBuffer();
+
+        final void append(String s) {
+            if (events.length() > 0) {
+                events.append(',');
+                events.append(s);
+            }
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            append(evt.getPropertyName());
+        }
+
+        public void assertEvents(String msg, String... eventNames) {
+            StringBuffer sb = new StringBuffer();
+            String pref = "";
+            for (String s : eventNames) {
+                sb.append(pref);
+                sb.append(s);
+                pref=",";
+            }
+            assertEquals(msg, sb.toString(), events.toString());
+            events.setLength(0);
+        }
+    }
+
+    private static class NListener extends PListener implements NodeListener {
+        public void childrenAdded(NodeMemberEvent ev) {
+            append("childrenAdded");
+        }
+
+        public void childrenRemoved(NodeMemberEvent ev) {
+            append("childrenRemoved");
+        }
+
+        public void childrenReordered(NodeReorderEvent ev) {
+            append("childrenReordered");
+        }
+
+        public void nodeDestroyed(NodeEvent ev) {
+            append("nodeDestroyed");
+        }
+    }
 }
