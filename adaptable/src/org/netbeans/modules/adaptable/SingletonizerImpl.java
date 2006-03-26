@@ -161,7 +161,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
          * whether it should be enabled or not */
         private byte[] enabled;
         /** Change listener associated with this adaptable object either ChangeListener or List<ChangeListener>*/
-        private List<ChangeListener> listener;
+        private List<AdaptableListener> listener;
         
         public AdaptableImpl (Object obj, Adaptor impl, Class[] classes) {
             this.proxy = java.lang.reflect.Proxy.newProxyInstance(
@@ -179,7 +179,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             return null;
         }
         
-        public synchronized void addChangeListener (ChangeListener l) {
+        public synchronized void addAdaptableListener (AdaptableListener l) {
             boolean callAdded = false;
             synchronized (this) {
                 if (this.listener == null) {
@@ -189,7 +189,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                     if (this.listener instanceof java.util.ArrayList) {
                         this.listener.add (l);
                     } else {
-                        java.util.ArrayList<ChangeListener> arr = new java.util.ArrayList<ChangeListener> ();
+                        java.util.ArrayList<AdaptableListener> arr = new java.util.ArrayList<AdaptableListener>();
                         arr.addAll (this.listener);
                         arr.add (l);
                         this.listener = arr;
@@ -203,11 +203,11 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             }
         }
         
-        public void removeChangeListener (ChangeListener l) {
+        public void removeAdaptableListener (AdaptableListener l) {
             boolean callRemoved = true;
             synchronized (this) {
                 if (this.listener instanceof java.util.ArrayList) {
-                    List<ChangeListener> arr = this.listener;
+                    List<AdaptableListener> arr = this.listener;
                     arr.remove (l);
                     if (arr.size () == 1) {
                         this.listener = Collections.singletonList (arr.get (0));
@@ -245,7 +245,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         final void update () {
             enabled = null;
             
-            List<ChangeListener> arr = null;
+            List<AdaptableListener> arr = null;
             
             synchronized (this) {
                 if (this.listener == null) {
@@ -256,8 +256,8 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
             }
             
             
-            for (ChangeListener listener : arr) {
-                listener.stateChanged (new ChangeEvent (this)); 
+            for (AdaptableListener listener : arr) {
+                listener.stateChanged (new AdaptableEvent (this)); 
             }
         }
         

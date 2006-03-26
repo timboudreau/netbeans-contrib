@@ -108,7 +108,7 @@ public class SingletonizerLifeCycleTest extends SingletonizerTest {
             gone.assertCalls ("Still nothing", 0, null);
             goneListener.assertCalls ("Still nothing", 0, null);
 
-            adapt.removeChangeListener (listener);
+            adapt.removeAdaptableListener (listener);
             firstCall.assertCalls ("No further notifications", 0, null);
             firstListener.assertCalls ("no changes", 0, null);
             gone.assertCalls ("no changes", 0, null);

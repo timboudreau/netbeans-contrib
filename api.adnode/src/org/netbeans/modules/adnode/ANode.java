@@ -21,8 +21,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
+import org.netbeans.api.adaptable.AdaptableEvent;
+import org.netbeans.api.adaptable.AdaptableListener;
 import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.api.adaptable.info.*;
 import org.netbeans.api.adnode.*;
@@ -39,7 +40,7 @@ import org.openide.util.datatransfer.PasteType;
  * @author Jaroslav Tulach
  */
 final class ANode extends org.openide.nodes.Node 
-implements ChangeListener {
+implements AdaptableListener {
     private Adaptable a;
     private Adaptor adaptor;
     
@@ -49,7 +50,7 @@ implements ChangeListener {
         
         this.a = a;
         this.adaptor = adaptor;
-        a.addChangeListener(this);
+        a.addAdaptableListener(this);
     }
 
     private static Children computeChildren(Adaptable a, Adaptor adaptor, Children previous) {
@@ -72,7 +73,7 @@ implements ChangeListener {
         return n == null ? "" : n.getId();
     }
 
-    public void stateChanged(ChangeEvent e) {
+    public void stateChanged(AdaptableEvent e) {
         fireNameChange(null, null);
     }
 

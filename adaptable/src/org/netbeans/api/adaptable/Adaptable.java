@@ -7,13 +7,11 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.api.adaptable;
-
-import javax.swing.event.ChangeListener;
 
 /** Generic adaptable interface that represents object that can be
  * seen in various ways. For example by calling 
@@ -34,9 +32,9 @@ public interface Adaptable {
     /** Attaches listener to the Adaptable to be notified when a change
      * in the results returned from the lookup method happens.
      */
-    public void addChangeListener (ChangeListener l);
+    public void addAdaptableListener (AdaptableListener l);
     
     /** Removes the listener.
      */
-    public void removeChangeListener (ChangeListener l);
+    public void removeAdaptableListener (AdaptableListener l);
 }

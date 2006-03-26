@@ -209,7 +209,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         
         for (int i = 0; i < cnt; i++) {
-            adaptable.removeChangeListener (arr[i]);
+            adaptable.removeAdaptableListener (arr[i]);
         }
         
         
@@ -222,14 +222,14 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     }
 
     /** Counting listener */
-    protected static final class Listener implements javax.swing.event.ChangeListener {
+    protected static final class Listener implements AdaptableListener {
         public int cnt;
         
         public Listener (Adaptable res) {
-            res.addChangeListener (this);
+            res.addAdaptableListener (this);
         }
         
-        public void stateChanged (javax.swing.event.ChangeEvent ev) {
+        public void stateChanged (AdaptableEvent ev) {
             cnt++;
         }
         
