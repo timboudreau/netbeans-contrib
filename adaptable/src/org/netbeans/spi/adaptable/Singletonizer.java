@@ -14,7 +14,6 @@
 package org.netbeans.spi.adaptable;
 
 import java.util.TooManyListenersException;
-import javax.swing.event.ChangeListener;
 
 /** Allows implementation of adaptors based on singletonizer pattern.
  * @see Adaptors
@@ -44,15 +43,15 @@ public interface Singletonizer {
      * Usual implementation is:
      * <pre>
      * class MySingletonizer implements Singletonizer {
-     *     private ChangeListener listener;
+     *     private SingletonizerListener listener;
      *
-     *     public synchronized void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+     *     public synchronized void addSingletonizerListener (SingletonizerListener listener) throws TooManyListenersException {
      *         if (this.listener != null) {
      *             throw new TooManyListenersException ();
      *         }
      *         this.listener = listener;
      *     }
-     *     public synchronized void removeChangeListener (ChangeListener listener) {
+     *     public synchronized void removeSingletonizerListener (SingletonizerListener listener) {
      *         if (this.listener == listener) {
      *             this.listener = null;
      *         }
@@ -63,10 +62,10 @@ public interface Singletonizer {
      * @param listener the listener to attache
      * @exception TooManyListenersException if there already is listener (no need to support more than one)
      */
-    public void addChangeListener (ChangeListener listener) throws TooManyListenersException;
+    public void addSingletonizerListener (SingletonizerListener listener) throws TooManyListenersException;
     
     /** Removes registered listener.
-     * @see #addChangeListener
+     * @see #addSingletonizerListener
      */
-    public void removeChangeListener (ChangeListener listener);
+    public void removeSingletonizerListener (SingletonizerListener listener);
 }

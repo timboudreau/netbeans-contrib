@@ -15,6 +15,7 @@ package org.netbeans.modules.adaptable;
 
 import java.util.Set;
 import org.netbeans.api.adaptable.*;
+import org.netbeans.spi.adaptable.SingletonizerEvent;
 
 /** Class that allows "friend" calls to api package.
  *
@@ -23,11 +24,13 @@ import org.netbeans.api.adaptable.*;
 public abstract class Accessor {
     /** instance to make calls to api package */
     public static Accessor API;
+    /** spi part of the accessor */
+    public static Accessor SPI;
 
     static {
-        // forces initialization of class Aspects that initializes
+        // forces initialization of class Adaptor that initializes
         // field API
-        Class c = org.netbeans.api.adaptable.Adaptor.class;
+        Class c = Adaptor.class;
         try {
             Class.forName (c.getName (), true, c.getClassLoader ());
         } catch (Exception ex) {
@@ -35,21 +38,33 @@ public abstract class Accessor {
         }
         //org.netbeans.api.adaptable.Adaptor.init ();
         assert API != null : "We have to initilialize the API field"; // NOI18N
+
+        c = SingletonizerEvent.class;
+        try {
+            Class.forName (c.getName (), true, c.getClassLoader ());
+        } catch (Exception ex) {
+            // swallow
+        }
+        //org.netbeans.api.adaptable.Adaptor.init ();
+        assert SPI != null : "We have to initilialize the SPI field"; // NOI18N
     }
  
     /**
      * Creates new instance of Adaptor
      * @param impl the impl to pass to the provider
      */
-    public abstract Adaptor createAspectProvider (ProviderImpl impl, Object data);
+    protected abstract Adaptor createAspectProvider (ProviderImpl impl, Object data);
 
     /** creates the AdaptableEvent.
      */
-    public abstract AdaptableEvent createEvent(Adaptable source, Set<Class> affected);
+    protected abstract AdaptableEvent createEvent(Adaptable source, Set<Class> affected);
     
     /** Gets the associated data */
-    public abstract Object getData (Adaptor adaptor);
+    protected abstract Object getData (Adaptor adaptor);
     /** Gets associated provider */
-    public abstract ProviderImpl getProviderImpl (Adaptor adaptor);
-    
+    protected abstract ProviderImpl getProviderImpl (Adaptor adaptor);
+
+    /** Gets affected object from an event.
+     */
+    protected abstract Object getAffectedObject(SingletonizerEvent ev);
 }

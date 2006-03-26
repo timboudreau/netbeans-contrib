@@ -22,6 +22,8 @@ import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.spi.adaptable.Adaptors;
 import org.netbeans.spi.adaptable.Singletonizer;
 import org.netbeans.api.adaptable.info.Identity;
+import org.netbeans.spi.adaptable.SingletonizerEvent;
+import org.netbeans.spi.adaptable.SingletonizerListener;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeEvent;
 import org.openide.nodes.NodeListener;
@@ -34,7 +36,7 @@ import org.openide.nodes.NodeReorderEvent;
  */
 public class AdaptableNodesTest extends TestCase 
 implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
-    private ChangeListener l;
+    private SingletonizerListener l;
 
     private String name;
 
@@ -75,7 +77,7 @@ implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
         result.addNodeListener(this);
         
         o.name = "New";
-        this.l.stateChanged(new ChangeEvent(o));
+        this.l.stateChanged(SingletonizerEvent.anObjectChanged(this, o));
         
         assertEquals("One change in the node", 1, cnt);
         assertEquals("Name changed", Node.PROP_NAME, name);
@@ -97,12 +99,12 @@ implements org.netbeans.spi.adaptable.Singletonizer, NodeListener {
         return obj.toString();
     }
 
-    public synchronized void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+    public synchronized void addSingletonizerListener (SingletonizerListener listener) throws TooManyListenersException {
         assertNull("We support just one listener", this.l);
         this.l = listener;
     }
 
-    public synchronized void removeChangeListener (ChangeListener listener) {
+    public synchronized void removeSingletonizerListener (SingletonizerListener listener) {
         assertEquals("We can remove just the registered listener", this.l, listener);
         this.l = null;
     }

@@ -29,8 +29,6 @@ import java.awt.datatransfer.Transferable;
 import java.io.IOException;
 import java.util.Enumeration;
 import javax.swing.Action;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.api.adaptable.info.*;
@@ -40,6 +38,8 @@ import org.netbeans.spi.adaptable.Adaptors;
 import org.netbeans.spi.adaptable.Singletonizer;
 
 import org.netbeans.api.adnode.*;
+import org.netbeans.spi.adaptable.SingletonizerEvent;
+import org.netbeans.spi.adaptable.SingletonizerListener;
 
 
 import org.openide.nodes.Children;
@@ -60,7 +60,7 @@ import org.openide.util.datatransfer.PasteType;
 public class ANodeTest extends NbTestCase implements Singletonizer {
     private ANode instance;
 
-    private ChangeListener listener;
+    private SingletonizerListener listener;
     private Object obj = new Object();
 
     private Object invokeObject;
@@ -136,7 +136,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         assertEquals("By default we have no children as we do not have SubHierarchy", Children.LEAF, instance.getChildren());
 
         isEnabled = true;
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
         Node n = instance;
         if (n.getChildren() == Children.LEAF) {
@@ -155,7 +155,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
 
         isEnabled = false;
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
         Node n2 = n;
 
@@ -208,7 +208,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = HelpCtx.Provider.class;
         isEnabled = false;
 
-        listener.stateChanged(new ChangeEvent(obj));
+        listener.stateChanged(SingletonizerEvent.anObjectChanged(this, obj));
 
 
         assertNull(instance.getHelpCtx());
@@ -227,7 +227,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         result = instance.canRename();
         assertTrue("Still Enabled if we do not fire change", result);
 
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
         result = instance.canRename();
         assertFalse("Disabled finally", result);
@@ -242,7 +242,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
         isEnabled = true;
 
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
         result = instance.canRename();
         assertTrue("Now Enabled", result);
@@ -292,7 +292,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = SetOfProperties.class;
         isEnabled = false;
 
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
 
         assertEquals("Empty array", 0, instance.getPropertySets().length);
@@ -315,7 +315,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = Copy.class;
         isEnabled = false;
 
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
         assertFalse(instance.canCopy());
         try {
@@ -339,7 +339,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = Cut.class;
         isEnabled = false;
 
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
         assertFalse(instance.canCut());
         try {
@@ -406,7 +406,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = Customizable.class;
         isEnabled = false;
 
-        listener.stateChanged(new ChangeEvent(obj));
+        listener.stateChanged(SingletonizerEvent.anObjectChanged(this, obj));
 
         assertFalse("no more customizer", instance.hasCustomizer());
         assertNull("no customizer", instance.getCustomizer());
@@ -498,7 +498,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = ActionProvider.class;
         isEnabled = false;
 
-        listener.stateChanged(new ChangeEvent(obj));
+        listener.stateChanged(SingletonizerEvent.anObjectChanged(this, obj));
 
         assertNull(instance.getPreferredAction());
         result = instance.getActions(context);
@@ -517,7 +517,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
         isEnabledClass = DisplayName.class;
         isEnabled = false;
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
         invokeMethod = Identity.class.getDeclaredMethods()[0];
         invokeObject = obj;
@@ -540,7 +540,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
         isEnabledClass = ShortDescription.class;
         isEnabled = false;
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
         invokeMethod = DisplayName.class.getDeclaredMethods()[0];
         invokeObject = obj;
@@ -578,7 +578,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
         isEnabledClass = HtmlDisplayName.class;
         isEnabled = false;
-        listener.stateChanged(new ChangeEvent(this));
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
 
         invokeMethod = null;
         invokeObject = null;
@@ -694,14 +694,14 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         return invokeReturn;
     }
 
-    public synchronized void addChangeListener(ChangeListener listener) throws TooManyListenersException {
+    public synchronized void addSingletonizerListener(SingletonizerListener listener) throws TooManyListenersException {
         if (this.listener != null) {
             throw new TooManyListenersException();
         }
         this.listener = listener;
     }
 
-    public synchronized void removeChangeListener(ChangeListener listener) {
+    public synchronized void removeSingletonizerListener(SingletonizerListener listener) {
         if (this.listener == listener) {
             this.listener = null;
         }

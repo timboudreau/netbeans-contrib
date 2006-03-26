@@ -18,10 +18,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.*;
 import org.netbeans.spi.adaptable.Initializer;
+import org.netbeans.spi.adaptable.SingletonizerEvent;
+import org.netbeans.spi.adaptable.SingletonizerListener;
 import org.netbeans.spi.adaptable.Uninitializer;
 import org.netbeans.spi.adaptable.Singletonizer;
 
@@ -32,7 +32,7 @@ import org.netbeans.spi.adaptable.Singletonizer;
  * @author Jaroslav Tulach
  */
 public final class SingletonizerImpl extends Object 
-implements ProviderImpl, javax.swing.event.ChangeListener {
+implements ProviderImpl, SingletonizerListener {
     private Class[] classes;
     /**
      * Keeps track of existing lookups. 
@@ -92,9 +92,9 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         }
         SingletonizerImpl single = new SingletonizerImpl (classes, impl, initCall, initListener, noListener, gc);
         try {
-            impl.addChangeListener (single);
+            impl.addSingletonizerListener (single);
         } catch (java.util.TooManyListenersException ex) {
-            throw new IllegalStateException ("addChangeListener should not throw exception: " + impl); // NOI18N
+            throw new IllegalStateException ("addSingletonizerListener should not throw exception: " + impl); // NOI18N
         }
         return Accessor.API.createAspectProvider(single, impl);
     }
@@ -121,8 +121,10 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         lookups.remove (obj);
     }
     
-    public void stateChanged (javax.swing.event.ChangeEvent e) {
-        if (e.getSource () instanceof org.netbeans.spi.adaptable.Singletonizer) {
+    public void stateChanged (SingletonizerEvent e) {
+        Object affected = Accessor.SPI.getAffectedObject(e);
+
+        if (affected == null) {
             // refresh all of them
             java.util.Iterator it = lookups.values ().iterator ();
             while (it.hasNext ()) {
@@ -133,7 +135,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
                 }
             }
         } else {
-            Reference ref = (Reference)lookups.get (e.getSource ());
+            Reference ref = (Reference)lookups.get(affected);
             if (ref == null) {
                 return;
             }
@@ -162,7 +164,7 @@ implements ProviderImpl, javax.swing.event.ChangeListener {
         /** array of 0/1 for each class in impl.classes to identify the state 
          * whether it should be enabled or not */
         private byte[] enabled;
-        /** Change listener associated with this adaptable object either ChangeListener or List<ChangeListener>*/
+        /** Change listener associated with this adaptable object either SingletonizerListener or List<SingletonizerListener>*/
         private List<AdaptableListener> listener;
         
         public AdaptableImpl (Object obj, Adaptor impl, Class[] classes) {

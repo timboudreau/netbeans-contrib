@@ -20,8 +20,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.TooManyListenersException;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 
 import org.netbeans.api.adaptable.*;
 import org.netbeans.spi.adaptable.*;
@@ -90,7 +88,7 @@ public class SingletonizerTwoDifferentObjectsTest extends org.netbeans.junit.NbT
     /** Implementation of singletonizer */
     protected static final class Implementation
     implements Singletonizer,  Initializer, PropertyChangeListener {
-        public ChangeListener listener;
+        public SingletonizerListener listener;
 
         public boolean isEnabled (Object obj, Class c) {
             Button b = (Button)obj;
@@ -107,12 +105,12 @@ public class SingletonizerTwoDifferentObjectsTest extends org.netbeans.junit.NbT
             return null;
         }
 
-        public void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+        public void addSingletonizerListener (SingletonizerListener listener) throws TooManyListenersException {
             if (this.listener != null) throw new TooManyListenersException ();
             this.listener = listener;
         }
 
-        public void removeChangeListener (ChangeListener listener) {
+        public void removeSingletonizerListener (SingletonizerListener listener) {
             if (this.listener == listener) {
                 this.listener = null;
             }
@@ -126,7 +124,7 @@ public class SingletonizerTwoDifferentObjectsTest extends org.netbeans.junit.NbT
         public void propertyChange(PropertyChangeEvent evt) {
             Button b = (Button)evt.getSource();
             if ("focusable".equals(evt.getPropertyName())) {
-                listener.stateChanged(new ChangeEvent(b));
+                listener.stateChanged(SingletonizerEvent.anObjectChanged(this, b));
             }
         }
         

@@ -11,10 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package org.netbeans.api.adaptable;
+package org.netbeans.spi.adaptable;
 
 import java.util.Set;
-import org.netbeans.spi.adaptable.SingletonizerEvent;
+import org.netbeans.api.adaptable.Adaptable;
+import org.netbeans.api.adaptable.AdaptableEvent;
+import org.netbeans.api.adaptable.Adaptor;
 
 /** Implementation of accessor for friend access to hidden features
  * of the API.
@@ -24,23 +26,26 @@ import org.netbeans.spi.adaptable.SingletonizerEvent;
 final class AccessorImpl extends org.netbeans.modules.adaptable.Accessor {
     
     protected Adaptor createAspectProvider(org.netbeans.modules.adaptable.ProviderImpl impl, Object data) {
-        return new Adaptor (impl, data);
+        assert false;
+        return null;
     }
 
     protected Object getData(Adaptor adaptor) {
-        return adaptor.data;
+        assert false;
+        return null;
     }
 
     protected org.netbeans.modules.adaptable.ProviderImpl getProviderImpl(Adaptor adaptor) {
-        return adaptor.impl;
+        assert false;
+        return null;
     }
 
     protected AdaptableEvent createEvent(Adaptable source, Set<Class> affected) {
-        return new AdaptableEvent(source, affected);
+        assert false;
+        return null;
     }
 
     protected Object getAffectedObject(SingletonizerEvent ev) {
-        assert false;
-        return null;
+        return ev.obj;
     }
 }

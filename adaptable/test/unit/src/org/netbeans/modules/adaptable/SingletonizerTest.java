@@ -18,8 +18,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TooManyListenersException;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 
 import org.netbeans.api.adaptable.*;
 import org.netbeans.spi.adaptable.*;
@@ -78,7 +76,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
 
         // this shall still succeed as the change in isEnabled state has not been fired
         r.run ();
-        runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        runImpl.listener.stateChanged (SingletonizerEvent.anObjectChanged(runImpl, representedObject));
         assertNull ("Runnable of course is no longer there", lookup.lookup (Runnable.class));
         try {
             r.run ();
@@ -100,10 +98,10 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
                 public Object invoke (Object obj, java.lang.reflect.Method method, Object[] args) {
                     return null;
                 }
-                public void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+                public void addSingletonizerListener (SingletonizerListener listener) throws TooManyListenersException {
                 }
                 
-                public void removeChangeListener (ChangeListener listener) {
+                public void removeSingletonizerListener (SingletonizerListener listener) {
                 }
             });
             fail ("Should fail, as non interface classes cannot be supported");
@@ -141,9 +139,9 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         runImpl.isEnabled = false;
         if (fireChangeOnAllObjects) {
-            runImpl.listener.stateChanged (new ChangeEvent (runImpl)); // change in all
+            runImpl.listener.stateChanged (SingletonizerEvent.allObjectsChanged(runImpl)); // change in all
         } else {
-            runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+            runImpl.listener.stateChanged (SingletonizerEvent.anObjectChanged(runImpl, representedObject));
         }
         
         assertNull ("Runnable is not there anymore", lookup.lookup (Runnable.class)); 
@@ -167,9 +165,9 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
 
         runImpl.isEnabled = true;
         if (fireChangeOnAllObjects) {
-            runImpl.listener.stateChanged (new ChangeEvent (runImpl)); // change in all
+            runImpl.listener.stateChanged (SingletonizerEvent.allObjectsChanged(runImpl)); // change in all
         } else {
-            runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+            runImpl.listener.stateChanged (SingletonizerEvent.anObjectChanged(runImpl, representedObject));
         }
         
         assertNotNull ("Runnable reappeared", lookup.lookup (Runnable.class)); 
@@ -187,7 +185,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
             listenerRunnable2.assertAffected("No Runnable has been changed");
         }
         
-        java.lang.ref.WeakReference refLookup2 = new java.lang.ref.WeakReference (lookup2);
+        java.lang.ref.WeakReference<Object> refLookup2 = new java.lang.ref.WeakReference<Object>(lookup2);
         lookup2 = null;
         assertGC ("Lookup shall disappear as well", refLookup2);
         
@@ -213,14 +211,14 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         }
         
         runImpl.isEnabled = false;
-        runImpl.listener.stateChanged (new ChangeEvent (new Object ()));
+        runImpl.listener.stateChanged (SingletonizerEvent.anObjectChanged(runImpl, new Object ()));
         
         for (int i = 0; i < cnt; i++) {
             arr[i].assertCount (i + " - no changes as the fire was on other object", 0);
         }
         
         runImpl.isEnabled = false;
-        runImpl.listener.stateChanged (new ChangeEvent (this));
+        runImpl.listener.stateChanged (SingletonizerEvent.allObjectsChanged(runImpl));
         
         for (int i = 0; i < cnt; i++) {
             arr[i].assertCount (i + " - one change", 1);
@@ -233,7 +231,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         
         runImpl.isEnabled = false;
-        runImpl.listener.stateChanged (new ChangeEvent (this));
+        runImpl.listener.stateChanged (SingletonizerEvent.allObjectsChanged(runImpl));
         
         for (int i = 0; i < cnt; i++) {
             arr[i].assertCount (i + " - no change listener removed", 0);
@@ -287,7 +285,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         public int cnt;
         public Object representedObject;
         public java.lang.reflect.Method method;
-        public ChangeListener listener;
+        public SingletonizerListener listener;
 
         public boolean isEnabled (Object obj, Class c) {
             return isEnabled;
@@ -300,12 +298,12 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
             return null;
         }
 
-        public void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+        public void addSingletonizerListener (SingletonizerListener listener) throws TooManyListenersException {
             if (this.listener != null) throw new TooManyListenersException ();
             this.listener = listener;
         }
 
-        public void removeChangeListener (ChangeListener listener) {
+        public void removeSingletonizerListener (SingletonizerListener listener) {
             if (this.listener == listener) {
                 this.listener = null;
             }
@@ -316,7 +314,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
             
             isEnabled = e;
             if (listener != null) {
-                listener.stateChanged(new ChangeEvent (this));
+                listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
             }
         }
     } // end of Implementation
