@@ -142,7 +142,7 @@ implements AdaptableListener {
     }
 
     public boolean canDestroy() {
-        throw new UnsupportedOperationException();
+        return a.lookup(Delete.class) != null;
     }
 
     public Node.PropertySet[] getPropertySets() {
@@ -275,7 +275,38 @@ implements AdaptableListener {
     }
 
     public void destroy() throws IOException {
-        throw new UnsupportedOperationException();
+        class IAE extends IOException {
+            public IAE(Throwable cause) {
+                if (cause != null) {
+                    initCause(cause);
+                }
+            }
+
+            public String getMessage() {
+                return "There is no destroy adaptor"; // NOI18N
+            }
+
+            public String getLocalizedMessage() {
+                if (getCause() != null) {
+                    return getCause().getLocalizedMessage();
+                }
+
+                return NbBundle.getMessage(ANode.class, "EXC_NoDestroyAdaptor"); // NOI18N
+            }
+        }
+
+        Delete delete = a.lookup(Delete.class);
+        if (delete == null) {
+            throw new IAE(null);
+        }
+
+        try {
+            delete.delete();
+        } catch (IOException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IAE(ex);
+        }
     }
 
     public String getHtmlDisplayName() {

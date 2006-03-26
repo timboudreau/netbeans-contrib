@@ -266,16 +266,59 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         }
     }
 
-    /**
-     * Test of canDestroy method, of class org.netbeans.modules.adnode.ANode.
-     */
-    public void testCanDestroy() {
-        boolean expResult = true;
+    public void testCanDestroy() throws Exception {
+        assertTrue("deleteable", instance.canDestroy());
+
+        isEnabledClass = Delete.class;
+        isEnabled = false;
+
+        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+
+        assertFalse("not deleteable", instance.canDestroy());
+
+        try {
+            invokeObject = obj;
+            instance.destroy();
+            fail("Destroy shall not succeed as it is disabled");
+        } catch (IOException ex) {
+            // ok
+        }
+
+        isEnabled = true;
+
+        listener.stateChanged(SingletonizerEvent.anObjectChanged(this, obj));
+
         boolean result = instance.canDestroy();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue("Now Enabled", result);
+
+        invokeArgs = new Object[2];
+
+        invokeMethod = Delete.class.getDeclaredMethods()[0];
+        instance.destroy();
+
+        assertNull("No argument passed", invokeArgs);
+
+        invokeArgs = null;
+
+        IOException e = new IOException("Wrong");
+        invokeReturn = e;
+        try {
+            instance.destroy();
+            fail("Destroy throws exception");
+        } catch (IOException ex) {
+            assertEquals("Right localized message", e.getLocalizedMessage(), ex.getLocalizedMessage());
+        }
+
+        Exception e2 = new IllegalStateException("Wrong");
+        invokeReturn = e2;
+        try {
+            instance.destroy();
+            fail("Destroy throws exception");
+        } catch (IOException ex) {
+            assertEquals("Right localized message", e2.getLocalizedMessage(), ex.getLocalizedMessage());
+        }
+
+
     }
 
     /**
@@ -560,13 +603,6 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         }
     }
 
-    public void testDestroy() throws Exception {
-        instance.destroy();
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
     public void testGetHtmlDisplayName() {
         String expResult = "myne";
         invokeMethod = HtmlDisplayName.class.getDeclaredMethods()[0];
@@ -714,7 +750,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
             ShortDescription.class, Customizable.class, HelpCtx.Provider.class,
             ActionProvider.class, Copy.class, Cut.class, SetOfProperties.class,
             Drag.class, NewTypes.class, PasteTypes.class, Drop.class, SubHierarchy.class,
-            Icon.class
+            Icon.class, Delete.class,
         };
     }
 
