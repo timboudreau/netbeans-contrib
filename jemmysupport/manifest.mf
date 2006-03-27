@@ -1,6 +1,6 @@
 OpenIDE-Module: org.netbeans.modules.jemmysupport/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jemmysupport/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.28
+OpenIDE-Module-Specification-Version: 1.29
 OpenIDE-Module-Layer: org/netbeans/modules/jemmysupport/mf-layer.xml
 OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
 
