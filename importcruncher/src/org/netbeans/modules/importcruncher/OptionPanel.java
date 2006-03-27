@@ -26,7 +26,8 @@ final class OptionPanel extends JPanel {
         sort.setBackground(Color.white);
     }
     
-    private void initComponents() {//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents() {
         breakup = new javax.swing.JCheckBox();
         eliminateFqns = new javax.swing.JCheckBox();
         sort = new javax.swing.JCheckBox();
@@ -57,7 +58,7 @@ final class OptionPanel extends JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(breakup)
@@ -65,11 +66,11 @@ final class OptionPanel extends JPanel {
                     .add(sort)
                     .add(importNestedClasses)
                     .add(eliminateWildcards))
-                .addContainerGap(152, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(breakup)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -80,9 +81,9 @@ final class OptionPanel extends JPanel {
                 .add(importNestedClasses)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(eliminateWildcards)
-                .addContainerGap(189, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-    }//GEN-END:initComponents
+    }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
