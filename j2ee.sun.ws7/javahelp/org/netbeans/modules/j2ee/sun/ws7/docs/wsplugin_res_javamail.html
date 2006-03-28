@@ -18,35 +18,34 @@
 <li>Ensure the Sun Java System Web Server is running.</li>
 <li>In the Projects window, select your project's root node to make it the active node and choose File &gt; New File (Ctrl-N).</li>
 <li>In the Categories list, select Sun Web Server 7.0 Resources, and in the File Types list, select JavaMail Resource, then click Next.</li>
-<li>In the General Attributes page, do the following:
+<li>In the General Attributes page, in the General area, do the following:
 <ol type="a">
-<li>(required) Enter a JNDI name for the resource.</li>
-<li>(required) In the mail host field, enter the DNS name of the default mail server.</li>
-<li>(required) In the default user field, enter the user name to use when connecting to the mail server.</li>
+<li>(required) Enter a unique JNDI name for the resource.
+<ul class="note">
+<li>When you register the resource with the server, if a resource already exists with the name you enter here, the existing resource will be updated with the attributes and properties of the resource you are registering.</li>
+</ul></li>
+<li>(required) In the Mail Host field, enter the DNS name of the default mail server.</li>
+<li>(required) In the Default User field, enter the user name to use when connecting to the mail server.</li>
 <li>(required) In the Default Return Address field, enter the email address of the default user, in the form <tt>username@host.domain</tt>.</li>
 <li>Enable or disable the resource by choosing true or false.</li>
 <li>Enter a description.</li>
-<li>In the Advanced area, change the field values only if the Sun Java System Web Server's mail provider has been reconfigured to use a nondefault store or transport protocol. </li>
-<li>Click Next.</li>
 </ol></li>
-<li>In the Additional Properties page, enter any properties for the resource.</li>
+<li>In the Advanced area, change the field values only if the Sun Java System Web Server's mail provider has been reconfigured to use a nondefault store or transport protocol. </li>
 <li>Click Finish.</li>
+<li><a href="wsplugin_res_register.html" title="Registering a Resource with the Sun Java System Web Server">Register the resource with the Sun Java System Web Server</a>.</li>
 </ol>
-<p>Once you have created the object in your project, you need to register the resource with the server.</p>
-<p>For more on the Sun J2EE JavaMail API, see:</p>
-<p>
-<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+<dl>
+<dt><a name="seealso">See Also</a></dt>
+<dd><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
 <param name="content" value="http://java.sun.com/products/javamail/">
 <param name="text" value="<html><u>http://java.sun.com/products/javamail/</u></html>">
 <param name="textFontSize" value="medium">
 <param name="textColor" value="blue">
 </object>
-<dl>
-<dt><a name="seealso">See Also</a></dt>
-<dd><a href="wsplugin_res_register.html" title="Registering a Resource with the Sun Java System Web Server">Registering a Resource with the Sun Java System Web Server</a> </dd>
+</dd>
 </dl>
 <hr>
-<small><a href="../credits.html">Legal Notices</a></small>
+<small><a href="credits.html">Legal Notices</a></small>
 <table border="0" cellpadding="50">
 <tr>
 <td>&nbsp;</td>
