@@ -73,10 +73,21 @@ Contributor(s): Jan Lahoda
          </folder>
           
          <folder name="x-bibtex">
-<!--            <file name="Settings.settings" url="TexOptions.settings"/>-->
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.latex.editor.Bundle"/>
+            <file name="Settings.settings" url="bibtex/BiBTeXOptions.settings"/>
             <file name="EditorKit.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.editor.bibtex.BiBTeXKit"/>
             </file>
+
+            <folder name="NetBeans">
+                <folder name="Defaults">
+                    <file name="coloring.xml" url="NetBeans-BiBTeX-fontsColors.xml" />
+                </folder>
+            </folder>
+
+            <folder name="Defaults">
+                <file name="keybindings.xml" url="BiBTeX-DefaultKeyBindings.xml" />
+            </folder>
          </folder>
       </folder>
    </folder>

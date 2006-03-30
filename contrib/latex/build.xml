@@ -34,4 +34,63 @@
           <report format="frames" todir="${basedir}/build/test/unit/results/html"/>
         </junitreport>
     </target>
+
+    <target name="nbms" depends="-pre-nbms">
+        <echo message="Generating autoupdate information."/>
+        <subant target="nbm" buildpath="${modules.sorted}" inheritrefs="false" inheritall="false">
+            <property name="nbm.target.dir" location="${build.updates.dir}"/>
+            <property name="dist.base" value="${dist.base}" />
+        </subant>
+        <makeupdatedesc desc="${build.updates.dir}/updates_1.15.xml">
+            <group name="LaTeX">
+                <fileset casesensitive="yes" dir="${build.updates.dir}">
+                    <include name="*latex*.nbm"/>
+                </fileset>
+            </group>
+            <group name="Libraries">
+                <fileset casesensitive="yes" dir="${build.updates.dir}">
+                    <include name="*.nbm" />
+                    <exclude name="*latex*"/>
+                </fileset>
+            </group>
+        </makeupdatedesc>
+    </target>
+    
+    <target name="check-configuration">
+        <property name="lexer.home" location="${netbeans.dest.dir}/../../lexer" />
+	<available file="${lexer.home}" property="lexer.available" />
+	<fail unless="lexer.available">
+            The target platform needs to be part of the complete NetBeans checkout.
+	</fail>
+        <property name="contrib.home" location="${netbeans.dest.dir}/../../contrib" />
+	<available file="${contrib.home}" property="contrib.available" />
+	<fail unless="contrib.available">
+            The target platform needs to be part of the complete NetBeans checkout.
+	</fail>
+        <fail unless="dist.base">
+            Need to set dist.base before building NBMs.
+        </fail>
+    </target>
+    
+    <target name="-pre-nbms" depends="-init,check-configuration">
+        <property name="build.updates.dir" location="build/updates" />
+        <mkdir dir="${build.updates.dir}" />
+        <ant dir="${lexer.home}" target="nbm">
+	    <property name="nbm.target.dir" value="${build.updates.dir}" />
+            <property name="dist.base" value="${dist.base}"/>
+        </ant>
+        <ant dir="${lexer.home}/editorbridge" target="nbm">
+	    <property name="nbm.target.dir" value="${build.updates.dir}" />
+            <property name="dist.base" value="${dist.base}"/>
+        </ant>
+        <ant dir="${contrib.home}/fscompletion" target="nbm">
+	    <property name="nbm.target.dir" value="${build.updates.dir}" />
+            <property name="dist.base" value="${dist.base}"/>
+        </ant>
+        <ant dir="${contrib.home}/editorhints/editorhighlights" target="nbm">
+	    <property name="nbm.target.dir" value="${build.updates.dir}" />
+            <property name="dist.base" value="${dist.base}"/>
+        </ant>
+    </target>
+
 </project>

@@ -15,7 +15,10 @@
 package org.netbeans.modules.latex.guiproject;
 
 import java.io.File;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.latex.model.platform.LaTeXPlatform;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -88,6 +91,11 @@ public final class Utilities {
         }
         
         return FileUtil.normalizeFile(fileInQuestion).getAbsolutePath();
+    }
+    
+    public static LaTeXPlatform getPlatform(Project p) {
+        //TODO: verify that only LaTeXGUIProjects work in this method:
+        return (LaTeXPlatform) Lookup.getDefault().lookup(LaTeXPlatform.class);
     }
     
 }

@@ -7,11 +7,13 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.ui;
 
+import java.awt.Frame;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.ErrorManager;
@@ -33,6 +36,9 @@ import org.openide.windows.WindowManager;
  * @author Jan Lahoda
  */
 public class Autodetector {
+
+    private static final String AUTODETECTOR_VERSION = "autodetector-version";
+    private static final int CURRENT_AUTODETECTOR_VERSION = 2;
     
     private static final boolean debug = false;
     
@@ -45,25 +51,23 @@ public class Autodetector {
     }
     
     private void registerAutodetectionImpl() {
-        WindowManager.getDefault().getMainWindow().addWindowListener(new WindowListener() {
-            public void windowActivated(WindowEvent e) {
-            }
-            public void windowClosed(WindowEvent e) {
-            }
-            public void windowClosing(WindowEvent e) {
-            }
-            public void windowDeactivated(WindowEvent e) {
-            }
-            public void windowDeiconified(WindowEvent e) {
-            }
-            public void windowIconified(WindowEvent e) {
-            }
-            public void windowOpened(WindowEvent e) {
-                RequestProcessor.getDefault().post(new Runnable() {
-                    public void run() {
-                        autodetect();
-                    }
-                });
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                Frame f = WindowManager.getDefault().getMainWindow();
+
+                if (!f.isShowing()) {
+                    f.addWindowListener(new WindowAdapter() {
+                        public void windowOpened(WindowEvent e) {
+                            RequestProcessor.getDefault().post(new Runnable() {
+                                public void run() {
+                                    autodetect();
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    autodetect();
+                }
             }
         });
     }
@@ -72,15 +76,13 @@ public class Autodetector {
         Map m = ModuleSettings.getDefault().readSettings();
         
         if (m != null) {
+            Object version = m.get(AUTODETECTOR_VERSION);
+
+            if (version != null &&((Integer) version) >= CURRENT_AUTODETECTOR_VERSION)
             return ;
         }
         
         final ProgressHandle handle = ProgressHandleFactory.createHandle("Autodetecting LaTeX Commands");
-        final Map defaultLocations = new HashMap();
-        
-        defaultLocations.put("latex", new String[] {"latex", "/usr/share/texmf/bin/latex"});
-        defaultLocations.put("dvips", new String[] {"dvips", "/usr/share/texmf/bin/dvips"});
-        defaultLocations.put("gs", new String[] {"gs", "/usr/bin/gs", "/usr/local/bin/gs"});
         
         new Thread() {
             public void run() {
@@ -137,6 +139,7 @@ public class Autodetector {
                 
                 if (m != null) {
                     m.putAll(results);
+                    m.put(AUTODETECTOR_VERSION, CURRENT_AUTODETECTOR_VERSION);
                 } else {
                     m = results;
                 }
@@ -167,6 +170,8 @@ public class Autodetector {
                         
                         while ((read = ins.read()) != (-1)) {
                             contentOut.append((char) read);
+                            if (debug)
+                                System.err.print((char) read);
                         }
                     } catch (IOException e) {
                         ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
@@ -184,6 +189,8 @@ public class Autodetector {
                         
                         while ((read = ins.read()) != (-1)) {
                             contentErr.append((char) read);
+                            if (debug)
+                                System.err.print((char) read);
                         }
                     } catch (IOException e) {
                         ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
@@ -213,8 +220,8 @@ public class Autodetector {
                 waitFor.join();
             }
             
-            out.join();
-            err.join();
+            out.join(20000);
+            err.join(20000);
             
             String content = new StringBuffer().append(contentOut).append(contentErr).toString();
             
@@ -265,21 +272,41 @@ public class Autodetector {
         return result;
     }
     
-    private static final Map content;
-    private static final Map/*<String, List<String>>*/ type2Arguments; 
+    private static final Map<String, String> content;
+    private static final Map<String, List<String>> type2Arguments;
+    private static final Map<String, String[]> defaultLocations;
     
     static {
-        content = new HashMap();
+        content = new HashMap<String, String>();
         
         content.put("latex", "");
+        content.put("bibtex", "");
         content.put("dvips", "");
-        content.put("gs", "pngalpha");
+        content.put("ps2pdf", "");
+//        content.put("gs", "pngalpha");
+        content.put("gs", "png16m");
+        content.put("xdvi", "");
+        content.put("gv", "");
         
-        type2Arguments = new HashMap();
+        type2Arguments = new HashMap<String, List<String>>();
         
         type2Arguments.put("latex", Arrays.asList(new String[] {"--version"}));
+        type2Arguments.put("bibtex", Arrays.asList(new String[] {"--version"}));
         type2Arguments.put("dvips", Arrays.asList(new String[] {"--version"}));
+        type2Arguments.put("ps2pdf", Arrays.asList(new String[] {"--version"}));
         type2Arguments.put("gs",    Arrays.asList(new String[] {"--version", "--help"}));
+        type2Arguments.put("xdvi",    Arrays.asList(new String[] {"--version"}));
+        type2Arguments.put("gv",    Arrays.asList(new String[] {"--version"}));
+
+        defaultLocations = new HashMap<String, String[]>();
+        
+        defaultLocations.put("latex", new String[] {"latex", "/usr/share/texmf/bin/latex"});
+        defaultLocations.put("bibtex", new String[] {"bibtex", "/usr/share/texmf/bin/bibtex"});
+        defaultLocations.put("dvips", new String[] {"dvips", "/usr/share/texmf/bin/dvips"});
+        defaultLocations.put("ps2pdf", new String[] {"ps2pdf", "/usr/bin/ps2pdf"});
+        defaultLocations.put("gs", new String[] {"gs-gpl", "gs", "/usr/bin/gs", "/usr/local/bin/gs"});
+        defaultLocations.put("xdvi", new String[] {"xdvi"});
+        defaultLocations.put("gv", new String[] {"gv", "kghostview"});
     }
     
     private int getBetter(int status1, int status2) {

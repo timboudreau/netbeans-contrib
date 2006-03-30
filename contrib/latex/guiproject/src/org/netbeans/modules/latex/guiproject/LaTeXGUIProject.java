@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -20,7 +20,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,16 +32,11 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JSeparator;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
 import org.netbeans.modules.latex.guiproject.ui.LaTeXGUIProjectCustomizer;
-import org.netbeans.modules.latex.guiproject.ui.ProjectSettings;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
@@ -51,9 +45,9 @@ import org.netbeans.modules.latex.model.structural.Model;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.StructuralNodeFactory;
 import org.netbeans.spi.navigator.NavigatorLookupHint;
-import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
+import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -72,7 +66,6 @@ import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
-import org.openide.util.WeakListeners;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 
@@ -80,7 +73,7 @@ import org.openide.util.lookup.ProxyLookup;
  *
  * @author Jan Lahoda
  */
-public class LaTeXGUIProject implements Project, LogicalViewProvider, ActionProvider, LaTeXSource.DocumentChangedListener {
+public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSource.DocumentChangedListener {
     
     private FileObject dir;
     private FileObject masterFile;
@@ -114,6 +107,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, ActionProv
         lookup = Lookups.fixed(new Object[] {
             new Info(),
             this,
+            new ActionsFactory(this),
             GenericSources.genericOnly(this),
             source,
             new LaTeXGUIProjectOpenedHookImpl(this),
@@ -201,26 +195,6 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, ActionProv
         return mainChildren;
     }
     
-    public String[] getSupportedActions() {
-        return new String[] {
-            COMMAND_BUILD,
-            COMMAND_CLEAN,
-            COMMAND_SHOW
-        };
-    }
-    
-    public void invokeAction(String command, Lookup context) throws IllegalArgumentException {
-//        System.err.println("invoked: " + command);
-        if (COMMAND_BUILD.equals(command)) {
-            ActionsFactory.build(this, /*"build"*/ProjectSettings.getDefault(this).getDefaultBuildCommand());
-            return ;
-        }
-        if (COMMAND_SHOW.equals(command)) {
-            ActionsFactory.build(this, /*"show"*/ProjectSettings.getDefault(this).getDefaultShowCommand());
-            return ;
-        }
-    }
-    
     /*package private*/ File getProjectInternalDir() {
         return FileUtil.toFile(dir);
     }
@@ -244,10 +218,6 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, ActionProv
         }
     }
     
-    public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
-        return true;//TODO:....
-    }
-
     private synchronized void updateContainedFilesCache() {
         containedFilesCache = new HashSet(source.getDocument().getFiles());
         pcs.firePropertyChange(PROP_CONTAINED_FILES, null, null);
@@ -304,11 +274,12 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, ActionProv
             
             actions.add(ActionsFactory.createShowAction());
             actions.add(null);
-            actions.add(ActionsFactory.createBuildAction());
+            actions.add(ProjectSensitiveActions.projectCommandAction(ActionsFactory.COMMAND_BUILD, "Build Project", null));
+            actions.add(ProjectSensitiveActions.projectCommandAction(ActionsFactory.COMMAND_REBUILD, "Clean and Build Project", null));
+            actions.add(ProjectSensitiveActions.projectCommandAction(ActionsFactory.COMMAND_CLEAN, "Clean Project", null));
             actions.add(null);
             actions.add(CommonProjectActions.setAsMainProjectAction());
             actions.add(CommonProjectActions.closeProjectAction());
-            actions.add(null);
             
             // honor 57874 contact
             
@@ -339,6 +310,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, ActionProv
                 ErrorManager.getDefault().notify(ex);
             }
             
+            actions.add(null);
             actions.add(CommonProjectActions.customizeProjectAction());
             
             return (Action []) actions.toArray(new Action[actions.size()]);

@@ -67,12 +67,16 @@ Contributor(s): Jan Lahoda
     
     <folder name="latex">
         <folder name="guiproject">
-            <file name="build.xml" url="build.xml">
-            </file>
             <file name="build-settings.properties" url="build-settings.properties">
             </file>
             <file name="document.tex" url="document.tex">
             </file>
+        </folder>
+    </folder>
+
+    <folder name="Editors">
+        <folder name="AnnotationTypes">
+            <file name="org-netbeans-modules-latex-compiler-error.xml" url="compiler-error-annotation.xml" />
         </folder>
     </folder>
 </filesystem>

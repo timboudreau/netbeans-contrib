@@ -19,11 +19,15 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Map;
+import java.util.WeakHashMap;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JEditorPane;
-import javax.swing.text.BadLocationException;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
+import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
+import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.latex.editor.ActionsFactory;
 import org.netbeans.modules.latex.editor.TexKit;
 import org.netbeans.modules.latex.loaders.TexCloneableEditorCreatorJustForUI;
@@ -41,10 +45,10 @@ import org.netbeans.modules.latex.ui.palette.RootNode;
 import org.netbeans.spi.palette.PaletteActions;
 import org.netbeans.spi.palette.PaletteController;
 import org.netbeans.spi.palette.PaletteFactory;
-import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -118,7 +122,18 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
     
     public void focusLost(FocusEvent e) {
     }
-    
+
+    private static Map<PaletteController, Boolean> controllers = new WeakHashMap<PaletteController, Boolean>();
+    private static RootNode rootNode;
+
+    private static synchronized RootNode getRootNode() {
+        if (rootNode == null) {
+            rootNode = new RootNode();
+        }
+
+        return rootNode;
+    }
+
     private PaletteController pc;
     private MyProxyLookup lookup = null;
     
@@ -129,8 +144,9 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
             
             Lookup palette = null;
             
-            pc = PaletteFactory.createPalette(new RootNode(this), new PaletteActionsImpl());
-            
+            pc = PaletteFactory.createPalette(getRootNode(), new PaletteActionsImpl());
+
+            controllers.put(pc, Boolean.TRUE);
             pc.addPropertyChangeListener(this);
             palette = Lookups.fixed(new Object[] {pc});
             
@@ -180,7 +196,7 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
     
     public void propertyChange(PropertyChangeEvent evt) {
         if (pc != null && PaletteController.PROP_SELECTED_ITEM.equals(evt.getPropertyName())) {
-            JTextComponent target = UIUtilities.getCurrentEditorPane();
+            final JTextComponent target = UIUtilities.getCurrentEditorPane();
             
             if (target != getPane())
                 return ;
@@ -190,34 +206,32 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
             if (in == null)
                 return ;
             
-            String command = in.getCommand();
+            final String command = in.getCommand();
             
             if (command == null)
                 return ;
             
-            int dot = target.getCaret().getDot();
-            
-            try {
-                target.getDocument().insertString(dot, command, null);
-            } catch (BadLocationException e) {
-                IllegalStateException ex = new IllegalStateException(e.getMessage());
-                
-                ErrorManager.getDefault().annotate(ex, e);
-                
-                throw ex;
-            }
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    requestActive();
+                    target.requestFocusInWindow();
+                    target.requestFocus();
+                    
+                    CodeTemplate template = CodeTemplateManager.get(target.getDocument()).createTemporary(command);
+                    
+                    template.insert(target);
+                }
+            });
             
             pc.clearSelection();
             
-            requestFocus();
-            requestFocusInWindow();
-            target.requestFocus();
-            target.requestFocusInWindow();
         }
     }
 
-    public void refresh() {
-        pc.refresh();
+    public static void refresh() {
+        for (PaletteController pc : controllers.keySet()) {
+            pc.refresh();
+        }
     }
     
     private static final class PaletteActionsImpl extends PaletteActions {

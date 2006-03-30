@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -23,6 +23,7 @@ import java.util.WeakHashMap;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.latex.guiproject.EditableProperties;
 import org.netbeans.modules.latex.guiproject.LaTeXGUIProject;
+import org.netbeans.modules.latex.guiproject.build.RunTypes;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -41,17 +42,10 @@ import org.openide.filesystems.FileUtil;
  */
 public class ProjectSettings implements FileChangeListener {
     
-    private String   latexCommand;
-    private String   sourceSpecialsCommand;
-    private boolean  useSourceSpecials;
-    private String[] latexArguments;
-    
-    private String   bibtexCommand;
-    private String[] bibtexArguments;
-    
-    private String   defaultBuildCommand;
-    private String   defaultShowCommand;
-    
+    private String   buildConfigurationName;
+    private String   showConfigurationName;
+    private RunTypes bibTeXRunType;
+
     private boolean  modified;
     
     private LaTeXGUIProject project;
@@ -90,17 +84,15 @@ public class ProjectSettings implements FileChangeListener {
         EditableProperties p = new EditableProperties();
         
         p.load(ins);
-        
-        latexCommand = getProperty(p, "latex-command", "latex");
-        useSourceSpecials = Boolean.valueOf(getProperty(p, "latex-use-source-specials", "false")).booleanValue();
-        sourceSpecialsCommand = getProperty(p, "latex-source-specials-argument", "");
-        latexArguments = parseArguments(p.getProperty("latex-arguments"));
-        
-        bibtexCommand = getProperty(p, "bibtex-command", "bibtex");
-        bibtexArguments = parseArguments(p.getProperty("bibtex-arguments"));
-        
-        defaultBuildCommand = getProperty(p, "default-build-target", "build");
-        defaultShowCommand  = getProperty(p, "default-show-target", "show");
+
+        buildConfigurationName = getProperty(p, "build-configuration-name", "latexdvips");
+        showConfigurationName = getProperty(p, "show-configuration-name", "gv");
+
+        try {
+            bibTeXRunType = RunTypes.valueOf(getProperty(p, "bibtex-run-type", RunTypes.AUTO.name()).trim());
+        } catch (IllegalArgumentException e) {
+            bibTeXRunType = RunTypes.AUTO;
+        }
     }
     
     private FileObject getSettingsFile() {
@@ -160,16 +152,9 @@ public class ProjectSettings implements FileChangeListener {
             
             ins = null;
             
-            p.setProperty("latex-command", latexCommand);
-            p.setProperty("latex-use-source-specials", Boolean.toString(useSourceSpecials));
-            p.setProperty("latex-source-specials-argument", sourceSpecialsCommand);
-            p.setProperty("latex-arguments", toPlainString(latexArguments));
-            
-            p.setProperty("bibtex-command", bibtexCommand);
-            p.setProperty("bibtex-arguments", toPlainString(bibtexArguments));
-            
-            p.setProperty("default-build-target", getDefaultBuildCommand());
-            p.setProperty("default-show-target", getDefaultShowCommand());
+            p.setProperty("build-configuration-name", buildConfigurationName);
+            p.setProperty("show-configuration-name", showConfigurationName);
+            p.setProperty("bibtex-run-type", bibTeXRunType.name());
             
             lock = settings.lock();
             
@@ -219,61 +204,34 @@ public class ProjectSettings implements FileChangeListener {
         
         return s;
     }
-    
-    public String getLatexCommand() {
-        return latexCommand;
+
+    public String getBuildConfigurationName() {
+        return buildConfigurationName;
     }
-    
-    public synchronized void setLatexCommand(String latexCommand) {
-        this.latexCommand = latexCommand;
+
+    public synchronized void setBuildConfigurationName(String buildConfigurationName) {
+        this.buildConfigurationName = buildConfigurationName;
         this.modified = true;
     }
     
-    public String getBiBTeXCommand() {
-        return bibtexCommand;
+    public String getShowConfigurationName() {
+        return showConfigurationName;
     }
-    
-    public synchronized void setBiBTeXCommand(String bibtexCommand) {
-        this.bibtexCommand = bibtexCommand;
+
+    public synchronized void setShowConfigurationName(String showConfigurationName) {
+        this.showConfigurationName = showConfigurationName;
         this.modified = true;
     }
-    
-    public String getSourceSpecialsCommand() {
-        return sourceSpecialsCommand;
+
+    public RunTypes getBiBTeXRunType() {
+        return bibTeXRunType;
     }
-    
-    public synchronized void setSourceSpecialsCommand(String sourceSpecialsCommand) {
-        this.sourceSpecialsCommand = sourceSpecialsCommand;
+
+    public void setBiBTeXRunType(RunTypes bibTeXRunType) {
+        this.bibTeXRunType = bibTeXRunType;
         this.modified = true;
     }
-    
-    public boolean isUseSourceSpecials() {
-        return useSourceSpecials;
-    }
-    
-    public synchronized void setUseSourceSpecials(boolean useSourceSpecials) {
-        this.useSourceSpecials = useSourceSpecials;
-        this.modified = true;
-    }
-    
-    public String[] getLaTeXArguments() {
-        return latexArguments;
-    }
-    
-    public synchronized void setLaTeXArguments(String[] arguments) {
-        this.latexArguments = arguments;
-        this.modified = true;
-    }
-    
-    public String[] getBiBTeXArguments() {
-        return bibtexArguments;
-    }
-    
-    public synchronized void setBiBTeXArguments(String[] arguments) {
-        this.bibtexArguments = arguments;
-        this.modified = true;
-    }
-    
+
     public synchronized boolean isModified() {
         return modified;
     }
@@ -287,24 +245,6 @@ public class ProjectSettings implements FileChangeListener {
     
     public void rollBack() {
         load();
-    }
-
-    public String getDefaultBuildCommand() {
-        return defaultBuildCommand;
-    }
-
-    public synchronized void setDefaultBuildCommand(String defaultBuildCommand) {
-        this.defaultBuildCommand = defaultBuildCommand;
-        modified = true;
-    }
-
-    public String getDefaultShowCommand() {
-        return defaultShowCommand;
-    }
-
-    public synchronized void setDefaultShowCommand(String defaultShowCommand) {
-        this.defaultShowCommand = defaultShowCommand;
-        modified = true;
     }
 
     public void fileRenamed(FileRenameEvent fe) {

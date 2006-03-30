@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -45,12 +45,16 @@ public abstract class IconsStorage {
     public abstract Collection/*<String>*/ getCathegories();
     
     public abstract String getCathegoryDisplayName(String catName);
-    
+
+    /**Prefered size:
+     */
     public abstract ChangeableIcon getIcon(String command);
     
+    /**Given size:
+     */
+    public abstract ChangeableIcon getIcon(String command, int sizeX, int sizeY);
+
     public abstract boolean getIconsInstalled();
-    
-    public abstract ChangeableIcon getIconForExpression(String expression);
     
     public static interface ChangeableIcon extends Icon {
         

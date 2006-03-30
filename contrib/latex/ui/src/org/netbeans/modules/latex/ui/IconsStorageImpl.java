@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -17,6 +17,9 @@ package org.netbeans.modules.latex.ui;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.RGBImageFilter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +55,10 @@ import org.openide.util.Utilities;
  */
 public final class IconsStorageImpl extends IconsStorage {
     
+    public static IconsStorageImpl getDefaultImpl() {
+        return (IconsStorageImpl) getDefault();
+    }
+
     private Map/*<String, List<String>>*/ cathegory2Names;
     
     private Icon waitIcon;
@@ -77,7 +84,7 @@ public final class IconsStorageImpl extends IconsStorage {
     }
 
     public ChangeableIcon getIcon(String command) {
-        return getIconForExpression(command, 16, 16);
+        return getIcon(command, 16, 16);
     }
 
     public boolean getIconsInstalled() {
@@ -222,12 +229,34 @@ public final class IconsStorageImpl extends IconsStorage {
         
         return "" + icon.getDesiredSizeX() + "x" + icon.getDesiredSizeY();
     }
-    
+
+    private static class MakeTransparentImage extends RGBImageFilter {
+
+        public int filterRGB(int x, int y, int rgb) {
+            int red   = (rgb >>  0) & 0xFF;
+            int green = (rgb >>  8) & 0xFF;
+            int blue  = (rgb >> 16) & 0xFF;
+            int alpha = (rgb >> 24) & 0xFF;
+
+            int redDiff = 0xFF - red;
+            int greenDiff = 0xFF - green;
+            int blueDiff = 0xFF - blue;
+
+            if (redDiff != greenDiff || greenDiff != blueDiff) {
+                System.err.println("not a mono image!");
+            }
+
+            return redDiff << 24;
+        }
+
+    }
+
     private void createOrLoadIcon(DelegatingIcon icon) {
         Icon i = null;
+        File iconFile = null;
         
         try {
-            File iconFile = new File(getIconDirectory(), IconsCreator.constructFileName(icon.getText(), constructSizeString(icon)));
+            iconFile = new File(getIconDirectory(), IconsCreator.constructFileName(icon.getText(), constructSizeString(icon)));
             
             if (!iconFile.exists()) {
                 IconsCreator creator = IconsCreator.getDefault();
@@ -236,8 +265,11 @@ public final class IconsStorageImpl extends IconsStorage {
                     iconFile = null;
             }
             
-            if (iconFile != null)
-                i = new ImageIcon(iconFile.getAbsolutePath());
+            if (iconFile != null) {
+                Image img = Toolkit.getDefaultToolkit().createImage(iconFile.getAbsolutePath());
+
+                i = new ImageIcon(Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(img.getSource(), new MakeTransparentImage())));
+            }
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
             i = null;
@@ -245,6 +277,9 @@ public final class IconsStorageImpl extends IconsStorage {
         
         if (i != null)
             icon.setIcon(i);
+
+        if (iconFile != null)
+            icon.setCacheFileName(iconFile.getAbsolutePath());
     }
     
     private void setWaitingIcon(DelegatingIcon icon) {
@@ -268,11 +303,7 @@ public final class IconsStorageImpl extends IconsStorage {
         return icon;
     }
 
-    public ChangeableIcon getIconForExpression(String expression) {
-        return getIconForExpression(expression, 16, 16);
-    }
-    
-    public ChangeableIcon getIconForExpression(String expression, int sizeX, int sizeY) {
+    public ChangeableIcon getIcon(String expression, int sizeX, int sizeY) {
         ChangeableIcon i = null;
         SoftReference sr = (SoftReference) expression2Icon.get(expression2Icon);
         
@@ -292,9 +323,33 @@ public final class IconsStorageImpl extends IconsStorage {
         for (Iterator i = new ArrayList(expression2Icon.values()).iterator(); i.hasNext(); ) {
             DelegatingIcon icon = (DelegatingIcon) ((Reference) i.next()).get();
             
-            if (icon != null && (icon.delegateTo == waitIcon || icon.delegateTo == noIcons)) {
+            if (icon != null && (icon.delegateTo == waitIcon || icon.delegateTo == noIcons || (icon.getCacheFileName() != null && !new File(icon.getCacheFileName()).exists()))) {
                 setWaitingIcon(icon);
             }
+        }
+    }
+
+    private boolean delete(File f) {
+        if (f.isDirectory()) {
+            for (File c : f.listFiles()) {
+                if (!delete(c))
+                    return false;
+            }
+        }
+
+        return f.delete();
+    }
+
+    public boolean clearIconsCache() {
+        try {
+            if (!delete(getIconDirectory()))
+                return false;
+
+            configurationChanged();
+            return true;
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            return false;
         }
     }
     
@@ -304,6 +359,7 @@ public final class IconsStorageImpl extends IconsStorage {
         
         private Icon   delegateTo;
         private String text;
+        private String cacheFileName;
         private int    desiredSizeX;
         private int    desiredSizeY;
         
@@ -331,6 +387,14 @@ public final class IconsStorageImpl extends IconsStorage {
         
         private String getText() {
             return text;
+        }
+
+        private String getCacheFileName() {
+            return cacheFileName;
+        }
+
+        private void setCacheFileName(String fileName) {
+            this.cacheFileName = fileName;
         }
         
         private int getDesiredSizeX() {

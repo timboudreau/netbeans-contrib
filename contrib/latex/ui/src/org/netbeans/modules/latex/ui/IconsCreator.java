@@ -149,9 +149,11 @@ import org.openide.ErrorManager;
         if (size != null)
             gs = Runtime.getRuntime().exec(new String[] {
             this.gs,
-            "-sDEVICE=pngalpha",
+            "-sDEVICE=png16m",
             "-dBATCH",
             "-dNOPAUSE",
+            "-dGraphicsAlphaBits=4",
+            "-dTextAlphaBits=4",
             "-dEPSFitPage",
             "-g" + size,
             "-sOutputFile=" + output.getAbsolutePath(),
@@ -188,7 +190,7 @@ import org.openide.ErrorManager;
             tempOut.println("\\usepackage{latexsym}");
             tempOut.println("\\pagestyle{empty}");
             tempOut.println("\\begin{document}");
-            tempOut.println("$ " + command + "$");
+            tempOut.println("\\[ " + command + " \\]");
             tempOut.println("\\end{document}");
             
             tempOut.close();

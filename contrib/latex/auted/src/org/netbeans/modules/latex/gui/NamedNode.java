@@ -60,7 +60,7 @@ public abstract class NamedNode extends Node implements ChangeListener {
     
     protected synchronized Icon getIconForName() {
         if (icon == null) {
-            icon = IconsStorage.getDefault().getIconForExpression(getName());
+            icon = IconsStorage.getDefault().getIcon(getName());
             icon.addChangeListener(this);
         }
         

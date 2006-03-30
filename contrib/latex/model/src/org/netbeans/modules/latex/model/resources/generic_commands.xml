@@ -754,3 +754,7 @@ Microsystems, Inc. All Rights Reserved.
         <value value="Alph" />
     </argument>
 </command>
+
+<command name="\newpage">
+  <attribute name="par" value="true" />
+</command>

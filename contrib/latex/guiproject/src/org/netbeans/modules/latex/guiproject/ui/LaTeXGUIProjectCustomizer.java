@@ -37,10 +37,6 @@ import org.openide.util.HelpCtx;
 public class LaTeXGUIProjectCustomizer extends WindowAdapter implements CustomizerProvider, ProjectCustomizer.CategoryComponentProvider {
     
     private static final String CAT_BUILD = "build";
-    private static final String CAT_LATEX = "LaTeX";
-    private static final String CAT_BIBTEX = "BiBTeX";
-    private static final String CAT_SHOW = "show";
-    private static final String CAT_SHOWXDVI = "showXDVI";
     
     private LaTeXGUIProject project;
     private List/*<StorableSettingsPresenter>*/ currentPresenters;
@@ -57,17 +53,11 @@ public class LaTeXGUIProjectCustomizer extends WindowAdapter implements Customiz
             return ;
         }
         
-        Category build = ProjectCustomizer.Category.create(CAT_BUILD, "Build", null, new Category[] {
-            ProjectCustomizer.Category.create(CAT_LATEX, "LaTeX", null, null),
-            ProjectCustomizer.Category.create(CAT_BIBTEX, "BiBTeX", null, null),
-        });
-        Category show = ProjectCustomizer.Category.create(CAT_SHOW, "Show", null, new Category[] {
-            ProjectCustomizer.Category.create(CAT_SHOWXDVI, "XDVI", null, null),
-        });
+        Category build = ProjectCustomizer.Category.create(CAT_BUILD, "Build&Show", null, null);
         
         currentPresenters = new ArrayList();
         
-        current = ProjectCustomizer.createCustomizerDialog(new Category[] {build, show}, this, null, new ActionListener() {
+        current = ProjectCustomizer.createCustomizerDialog(new Category[] {build}, this, null, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 ProjectSettings settings = ProjectSettings.getDefault(project);
                 
@@ -102,38 +92,7 @@ public class LaTeXGUIProjectCustomizer extends WindowAdapter implements Customiz
     
     public JComponent createImpl(ProjectCustomizer.Category category) {
         if (CAT_BUILD.equals(category.getName())) {
-            Collection buildTargets = new ArrayList();
-            
-            buildTargets.add("latex2dvi");
-            buildTargets.add("latex2ps");
-            buildTargets.add("latex2pdf");
-            
-            return new BuildPanel("Default Build Target:", buildTargets, "defaultBuildCommand");
-        }
-        
-        if (CAT_LATEX.equals(category.getName())) {
-            return new LaTeXProperties();
-        }
-        
-        if (CAT_BIBTEX.equals(category.getName())) {
-            return new BiBTeXProperties();
-        }
-        
-        if (CAT_SHOW.equals(category.getName())) {
-            Collection buildTargets = new ArrayList();
-            
-            buildTargets.add("xdvi");
-            buildTargets.add("gv");
-            
-            return new BuildPanel("Default Show Target:", buildTargets, "defaultShowCommand");
-        }
-        
-        if (CAT_SHOWXDVI.equals(category.getName())) {
-            JLabel panelNotImplemented = new JLabel("Panel not implemented yet.");
-            
-            panelNotImplemented.setForeground(Color.RED);
-            
-            return panelNotImplemented;
+            return new BuildPanel(project);
         }
         
         throw new IllegalArgumentException("Unsupported category: " + category.getName());

@@ -91,6 +91,16 @@ public class TexCompletion implements CompletionProvider {
             Node node = source.findNode(doc, offset);
             
             if (node instanceof ArgumentNode) {
+                ArgumentNode anode = (ArgumentNode) node;
+
+                Iterator tokens = anode.getDeepNodeTokens();
+
+                if (   node.getStartingPosition().getOffsetValue() >= offset
+                    && tokens.hasNext()
+                    && ((Token) tokens.next()).getId() == TexLanguage.COMP_BRACKET_LEFT) {
+                    return null;
+                }
+                
                 return (ArgumentNode) node;
             }
             
@@ -300,7 +310,11 @@ public class TexCompletion implements CompletionProvider {
         new DocumentClassArgumentCompletionHandler(),
     };
     
-    
+    private static boolean isArgumentCurlyBracket(ArgumentNode anode) {
+        CharSequence text = anode.getFullText();
+
+        return text.length() > 0 && text.charAt(0) == '{';
+    }
     
     
     private static void getSpecialCommandArguments(CompletionResultSet set, LaTeXSource source, Document doc, int offset, int start) throws BadLocationException {
@@ -313,7 +327,11 @@ public class TexCompletion implements CompletionProvider {
             
             if (prefixLength < 0)
                 return ;
-            
+
+            if (prefixLength == 1 && isArgumentCurlyBracket(argument)) {
+                start++;
+            }
+
             String ccPrefix = argumentContent.length() >= (prefixLength - 1) && prefixLength > 0 ? argumentContent.subSequence(0, prefixLength - 1).toString() : "";
             
             for (int cntr = 0; cntr < handlers.length; cntr++) {

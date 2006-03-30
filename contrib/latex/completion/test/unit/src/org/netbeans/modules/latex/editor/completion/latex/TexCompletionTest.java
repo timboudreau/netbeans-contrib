@@ -27,6 +27,7 @@ import org.netbeans.modules.editor.completion.CompletionItemComparator;
 import org.netbeans.modules.editor.completion.CompletionResultSetImpl;
 import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.modules.latex.model.Utilities;
+import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionTask;
 
@@ -148,7 +149,19 @@ public class TexCompletionTest extends NbTestCase {
         test("", "completion/MultipleBibliographies1.tex", 6, 12);
     }
 
-    private void completionQuery(JEditorPane  editor) throws Exception {
+    public void testArgumentNotProsedBeforeArgStart() throws Exception {
+        test("", "completion/RefTest.tex", 6, 5);
+    }
+
+    public void testNotFullTest3a() throws Exception {
+        test("", "completion/NotFullTest3a.tex", 4, 7, 0);
+    }
+
+    public void testNotFullTest3b() throws Exception {
+        test("", "completion/NotFullTest3b.tex", 4, 12, 0);
+    }
+
+    private List<CompletionItem> getItems(JEditorPane editor) throws Exception {
         CompletionProvider provider = new TexCompletion();
         
         CompletionTask compTask = provider.createTask(CompletionProvider.COMPLETION_QUERY_TYPE, editor);
@@ -167,13 +180,19 @@ public class TexCompletionTest extends NbTestCase {
             Thread.sleep(100);
         
         assertTrue(resultSetImpl.isFinished());
-        
-        List/*<CompletionItem>*/ items = resultSetImpl.getItems();
-        
+
+        List<CompletionItem> items = resultSetImpl.getItems();
+
         Collections.sort(items, CompletionItemComparator.BY_PRIORITY);
         
-        for (Iterator iter = items.iterator(); iter.hasNext(); ) {
-            ref(iter.next().toString());
+        return items;
+    }
+
+    private void completionQuery(JEditorPane  editor) throws Exception {
+        List<CompletionItem> items = getItems(editor);
+        
+        for (CompletionItem item : items) {
+            ref(item.toString());
         }
         
         //make sure the file is created:
@@ -191,6 +210,27 @@ public class TexCompletionTest extends NbTestCase {
         editor.getCaret().setDot(lineOffset + column);
         
         completionQuery(editor);
+        
+        assertFile("Output does not match golden file.", getGoldenFile(), new File(getWorkDir(), this.getName() + ".ref"), new File(getWorkDir(), this.getName() + ".diff"));
+    }
+
+    private void test(String assign, String testFileName, int line, int column, int itemIndexToCommit) throws Exception {
+        FileObject     testFileObject = getTestFile(testFileName);
+        JEditorPane    editor         = getAnEditorPane(testFileObject);
+        StyledDocument doc            = (StyledDocument) editor.getDocument();
+        int            lineOffset     = NbDocument.findLineOffset(doc, line - 1);
+        
+        editor.getCaret().setDot(lineOffset);
+        doc.insertString(lineOffset, assign, null);
+        editor.getCaret().setDot(lineOffset + column);
+
+        List<CompletionItem> items = getItems(editor);
+
+        assertTrue(items.toString(), itemIndexToCommit < items.size());
+
+        items.get(itemIndexToCommit).defaultAction(editor);
+
+        getRef().print(doc.getText(0, doc.getLength()));
         
         assertFile("Output does not match golden file.", getGoldenFile(), new File(getWorkDir(), this.getName() + ".ref"), new File(getWorkDir(), this.getName() + ".diff"));
     }

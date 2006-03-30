@@ -27,6 +27,14 @@ Microsystems, Inc. All Rights Reserved.
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.openide.execution</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.8.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.filesystems</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -68,10 +76,11 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>org.netbeans.modules.latex.model.command</package>
-                <package>org.netbeans.modules.latex.model.bibtex</package>
-                <package>org.netbeans.modules.latex.model.structural</package>
                 <package>org.netbeans.modules.latex.model</package>
+                <package>org.netbeans.modules.latex.model.bibtex</package>
+                <package>org.netbeans.modules.latex.model.command</package>
+                <package>org.netbeans.modules.latex.model.platform</package>
+                <package>org.netbeans.modules.latex.model.structural</package>
             </public-packages>
         </data>
     </configuration>

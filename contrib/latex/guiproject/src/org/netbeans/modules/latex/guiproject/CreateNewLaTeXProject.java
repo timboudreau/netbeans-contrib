@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -107,10 +107,6 @@ public class CreateNewLaTeXProject {
         FileUtil.toFileObject(metadataDir.getParentFile()).refresh();
         
         FileObject metadataDirFO = FileUtil.toFileObject(metadataDir);
-        
-        FileObject buildXml = Repository.getDefault().getDefaultFileSystem().findResource("latex/guiproject/build.xml");
-        
-        FileObject targetBuildXml = FileUtil.copyFile(buildXml, metadataDirFO, "build", "xml");
         
         FileObject buildSettings = Repository.getDefault().getDefaultFileSystem().findResource("latex/guiproject/build-settings.properties");
         

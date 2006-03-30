@@ -31,8 +31,8 @@ public class CategoryNode extends AbstractNode {
     /**
      * Creates a new instance of CategoryNode
      */
-    public CategoryNode(TexCloneableEditor editor, String cathegory) {
-        super(new CathegoryChildren(editor, cathegory));
+    public CategoryNode(String cathegory) {
+        super(new CathegoryChildren(cathegory));
         this.cathegory = cathegory;
     }
     
@@ -43,11 +43,9 @@ public class CategoryNode extends AbstractNode {
     private static final class CathegoryChildren extends Children.Keys {
 
         private String cathegory;
-        private TexCloneableEditor editor;
         
-        public CathegoryChildren(TexCloneableEditor editor, String cathegory) {
+        public CathegoryChildren(String cathegory) {
             this.cathegory = cathegory;
-            this.editor = editor;
         }
         
         protected void addNotify() {
@@ -59,7 +57,7 @@ public class CategoryNode extends AbstractNode {
         }
         
         protected Node[] createNodes(Object key) {
-            return new Node[] {new IconNode(editor, (String) key)};
+            return new Node[] {new IconNode((String) key)};
         }
         
     }

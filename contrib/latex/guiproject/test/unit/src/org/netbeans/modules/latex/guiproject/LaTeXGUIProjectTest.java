@@ -49,8 +49,6 @@ public class LaTeXGUIProjectTest extends ProjectTestCase {
      * Test of getLookup method, of class org.netbeans.modules.latex.guiproject.LaTeXGUIProject.
      */
     public void testGetLookup() throws IOException {
-        System.out.println("testGetLookup");
-        
         Project p = ProjectManager.getDefault().findProject(prj1Impl);
         Lookup l = p.getLookup();
         

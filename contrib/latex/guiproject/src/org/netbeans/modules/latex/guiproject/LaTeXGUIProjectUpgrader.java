@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -21,8 +21,6 @@ import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.Set;
-import org.apache.tools.ant.module.api.AntProjectCookie;
-import org.apache.tools.ant.module.api.support.TargetLister;
 import org.netbeans.api.project.ProjectUtils;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -223,111 +221,111 @@ public final class LaTeXGUIProjectUpgrader {
         public abstract String getUpgradeItinerary();
     }
     
-    private static class Upgrade1to11 extends Upgrader {
-        public SpecificationVersion getVersionFrom() {
-            return new SpecificationVersion("1.0");
-        }
-        
-        public SpecificationVersion getVersionTo() {
-            return new SpecificationVersion("1.1");
-        }
-        
-        public boolean upgrade(FileObject projectDir, FileObject mainFile, EditableProperties properties) {
-            //The 1.0->1.1 upgrade consists of two steps:
-            //1. A new target "gv" showing results in the gv viewer is added.
-            //2. The mainfile reference is relativized if possible.
-            FileLock     lock = null;
-            OutputStream out  = null;
-
-            try {
-                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "LaTeX project: 1.0 to 1.1 upgrade perfomer.");//NOI18N
-                
-                FileObject       buildScriptFile = projectDir.getFileObject("build", "xml");//NOI18N
-                DataObject       buildScript     = DataObject.find(buildScriptFile);
-                AntProjectCookie apc             = (AntProjectCookie) buildScript.getCookie(AntProjectCookie.class);
-                Element          mainEl          = apc.getProjectElement();
-                Document         doc             = mainEl.getOwnerDocument();
-                Set              targets         = TargetLister.getTargets(apc);
-                boolean          gvTargetExists  = false;
-                
-                for (Iterator i = targets.iterator(); i.hasNext(); ) {
-                    TargetLister.Target t = (TargetLister.Target) i.next();
-                    
-                    if ("gv".equals(t.getName())) {
-                        //gv target found, we cannot create a new one
-                        gvTargetExists = true;
-                    }
-                }
-                
-                //<target name="gv" depends="latex2ps">
-                //   <gv mainfile="${mainfile}" />
-                //</target>
-                if (!gvTargetExists) {
-                    Element target = doc.createElement("target");//NOI18N
-                    
-                    target.setAttribute("name", "gv");//NOI18N
-                    target.setAttribute("depends", "latex2ps");//NOI18N
-                    
-                    Element gv = doc.createElement("gv");
-                    
-                    gv.setAttribute("mainfile", "${mainfile}");//NOI18N
-                    
-                    target.appendChild(gv);
-                    
-                    mainEl.appendChild(target);
-                    
-                    //<taskdef name="gv" classname="org.netbeans.modules.latex.ant.tasks.GVAntTask" classpath="${libs.latextasks.classpath}" />:
-                    
-                    Element taskdef = doc.createElement("taskdef");//NOI18N
-                    
-                    taskdef.setAttribute("name", "gv");//NOI18N
-                    taskdef.setAttribute("classname", "org.netbeans.modules.latex.ant.tasks.GVAntTask");//NOI18N
-                    taskdef.setAttribute("classpath", "${libs.latextasks.classpath}");//NOI18N
-                    
-                    mainEl.appendChild(taskdef);
-                } else {
-                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "LaTeX project upgrade: cannot create \"gv\" target as target with the same name alreay exists.");//NOI18N
-                }
-                
-                lock = buildScriptFile.lock();
-                out  = buildScriptFile.getOutputStream(lock);
-                
-                XMLUtil.write(doc, out, "UTF-8");//NOI18N
-                
-                //TODO: step II: relativize the main file:
-                String mainFileName = properties.getProperty("mainfile");
-                File   mainFileFile = new File(mainFileName);
-                
-                if (mainFileFile.exists()) {
-                    properties.put("mainfile", Utilities.findShortestName(FileUtil.toFile(projectDir), mainFileFile));
-                }
-                
-                return true;
-            } catch (IOException e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                return false;
-            } finally {
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                    }
-                }
-                
-                if (lock != null) {
-                    lock.releaseLock();
-                }
-            }
-        }
-        
-        public String getUpgradeItinerary() {
-            return "-add GhostView (gv) target to the build script\n-relativize the main file\n";
-        }
-    }
+//    private static class Upgrade1to11 extends Upgrader {
+//        public SpecificationVersion getVersionFrom() {
+//            return new SpecificationVersion("1.0");
+//        }
+//        
+//        public SpecificationVersion getVersionTo() {
+//            return new SpecificationVersion("1.1");
+//        }
+//        
+//        public boolean upgrade(FileObject projectDir, FileObject mainFile, EditableProperties properties) {
+//            //The 1.0->1.1 upgrade consists of two steps:
+//            //1. A new target "gv" showing results in the gv viewer is added.
+//            //2. The mainfile reference is relativized if possible.
+//            FileLock     lock = null;
+//            OutputStream out  = null;
+//
+//            try {
+//                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "LaTeX project: 1.0 to 1.1 upgrade perfomer.");//NOI18N
+//                
+//                FileObject       buildScriptFile = projectDir.getFileObject("build", "xml");//NOI18N
+//                DataObject       buildScript     = DataObject.find(buildScriptFile);
+//                AntProjectCookie apc             = (AntProjectCookie) buildScript.getCookie(AntProjectCookie.class);
+//                Element          mainEl          = apc.getProjectElement();
+//                Document         doc             = mainEl.getOwnerDocument();
+//                Set              targets         = TargetLister.getTargets(apc);
+//                boolean          gvTargetExists  = false;
+//                
+//                for (Iterator i = targets.iterator(); i.hasNext(); ) {
+//                    TargetLister.Target t = (TargetLister.Target) i.next();
+//                    
+//                    if ("gv".equals(t.getName())) {
+//                        //gv target found, we cannot create a new one
+//                        gvTargetExists = true;
+//                    }
+//                }
+//                
+//                //<target name="gv" depends="latex2ps">
+//                //   <gv mainfile="${mainfile}" />
+//                //</target>
+//                if (!gvTargetExists) {
+//                    Element target = doc.createElement("target");//NOI18N
+//                    
+//                    target.setAttribute("name", "gv");//NOI18N
+//                    target.setAttribute("depends", "latex2ps");//NOI18N
+//                    
+//                    Element gv = doc.createElement("gv");
+//                    
+//                    gv.setAttribute("mainfile", "${mainfile}");//NOI18N
+//                    
+//                    target.appendChild(gv);
+//                    
+//                    mainEl.appendChild(target);
+//                    
+//                    //<taskdef name="gv" classname="org.netbeans.modules.latex.ant.tasks.GVAntTask" classpath="${libs.latextasks.classpath}" />:
+//                    
+//                    Element taskdef = doc.createElement("taskdef");//NOI18N
+//                    
+//                    taskdef.setAttribute("name", "gv");//NOI18N
+//                    taskdef.setAttribute("classname", "org.netbeans.modules.latex.ant.tasks.GVAntTask");//NOI18N
+//                    taskdef.setAttribute("classpath", "${libs.latextasks.classpath}");//NOI18N
+//                    
+//                    mainEl.appendChild(taskdef);
+//                } else {
+//                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "LaTeX project upgrade: cannot create \"gv\" target as target with the same name alreay exists.");//NOI18N
+//                }
+//                
+//                lock = buildScriptFile.lock();
+//                out  = buildScriptFile.getOutputStream(lock);
+//                
+//                XMLUtil.write(doc, out, "UTF-8");//NOI18N
+//                
+//                //TODO: step II: relativize the main file:
+//                String mainFileName = properties.getProperty("mainfile");
+//                File   mainFileFile = new File(mainFileName);
+//                
+//                if (mainFileFile.exists()) {
+//                    properties.put("mainfile", Utilities.findShortestName(FileUtil.toFile(projectDir), mainFileFile));
+//                }
+//                
+//                return true;
+//            } catch (IOException e) {
+//                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+//                return false;
+//            } finally {
+//                if (out != null) {
+//                    try {
+//                        out.close();
+//                    } catch (IOException e) {
+//                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+//                    }
+//                }
+//                
+//                if (lock != null) {
+//                    lock.releaseLock();
+//                }
+//            }
+//        }
+//        
+//        public String getUpgradeItinerary() {
+//            return "-add GhostView (gv) target to the build script\n-relativize the main file\n";
+//        }
+//    }
     
     private static Upgrader[] upgraders = new Upgrader[] {
-        new Upgrade1to11(),
+//        new Upgrade1to11(),
     };
     
 }
