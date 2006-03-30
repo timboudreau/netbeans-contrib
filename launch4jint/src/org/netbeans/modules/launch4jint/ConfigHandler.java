@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.launch4jint;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -60,7 +61,11 @@ public class ConfigHandler {
         FileObject nbProjDir = rootProjDir.getFileObject(NB_PROJECT);
 
         // generate ant script
-        Document script = createScript(nbProjDir.getPath() + "/" + XML_CONFIG);
+        String projDirPath = getAbsolutePath(nbProjDir);
+        if (projDirPath == null) {
+            return null;
+        }
+        Document script = createScript(projDirPath + "/" + XML_CONFIG);
         if (script == null) {
             return null;
         }
@@ -289,8 +294,11 @@ public class ConfigHandler {
         
         String projName = ProjectUtils.getInformation(project).getName();
         elem = doc.createElement("outfile");
-        elem.appendChild(doc.createTextNode(distFO.getPath() + "/" + projName + ".exe"));
-        rewriteElem(root, elem);
+        String distPath = getAbsolutePath(distFO);
+        if (distPath != null) {
+            elem.appendChild(doc.createTextNode(distPath + "/" + projName + ".exe"));
+            rewriteElem(root, elem);
+        }
         
         elem = doc.createElement("customProcName");
         elem.appendChild(doc.createTextNode(projName));
@@ -352,6 +360,14 @@ public class ConfigHandler {
             result = (Element) nodeList.item(0);
         }
         return result;
+    }
+
+    private static String getAbsolutePath (FileObject fo) {
+        File file = FileUtil.toFile(fo);
+        if (file == null) {
+            return null;
+        }
+        return file.getAbsolutePath();
     }
     
 }

@@ -87,7 +87,7 @@ class LocatePanel extends javax.swing.JPanel implements DocumentListener {
         fch.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int result = fch.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-            return fch.getSelectedFile().getPath();
+            return fch.getSelectedFile().getAbsolutePath();
         }
         return null;
     }
