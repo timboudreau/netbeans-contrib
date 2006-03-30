@@ -41,6 +41,10 @@ public class JarInfo {
         f = new File (filespec);
     }
     
+    public String getFileName() {
+        return f.getPath();
+    }
+    
     private String problem = null;
     public String getProblem() {
         return problem;

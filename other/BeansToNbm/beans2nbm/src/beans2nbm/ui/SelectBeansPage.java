@@ -43,9 +43,11 @@ public class SelectBeansPage extends WizardPage implements JarInfo.ScanObserver,
             if (!(new File(s).isFile())) {
                 setProblem ("Jar file not specified or not found");
             } else {
-                info = new JarInfo (s);
-                info.scan (this);
-                super.putWizardData("jarInfo", info);
+                if (info == null || !info.getFileName().equals(s)) {
+                    info = new JarInfo (s);
+                    info.scan (this);
+                    super.putWizardData("jarInfo", info);
+                }
             }
         }
     }
