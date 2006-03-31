@@ -64,6 +64,10 @@ public class AuthorInfoPage extends WizardPage {
                 return "Not a valid URL " + s + " (you can leave it blank)";
             }
         }
+        s = licenseField.getText();
+        if ("".equals(s.trim())) {
+            return "Enter a license, or choose one from the combo box";
+        }
         return null;
     }
     
