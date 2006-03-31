@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.editor.completion.latex;
@@ -152,6 +152,14 @@ public class TexCompletionTest extends NbTestCase {
     public void testArgumentNotProsedBeforeArgStart() throws Exception {
         test("", "completion/RefTest.tex", 6, 5);
     }
+
+    public void testEndTest1() throws Exception {
+        test("", "completion/EndTest1.tex", 7, 3);
+    }
+
+//    public void testEndTest2() throws Exception {
+//        test("", "completion/EndTest2.tex", 5, 3);
+//    }
 
     public void testNotFullTest3a() throws Exception {
         test("", "completion/NotFullTest3a.tex", 4, 7, 0);

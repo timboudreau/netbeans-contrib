@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -25,12 +26,20 @@ import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.completion.Completion;
 import org.netbeans.modules.latex.editor.AnalyseBib;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionJavaDoc;
+import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
+import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
+import org.openide.cookies.EditorCookie;
+import org.openide.cookies.OpenCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
 import org.openide.text.NbDocument;
 
 /**
@@ -50,6 +59,10 @@ public abstract class TexCompletionItem implements CompletionItem {
         this.substituteOffset = substituteOffset;
     }
     
+    public int getSubstituteOffset() {
+        return substituteOffset;
+    }
+
     public void defaultAction(final JTextComponent component) {
         Completion.get().hideCompletion();
         Completion.get().hideDocumentation();
@@ -345,5 +358,113 @@ public abstract class TexCompletionItem implements CompletionItem {
             return record.getRef() + ":" + record.getTitle();
         }
     }
-    
+
+    public static final class NewFileCompletionItem extends TexCompletionItem {
+
+        private static final String NEW_FILE_TEXT = "Create New File";
+
+        private FileObject base;
+
+        public NewFileCompletionItem(int substituteOffset, FileObject base) {
+            super(substituteOffset);
+            this.base = base;
+        }
+
+        public void defaultAction(final JTextComponent component) {
+            try {
+                NotifyDescriptor nd = new NotifyDescriptor.InputLine("New File Name:", "Craate New File");
+                
+                DialogDisplayer.getDefault().notify(nd);
+
+                String nueFileName = ((NotifyDescriptor.InputLine) nd).getInputText();
+
+                if (nueFileName.lastIndexOf('.') == (-1)) {
+                    //does not have an extension:
+                    nueFileName += ".tex";
+                }
+
+                FileObject nueFile = FileUtil.createData(base.getParent(), nueFileName);
+
+                String relativeFile = FileUtil.getRelativePath(base.getParent(), nueFile);
+
+                if (relativeFile == null) {
+                    relativeFile = FileUtil.toFile(nueFile).getAbsolutePath();
+                }
+
+                final String relativeFileFinal = relativeFile;
+
+                Completion.get().hideCompletion();
+                Completion.get().hideDocumentation();
+                NbDocument.runAtomic((StyledDocument) component.getDocument(), new Runnable() {
+                    public void run() {
+                        Document doc = component.getDocument();
+                        
+                        try {
+                            doc.remove(getSubstituteOffset() - 1, component.getCaretPosition() - getSubstituteOffset() + 1);
+                            doc.insertString(getSubstituteOffset() - 1, relativeFileFinal + "}", null);
+                        } catch (BadLocationException e) {
+                            ErrorManager.getDefault().notify(e);
+                        }
+                    }
+                });
+
+                DataObject toOpen = DataObject.find(nueFile);
+                OpenCookie ec = (OpenCookie) toOpen.getCookie(OpenCookie.class);
+
+                ec.open();
+            } catch (IOException e) {
+                ErrorManager.getDefault().notify(e);
+            }
+        }
+
+        public void processKeyEvent(KeyEvent evt) {
+        }
+
+        public int getPreferredWidth(Graphics g, Font defaultFont) {
+            return CompletionUtilities.getPreferredWidth(NEW_FILE_TEXT, null, g, defaultFont);
+        }
+        
+        public void render(Graphics g, Font defaultFont, Color defaultColor, Color backgroundColor, int width, int height, boolean selected) {
+            if (selected) {
+                g.setColor(backgroundColor);
+                g.fillRect(0, 0, width, height);
+                g.setColor(defaultColor);
+            }
+            CompletionUtilities.renderHtml(null, NEW_FILE_TEXT, "", g, defaultFont, defaultColor, width, height, selected);
+        }
+
+        public CompletionTask createDocumentationTask() {
+            return null;
+        }
+
+        public CompletionTask createToolTipTask() {
+            return null;
+        }
+
+        public boolean instantSubstitution(JTextComponent component) {
+            return false;
+        }
+
+        public int getSortPriority() {
+            return 50;
+        }
+
+        public CharSequence getSortText() {
+            return NEW_FILE_TEXT;
+        }
+
+        public CharSequence getInsertPrefix() {
+            return null;
+        }
+
+        protected String getText() {throw new IllegalArgumentException();}
+        
+        protected String getLeftText() {throw new IllegalArgumentException();}
+        
+        protected String getRightText() {throw new IllegalArgumentException();}
+        
+        protected ImageIcon getIcon() {throw new IllegalArgumentException();}
+
+    }
+
 }

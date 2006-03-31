@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -36,6 +36,7 @@ import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.Labe
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.ValueCompletionItem;
 import org.netbeans.modules.latex.model.LabelInfo;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
+import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.CommandPackage;
@@ -59,7 +60,7 @@ import org.openide.loaders.DataObject;
  */
 public class TexCompletion implements CompletionProvider {
     
-    protected static void getCommandsForPrefix(CompletionResultSet resultSet, LaTeXSource source, DataObject od, Position pos, String prefix, int start) throws BadLocationException {
+    protected static void getCommandsForPrefix(CompletionResultSet resultSet, LaTeXSource source, Document doc, DataObject od, Position pos, String prefix, int start) throws BadLocationException {
         Object file = od.getPrimaryFile();
         try {
             SourcePosition spos = new SourcePosition(file, org.netbeans.modules.latex.model.Utilities.getDefault().openDocument(file), pos);
@@ -73,7 +74,12 @@ public class TexCompletion implements CompletionProvider {
                     String commandName = comm.getCommand();
                     
                     if (commandName.startsWith(prefix)) {
-                        resultSet.addItem(new CommandCompletionItem(start, comm));
+                        if (comm.hasAttribute("end") && comm.getArgumentCount() == 1 && comm.getArgument(0).hasAttribute("#environmentname")) {
+                            BlockNode node = findBlockNode(source, doc, pos.getOffset());
+                            resultSet.addItem(new ValueCompletionItem(start, commandName + "{" + node.getEnvironment().getName() + "}"));
+                        } else {
+                            resultSet.addItem(new CommandCompletionItem(start, comm));
+                        }
                     }
                 }
             }
@@ -110,7 +116,22 @@ public class TexCompletion implements CompletionProvider {
             return null;
         }
     }
-    
+
+    private static BlockNode findBlockNode(LaTeXSource source, Document doc, int offset) {
+        try {
+            Node node = source.findNode(doc, offset);
+
+            while (!(node instanceof BlockNode) && node != null) {
+                node = node.getParent();
+            }
+            
+            return (BlockNode) node;
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
+            return null;
+        }
+    }
+
     public static String          preprocessList(String prefix) {
         int lastComma = prefix.lastIndexOf(',');
         
@@ -261,6 +282,8 @@ public class TexCompletion implements CompletionProvider {
             public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
                 try {
                     set.addAllItems(FSCompletion.completion(null, (FileObject) source.getMainFile(), prefix, start));
+                    if (prefix.length() == 0)
+                        set.addItem(new TexCompletionItem.NewFileCompletionItem(start, (FileObject) source.getMainFile()));
                 } catch (IOException e) {
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
                 }
@@ -397,7 +420,7 @@ public class TexCompletion implements CompletionProvider {
                     Position pos = doc.createPosition(caretOffset);
                     String prefix = token.getText().subSequence(0, caretOffset - start + 1).toString();
                     
-                    getCommandsForPrefix(resultSet, source, od, pos, prefix, start);
+                    getCommandsForPrefix(resultSet, source, doc, od, pos, prefix, start);
                 }
                 
                 if (isArgument(source, doc, caretOffset)) {
