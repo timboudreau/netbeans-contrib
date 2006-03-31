@@ -99,7 +99,7 @@ public class LibDataPage extends WizardPage {
     }
     
     public static String getDescription() {
-        return "Enter info";
+        return "Library Description";
     }
 
     /** This method is called from within the constructor to
@@ -159,8 +159,10 @@ public class LibDataPage extends WizardPage {
         add(descriptionLabel, gridBagConstraints);
 
         descriptionField.setColumns(20);
+        descriptionField.setLineWrap(true);
         descriptionField.setRows(5);
         descriptionField.setToolTipText("Will be shown in the Module Manager dialog in the IDE");
+        descriptionField.setWrapStyleWord(true);
         descriptionField.setName("description");
         jScrollPane1.setViewportView(descriptionField);
 
