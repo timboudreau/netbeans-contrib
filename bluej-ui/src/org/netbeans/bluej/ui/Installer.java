@@ -12,6 +12,7 @@
  */
 package org.netbeans.bluej.ui;
 
+import org.netbeans.bluej.ui.window.OpenedBluejProjects;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -19,11 +20,17 @@ import org.openide.modules.ModuleInstall;
  * often not needed at all.
  */
 public class Installer extends ModuleInstall {
-    
     public void restored() {
         // By default, do nothing.
         // Put your startup code here.
         System.setProperty("no.set.rowheight", Boolean.TRUE.toString());
+        OpenedBluejProjects.getInstance().addNotify();
     }
+
+    public void uninstalled() {
+        super.uninstalled();
+        OpenedBluejProjects.getInstance().removeNotify();
+    }
+    
     
 }

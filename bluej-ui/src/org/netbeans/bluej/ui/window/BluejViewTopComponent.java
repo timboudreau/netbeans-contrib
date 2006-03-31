@@ -64,7 +64,6 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
     private JButton upButton;
     
     private JComboBox projectsCombo;
-    private OpenedBluejProjects openedProjects;
     private ItemListener itemListener;
     
     private BluejViewTopComponent() {
@@ -75,7 +74,6 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
         map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
         map.put("delete", ExplorerUtils.actionDelete(manager, true));
 
-        openedProjects = new OpenedBluejProjects();
         initComponents();
         setName(NbBundle.getMessage(BluejViewTopComponent.class, "CTL_BluejViewTopComponent"));
         setToolTipText(NbBundle.getMessage(BluejViewTopComponent.class, "HINT_BluejViewTopComponent"));
@@ -137,7 +135,7 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
     }
     
     private void updateContent() {
-        Project project = openedProjects.getSelectedProject();
+        Project project = OpenedBluejProjects.getInstance().getSelectedProject();
         if ( project != null && Arrays.asList(OpenProjects.getDefault().getOpenProjects()).contains(project)) {
             // if it's not in the list of opened projects we probably are closing multiple projects as once (or shutting down)
             OpenProjects.getDefault().setMainProject(project);
@@ -197,14 +195,12 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
     }
     
     public void componentOpened() {
-        openedProjects.addNotify();
-        projectsCombo.setModel(openedProjects.getComboModel());
+        projectsCombo.setModel(OpenedBluejProjects.getInstance().getComboModel());
         updateContent();
         projectsCombo.addItemListener(itemListener);
     }
     
     public void componentClosed() {
-        openedProjects.removeNotify();
         projectsCombo.removeItemListener(itemListener);
         projectsCombo.setModel(new DefaultComboBoxModel());
     }

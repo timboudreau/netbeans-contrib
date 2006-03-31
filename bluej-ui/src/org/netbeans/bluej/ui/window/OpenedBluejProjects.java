@@ -36,20 +36,29 @@ import org.openide.windows.WindowManager;
  *
  * @author Milan Kubec
  */
-class OpenedBluejProjects implements PropertyChangeListener {
+public class OpenedBluejProjects implements PropertyChangeListener {
     
     private DefaultComboBoxModel model;
     private PropChange topComponentChanger;
+
+    private static OpenedBluejProjects instance;
     
     /** Creates a new instance of OpenedBluejProjects */
-    OpenedBluejProjects() {
+    private OpenedBluejProjects() {
         model = new DefaultComboBoxModel();
         topComponentChanger = new PropChange();
     }
     
+    public static synchronized OpenedBluejProjects getInstance() {
+        if (instance == null) {
+            instance = new OpenedBluejProjects();
+        }
+        return instance;
+    }
+    
     public void addNotify() {
         OpenProjects.getDefault().addPropertyChangeListener(this);
-//        doUpdate(false);
+        doUpdate(false);
     }
     
     public void removeNotify() {
