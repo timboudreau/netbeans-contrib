@@ -100,7 +100,6 @@ public class JarInfo {
     }
     
     private void go (Checker checker) {
-        assert jar != null;
         if (init(checker)) {
             checker.enqueueNotify(25, null);
             if (findBeans((checker))) {
@@ -138,7 +137,8 @@ public class JarInfo {
     
     private List entries = null;
     private boolean findEntries (Checker checker) {
-        assert jar != null;
+//        assert jar != null;
+        if (jar == null) throw new NullPointerException();
         entries = new ArrayList();
         try {
             int ix = 0;
