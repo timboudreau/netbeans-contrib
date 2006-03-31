@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import org.apache.tools.ant.module.loader.AntProjectDataLoader;
+//import org.apache.tools.ant.module.loader.AntProjectDataLoader;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.junit.NbTestCase;
@@ -59,28 +59,28 @@ public class ProjectUpgradeTest extends NbTestCase {
     
     public void setUp() throws IOException, SAXException, PropertyVetoException {
         UnitUtilities.initLookup();
-        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/guiproject/resources/mf-layer.xml", "/org/netbeans/modules/latex/resources/mf-layer.xml", "/org/apache/tools/ant/module/resources/AntModuleLayer.xml"}, new Object[] {
+        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/guiproject/resources/mf-layer.xml", "/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[] {
             new LaTeXGUIProjectFactory(),
             new LaTeXGUIProjectFactorySourceFactory(),
             new LaTeXFileOwnerQuery(),
-            SharedClassObject.findObject(AntProjectDataLoader.class, true),
+//            SharedClassObject.findObject(AntProjectDataLoader.class, true),
         });
     }
     
-    public void testDoUpgrade() throws IOException, SAXException {
-        System.setProperty(LaTeXGUIProjectUpgrader.UPGRADE_OPTION, LaTeXGUIProjectUpgrader.UPGRADE_FORCE);
-        doUpgradeProject("prj1");
-    }
+//    public void testDoUpgrade() throws IOException, SAXException {
+//        System.setProperty(LaTeXGUIProjectUpgrader.UPGRADE_OPTION, LaTeXGUIProjectUpgrader.UPGRADE_FORCE);
+//        doUpgradeProject("prj1");
+//    }
     
     public void testIgnoreUpgrade() throws IOException, SAXException {
         System.setProperty(LaTeXGUIProjectUpgrader.UPGRADE_OPTION, LaTeXGUIProjectUpgrader.UPGRADE_IGNORE);
         doUpgradeProject("prj2");
     }
     
-    public void testGVExists() throws IOException, SAXException {
-        System.setProperty(LaTeXGUIProjectUpgrader.UPGRADE_OPTION, LaTeXGUIProjectUpgrader.UPGRADE_FORCE);
-        doUpgradeProject("prj3");
-    }
+//    public void testGVExists() throws IOException, SAXException {
+//        System.setProperty(LaTeXGUIProjectUpgrader.UPGRADE_OPTION, LaTeXGUIProjectUpgrader.UPGRADE_FORCE);
+//        doUpgradeProject("prj3");
+//    }
     
     public void testNoVersionProperty() throws IOException, SAXException {
         System.setProperty(LaTeXGUIProjectUpgrader.UPGRADE_OPTION, LaTeXGUIProjectUpgrader.UPGRADE_FORCE);
@@ -107,7 +107,7 @@ public class ProjectUpgradeTest extends NbTestCase {
 
         assertNotNull(buildScriptFile);
         
-        DataLoaderPool.setPreferredLoader(buildScriptFile, AntProjectDataLoader.getLoader(AntProjectDataLoader.class));
+//        DataLoaderPool.setPreferredLoader(buildScriptFile, AntProjectDataLoader.getLoader(AntProjectDataLoader.class));
         
         Project p = ProjectManager.getDefault().findProject(project);
         
