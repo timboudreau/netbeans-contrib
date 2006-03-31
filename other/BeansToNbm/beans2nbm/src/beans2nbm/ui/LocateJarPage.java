@@ -15,7 +15,9 @@ package beans2nbm.ui;
 import java.awt.Component;
 import java.io.File;
 import java.util.prefs.Preferences;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
 import org.netbeans.spi.wizard.WizardPage;
@@ -43,6 +45,10 @@ public class LocateJarPage extends WizardPage {
     public void addNotify() {
         super.addNotify();
         userInputReceived(jTextField1, null);
+        JDialog dlg = (JDialog) SwingUtilities.getAncestorOfClass(JDialog.class, this);
+        if (dlg != null) {
+            dlg.setTitle ("BeanNetter - the NetBeans Module Generator");
+        }
     }
 
     protected String validateContents(Component component, Object event) {

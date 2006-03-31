@@ -48,6 +48,12 @@ public class LibDataPage extends WizardPage {
         if (txt.trim().length() == 0) {
             return "Enter a name for the library containing your JavaBeans";
         }
+        if (txt.indexOf("\\") > 0 || txt.indexOf("/") > 0) {
+            return "Display name may not contain / or \\ characters";
+        }
+        if (txt.indexOf('&') > 0 || txt.indexOf(';') > 0 || txt.indexOf(':') > 0) {
+            return "Display name may not contain & : or ; characters";
+        }
         txt = uidField.getText();
         if (txt.length() == 0) {
             return "Enter a unique ID";
@@ -58,38 +64,27 @@ public class LibDataPage extends WizardPage {
         char[] c = txt.toCharArray();
         boolean dotFound = false;
         if (Character.isDigit(c[0])) {
-            return ("Code name may not start with a number");
+            return ("Unique ID may not start with a number");
         }
         if (c[c.length - 1] == '.') {
-            return ("Code name may not end with a dot");
+            return ("Unique ID may not end with a dot");
         }
         for (int i = 0; i < c.length; i++) {
             dotFound |= c[i] == '.';
             if (Character.isWhitespace(c[i])) {
-                return "Code name cannot contain whitespace - try a package name";
+                return "Unique ID cannot contain whitespace - try a package name";
             } else if (c[i] == '/' || c[i] == '\\') {
-                return "Code name cannot contain \\ or / characters - try a package name";
+                return "Unique ID cannot contain \\ or / characters - try a package name";
             }
         }
         if (!dotFound) {
-            return "Code name should contain at least 1 dot character";
+            return "Unique ID should contain at least 1 dot character - try a package name";
         }
         String s = versionField.getText();
         try {
             Double.parseDouble(s);
         } catch (NumberFormatException e) {
             return ("Not a decimal number: " + s);
-        }
-        
-        c = s.toCharArray();
-        int dotCount = 0;
-        for (int i = 0; i < c.length; i++) {
-            if (c[i] == '.') {
-                dotCount++;
-            }
-        }
-        if (dotCount == 0 || dotCount > 1) {
-            return ("Version should contain exactly one decimal point, e.g. 1.3");
         }
         return null;
     }
@@ -120,6 +115,8 @@ public class LibDataPage extends WizardPage {
         uidField = new javax.swing.JTextField();
         versionLabel = new javax.swing.JLabel();
         versionField = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -146,12 +143,13 @@ public class LibDataPage extends WizardPage {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
         add(displayNameField, gridBagConstraints);
 
         descriptionLabel.setText("Description");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -168,7 +166,7 @@ public class LibDataPage extends WizardPage {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0.75;
@@ -197,6 +195,7 @@ public class LibDataPage extends WizardPage {
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
         add(uidField, gridBagConstraints);
 
         versionLabel.setText("Version");
@@ -221,7 +220,25 @@ public class LibDataPage extends WizardPage {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
         add(versionField, gridBagConstraints);
+
+        jLabel1.setText("Minimum Java Version");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 5, 5);
+        add(jLabel1, gridBagConstraints);
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1.4", "1.5", "1.6" }));
+        jComboBox1.setName("javaVersion");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        add(jComboBox1, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 
@@ -235,6 +252,8 @@ public class LibDataPage extends WizardPage {
     private javax.swing.JTextArea descriptionField;
     private javax.swing.JLabel descriptionLabel;
     private javax.swing.JTextField displayNameField;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel libNameLabel;
     private javax.swing.JTextField uidField;

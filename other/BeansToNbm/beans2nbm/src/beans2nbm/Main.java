@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.prefs.Preferences;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.netbeans.api.wizard.WizardDisplayer;
@@ -57,6 +58,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (InstantiationException ex) {
@@ -68,6 +70,13 @@ public class Main {
         } catch (UnsupportedLookAndFeelException ex) {
             ex.printStackTrace();
         }
+
+        if (args.length > 0 && "reset".equals(args[0])) {
+            Preferences.userNodeForPackage(
+                    InstructionsPage.class).putBoolean(
+                    InstructionsPage.KEY_SHOW_INSTRUCTIONS, true);
+        }
+        
         Class[] pages = InstructionsPage.shouldShowInstructions() ?
             new Class[] {
                 InstructionsPage.class,
@@ -108,6 +117,9 @@ public class Main {
             String sourceJar = (String) map.get ("sourceJar");
             String displayName = (String) map.get ("displayName");
             String license = (String) map.get ("license");
+            String minJDK = (String) map.get ("javaVersion");
+
+            
             
             File outDir = new File (destFolder);
             if (!outDir.isDirectory()) {
@@ -134,7 +146,7 @@ public class Main {
                 String jarFileNameSimple = new File (jarFileName).getName();
                 
                 NbmFileModel nbm = new NbmFileModel (f.getPath());
-                ModuleModel module = new ModuleModel ("netbeans/modules/" + moduleJarName, codeName, description, version, displayName);
+                ModuleModel module = new ModuleModel ("netbeans/modules/" + moduleJarName, codeName, description, version, displayName, minJDK);
                 ModuleInfoModel infoXml = new ModuleInfoModel (module, homepage, author, license);
                 
                 nbm.add (module);

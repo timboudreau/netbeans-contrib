@@ -15,6 +15,8 @@ package beans2nbm.ui;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.prefs.Preferences;
+import javax.swing.JDialog;
+import javax.swing.SwingUtilities;
 import org.netbeans.spi.wizard.WizardPage;
 
 /**
@@ -45,6 +47,11 @@ public class InstructionsPage extends WizardPage {
     public void addNotify() {
         super.addNotify();
         jCheckBox1.setSelected(!shouldShowInstructions());
+        //A hack - need to add support for this in Wizard
+        JDialog dlg = (JDialog) SwingUtilities.getAncestorOfClass(JDialog.class, this);
+        if (dlg != null) {
+            dlg.setTitle ("BeanNetter - the NetBeans Module Generator");
+        }
     }
     
     public static boolean shouldShowInstructions() {
@@ -79,7 +86,7 @@ public class InstructionsPage extends WizardPage {
 
         setLayout(new java.awt.GridBagLayout());
 
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 6, 12, 12));
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jScrollPane1.setViewportBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         instructionsField.setBackground(javax.swing.UIManager.getDefaults().getColor("control"));
@@ -87,7 +94,7 @@ public class InstructionsPage extends WizardPage {
         instructionsField.setEditable(false);
         instructionsField.setLineWrap(true);
         instructionsField.setRows(5);
-        instructionsField.setText("This tool allows you to deliver JavaBeans components directly into the NetBeans component palette, by embedding them in a NetBeans plug-in.\n\nIt will generate an NBM (NetBeans Module) file   On the next page, give it JAR file that contains some JavaBeans components.  It will find any JavaBeans listed in the manifest, and also let you add classes from the JAR file.\n\nWhen the resulting NetBeans plug-in is installed in NetBeans, the selected JavaBeans components will appear on the Component Palette, and can be dragged and dropped onto Swing forms.\n\nThe library display name you enter is also the name that will be used for the category in the component palette where the beans will appear.");
+        instructionsField.setText("This tool allows you to deliver Swing components (Java Beans) directly into the NetBeans component palette, by embedding them in a NetBeans plug-in.  It will generate an NBM (NetBeans Module) file   \n\nOn the next page, choose a JAR file that contains some components.  It will find any JavaBeans listed in the manifest, and also let you add classes from the JAR file.  When the resulting NetBeans plug-in is installed in NetBeans, the components you selected will be on the Component Palette, and can be dragged and dropped onto Swing forms.  The library display name you enter is also the name that will be used for the category in the component palette where your components will appear.");
         instructionsField.setWrapStyleWord(true);
         jScrollPane1.setViewportView(instructionsField);
 
@@ -112,7 +119,7 @@ public class InstructionsPage extends WizardPage {
         instructionsField1.setColumns(20);
         instructionsField1.setLineWrap(true);
         instructionsField1.setRows(5);
-        instructionsField1.setText("This is an experimental tool - test the results.  It also is important to compile your Swing classes on JDK 1.4 if possible, JDK 1.5 if not (JDK 6 class file format is different and many people do not yet use it, so avoid that unless you are sure you need to do that).\n\nThere are surely some bugs - avoid unusual characters in file names and display names.  If you encounter a problem, send email to Tim Boudreau <tboudreau@sun.com>.");
+        instructionsField1.setText("This is an experimental tool - test the results.  It also is important to compile your Swing classes on JDK 1.4 if possible, JDK 1.5 if not (JDK 6 class file format is different and many people do not yet use it, so avoid that unless you are really using JDK 6 features in your classes).\n\nThere are surely some bugs - avoid unusual characters in file names and display names.  If you encounter a problem, send email to Tim Boudreau <tboudreau@sun.com>.");
         instructionsField1.setWrapStyleWord(true);
         jScrollPane2.setViewportView(instructionsField1);
 
@@ -124,7 +131,7 @@ public class InstructionsPage extends WizardPage {
         gridBagConstraints.weighty = 1.0;
         add(jScrollPane2, gridBagConstraints);
 
-        jCheckBox1.setText("Don't show this message again");
+        jCheckBox1.setText("Don't show this page next time");
         jCheckBox1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBox1.setMargin(new java.awt.Insets(0, 0, 0, 0));
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {

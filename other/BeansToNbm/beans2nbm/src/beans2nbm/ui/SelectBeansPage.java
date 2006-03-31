@@ -13,12 +13,12 @@
 
 package beans2nbm.ui;
 
-import beans2nbm.ui.BeanItem;
-import beans2nbm.ui.BeansListModel;
-import beans2nbm.ui.EntriesListModel;
 import beans2nbm.gen.JarInfo;
+import java.awt.Insets;
 import java.io.File;
 import java.util.Arrays;
+import javax.swing.DefaultListModel;
+import javax.swing.UIManager;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import org.netbeans.spi.wizard.WizardPage;
@@ -34,6 +34,11 @@ public class SelectBeansPage extends WizardPage implements JarInfo.ScanObserver,
     public SelectBeansPage() {
         super (false);
         initComponents();
+        jList1.setModel (new DefaultListModel());
+        jList2.setModel (new DefaultListModel());
+        //Unable to get GBL not to cause jumping when the preferred size
+        //changes in one of the lists because something was added...
+        setLayout (null);
     }
     
     public void addNotify() {
@@ -44,6 +49,8 @@ public class SelectBeansPage extends WizardPage implements JarInfo.ScanObserver,
                 setProblem ("Jar file not specified or not found");
             } else {
                 if (info == null || !info.getFileName().equals(s)) {
+                    jProgressBar1.setValue (0);
+                    jProgressBar1.setVisible(true);
                     info = new JarInfo (s);
                     info.scan (this);
                     super.putWizardData("jarInfo", info);
@@ -115,7 +122,7 @@ public class SelectBeansPage extends WizardPage implements JarInfo.ScanObserver,
         gridBagConstraints.gridheight = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(jScrollPane1, gridBagConstraints);
 
@@ -139,7 +146,7 @@ public class SelectBeansPage extends WizardPage implements JarInfo.ScanObserver,
         gridBagConstraints.gridheight = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
-        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(jScrollPane2, gridBagConstraints);
 
@@ -295,6 +302,10 @@ public class SelectBeansPage extends WizardPage implements JarInfo.ScanObserver,
         if (jList1.getSelectedIndices().length == 0 && jList1.getModel().getSize() > 0) {
             jList1.setSelectedIndex(0);
         }
+        if (beans.getSize() == 0) {
+            setProblem ("Add some classes to the list of components");
+        }
+        doLayout();
     }
 
     public void intervalAdded(ListDataEvent e) {
@@ -338,5 +349,49 @@ public class SelectBeansPage extends WizardPage implements JarInfo.ScanObserver,
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
-    
+
+
+    boolean isAqua = "Aqua".equals (UIManager.getLookAndFeel().getID());
+    int SPACE = isAqua ? 12 : 5;
+    public void doLayout() {
+        //Bad, bad gridbag!  Do it the old fashioned way...
+        int buttonPreferredSize = Math.max (jButton1.getPreferredSize().width,
+                jButton2.getPreferredSize().width);
+        Insets ins = getInsets();
+        int workingWidth = getWidth() - (ins.left + ins.right);
+
+        int x = ins.left;
+        int y = ins.top;
+
+        int workingHeight = getHeight() - (ins.top + ins.bottom);
+
+        int buttonGap = buttonPreferredSize + (SPACE * 2);
+        int listWidth = (workingWidth - buttonGap) / 2;
+
+        int lblHeight = Math.max (jLabel1.getPreferredSize().height, jLabel2.getPreferredSize().height);
+        int listsY = y + lblHeight + SPACE;
+
+        if (jProgressBar1.isVisible()) {
+            int h = jProgressBar1.getPreferredSize().height;
+            jProgressBar1.setBounds (x, (getHeight() / 2) - (h / 2), workingWidth, h);
+            jScrollPane1.setBounds (0,0,0,0);
+            jScrollPane2.setBounds (0,0,0,0);
+            jButton1.setBounds (0,0,0,0);
+            jButton2.setBounds (0,0,0,0);
+            jLabel1.setBounds (0,0,0,0);
+            jLabel2.setBounds (0,0,0,0);
+            return;
+        }
+
+        jScrollPane1.setBounds(x, listsY, listWidth, workingHeight - listsY);
+        jScrollPane2.setBounds(x + listWidth + buttonGap, listsY, listWidth, workingHeight - listsY);
+
+
+        jLabel1.setBounds (x, y, jLabel1.getPreferredSize().width, lblHeight);
+        jLabel2.setBounds (x + listWidth + buttonGap, y, jLabel2.getPreferredSize().width, lblHeight);
+
+        int button1height = jButton1.getPreferredSize().height;
+        jButton1.setBounds(x + listWidth + SPACE, listsY, buttonPreferredSize, button1height);
+        jButton2.setBounds(x + listWidth + SPACE, listsY + button1height + SPACE, buttonPreferredSize, jButton2.getPreferredSize().height);
+    }
 }

@@ -35,16 +35,18 @@ public class ModuleModel implements FileModel {
     private final String codeName;
     private final String description;
     private final String version;
+    private final String minJDK;
 
     private final String moduleJarPath;
     
     /** Creates a new instance of ModuleModel */
-    public ModuleModel(String moduleJarPath, String codeName, String description, String version, String displayName) {
+    public ModuleModel(String moduleJarPath, String codeName, String description, String version, String displayName, String minJDK) {
         this.codeName = codeName;
         this.description = description;
         this.version = version;
         this.displayName = displayName;
         this.moduleJarPath = moduleJarPath;
+        this.minJDK = minJDK;
     }
     
     public String getDisplayName() {
@@ -93,9 +95,13 @@ public class ModuleModel implements FileModel {
         atts.putValue("OpenIDE-Module-Localizing-Bundle", getBasePackageSlashes() + "Bundle.properties");
         atts.putValue("OpenIDE-Module-Layer", getBasePackageSlashes() + "layer.xml");
         atts.putValue("OpenIDE-Module-Requires", "org.openide.modules.ModuleFormat1");
+        if (!"1.4".equals(minJDK)) {
+            atts.putValue("OpenIDE-Module-Java-Dependencies",
+                    "Java > " + minJDK + ", VM > 1.0");
+        }
         return m;
     }
-    
+
     public String getManifestXML() {
         StringBuffer sb = new StringBuffer("<manifest OpenIDE-Module=\"");
         sb.append (codeName);
@@ -108,6 +114,10 @@ public class ModuleModel implements FileModel {
         sb.append ("OpenIDE-Module-Specification-Version=\"");
         sb.append (version);
         sb.append ("\"\n");
+        if (!"1.4".equals(minJDK)) {
+            sb.append("OpenIDE-Module-Java-Dependencies=\"");
+            sb.append("Java &gt; " + minJDK + ", VM &gt; 1.0\"\n");
+        }
         sb.append ("/>\n");
         return sb.toString();
     }

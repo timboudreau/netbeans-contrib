@@ -68,6 +68,10 @@ public class AuthorInfoPage extends WizardPage {
         if ("".equals(s.trim())) {
             return "Enter a license, or choose one from the combo box";
         }
+        s = authorField.getText();
+        if ("".equals(s.trim())) {
+            return "Enter a name or company in the author field";
+        }
         return null;
     }
     

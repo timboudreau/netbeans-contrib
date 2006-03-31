@@ -4,7 +4,7 @@
   <Properties>
     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
       <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-        <EmptyBorder bottom="12" left="12" right="12" top="12"/>
+        <EmptyBorder bottom="12" left="6" right="12" top="12"/>
       </Border>
     </Property>
   </Properties>
@@ -51,7 +51,7 @@
             <Property name="editable" type="boolean" value="false"/>
             <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="rows" type="int" value="5"/>
-            <Property name="text" type="java.lang.String" value="This tool allows you to deliver JavaBeans components directly into the NetBeans component palette, by embedding them in a NetBeans plug-in.&#xa;&#xa;It will generate an NBM (NetBeans Module) file   On the next page, give it JAR file that contains some JavaBeans components.  It will find any JavaBeans listed in the manifest, and also let you add classes from the JAR file.&#xa;&#xa;When the resulting NetBeans plug-in is installed in NetBeans, the selected JavaBeans components will appear on the Component Palette, and can be dragged and dropped onto Swing forms.&#xa;&#xa;The library display name you enter is also the name that will be used for the category in the component palette where the beans will appear."/>
+            <Property name="text" type="java.lang.String" value="This tool allows you to deliver Swing components (Java Beans) directly into the NetBeans component palette, by embedding them in a NetBeans plug-in.  It will generate an NBM (NetBeans Module) file   &#xa;&#xa;On the next page, choose a JAR file that contains some components.  It will find any JavaBeans listed in the manifest, and also let you add classes from the JAR file.  When the resulting NetBeans plug-in is installed in NetBeans, the components you selected will be on the Component Palette, and can be dragged and dropped onto Swing forms.  The library display name you enter is also the name that will be used for the category in the component palette where your components will appear."/>
             <Property name="wrapStyleWord" type="boolean" value="true"/>
           </Properties>
         </Component>
@@ -104,7 +104,7 @@
             <Property name="columns" type="int" value="20"/>
             <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="rows" type="int" value="5"/>
-            <Property name="text" type="java.lang.String" value="This is an experimental tool - test the results.  It also is important to compile your Swing classes on JDK 1.4 if possible, JDK 1.5 if not (JDK 6 class file format is different and many people do not yet use it, so avoid that unless you are sure you need to do that).&#xa;&#xa;There are surely some bugs - avoid unusual characters in file names and display names.  If you encounter a problem, send email to Tim Boudreau &lt;tboudreau@sun.com&gt;."/>
+            <Property name="text" type="java.lang.String" value="This is an experimental tool - test the results.  It also is important to compile your Swing classes on JDK 1.4 if possible, JDK 1.5 if not (JDK 6 class file format is different and many people do not yet use it, so avoid that unless you are really using JDK 6 features in your classes).&#xa;&#xa;There are surely some bugs - avoid unusual characters in file names and display names.  If you encounter a problem, send email to Tim Boudreau &lt;tboudreau@sun.com&gt;."/>
             <Property name="wrapStyleWord" type="boolean" value="true"/>
           </Properties>
         </Component>
@@ -112,7 +112,7 @@
     </Container>
     <Component class="javax.swing.JCheckBox" name="jCheckBox1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Don&apos;t show this message again"/>
+        <Property name="text" type="java.lang.String" value="Don&apos;t show this page next time"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
