@@ -132,7 +132,27 @@ public class ActionsFactory implements ActionProvider {
     }
     
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
-        return true;//TODO:....
+        if (COMMAND_CLEAN.equals(command) || COMMAND_REBUILD.equals(command)) {
+            BuildConfiguration conf = BuildConfigurationProvider.getDefault().getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
+            
+            if (conf == null || !conf.isSupported(project))
+                return false;
+        }
+        
+        if (COMMAND_BUILD.equals(command) || COMMAND_REBUILD.equals(command) || LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
+            BuildConfiguration conf = BuildConfigurationProvider.getDefault().getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
+            
+            if (conf == null || !conf.isSupported(project))
+                return false;
+        }
+        
+        if (LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
+            ShowConfiguration conf = BuildConfigurationProvider.getDefault().getShowConfiguration(ProjectSettings.getDefault(project).getShowConfigurationName());
+            
+            if (conf == null || !conf.isSupported(project))
+                return false;
+        }
+        return true;
     }
 
     private static File findLideClient() {
