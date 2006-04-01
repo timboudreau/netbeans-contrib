@@ -116,6 +116,10 @@ public class JarInfo {
         try {
             beans = new ArrayList();
             Manifest man = jar.getManifest();
+            if (man == null) {
+                checker.enqueueNotify(Integer.MIN_VALUE, "Manifest missing");
+                return false;
+            }
             Map m = man.getEntries();
             for (Iterator i = m.keySet().iterator(); i.hasNext();) {
                 String name = (String) i.next();
