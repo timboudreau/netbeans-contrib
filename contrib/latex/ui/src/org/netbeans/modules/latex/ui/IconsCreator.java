@@ -198,7 +198,7 @@ import org.openide.ErrorManager;
             Process latex = Runtime.getRuntime().exec(new String[] {
                 this.latex,
                 "-interaction=batchmode",
-                temp.getAbsolutePath(),command
+                temp.getAbsolutePath()//,command
             }, new String[0], temp.getParentFile());
             
             waitFor(latex);
@@ -261,7 +261,7 @@ import org.openide.ErrorManager;
     }
     
     private File getTmpDirectory() throws IOException {
-        File tmpDir = new File(new File(new File(new File(System.getProperty("netbeans.user"), "var"), "cache"), "latex"), "-tmp");
+        File tmpDir = new File(new File(new File(new File(System.getProperty("netbeans.user"), "var"), "cache"), "latex"), "tmp");
         
         tmpDir.mkdirs();
         

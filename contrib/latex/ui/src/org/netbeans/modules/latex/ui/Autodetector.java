@@ -16,6 +16,7 @@ import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.ErrorManager;
 import org.openide.util.RequestProcessor;
+import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
 
 /**
@@ -157,6 +159,13 @@ public class Autodetector {
     public static final int OK = 2;
     
     private int verifyLocation(String file, String shouldContain, String argument) {
+        //make sure no windows will pop-up (unless necessary):
+        if (Utilities.isWindows() && null == shouldContain && new File(file).isFile())
+            return OK;
+        
+        if (null == shouldContain)
+            shouldContain = "";
+        
         try {
             final StringBuffer contentOut = new StringBuffer();
             final StringBuffer contentErr = new StringBuffer();
@@ -199,6 +208,8 @@ public class Autodetector {
             };
             
             err.start();
+            
+            p.getOutputStream().close();
             
             Thread waitFor = new Thread() {
                 public void run() {
@@ -260,7 +271,6 @@ public class Autodetector {
         }
         
         assert arguments != null;
-        assert awaitedContent != null;
         
         for (Iterator/*<String>*/ i = arguments.iterator(); i.hasNext(); ) {
             result = getBetter(result, verifyLocation(program, awaitedContent, (String) i.next()));
@@ -285,7 +295,7 @@ public class Autodetector {
         content.put("ps2pdf", "");
 //        content.put("gs", "pngalpha");
         content.put("gs", "png16m");
-        content.put("xdvi", "");
+        content.put("xdvi", null);
         content.put("gv", "");
         
         type2Arguments = new HashMap<String, List<String>>();
@@ -300,13 +310,13 @@ public class Autodetector {
 
         defaultLocations = new HashMap<String, String[]>();
         
-        defaultLocations.put("latex", new String[] {"latex", "/usr/share/texmf/bin/latex"});
-        defaultLocations.put("bibtex", new String[] {"bibtex", "/usr/share/texmf/bin/bibtex"});
-        defaultLocations.put("dvips", new String[] {"dvips", "/usr/share/texmf/bin/dvips"});
-        defaultLocations.put("ps2pdf", new String[] {"ps2pdf", "/usr/bin/ps2pdf"});
-        defaultLocations.put("gs", new String[] {"gs-gpl", "gs", "/usr/bin/gs", "/usr/local/bin/gs"});
-        defaultLocations.put("xdvi", new String[] {"xdvi"});
-        defaultLocations.put("gv", new String[] {"gv", "kghostview"});
+        defaultLocations.put("latex", new String[] {"latex", "/usr/share/texmf/bin/latex", "C:\\texmf\\miktex\\bin\\latex.exe"});
+        defaultLocations.put("bibtex", new String[] {"bibtex", "/usr/share/texmf/bin/bibtex", "C:\\texmf\\miktex\\bin\\bibtex.exe"});
+        defaultLocations.put("dvips", new String[] {"dvips", "/usr/share/texmf/bin/dvips", "C:\\texmf\\miktex\\bin\\dvips.exe"});
+        defaultLocations.put("ps2pdf", new String[] {"ps2pdf", "/usr/bin/ps2pdf", "C:\\texmf\\miktex\\bin\\ps2pdf.exe"});
+        defaultLocations.put("gs", new String[] {"gs-gpl", "gs", "/usr/bin/gs", "/usr/local/bin/gs", "C:\\Program Files\\gs\\gs8.53\\bin\\gswin32c.exe"});
+        defaultLocations.put("xdvi", new String[] {"xdvi", "C:\\texmf\\miktex\\bin\\yap.exe"});
+        defaultLocations.put("gv", new String[] {"gv", "kghostview", "ggv", });
     }
     
     private int getBetter(int status1, int status2) {
