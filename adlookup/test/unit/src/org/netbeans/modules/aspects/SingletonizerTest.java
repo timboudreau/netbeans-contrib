@@ -19,6 +19,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.api.aspects.*;
 import org.openide.util.Lookup;
 
@@ -39,7 +40,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
-        AspectProvider provider = Singletonizer.create (supported, runImpl);
+        Adaptor provider = SingletonizerImpl.create (supported, runImpl);
         Object representedObject = "sampleRO";
         Lookup lookup = Aspects.getLookup(representedObject, provider);
         
@@ -76,7 +77,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] classes = { Integer.class };
         
         try {
-            AspectProvider provider = Singletonizer.create (classes, new Singletonizer.Impl () {
+            Adaptor provider = SingletonizerImpl.create (classes, new SingletonizerImpl.Impl () {
                 public boolean isEnabled (Class c) {
                     return false;
                 }
@@ -107,7 +108,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
-        AspectProvider provider = Singletonizer.create (supported, runImpl);
+        Adaptor provider = SingletonizerImpl.create (supported, runImpl);
         Object representedObject = new String ("sampleRO");
         Lookup lookup = Aspects.getLookup(representedObject, provider);
         
@@ -204,7 +205,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     } // end of Listener
     
     /** Implementation of singletonizer */
-    private static class Implementation implements Singletonizer.Impl {
+    private static class Implementation implements SingletonizerImpl.Impl {
         public boolean isEnabled = true;
         public int cnt;
         public Object representedObject;
