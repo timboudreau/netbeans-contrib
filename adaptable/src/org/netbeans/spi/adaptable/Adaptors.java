@@ -13,6 +13,10 @@
 
 package org.netbeans.spi.adaptable;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.modules.adaptable.SingletonizerFactory;
+
 /** Factory for those that wish to create their own Adaptors.
  *
  * @author Jaroslav Tulach
@@ -27,7 +31,7 @@ public final class Adaptors extends java.lang.Object {
      * @param impl provider of the functionality
      */
     public static org.netbeans.api.adaptable.Adaptor singletonizer (Class[] classes, Singletonizer impl) {
-        return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl, null, null, null, null);
+        return singletonizerFactory().create (classes, impl, null, null, null, null);
     }
 
     /** Creates a new Adaptor backed by Singletonizer, with additional
@@ -52,6 +56,32 @@ public final class Adaptors extends java.lang.Object {
             Uninitializer gc,
             Uninitializer noListener
     ) {
-        return org.netbeans.modules.adaptable.SingletonizerImpl.create (classes, impl, initCall, initListener, noListener, gc);
+        return singletonizerFactory().create (classes, impl, initCall, initListener, noListener, gc);
+    }
+
+    /** Finds singletonizerFactory somewhere. Closely cooperates with
+     * Adaptable Lookup Framework, if available.
+     */
+    private static SingletonizerFactory our;
+    static SingletonizerFactory singletonizerFactory() {
+        our = SingletonizerFactory.DEFAULT;
+        try {
+
+            ClassLoader l = Thread.currentThread().getContextClassLoader();
+            if (l == null) {
+                l = Adaptors.class.getClassLoader();
+            }
+            Class<? extends SingletonizerFactory> fact = l.loadClass("org.netbeans.modules.adlookup.SingletonizerFactory").asSubclass(SingletonizerFactory.class); // NOI18N
+            our = fact.newInstance();
+        } catch (ClassNotFoundException ex) {
+            // this can happen
+            Logger.getAnonymousLogger().log(Level.CONFIG, null, ex);
+        } catch (InstantiationException ex) {
+            Logger.getAnonymousLogger().log(Level.WARNING, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getAnonymousLogger().log(Level.WARNING, null, ex);
+        }
+
+        return our;
     }
 }

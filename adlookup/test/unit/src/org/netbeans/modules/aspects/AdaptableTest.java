@@ -17,30 +17,16 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adlookup.AdaptableLookup;
+import org.netbeans.modules.adaptable.Suite;
 import org.openide.util.Lookup;
 
-/** Tests for Aspects. `
+/** Inherited tests from adaptable framework to guarantee the same behaviour.
  *
  * @author Jaroslav Tulach
  */
-public class AspectsTest extends org.netbeans.junit.NbTestCase {
-    public AspectsTest(java.lang.String testName) {
-        super(testName);
-    }
-    
+public class AdaptableTest extends Object {
     public static Test suite() {
-        TestSuite suite = new org.netbeans.junit.NbTestSuite(AspectsTest.class);
-        
-        return suite;
-    }
-
-    public void testAlwaysReturnsALookup () {
-        Lookup l = AdaptableLookup.getLookup(this, null);
-        assertNotNull ("There is an lookup for any object", l);
-
-        if (!(l instanceof Adaptable)) {
-            fail("We also need to implement adaptable: " + l);
-        }
+        return Suite.create();
     }
   
 }

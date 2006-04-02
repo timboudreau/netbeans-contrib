@@ -122,7 +122,7 @@ public class SingletonizerLifeCycleTest extends SingletonizerTest {
             
         }
         
-        java.lang.ref.WeakReference ref = new java.lang.ref.WeakReference (adapt);
+        java.lang.ref.WeakReference<Object> ref = new java.lang.ref.WeakReference<Object>(adapt);
         adapt = null;
         assertGC ("Addaptable can disappear", ref);
         System.runFinalization();

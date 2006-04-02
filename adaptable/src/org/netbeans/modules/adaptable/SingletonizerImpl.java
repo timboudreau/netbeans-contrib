@@ -77,7 +77,7 @@ implements ProviderImpl, SingletonizerListener {
      * @param gc deinitilizer (or null) to be notified when an Adaptable is GCed and
      *    no longer in use 
      */
-    public static Adaptor create (
+    static Adaptor create (
         Class[] classes, 
         org.netbeans.spi.adaptable.Singletonizer impl,
         Initializer initCall,
@@ -152,6 +152,22 @@ implements ProviderImpl, SingletonizerListener {
      */
     static Object excludeFromAssertSize () {
         return AdaptableRef.QUEUE;
+    }
+
+    static SingletonizerFactory defaultFactory() {
+        return new SingletonizerFactory() {
+            public Adaptor create(
+                Class[] classes, Singletonizer impl,
+                Initializer initCall, Initializer initListener,
+                Uninitializer noListener, Uninitializer gc
+            ) {
+                return SingletonizerImpl.create(
+                    classes, impl,
+                    initCall, initListener,
+                    noListener, gc
+                );
+            }
+        };
     }
     
     //

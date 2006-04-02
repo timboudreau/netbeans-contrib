@@ -189,7 +189,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         lookup2 = null;
         assertGC ("Lookup shall disappear as well", refLookup2);
         
-        java.lang.ref.WeakReference refRepresented2 = new java.lang.ref.WeakReference (representedObject2);
+        java.lang.ref.WeakReference<Object> refRepresented2 = new java.lang.ref.WeakReference<Object>(representedObject2);
         representedObject2 = null;
         assertGC ("Represeted object shall disappear as well", refRepresented2);
     }
