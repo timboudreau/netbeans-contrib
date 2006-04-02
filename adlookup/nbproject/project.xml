@@ -15,7 +15,7 @@ Microsystems, Inc. All Rights Reserved.
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
-            <code-name-base>org.netbeans.modules.aspects</code-name-base>
+            <code-name-base>org.netbeans.modules.adlookup</code-name-base>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.modules.adaptable</code-name-base>
@@ -36,7 +36,7 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>org.netbeans.api.aspects</package>
+                <package>org.netbeans.api.adlookup</package>
             </public-packages>
         </data>
     </configuration>

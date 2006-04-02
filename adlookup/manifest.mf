@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.aspects/1
+OpenIDE-Module: org.netbeans.modules.adlookup/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/adlookup/Bundle.properties
 
 
