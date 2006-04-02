@@ -134,7 +134,7 @@ implements SingletonizerListener, ProviderImpl {
          * whether it should be enabled or not */
         private byte[] enabled;
         /** reference to results and listeners */
-        private LkpReferenceToResult first;
+        private LkpChainItem first;
         /** reference to me */
         private LkpRef ref;
         
@@ -168,8 +168,8 @@ implements SingletonizerListener, ProviderImpl {
                 }
                 this.first = it.first ();
 
-                LkpReferenceToResult newRef = new LkpReferenceToResult (l, this, null);
-                newRef.next = first;
+                LkpChainItem newRef = new LkpReferenceToListener (l, this);
+                newRef.setNext(first);
                 first = newRef;
             }
             
@@ -302,7 +302,7 @@ implements SingletonizerListener, ProviderImpl {
         public synchronized <T> Lookup.Result<T> lookup(Lookup.Template<T> template) {
             LkpResult<T> r = new LkpResult<T>();
             LkpReferenceToResult newRef = new LkpReferenceToResult (r, this, template);
-            newRef.next = first;
+            newRef.setNext(first);
             first = newRef;
             return r;
         }
@@ -385,32 +385,43 @@ implements SingletonizerListener, ProviderImpl {
 
         @SuppressWarnings("unchecked")
         public Collection<? extends T> allInstances () {
-            boolean enabled = reference.lookup.isEnabled (reference.template.getType ());
-            return enabled ? Collections.nCopies (1, (T)reference.lookup.proxy) : Collections.<T>emptySet();
+            boolean enabled = reference.getLookup().isEnabled (reference.getTemplate().getType ());
+            return enabled ? Collections.nCopies (1, (T)reference.getLookup().proxy) : Collections.<T>emptySet();
         }
         
         /** Notification from lookup that there were some changes.
          * @param changedClasses the set of <Class> objects that changed
          */
         final void check (java.util.Set changedClasses) {
-            if (changedClasses.contains (reference.template.getType ())) {
+            if (changedClasses.contains (reference.getTemplate().getType ())) {
                 if (listener != null) {
                     listener.resultChanged (new org.openide.util.LookupEvent (this));
                 }
             }
         }
     } // end of LkpResult
+
+    /** Chain of objects attached as listeners.
+     */
+    static interface LkpChainItem {
+        public LkpResult getResult();
+        public AdaptableListener getListener();
+        public LkpChainItem getNext();
+        public void setNext(LkpChainItem next);
+        public Lookup.Template getTemplate();
+        public Lkp getLookup();
+    }
     
     /** Reference to a result  
      */
-    static final class LkpReferenceToResult extends java.lang.ref.WeakReference<Object>
-    implements Runnable {
+    static final class LkpReferenceToResult extends java.lang.ref.WeakReference<LkpResult>
+    implements Runnable, LkpChainItem {
         /** next refernece in chain, modified only from AbstractLookup or this */
-        private LkpReferenceToResult next;
+        private LkpChainItem next;
         /** the template for the result */
-        public final Lkp.Template template;
+        private final Lkp.Template template;
         /** the lookup we are attached to */
-        public final Lkp lookup;
+        private final Lkp lookup;
         
         /** Creates a weak refernece to a new result R in context of lookup
          * for given template
@@ -421,33 +432,79 @@ implements SingletonizerListener, ProviderImpl {
             this.lookup = lookup;
             result.reference = this;
         }
-        LkpReferenceToResult (AdaptableListener l, Lkp lookup, Lkp.Template template) {
-            super (l, org.openide.util.Utilities.activeReferenceQueue ());
-            this.template = template;
-            this.lookup = lookup;
-        }
         
         /** Returns the result or null
          */
-        LkpResult getResult () {
-            Object o = get ();
-            return o instanceof LkpResult ? (LkpResult)o : null;
+        public LkpResult getResult () {
+            return get ();
         }
 
         /** Returns the listener or null
          */
-        AdaptableListener getListener() {
-            Object o = get ();
-            return o instanceof AdaptableListener ? (AdaptableListener)o : null;
+        public AdaptableListener getListener() {
+            return null;
         }
         
         /** Cleans the reference. Implements Runnable interface, do not call
          * directly.
          */
         public void run() {
-            lookup.cleanUpResult (this.template);
+            getLookup().cleanUpResult (this.getTemplate());
+        }
+
+        public LkpChainItem getNext() {
+            return next;
+        }
+
+        public void setNext(LkpChainItem next) {
+            this.next = next;
+        }
+
+        public Lookup.Template getTemplate() {
+            return template;
+        }
+
+        public Lkp getLookup() {
+            return lookup;
         }
     } // end of LkpReferenceToResult
+
+    /** Pointer to a listener.
+     */
+    static final class LkpReferenceToListener extends Object implements LkpChainItem {
+        private AdaptableListener l;
+        private Lkp lookup;
+        private LkpChainItem next;
+
+        LkpReferenceToListener(AdaptableListener l, Lkp lookup) {
+            this.l = l;
+            this.lookup = lookup;
+        }
+
+        public LkpResult getResult() {
+            return null;
+        }
+
+        public AdaptableListener getListener() {
+            return l;
+        }
+
+        public LkpChainItem getNext() {
+            return next;
+        }
+
+        public void setNext(LkpChainItem next) {
+            this.next = next;
+        }
+
+        public Lookup.Template getTemplate() {
+            return null;
+        }
+
+        public Lkp getLookup() {
+            return lookup;
+        }
+    } // end of LkpReferenceToListener
     
     
     /** Supporting class to iterate over linked list of ReferenceToResult
@@ -460,43 +517,46 @@ implements SingletonizerListener, ProviderImpl {
      *  this.ref = it.first (); // remember the first one
      */
     static final class ReferenceIterator extends Object {
-        private LkpReferenceToResult first;
-        private LkpReferenceToResult current;
-        private LkpReferenceToResult previous;
+        private LkpChainItem first;
+        private LkpChainItem current;
+        private LkpChainItem previous;
         /** hard reference to current result, so it is not GCed meanwhile */
         private Object currentResult;
         
         /** Initializes the iterator with first reference.
          */
-        public ReferenceIterator (LkpReferenceToResult first) {
+        public ReferenceIterator (LkpChainItem first) {
             this.first = first;
         }
         
         /** Moves the current to next possition */
         public boolean next () {
-            LkpReferenceToResult prev;
-            LkpReferenceToResult ref;
+            LkpChainItem prev;
+            LkpChainItem ref;
             if (current == null) {
                 ref = first;
                 prev = null;
             } else {
                 prev = current;
-                ref = current.next;
+                ref = current.getNext();
             }
             this.previous = prev;
                 
             while (ref != null) {
-                Object result = ref.get ();
+                Object result = ref.getResult();
+                if (result == null) {
+                    result = ref.getListener();
+                }
                 if (result == null) {
                     if (prev == null) {
                         // move the head
-                        first = ref.next;
+                        first = ref.getNext();
                     } else {
                         // skip over this reference
-                        prev.next = ref.next;
+                        prev.setNext(ref.getNext());
                     }
                     prev = ref;
-                    ref = ref.next;
+                    ref = ref.getNext();
                 } else {
                     // we have found next item
                     currentResult = result;
@@ -514,23 +574,23 @@ implements SingletonizerListener, ProviderImpl {
          */
         public void remove() {
             if (previous == null) {
-                first = current.next;
+                first = current.getNext();
                 current = null;
             } else {
-                previous.next = current.next;
+                previous.setNext(current.getNext());
                 current = previous;
             }
         }
         
         /** Access to current reference.
          */
-        public LkpReferenceToResult current () {
+        public LkpChainItem current () {
             return current;
         }
         
         /** Access to reference that is supposed to be the first one.
          */
-        public LkpReferenceToResult first () {
+        public LkpChainItem first () {
             return first;
         }
 

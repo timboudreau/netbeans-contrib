@@ -54,6 +54,7 @@ public class Suite {
         s.addTestSuite(SingletonizerTest.class);
         s.addTestSuite(SingletonizerTwoDifferentObjectsTest.class);
         s.addTestSuite(SingletonizerValueChangedTest.class);
+        s.addTestSuite(GCListenerTest.class);
         return s;
     }
 }
