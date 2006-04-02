@@ -33,6 +33,7 @@ import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
+import org.openide.util.NbBundle;
 
 
 /**Copied from ant module
@@ -69,11 +70,11 @@ public class DebugNavigatorProviderImpl implements NavigatorPanel {
     }
     
     public String getDisplayName() {
-        return "Tree";
+        return NbBundle.getMessage(LaTeXNavigatorPanel.class, "LBL_DebuggingTree");//NOI18N
     }
     
     public String getDisplayHint() {
-        return "Tree View";
+        return NbBundle.getMessage(LaTeXNavigatorPanel.class, "SD_DebuggingTree");//NOI18N
     }
     
     public JComponent getComponent() {

@@ -15,16 +15,14 @@ package org.netbeans.modules.latex.ui.navigator;
 
 import java.util.Collection;
 import javax.swing.JComponent;
-import org.netbeans.modules.latex.model.command.DebuggingSupport;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.ui.NodeNode;
 import org.netbeans.modules.latex.ui.StructuralExplorer;
 import org.netbeans.spi.navigator.NavigatorPanel;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -53,11 +51,11 @@ public class LaTeXNavigatorPanel implements NavigatorPanel {
     }
     
     public String getDisplayName() {
-        return "LaTeX Navigator";
+        return NbBundle.getMessage(LaTeXNavigatorPanel.class, "LBL_DocumentStructure");//NOI18N
     }
     
     public String getDisplayHint() {
-        return "LaTeX Navigator";
+        return NbBundle.getMessage(LaTeXNavigatorPanel.class, "SD_DocumentStructure");//NOI18N
     }
     
     public JComponent getComponent() {
