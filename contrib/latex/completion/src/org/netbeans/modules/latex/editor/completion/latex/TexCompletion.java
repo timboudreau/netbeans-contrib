@@ -15,6 +15,7 @@
 package org.netbeans.modules.latex.editor.completion.latex;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ import javax.swing.text.Position;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.modules.editor.fscompletion.spi.support.FSCompletion;
+import org.netbeans.modules.editor.fscompletion.spi.support.FileObjectFilter;
 import org.netbeans.modules.latex.editor.AnalyseBib;
 import org.netbeans.modules.latex.editor.TexLanguage;
 import org.netbeans.modules.latex.editor.Utilities;
@@ -51,6 +53,7 @@ import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 
 
@@ -281,7 +284,7 @@ public class TexCompletion implements CompletionProvider {
 
             public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
                 try {
-                    set.addAllItems(FSCompletion.completion(null, (FileObject) source.getMainFile(), prefix, start));
+                    set.addAllItems(FSCompletion.completion(null, (FileObject) source.getMainFile(), prefix, start, TEX_FILTER));
                     if (prefix.length() == 0)
                         set.addItem(new TexCompletionItem.NewFileCompletionItem(start, (FileObject) source.getMainFile()));
                 } catch (IOException e) {
@@ -294,6 +297,25 @@ public class TexCompletion implements CompletionProvider {
             }
 
         }
+
+    private static final TexFileFilter TEX_FILTER = new TexFileFilter("text/x-tex");
+
+    private static class TexFileFilter implements FileObjectFilter {
+
+        private String mimeType;
+
+        public TexFileFilter(String mimeType) {
+            this.mimeType = mimeType;
+        }
+
+        public boolean accept(FileObject file) {
+            if (file.isFolder())
+                return true;
+
+            return mimeType.equals(FileUtil.getMIMEType(file));
+        }
+
+    }
 
     private static class EnvironmentArgumentCompletionHandler implements ArgumentCompletionHandler {
         
