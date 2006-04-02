@@ -21,6 +21,9 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.api.aspects.*;
+import org.netbeans.spi.adaptable.Singletonizer;
+import org.netbeans.spi.adaptable.SingletonizerEvent;
+import org.netbeans.spi.adaptable.SingletonizerListener;
 import org.openide.util.Lookup;
 
 /** Tests Singletonizer behaviour.`
@@ -64,7 +67,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
 
         // this shall still succeed as the change in isEnabled state has not been fired
         r.run ();
-        runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        runImpl.listener.stateChanged (SingletonizerEvent.anObjectChanged(runImpl, representedObject));
         try {
             r.run ();
             fail ("Should throw IllegalStateException");
@@ -77,18 +80,18 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] classes = { Integer.class };
         
         try {
-            Adaptor provider = SingletonizerImpl.create (classes, new SingletonizerImpl.Impl () {
-                public boolean isEnabled (Class c) {
+            Adaptor provider = SingletonizerImpl.create (classes, new Singletonizer() {
+                public boolean isEnabled (Object o, Class c) {
                     return false;
                 }
 
                 public Object invoke (Object obj, java.lang.reflect.Method method, Object[] args) {
                     return null;
                 }
-                public void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+                public void addSingletonizerListener(SingletonizerListener listener) throws TooManyListenersException {
                 }
                 
-                public void removeChangeListener (ChangeListener listener) {
+                public void removeSingletonizerListener(SingletonizerListener listener) {
                 }
             });
             fail ("Should fail, as non interface classes cannot be supported");
@@ -133,9 +136,9 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         runImpl.isEnabled = false;
         if (fireChangeOnAllObjects) {
-            runImpl.listener.stateChanged (new ChangeEvent (runImpl)); // change in all
+            runImpl.listener.stateChanged (SingletonizerEvent.allObjectsChanged(runImpl)); // change in all
         } else {
-            runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+            runImpl.listener.stateChanged (SingletonizerEvent.anObjectChanged(runImpl, representedObject));
         }
         
         assertEquals ("Runnable is not there anymore", 0, resultRunnable.allInstances ().size ()); 
@@ -151,9 +154,9 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
 
         runImpl.isEnabled = true;
         if (fireChangeOnAllObjects) {
-            runImpl.listener.stateChanged (new ChangeEvent (runImpl)); // change in all
+            runImpl.listener.stateChanged (SingletonizerEvent.allObjectsChanged(runImpl)); // change in all
         } else {
-            runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+            runImpl.listener.stateChanged (SingletonizerEvent.anObjectChanged(runImpl, representedObject));
         }
         
         assertEquals ("Runnable reappeared", 1, resultRunnable.allInstances ().size ()); 
@@ -205,16 +208,12 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     } // end of Listener
     
     /** Implementation of singletonizer */
-    private static class Implementation implements SingletonizerImpl.Impl {
+    private static class Implementation implements Singletonizer {
         public boolean isEnabled = true;
         public int cnt;
         public Object representedObject;
         public java.lang.reflect.Method method;
-        public ChangeListener listener;
-
-        public boolean isEnabled (Class c) {
-            return isEnabled;
-        }
+        public SingletonizerListener listener;
 
         public Object invoke (Object obj, java.lang.reflect.Method method, Object[] args) {
             this.cnt++;
@@ -223,15 +222,19 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
             return null;
         }
 
-        public void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+        public void addSingletonizerListener(SingletonizerListener listener) throws TooManyListenersException {
             if (this.listener != null) throw new TooManyListenersException ();
             this.listener = listener;
         }
 
-        public void removeChangeListener (ChangeListener listener) {
+        public void removeSingletonizerListener(SingletonizerListener listener) {
             if (this.listener == listener) {
                 this.listener = null;
             }
+        }
+
+        public boolean isEnabled(Object obj, Class c) {
+            return isEnabled;
         }
     } // end of Implementation
 }

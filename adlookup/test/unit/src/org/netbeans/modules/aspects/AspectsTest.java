@@ -15,6 +15,7 @@ package org.netbeans.modules.aspects;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.aspects.*;
 import org.openide.util.Lookup;
 
