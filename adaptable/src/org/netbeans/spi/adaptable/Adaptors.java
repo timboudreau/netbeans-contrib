@@ -62,9 +62,12 @@ public final class Adaptors extends java.lang.Object {
     /** Finds singletonizerFactory somewhere. Closely cooperates with
      * Adaptable Lookup Framework, if available.
      */
-    private static SingletonizerFactory our;
+    private static SingletonizerFactory factory;
     static SingletonizerFactory singletonizerFactory() {
-        our = SingletonizerFactory.DEFAULT;
+        if (factory != null) {
+            return factory;
+        }
+        factory = SingletonizerFactory.DEFAULT;
         try {
 
             ClassLoader l = Thread.currentThread().getContextClassLoader();
@@ -73,7 +76,7 @@ public final class Adaptors extends java.lang.Object {
             }
             String s = "org.netbeans.modules.adlookup.SingletonizerLookupFactory"; // NOI18N
             Class<? extends SingletonizerFactory> fact = l.loadClass(s).asSubclass(SingletonizerFactory.class); // NOI18N
-            our = fact.newInstance();
+            factory = fact.newInstance();
         } catch (ClassNotFoundException ex) {
             // this can happen
             Logger.getAnonymousLogger().log(Level.CONFIG, null, ex);
@@ -83,6 +86,6 @@ public final class Adaptors extends java.lang.Object {
             Logger.getAnonymousLogger().log(Level.WARNING, null, ex);
         }
 
-        return our;
+        return factory;
     }
 }

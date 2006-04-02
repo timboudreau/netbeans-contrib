@@ -51,13 +51,12 @@ public final class SingletonizerLookupFactory implements SingletonizerFactory {
                 throw new IllegalArgumentException ("Works only on interfaces: " + classes[i].getName ()); // NOI18N
             }
         }
-        //SingletonizerImpl single = new SingletonizerImpl (classes, impl, initCall, initListener, noListener, gc);
-        SingletonizerLookupImpl single = new SingletonizerLookupImpl(classes);
+        SingletonizerLookupImpl single = new SingletonizerLookupImpl(classes, impl, initCall, initListener, noListener, gc);
         try {
             impl.addSingletonizerListener (single);
         } catch (java.util.TooManyListenersException ex) {
             throw new IllegalStateException ("addSingletonizerListener should not throw exception: " + impl); // NOI18N
         }
-        return Accessor.API.createAspectProvider(single, impl);
+        return Accessor.API.createAspectProvider(single, null);
     }
 }
