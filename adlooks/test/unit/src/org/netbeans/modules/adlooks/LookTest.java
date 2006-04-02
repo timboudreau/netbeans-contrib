@@ -22,6 +22,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import java.awt.Component;
@@ -71,21 +72,29 @@ public class LookTest extends NbTestCase {
     private Object[] invokeArgs;
     private Object invokeReturn;
 
-
-    private Class isEnabledClass = SubHierarchy.class;
-    private boolean isEnabled = false;
-
     private PListener pListener;
     private NListener nListener;
 
     private Adaptable a;
     private Adaptor adapt;
 
+    private boolean isLeaf = true;
+    private boolean canRename = true;
+    private boolean canCopy = true;
+    private boolean canCut = true;
+    private boolean canDestroy = true;
+    private boolean hasCustomizer = true;
+
     public LookTest(String testName) {
         super(testName);
+    }
 
+    public static junit.framework.Test suite() {
+        //return new LookTest("testGetDisplayName");
+        return new org.netbeans.junit.NbTestSuite(LookTest.class);
+    }
 
-
+    protected void setUp() throws Exception {
         adapt = LooksImpl.create(Selectors.singleton(look));
         a = adapt.getAdaptable(obj);
         instance = AdaptableNodes.create(adapt, obj);
@@ -95,10 +104,6 @@ public class LookTest extends NbTestCase {
 
         instance.addNodeListener(nListener);
         instance.addPropertyChangeListener(pListener);
-    }
-
-    protected void setUp() throws Exception {
-        
     }
 
     protected void tearDown() throws Exception {
@@ -139,7 +144,10 @@ public class LookTest extends NbTestCase {
     public void testChildren() throws Exception {
         assertEquals("By default we have no children as we do not have SubHierarchy", Children.LEAF, instance.getChildren());
 
-        isEnabled = true;
+        invokeReturn = Collections.EMPTY_LIST;
+        invokeMethod = Look.class.getDeclaredMethod("getChildObjects", Object.class, Lookup.class);
+        invokeObject = obj;
+        isLeaf = false;
         look.fire(null, look.GET_CHILD_OBJECTS);
 
         Node n = instance;
@@ -151,14 +159,14 @@ public class LookTest extends NbTestCase {
         al.add(Integer.valueOf(3));
         al.add(Integer.valueOf(7));
         invokeReturn = al;
-        invokeMethod = SubHierarchy.class.getDeclaredMethod("getChildren");
+        invokeMethod = Look.class.getDeclaredMethod("getChildObjects", Object.class, Lookup.class);
         invokeObject = obj;
 
         Node[] arr = n.getChildren().getNodes(true);
         assertEquals("two", 2, arr.length);
 
 
-        isEnabled = false;
+        isLeaf = true;
         look.fire(null, look.GET_CHILD_OBJECTS);
 
         Node n2 = n;
@@ -195,18 +203,19 @@ public class LookTest extends NbTestCase {
     /**
      * Test of getHelpCtx method, of class org.netbeans.modules.adnode.ANode.
      */
-    public void testGetHelpCtx() {
+    public void testGetHelpCtx() throws NoSuchMethodException {
         HelpCtx expResult = new HelpCtx(getClass());
 
         invokeReturn = expResult;
         invokeObject = obj;
-        invokeMethod = HelpCtx.Provider.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getHelpCtx", Object.class, Lookup.class);
 
         HelpCtx result = instance.getHelpCtx();
         assertEquals(expResult, result);
 
-        isEnabledClass = HelpCtx.Provider.class;
-        isEnabled = false;
+        invokeReturn = null;
+        invokeObject = obj;
+        invokeMethod = Look.class.getDeclaredMethod("getHelpCtx", Object.class, Lookup.class);
 
         look.fire(obj, look.GET_HELP_CTX);
 
@@ -216,16 +225,14 @@ public class LookTest extends NbTestCase {
     /**
      * Test of canRename method, of class org.netbeans.modules.adnode.ANode.
      */
-    public void testCanRename() {
+    public void testCanRename() throws NoSuchMethodException {
         boolean result = instance.canRename();
         assertTrue("Enabled if we do not return false from isEnabled", result);
-
-        isEnabledClass = Rename.class;
-        isEnabled = false;
 
         result = instance.canRename();
         assertTrue("Still Enabled if we do not fire change", result);
 
+        canRename = false;
         look.fire(obj, look.CAN_RENAME);
 
         result = instance.canRename();
@@ -239,14 +246,13 @@ public class LookTest extends NbTestCase {
             // ok
         }
 
-        isEnabled = true;
-
+        canRename = true;
         look.fire(null, look.CAN_RENAME);
 
         result = instance.canRename();
         assertTrue("Now Enabled", result);
 
-        invokeMethod = Rename.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("rename", Object.class, String.class, Lookup.class);
         instance.setName("Kukuc");
 
         assertEquals("One argument passed", 1, invokeArgs.length);
@@ -256,6 +262,8 @@ public class LookTest extends NbTestCase {
 
         IOException e = new IOException("Wrong");
         invokeReturn = e;
+        invokeMethod = Look.class.getDeclaredMethod("rename", Object.class, String.class, Lookup.class);
+        invokeObject = obj;
         try {
             instance.setName("AnotherName");
             fail("Rename throws exception");
@@ -267,9 +275,7 @@ public class LookTest extends NbTestCase {
     public void testCanDestroy() throws Exception {
         assertTrue("deleteable", instance.canDestroy());
 
-        isEnabledClass = Delete.class;
-        isEnabled = false;
-
+        canDestroy = false;
         look.fire(obj, look.CAN_DESTROY);
 
         assertFalse("not deleteable", instance.canDestroy());
@@ -282,8 +288,7 @@ public class LookTest extends NbTestCase {
             // ok
         }
 
-        isEnabled = true;
-
+        canDestroy = true;
         look.fire(obj, look.CAN_DESTROY);
 
         boolean result = instance.canDestroy();
@@ -291,7 +296,7 @@ public class LookTest extends NbTestCase {
 
         invokeArgs = new Object[2];
 
-        invokeMethod = Delete.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("destroy", Object.class, Lookup.class);
         instance.destroy();
 
         assertNull("No argument passed", invokeArgs);
@@ -300,44 +305,36 @@ public class LookTest extends NbTestCase {
 
         IOException e = new IOException("Wrong");
         invokeReturn = e;
+        invokeMethod = Look.class.getDeclaredMethod("destroy", Object.class, Lookup.class);
+        invokeObject = obj;
         try {
             instance.destroy();
             fail("Destroy throws exception");
         } catch (IOException ex) {
             assertEquals("Right localized message", e.getLocalizedMessage(), ex.getLocalizedMessage());
         }
-
-        Exception e2 = new IllegalStateException("Wrong");
-        invokeReturn = e2;
-        try {
-            instance.destroy();
-            fail("Destroy throws exception");
-        } catch (IOException ex) {
-            assertEquals("Right localized message", e2.getLocalizedMessage(), ex.getLocalizedMessage());
-        }
-
-
     }
 
     /**
      * Test of getPropertySets method, of class org.netbeans.modules.adnode.ANode.
      */
-    public void testGetPropertySets() {
-        Node.PropertySet[] expResult = new Node.PropertySet[0];
+    public void testGetPropertySets() throws NoSuchMethodException {
+        Node.PropertySet[] expResult = new Node.PropertySet[1];
         invokeReturn = expResult;
-        invokeMethod = SetOfProperties.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getPropertySets", Object.class, Lookup.class);
         invokeObject = obj;
 
         Node.PropertySet[] result = instance.getPropertySets();
         assertSame(expResult, result);
 
-        isEnabledClass = SetOfProperties.class;
-        isEnabled = false;
-
         look.fire(null, look.GET_PROPERTY_SETS);
 
 
-        assertEquals("Empty array", 0, instance.getPropertySets().length);
+        invokeReturn = null;
+        invokeMethod = Look.class.getDeclaredMethod("getPropertySets", Object.class, Lookup.class);
+        invokeObject = obj;
+        assertNull("No ", instance.getPropertySets());
+
         nListener.assertEvents("We changed property sets", Node.PROP_PROPERTY_SETS);
     }
 
@@ -347,19 +344,21 @@ public class LookTest extends NbTestCase {
     public void testClipboardCopy() throws Exception {
         assertTrue(instance.canCopy());
 
-        invokeReturn = new StringSelection("Haha");
+        StringSelection ss = new StringSelection("Haha");
+        invokeReturn = ss;
         invokeObject = obj;
-        invokeMethod = Copy.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("clipboardCopy", Object.class, Lookup.class);
 
         Transferable result = instance.clipboardCopy();
-        assertEquals(invokeReturn, result);
+        assertEquals(ss, result);
 
-        isEnabledClass = Copy.class;
-        isEnabled = false;
-
+        canCopy = false;
         look.fire(obj, look.CLIPBOARD_COPY);
 
         assertFalse(instance.canCopy());
+        invokeReturn = new StringSelection("Haha");
+        invokeObject = obj;
+        invokeMethod = Look.class.getDeclaredMethod("clipboardCopy", Object.class, Lookup.class);
         try {
             instance.clipboardCopy();
             fail("Should throw an exception");
@@ -371,18 +370,20 @@ public class LookTest extends NbTestCase {
     public void testClipboardCut() throws Exception {
         assertTrue(instance.canCut());
 
-        invokeReturn = new StringSelection("Haha");
+        StringSelection ss = new StringSelection("Haha");
+        invokeReturn = ss;
         invokeObject = obj;
-        invokeMethod = Cut.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("clipboardCut", Object.class, Lookup.class);
 
         Transferable result = instance.clipboardCut();
-        assertEquals(invokeReturn, result);
+        assertEquals(ss, result);
 
-        isEnabledClass = Cut.class;
-        isEnabled = false;
-
+        canCut = false;
         look.fire(null, look.CLIPBOARD_COPY);
 
+        invokeReturn = new StringSelection("Haha");
+        invokeObject = obj;
+        invokeMethod = Look.class.getDeclaredMethod("clipboardCut", Object.class, Lookup.class);
         assertFalse(instance.canCut());
         try {
             instance.clipboardCut();
@@ -396,58 +397,56 @@ public class LookTest extends NbTestCase {
         Transferable expResult = new StringSelection("kuk");
 
         invokeReturn = expResult;
-        invokeMethod = Drag.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("drag", Object.class, Lookup.class);
         invokeObject = obj;
 
         Transferable result = instance.drag();
         assertEquals(expResult, result);
     }
 
-    public void testGetPasteTypes() {
+    public void testGetPasteTypes() throws NoSuchMethodException {
         PasteType[] expResult = new PasteType[5];
 
         invokeReturn = expResult;
-        invokeMethod = PasteTypes.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getPasteTypes", Object.class, Transferable.class, Lookup.class);
         invokeObject = obj;
 
         PasteType[] result = instance.getPasteTypes(null);
         assertEquals(expResult, result);
     }
 
-    public void testGetDropType() {
+    public void testGetDropType() throws NoSuchMethodException {
         PasteType expResult = null;
 
         invokeReturn = expResult;
-        invokeMethod = Drop.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getDropType", Object.class, Transferable.class, int.class, int.class, Lookup.class);
         invokeObject = obj;
 
         PasteType result = instance.getDropType(null, 0, -1);
         assertEquals(expResult, result);
     }
 
-    public void testGetNewTypes() {
+    public void testGetNewTypes() throws NoSuchMethodException {
         NewType[] expResult = new NewType[5];
 
         invokeReturn = expResult;
-        invokeMethod = NewTypes.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getNewTypes", Object.class, Lookup.class);
         invokeObject = obj;
 
         NewType[] result = instance.getNewTypes();
         assertEquals(expResult, result);
     }
 
-    public void testGetCustomizer() {
+    public void testGetCustomizer() throws NoSuchMethodException {
         assertTrue("we support customizer", instance.hasCustomizer());
 
         invokeReturn = new java.awt.Button();
-        invokeMethod = Customizable.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getCustomizer", Object.class, Lookup.class);
         invokeObject = obj;
 
         assertEquals("The right customizer", invokeReturn, instance.getCustomizer());
 
-        isEnabledClass = Customizable.class;
-        isEnabled = false;
-
+        hasCustomizer = false;
         look.fire(obj, look.GET_CUSTOMIZER);
 
         assertFalse("no more customizer", instance.hasCustomizer());
@@ -525,40 +524,28 @@ public class LookTest extends NbTestCase {
         MyA my = new MyA();
         invokeReturn = my;
         invokeObject = obj;
-        invokeMethod = ActionProvider.class.getDeclaredMethod("getPreferredAction");
+        invokeMethod = Look.class.getDeclaredMethod("getDefaultAction", Object.class, Lookup.class);
 
         assertSame("The prefered action is delegated", invokeReturn, instance.getPreferredAction());
 
         invokeReturn = new Action[] { my };
         invokeObject = obj;
-        invokeMethod = ActionProvider.class.getDeclaredMethod("getActions");
+        invokeMethod = Look.class.getDeclaredMethod("getActions", Object.class, Lookup.class);
 
         Action[] result = instance.getActions(context);
         assertEquals("One action returned", 1, result.length);
         assertEquals("It is mine", my, result[0]);
-
-        isEnabledClass = ActionProvider.class;
-        isEnabled = false;
-
-        look.fire(obj, look.GET_ACTIONS);
-
-        assertNull(instance.getPreferredAction());
-        result = instance.getActions(context);
-        assertNotNull(result);
-        assertEquals("Empty", 0, result.length);
     }
 
     public void testGetDisplayName() throws Exception {
         String expResult = "myne";
-        invokeMethod = DisplayName.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getDisplayName", Object.class, Lookup.class);
         invokeObject = obj;
         invokeReturn = expResult;
 
         String result = instance.getDisplayName();
         assertEquals(expResult, result);
 
-        isEnabledClass = DisplayName.class;
-        isEnabled = false;
         look.fire(obj, look.GET_DISPLAY_NAME);
 
         invokeMethod = Look.class.getDeclaredMethod("getDisplayName", Object.class, Lookup.class);
@@ -570,9 +557,9 @@ public class LookTest extends NbTestCase {
 
     }
 
-    public void testGetShortDescription() {
+    public void testGetShortDescription() throws NoSuchMethodException {
         String expResult = "myne";
-        invokeMethod = ShortDescription.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getShortDescription", Object.class, Lookup.class);
         invokeObject = obj;
         invokeReturn = expResult;
 
@@ -580,11 +567,9 @@ public class LookTest extends NbTestCase {
         assertEquals(expResult, result);
 
 
-        isEnabledClass = ShortDescription.class;
-        isEnabled = false;
         look.fire(obj, look.GET_SHORT_DESCRIPTION);
 
-        invokeMethod = DisplayName.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getShortDescription", Object.class, Lookup.class);
         invokeObject = obj;
         invokeReturn = "dispmyne";
 
@@ -611,8 +596,6 @@ public class LookTest extends NbTestCase {
         assertEquals(expResult, result);
 
 
-        isEnabledClass = HtmlDisplayName.class;
-        isEnabled = false;
         look.fire(obj, look.GET_DISPLAY_NAME);
 
         invokeMethod = null;
@@ -771,7 +754,11 @@ public class LookTest extends NbTestCase {
         }
         
         public void destroy (Object representedObject, Lookup env) throws java.io.IOException {
-            assertCall("destroy", representedObject, env);
+            Object t = assertCall("destroy", representedObject, env);
+            invokeArgs = null;
+            if (t instanceof IOException) {
+                throw (IOException)t;
+            }
         }
         
         public String getDisplayName () {
@@ -807,8 +794,7 @@ public class LookTest extends NbTestCase {
         }
         
         public boolean canCopy (Object representedObject, Lookup env) {
-            Boolean b = assertCall("canCopy", representedObject, env);
-            return b;
+            return canCopy;
         }
         
         public String getShortDescription (Object representedObject, Lookup env) {
@@ -835,8 +821,7 @@ public class LookTest extends NbTestCase {
         }
         
         public boolean canDestroy (Object representedObject, Lookup env) {
-            Boolean b = assertCall("canDestroy", representedObject, env);
-            return b;
+            return canDestroy;
         }
         
         public org.openide.nodes.Node.PropertySet[] getPropertySets (Object representedObject, Lookup env) {
@@ -844,7 +829,12 @@ public class LookTest extends NbTestCase {
         }
         
         public void rename (Object representedObject, String newName, Lookup env) throws java.io.IOException {
-            assertCall("rename", representedObject, env);
+            Object r = assertCall("rename", representedObject, env);
+            invokeArgs = new Object[] { newName };
+
+            if (r instanceof IOException) {
+                throw (IOException)r;
+            }
         }
         
         public org.openide.util.HelpCtx getHelpCtx (Object representedObject, Lookup env) {
@@ -856,8 +846,7 @@ public class LookTest extends NbTestCase {
         }
         
         public boolean canRename (Object representedObject, Lookup env) {
-            Boolean b = assertCall("canRename", representedObject, env);
-            return b;
+            return canRename;
         }
         
         public org.openide.util.datatransfer.NewType[] getNewTypes (Object representedObject, Lookup env) {
@@ -865,8 +854,7 @@ public class LookTest extends NbTestCase {
         }
         
         public boolean hasCustomizer (Object representedObject, Lookup env) {
-            Boolean b = assertCall("hasCustomizer", representedObject, env);
-            return b;
+            return hasCustomizer;
         }
         
         protected void attachTo (Object representedObject) {
@@ -878,13 +866,11 @@ public class LookTest extends NbTestCase {
         }
         
         public boolean isLeaf (Object representedObject, Lookup env) {
-            Boolean b = assertCall("isLeaf", representedObject, env);
-            return b;
+            return isLeaf;
         }
         
         public boolean canCut (Object representedObject, Lookup env) {
-            Boolean b = assertCall("canCut", representedObject, env);
-            return b;
+            return canCut;
         }
         
         public java.awt.Component getCustomizer (Object representedObject, Lookup env) {
@@ -904,6 +890,7 @@ public class LookTest extends NbTestCase {
 
         @SuppressWarnings("unchecked")
         private <T> T assertCall(String name, Object representedObject, Lookup env) {
+            assertNotNull("A method invoked", invokeMethod);
             assertEquals("Right method name called", name, invokeMethod.getName());
             assertEquals("Right object", invokeObject, representedObject);
             Object r = invokeReturn;

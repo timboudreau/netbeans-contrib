@@ -393,7 +393,9 @@ implements AdaptableListener {
 
         private void hierarchy(SubHierarchy h) {
             this.h = h;
-            addNotify();
+            if (isInitialized()) {
+                addNotify();
+            }
         }
 
 
