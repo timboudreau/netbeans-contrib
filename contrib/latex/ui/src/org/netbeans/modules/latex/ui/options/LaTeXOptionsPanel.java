@@ -17,6 +17,9 @@ import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -115,7 +119,7 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
             c.anchor = GridBagConstraints.WEST;
             c.insets = new Insets(0, 0, 6, 6);
 
-            JTextField command = new JTextField();
+            final JTextField command = new JTextField();
 
             result.add(command, c);
             program2Field.put(p, command);
@@ -127,6 +131,12 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
             c.insets = new Insets(0, 0, 6, 0);
 
             JButton b = new JButton("Browse");
+
+            b.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    browse(command);
+                }
+            });
 
             result.add(b, c);
 
@@ -148,6 +158,20 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
         }
 
         return result;
+    }
+
+    private void browse(JTextField field) {
+        File content = new File(field.getText());
+        JFileChooser chooser = new JFileChooser();
+
+        if (content.exists())
+            chooser.setCurrentDirectory(content);
+
+        chooser.setMultiSelectionEnabled(false);
+
+        if (chooser.showDialog(null, "Select") == JFileChooser.APPROVE_OPTION) {
+            field.setText(chooser.getSelectedFile().getAbsolutePath());
+        }
     }
     
     private void invalidate(RequestProcessor.Task task, final JLabel result) {
@@ -209,6 +233,16 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
 
             settings.put(p, command);
             settings.put(p + "-quality", Boolean.valueOf(Autodetector.checkProgram(p, command) == Autodetector.OK));
+        }
+
+        //Add dictionaries:
+        for (DictionaryDescription desc : addedDictionaries) {
+            DictionaryInstallerPanel.doInstall(desc);
+        }
+
+        //Remove dictionaries:
+        for (Locale remove : removedDictionaries) {
+            DictionaryInstallerPanel.removeDictionary(remove);
         }
         
         ModuleSettings.getDefault().writeSettings(settings);
