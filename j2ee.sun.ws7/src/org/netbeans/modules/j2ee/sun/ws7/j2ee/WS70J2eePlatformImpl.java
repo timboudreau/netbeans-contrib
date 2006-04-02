@@ -55,6 +55,8 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     private static final String MAIL_JAR =  "lib/mail.jar"; //NOI18N
     private static final String JAXRPC_API_JAR =  "lib/jaxrpc-api.jar"; //NOI18N
     private static final String JAXRPC_IMPL_JAR =  "lib/jaxrpc-impl.jar"; //NOI18N
+    private static final String JAXRPC_SPI_JAR =  "lib/jaxrpc-spi.jar"; //NOI18N
+    private static final String ACTIVATION =  "lib/activation.jar"; //NOI18N
     
     private List libraries  = new ArrayList();          
           
@@ -97,6 +99,8 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
             l.add(fileToUrl(new File(root, JSTL_JAR)));
             l.add(fileToUrl(new File(root, JAXRPC_API_JAR)));
             l.add(fileToUrl(new File(root, JAXRPC_IMPL_JAR)));
+            l.add(fileToUrl(new File(root, JAXRPC_SPI_JAR)));
+            l.add(fileToUrl(new File(root, ACTIVATION)));            
 
 
             lib.setContent(J2eeLibraryTypeProvider.VOLUME_TYPE_CLASSPATH, l);
@@ -163,7 +167,11 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
         return new File[] {
             new File(root, JWSDP20_JAR),
             new File(root, JAXRPC_API_JAR),
-            new File(root, JAXRPC_IMPL_JAR)
+            new File(root, JAXRPC_IMPL_JAR),
+            new File(root, JAXRPC_SPI_JAR),
+            new File(root, MAIL_JAR),
+            new File(root, ACTIVATION)
+            
         };
     }
     
