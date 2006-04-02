@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.adaptable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import junit.framework.TestSuite;
 import org.netbeans.junit.NbTestSuite;
 
@@ -21,11 +24,31 @@ import org.netbeans.junit.NbTestSuite;
  * @author jarda
  */
 public class Suite {
+    /** list of objects that shall not be counted when checking occupied
+     * size of adaptable objects.
+     */
+    static final List<Object> excludeFromSize = new ArrayList<Object>();
+    static {
+        excludeFromSize.add(SingletonizerImpl.excludeFromAssertSize());
+    }
+
+
     private Suite() {
     }
 
 
-    public static TestSuite create() {
+    /** Creates new test compatibility kit for modules that which to
+     * re-implement this adaptable API. Currently used from adaptable lookup
+     * framework
+     *
+     * @param excludeFromSize excludes this set of objects from size consideration
+     *    or null if no such exclude is needed
+     */
+    public static TestSuite create(Set<? extends Object> excludeFromSize) {
+        if (excludeFromSize != null) {
+            Suite.excludeFromSize.addAll(excludeFromSize);
+        }
+
         NbTestSuite s = new NbTestSuite();
         s.addTestSuite(SingletonizerLifeCycleTest.class);
         s.addTestSuite(SingletonizerTest.class);

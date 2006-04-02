@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.aspects;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.TooManyListenersException;
 import javax.swing.event.ChangeListener;
@@ -27,6 +28,7 @@ import org.netbeans.spi.adaptable.Singletonizer;
 import org.netbeans.spi.adaptable.SingletonizerEvent;
 import org.netbeans.spi.adaptable.SingletonizerListener;
 import org.openide.util.Lookup;
+import org.openide.util.Utilities;
 
 /** Tests Singletonizer behaviour.`
  *
@@ -51,7 +53,13 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         
         assertNotNull ("Lookup created", lookup);
         // initialized at 40, increased to 48 when added byte[] with cached results
-        assertSize ("It is small", Collections.singleton (lookup), 48, new Object[] { runImpl, representedObject });
+        // 72 is now needed as we have also a reference to ourselves
+        ArrayList<Object> ignore = new ArrayList<Object>();
+        ignore.add(runImpl);
+        ignore.add(provider);
+        ignore.add(representedObject);
+        ignore.add(Utilities.activeReferenceQueue());
+        assertSize ("It is small", Collections.singleton (lookup), 72, ignore.toArray());
         
         Runnable r = (Runnable)lookup.lookup(Runnable.class);
         assertNotNull ("Runnable provided", r);
@@ -64,8 +72,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         assertEquals ("Method name is run", "run", runImpl.method.getName ());
         
         runImpl.isEnabled = false;
-        
-        assertNull ("Runnable not available any longer", lookup.lookup (Runnable.class));
+        assertNotNull ("Runnable still available as we have not fired yet", lookup.lookup (Runnable.class));
 
         // this shall still succeed as the change in isEnabled state has not been fired
         r.run ();

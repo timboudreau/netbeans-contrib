@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.adaptable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,9 +57,14 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         //   There is even a better way how to lower this and that 
         //   is to implement the Adaptable interface by the proxy as well, 
         //   but it can wait until really needed.
-        assertSize ("It is small", Collections.singleton (lookup), 72, 
-            new Object[] { provider, runImpl, representedObject, SingletonizerImpl.excludeFromAssertSize() }
-        );
+
+        ArrayList<Object> arr = new ArrayList<Object>();
+        arr.add(provider);
+        arr.add(runImpl);
+        arr.add(representedObject);
+        arr.addAll(Suite.excludeFromSize);
+
+        assertSize ("It is small", Collections.singleton (lookup), 72, arr.toArray());
         
         Runnable r = (Runnable)lookup.lookup(Runnable.class);
         assertNotNull ("Runnable provided", r);

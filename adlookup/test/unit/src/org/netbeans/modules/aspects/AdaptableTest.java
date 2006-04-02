@@ -13,12 +13,14 @@
 
 package org.netbeans.modules.aspects;
 
+import java.util.Collections;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adlookup.AdaptableLookup;
 import org.netbeans.modules.adaptable.Suite;
 import org.openide.util.Lookup;
+import org.openide.util.Utilities;
 
 /** Inherited tests from adaptable framework to guarantee the same behaviour.
  *
@@ -26,7 +28,7 @@ import org.openide.util.Lookup;
  */
 public class AdaptableTest extends Object {
     public static Test suite() {
-        return Suite.create();
+        return Suite.create(Collections.singleton(Utilities.activeReferenceQueue()));
     }
   
 }

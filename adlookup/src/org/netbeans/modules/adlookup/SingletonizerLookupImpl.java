@@ -133,11 +133,9 @@ implements SingletonizerListener, ProviderImpl {
         /** array of 0/1 for each class in impl.classes to identify the state 
          * whether it should be enabled or not */
         private byte[] enabled;
-        /** Change listener associated with this adaptable object either SingletonizerListener or List<SingletonizerListener>*/
-        private List<AdaptableListener> listener;
-
+        /** reference to results and listeners */
         private LkpReferenceToResult first;
-
+        /** reference to me */
         private LkpRef ref;
         
         public Lkp (Object obj, Adaptor impl, Class[] classes) {
@@ -157,21 +155,22 @@ implements SingletonizerListener, ProviderImpl {
         }
         
         public synchronized void addAdaptableListener (AdaptableListener l) {
-            boolean callAdded = false;
+            boolean callAdded;
             synchronized (this) {
-                if (this.listener == null) {
-                    this.listener = Collections.singletonList (l);
-                    callAdded = true;
-                } else {
-                    if (this.listener instanceof java.util.ArrayList) {
-                        this.listener.add (l);
-                    } else {
-                        java.util.ArrayList<AdaptableListener> arr = new java.util.ArrayList<AdaptableListener>();
-                        arr.addAll (this.listener);
-                        arr.add (l);
-                        this.listener = arr;
+                callAdded = this.first == null;
+
+                ReferenceIterator it = new ReferenceIterator (this.first);
+                while (it.next()) {
+                    AdaptableListener now = it.current().getListener();
+                    if (now == l) {
+                        return;
                     }
                 }
+                this.first = it.first ();
+
+                LkpReferenceToResult newRef = new LkpReferenceToResult (l, this, null);
+                newRef.next = first;
+                first = newRef;
             }
             
             
@@ -183,18 +182,15 @@ implements SingletonizerListener, ProviderImpl {
         public void removeAdaptableListener (AdaptableListener l) {
             boolean callRemoved = true;
             synchronized (this) {
-                if (this.listener instanceof java.util.ArrayList) {
-                    List<AdaptableListener> arr = this.listener;
-                    arr.remove (l);
-                    if (arr.size () == 1) {
-                        this.listener = Collections.singletonList (arr.get (0));
-                    }
-                } else {
-                    if (this.listener != null && this.listener.contains (l)) {
-                        this.listener = null;
-                        callRemoved = true;
+                ReferenceIterator it = new ReferenceIterator (this.first);
+                while (it.next()) {
+                    if (it.current().getListener() == l) {
+                        it.remove();
                     }
                 }
+                this.first = it.first ();
+
+                callRemoved = this.first == null;
             }
             
             if (callRemoved && ref.getImpl().noListener != null) {
@@ -244,22 +240,23 @@ implements SingletonizerListener, ProviderImpl {
             }
             enabled = now;
 
-
-            List<AdaptableListener> arr;
-            synchronized (this) {
-                arr = this.listener;
-            }
-
-            if (arr != null) {
-                AdaptableEvent ev = Accessor.API.createEvent(this, af);
-                for (AdaptableListener listener : arr) {
-                    listener.stateChanged(ev);
-                }
-            }
-
+            AdaptableEvent ev = null;
             ReferenceIterator it = new ReferenceIterator (this.first);
-            while (it.next ()) {
-                it.current ().getResult ().check (af);
+            while (it.next()) {
+                LkpResult res = it.current().getResult();
+                if (res != null) {
+                    res.check(af);
+                    continue;
+                }
+
+                AdaptableListener l = it.current().getListener();
+                if (l != null) {
+                    if (ev == null) {
+                        ev = Accessor.API.createEvent(this, af);
+                    }
+                    l.stateChanged(ev);
+                    continue;
+                }
              }
             this.first = it.first (); 
 
@@ -302,7 +299,7 @@ implements SingletonizerListener, ProviderImpl {
             return arr;
         }
 
-        public <T> Lookup.Result<T> lookup(Lookup.Template<T> template) {
+        public synchronized <T> Lookup.Result<T> lookup(Lookup.Template<T> template) {
             LkpResult<T> r = new LkpResult<T>();
             LkpReferenceToResult newRef = new LkpReferenceToResult (r, this, template);
             newRef.next = first;
@@ -327,7 +324,7 @@ implements SingletonizerListener, ProviderImpl {
         private final Object obj;
         /** implementation we work with */
         private volatile Object impl;
-        
+
         public LkpRef (Lkp adapt, Object obj, Adaptor impl) {
             super (adapt, Utilities.activeReferenceQueue());
             this.obj = obj;
@@ -406,7 +403,7 @@ implements SingletonizerListener, ProviderImpl {
     
     /** Reference to a result  
      */
-    static final class LkpReferenceToResult extends java.lang.ref.WeakReference<LkpResult>
+    static final class LkpReferenceToResult extends java.lang.ref.WeakReference<Object>
     implements Runnable {
         /** next refernece in chain, modified only from AbstractLookup or this */
         private LkpReferenceToResult next;
@@ -414,8 +411,6 @@ implements SingletonizerListener, ProviderImpl {
         public final Lkp.Template template;
         /** the lookup we are attached to */
         public final Lkp lookup;
-        /** caches for results */
-        //public Object caches;
         
         /** Creates a weak refernece to a new result R in context of lookup
          * for given template
@@ -424,13 +419,26 @@ implements SingletonizerListener, ProviderImpl {
             super (result, org.openide.util.Utilities.activeReferenceQueue ());
             this.template = template;
             this.lookup = lookup;
-            getResult ().reference = this;
+            result.reference = this;
+        }
+        LkpReferenceToResult (AdaptableListener l, Lkp lookup, Lkp.Template template) {
+            super (l, org.openide.util.Utilities.activeReferenceQueue ());
+            this.template = template;
+            this.lookup = lookup;
         }
         
         /** Returns the result or null
          */
         LkpResult getResult () {
-            return get ();
+            Object o = get ();
+            return o instanceof LkpResult ? (LkpResult)o : null;
+        }
+
+        /** Returns the listener or null
+         */
+        AdaptableListener getListener() {
+            Object o = get ();
+            return o instanceof AdaptableListener ? (AdaptableListener)o : null;
         }
         
         /** Cleans the reference. Implements Runnable interface, do not call
@@ -454,8 +462,9 @@ implements SingletonizerListener, ProviderImpl {
     static final class ReferenceIterator extends Object {
         private LkpReferenceToResult first;
         private LkpReferenceToResult current;
+        private LkpReferenceToResult previous;
         /** hard reference to current result, so it is not GCed meanwhile */
-        private LkpResult currentResult;
+        private Object currentResult;
         
         /** Initializes the iterator with first reference.
          */
@@ -474,9 +483,10 @@ implements SingletonizerListener, ProviderImpl {
                 prev = current;
                 ref = current.next;
             }
+            this.previous = prev;
                 
             while (ref != null) {
-                LkpResult result = (LkpResult)ref.get ();
+                Object result = ref.get ();
                 if (result == null) {
                     if (prev == null) {
                         // move the head
@@ -499,6 +509,18 @@ implements SingletonizerListener, ProviderImpl {
             current = null;
             return false;
         }
+
+        /** Removes the current reference from the list.
+         */
+        public void remove() {
+            if (previous == null) {
+                first = current.next;
+                current = null;
+            } else {
+                previous.next = current.next;
+                current = previous;
+            }
+        }
         
         /** Access to current reference.
          */
@@ -511,5 +533,6 @@ implements SingletonizerListener, ProviderImpl {
         public LkpReferenceToResult first () {
             return first;
         }
+
     } // end of ReferenceIterator
 }
