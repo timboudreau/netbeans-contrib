@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.editor.fscompletion.spi.support;
@@ -29,9 +29,13 @@ public class FSCompletion {
     
     private FSCompletion() {}
     
+    public static List/*<CompletionItem>*/ completion(FileObject root, FileObject relative, String prefix, int anchor) throws IOException {
+        return completion(root, relative, prefix, anchor, DEFAULT_FILTER);
+    }
+
     /**TODO: root=null, relative=null should mean root of all filesystems!
      */
-    public static List/*<CompletionItem>*/ completion(FileObject root, FileObject relative, String prefix, int anchor) throws IOException {
+    public static List/*<CompletionItem>*/ completion(FileObject root, FileObject relative, String prefix, int anchor, FileObjectFilter filter) throws IOException {
         if (relative == null && root == null) {
             throw new IllegalArgumentException("root == null && relative == null currently not supported!");
         }
@@ -76,7 +80,7 @@ public class FSCompletion {
         for (int cntr = 0; cntr < children.length; cntr++) {
             FileObject current = children[cntr];
             
-            if (VisibilityQuery.getDefault().isVisible(current) && current.getNameExt().startsWith(filePrefix)) {
+            if (VisibilityQuery.getDefault().isVisible(current) && current.getNameExt().startsWith(filePrefix) && filter.accept(current)) {
                 result.add(new FSCompletionItem(current, pathPrefix != null ? pathPrefix + "/" : isAbsolute ? "/" : "", anchor));
             }
         }
@@ -85,6 +89,10 @@ public class FSCompletion {
     }
     
     public static List/*<CompletionItem>*/ completion(FileObject[] root, FileObject[] relative, String prefix, int anchor) throws IOException {
+        return completion(root, relative, prefix, anchor, DEFAULT_FILTER);
+    }
+
+    public static List/*<CompletionItem>*/ completion(FileObject[] root, FileObject[] relative, String prefix, int anchor, FileObjectFilter filter) throws IOException {
         if (root.length != relative.length) {
             throw new IllegalArgumentException();
         }
@@ -97,5 +105,15 @@ public class FSCompletion {
         
         return new ArrayList(result);
     }
-    
+
+    private static final AcceptAllFileObjectFilter DEFAULT_FILTER = new AcceptAllFileObjectFilter();
+
+    private static class AcceptAllFileObjectFilter implements FileObjectFilter {
+
+        public boolean accept(FileObject file) {
+            return true;
+        }
+
+    }
+
 }
