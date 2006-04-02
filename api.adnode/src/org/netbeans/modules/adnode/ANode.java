@@ -31,7 +31,7 @@ import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.AdaptableEvent;
 import org.netbeans.api.adaptable.AdaptableListener;
 import org.netbeans.api.adaptable.Adaptor;
-import org.netbeans.api.adaptable.info.*;
+import org.netbeans.api.adaptable.Facet.*;
 import org.netbeans.api.adnode.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;

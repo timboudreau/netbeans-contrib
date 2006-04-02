@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.EventObject;
 import java.util.HashSet;
 import java.util.Set;
-import org.netbeans.api.adaptable.info.Identity;
+
 
 /** Event that can be fired by {@link Singletonizer} to notify the
  * infrastrcuture that something has changed and that there is a need

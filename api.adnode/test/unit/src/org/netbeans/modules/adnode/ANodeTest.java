@@ -36,7 +36,7 @@ import java.util.Enumeration;
 import javax.swing.Action;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.Adaptor;
-import org.netbeans.api.adaptable.info.*;
+import org.netbeans.api.adaptable.Facet.*;
 import org.netbeans.junit.NbTestCase;
 
 import org.netbeans.spi.adaptable.Adaptors;

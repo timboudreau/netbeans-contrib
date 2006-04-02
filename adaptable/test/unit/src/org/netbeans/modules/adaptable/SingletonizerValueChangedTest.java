@@ -22,9 +22,9 @@ import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.AdaptableEvent;
 import org.netbeans.api.adaptable.AdaptableListener;
 import org.netbeans.api.adaptable.Adaptor;
+import org.netbeans.api.adaptable.Facet.Identity;
 import org.netbeans.spi.adaptable.Adaptors;
 import org.netbeans.spi.adaptable.Singletonizer;
-import org.netbeans.api.adaptable.info.Identity;
 import org.netbeans.spi.adaptable.SingletonizerEvent;
 import org.netbeans.spi.adaptable.SingletonizerListener;
 
