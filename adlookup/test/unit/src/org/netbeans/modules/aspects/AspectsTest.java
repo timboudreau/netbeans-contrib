@@ -34,8 +34,12 @@ public class AspectsTest extends org.netbeans.junit.NbTestCase {
     }
 
     public void testAlwaysReturnsALookup () {
-        Lookup l = Aspects.getLookup(this, null);
+        Lookup l = AdaptableLookup.getLookup(this, null);
         assertNotNull ("There is an lookup for any object", l);
+
+        if (!(l instanceof Adaptable)) {
+            fail("We also need to implement adaptable: " + l);
+        }
     }
   
 }
