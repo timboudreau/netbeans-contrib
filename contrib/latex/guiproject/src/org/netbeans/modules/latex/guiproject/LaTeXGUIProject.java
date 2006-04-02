@@ -49,6 +49,7 @@ import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.ErrorManager;
+import org.openide.actions.FindAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileStatusEvent;
@@ -145,19 +146,12 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
         if (root.getLookup().lookup(LaTeXGUIProject.class) != this)
             return null;
         
-        Lookup.Template sourceNodeTagTemplate = new Lookup.Template(null, null, SOURCE_NODE_TAG);
-        Node[] secondLevelNodes = root.getChildren().getNodes(true);
+        Node[] files = root.getChildren().getNodes(true);
+        Lookup.Template searchingTemplate= new Lookup.Template(null, null, target);
         
-        for (int secondLevelCntr = 0; secondLevelCntr < secondLevelNodes.length; secondLevelCntr++) {
-            if (secondLevelNodes[secondLevelCntr].getLookup().lookup(sourceNodeTagTemplate).allInstances().size() > 0) { //!!!
-                Node[] files = secondLevelNodes[secondLevelCntr].getChildren().getNodes(true);
-                Lookup.Template searchingTemplate= new Lookup.Template(null, null, target);
-                
-                for (int cntr = 0; cntr < files.length; cntr++) {
-                    if (files[cntr].getLookup().lookup(searchingTemplate).allInstances().size() > 0)
-                        return files[cntr];
-                }
-            }
+        for (int cntr = 0; cntr < files.length; cntr++) {
+            if (files[cntr].getLookup().lookup(searchingTemplate).allInstances().size() > 0)
+                return files[cntr];
         }
         
         return null;
@@ -171,7 +165,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
     private static final Object SOURCE_NODE_TAG  = new Object();
     
     private Node createSourcesNode() {
-        AbstractNode an = new AbstractNode(new LaTeXChildren(), Lookups.singleton(SOURCE_NODE_TAG));
+        AbstractNode an = new AbstractNode(new LaTeXChildren(this), Lookups.singleton(SOURCE_NODE_TAG));
         
         an.setDisplayName(SOURCE_NODE_NAME);
         
@@ -261,7 +255,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
         // icon badging <<<
         
         public LaTeXGUIProjectNode(LaTeXGUIProject project) {
-            super(project.createChildren(), Lookups.fixed(new Object[] {project, NAVIGATOR_HINT, project.source, new SearchInfoImpl(project)}));
+            super(new LaTeXChildren(project), Lookups.fixed(new Object[] {project, NAVIGATOR_HINT, project.source, new SearchInfoImpl(project)}));
             setDisplayName(ProjectUtils.getInformation(project).getDisplayName());
             setIconBase("org/netbeans/modules/latex/guiproject/resources/latex_gui_project_icon");
             this.project = project;
@@ -280,6 +274,10 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
             actions.add(null);
             actions.add(CommonProjectActions.setAsMainProjectAction());
             actions.add(CommonProjectActions.closeProjectAction());
+
+            actions.add(null);
+            actions.add(FindAction.get(FindAction.class));
+            actions.add(null);
             
             // honor 57874 contact
             
@@ -469,22 +467,28 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
     }
     
     
-    private class LaTeXChildren extends Children.Keys implements LaTeXSource.DocumentChangedListener/*TODO: Weak?*/ {
-        
+    private static class LaTeXChildren extends Children.Keys implements LaTeXSource.DocumentChangedListener/*TODO: Weak?*/ {
+
+        private LaTeXGUIProject project;
+
+        public LaTeXChildren(LaTeXGUIProject project) {
+            this.project = project;
+        }
+
         public void addNotify() {
-            getSource().addDocumentChangedListener(this);
+            project.getSource().addDocumentChangedListener(this);
             doSetKeys();
         }
         
         private void doSetKeys() {
 //            Thread.dumpStack();
-            DocumentNode dn = getSource().getDocument();
+            DocumentNode dn = project.getSource().getDocument();
             List toAdd = new ArrayList();
             
             if (dn != null)
                 toAdd.addAll(dn.getFiles());
             
-            Object main = getSource().getMainFile();
+            Object main = project.getSource().getMainFile();
             
             toAdd.remove(main);
             toAdd.add(0, main);
