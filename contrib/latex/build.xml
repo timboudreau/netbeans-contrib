@@ -44,13 +44,13 @@
         <makeupdatedesc desc="${build.updates.dir}/updates_1.15.xml">
             <group name="LaTeX">
                 <fileset casesensitive="yes" dir="${build.updates.dir}">
-                    <include name="*latex*.nbm"/>
+                    <include name="*feature*.nbm"/>
                 </fileset>
             </group>
             <group name="Libraries">
                 <fileset casesensitive="yes" dir="${build.updates.dir}">
                     <include name="*.nbm" />
-                    <exclude name="*latex*"/>
+                    <exclude name="*feature*"/>
                 </fileset>
             </group>
         </makeupdatedesc>
