@@ -15,7 +15,6 @@ package org.netbeans.api.adlookup;
 
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.Adaptor;
-import org.netbeans.api.adaptable.info.DisplayName;
 import org.openide.util.Lookup;
 
 /** Bridge between the {@link Lookup} and adaptable framework's {@link Adaptor}.
@@ -39,7 +38,7 @@ public final class AdaptableLookup extends Object {
      *   provided by the <code>provider</code>. The returned object implements
      *   also the <code>Adaptable</code> interface.
      */
-    public static Lookup getLookup (Object obj, Adaptor provider) {
+    public static Lookup getLookup (Adaptor provider, Object obj) {
         Adaptable a = provider.getAdaptable(obj);
         assert a instanceof Lookup;
         return (Lookup)a;

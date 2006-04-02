@@ -10,7 +10,7 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-package org.netbeans.modules.adnode;
+package org.netbeans.modules.adlooks;
 
 import java.awt.Container;
 import java.awt.Graphics;
@@ -22,7 +22,6 @@ import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.TooManyListenersException;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import java.awt.Component;
@@ -40,11 +39,9 @@ import org.netbeans.api.adnode.NodeFacets.NewTypes;
 import org.netbeans.api.adnode.NodeFacets.PasteTypes;
 import org.netbeans.api.adnode.NodeFacets.SetOfProperties;
 import org.netbeans.junit.NbTestCase;
-
-import org.netbeans.spi.adaptable.Adaptors;
-import org.netbeans.spi.adaptable.Singletonizer;
-import org.netbeans.spi.adaptable.SingletonizerEvent;
-import org.netbeans.spi.adaptable.SingletonizerListener;
+import org.netbeans.modules.adnode.AdaptableNodes;
+import org.netbeans.spi.looks.Look;
+import org.netbeans.spi.looks.Selectors;
 
 
 import org.openide.nodes.Children;
@@ -54,6 +51,7 @@ import org.openide.nodes.NodeListener;
 import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.PasteType;
 
@@ -61,10 +59,11 @@ import org.openide.util.datatransfer.PasteType;
  *
  * @author Jaroslav Tulach
  */
-public class ANodeTest extends NbTestCase implements Singletonizer {
-    private ANode instance;
+public class LookTest extends NbTestCase {
+    private CntLook look = new CntLook();
 
-    private SingletonizerListener listener;
+    private Node instance;
+
     private Object obj = new Object();
 
     private Object invokeObject;
@@ -82,13 +81,14 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
     private Adaptable a;
     private Adaptor adapt;
 
-    public ANodeTest(String testName) {
+    public LookTest(String testName) {
         super(testName);
 
 
-        adapt = Adaptors.singletonizer(allClasses(), this);
+
+        adapt = LooksImpl.create(Selectors.singleton(look));
         a = adapt.getAdaptable(obj);
-        instance = new ANode(a, adapt);
+        instance = AdaptableNodes.create(adapt, obj);
 
         pListener = new PListener();
         nListener = new NListener();
@@ -113,9 +113,9 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
     /**
      * Test of getName method, of class org.netbeans.modules.adnode.ANode.
      */
-    public void testGetName() {
+    public void testGetName() throws Exception {
         String expResult = "myne";
-        invokeMethod = Identity.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getName", Object.class, Lookup.class);
         invokeObject = obj;
         invokeReturn = expResult;
 
@@ -140,7 +140,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         assertEquals("By default we have no children as we do not have SubHierarchy", Children.LEAF, instance.getChildren());
 
         isEnabled = true;
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(null, look.GET_CHILD_OBJECTS);
 
         Node n = instance;
         if (n.getChildren() == Children.LEAF) {
@@ -159,7 +159,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
 
         isEnabled = false;
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(null, look.GET_CHILD_OBJECTS);
 
         Node n2 = n;
 
@@ -208,8 +208,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = HelpCtx.Provider.class;
         isEnabled = false;
 
-        listener.stateChanged(SingletonizerEvent.anObjectChanged(this, obj));
-
+        look.fire(obj, look.GET_HELP_CTX);
 
         assertNull(instance.getHelpCtx());
     }
@@ -227,7 +226,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         result = instance.canRename();
         assertTrue("Still Enabled if we do not fire change", result);
 
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(obj, look.CAN_RENAME);
 
         result = instance.canRename();
         assertFalse("Disabled finally", result);
@@ -242,7 +241,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
         isEnabled = true;
 
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(null, look.CAN_RENAME);
 
         result = instance.canRename();
         assertTrue("Now Enabled", result);
@@ -271,7 +270,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = Delete.class;
         isEnabled = false;
 
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(obj, look.CAN_DESTROY);
 
         assertFalse("not deleteable", instance.canDestroy());
 
@@ -285,7 +284,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
         isEnabled = true;
 
-        listener.stateChanged(SingletonizerEvent.anObjectChanged(this, obj));
+        look.fire(obj, look.CAN_DESTROY);
 
         boolean result = instance.canDestroy();
         assertTrue("Now Enabled", result);
@@ -335,7 +334,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = SetOfProperties.class;
         isEnabled = false;
 
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(null, look.GET_PROPERTY_SETS);
 
 
         assertEquals("Empty array", 0, instance.getPropertySets().length);
@@ -358,7 +357,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = Copy.class;
         isEnabled = false;
 
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(obj, look.CLIPBOARD_COPY);
 
         assertFalse(instance.canCopy());
         try {
@@ -382,7 +381,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = Cut.class;
         isEnabled = false;
 
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(null, look.CLIPBOARD_COPY);
 
         assertFalse(instance.canCut());
         try {
@@ -449,7 +448,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = Customizable.class;
         isEnabled = false;
 
-        listener.stateChanged(SingletonizerEvent.anObjectChanged(this, obj));
+        look.fire(obj, look.GET_CUSTOMIZER);
 
         assertFalse("no more customizer", instance.hasCustomizer());
         assertNull("no customizer", instance.getCustomizer());
@@ -541,7 +540,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         isEnabledClass = ActionProvider.class;
         isEnabled = false;
 
-        listener.stateChanged(SingletonizerEvent.anObjectChanged(this, obj));
+        look.fire(obj, look.GET_ACTIONS);
 
         assertNull(instance.getPreferredAction());
         result = instance.getActions(context);
@@ -549,7 +548,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         assertEquals("Empty", 0, result.length);
     }
 
-    public void testGetDisplayName() {
+    public void testGetDisplayName() throws Exception {
         String expResult = "myne";
         invokeMethod = DisplayName.class.getDeclaredMethods()[0];
         invokeObject = obj;
@@ -560,9 +559,9 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
         isEnabledClass = DisplayName.class;
         isEnabled = false;
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(obj, look.GET_DISPLAY_NAME);
 
-        invokeMethod = Identity.class.getDeclaredMethods()[0];
+        invokeMethod = Look.class.getDeclaredMethod("getDisplayName", Object.class, Lookup.class);
         invokeObject = obj;
         invokeReturn = "idmyne";
 
@@ -583,7 +582,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
         isEnabledClass = ShortDescription.class;
         isEnabled = false;
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(obj, look.GET_SHORT_DESCRIPTION);
 
         invokeMethod = DisplayName.class.getDeclaredMethods()[0];
         invokeObject = obj;
@@ -614,7 +613,7 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
 
         isEnabledClass = HtmlDisplayName.class;
         isEnabled = false;
-        listener.stateChanged(SingletonizerEvent.allObjectsChanged(this));
+        look.fire(obj, look.GET_DISPLAY_NAME);
 
         invokeMethod = null;
         invokeObject = null;
@@ -705,54 +704,6 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
         assertFalse("No attributes", result.hasMoreElements());
     }
 
-
-    //
-    // expected calls
-    //
-
-    public boolean isEnabled(Object obj, Class c) {
-        if (c == isEnabledClass) {
-            return isEnabled;
-        }
-        return c != SubHierarchy.class;
-    }
-
-    public Object invoke(Object obj, Method method, Object[] args) throws Throwable {
-        assertEquals(invokeMethod, method);
-        assertEquals(invokeObject, obj);
-
-        invokeArgs = args;
-
-        if (invokeReturn instanceof Throwable) {
-            throw (Throwable)invokeReturn;
-        }
-
-        return invokeReturn;
-    }
-
-    public synchronized void addSingletonizerListener(SingletonizerListener listener) throws TooManyListenersException {
-        if (this.listener != null) {
-            throw new TooManyListenersException();
-        }
-        this.listener = listener;
-    }
-
-    public synchronized void removeSingletonizerListener(SingletonizerListener listener) {
-        if (this.listener == listener) {
-            this.listener = null;
-        }
-    }
-
-    private static Class[] allClasses() {
-        return new Class[] {
-            Identity.class, Rename.class, DisplayName.class, HtmlDisplayName.class,
-            ShortDescription.class, Customizable.class, HelpCtx.Provider.class,
-            ActionProvider.class, Copy.class, Cut.class, SetOfProperties.class,
-            Drag.class, NewTypes.class, PasteTypes.class, Drop.class, SubHierarchy.class,
-            Icon.class, Delete.class,
-        };
-    }
-
     private static class PListener implements PropertyChangeListener {
         final StringBuffer events = new StringBuffer();
 
@@ -797,4 +748,174 @@ public class ANodeTest extends NbTestCase implements Singletonizer {
             append("nodeDestroyed");
         }
     }
+
+
+    final class CntLook extends Look {
+        private long methodsCalled;
+        
+        public CntLook () {
+            super ("CntLook");
+        }
+
+        public void fire(Object obj, long mask) {
+            fireChange(obj, mask);
+        }
+        
+        public void assertMethods (String msg, long exactMask) {
+            assertEquals (msg, exactMask, methodsCalled);
+            methodsCalled = 0;
+        }
+        
+        public javax.swing.Action[] getActions (Object representedObject, Lookup env) {
+            return assertCall("getActions", representedObject, env);
+        }
+        
+        public void destroy (Object representedObject, Lookup env) throws java.io.IOException {
+            assertCall("destroy", representedObject, env);
+        }
+        
+        public String getDisplayName () {
+            return "CntLook";
+        }
+        
+        public java.awt.Image getOpenedIcon (Object representedObject, int type, Lookup env) {
+            return assertCall("getOpenedIcon", representedObject, env);
+        }
+        
+        public org.openide.util.datatransfer.PasteType getDropType (Object representedObject, java.awt.datatransfer.Transferable t, int action, int index, Lookup env) {
+            return assertCall("getDropType", representedObject, env);
+        }
+        
+        public String getDisplayName (Object representedObject, Lookup env) {
+            return assertCall("getDisplayName", representedObject, env);
+        }
+        
+        public java.awt.Image getIcon (Object representedObject, int type, Lookup env) {
+            return assertCall("getIcon", representedObject, env);
+        }
+        
+        protected void detachFrom (Object representedObject) {
+            super.detachFrom (representedObject);
+        }
+        
+        public java.awt.datatransfer.Transferable clipboardCut (Object representedObject, Lookup env) throws java.io.IOException {
+            return assertCall("clipboardCut", representedObject, env);
+        }
+        
+        public java.util.Collection getLookupItems (Object representedObject, Lookup oldEnv) {
+            return assertCall("getLookupItems", representedObject, oldEnv);
+        }
+        
+        public boolean canCopy (Object representedObject, Lookup env) {
+            Boolean b = assertCall("canCopy", representedObject, env);
+            return b;
+        }
+        
+        public String getShortDescription (Object representedObject, Lookup env) {
+            return assertCall("getShortDescription", representedObject, env);
+        }
+        
+        public boolean equals (Object obj) {
+            boolean retValue;
+            
+            retValue = super.equals (obj);
+            return retValue;
+        }
+        
+        public java.awt.datatransfer.Transferable clipboardCopy (Object representedObject, Lookup env) throws java.io.IOException {
+            return assertCall("clipboardCopy", representedObject, env);
+        }
+        
+        public java.awt.datatransfer.Transferable drag (Object representedObject, Lookup env) throws java.io.IOException {
+            return assertCall("drag", representedObject, env);
+        }
+        
+        public org.openide.util.datatransfer.PasteType[] getPasteTypes (Object representedObject, java.awt.datatransfer.Transferable t, Lookup env) {
+            return assertCall("getPasteTypes", representedObject, env);
+        }
+        
+        public boolean canDestroy (Object representedObject, Lookup env) {
+            Boolean b = assertCall("canDestroy", representedObject, env);
+            return b;
+        }
+        
+        public org.openide.nodes.Node.PropertySet[] getPropertySets (Object representedObject, Lookup env) {
+            return assertCall("getPropertySets", representedObject, env);
+        }
+        
+        public void rename (Object representedObject, String newName, Lookup env) throws java.io.IOException {
+            assertCall("rename", representedObject, env);
+        }
+        
+        public org.openide.util.HelpCtx getHelpCtx (Object representedObject, Lookup env) {
+            return assertCall("getHelpCtx", representedObject, env);
+        }
+        
+        public javax.swing.Action getDefaultAction (Object representedObject, Lookup env) {
+            return assertCall("getDefaultAction", representedObject, env);
+        }
+        
+        public boolean canRename (Object representedObject, Lookup env) {
+            Boolean b = assertCall("canRename", representedObject, env);
+            return b;
+        }
+        
+        public org.openide.util.datatransfer.NewType[] getNewTypes (Object representedObject, Lookup env) {
+            return assertCall("getNewTypes", representedObject, env);
+        }
+        
+        public boolean hasCustomizer (Object representedObject, Lookup env) {
+            Boolean b = assertCall("hasCustomizer", representedObject, env);
+            return b;
+        }
+        
+        protected void attachTo (Object representedObject) {
+            super.attachTo (representedObject);
+        }
+        
+        public java.util.List getChildObjects (Object representedObject, Lookup env) {
+            return assertCall("getChildObjects", representedObject, env);
+        }
+        
+        public boolean isLeaf (Object representedObject, Lookup env) {
+            Boolean b = assertCall("isLeaf", representedObject, env);
+            return b;
+        }
+        
+        public boolean canCut (Object representedObject, Lookup env) {
+            Boolean b = assertCall("canCut", representedObject, env);
+            return b;
+        }
+        
+        public java.awt.Component getCustomizer (Object representedObject, Lookup env) {
+            return assertCall("getCustomizer", representedObject, env);
+        }
+        
+        public String getName (Object representedObject, Lookup env) {
+            return assertCall("getName", representedObject, env);
+        }
+        
+        public javax.swing.Action[] getContextActions (Object representedObject, Lookup env) {
+            Action[] retValue;
+            
+            retValue = super.getContextActions (representedObject, env);
+            return retValue;
+        }
+
+        @SuppressWarnings("unchecked")
+        private <T> T assertCall(String name, Object representedObject, Lookup env) {
+            assertEquals("Right method name called", name, invokeMethod.getName());
+            assertEquals("Right object", invokeObject, representedObject);
+            Object r = invokeReturn;
+
+            invokeReturn = null;
+            invokeMethod = null;
+            invokeObject = null;
+
+            return (T)r;
+        }
+        
+    }
+
+
 }

@@ -49,7 +49,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Implementation runImpl = new Implementation ();
         Adaptor provider = Adaptors.singletonizer(supported, runImpl);
         Object representedObject = "sampleRO";
-        Lookup lookup = AdaptableLookup.getLookup(representedObject, provider);
+        Lookup lookup = AdaptableLookup.getLookup(provider, representedObject);
         
         assertNotNull ("Lookup created", lookup);
         // initialized at 40, increased to 48 when added byte[] with cached results
@@ -122,11 +122,11 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Implementation runImpl = new Implementation ();
         Adaptor provider = Adaptors.singletonizer(supported, runImpl);
         Object representedObject = new String ("sampleRO");
-        Lookup lookup = AdaptableLookup.getLookup(representedObject, provider);
+        Lookup lookup = AdaptableLookup.getLookup(provider, representedObject);
         
-        assertSame ("Next time the same lookup is returned", lookup, AdaptableLookup.getLookup(representedObject, provider));
+        assertSame ("Next time the same lookup is returned", lookup, AdaptableLookup.getLookup(provider, representedObject));
         Object representedObject2 = new String ("sampleRO2");
-        Lookup lookup2 = AdaptableLookup.getLookup(representedObject2, provider);
+        Lookup lookup2 = AdaptableLookup.getLookup(provider, representedObject2);
         
         Lookup.Result resultListener = lookup.lookup (new Lookup.Template (java.awt.event.ActionListener.class));
         assertNotNull (resultListener);
