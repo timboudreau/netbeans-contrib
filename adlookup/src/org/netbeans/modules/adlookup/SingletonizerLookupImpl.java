@@ -20,6 +20,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.adaptable.Adaptable;
 import org.netbeans.api.adaptable.AdaptableListener;
 import org.netbeans.api.adaptable.Adaptor;
+import org.netbeans.modules.adaptable.Accessor;
 import org.netbeans.modules.adaptable.ProviderImpl;
 import org.netbeans.spi.adaptable.Adaptors;
 import org.netbeans.spi.adaptable.Singletonizer;
@@ -62,8 +63,7 @@ implements SingletonizerListener, ProviderImpl {
         LkpReference ref = (LkpReference)lookups.get (obj);
         Lkp lkp = ref == null ? null : (Lkp)ref.get ();
         if (lkp == null) {
-            //lkp = new Lkp (obj, adaptor, classes);
-            lkp = new Lkp (obj, null, classes);
+            lkp = new Lkp (obj, (Singletonizer) Accessor.API.getData(adaptor), classes);
             ref = new LkpReference (obj, lkp);
             lookups.put (obj, ref);
         }
@@ -71,7 +71,8 @@ implements SingletonizerListener, ProviderImpl {
     }
     
     public void stateChanged(SingletonizerEvent e) {
-        if (e.getSource () instanceof SingletonizerEvent) {
+        Object affected = Accessor.SPI.getAffectedObject(e);
+        if (affected == null) {
             // refresh all of them
             java.util.Iterator it = lookups.values ().iterator ();
             while (it.hasNext ()) {
@@ -82,7 +83,7 @@ implements SingletonizerListener, ProviderImpl {
                 }
             }
         } else {
-            LkpReference ref = (LkpReference)lookups.get (e.getSource ());
+            LkpReference ref = lookups.get (affected);
             if (ref == null) {
                 return;
             }
