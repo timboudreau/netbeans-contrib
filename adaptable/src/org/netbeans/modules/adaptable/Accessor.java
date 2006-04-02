@@ -53,22 +53,22 @@ public abstract class Accessor {
      * Creates new instance of Adaptor
      * @param impl the impl to pass to the provider
      */
-    protected abstract Adaptor createAspectProvider (ProviderImpl impl, Object data);
+    public abstract Adaptor createAspectProvider (ProviderImpl impl, Object data);
 
     /** creates the AdaptableEvent.
      */
-    protected abstract AdaptableEvent createEvent(Adaptable source, Set<Class> affected);
+    public abstract AdaptableEvent createEvent(Adaptable source, Set<Class> affected);
     
     /** Gets the associated data */
-    protected abstract Object getData (Adaptor adaptor);
+    public abstract Object getData (Adaptor adaptor);
     /** Gets associated provider */
-    protected abstract ProviderImpl getProviderImpl (Adaptor adaptor);
+    public abstract ProviderImpl getProviderImpl (Adaptor adaptor);
 
     /** Gets affected object from an event.
      */
-    protected abstract Object getAffectedObject(SingletonizerEvent ev);
+    public abstract Object getAffectedObject(SingletonizerEvent ev);
 
     /** Gets set of affected classes from the event.
      */
-    protected abstract Set<Class> getAffectedClasses(SingletonizerEvent ev);
+    public abstract Set<Class> getAffectedClasses(SingletonizerEvent ev);
 }

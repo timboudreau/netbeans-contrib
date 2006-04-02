@@ -25,31 +25,31 @@ import org.netbeans.api.adaptable.Adaptor;
  */
 final class AccessorImpl extends org.netbeans.modules.adaptable.Accessor {
     
-    protected Adaptor createAspectProvider(org.netbeans.modules.adaptable.ProviderImpl impl, Object data) {
+    public Adaptor createAspectProvider(org.netbeans.modules.adaptable.ProviderImpl impl, Object data) {
         assert false;
         return null;
     }
 
-    protected Object getData(Adaptor adaptor) {
+    public Object getData(Adaptor adaptor) {
         assert false;
         return null;
     }
 
-    protected org.netbeans.modules.adaptable.ProviderImpl getProviderImpl(Adaptor adaptor) {
+    public org.netbeans.modules.adaptable.ProviderImpl getProviderImpl(Adaptor adaptor) {
         assert false;
         return null;
     }
 
-    protected AdaptableEvent createEvent(Adaptable source, Set<Class> affected) {
+    public AdaptableEvent createEvent(Adaptable source, Set<Class> affected) {
         assert false;
         return null;
     }
 
-    protected Object getAffectedObject(SingletonizerEvent ev) {
+    public Object getAffectedObject(SingletonizerEvent ev) {
         return ev.obj;
     }
 
-    protected Set<Class> getAffectedClasses(SingletonizerEvent ev) {
+    public Set<Class> getAffectedClasses(SingletonizerEvent ev) {
         return ev.affected;
     }
 }

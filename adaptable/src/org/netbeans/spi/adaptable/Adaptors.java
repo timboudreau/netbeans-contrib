@@ -71,7 +71,8 @@ public final class Adaptors extends java.lang.Object {
             if (l == null) {
                 l = Adaptors.class.getClassLoader();
             }
-            Class<? extends SingletonizerFactory> fact = l.loadClass("org.netbeans.modules.adlookup.SingletonizerFactory").asSubclass(SingletonizerFactory.class); // NOI18N
+            String s = "org.netbeans.modules.adlookup.SingletonizerLookupFactory"; // NOI18N
+            Class<? extends SingletonizerFactory> fact = l.loadClass(s).asSubclass(SingletonizerFactory.class); // NOI18N
             our = fact.newInstance();
         } catch (ClassNotFoundException ex) {
             // this can happen

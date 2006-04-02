@@ -21,7 +21,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.netbeans.api.adaptable.Adaptor;
 import org.netbeans.api.adlookup.AdaptableLookup;
-import org.netbeans.modules.adlookup.SingletonizerImpl;
+import org.netbeans.modules.adlookup.SingletonizerLookupImpl;
 import org.netbeans.spi.adaptable.Singletonizer;
 import org.netbeans.spi.adaptable.SingletonizerEvent;
 import org.netbeans.spi.adaptable.SingletonizerListener;
@@ -44,7 +44,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
-        Adaptor provider = SingletonizerImpl.create (supported, runImpl);
+        Adaptor provider = SingletonizerLookupImpl.create (supported, runImpl);
         Object representedObject = "sampleRO";
         Lookup lookup = AdaptableLookup.getLookup(representedObject, provider);
         
@@ -81,7 +81,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] classes = { Integer.class };
         
         try {
-            Adaptor provider = SingletonizerImpl.create (classes, new Singletonizer() {
+            Adaptor provider = SingletonizerLookupImpl.create (classes, new Singletonizer() {
                 public boolean isEnabled (Object o, Class c) {
                     return false;
                 }
@@ -112,7 +112,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
-        Adaptor provider = SingletonizerImpl.create (supported, runImpl);
+        Adaptor provider = SingletonizerLookupImpl.create (supported, runImpl);
         Object representedObject = new String ("sampleRO");
         Lookup lookup = AdaptableLookup.getLookup(representedObject, provider);
         
