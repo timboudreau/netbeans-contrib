@@ -19,7 +19,7 @@ Microsystems, Inc. All Rights Reserved.
 <h2>NetBeans Runtime Inspector - Lookup Helper</h2>
 
 <p>Under <b>Runtime&nbsp;| NetBeans&nbsp;Runtime&nbsp;| Global Lookup</b>
-you can find out what is currently in the lookup system. If you see something
+you can find out what is currently in the lookup system: <code>Lookup.getDefault()</code>. If you see something
 missing you think should be there, right click on this
 node and select <b>Add&nbsp;Superclass/interface</b>. You will be asked for a
 class name. Type in the fully qualified name of any class in the APIs or modules,
@@ -36,5 +36,11 @@ node will be refreshed.
 
 <p>As instances become available, queries for their class (and superclasses and
 implemented interfaces) are added for you automatically.
+
+<p>You can also look under <b>Action Lookup</b> to see the contents of
+<code>Utilities.actionsGlobalContext()</code>, which is the context used
+by globally-installed context-sensitive actions (e.g. <code>CookieNode</code>s).
+Normally this lookup will be based on the selected nodes of the active
+<code>TopComponent</code>.
 
 </body></html>
