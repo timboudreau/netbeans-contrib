@@ -40,6 +40,7 @@ public class RawBeanPropKids extends Children.Keys {
         try {
             BeanInfo bi = Introspector.getBeanInfo(thing.getClass(), Introspector.IGNORE_ALL_BEANINFO);
             setKeys(bi.getPropertyDescriptors());
+            // XXX listen to changes in thing if it has a property change listener event set
         } catch (Exception e) {
             setKeys(Collections.singleton(e));
         }

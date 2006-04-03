@@ -442,7 +442,7 @@ class WrapperKids extends Children.Keys implements Cloneable {
             n.setIconBaseWithExtension("org/netbeans/modules/apisupport/beanbrowser/BeanBrowserIcon.gif");
             return new Node[] { n };
         } else if (key instanceof LookupProviderKey) { // #26617
-            Node n = new LookupNode(Lookups.proxy(((LookupProviderKey)key).p));
+            Node n = LookupNode.localLookupNode(Lookups.proxy(((LookupProviderKey) key).p));
             n.setDisplayName("Cookies...");
             return new Node[] { n };
         } else {

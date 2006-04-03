@@ -41,9 +41,13 @@ import org.openide.util.Lookup.Item;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.RequestProcessor;
+import org.openide.util.Utilities;
+import org.openide.util.WeakListeners;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 
 public final class LookupNode extends AbstractNode {
-    
+
     private static Class[] GLOBAL_CLAZZES;
     private static Class[] COOKIE_CLAZZES;
     
@@ -56,30 +60,92 @@ public final class LookupNode extends AbstractNode {
         "java.awt.datatransfer.Clipboard", // NOI18N
         "java.net.URLStreamHandlerFactory", // NOI18N
         "javax.help.HelpSet", // NOI18N
+        "javax.jmi.xmi.XmiReader", // NOI18N
+        "javax.jmi.xmi.XmiWriter", // NOI18N
         "javax.naming.spi.InitialContextFactoryBuilder", // NOI18N
+        "javax.swing.LookAndFeel", // NOI18N
+        "javax.swing.PopupFactory", // NOI18N
         "javax.swing.text.Keymap", // NOI18N
+        "org.apache.tools.ant.module.spi.AntLogger", // NOI18N
+        "org.apache.tools.ant.module.spi.AutomaticExtraClasspathProvider", // NOI18N
         "org.netbeans.CLIHandler", // NOI18N
+        "org.netbeans.ModuleFactory", // NOI18N
+        "org.netbeans.api.mdr.DTDProducer", // NOI18N
+        "org.netbeans.api.mdr.JMIMapper", // NOI18N
+        "org.netbeans.api.mdr.MDRManager", // NOI18N
+        "org.netbeans.api.xmi.XMIReaderFactory", // NOI18N
+        "org.netbeans.api.xmi.XMIWriterFactory", // NOI18N
+        "org.netbeans.api.xmi.sax.XMIConsumerFactory", // NOI18N
+        "org.netbeans.api.xmi.sax.XMIProducerFactory", // NOI18N
+        "org.netbeans.core.NbTopManager$WindowSystem", // NOI18N
         "org.netbeans.core.modules.TestModuleDeployer", // NOI18N
-        "org.netbeans.spi.registry.RootContext", // NOI18N
-        "org.openide.awt.HtmlBrowser$URLDisplayer", // NOI18N
-        "org.openide.awt.StatusDisplayer", // NOI18N
-        "org.openide.compiler.CompilationEngine", // NOI18N
+        "org.netbeans.core.startup.CoreBridge", // NOI18N
+        "org.netbeans.core.startup.RunLevel", // NOI18N
+        "org.netbeans.lib.editor.hyperlink.HyperlinkProviderManager", // NOI18N
+        "org.netbeans.modules.ant.freeform.spi.ProjectNature", // NOI18N
+        "org.netbeans.modules.db.spi.sql.editor.SQLEditorProvider", // NOI18N
+        "org.netbeans.modules.j2ee.spi.ejbjar.EarProvider", // NOI18N
+        "org.netbeans.modules.j2ee.spi.ejbjar.EjbJarProvider", // NOI18N
+        "org.netbeans.modules.j2ee.spi.ejbjar.EjbNodesFactory", // NOI18N
+        "org.netbeans.modules.masterfs.providers.AnnotationProvider", // NOI18N
+        "org.netbeans.modules.refactoring.spi.ReadOnlyFilesHandler", // NOI18N
+        "org.netbeans.modules.refactoring.spi.RefactoringPluginFactory", // NOI18N
+        "org.netbeans.modules.versioning.spi.VersioningSystem", // NOI18N
+        "org.netbeans.modules.web.spi.webmodule.RequestParametersProvider", // NOI18N
+        "org.netbeans.modules.web.spi.webmodule.WebModuleProvider", // NOI18N
+        "org.netbeans.modules.websvc.api.client.WsCompileClientEditorSupport", // NOI18N
+        "org.netbeans.modules.websvc.api.registry.WebServicesRegistryView", // NOI18N
+        "org.netbeans.modules.websvc.api.webservices.WsCompileEditorSupport", // NOI18N
+        "org.netbeans.modules.websvc.spi.client.WebServicesClientSupportProvider", // NOI18N
+        "org.netbeans.modules.websvc.spi.client.WebServicesClientViewProvider", // NOI18N
+        "org.netbeans.modules.websvc.spi.webservices.WebServicesSupportProvider", // NOI18N
+        "org.netbeans.modules.websvc.spi.webservices.WebServicesViewProvider", // NOI18N
+        "org.netbeans.modules.xml.wsdl.model.spi.ElementFactoryProvider", // NOI18N
+        "org.netbeans.spi.editor.mimelookup.Class2LayerFolder", // NOI18N
+        "org.netbeans.spi.editor.mimelookup.MimeLookupInitializer", // NOI18N
+        "org.netbeans.spi.java.classpath.ClassPathProvider", // NOI18N
+        "org.netbeans.spi.java.project.support.ui.PackageRenameHandler", // NOI18N
+        "org.netbeans.spi.java.queries.AccessibilityQueryImplementation", // NOI18N
+        "org.netbeans.spi.java.queries.JavadocForBinaryQueryImplementation", // NOI18N
+        "org.netbeans.spi.java.queries.MultipleRootsUnitTestForSourceQueryImplementation", // NOI18N
+        "org.netbeans.spi.java.queries.SourceForBinaryQueryImplementation", // NOI18N
+        "org.netbeans.spi.java.queries.SourceLevelQueryImplementation", // NOI18N
+        "org.netbeans.spi.java.queries.UnitTestForSourceQueryImplementation", // NOI18N
+        "org.netbeans.spi.project.FileOwnerQueryImplementation", // NOI18N
+        "org.netbeans.spi.project.ProjectFactory", // NOI18N
+        "org.netbeans.spi.project.ant.AntArtifactQueryImplementation", // NOI18N
+        "org.netbeans.spi.project.libraries.LibraryProvider", // NOI18N
+        "org.netbeans.spi.project.support.ant.AntBasedProjectType", // NOI18N
+        "org.netbeans.spi.queries.CollocationQueryImplementation", // NOI18N
+        "org.netbeans.spi.queries.FileBuiltQueryImplementation", // NOI18N
+        "org.netbeans.spi.queries.SharabilityQueryImplementation", // NOI18N
+        "org.netbeans.spi.queries.VisibilityQueryImplementation", // NOI18N
+        "org.netbeans.swing.menus.spi.MenuTreeModel", // NOI18N
         "org.openide.DialogDisplayer", // NOI18N
         "org.openide.ErrorManager", // NOI18N
-        "org.openide.execution.ExecutionEngine", // NOI18N
-        "org.openide.filesystems.Repository", // NOI18N
         "org.openide.LifecycleManager", // NOI18N
+        "org.openide.ServiceType", // NOI18N
+        "org.openide.ServiceType$Registry", // NOI18N
+        "org.openide.actions.ActionManager", // NOI18N
+        "org.openide.awt.HtmlBrowser$URLDisplayer", // NOI18N
+        "org.openide.awt.StatusDisplayer", // NOI18N
+        "org.openide.awt.StatusLineElementProvider", // NOI18N
+        "org.openide.execution.ExecutionEngine", // NOI18N
+        "org.openide.execution.ScriptType", // NOI18N
+        "org.openide.filesystems.MIMEResolver", // NOI18N
+        "org.openide.filesystems.Repository", // NOI18N
+        "org.openide.filesystems.URLMapper", // NOI18N
         "org.openide.loaders.DataLoaderPool", // NOI18N
         "org.openide.loaders.Environment$Provider", // NOI18N
+        "org.openide.loaders.FolderRenameHandler", // NOI18N
         "org.openide.loaders.RepositoryNodeFactory", // NOI18N
         "org.openide.modules.InstalledFileLocator", // NOI18N
         "org.openide.nodes.NodeOperation", // NOI18N
         "org.openide.options.SystemOption", // NOI18N
-        "org.openide.ServiceType", // NOI18N
-        "org.openide.ServiceType$Registry", // NOI18N
+        "org.openide.text.AnnotationProvider", // NOI18N
         "org.openide.util.ContextGlobalProvider", // NOI18N
-        "org.openide.util.datatransfer.ExClipboard", // NOI18N
         "org.openide.util.Lookup", // NOI18N
+        "org.openide.util.datatransfer.ExClipboard$Convertor", // NOI18N
         "org.openide.windows.IOProvider", // NOI18N
         "org.openide.windows.TopComponent$Registry", // NOI18N
         "org.openide.windows.WindowManager", // NOI18N
@@ -119,20 +185,32 @@ public final class LookupNode extends AbstractNode {
      * Create a node displaying default lookup.
      * Will start off showing standard singletons.
      */
-    public LookupNode() {
-        this(Lookup.getDefault(), globalClazzes());
-        setDisplayName("Global Lookup");
-        setShortDescription("The contents of Lookup.getDefault().");
+    public static Node globalLookupNode() {
+        Node n = new LookupNode(Lookup.getDefault(), globalClazzes());
+        n.setDisplayName("Global Lookup");
+        n.setShortDescription("The contents of Lookup.getDefault().");
+        return n;
+    }
+
+    /**
+     * Create a node displaying default action lookup.
+     */
+    public static Node actionsGlobalContextLookupNode() {
+        Node n = new LookupNode(ignoreBbNodes(Utilities.actionsGlobalContext()), cookieClazzes());
+        n.setDisplayName("Action Lookup");
+        n.setShortDescription("The contents of Utilities.actionsGlobalContext().");
+        return n;
     }
     
     /**
      * Create a node displaying the specified lookup.
      * Will start off showing an Object query, i.e. all items, and probe for common cookies.
      */
-    public LookupNode(Lookup l) {
-        this(l, cookieClazzes());
-        setDisplayName("Local Lookup");
-        setShortDescription("The contents of a local Lookup.");
+    public static Node localLookupNode(Lookup l) {
+        Node n = new LookupNode(l, cookieClazzes());
+        n.setDisplayName("Local Lookup");
+        n.setShortDescription("The contents of a local Lookup.");
+        return n;
     }
     
     private LookupNode(Lookup l, Class[] initClazzes) {
@@ -183,7 +261,7 @@ public final class LookupNode extends AbstractNode {
     public HelpCtx getHelpCtx() {
         return new HelpCtx("org.netbeans.modules.apisupport.beanbrowser.lookup");
     }
-    
+
     private static final class ClassSet {
         
         private final Set/*<Class>*/ clazzes;
@@ -373,4 +451,42 @@ public final class LookupNode extends AbstractNode {
         
     }
     
+    /** Hack to exclude BB-related nodes from lookup view. */
+    static final class BbMarker implements Node.Cookie {}
+    private static boolean containsBbNode(Lookup context) {
+        Iterator/*<Node>*/ nodes = context.lookup(new Lookup.Template(Node.class)).allInstances().iterator();
+        while (nodes.hasNext()) {
+            for (Node n = (Node) nodes.next(); n != null; n = n.getParentNode()) {
+                if (n.getCookie(BbMarker.class) != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private static Lookup ignoreBbNodes(final Lookup orig) {
+        class Proxy extends AbstractLookup implements LookupListener {
+            private final InstanceContent content;
+            private Collection copy = Collections.EMPTY_SET;
+            private final Lookup.Result master = orig.lookup(new Lookup.Template(Object.class));
+            public Proxy() {
+                this(new InstanceContent());
+            }
+            private Proxy(InstanceContent content) {
+                super(content);
+                this.content = content;
+                Lookup.Result r = orig.lookup(new Lookup.Template(Node.class));
+                r.addLookupListener((LookupListener) WeakListeners.create(LookupListener.class, this, r));
+                resultChanged(null);
+            }
+            public void resultChanged(LookupEvent ignore) {
+                if (!containsBbNode(orig)) {
+                    copy = master.allInstances();
+                }
+                content.set(copy, null);
+            }
+        }
+        return new Proxy();
+    }
+
 }

@@ -40,6 +40,7 @@ public class MainNode extends AbstractNode {
         setName("BeanBrowserMainNode");
         setDisplayName("NetBeans Runtime");
         setIconBaseWithExtension("org/netbeans/modules/apisupport/beanbrowser/BeanBrowserIcon.gif");
+        getCookieSet().add(new LookupNode.BbMarker());
     }
     
     public Action[] getActions(boolean context) {
@@ -92,7 +93,7 @@ public class MainNode extends AbstractNode {
         
         protected Node[] createNodes(Object key) {
             if (key == LOOKUP_NODE) {
-                return new Node[] {new LookupNode()};
+                return new Node[] {LookupNode.globalLookupNode(), LookupNode.actionsGlobalContextLookupNode()};
             } else if (key instanceof FileSystem) {
                 Node orig;
                 try {

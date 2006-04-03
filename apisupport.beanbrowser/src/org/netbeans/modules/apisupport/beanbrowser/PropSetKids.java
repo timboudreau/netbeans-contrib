@@ -36,8 +36,6 @@ import org.openide.util.Utilities;
  */
 public class PropSetKids extends Children.Keys {
     
-    private Collection keys;
-    
     private Node original;
     private Node.PropertySet ps;
     private PropertyChangeListener pcListener = null;
@@ -45,11 +43,6 @@ public class PropSetKids extends Children.Keys {
     public PropSetKids(Node original, Node.PropertySet ps) {
         this.ps = ps;
         this.original = original;
-    }
-    
-    private void setKeys0(Collection c) {
-        setKeys(c);
-        keys = c;
     }
     
     /** Update the key list.
@@ -67,7 +60,7 @@ public class PropSetKids extends Children.Keys {
                 }
             }
         }
-        setKeys0(newKeys);
+        setKeys(newKeys);
     }
     
     /** Set the keys.
@@ -81,31 +74,17 @@ public class PropSetKids extends Children.Keys {
             pcListener = new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent ev) {
                     String prop = ev.getPropertyName();
-                    Iterator it = getKeysIterator();
-                    Object found = null;
-                    while (it.hasNext()) {
-                        Object key = it.next();
-                        if (key instanceof Node.Property && ((Node.Property) key).getName().equals(prop)) {
-                            found = key;
+                    Node.Property[] props = ps.getProperties();
+                    for (int j = 0; j < props.length; j++) {
+                        if (props[j].getName().equals(prop)) {
+                            refreshKey(props[j]);
+                            break;
                         }
-                    }
-                    if (found == null) {
-                        // Should not happen.
-                        updateKeys();
-                    } else {
-                        refreshKey0(found);
                     }
                 }
             };
             original.addPropertyChangeListener(pcListener);
         }
-    }
-    // Inner class access methods:
-    private void refreshKey0(Object key) {
-        refreshKey(key);
-    }
-    private Iterator getKeysIterator() {
-        return keys.iterator();
     }
     
     protected void removeNotify() {
@@ -113,7 +92,7 @@ public class PropSetKids extends Children.Keys {
             original.removePropertyChangeListener(pcListener);
             pcListener = null;
         }
-        setKeys0(Collections.EMPTY_SET);
+        setKeys(Collections.EMPTY_SET);
     }
     
     /** Create the node for this property.
@@ -155,7 +134,7 @@ public class PropSetKids extends Children.Keys {
         } else if (val.getClass().isArray()) {
             return makeCollectionNode(Collections.enumeration(Arrays.asList(Utilities.toObjectArray(val))));
         } else if (val instanceof Lookup) {
-            Node n = new LookupNode((Lookup)val);
+            Node n = LookupNode.localLookupNode((Lookup) val);
             n.setShortDescription("String value: `" + val + "'");
             n.setDisplayName(n.getDisplayName() + " (class " + val.getClass().getName() + ")");
             return n;
