@@ -68,7 +68,7 @@ public class ModuleXMLModel implements FileModel {
         buf.append (moduleName);
         buf.append ("\">\n");
         buf.append (indent);
-        buf.append ("<param name=\"eager\">false</param>\"\n");
+        buf.append ("<param name=\"eager\">false</param>\n");
         buf.append (indent);
         buf.append ("<param name=\"enabled\">true</param>\n");
         buf.append (indent);

@@ -220,6 +220,11 @@ public class Main {
             
             return f;
         }
+
+        public boolean cancel (Map m) {
+            System.exit(0);
+            return true;
+        }
     }
     
     private static final void outMap (Map wizardData) {
