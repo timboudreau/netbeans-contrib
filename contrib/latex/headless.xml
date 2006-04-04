@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                     Sun Public License Notice
+    
+     The contents of this file are subject to the Sun Public License
+     Version 1.0 (the "License"). You may not use this file except in
+     compliance with the License. A copy of the License is available at
+     http://www.sun.com/
+    
+     The Original Code is NetBeans. The Initial Developer of the Original
+     Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+     Microsystems, Inc. All Rights Reserved.
+   -->
+<project name="latex-build" default="rebuild" basedir=".">
+
+    <target name="checkout" depends="init">
+        <cvs cvsroot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
+        command="co -P latex"
+        dest=".."
+        quiet="true"
+        failonerror="true" />
+        <cvs cvsroot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
+        command="co -P contrib"
+        dest="${nb-root}"
+        quiet="true"
+        failonerror="true" />
+        <cvs cvsroot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
+        command="co -rrelease50 -P nbbuild lexer openide editor projects"
+        dest="${nb-root}"
+        quiet="true"
+        failonerror="true" />
+    </target>
+
+    <target name="get-netbeans" depends="init" unless="netbeans-platform-exists">
+        <mkdir dir="${nb-root}/nbbuild"/>
+        <echo>If the next step fails with &quot;java.net.UnknownHostException: www.netbeans.org&quot;, run ant with options &quot;-Dhttp.proxyHost=your.proxy.com -Dhttp.proxyPort=portnumber&quot;
+        </echo>
+        <get src="http://www.netbeans.org/download/5_0/fcs/200601251500/netbeans-5_0.zip"
+        dest="${nb-root}/nbbuild/netbeans-5_0.zip"
+        usetimestamp="true"/>
+        <get src="http://www.netbeans.org/download/5_0/fcs/200601251500/netbeans-5_0.zip.MD5"
+        dest="${nb-root}/nbbuild/netbeans-5_0.zip.MD5"
+        usetimestamp="true"/>
+    </target>
+
+    <target name="unpack-netbeans" depends="init,get-netbeans" unless="netbeans-platform-exists">
+        <delete dir="${nb-root}/nbbuild/netbeans"/>
+        <unzip src="${nb-root}/nbbuild/netbeans-5_0.zip" dest="${nb-root}/nbbuild"/>
+    </target>
+
+    <target name="init" depends="set-http-proxy">
+        <property name="nb-root" location="../platform" />
+        <mkdir dir="${nb-root}" />
+        <available property="netbeans-platform-exists" file="${nb-root}/nbbuild/netbeans"/>
+    </target>
+
+    <target name="build-full-platform" depends="unpack-netbeans,checkout">
+        <ant dir="${nb-root}/nbbuild" target="bootstrap" inheritall="false"/>
+        <ant dir="${nb-root}/contrib/fscompletion" inheritall="false" />
+        <ant dir="${nb-root}/contrib/editorhints/editorhighlights" inheritall="false" />
+        <ant dir="${nb-root}/lexer" inheritall="false" />
+        <ant dir="${nb-root}/lexer/editorbridge" inheritall="false" />
+    </target>
+
+    <target name="clean-full-platform" depends="init">
+        <subant buildpath="${nb-root}/contrib/fscompletion:${nb-root}/contrib/editorhints/editorhighlights:${nb-root}/lexer:${nb-root}/lexer/editorbridge" target="clean" inheritall="false" failonerror="false"/>
+    </target>
+
+    <target name="build" depends="init,build-full-platform">
+        <ant target="build-zip" inheritAll="false">
+            <property name="harness.dir" location="${nb-root}/nbbuild/netbeans/harness" />
+            <property name="netbeans.dest.dir" location="${nb-root}/nbbuild/netbeans" />
+        </ant>
+    </target>
+
+    <target name="clean-latex">
+        <subant buildpath="." target="clean" inheritall="false" failonerror="false">
+            <property name="harness.dir" location="${nb-root}/nbbuild/netbeans/harness" />
+            <property name="netbeans.dest.dir" location="${nb-root}/nbbuild/netbeans" />
+        </subant>
+    </target>
+
+    <target name="clean" depends="init,clean-latex,clean-full-platform">
+    </target>
+    
+    <target name="rebuild" depends="clean,build" />
+
+    <target name="check-http-proxy-props">
+      <condition property="is-http-proxy-set">
+          <and>
+              <isset property="http.proxyHost"/>
+              <isset property="http.proxyPort"/>
+          </and>
+      </condition>
+    </target>
+
+    <target name="set-http-proxy" depends="check-http-proxy-props" if="is-http-proxy-set">
+      <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}"/>
+    </target>
+
+</project>
