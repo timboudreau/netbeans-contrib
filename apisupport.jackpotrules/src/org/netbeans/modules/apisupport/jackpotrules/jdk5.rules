@@ -1,0 +1,73 @@
+$a.indexOf($b) == -1
+=>
+!$a.contains($b)
+::
+$a instanceof java.lang.String, $b instanceof java.lang.String;
+
+$a.indexOf($b) < 0
+=>
+!$a.contains($b)
+::
+$a instanceof java.lang.String, $b instanceof java.lang.String;
+
+$a.indexOf($b) != -1
+=>
+$a.contains($b)
+::
+$a instanceof java.lang.String, $b instanceof java.lang.String;
+
+$a.indexOf($b) >= 0
+=>
+$a.contains($b)
+::
+$a instanceof java.lang.String, $b instanceof java.lang.String;
+
+$a.indexOf($b) > -1
+=>
+$a.contains($b)
+::
+$a instanceof java.lang.String, $b instanceof java.lang.String;
+
+/*
+{
+    java.util.Iterator<$T> $it = $c.iterator();
+    while ($it.hasNext()) {
+        $T $e = $it.next();
+        $b$;
+    }
+}
+=>
+for ($T $e : $c) {
+    $b$;
+}
+::
+$c instanceof java.lang.Iterable;//, !uses($b$, $it)
+
+// XXX others similar, for nongenerified iterators...
+ */
+
+/*
+new java.lang.Integer($i) => $i ::
+!($i instanceof java.lang.String); // XXX how to check instanceof int?
+$i.intValue() => $i :: $i instanceof java.lang.Integer;
+java.lang.Boolean.TRUE => true;
+java.lang.Boolean.FALSE => true;
+$b.booleanValue() => $b :: $b instanceof java.lang.Boolean;
+java.lang.Boolean.valueOf($b) => $b :: !($b instanceof java.lang.String);
+ */
+
+/*
+java.lang.Class.getConstructor(null) => java.lang.Class.getConstructor();
+java.lang.Class.getConstructor(new java.lang.Class[] {$cs$}) => java.lang.Class.getConstructor($cs$);
+java.lang.Class.getMethod(null) => java.lang.Class.getMethod();
+java.lang.Class.getMethod(new java.lang.Class[] {$cs$}) => java.lang.Class.getMethod($cs$);
+java.lang.Class.getDeclaredConstructor(null) => java.lang.Class.getDeclaredConstructor();
+java.lang.Class.getDeclaredConstructor(new java.lang.Class[] {$cs$}) => java.lang.Class.getDeclaredConstructor($cs$);
+java.lang.Class.getDeclaredMethod(null) => java.lang.Class.getDeclaredMethod();
+java.lang.Class.getDeclaredMethod(new java.lang.Class[] {$cs$}) => java.lang.Class.getDeclaredMethod($cs$);
+java.lang.reflect.Constructor.newInstance(null) => java.lang.reflect.Constructor.newInstance();
+java.lang.reflect.Constructor.newInstance(new java.lang.Object[] {$os$}) => java.lang.reflect.Constructor.newInstance($os$);
+java.lang.reflect.Method.invoke($o, null) => java.lang.reflect.Method.invoke($o);
+java.lang.reflect.Method.invoke($o, new java.lang.Object[] {$os$}) => java.lang.reflect.Method.invoke($o, $os$);
+java.text.MessageFormat.format($p, new java.lang.Object[] {$os$}) => java.text.MessageFormat.format($p, $os$);
+*/

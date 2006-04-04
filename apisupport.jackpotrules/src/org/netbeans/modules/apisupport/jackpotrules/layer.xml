@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Jackpot">
+        <folder name="Rules">
+            <file name="ErrorManagerJackpot.rules" url="ErrorManagerJackpot.rules"/>
+            <!-- XXX should be somehow merged with the preceding one: -->
+            <file name="annotate-to-initcause.rules" url="annotate-to-initcause.rules"/>
+            <file name="jdk5.rules" url="jdk5.rules"/>
+            <file name="lookup-convenience.rules" url="lookup-convenience.rules"/>
+            <file name="resourcebundle2nbbundle.rules" url="resourcebundle2nbbundle.rules"/>
+        </folder>
+    </folder>
+    <!-- XXX delete after #74393 is fixed: -->
+    <folder name="Services">
+        <folder name="Jackpot">
+            <folder name="Transformers">
+                <file name="org-netbeans-modules-apisupport-jackpotrules-annotate-to-initcause.settings" url="nbres:/org/netbeans/modules/jackpot/resources/jackpotCommand.xml">
+                  <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jackpot/resources/refactoring.png"/>
+                  <attr name="name" stringvalue="ErrorManager.annotate -> Throwable.initCause"/>
+                  <attr name="command" stringvalue="/Jackpot/Rules/annotate-to-initcause.rules"/>
+                </file>
+                <file name="org-netbeans-modules-apisupport-jackpotrules-jdk5.settings" url="nbres:/org/netbeans/modules/jackpot/resources/jackpotCommand.xml">
+                  <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jackpot/resources/refactoring.png"/>
+                  <attr name="name" stringvalue="JDK 5 Miscellany"/>
+                  <attr name="command" stringvalue="/Jackpot/Rules/jdk5.rules"/>
+                </file>
+                <file name="org-netbeans-modules-apisupport-jackpotrules-lookup-convenience.settings" url="nbres:/org/netbeans/modules/jackpot/resources/jackpotCommand.xml">
+                  <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jackpot/resources/refactoring.png"/>
+                  <attr name="name" stringvalue="Use Lookup Convenience Methods"/>
+                  <attr name="command" stringvalue="/Jackpot/Rules/lookup-convenience.rules"/>
+                </file>
+                <file name="org-netbeans-modules-apisupport-jackpotrules-resourcebundle2nbbundle.settings" url="nbres:/org/netbeans/modules/jackpot/resources/jackpotCommand.xml">
+                  <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jackpot/resources/refactoring.png"/>
+                  <attr name="name" stringvalue="ResourceBundle -> NbBundle"/>
+                  <attr name="command" stringvalue="/Jackpot/Rules/resourcebundle2nbbundle.rules"/>
+                </file>
+                <file name="org-netbeans-modules-apisupport-jackpotrules-.settings" url="nbres:/org/netbeans/modules/jackpot/resources/jackpotCommand.xml">
+                  <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jackpot/resources/refactoring.png"/>
+                  <attr name="name" stringvalue="ErrorManager -> Logger"/>
+                  <attr name="command" stringvalue="/Jackpot/Rules/ErrorManagerJackpot.rules"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

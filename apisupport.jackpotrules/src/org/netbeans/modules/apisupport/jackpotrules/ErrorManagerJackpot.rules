@@ -1,0 +1,82 @@
+/*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+
+/*
+
+Uses http://jackpot.netbeans.org to convert certain usages of ErrorManager
+to logging. Still requires additional manual touches, but most of the work
+is done automatically.
+
+*/
+
+$err.getDefault().getInstance($name) => java.util.logging.Logger.getLogger($name)
+    :: $err instanceof org.openide.ErrorManager;
+$err.getDefault().notify($err.INFORMATIONAL, $throwable) =>
+        Logger.getAnonymousLogger().log(Level.WARNING, null, $throwable)
+    :: $err instanceof org.openide.ErrorManager;
+
+// "un-convert" the ErrorManager API that is still in use.
+$err.attachAnnotations($t, $arr) => ErrorManager.getDefault().attachAnnotations($t, $arr)
+    :: $err instanceof org.openide.ErrorManager;
+$err.annotate($t, $msg) => ErrorManager.getDefault().annotate($t, $msg)
+    :: $err instanceof org.openide.ErrorManager && $msg instanceof java.lang.String;
+$err.annotate($t, $throwable) => ErrorManager.getDefault().annotate($t, $throwable)
+    :: $err instanceof org.openide.ErrorManager && $throwable instanceof java.lang.Throwable;
+$err.annotate($t, $severity, $msg, $locMsg, $throwable, $date) =>
+        ErrorManager.getDefault().annotate($t, $severity, $msg, $locMsg, $throwable, $date)
+    :: $err instanceof org.openide.ErrorManager;
+$err.copyAnnotation($t, $throwable) => ErrorManager.getDefault().copyAnnotation($t, $throwable)
+    :: $err instanceof org.openide.ErrorManager && $throwable instanceof java.lang.Throwable;
+$err.findAnnotations($t) => ErrorManager.getDefault().findAnnotations($t)
+    :: $err instanceof org.openide.ErrorManager;
+$err.notify($throwable) => ErrorManager.getDefault().notify($throwable)
+    :: $err instanceof org.openide.ErrorManager && $throwable instanceof java.lang.Throwable;
+
+
+/*
+$err.getDefault() => java.util.logging.Level.getAnnonymousLogger() :: $err instanceof java.util.logging.Logger;
+$err.notify($err.INFORMATIONAL, $ex) => $err.log(Level.WARNING, null, $ex) :: $err instanceof java.util.logging.Logger;
+
+$err.INFORMATIONAL => java.util.logging.Level.WARNING :: $err instanceof java.util.logging.Logger;
+$err.USER => java.util.logging.Level.USER :: $err instanceof java.util.logging.Logger;
+$err.UNKNOWN => java.util.logging.Level.UNKNOWN :: $err instanceof java.util.logging.Logger;
+$err.EXCEPTION => java.util.logging.Level.SEVERE :: $err instanceof java.util.logging.Logger;
+$err.ERROR => java.util.logging.Level.SEVERE :: $err instanceof java.util.logging.Logger;
+*/
+
+$err.log($msg) => $err.log(Level.FINE, $msg)
+    :: $err instanceof org.openide.ErrorManager;
+
+$err.log($err.INFORMATIONAL, $msg) => $err.log(Level.FINE, $msg)
+    :: $err instanceof org.openide.ErrorManager;
+$err.log($err.USER, $msg) => $err.log(Level.INFO, $msg)
+    :: $err instanceof org.openide.ErrorManager;
+$err.log($err.EXCEPTION, $msg) => $err.log(Level.WARNING, $msg)
+    :: $err instanceof org.openide.ErrorManager;
+$err.log($err.ERROR, $msg) => $err.log(Level.SEVERE, $msg)
+    :: $err instanceof org.openide.ErrorManager;
+
+$err.isLoggable(org.openide.ErrorManager.INFORMATIONAL) => $err.isLoggable(Level.FINE)
+    :: $err instanceof org.openide.ErrorManager;
+$err.isLoggable(org.openide.ErrorManager.USER) => $err.isLoggable(Level.INFO)
+    :: $err instanceof org.openide.ErrorManager;
+$err.isLoggable(org.openide.ErrorManager.EXCEPTION) => $err.isLoggable(Level.WARNING)
+    :: $err instanceof org.openide.ErrorManager;
+$err.isLoggable(org.openide.ErrorManager.ERROR) => $err.isLoggable(Level.SEVERE)
+    :: $err instanceof org.openide.ErrorManager;
+
+// XXX should also convert
+// if ($err.isLoggable(INFORMATIONAL)) $err.log("message: " + param);
+// =>
+// $err.log(Level.FINE, "message: {0}", param);

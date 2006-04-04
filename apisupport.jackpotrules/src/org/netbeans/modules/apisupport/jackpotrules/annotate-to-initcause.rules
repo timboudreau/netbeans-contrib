@@ -1,0 +1,103 @@
+{ $before$;
+$E $nue = new $E($orig.getMessage());
+$ErrMgr.annotate($nue, $orig);
+throw $nue;
+}
+=>
+{ $before$;
+throw ($E) new $E($orig.toString()).initCause($orig);
+}
+::
+$E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
+    $ErrMgr instanceof org.openide.ErrorManager;
+
+{ $before$;
+$E $nue = new $E($orig.getLocalizedMessage());
+$ErrMgr.annotate($nue, $orig);
+throw $nue;
+}
+=>
+{ $before$;
+throw ($E) new $E($orig.toString()).initCause($orig);
+}
+::
+$E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
+    $ErrMgr instanceof org.openide.ErrorManager;
+
+{ $before$;
+$E $nue = new $E();
+$ErrMgr.annotate($nue, $orig);
+throw $nue;
+}
+=>
+{ $before$;
+throw ($E) new $E($orig.toString()).initCause($orig);
+}
+::
+$E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
+    $ErrMgr instanceof org.openide.ErrorManager;
+
+{ $before$;
+$E $nue = new $E($msg);
+$ErrMgr.annotate($nue, $orig);
+throw $nue;
+}
+=>
+{ $before$;
+throw ($E) new $E($msg).initCause($orig);
+}
+::
+$E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
+    $ErrMgr instanceof org.openide.ErrorManager, $msg instanceof java.lang.String;
+
+{ $before$;
+$E $nue = new $E($orig.getMessage());
+$ErrMgr.annotate($nue, $orig);
+return $nue;
+}
+=>
+{ $before$;
+return ($E) new $E($orig.toString()).initCause($orig);
+}
+::
+$E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
+    $ErrMgr instanceof org.openide.ErrorManager;
+
+{ $before$;
+$E $nue = new $E($orig.getLocalizedMessage());
+$ErrMgr.annotate($nue, $orig);
+return $nue;
+}
+=>
+{ $before$;
+return ($E) new $E($orig.toString()).initCause($orig);
+}
+::
+$E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
+    $ErrMgr instanceof org.openide.ErrorManager;
+
+{ $before$;
+$E $nue = new $E();
+$ErrMgr.annotate($nue, $orig);
+return $nue;
+}
+=>
+{ $before$;
+return ($E) new $E($orig.toString()).initCause($orig);
+}
+::
+$E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
+    $ErrMgr instanceof org.openide.ErrorManager;
+
+{ $before$;
+$E $nue = new $E($msg);
+$ErrMgr.annotate($nue, $orig);
+return $nue;
+}
+=>
+{ $before$;
+return ($E) new $E($msg).initCause($orig);
+}
+::
+$E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
+    $ErrMgr instanceof org.openide.ErrorManager, $msg instanceof java.lang.String;
