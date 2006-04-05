@@ -73,6 +73,13 @@
         </ant>
     </target>
 
+    <target name="test" depends="init,build-full-platform,build">
+        <ant target="test" inheritAll="false">
+            <property name="harness.dir" location="${nb-root}/nbbuild/netbeans/harness" />
+            <property name="netbeans.dest.dir" location="${nb-root}/nbbuild/netbeans" />
+        </ant>
+    </target>
+
     <target name="clean-latex">
         <subant buildpath="." target="clean" inheritall="false" failonerror="false">
             <property name="harness.dir" location="${nb-root}/nbbuild/netbeans/harness" />
@@ -83,7 +90,7 @@
     <target name="clean" depends="init,clean-latex,clean-full-platform">
     </target>
     
-    <target name="rebuild" depends="clean,build" />
+    <target name="rebuild" depends="clean,build,test" />
 
     <target name="check-http-proxy-props">
       <condition property="is-http-proxy-set">
