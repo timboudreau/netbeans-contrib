@@ -44,13 +44,14 @@
         <makeupdatedesc desc="${build.updates.dir}/updates_1.15.xml">
             <group name="LaTeX">
                 <fileset casesensitive="yes" dir="${build.updates.dir}">
-                    <include name="*feature*.nbm"/>
+                    <include name="org-netbeans-modules-latex-feature.nbm"/>
                 </fileset>
             </group>
             <group name="Libraries">
                 <fileset casesensitive="yes" dir="${build.updates.dir}">
                     <include name="*.nbm" />
-                    <exclude name="*feature*"/>
+                    <exclude name="org-netbeans-modules-latex-feature.nbm"/>
+                    <exclude name="org-netbeans-modules-latex-auc.nbm"/>
                 </fileset>
             </group>
         </makeupdatedesc>

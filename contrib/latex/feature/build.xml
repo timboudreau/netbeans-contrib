@@ -16,5 +16,5 @@
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="org.netbeans.modules.latex.feature" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.latex.feature.</description>
-    <import file="nbproject/build-impl.xml"/>
+    <import file="../module-support.xml"/>
 </project>
