@@ -20,7 +20,7 @@
         quiet="true"
         failonerror="true" />
         <cvs cvsroot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
-        command="co -P contrib"
+        command="co -P contrib/editorhints/editorhighlights contrib/fscompletion"
         dest="${nb-root}"
         quiet="true"
         failonerror="true" />
@@ -74,10 +74,10 @@
     </target>
 
     <target name="test" depends="init,build-full-platform,build">
-        <ant target="test" inheritAll="false">
+<!--        <ant target="test" inheritAll="false">
             <property name="harness.dir" location="${nb-root}/nbbuild/netbeans/harness" />
             <property name="netbeans.dest.dir" location="${nb-root}/nbbuild/netbeans" />
-        </ant>
+        </ant>-->
     </target>
 
     <target name="clean-latex">
