@@ -111,7 +111,7 @@ public final class ExportAction extends CookieAction {
 
         if (wd.FINISH_OPTION == wd.getValue()) {
             try {
-                createFiles(clazz, wd, target);
+                createFiles(clazz.getName(), wd, target);
             } catch (IOException ex) {
                 ErrorManager.getDefault().notify(ex);
             }
@@ -119,28 +119,35 @@ public final class ExportAction extends CookieAction {
     }
 
     @SuppressWarnings("unchecked")
-    private void createFiles(final JavaClass clazz, final WizardDescriptor wd, final FileObject target) throws IOException, FileNotFoundException {
-        // lets apply the files
+    private static void createFiles(String implName, WizardDescriptor wd, FileObject target)
+    throws IOException, FileNotFoundException {
         List<String> files = (List<String>)wd.getProperty("files"); // NOI18N
+        createFiles(implName, files, target);
+    }
+
+    static void createFiles(String implName, List<String> files, FileObject target)
+    throws IOException, FileNotFoundException {
+        // lets apply the files
         for (String s : files) {
             FileObject f = FileUtil.createData(target, s);
             byte[] exist = new byte[(int)f.getSize()];
             InputStream is = f.getInputStream();
             int len = is.read(exist);
             is.close();
-            assert len == exist.length;
+            //assert len == exist.length;
 
             String content = new String(exist);
             if (content.length() > 0 && !content.endsWith("\n")) { // NOI18N
                 content = content + "\n"; // NOI18N
             }
 
-            content = content + clazz.getName() + "\n"; // NOI18N
+            content = content + implName + "\n"; // NOI18N
 
             FileLock lock = f.lock();
             OutputStream os = f.getOutputStream(lock);
             os.write(content.getBytes());
             os.close();
+            lock.releaseLock();
         }
     }
 
