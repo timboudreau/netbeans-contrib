@@ -197,6 +197,9 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
     
     /** Returns true if target is available in build script. */
     private static boolean targetExists(FileObject buildXml, String targetName) {
+        if(buildXml == null) {
+            return false;
+        }
         DataObject d = null;
         try {
             d = DataObject.find(buildXml);
