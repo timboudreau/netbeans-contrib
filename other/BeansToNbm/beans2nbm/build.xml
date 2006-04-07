@@ -12,6 +12,17 @@
         <echo message="Merging wizard.jar"/>
         <unjar src="${wizard-jar-loc}" dest="build/classes" overwrite="true"/>
     </target>
+    
+    <target name="build-libgen" description="Build library generator w/o bean selection page">
+        <property name="main.class" value="beans2nbm.LibGenMain"/>
+        <property name="dist.jar" value="dist/jar2nbm.jar"/>
+        <antcall inheritall="true" inheritrefs="true" target="jar"/>
+    </target>
+    
+    <target name="run-libgen" depends="build-libgen" description="Run the library generator">
+        <java jar="dist/jar2nbm.jar" fork="true"/>
+    </target>
+    
     <!--
 
     There exist several targets which are by default empty and which can be 

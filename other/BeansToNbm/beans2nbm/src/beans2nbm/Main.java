@@ -54,11 +54,7 @@ public class Main {
     public Main() {
     }
     
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-
+    static void setLookAndFeel() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (InstantiationException ex) {
@@ -70,13 +66,19 @@ public class Main {
         } catch (UnsupportedLookAndFeelException ex) {
             ex.printStackTrace();
         }
-
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
         if (args.length > 0 && "reset".equals(args[0])) {
             Preferences.userNodeForPackage(
                     InstructionsPage.class).putBoolean(
                     InstructionsPage.KEY_SHOW_INSTRUCTIONS, true);
         }
         
+        setLookAndFeel();
         Class[] pages = InstructionsPage.shouldShowInstructions() ?
             new Class[] {
                 InstructionsPage.class,
@@ -93,6 +95,10 @@ public class Main {
                 OutputLocationPage.class,
         };
         
+        go (pages);
+    }
+    
+    public static void go (Class[] pages) {
         Wizard wiz = WizardPage.createWizard(pages, new WRP());
         File f = (File) WizardDisplayer.showWizard (wiz);
         if (f != null) {
@@ -193,17 +199,18 @@ public class Main {
                 module.addFileEntry(libDesc);
                 module.addFileDisplayName("org-netbeans-api-project-libraries/Libraries/" + companyNameUnderscores + ".xml", displayName);
                 module.addFileDisplayName(companyNameUnderscores, displayName);
-
-                for (Iterator i=jarInfo.getBeans().iterator(); i.hasNext();) {
-                    String pathInBeanJar = (String) i.next();
-                    BeanItem bi = new BeanItem (pathInBeanJar);
-                    String beanClassName = bi.getClassName();
-                    String beanSimpleName = bi.getSimpleName();
-                    String paletteItemPathInLayer = "FormDesignerPalette/" + companyNameUnderscores + "/" + beanSimpleName + ".palette_item";
-                    PaletteItemFileModel palMdl = new PaletteItemFileModel (codeNameSlashes + "/" + beanSimpleName + "_paletteItem.xml", companyNameUnderscores, beanClassName);
-                    module.addFileEntry(palMdl);
-                    layer.addBeanEntry(companyNameUnderscores, beanSimpleName);
-                    module.addFileDisplayName (paletteItemPathInLayer, beanClassName);
+                if (jarInfo != null) {
+                    for (Iterator i=jarInfo.getBeans().iterator(); i.hasNext();) {
+                        String pathInBeanJar = (String) i.next();
+                        BeanItem bi = new BeanItem (pathInBeanJar);
+                        String beanClassName = bi.getClassName();
+                        String beanSimpleName = bi.getSimpleName();
+                        String paletteItemPathInLayer = "FormDesignerPalette/" + companyNameUnderscores + "/" + beanSimpleName + ".palette_item";
+                        PaletteItemFileModel palMdl = new PaletteItemFileModel (codeNameSlashes + "/" + beanSimpleName + "_paletteItem.xml", companyNameUnderscores, beanClassName);
+                        module.addFileEntry(palMdl);
+                        layer.addBeanEntry(companyNameUnderscores, beanSimpleName);
+                        module.addFileDisplayName (paletteItemPathInLayer, beanClassName);
+                    }
                 }
                 module.addFileDisplayName(codeNameSlashes + "/" + companyNameUnderscores, displayName);
                 
