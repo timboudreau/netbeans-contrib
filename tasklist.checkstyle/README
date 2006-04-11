@@ -1,15 +1,6 @@
 This module provides integration with the Checkstyle library,
 available from checkstyle.sf.net.
 
-Due to licensing issues, those bits are not hosted here,
-so you'll need to download it yourself, and locate
-checkstyle-X.X.jar inside the installation, then
-copy it into the "tasklist/external/checkstyle.jar" directory.
-
-You must also copy into the "tasklist/external" directory antlr.jar,
-commons-beanutils-core.jar, commons-cli.jar, and commons-collections.jar.
-These are also found in the checkstyle download.
-
 You should also place the checkstyle configuration
 file you want to use, for example
   checkstyle-X.X/contrib/examples/conf/BlochEffectiveJava.xml
