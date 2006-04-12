@@ -156,7 +156,10 @@ public final class ExportAction extends CookieAction {
             return;
         }
 
-        all.add(clazz.getName());
+        String n = clazz.getName();
+        if (!all.contains(n)) {
+            all.add(n);
+        }
 
         findInterfaces(clazz.getSuperClass(), all);
 
