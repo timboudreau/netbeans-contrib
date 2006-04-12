@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.snapshots
+OpenIDE-Module-Layer: org/netbeans/modules/snapshots/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/snapshots/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
