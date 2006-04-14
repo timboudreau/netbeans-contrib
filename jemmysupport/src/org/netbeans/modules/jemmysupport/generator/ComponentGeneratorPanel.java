@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -141,6 +141,12 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     }
     
     private Node createPackagesNode(Node[] nodes) {
+        if(nodes.length == 0) {
+            // no project opened => create a dummy node with message "Please, close the dialog and select a project."
+            Node node = new AbstractNode(Children.LEAF);
+            node.setDisplayName(NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_SelectProjectNode")); // NOI18N
+            return node;
+        }
         Project project = (Project)nodes[0].getLookup().lookup(Project.class);
         if(project == null) {
             // no project root node is selected
@@ -438,7 +444,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
      * @param args command line arguments
      */
     public static void main(String args[]) {
-        showDialog(null);
+        showDialog(new Node[0]);
     }
     
     /** Invoked when an action occurs.
