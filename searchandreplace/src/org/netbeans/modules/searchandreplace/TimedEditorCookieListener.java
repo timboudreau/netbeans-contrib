@@ -108,9 +108,11 @@ class TimedEditorCookieListener implements LookupListener, ActionListener, Runna
         if (panes != null && panes.length > 0) {
             try {
                 Rectangle r = panes[0].modelToView(loc);
-                panes[0].scrollRectToVisible(r);
-                panes[0].setSelectionStart(loc);
-                panes[0].setSelectionEnd(end);
+                if (r != null) {
+                    panes[0].scrollRectToVisible(r);
+                    panes[0].setSelectionStart(loc);
+                    panes[0].setSelectionEnd(end);
+                }
             } catch (BadLocationException ex) {
                 ErrorManager.getDefault().notify (
                         ErrorManager.INFORMATIONAL, ex);
