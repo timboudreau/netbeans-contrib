@@ -42,8 +42,11 @@ import org.openide.explorer.view.ListView;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -65,6 +68,7 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
     
     private JComboBox projectsCombo;
     private ItemListener itemListener;
+    private LookupProvider lookProvider;
     
     private BluejViewTopComponent() {
         manager = new ExplorerManager();
@@ -86,7 +90,11 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
             }
         };
         add(view, BorderLayout.CENTER);
-        associateLookup( ExplorerUtils.createLookup(manager, map) );
+        lookProvider = new LookupProvider();
+        associateLookup( new ProxyLookup(new Lookup[] {
+            ExplorerUtils.createLookup(manager, map),
+            Lookups.proxy(lookProvider)
+        }));
         JPanel toolbarPanel = new JPanel();
         upButton = new JButton("Up");
         upButton.addActionListener(new ActionListener() {
@@ -140,9 +148,11 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
             // if it's not in the list of opened projects we probably are closing multiple projects as once (or shutting down)
             OpenProjects.getDefault().setMainProject(project);
             BluejLogicalViewProvider provider = (BluejLogicalViewProvider) project.getLookup().lookup(BluejLogicalViewProvider.class);
+            lookProvider.setLookup(Lookups.singleton(project));
             manager.setRootContext(provider.getBigIconRootNode());
         } else {
             manager.setRootContext(new AbstractNode(Children.LEAF));
+            lookProvider.setLookup(Lookup.EMPTY);
         }
     }
     
@@ -219,5 +229,18 @@ final class BluejViewTopComponent extends TopComponent implements ExplorerManage
         public Object readResolve() {
             return BluejViewTopComponent.getDefault();
         }
+    }
+
+    final class LookupProvider implements Lookup.Provider {
+
+        private Lookup lookup;
+
+        public void setLookup(Lookup lkp) {
+            lookup = lkp;
+        }
+        public Lookup getLookup() {
+            return lookup == null ? Lookup.EMPTY : lookup;
+        }
+
     }
 }
