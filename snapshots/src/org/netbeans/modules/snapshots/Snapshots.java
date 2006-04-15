@@ -289,7 +289,9 @@ public class Snapshots {
                 if (ob != null) {
                     FileObject prjFolder = ob.getPrimaryFile();
                     Project prj = FileOwnerQuery.getOwner(prjFolder);
-                    prjsToOpen.add (prj);
+                    if (prj != null) {
+                        prjsToOpen.add (prj);
+                    }
                 }
             }
 

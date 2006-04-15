@@ -18,6 +18,7 @@ import java.awt.event.ActionListener;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -25,6 +26,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -50,10 +52,11 @@ public class SnapshotAction extends AbstractAction implements Presenter.Toolbar,
         throw new UnsupportedOperationException();
     }
 
-    private JComboBox combo = null;
+    private JPopupMenu popup = null;
+    private JButton button = null;
     public Component getToolbarPresenter() {
         refresh();
-        return combo;
+        return button;
     }
 
     private JMenu menu = null;
@@ -62,7 +65,6 @@ public class SnapshotAction extends AbstractAction implements Presenter.Toolbar,
         return menu;
     }
 
-    private JPanel pnl;
     private boolean inRefresh = false;
     private void refresh() {
         if (running) {
@@ -78,17 +80,14 @@ public class SnapshotAction extends AbstractAction implements Presenter.Toolbar,
             } else {
                 menu.removeAll();
             }
-            if (combo == null) {
-                combo = new JComboBox();
-                combo.setRenderer(new R());
+            if (popup == null) {
+                popup = new JPopupMenu();
+            } else {
+                popup.removeAll();
             }
-            if (pnl == null) {
-                pnl = new JPanel();
-                pnl.setLayout (new BorderLayout());
-                pnl.add (new JLabel (NbBundle.getMessage(SnapshotAction.class,
-                        "LBL_SnapshotsToolbar")), BorderLayout.LINE_START);
-                pnl.add (combo, BorderLayout.LINE_END);
-                pnl.setBorder (new EmptyBorder (5, 5, 5, 5));
+            if (button == null) {
+                button = new JButton ("Snapshot");
+                button.addActionListener (al);
             }
 
             String[] names = Snapshots.getNames();
@@ -100,7 +99,11 @@ public class SnapshotAction extends AbstractAction implements Presenter.Toolbar,
                     JMenuItem item = new JMenuItem (names[i]);
                     item.addActionListener(al);
                     menu.add (item);
+                    item = new JMenuItem (names[i]);
+                    item.addActionListener(al);
+                    popup.add (item);
                 }
+                popup.add (new JSeparator());
                 menu.add (new JSeparator());
             }
             JMenuItem createItem = new JMenuItem (al.toString());
@@ -108,13 +111,11 @@ public class SnapshotAction extends AbstractAction implements Presenter.Toolbar,
             createItem.addActionListener(al);
             menu.add (createItem);
 
-            Object[] o = new Object [ names.length + 1 ];
+            createItem = new JMenuItem (al.toString());
+            createItem.putClientProperty (CREATE, al.toString());
+            createItem.addActionListener(al);
+            popup.add (createItem);
 
-            System.arraycopy(names, 0, o, 0, names.length);
-            o[o.length - 1] = al;
-            DefaultComboBoxModel mdl = new DefaultComboBoxModel (o);
-            combo.setModel (mdl);
-            combo.addActionListener(al);
         } finally {
             inRefresh = false;
         }
@@ -155,6 +156,9 @@ public class SnapshotAction extends AbstractAction implements Presenter.Toolbar,
                     return;
                 }
                 name = item.getText();
+            } else if (e.getSource() instanceof JButton) {
+                popup.show(button, 0, button.getHeight());
+                return;
             } else {
                 throw new IllegalArgumentException (e.getSource().toString());
             }
