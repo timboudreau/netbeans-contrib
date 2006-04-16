@@ -73,6 +73,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     private int port;
     // Target config selected by the user for deployment
     private Target defaultTarget;
+    
+    // debug-jvm-option value in the server.xml of the default config.
+    private String debugOptions;
+    private boolean isDebugModeEnabled;
 
     
     /** Creates a new instance of WS70SunDeploymentManager */
@@ -418,27 +422,24 @@ public class WS70SunDeploymentManager implements DeploymentManager{
  
 
     // Extended methods
-   public boolean startServer(String configName){
+   public void startServer(String configName) throws Exception{
         try{
             Method startServer = dmClass.getDeclaredMethod("startServer", new Class[]{String.class}); //NOI18N
-            Boolean retVal = (Boolean)startServer.invoke(this.ws70DM, new Object[]{configName});
-            return retVal.booleanValue();
-            
+            Boolean retVal = (Boolean)startServer.invoke(this.ws70DM, new Object[]{configName});            
         }catch(Exception ex){
             ex.printStackTrace();
-        }        
-        return false;
+            throw ex;            
+        }                
    }
-   public boolean stopServer(String configName){
+   public void stopServer(String configName) throws Exception {
         try{
             Method stopServer = dmClass.getDeclaredMethod("stopServer", new Class[]{String.class});//NOI18N
-            Boolean retVal = (Boolean)stopServer.invoke(this.ws70DM, new Object[]{configName});
-            return retVal.booleanValue();
+            Boolean retVal = (Boolean)stopServer.invoke(this.ws70DM, new Object[]{configName});            
             
-        }catch(Exception ex){
+        }catch(Exception ex){            
             ex.printStackTrace();
-        }        
-        return false;
+            throw ex;
+        }                
    }
 
     public List getJVMOptions(String configName, Boolean debugOptions, String profilerName){
@@ -474,8 +475,40 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             return false;
         }                 
     }
-    public boolean changeDebugStatus(String configName, boolean enableDisable){
-        return true;
+    public void changeDebugStatus(String configName, 
+                                  boolean enableDisable) throws Exception{
+        try{
+            Method changeDebugStatus = dmClass.getDeclaredMethod("changeDebugStatus", new Class[]{String.class, boolean.class});//NOI18N
+            changeDebugStatus.invoke(this.ws70DM, new Object[]{configName, Boolean.valueOf(enableDisable)});
+        }catch(Exception ex){
+            ex.printStackTrace();
+            throw ex;
+        }
+        deployAndReconfig(configName);
+    }
+   // debug-jvm-option string in the server.xml
+    public String getDebugOptions(){                
+        return this.debugOptions;
+    }
+    // debug-jvm-option string in the server.xml
+    public void setDebugOptions(String debugString){                
+        this.debugOptions = debugString;
+    }
+    public boolean isDebugModeEnabled(){
+        return this.isDebugModeEnabled;
+    }
+    public void setDebugModeEnabled(boolean debugMode){
+        isDebugModeEnabled  = debugMode;
+    }    
+    public String getNodeNameForTarget(Target target){        
+        try{
+            String configName = this.getConfigNameFromTarget(target);
+            Method getNodeName = dmClass.getDeclaredMethod("getNodeName", new Class[]{String.class});
+            return (String)getNodeName.invoke(this.ws70DM, new Object[]{configName});            
+        }catch(Exception ex){
+            ex.printStackTrace(); 
+        }        
+        return null;
     }
     public boolean changeAppProfilerStatus(String configName, boolean enableDisable){
         return true;

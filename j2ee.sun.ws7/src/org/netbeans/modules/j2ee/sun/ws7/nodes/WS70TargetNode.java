@@ -104,13 +104,18 @@ public class WS70TargetNode extends AbstractNode implements Node.Cookie{
     public boolean isRunning(){
         return manager.isRunning(configName);
     }
-    public boolean startTarget(){
-        boolean retVal = manager.startServer(configName);
-        invokeLogViewer();
-        return retVal;
+    public void startTarget(){
+        try{
+            manager.startServer(configName);
+        }catch(Exception ex){            
+        }
+        invokeLogViewer();        
     }
-    public boolean stopTarget(){
-        return manager.stopServer(configName);        
+    public void stopTarget(){
+        try{
+            manager.stopServer(configName);
+        }catch(Exception ex){            
+        }
     }
     public void invokeLogViewer(){
         String location = manager.getServerLocation();

@@ -39,6 +39,13 @@ public interface Constants {
     static final String[] READ_ONLY_PROPS_RESOURCES = {"jndi-name"}; // NOI18N
     static final String[] READ_ONLY_PROPS_APPS = {"uri", "path"}; // NOI18N
     static final String RES_PROPERTY="property";
-    static final String JDBC_RES_CONN_CREATION_PROPERTY="connection-creation-property";
-    static final String JDBC_RES_CONN_LEASE_PROPERTY="connection-lease-property";
+    static final String JDBC_RES_CONN_CREATION_PROPERTY="connection-creation-property";// NOI18N
+    static final String JDBC_RES_CONN_LEASE_PROPERTY="connection-lease-property";// NOI18N
+    
+    static final String JVM_DEBUG="debug";// NOI18N
+    static final String JVM_DEBUG_OPTION="debug-jvm-options";// NOI18N
+    static final String DEBUG_OPTIONS_ADDRESS = "address="; //NOI18N      
+    static final String ISSHMEM = "transport=dt_shmem"; //NOI18N
+    static final String ISDTSOCKET = "transport=dt_socket"; //NOI18N    
+    
 }

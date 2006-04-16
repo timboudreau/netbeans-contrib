@@ -41,9 +41,13 @@ import javax.enterprise.deploy.shared.StateType;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
 import org.netbeans.modules.j2ee.sun.ws7.util.ProgressEventSupport;
 import org.netbeans.modules.j2ee.sun.ws7.util.Status;
+import org.netbeans.modules.j2ee.sun.ws7.Constants;
 import org.openide.util.RequestProcessor;
 
 import java.io.File;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
  /*
  * @author Mukesh Garg
  */
@@ -53,6 +57,7 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
     private ProgressEventSupport pes;    
     private WS70CommandType cmdType;
     private Target target;
+    private static Map isDebugModeConfig = Collections.synchronizedMap((Map)new HashMap(2,1));
     
     public WS70StartServer(DeploymentManager dm) {
         this.dm = (WS70SunDeploymentManager)dm;
@@ -84,16 +89,12 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
     
     
     /**
-     * Starts the admin server. Note that this means that the DeploymentManager
-     * was originally created disconnected. After calling this, the DeploymentManager
-     * will be created connected, so the old DeploymentManager will be discarded.
-     * This has the result that any unsaved changes in edited server configurations
-     * need to be saved or discarded, requiring user prompting.  All diagnostic
-     * should be communicated through ServerProgres with no exceptions thrown.
+     * Starts the admin server. All diagnostic should be communicated
+     * through ServerProgres with no exceptions thrown.
      *
      * @return ProgressObject object used to monitor start server progress
      */
-    public ProgressObject startDeploymentManager() {        
+    public ProgressObject startDeploymentManager() {         
         if(dm.isLocalServer()){
             cmdType = WS70CommandType.START;
             pes.fireHandleProgressEvent(null,
@@ -110,7 +111,7 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
     
 
     /**
-     * Stops the admin server. The DeploymentManager object will be disconnected.
+     * Stops the admin server.
      * All diagnostic should be communicated through ServerProgres with no
      * exceptions thrown.
      * @return ServerProgress object used to monitor start server progress
@@ -180,52 +181,118 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
     /**
      * Returns true if this target is in debug mode.
      */
-    public boolean isDebuggable(Target target) {        
-        return false;
+    public boolean isDebuggable(Target t) {        
+        if(t==null){
+            return false;
+        }
+        String config = null;
+        try{
+            config = this.getConfigNameFromTarget(t);
+        }catch(Exception ex){            
+            ex.printStackTrace();
+            return false;
+        }
+        if(!isDebugModeConfig.containsKey(dm.getHost()+dm.getPort()+config)){
+            return false;
+        }
+        
+        if(!dm.isRunning(config)){
+            isDebugModeConfig.remove(dm.getHost()+dm.getPort()+config);
+            return false;
+        }
+        return true;
     }
     
     
     /**
      * Start or restart the target in debug mode.
-     * If target is also domain admin, the amdin is restarted in debug mode.
+     * 
      * All diagnostic should be communicated through ServerProgres with no exceptions thrown.
      * @param target the target server
      * @return ServerProgress object to monitor progress on start operation
      */
-    public ProgressObject startDebugging(Target target) {        
+    public ProgressObject startDebugging(Target t) {        
+         if(t!=null){
+            this.target = t;
+            cmdType = WS70CommandType.STARTTARGETDEBUG;
+            pes.fireHandleProgressEvent(null,
+                                    new Status(ActionType.EXECUTE, CommandType.START,
+                                               NbBundle.getMessage(WS70StartServer.class, "MSG_STARTING_TARGET_SERVER_DEBUG"),
+                                               StateType.RUNNING));
+            
+            RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY);
+            String config = null;
+            try{
+                config = this.getConfigNameFromTarget(t);
+            }catch(Exception ex){            
+                ex.printStackTrace();                
+            }            
+            isDebugModeConfig.put(dm.getHost()+dm.getPort()+config, new Object());
+            return this;            
+        }        
         return null;
     }
     
 
     /**
      * Returns the host/port necessary for connecting to the server's debug information.
-     */
-    // PENDING use JpdaDebugInfo from debuggercore
+     */    
     
-    public ServerDebugInfo getDebugInfo(Target target) {       
-        
-        return new ServerDebugInfo("localhost", 18080);
-    }
-    
-    
-    public boolean isRunning(Target target){        
-        if(target==null){
-            return true;
+    public ServerDebugInfo getDebugInfo(Target t) {        
+        if(t==null){
+            return null;
         }
         String uri = ((WS70SunDeploymentManager)dm).getUri();
         this.dm = org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentFactory.getConnectedCachedDeploymentManager(uri);        
-        try{
-            java.lang.reflect.Method getConfigName = target.getClass().getDeclaredMethod("getConfigName", new Class[]{});
-            String configName = (String)getConfigName.invoke(target, new Object[]{});            
-            return ((WS70SunDeploymentManager)dm).isRunning(configName);
-        }catch(Exception ex){
-            ex.printStackTrace();   
+        String debugOptions = this.dm.getDebugOptions();
+        if(debugOptions==null){
+            ErrorManager.getDefault().log(
+                    ErrorManager.ERROR, NbBundle.getMessage(WS70StartServer.class, "ERR_DEBUG_OPTIONS_NULL"));
+            return null;
         }        
+        String nodeName = dm.getNodeNameForTarget(t);
+        String address = debugOptions.substring(debugOptions.indexOf(Constants.DEBUG_OPTIONS_ADDRESS)+Constants.DEBUG_OPTIONS_ADDRESS.length(), debugOptions.length());
+        int hasMore = address.indexOf("]"); //NOI18N
+        if(hasMore != -1){ 
+            address = address.substring(0, hasMore);
+        }
+        if(debugOptions.indexOf(Constants.ISDTSOCKET)!=-1){            
+            int debugport = -1;
+            try{
+                debugport = Integer.parseInt(address.trim());
+            }catch(NumberFormatException ex){
+                ErrorManager.getDefault().log(
+                    ErrorManager.ERROR, NbBundle.getMessage(WS70StartServer.class, "ERR_DTSOCKET_PORT_INVALID"));
+                return null;
+            }
+            return new ServerDebugInfo(nodeName, debugport);
+        }else if(debugOptions.indexOf(Constants.ISSHMEM)!=-1){            
+            return new ServerDebugInfo(nodeName, address.trim());
+        }else{
+            ErrorManager.getDefault().log(
+                    ErrorManager.ERROR, NbBundle.getMessage(WS70StartServer.class, "ERR_UNKNOW_DEBUG_OPTION"));
+            return null;
+        }
+    }
+    
+    
+    public boolean isRunning(Target t){        
+        if(t==null){
+            return true;
+        }        
+        String uri = ((WS70SunDeploymentManager)dm).getUri();
+        this.dm = org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentFactory.getConnectedCachedDeploymentManager(uri);
+        try{
+            String configName = this.getConfigNameFromTarget(t);
+            return ((WS70SunDeploymentManager)dm).isRunning(configName);        
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
         return true;
     }
-    public ProgressObject startTarget(Target target){        
-        if(target!=null){
-            this.target = target;
+    public ProgressObject startTarget(Target t){         
+        if(t!=null){
+            this.target = t;
             cmdType = WS70CommandType.STARTTARGET;
             pes.fireHandleProgressEvent(null,
                                     new Status(ActionType.EXECUTE, CommandType.START,
@@ -233,13 +300,20 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
                                                StateType.RUNNING));
             
             RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY);
+            String config = null;
+            try{
+                config = this.getConfigNameFromTarget(t);
+            }catch(Exception ex){            
+                ex.printStackTrace();                
+            }            
+            isDebugModeConfig.remove(dm.getHost()+dm.getPort()+config);
             return this;            
         }        
         return null;
     }   
-    public ProgressObject stoptTarget(Target target){        
-        if(target!=null){
-            this.target = target;
+    public ProgressObject stoptTarget(Target t){            
+        if(t!=null){
+            this.target = t;
             cmdType = WS70CommandType.STOPTARGET;
             pes.fireHandleProgressEvent(null,
                                     new Status(ActionType.EXECUTE, CommandType.START,
@@ -247,16 +321,30 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
                                                StateType.RUNNING));
             
             RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY);
+            String config = null;
+            try{
+                config = this.getConfigNameFromTarget(t);
+            }catch(Exception ex){            
+                ex.printStackTrace();                
+            }            
+            isDebugModeConfig.remove(dm.getHost()+dm.getPort()+config);
             return this;            
         }        
         return null;    
     }   
-    public boolean supportsStartTarget(Target target){        
-        if(target==null){
+    public boolean supportsStartTarget(Target t){        
+        if(t==null){
             return false;
         }
         return true;
     }
+    public boolean supportsStartDebugging(Target t){        
+        if(t==null){
+            return false;
+        }
+        return true;
+    }
+      
     // Ruunable run implementation
     public synchronized void run(){
         if (cmdType.equals(WS70CommandType.START)) {            
@@ -264,14 +352,14 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
                 runProcess(makeProcessString("start"), true); //NO I18N
                 this.viewAdminLogs();
                 pes.fireHandleProgressEvent(null,
-                                        new Status(ActionType.EXECUTE, cmdType,
-                                                   NbBundle.getMessage(WS70StartServer.class, "MSG_ADMIN_SERVER_STARTED"),
-                                                   StateType.COMPLETED));
+                                new Status(ActionType.EXECUTE, cmdType,
+                                           NbBundle.getMessage(WS70StartServer.class, "MSG_ADMIN_SERVER_STARTED"),
+                                           StateType.COMPLETED));
             }catch(Exception ex){
                 pes.fireHandleProgressEvent(null,
-                                        new Status(ActionType.EXECUTE, cmdType,
-                                                   ex.getLocalizedMessage(), 
-                                                   StateType.FAILED));
+                                new Status(ActionType.EXECUTE, cmdType,
+                                           ex.getLocalizedMessage(), 
+                                           StateType.FAILED));
 
             }
         } else if(cmdType.equals(WS70CommandType.STOP)) {            
@@ -279,9 +367,85 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
                 runProcess(makeProcessString("stop"), true); //NO I18N
                 this.viewAdminLogs();
                 pes.fireHandleProgressEvent(null,
-                                        new Status(ActionType.EXECUTE, cmdType,
-                                                   NbBundle.getMessage(WS70StartServer.class, "MSG_ADMIN_SERVER_STOPPED"),
-                                                   StateType.COMPLETED));
+                                new Status(ActionType.EXECUTE, cmdType,
+                                           NbBundle.getMessage(WS70StartServer.class, "MSG_ADMIN_SERVER_STOPPED"),
+                                           StateType.COMPLETED));
+            }catch(Exception ex){
+                pes.fireHandleProgressEvent(null,
+                                new Status(ActionType.EXECUTE, cmdType,
+                                           ex.getLocalizedMessage(), 
+                                           StateType.FAILED));
+
+            }
+        }else if(cmdType.equals(WS70CommandType.STARTTARGET)) {                        
+            try{                
+                String configName = this.getConfigNameFromTarget(target); 
+                dm.startServer(configName);
+                pes.fireHandleProgressEvent(null,
+                                new Status(ActionType.EXECUTE, cmdType,
+                                           NbBundle.getMessage(WS70StartServer.class, "MSG_TARGET_SERVER_STARTED"),
+                                           StateType.COMPLETED));
+            }catch(Exception ex){
+                pes.fireHandleProgressEvent(null,
+                                 new Status(ActionType.EXECUTE, cmdType,
+                                            ex.getLocalizedMessage(), 
+                                            StateType.FAILED));
+            }
+            
+        }else if(cmdType.equals(WS70CommandType.STOPTARGET)) {
+            try{
+                String configName = this.getConfigNameFromTarget(target);
+                dm.stopServer(configName);
+                pes.fireHandleProgressEvent(null,
+                                new Status(ActionType.EXECUTE, cmdType,
+                                           NbBundle.getMessage(WS70StartServer.class, "MSG_TARGET_SERVER_STOPPED"),
+                                           StateType.COMPLETED));
+            }catch(Exception ex){
+                pes.fireHandleProgressEvent(null,
+                               new Status(ActionType.EXECUTE, cmdType,
+                                          ex.getLocalizedMessage(), 
+                                          StateType.FAILED));
+            }
+            
+        }else if(cmdType.equals(WS70CommandType.STARTTARGETDEBUG)) {
+            try{                
+                String configName = this.getConfigNameFromTarget(target);
+                if(dm.isDebugModeEnabled()){
+                    if(!dm.isRunning(configName)){ 
+                        ErrorManager.getDefault().log(
+                            ErrorManager.INFORMATIONAL, NbBundle.getMessage(WS70StartServer.class, "MSG_STARTING_TARGET_SERVER_DEBUG"));
+                        //start server
+                        dm.startServer(configName);
+                        pes.fireHandleProgressEvent(null,
+                                 new Status(ActionType.EXECUTE, cmdType,
+                                            NbBundle.getMessage(WS70StartServer.class, "MSG_TARGET_SERVER_STARTED_DEBUG"),
+                                            StateType.COMPLETED));
+                        }
+                }else{
+                    if(dm.isRunning(configName)){  //stop target
+                        ErrorManager.getDefault().log(
+                            ErrorManager.INFORMATIONAL, NbBundle.getMessage(WS70StartServer.class, "MSG_STOPPING_TARGET_SERVER"));                        
+                        pes.fireHandleProgressEvent(null,
+                                 new Status(ActionType.EXECUTE, cmdType,
+                                            NbBundle.getMessage(WS70StartServer.class, "MSG_RESTARTING_TARGET_SERVER_DEBUG"),
+                                            StateType.RUNNING));                         
+                        dm.stopServer(configName);                         
+                        
+                    }
+                    // enable debug mode
+                    ErrorManager.getDefault().log(
+                        ErrorManager.INFORMATIONAL, NbBundle.getMessage(WS70StartServer.class, "MSG_TARGET_SERVER_SETTING_DEBUG_MODE"));                    
+                    dm.changeDebugStatus(configName, true);
+                    // start target
+                    ErrorManager.getDefault().log(
+                        ErrorManager.INFORMATIONAL, NbBundle.getMessage(WS70StartServer.class, "MSG_STARTING_TARGET_SERVER_DEBUG"));                    
+                    dm.startServer(configName);
+                    pes.fireHandleProgressEvent(null,
+                             new Status(ActionType.EXECUTE, cmdType,
+                                        NbBundle.getMessage(WS70StartServer.class, "MSG_TARGET_SERVER_STARTED_DEBUG"),
+                                        StateType.COMPLETED));                      
+                    
+                }
             }catch(Exception ex){
                 pes.fireHandleProgressEvent(null,
                                         new Status(ActionType.EXECUTE, cmdType,
@@ -289,40 +453,6 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
                                                    StateType.FAILED));
 
             }
-        }else if(cmdType.equals(WS70CommandType.STARTTARGET)) {                        
-            try{
-                java.lang.reflect.Method getConfigName = target.getClass().getDeclaredMethod("getConfigName", new Class[]{});
-                String configName = (String)getConfigName.invoke(target, new Object[]{});                
-                boolean ret = dm.startServer(configName);
-                pes.fireHandleProgressEvent(null,
-                                        new Status(ActionType.EXECUTE, cmdType,
-                                                   NbBundle.getMessage(WS70StartServer.class, "MSG_TARGET_SERVER_STARTED"),
-                                                   StateType.COMPLETED));
-            }catch(Exception ex){
-                pes.fireHandleProgressEvent(null,
-                                        new Status(ActionType.EXECUTE, cmdType,
-                                                   ex.getLocalizedMessage(), 
-                                                   StateType.FAILED));
-            }
-            
-        }else if(cmdType.equals(WS70CommandType.STOPTARGET)) {
-            try{
-                java.lang.reflect.Method getConfigName = target.getClass().getDeclaredMethod("getConfigName", new Class[]{});
-                String configName = (String)getConfigName.invoke(target, new Object[]{});                                
-                boolean ret = dm.stopServer(configName);
-                pes.fireHandleProgressEvent(null,
-                                        new Status(ActionType.EXECUTE, cmdType,
-                                                   NbBundle.getMessage(WS70StartServer.class, "MSG_TARGET_SERVER_STOPPED"),
-                                                   StateType.COMPLETED));
-            }catch(Exception ex){
-                pes.fireHandleProgressEvent(null,
-                                        new Status(ActionType.EXECUTE, cmdType,
-                                                   ex.getLocalizedMessage(), 
-                                                   StateType.FAILED));
-            }
-            
-        }else if(cmdType.equals(WS70CommandType.STARTTARGETDEBUG)) {
-            //TODO
         }        
     }
 
@@ -400,4 +530,12 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
             ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }        
     }
+    private String getConfigNameFromTarget(Target t) throws Exception{
+        try{
+            java.lang.reflect.Method getConfigName = t.getClass().getDeclaredMethod("getConfigName", new Class[]{});
+            return (String)getConfigName.invoke(t, new Object[]{});
+        }catch(Exception ex){
+            throw ex;
+        }        
+    }    
 }

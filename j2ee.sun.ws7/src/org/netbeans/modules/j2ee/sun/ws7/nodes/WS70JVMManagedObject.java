@@ -47,12 +47,24 @@ public class WS70JVMManagedObject extends WS70ManagedObjectBase{
     private List jvmOptions;
     /** Creates a new instance of WS70JVMManagedObject */
     public WS70JVMManagedObject(DeploymentManager manager, String config, HashMap attrs,
-                                List jvmOptions) {
-        this.manager = (WS70SunDeploymentManager)manager;
+                                List jvmOptions) {        
+        this.manager = ((WS70SunDeploymentManager)manager);
         this.configName = config;
         this.attributes = this.constructJVMAttributes(attrs);
         this.jvmOptions = jvmOptions;
-       
+        Iterator it = attributes.keySet().iterator();
+        while(it.hasNext()){
+            Attribute a = (Attribute)it.next();
+            if(a.getName().equals(JVM_DEBUG_OPTION)){
+                String debugString = a.getValue().toString();
+                this.manager.setDebugOptions(debugString);
+            }
+            if(a.getName().equals(JVM_DEBUG)){
+                boolean isDebug = ((Boolean)a.getValue()).booleanValue();
+                this.manager.setDebugModeEnabled(isDebug);
+            }            
+        }
+ 
     }
     public  String getDisplayName(){
         return NbBundle.getMessage(WS70JVMManagedObject.class, "LBL_JVM_NODE_NAME"); // NOI18N
@@ -71,6 +83,14 @@ public class WS70JVMManagedObject extends WS70ManagedObjectBase{
         }catch(Exception ex){
             throw ex;
         }
+        if(attribute.equals(JVM_DEBUG_OPTION)){
+            // update DM about change in the debug options.
+            this.manager.setDebugOptions(value.toString());
+        }
+        if(attribute.equals(JVM_DEBUG)){
+            // update DM about change in the debug mode.
+            this.manager.setDebugModeEnabled(((Boolean)value).booleanValue());
+        }        
         return new Attribute(attribute, value);
     }
     private String setJVMOptions(List options) throws Exception{
