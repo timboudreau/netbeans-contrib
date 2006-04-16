@@ -13,6 +13,7 @@
 package org.netbeans.modules.spellchecker.bindings.java;
 
 import java.util.regex.Pattern;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.TokenContextPath;
@@ -198,6 +199,10 @@ public class JavaTokenList implements TokenList {
     private static final Pattern commentPattern = Pattern.compile("/\\*\\*([^*]*(\\*[^/][^*]*)*)\\*/", Pattern.MULTILINE | Pattern.DOTALL); //NOI18N
     private static final Pattern wordPattern = Pattern.compile("[A-Za-z]+"); //NOI18N
 
+    private boolean isLetter(char c) {
+        return Character.isLetter(c) || c == '\'';
+    }
+    
     private Pair<CharSequence, Integer> wordBroker(CharSequence start, int offset) {
         int state = 0;
         int offsetStart = offset;
@@ -207,7 +212,7 @@ public class JavaTokenList implements TokenList {
 
             switch (state) {
                 case 0:
-                    if (Character.isLetter(current)) {
+                    if (isLetter(current)) {
                         state = 1;
                         offsetStart = offset;
                         break;
@@ -225,14 +230,14 @@ public class JavaTokenList implements TokenList {
                     break;
 
                 case 1:
-                    if (!Character.isLetter(current)) {
+                    if (!isLetter(current)) {
                         return new Pair<CharSequence, Integer>(start.subSequence(offsetStart, offset), offsetStart);
                     }
 
                     break;
 
                 case 2:
-                    if (!Character.isLetter(current)) {
+                    if (!isLetter(current)) {
                         return new Pair<CharSequence, Integer>(start.subSequence(offsetStart, offset), offsetStart);
                     }
 
@@ -254,6 +259,14 @@ public class JavaTokenList implements TokenList {
         } else {
             return null;
         }
+    }
+
+    public void addChangeListener(ChangeListener l) {
+        //ignored...
+    }
+
+    public void removeChangeListener(ChangeListener l) {
+        //ignored...
     }
 
     private static class Pair<A, B> {

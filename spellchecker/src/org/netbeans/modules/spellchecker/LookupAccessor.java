@@ -10,26 +10,21 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-package org.netbeans.modules.spellchecker.spi.language;
+package org.netbeans.modules.spellchecker;
 
-import javax.swing.event.ChangeListener;
+import java.util.Locale;
+import javax.swing.text.Document;
+import org.netbeans.modules.spellchecker.spi.dictionary.Dictionary;
+import org.netbeans.modules.spellchecker.spi.language.TokenList;
 
 /**
  *
  * @author Jan Lahoda
  */
-public interface TokenList {
-
-    public void setStartOffset(int offset);
-
-    public boolean nextWord();
-
-    public int getCurrentWordStartOffset();
-
-    public CharSequence getCurrentWordText();
+public interface LookupAccessor {
     
-    public void addChangeListener(ChangeListener l);
-
-    public void removeChangeListener(ChangeListener l);
+    public TokenList lookupTokenList(Document doc);
+    
+    public Dictionary lookupDictionary(Locale l);
     
 }

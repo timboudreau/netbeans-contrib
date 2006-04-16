@@ -35,6 +35,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
+import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.editor.Coloring;
 import org.netbeans.modules.editor.highlights.spi.DefaultHighlight;
 import org.netbeans.modules.editor.highlights.spi.Highlight;
@@ -68,8 +69,9 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
 
     public void propertyChange(PropertyChangeEvent evt) {
         if (doc != pane.getDocument()) {
-            if (doc != null)
+            if (doc != null) {
                 doc.removeDocumentListener(this);
+            }
             reschedule();
             doc = pane.getDocument();
             doc.addDocumentListener(this);
@@ -105,7 +107,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         doc = pane.getDocument();
         doc.addDocumentListener(this);
     }
-
+    
     private Component parentWithListener;
 
     private int[] computeVisibleSpan() {
@@ -151,6 +153,19 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         return currentVisibleRange;
     }
 
+    private TokenList l;
+    
+    private synchronized TokenList getTokenList() {
+        if (l == null) {
+            l = ACCESSOR.lookupTokenList(doc);
+            
+            if (l != null)
+                l.addChangeListener(this);
+        }
+        
+        return l;
+    }
+    
     private void process() throws BadLocationException {
         FileObject file = getFile(doc);
         
@@ -163,21 +178,12 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         resume();
 
         try {
-            TokenList lCompute = null;
+            final TokenList l = getTokenList();
             
-            for (TokenListProvider p : (Collection<TokenListProvider>)Lookup.getDefault().lookup(new Template(TokenListProvider.class)).allInstances()) {
-                lCompute = p.findTokenList(doc);
-                
-                if (lCompute != null)
-                    break;
-            }
-            
-            if (lCompute == null) {
+            if (l == null) {
                 //nothing to do:
                 return ;
             }
-            
-            final TokenList l = lCompute;
 
             Dictionary d = getDictionary(doc);
 
@@ -239,6 +245,8 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
 
 //                System.err.println("word=" + word[0]);
                 switch (d.validateWord(word[0])) {
+                    case PREFIX_OF_VALID:
+                    case BLACKLISTED:
                     case INVALID:
                         h = new DefaultHighlight(ERROR, bounds[0], bounds[1]);
                 }
@@ -290,16 +298,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
 
         Locale locale = LocaleQuery.findLocale(file);
         
-        Dictionary d = null;
-        
-        for (DictionaryProvider p : (Collection<DictionaryProvider>)Lookup.getDefault().lookup(new Template(DictionaryProvider.class)).allInstances()) {
-            d = p.getDictionary(locale);
-            
-            if (d != null)
-                break;
-        }
-
-        return d;
+        return ACCESSOR.lookupDictionary(locale);
     }
 
     private synchronized boolean isCanceled() {
@@ -353,7 +352,42 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
     }
 
     public void stateChanged(ChangeEvent e) {
-        updateCurrentVisibleSpan();
+        if (e.getSource() == l) {
+            reschedule();
+        } else {
+            updateCurrentVisibleSpan();
+        }
     }
+    
+    public static LookupAccessor ACCESSOR = new LookupAccessor() {
+        public Dictionary lookupDictionary(Locale locale) {
+            for (DictionaryProvider p : (Collection<DictionaryProvider>)Lookup.getDefault().lookup(new Template(DictionaryProvider.class)).allInstances()) {
+                Dictionary d = p.getDictionary(locale);
+                
+                if (d != null)
+                    return d;
+            }
+            
+            return null;
+        }
+        public TokenList lookupTokenList(Document doc) {
+            Object mimeTypeObj = doc.getProperty("mimeType");
+            String mimeType = "text/plain";
+            
+            if (mimeTypeObj instanceof String) {
+                mimeType = (String) mimeTypeObj;
+            }
+            
+            for (TokenListProvider p : (Collection<TokenListProvider>) MimeLookup.getMimeLookup(mimeType).lookup(new Template(TokenListProvider.class)).allInstances()) {
+                TokenList l = p.findTokenList(doc);
+                
+                if (l != null)
+                    return l;
+            }
+            
+            return null;
+            
+        }
+    };
 
 }
