@@ -120,7 +120,7 @@ public class CommonGeneralFinishPanel implements WizardDescriptor.FinishablePane
                 String jLabel = (String)component.jLabels[i].getText();
                 if (jLabel.equals(bundle.getString("LBL_" + __JndiName))) { //NOI18N
                     String jndiName = (String)((JTextField)component.jFields[i]).getText();
-                    if (jndiName == null || jndiName.length() == 0) {
+                    if (jndiName == null || jndiName.trim().length() == 0) {
                         return false;
                     }else if(! WS70ResourceUtils.isLegalResourceName(jndiName)){
                         return false;
@@ -129,23 +129,64 @@ public class CommonGeneralFinishPanel implements WizardDescriptor.FinishablePane
                 if (wizardInfo.getName().equals(__MailResource)) {
                     if (jLabel.equals(bundle.getString("LBL_" + __Host))) { // NO18N
                         String host = (String)((JTextField)component.jFields[i]).getText();
-                        if (host == null || host.length() == 0) {
+                        if (host == null || host.trim().length() == 0) {
                             return false;
                         }
                     }
                     if (jLabel.equals(bundle.getString("LBL_" + __MailUser))) { // NO18N
                         String user = (String)((JTextField)component.jFields[i]).getText();
-                        if (user == null || user.length() == 0) {
+                        if (user == null || user.trim().length() == 0) {
                             return false;
                         }
                     }
                     if (jLabel.equals(bundle.getString("LBL_" + __From))) { //NOI18N
                         String from = (String)((JTextField)component.jFields[i]).getText();
-                        if (from == null || from.length() == 0) {
+                        if (from == null || from.trim().length() == 0) {
                             return false;
                         }
                     }
-                } //Validity checks applicable to only Mail Resource Wizard
+                }else if(wizardInfo.getName().equals(this.__CustomResource)){
+                    if (jLabel.equals(bundle.getString("LBL_" + this.__ResType))) { // NO18N
+                        String restype = (String)((JTextField)component.jFields[i]).getText();
+                        if (restype == null || restype.trim().length() == 0) {
+                            return false;
+                        }
+                    }
+                    if (jLabel.equals(bundle.getString("LBL_" + this.__FactoryClass))) { // NO18N
+                        String factclass = (String)((JTextField)component.jFields[i]).getText();
+                        if (factclass == null || factclass.trim().length() == 0) {
+                            return false;
+                        }
+                    }          
+                    
+                }else if(wizardInfo.getName().equals(this.__ExternalJndiResource)){
+                    if (jLabel.equals(bundle.getString("LBL_" + this.__ResType))) { // NO18N
+                        String restype = (String)((JTextField)component.jFields[i]).getText();
+                        if (restype == null || restype.trim().length() == 0) {
+                            return false;
+                        }
+                    }
+                    if (jLabel.equals(bundle.getString("LBL_" + this.__FactoryClass))) { // NO18N
+                        String factclass = (String)((JTextField)component.jFields[i]).getText();
+                        if (factclass == null || factclass.trim().length() == 0) {
+                            return false;
+                        }
+                    }                    
+                    if (jLabel.equals(bundle.getString("LBL_" + this.__ExternalJndiName))) { // NO18N
+                        String extjndiname = (String)((JTextField)component.jFields[i]).getText();
+                        if (extjndiname == null || extjndiname.trim().length() == 0) {
+                            return false;
+                        }
+                    }                    
+                    
+                }else if(wizardInfo.getName().equals(this.__JdbcResource)){
+                    if (jLabel.equals(bundle.getString("LBL_" + this.__DatasourceClassname))) { // NO18N
+                        String dsclassname = (String)((JTextField)component.jFields[i]).getText();
+                        if (dsclassname == null || dsclassname.trim().length() == 0) {
+                            return false;
+                        }
+                    }              
+                }
             }//for
         }
         return true;
