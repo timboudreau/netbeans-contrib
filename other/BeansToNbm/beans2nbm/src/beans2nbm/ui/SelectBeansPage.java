@@ -69,7 +69,9 @@ public class SelectBeansPage extends WizardPage implements JarInfo.ScanObserver,
 
     public static String getDescription() {
         return "Select JavaBeans";
-    }    
+    }
+
+
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -394,4 +396,5 @@ public class SelectBeansPage extends WizardPage implements JarInfo.ScanObserver,
         jButton1.setBounds(x + listWidth + SPACE, listsY, buttonPreferredSize, button1height);
         jButton2.setBounds(x + listWidth + SPACE, listsY + button1height + SPACE, buttonPreferredSize, jButton2.getPreferredSize().height);
     }
+
 }

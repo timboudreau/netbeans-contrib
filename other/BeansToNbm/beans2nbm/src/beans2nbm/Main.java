@@ -79,6 +79,13 @@ public class Main {
         }
         
         setLookAndFeel();
+        
+//        go (getPageList());
+
+        WizardDisplayer.showWizard(new Brancher().createWizard());
+    }
+
+    static Class[] getPageList() {
         Class[] pages = InstructionsPage.shouldShowInstructions() ?
             new Class[] {
                 InstructionsPage.class,
@@ -94,8 +101,7 @@ public class Main {
                 AuthorInfoPage.class,
                 OutputLocationPage.class,
         };
-        
-        go (pages);
+        return pages;
     }
     
     public static void go (Class[] pages) {

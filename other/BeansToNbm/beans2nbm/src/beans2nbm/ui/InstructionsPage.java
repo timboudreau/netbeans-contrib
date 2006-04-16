@@ -47,10 +47,19 @@ public class InstructionsPage extends WizardPage {
     public void addNotify() {
         super.addNotify();
         jCheckBox1.setSelected(!shouldShowInstructions());
+        updateDlgTitle();
+    }
+
+    private void updateDlgTitle() {
         //A hack - need to add support for this in Wizard
         JDialog dlg = (JDialog) SwingUtilities.getAncestorOfClass(JDialog.class, this);
         if (dlg != null) {
-            dlg.setTitle ("BeanNetter - the NetBeans Module Generator");
+            String ttl = (String) getWizardData ("title");
+            if (ttl == null) {
+                dlg.setTitle ("BeanNetter - the NetBeans Module Generator");
+            } else {
+                dlg.setTitle (ttl);
+            }
         }
     }
     

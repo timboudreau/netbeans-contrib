@@ -26,6 +26,10 @@ public class LibGenMain {
     
     public static void main(String[] args) {
         Main.setLookAndFeel();
+        Main.go (getPageList());
+    }
+
+    static Class[] getPageList() {
         Class[] pages = 
             new Class[] {
                 LocateJarPage.class, 
@@ -33,7 +37,7 @@ public class LibGenMain {
                 AuthorInfoPage.class,
                 OutputLocationPage.class,
         };
-        Main.go (pages);
+        return pages;
     }
     
 }
