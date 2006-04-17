@@ -15,7 +15,7 @@
 
     <target name="checkout" depends="init">
         <cvs cvsroot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
-        command="co -P latex"
+        command="co -P latex spellchecker"
         dest=".."
         quiet="true"
         failonerror="true" />
@@ -60,10 +60,18 @@
         <ant dir="${nb-root}/contrib/editorhints/editorhighlights" inheritall="false" />
         <ant dir="${nb-root}/lexer" inheritall="false" />
         <ant dir="${nb-root}/lexer/editorbridge" inheritall="false" />
+	
+	<subant buildpath="../spellchecker" target="cluster-zip" inheritAll="false" inheritrefs="fale" >
+            <property name="harness.dir" location="${nb-root}/nbbuild/netbeans/harness" />
+            <property name="netbeans.dest.dir" location="${nb-root}/nbbuild/netbeans" />
+        </subant>
+	
+	<unzip src="../spellchecker/build/cluster.zip" dest="${nb-root}/nbbuild/netbeans/extra" />
     </target>
 
     <target name="clean-full-platform" depends="init">
         <subant buildpath="${nb-root}/contrib/fscompletion:${nb-root}/contrib/editorhints/editorhighlights:${nb-root}/lexer:${nb-root}/lexer/editorbridge" target="clean" inheritall="false" failonerror="false"/>
+	<delete dir="${nb-root}/nbbuild/netbeans/extra" />
     </target>
 
     <target name="build" depends="init,build-full-platform">
