@@ -115,6 +115,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
             new LaTeXAuxiliaryConfigurationImpl(this),
             new LaTeXSharabilityQuery(this),
             new LaTeXGUIProjectCustomizer(this),
+            new LaTeXGUIProjectLocaleQueryImplementation(this),
         });
     }
     

@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -302,7 +302,7 @@ import org.netbeans.spi.lexer.util.IntegerCache;
         Token token = input.createToken(id); //!!!
         
         if (isInMath)
-            TokenAttributes.setTokenAttribute(token, TokenAttributesNames.IS_IN_MATH, Boolean.TRUE);
+            TokenAttributes.setInMath(token);
         
         return token;
     }

@@ -9,7 +9,7 @@ http://www.sun.com/
 
 The Original Code is the DocSup module.
 The Initial Developer of the Original Code is Jan Lahoda.
-Portions created by Jan Lahoda are Copyright 2002-2005.
+Portions created by Jan Lahoda are Copyright 2002-2006.
 All Rights Reserved.
 
 Contributor(s): Jan Lahoda
@@ -69,6 +69,10 @@ Contributor(s): Jan Lahoda
 
             <folder name="Defaults">
                 <file name="keybindings.xml" url="DefaultKeyBindings.xml" />
+            </folder>
+            
+            <folder name="TokenListProvider">
+                <file name="org-netbeans-modules-latex-editor-spellchecker-LaTeXTokenListProvider.instance" />
             </folder>
          </folder>
           

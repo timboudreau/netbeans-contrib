@@ -36,10 +36,7 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.netbeans.modules.latex.editor.Dictionary;
 import org.netbeans.modules.latex.ui.Autodetector;
-import org.netbeans.modules.latex.ui.DictionaryInstallerPanel;
-import org.netbeans.modules.latex.ui.DictionaryInstallerPanel.DictionaryDescription;
 import org.netbeans.modules.latex.ui.IconsStorageImpl;
 import org.netbeans.modules.latex.ui.ModuleSettings;
 import org.openide.DialogDescriptor;
@@ -58,9 +55,6 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
     private RequestProcessor PROCESSING = new RequestProcessor("LaTeXOptionsPanel", 1);
     private Map<String, RequestProcessor.Task> tasks = new HashMap<String, RequestProcessor.Task>();
     private Map<String, JTextField> program2Field = new HashMap<String, JTextField>();
-
-    private List<Locale> removedDictionaries = new ArrayList<Locale>();
-    private List<DictionaryDescription> addedDictionaries = new ArrayList<DictionaryDescription>();
 
     private static final List<String> programs = Arrays.asList(new String[] {
             "latex",
@@ -195,28 +189,6 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
                 f.setText("");
             }
         }
-
-        removedDictionaries.clear();
-        addedDictionaries.clear();
-
-        updateLocales();
-    }
-
-    private void updateLocales() {
-        DefaultListModel model = new DefaultListModel();
-        List<Locale> locales = new ArrayList(Arrays.asList(Dictionary.getInstalledDictionariesLocales()));
-
-        for (DictionaryDescription desc : addedDictionaries) {
-            locales.add(desc.getLocale());
-        }
-        
-        locales.removeAll(removedDictionaries);
-
-        for (Locale l : locales) {
-            model.addElement(l);
-        }
-        
-        installedLocalesList.setModel(model);
     }
     
     public void commit() {
@@ -234,16 +206,6 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
             settings.put(p, command);
             settings.put(p + "-quality", Boolean.valueOf(Autodetector.checkProgram(p, command) == Autodetector.OK));
         }
-
-        //Add dictionaries:
-        for (DictionaryDescription desc : addedDictionaries) {
-            DictionaryInstallerPanel.doInstall(desc);
-        }
-
-        //Remove dictionaries:
-        for (Locale remove : removedDictionaries) {
-            DictionaryInstallerPanel.removeDictionary(remove);
-        }
         
         ModuleSettings.getDefault().writeSettings(settings);
     }
@@ -257,11 +219,6 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
     private void initComponents() {
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        installedLocalesList = new javax.swing.JList();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
 
@@ -282,50 +239,6 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
                 .add(jPanel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Dictionaries"));
-        installedLocalesList.setModel(getInstalledDictionariesModel());
-        installedLocalesList.setVisibleRowCount(4);
-        jScrollPane1.setViewportView(installedLocalesList);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jButton4, "Add...");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-
-        org.openide.awt.Mnemonics.setLocalizedText(jButton5, "Remove");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
-
-        org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 725, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(jButton5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jButton4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel2Layout.createSequentialGroup()
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel2Layout.createSequentialGroup()
-                        .add(jButton4)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton5))
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -360,12 +273,10 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jPanel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -373,10 +284,8 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jPanel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(63, 63, 63))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -391,41 +300,13 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
             }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        for (Object o : installedLocalesList.getSelectedValues()) {
-            removedDictionaries.add((Locale) o);
-        }
-        updateLocales();
-    }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        DictionaryInstallerPanel panel = new DictionaryInstallerPanel();
-        DialogDescriptor dd = new DialogDescriptor(panel, "Add Dictionary");
-        Dialog d = DialogDisplayer.getDefault().createDialog(dd);
-
-        d.setVisible(true);
-
-        if (dd.getValue() == DialogDescriptor.OK_OPTION) {
-            DictionaryDescription desc = panel.createDescription();
-
-            addedDictionaries.add(desc);
-            removedDictionaries.remove(desc.getLocale());
-            updateLocales();
-        }
-    }//GEN-LAST:event_jButton4ActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JList installedLocalesList;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
     
     private final class CheckProgram implements Runnable, DocumentListener {
@@ -486,16 +367,6 @@ public class LaTeXOptionsPanel extends javax.swing.JPanel {
             invalidate(tasks.get(type), result);
         }
 
-    }
-
-    private ListModel getInstalledDictionariesModel() {
-        DefaultListModel dlm = new DefaultListModel();
-
-        for (Locale l : Dictionary.getInstalledDictionariesLocales()) {
-            dlm.addElement(l);
-        }
-
-        return dlm;
     }
 
 }

@@ -18,6 +18,7 @@ import java.awt.Component;
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
 import java.io.CharConversionException;
+import java.util.Locale;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -60,6 +61,8 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
         jComboBox2 = new javax.swing.JComboBox();
         jLabel3 = new javax.swing.JLabel();
         jComboBox3 = new javax.swing.JComboBox();
+        jLabel4 = new javax.swing.JLabel();
+        jComboBox4 = new javax.swing.JComboBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "Build &Configuration:");
 
@@ -81,6 +84,11 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
         jComboBox3.setModel(createShowConfigurationModel());
         jComboBox3.setRenderer(new ShowConfigurationListCellRendererImpl());
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, "Document &Locale:");
+
+        jComboBox4.setEditable(true);
+        jComboBox4.setModel(createLocaleModel());
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -92,12 +100,14 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jLabel1)
                             .add(jLabel2)
-                            .add(jLabel3))
+                            .add(jLabel3)
+                            .add(jLabel4))
                         .add(6, 6, 6)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jComboBox1, 0, 256, Short.MAX_VALUE)
                             .add(jComboBox2, 0, 256, Short.MAX_VALUE)
-                            .add(jComboBox3, 0, 256, Short.MAX_VALUE))))
+                            .add(jComboBox3, 0, 256, Short.MAX_VALUE)
+                            .add(jComboBox4, 0, 256, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -114,7 +124,11 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(78, 78, 78)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel4))
+                .add(48, 48, 48)
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 138, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -131,9 +145,11 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
     public javax.swing.JComboBox jComboBox1;
     public javax.swing.JComboBox jComboBox2;
     public javax.swing.JComboBox jComboBox3;
+    public javax.swing.JComboBox jComboBox4;
     public javax.swing.JLabel jLabel1;
     public javax.swing.JLabel jLabel2;
     public javax.swing.JLabel jLabel3;
+    public javax.swing.JLabel jLabel4;
     public javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
     
@@ -163,12 +179,15 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
         RunTypes bibTeXRunType = settings.getBiBTeXRunType();
 
         jComboBox2.setSelectedItem(bibTeXRunType);
+        
+        jComboBox4.setSelectedItem(settings.getLocale());
     }
     
     public void store(ProjectSettings settings) {
         settings.setBuildConfigurationName(((BuildConfiguration) jComboBox1.getSelectedItem()).getName());
         settings.setShowConfigurationName(((ShowConfiguration) jComboBox3.getSelectedItem()).getName());
         settings.setBiBTeXRunType((RunTypes) jComboBox2.getSelectedItem());
+        settings.setLocale((Locale) jComboBox4.getSelectedItem());
     }
     
     private ComboBoxModel createBuildConfigurationModel() {
@@ -198,6 +217,16 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
             dlm.addElement(conf);
         }
 
+        return dlm;
+    }
+    
+    private ComboBoxModel createLocaleModel() {
+        DefaultComboBoxModel dlm = new DefaultComboBoxModel();
+        
+        for (Locale locale : Locale.getAvailableLocales()) {
+            dlm.addElement(locale);
+        }
+        
         return dlm;
     }
 

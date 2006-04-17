@@ -18,6 +18,7 @@ import java.awt.Dialog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.netbeans.api.project.ProjectUtils;
@@ -45,6 +46,7 @@ public class ProjectSettings implements FileChangeListener {
     private String   buildConfigurationName;
     private String   showConfigurationName;
     private RunTypes bibTeXRunType;
+    private Locale   locale;
 
     private boolean  modified;
     
@@ -90,6 +92,14 @@ public class ProjectSettings implements FileChangeListener {
 
         try {
             bibTeXRunType = RunTypes.valueOf(getProperty(p, "bibtex-run-type", RunTypes.AUTO.name()).trim());
+        } catch (IllegalArgumentException e) {
+            bibTeXRunType = RunTypes.AUTO;
+        }
+        
+        try {
+            String localeString = getProperty(p, "locale", "en");
+            
+            locale = new Locale(localeString);
         } catch (IllegalArgumentException e) {
             bibTeXRunType = RunTypes.AUTO;
         }
@@ -155,6 +165,7 @@ public class ProjectSettings implements FileChangeListener {
             p.setProperty("build-configuration-name", buildConfigurationName);
             p.setProperty("show-configuration-name", showConfigurationName);
             p.setProperty("bibtex-run-type", bibTeXRunType.name());
+            p.setProperty("locale", locale.toString());
             
             lock = settings.lock();
             
@@ -229,6 +240,15 @@ public class ProjectSettings implements FileChangeListener {
 
     public void setBiBTeXRunType(RunTypes bibTeXRunType) {
         this.bibTeXRunType = bibTeXRunType;
+        this.modified = true;
+    }
+    
+    public Locale getLocale() {
+        return locale;
+    }
+    
+    public void setLocale(Locale locale) {
+        this.locale = locale;
         this.modified = true;
     }
 

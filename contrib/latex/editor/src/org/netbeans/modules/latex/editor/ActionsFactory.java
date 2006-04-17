@@ -7,7 +7,7 @@
  *
  * The Original Code is the Viewer module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -174,82 +174,6 @@ public final class ActionsFactory {
         }
         
     }
-    
-    public static class BuildApproximateWordList extends BaseAction {
-        
-        public BuildApproximateWordList() {
-            super(BUILD_APPROXIMATE_WORD_LIST_ACTION);
-        }
-        
-        public JMenuItem getPopupMenuItem(JTextComponent component) {
-            Document doc = component.getDocument();
-            Token t = Utilities.getToken(doc, component.getCaret().getDot());
-            int start = Utilities.getStartingOffset(doc, component.getCaret().getDot()) - 1;
-            JMenu item = new JMenu("Spelling");
-            
-            if (t.getId() != TexLanguage.WORD) {
-                JMenuItem empty = new JMenuItem("Empty");
-                
-                empty.setEnabled(false);
-                
-                item.add(empty);
-            } else {
-                String tokenText = t.getText().toString();
-                LaTeXSource source = org.netbeans.modules.latex.model.Utilities.getDefault().getSource(doc);
-                Dictionary d = Dictionary.getDictionary(source.getDocumentLocale());
-                List spell = d.getSimilarWords(tokenText);
-                
-                if (spell.size() == 0) {
-                    JMenuItem empty = new JMenuItem("Empty");
-                    
-                    empty.setEnabled(false);
-                    
-                    item.add(empty);
-                } else {
-                    Iterator i = spell.iterator();
-                    
-                    while (i.hasNext()) {
-                        String word = (String) i.next();
-                        JMenuItem menuItem = new JMenuItem(word);
-                        
-                        menuItem.addActionListener(new ActionListenerImpl(doc, start, tokenText.length(), word));
-                        item.add(menuItem);
-                    }
-                }
-            }
-            
-            return item;
-        }
-        
-        public void actionPerformed(ActionEvent evt, JTextComponent target) {
-            //nothing...
-        }
-        
-        private static class ActionListenerImpl implements ActionListener {
-            
-            private Document doc;
-            private int      offset;
-            private int      len;
-            private String   word;
-            
-            public ActionListenerImpl(Document doc, int offset, int len, String word) {
-                this.doc = doc;
-                this.offset = offset;
-                this.len = len;
-                this.word = word;
-            }
-            
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    doc.remove(offset, len);
-                    doc.insertString(offset, word, null);
-                } catch (BadLocationException ex) {
-                    ErrorManager.getDefault().notify(ex);
-                }
-            }
-            
-        }
-        
-    }
+
     
 }

@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -178,9 +178,7 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         else
             proposed = getStaticColoring(token);
         
-        Boolean math = (Boolean) TokenAttributes.getTokenAttribute(token, TokenAttributesNames.IS_IN_MATH);
-        
-        if (math != null && math.booleanValue()) {
+        if (TokenAttributes.isInMathToken(token)) {
             if (proposed != null)
                 proposed = proposed.apply(getColoringForName(TexColoringNames.MATH));
             else
@@ -327,9 +325,8 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
     
     private Coloring computeColoring(Token token) {
         Coloring proposed = getColoringForTokenId(token.getId());
-        Boolean isInMath = (Boolean ) TokenAttributes.getTokenAttribute(token, TokenAttributesNames.IS_IN_MATH);
         
-        if (isInMath != null && isInMath.booleanValue()) {
+        if (TokenAttributes.isInMathToken(token)) {
             proposed = getColoringForName(TexColoringNames.MATH).apply(proposed);
         }
         
@@ -411,16 +408,6 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
     }
 
     private Coloring findWordColoring(Token token, Coloring proposed) {
-        boolean doSpell = true;
-        
-        //no spelling for tokens inside the math mode (temporary, untill MathNode is created in structure:
-        if (Boolean.TRUE == TokenAttributes.getTokenAttribute(token, TokenAttributesNames.IS_IN_MATH))
-            doSpell = false;
-        
-        //no spelling for tokens shorter than 3 letters (hopefully no problem):
-        if (token.getText().length() < 3)
-            doSpell = false;
-        
         LaTeXSource source = LaTeXSource.get(org.netbeans.modules.latex.model.Utilities.getDefault().getFile(document));
         
         if (source != null && (source.isUpToDate() || source.getDocument() == null)) {
@@ -445,8 +432,6 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
                         ArgumentNode anode = (ArgumentNode) node;
                         
                         if (anode.getArgument().isEnumerable()) {
-                            doSpell = false;
-                            
                             if (anode.isValidEnum()) {
                                 proposed = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT).apply(proposed);
                             } else {
@@ -458,8 +443,6 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
                             Node parent = cnode.getParent();
                             
                             if (parent instanceof BlockNode) {
-                                doSpell = false;
-                                
                                 BlockNode bnode = (BlockNode) parent;
                                 Environment env = source.getEnvironment(bnode.getStartingPosition(), bnode.getBlockName());
                                 
@@ -468,27 +451,6 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
                                 } else {
                                     proposed = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT).apply(proposed);
                                 }
-                            } else {
-                                doSpell = !anode.getArgument().isCodeLike();
-                            }
-                        }
-                    }
-                }
-                
-                if (doSpell) {
-                    Dictionary dictionary = Dictionary.getDictionary(source.getDocumentLocale());
-                    if (dictionary != null && !dictionary.isEmpty()) {
-                        CharSequence word = token.getText();
-                        
-                        if (word.length() != 0) {
-                            Integer type = dictionary.findWord(word.toString());
-                            
-                            switch (type.intValue()) {
-                                case Dictionary.BAD_INT: proposed = getColoringForName(TexColoringNames.WORD_BAD).apply(proposed); break;
-                                case Dictionary.INCORRECT_INT: proposed = getColoringForName(TexColoringNames.WORD_INCORRECT).apply(proposed); break;
-                                case Dictionary.INCOMPLETE_INT: proposed = getColoringForName(TexColoringNames.WORD_INCOMPLETE).apply(proposed); break;
-                                case Dictionary.CORRECT_INT: /*nothing*/; break;
-                                default: /*should never happen*/;break;
                             }
                         }
                     }
