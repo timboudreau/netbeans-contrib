@@ -48,7 +48,7 @@ public class DictionaryProviderImpl implements DictionaryProvider {
     public DictionaryProviderImpl() {
     }
 
-    private Map/*<String,DictionaryImpl>*/ dictionaries = new HashMap();
+    private Map<String, Dictionary> dictionaries = new HashMap<String, Dictionary>();
     
 //    public DictionaryImpl getDefault() {
 //        return getDictionary(Locale.getDefault());
@@ -62,7 +62,7 @@ public class DictionaryProviderImpl implements DictionaryProvider {
         Iterator suffixes = getLocalizingSuffixes(locale);
         
         while (suffixes.hasNext()) {
-            DictionaryImpl current = (DictionaryImpl) dictionaries.get(suffixes.next());
+            Dictionary current = (Dictionary) dictionaries.get(suffixes.next());
             
             if (current != null)
                 return current;
@@ -126,18 +126,19 @@ public class DictionaryProviderImpl implements DictionaryProvider {
         return (Locale[] )locales.toArray(new Locale[locales.size()]);
     }
     
-    private synchronized DictionaryImpl createDictionary(Locale locale) {
+    private synchronized Dictionary createDictionary(Locale locale) {
         try {
-            List<InputStream> streams = new ArrayList<InputStream>();
-            String suffix = getDictionaryStream(locale, streams);
+            List<URL> sources = new ArrayList<URL>();
+            String suffix = getDictionaryStream(locale, sources);
             
             if (suffix == null) {
                 return null;
             }
-            
-            DictionaryImpl dict = new DictionaryImpl(locale, suffix, streams);
-            
-            dictionaries.put(dict.getSuffix(), dict);
+
+            Dictionary dict = TrieDictionary.getDictionary(suffix, sources);
+//            DictionaryImpl dict = new DictionaryImpl(locale, suffix, streams);
+//            
+            dictionaries.put(suffix, dict);
             
             return dict;
         } catch (IOException e) {
@@ -146,7 +147,7 @@ public class DictionaryProviderImpl implements DictionaryProvider {
         }
     }
 
-    private String getDictionaryStream(Locale locale, List<InputStream> streams) throws IOException {
+    static String getDictionaryStream(Locale locale, List<URL> streams) throws IOException {
         Iterator suffixes = getLocalizingSuffixes(locale);
         
         while (suffixes.hasNext()) {
@@ -154,7 +155,7 @@ public class DictionaryProviderImpl implements DictionaryProvider {
             
             File file = InstalledFileLocator.getDefault().locate("modules/dict/dictionary" + currentSuffix + ".txt", null, false);
             if (file != null) {
-                streams.add(new FileInputStream(file));
+                streams.add(file.toURL());
                 return currentSuffix;
             }
 
@@ -162,28 +163,16 @@ public class DictionaryProviderImpl implements DictionaryProvider {
 
             if (file != null) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-                boolean finished = false;
 
                 try {
                     String line;
 
                     while ((line = in.readLine()) != null) {
-                        streams.add(new URL(line).openStream());
+                        streams.add(new URL(line));
                     }
-
-                    finished = true;
 
                     return currentSuffix;
                 } finally {
-                    if (!finished) {
-                        for (InputStream i : streams) {
-                            try {
-                                i.close();
-                            } catch (IOException e) {
-                                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                            }
-                        }
-                    }
                     try {
                         in.close();
                     } catch (IOException e) {
