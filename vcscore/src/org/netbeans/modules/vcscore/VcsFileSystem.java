@@ -3768,7 +3768,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     protected void createBackupFile(String name) {
         if (name.endsWith(getBackupExtension()) || isIDESettingsFile(name) ||
-            !getFile(name).exists() || !isImportant(name)) {
+            !getFile(name).exists()) { // || !isImportant(name)) { - query for importantness here can cause deadlock
 
             return ;
         }
@@ -3898,23 +3898,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public void lock (final String name) throws IOException {
         //System.out.println("lock("+name+")");
-        if (!isImportant(name)) return; // ignore locking of unimportant files
-        try { // because of adjustment of the thrown exception
-        checkModificationLock(name);
-        //final VcsFileSystem current = this;
-        final File file = FileUtil.normalizeFile(getFile (name));
-        final String filePath = file.getAbsolutePath().intern();
+        File file = getFile (name);
         if (!file.exists()) return; // Ignore the lock when the file does not exist.
         if (isReadOnly()) { // I'm on a read-only filesystem => can not lock
             throw new IOException ("Cannot Lock "+name); // NOI18N
         }
+        try { // because of adjustment of the thrown exception
+        checkModificationLock(name);
+        //final VcsFileSystem current = this;
         if (isCallEditFilesOn()) {
-            if (!file.canWrite ()) {
+            if (!file.canWrite () && isImportant(name)) { // ignore editing of unimportant files
                 FileObject fo = findResource(name);
                 // Get really cached attribute in any case (from memory or disk layer).
                 FileProperties fprops = (FileProperties) FileAttributeQuery.getDefault().readAttribute(fo, FileProperties.ID);
                 boolean local = (fprops != null) ? fprops.isLocal() : false;
                 if (!local && !name.endsWith (".orig")) { // NOI18N
+                    file = FileUtil.normalizeFile(file);
+                    String filePath = file.getAbsolutePath().intern();
                     if (isPromptForEditOn()) {
                         VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
                         String message;
@@ -3934,7 +3934,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             boolean local = fprops != null ? fprops.isLocal() : false;
             // *.orig is a temporary file created by AbstractFileObject
             // on saving every file to enable undo if saving fails
-            if (shouldLock(name) && (local==false) && !name.endsWith (".orig")) { // NOI18N
+            if (shouldLock(name) && (local==false) && !name.endsWith (".orig") && isImportant(name)) { // NOI18N , ignore locking of unimportant files
+                file = FileUtil.normalizeFile(file);
+                String filePath = file.getAbsolutePath().intern();
                 if (isPromptForLockOn ()) {
                     VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
                     String message;
@@ -3947,10 +3949,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         if (!file.canWrite () && file.exists()) {
+            final File ffile = file;
             throw new IOException() {
                 /** Localized message. It should be different from the message. */
                 public String getLocalizedMessage () {
-                    return g("EXC_CannotLockReadOnly", file.toString());
+                    return g("EXC_CannotLockReadOnly", ffile.toString());
                 }
             };
         }
@@ -4084,15 +4087,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public void unlock (String name) {
         //System.out.println("unlock("+name+")");
-        if (!isImportant(name)) return; // ignore unlocking of unimportant files
-
         if(isLockFilesOn ()) {
             FileObject fo = findResource(name);
             assert fo != null : "No resource for '"+name+"'"; // NOI18N
             // Get really cached attribute in any case (from memory or disk layer).
             FileProperties fprops = (FileProperties) FileAttributeQuery.getDefault().readAttribute(fo, FileProperties.ID);
             boolean local = (fprops != null) ? fprops.isLocal() : false;
-            if (!local && !name.endsWith (".orig")) { // NOI18N
+            if (!local && !name.endsWith (".orig") && isImportant(name)) { // NOI18N , ignore unlocking of unimportant files
                 Command command = createCommand("UNLOCK", name, null);
                 if (command != null) {
                     boolean customized = VcsManager.getDefault().showCustomizer(command);
