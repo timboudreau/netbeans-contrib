@@ -19,7 +19,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="AnnotationTypes">
             <!-- TaskAnnotationActions folder is defined in core, here is placed
                  NetBeans editor implementation specifics action -->
-            <folder name="TaskAnnotationActions">
+            <folder name="UTAnnotationActions">
                 <file name="org-netbeans-modules-tasklist-editor-NewTaskEditorAction.instance"/>
             </folder>
         </folder>
