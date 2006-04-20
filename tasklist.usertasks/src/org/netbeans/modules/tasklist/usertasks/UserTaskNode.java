@@ -24,8 +24,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
 
 import org.netbeans.modules.tasklist.core.TaskNode;
@@ -38,16 +40,11 @@ import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CopyHoursToClipboardAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
-import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
-import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
-import org.netbeans.modules.tasklist.usertasks.actions.SingleLineCookie;
-import org.netbeans.modules.tasklist.usertasks.actions.StartCookie;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
-import org.netbeans.modules.tasklist.usertasks.actions.StopCookie;
 import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
@@ -65,7 +62,6 @@ import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Sheet.Set;
-import org.openide.text.Line;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
@@ -137,23 +133,14 @@ public final class UserTaskNode extends AbstractNode {
         return item;
     }
     
-    protected void updateIcon() {
-        UserTask uitem = (UserTask)item;
-        if (uitem.isDone()) {
-            setIconBaseWithExtension(
-                "org/netbeans/modules/tasklist/core/doneItem.gif"); // NOI18N
-        } else {
-            setIconBaseWithExtension(
-                "org/netbeans/modules/tasklist/core/task.gif"); // NOI18N
-        }
-    }
-    
     public Action[] getActions(boolean empty) {
+        UserTaskView utv = (UserTaskView) 
+                SwingUtilities.getAncestorOfClass(UserTaskView.class, tt);
         if (empty) {
             return new Action[] {
                 SystemAction.get(NewTaskAction.class),
                 null,
-                SystemAction.get(PauseAction.class),
+                PauseAction.getInstance(),
                 null,
                 SystemAction.get(PasteAction.class),
                 null,
@@ -171,11 +158,11 @@ public final class UserTaskNode extends AbstractNode {
                 SystemAction.get(NewTaskAction.class),
                 //SystemAction.get(ShowScheduleViewAction.class),
                 null,
-                SystemAction.get(StartTaskAction.class),
-                SystemAction.get(PauseAction.class),
+                new StartTaskAction(utv),
+                PauseAction.getInstance(),
                 null,
                 SystemAction.get(ShowTaskAction.class),
-                SystemAction.get(GoToUserTaskAction.class),
+                new GoToUserTaskAction(utv),
                 null,
                 SystemAction.get(CutAction.class),
                 SystemAction.get(CopyAction.class),
@@ -183,8 +170,10 @@ public final class UserTaskNode extends AbstractNode {
                 null,
                 SystemAction.get(DeleteAction.class),
                 null,
-                SystemAction.get(MoveUpAction.class),
-                SystemAction.get(MoveDownAction.class),
+                utv.moveUpAction,
+                utv.moveDownAction,
+                utv.moveLeftAction,
+                utv.moveRightAction,
                 null,
                 SystemAction.get(FilterAction.class),
                 SystemAction.get(RemoveFilterAction.class),
@@ -406,7 +395,7 @@ public final class UserTaskNode extends AbstractNode {
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_startProperty")); // NOI18N
             ss.put(p);
         } catch (NoSuchMethodException nsme) {
-            ErrorManager.getDefault().notify(nsme);
+            UTUtils.LOGGER.log(Level.WARNING, "", nsme); // NOI18N
         }
         return s;
     }
@@ -466,9 +455,9 @@ public final class UserTaskNode extends AbstractNode {
                     return new UserTaskNode.TodoPaste(target, t);
                 }
             } catch (UnsupportedFlavorException e) {
-                ErrorManager.getDefault().notify(e);
+                UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
             } catch (IOException e) {
-                ErrorManager.getDefault().notify(e);
+                UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
             }
         } 
         
@@ -480,30 +469,8 @@ public final class UserTaskNode extends AbstractNode {
 
     public org.openide.nodes.Node.Cookie getCookie(Class type) {
         UserTask uitem = (UserTask) item;
-        if (type == StartCookie.class) {
-            if (uitem.isStarted() || !uitem.isStartable()) {
-                return null;
-            } else {
-                return new StartCookie(uitem);
-            }
-        } else if (type == StopCookie.class) {
-            if (!uitem.isStarted()) {
-                return null;
-            } else {
-                return new StopCookie(uitem);
-            }
-        } else if (type == UserTask.class) {
+        if (type == UserTask.class) {
             return item;
-        } else if (type == SingleLineCookie.class) {
-            final Line l = uitem.getLine();
-            if (l != null)
-                return new SingleLineCookie() {
-                    public Line getLine() {
-                        return l;
-                    }
-                };
-            else
-                return null;
         } else {
             return super.getCookie(type);
         }

@@ -68,6 +68,7 @@ import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.renderers.OwnerTableCellRenderer;
+
 /**
  * TT for user tasks
  *
@@ -238,6 +239,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
         
         tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellRenderer(
             new DueDateTableCellRenderer());
+        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setWidth(100);
         
         tcm.getColumn(UserTasksTreeTableModel.START).setCellRenderer(dcr);
 
@@ -250,10 +252,10 @@ public class UserTasksTreeTable extends NodesTreeTable {
      * @return found path or null
      */
     public TreePath findPath(UserTask task) {
-        List l = new ArrayList();
+        List<UserTask> l = new ArrayList<UserTask>();
         while (task != null) {
             l.add(0, task);
-            task = (UserTask) task.getParent();
+            task = task.getParent();
         }
         AdvancedTreeTableNode n = 
             (AdvancedTreeTableNode) getTreeTableModel().getRoot();

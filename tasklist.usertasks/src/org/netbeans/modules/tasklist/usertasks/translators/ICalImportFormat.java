@@ -14,7 +14,6 @@
 package org.netbeans.modules.tasklist.usertasks.translators;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.swing.filechooser.FileSystemView;
 import net.fortuna.ical4j.data.CalendarBuilder;
@@ -59,7 +59,6 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
@@ -193,7 +192,7 @@ public class ICalImportFormat implements ExportImportFormat {
         try {
             is = new FileInputStream(panel.getFile());
         } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
             return;
         }
         
@@ -203,10 +202,10 @@ public class ICalImportFormat implements ExportImportFormat {
         try {
             read(utl, is);
         } catch (ParserException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
             return;
         } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
             return;
         }
     }
@@ -270,7 +269,7 @@ public class ICalImportFormat implements ExportImportFormat {
             try {
                 ut.setEffort(Integer.parseInt(prop.getValue()));
             } catch (NumberFormatException e) {
-                ErrorManager.getDefault().notify(e);
+                UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
             }
         }
         
@@ -283,7 +282,7 @@ public class ICalImportFormat implements ExportImportFormat {
             try {
                 ut.setSpentTime(Integer.parseInt(prop.getValue()));
             } catch (NumberFormatException e) {
-                ErrorManager.getDefault().notify(e);
+                UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
             }
         }
         
@@ -357,9 +356,9 @@ public class ICalImportFormat implements ExportImportFormat {
                     UserTask.WorkPeriod wp = new UserTask.WorkPeriod(start, dur);
                     ut.getWorkPeriods().add(wp);
                 } catch (ParseException e) {
-                    ErrorManager.getDefault().notify(e);
+                    UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
                 } catch (NumberFormatException e) {
-                    ErrorManager.getDefault().notify(e);
+                    UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
                 }
             }
         }
@@ -400,7 +399,7 @@ public class ICalImportFormat implements ExportImportFormat {
                 d = new Date(Long.parseLong(prop.getValue()));
                 ut.setDueDate(d);
             } catch (NumberFormatException e) {
-                ErrorManager.getDefault().notify(e);
+                UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
             }
         } 
         

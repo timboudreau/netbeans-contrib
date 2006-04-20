@@ -13,80 +13,59 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
-import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
+import javax.swing.event.ListSelectionEvent;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.NodeAction;
+import org.openide.util.Utilities;
 
 /**
- * Moves a task up
+ * Moves a task up.
  *
  * @author tl
  */
-public class MoveUpAction extends NodeAction {
+public class MoveUpAction extends UTViewAction {
     /**
-     * Creates a new instance of MoveUpAction
+     * Creates a new instance of MoveUpAction.
+     *
+     * @param utv a view
      */
-    public MoveUpAction() {
+    public MoveUpAction(UserTaskView utv) {
+        super(utv, NbBundle.getMessage(MoveUpAction.class, "MoveUp")); // NOI18N
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_UP,
                 InputEvent.CTRL_MASK));
+        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(
+                "org/netbeans/modules/tasklist/usertasks/actions/moveUp.gif")));
     }
     
-    protected void performAction(org.openide.nodes.Node[] activatedNodes) {
-        UserTaskNode n = (UserTaskNode) activatedNodes[0];
-        UserTask ut = n.getTask();
-        UserTaskView utv = UserTaskViewRegistry.getInstance().getCurrent();
+    public void actionPerformed(ActionEvent e) {
+        UserTask ut = getSingleSelectedTask();
         Object es = utv.getTreeTable().getExpandedNodesAndSelection();
         ut.moveUp();
         utv.getTreeTable().setExpandedNodesAndSelection(es);
     }
-    
-    protected boolean enable(org.openide.nodes.Node[] activatedNodes) {
-        if (activatedNodes.length != 1)
-            return false;
-        
-        if (!(activatedNodes[0] instanceof UserTaskNode))
-            return false;
-        
-        UserTaskNode n = (UserTaskNode) activatedNodes[0];
-        UserTask ut = n.getTask();
 
-        if (ut.getList() == null)
-            return false;
-        
-        UserTaskObjectList list;
-        if (ut.getParent() == null)
-            list = ut.getList().getSubtasks();
-        else
-            list = ut.getParent().getSubtasks();
-        
-        if (list.indexOf(ut) == 0) 
-            return false;
-        
-        return true;
+    public void valueChanged(ListSelectionEvent e) {
+        UserTask ut = getSingleSelectedTask();
+        boolean en = false;
+        if (utv.getTreeTable().getSortingModel().getSortedColumn() == -1 &&
+                ut != null) {
+            UserTaskObjectList list;
+            if (ut.getParent() == null)
+                list = ut.getList().getSubtasks();
+            else
+                list = ut.getParent().getSubtasks();
+
+            en = list.indexOf(ut) != 0;
+        }
+        setEnabled(en);
     }
-    
-    protected String iconResource() {
-        return "org/netbeans/modules/tasklist/usertasks/actions/moveUp.gif"; // NOI18N
-    }
-    
-    public org.openide.util.HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-    
-    public String getName() {
-        return NbBundle.getMessage(MoveUpAction.class, "MoveUp"); // NOI18N
-    }    
-    
-    protected boolean asynchronous() {
-        return false;
-    }    
 }

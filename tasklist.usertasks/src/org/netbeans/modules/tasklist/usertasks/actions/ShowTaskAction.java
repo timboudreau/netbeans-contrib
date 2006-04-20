@@ -80,7 +80,7 @@ public class ShowTaskAction extends NodeAction {
         d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
         Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
         dlg.pack();
-        dlg.show();
+        dlg.setVisible(true);
 
         if (d.getValue() == NotifyDescriptor.OK_OPTION) {
             panel.fillObject(item);

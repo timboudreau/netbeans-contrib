@@ -13,46 +13,52 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
-import org.openide.nodes.Node;
-import org.openide.util.HelpCtx;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CookieAction;
+import org.openide.util.Utilities;
 
 /**
- * Stops a task
+ * Stops a task.
+ *
+ * @author tl
  */
-public class PauseAction extends CookieAction {
-    private static final long serialVersionUID = 1;
+public class PauseAction extends AbstractAction implements ChangeListener {
+    private static PauseAction INSTANCE = new PauseAction();
+    
+    /**
+     * Returns the only instance of this class.
+     *
+     * @return the instance.
+     */
+    public static PauseAction getInstance() {
+        return INSTANCE;
+    }
 
-    protected void performAction(Node[] nodes) {
-        StopCookie c = (StopCookie) nodes[0].getCookie(StopCookie.class);
-        if (c != null)
-            c.stop();
+    /**
+     * Constructor.
+     */
+    private PauseAction() {
+        putValue(Action.NAME, 
+                NbBundle.getMessage(PauseAction.class, "Pause")); // NOI18N
+        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(
+                "org/netbeans/modules/tasklist/usertasks/" + // NOI18N
+                "actions/pause.gif"))); // NOI18N
+        StartedUserTask.getInstance().addChangeListener(this);
+        stateChanged(null);
+    }
+    
+    public void stateChanged(ChangeEvent e) {
+        setEnabled(StartedUserTask.getInstance().getStarted() != null);
     }
 
-    public String getName() {
-        return NbBundle.getMessage(StartTaskAction.class, "Pause"); // NOI18N
+    public void actionPerformed(ActionEvent e) {
+        StartedUserTask.getInstance().start(null);
     }
-    
-    protected String iconResource() {
-        return "org/netbeans/modules/tasklist/usertasks/actions/pause.gif"; // NOI18N
-    }
-    
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-        // If you will provide context help then use:
-        // return new HelpCtx (NewTodoItemAction.class);
-    }
-    
-    protected boolean asynchronous() {
-        return false;
-    }    
-
-    protected Class[] cookieClasses() {
-        return new Class[] {StopCookie.class};
-    }
-    
-    protected int mode() {
-        return CookieAction.MODE_EXACTLY_ONE;
-    }    
 }

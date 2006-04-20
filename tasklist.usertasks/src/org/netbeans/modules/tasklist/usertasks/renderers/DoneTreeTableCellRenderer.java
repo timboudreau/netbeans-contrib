@@ -14,28 +14,30 @@
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
 import java.awt.Component;
+import javax.swing.JTable;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableRenderer;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 
 /**
  * Cell renderer for the "done" property.
  *
  * @author tl
  */
-public class DoneTreeTableCellRenderer extends BooleanTableCellRenderer 
-implements TreeTableRenderer {
+public class DoneTreeTableCellRenderer extends BooleanTableCellRenderer {
     /** 
      * Creates a new instance of DoneTreeTableCellRenderer
      */
     public DoneTreeTableCellRenderer() {
     }
 
-    public java.awt.Component getTreeTableCellRendererComponent(
-            org.netbeans.modules.tasklist.usertasks.treetable.TreeTable table, 
-            Object node, Object value, boolean isSelected, boolean hasFocus, 
+    @Override
+    public java.awt.Component getTableCellRendererComponent(
+            JTable table, 
+            Object value, boolean isSelected, boolean hasFocus, 
             int row, int column) {
+        Object node = ((TreeTable) table).getNodeForRow(row);
         Component cmp = super.getTableCellRendererComponent(
                 table, value, isSelected, hasFocus, 
                 row, column);

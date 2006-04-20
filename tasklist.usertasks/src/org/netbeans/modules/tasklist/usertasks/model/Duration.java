@@ -6,11 +6,7 @@ import org.openide.util.NbBundle;
 /**
  * A duration class.
  */
-public class Duration {
-    private static final MessageFormat FORMAT = 
-        new MessageFormat(NbBundle.getMessage(Duration.class, 
-            "DurationFormat")); // NOI18N
-    
+public class Duration {    
     public int weeks, days, hours, minutes;
     
     /**
@@ -29,16 +25,5 @@ public class Duration {
         minutes /= daysPerWeek;
         this.weeks = minutes;
     }
-    
-    /**
-     * Returns the string representation of this duration.
-     *
-     * @return internationalized text
-     */
-    public String format() {
-        return FORMAT.format(new Object[] {
-            new Integer(weeks),
-            new Integer(days), new Integer(hours), new Integer(minutes)
-        }).trim();
-    }
+
 }

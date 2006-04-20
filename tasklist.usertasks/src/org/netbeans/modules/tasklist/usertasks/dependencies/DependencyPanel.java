@@ -14,6 +14,8 @@
 package org.netbeans.modules.tasklist.usertasks.dependencies;
 
 import java.awt.Image;
+import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
@@ -22,6 +24,7 @@ import org.openide.DialogDescriptor;
 
 import org.openide.util.Utilities;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
+import org.openide.util.NbBundle;
 
 /**
  * Panel for editing a dependency
@@ -60,14 +63,17 @@ public class DependencyPanel extends javax.swing.JPanel {
     
     private UserTask ut;
     private DialogDescriptor dd;
+    private List curDeps;
     
     /**
      * Constructor
      *
      * @param ut user task that will have a new dependency on another task
+     * @param curDeps <Dependency> current dependencies
      */
-    public DependencyPanel(UserTask ut) {
+    public DependencyPanel(UserTask ut, List curDeps) {
         this.ut = ut;
+        this.curDeps = curDeps;
         initComponents();
         jTree.setModel(new UserTaskTreeModel(ut.getList()));
         jTree.setCellRenderer(new UserTaskTreeCellRenderer());
@@ -195,20 +201,36 @@ public class DependencyPanel extends javax.swing.JPanel {
     private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
         String err = null;
         
+        ResourceBundle rb = NbBundle.getBundle(DependencyPanel.class);
+        
         TreePath tp = jTree.getSelectionPath();
         if (tp == null || !(tp.getLastPathComponent() instanceof UserTask)) {
-            err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("NothingSelected"); // NOI18N
+            err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).
+                    getString("NothingSelected"); // NOI18N
         } else {
             UserTask task = (UserTask) tp.getLastPathComponent();
 
             if (task == ut)
-                err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("TaskCannotDependOnItself."); // NOI18N
+                err = rb.getString("TaskCannotDependOnItself."); // NOI18N
             else if (task == ut.getParent())
-                err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("TaskCannotDependOnParent"); // NOI18N
+                err = rb.getString("TaskCannotDependOnParent"); // NOI18N
             else if (task.isAncestorOf(ut))
-                err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("TaskCannotDependOnAncestor"); // NOI18N
+                err = rb.getString("TaskCannotDependOnAncestor"); // NOI18N
             else if (ut.isAncestorOf(task))
-                err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("TaskCannotDependOnChild"); // NOI18N
+                err = rb.getString("TaskCannotDependOnChild"); // NOI18N
+            
+            for (int i = 0; i < curDeps.size(); i++) {
+                Dependency d = (Dependency) curDeps.get(i);
+                if (d.getDependsOn() == task)
+                    err = rb.getString("DependencyAlreadyExists"); // NOI18N
+                else if (task.isAncestorOf(d.getDependsOn()))
+                    err = rb.getString("DependencyOnChildAlreadyExists"); // NOI18N
+                else if (d.getDependsOn().isAncestorOf(task))
+                    err = rb.getString("DependencyOnAncestorAlreadyExists"); // NOI18N
+                
+                if (err != null)
+                    break;
+            }
         }        
         
         jLabelError.setText(err == null ? "" : err); // NOI18N

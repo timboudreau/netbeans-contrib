@@ -14,11 +14,15 @@
 package org.netbeans.modules.tasklist.usertasks.actions;
 
 import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
-import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.openide.util.NbBundle;
 
 /**
@@ -26,22 +30,90 @@ import org.openide.util.NbBundle;
  *
  * @author tl
  */
-public class MoveLeftAction extends AbstractAction {
+public class MoveLeftAction extends UTViewAction {
     private static final long serialVersionUID = 1;
 
     /**
-     * Creates an instance.
+     * Creates a new instance.
+     *
+     * @param utv a view
      */
-    public MoveLeftAction() {
-        this.putValue(AbstractAction.NAME, 
-                NbBundle.getMessage(MoveLeftAction.class,
+    public MoveLeftAction(UserTaskView utv) {
+        super(utv, NbBundle.getMessage(MoveLeftAction.class,
                 "MoveLeft")); // NOI18N
     }
     
     public void actionPerformed(ActionEvent event) {
-        UserTaskView utv = UserTaskViewRegistry.getInstance().getCurrent();
-        TreeTable tt = utv.getTreeTable();
-        TreePath[] paths = tt.getSelectedPaths();
+        // figuring out where we are
+        TreePath sel = utv.getTreeTable().getSelectedPath();
+        UserTaskTreeTableNode n = 
+                (UserTaskTreeTableNode) sel.getLastPathComponent();
+        UserTaskTreeTableNode parent = (UserTaskTreeTableNode) n.getParent();
+        AdvancedTreeTableNode newParent = 
+                (AdvancedTreeTableNode) parent.getParent();
+        TreePath newParentPath = sel.getParentPath().getParentPath();
+        TreePath[] expanded = utv.getTreeTable().getExpandedNodesUnder(
+                newParentPath);
+        UserTask[] expandedTasks = new UserTask[expanded.length];
+        for (int i = 0; i < expanded.length ; i++) {
+            if (expanded[i].getLastPathComponent() instanceof
+                    UserTaskTreeTableNode) {
+                expandedTasks[i] = ((UserTaskTreeTableNode) 
+                    expanded[i].getLastPathComponent()).getUserTask();
+            }
+        }
+        utv.getTreeTable().clearSelection();
+        int selColumn = utv.getTreeTable().getSelectedColumn();
+
+        // moving the task
+        UserTask ut = n.getUserTask();
+        int index = ut.getParentObjectList().identityIndexOf(ut);
+        while (ut.getParentObjectList().size() > index + 1) {
+            ut.getSubtasks().add(ut.getParentObjectList().remove(index + 1));
+        }
+        ut.getParentObjectList().remove(ut);
+        UserTaskObjectList newParentList;
+        if (newParent instanceof UserTaskTreeTableNode)
+            newParentList = ((UserTaskTreeTableNode) newParent).
+                    getUserTask().getSubtasks();
+        else
+            newParentList = ((UserTaskListTreeTableNode) newParent).
+                    getUserTaskList().getSubtasks();
+        int parentIndex = newParentList.identityIndexOf(parent.getUserTask());
+        newParentList.add(parentIndex + 1, ut);
         
+        // expanding and selecting nodes
+        index = newParent.getIndexOfObject(ut);
+        if (index >= 0) {
+            TreePath newPath = newParentPath.pathByAddingChild(
+                    newParent.getChildAt(index));
+            utv.getTreeTable().expandPath(newPath);
+            for (int i = 0; i < expandedTasks.length; i++) {
+                if (expandedTasks[i] != null) {
+                    TreePath p = utv.getTreeTable().findPath(expandedTasks[i]);
+                    if (p != null)
+                        utv.getTreeTable().expandPath(p);
+                }
+            }
+            utv.getTreeTable().select(newPath);
+            utv.getTreeTable().getColumnModel().getSelectionModel().
+                    addSelectionInterval(selColumn, selColumn);
+        }
+    }
+
+    public void valueChanged(ListSelectionEvent e) {
+        TreePath[] sel = utv.getTreeTable().getSelectedPaths();
+        if (utv.getTreeTable().getSortingModel().getSortedColumn() == -1 && 
+                sel.length == 1) {
+            Object last = sel[0].getLastPathComponent();
+            if (last instanceof UserTaskTreeTableNode) {
+                UserTaskTreeTableNode n = (UserTaskTreeTableNode) last;
+                setEnabled(n.getUserTask().getParent() != null);
+            } else {
+                setEnabled(false);
+            }
+        } else {
+            setEnabled(false);
+        }
     }
 }

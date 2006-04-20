@@ -31,7 +31,8 @@ public class EffortTableCellRenderer extends DurationTableCellRenderer {
             row, column);
         UserTask ut = (UserTask) value;
         if (ut != null) {
-            boolean b = ut.getEffort() >= ut.getSpentTime() + ut.getRemainingEffort();
+            boolean b = ut.getEffort() >= ut.getSpentTime() + 
+                    ut.getRemainingEffort();
             setFont(b ? normalFont : boldFont);
             if (!isSelected && !b)
                 setForeground(Color.RED);

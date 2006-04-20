@@ -21,7 +21,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import org.netbeans.modules.tasklist.usertasks.*;
 
-import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.MultiTransferObject;

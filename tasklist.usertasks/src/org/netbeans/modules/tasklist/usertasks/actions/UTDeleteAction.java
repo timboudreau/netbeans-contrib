@@ -59,7 +59,8 @@ implements ListSelectionListener {
     }
     
     private UserTaskTreeTableNode[] normalize(UserTaskTreeTableNode[] tasks) {
-        List ret = new ArrayList();
+        List<UserTaskTreeTableNode> ret = 
+                new ArrayList<UserTaskTreeTableNode>();
     outer:
         for (int i = 0; i < tasks.length; i++) {
             for (int j = 0; j < ret.size(); j++) {
@@ -76,8 +77,7 @@ implements ListSelectionListener {
             }
             ret.add(tasks[i]);
         }
-        return (UserTaskTreeTableNode[]) ret.toArray(
-            new UserTaskTreeTableNode[ret.size()]);
+        return ret.toArray(new UserTaskTreeTableNode[ret.size()]);
     }
     
     private boolean doConfirm(UserTaskTreeTableNode[] sel) {

@@ -53,9 +53,10 @@ public class UserTaskViewRegistry {
      * Keeps track of all UserTaskViews. Access should be synchronized on
      * UserTaskView.class
      */
-    private List views = new ArrayList();
+    private List<WeakReference<UserTaskView>> views = 
+            new ArrayList<WeakReference<UserTaskView>>();
     
-    private WeakReference lastActivated = null;
+    private WeakReference<UserTaskView> lastActivated = null;
     private EventListenerList listenerList = new EventListenerList();
             
     /** 
@@ -85,15 +86,15 @@ public class UserTaskViewRegistry {
      */
     public UserTaskView[] getAll() {
         synchronized(UserTaskView.class) {
-            WeakReference[] r = (WeakReference[]) views.toArray(
-                new WeakReference[views.size()]);
-            List views = new ArrayList();
+            WeakReference[] r = this.views.toArray(
+                new WeakReference[this.views.size()]);
+            List<UserTaskView> views = new ArrayList<UserTaskView>();
             for (int i = 0; i < r.length; i++) {
                 UserTaskView v = (UserTaskView) r[i].get();
                 if (v != null)
                     views.add(v);
             }
-            return (UserTaskView[]) views.toArray(new UserTaskView[views.size()]);
+            return views.toArray(new UserTaskView[views.size()]);
         }
     }
     
@@ -147,7 +148,7 @@ public class UserTaskViewRegistry {
      * @param v the last activated view
      */
     public void setLastActivated(UserTaskView v) {
-        lastActivated = new WeakReference(v);
+        lastActivated = new WeakReference<UserTaskView>(v);
     }
 
     /**
@@ -157,7 +158,7 @@ public class UserTaskViewRegistry {
      */
     public void viewOpened(UserTaskView v) {
         synchronized (UserTaskView.class) {
-            views.add(new WeakReference(v));
+            views.add(new WeakReference<UserTaskView>(v));
         }
         fireChange();
     }

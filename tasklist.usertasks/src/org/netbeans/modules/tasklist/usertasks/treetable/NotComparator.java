@@ -18,19 +18,19 @@ import java.util.Comparator;
 /**
  * Inverts results of another Comparator
  */
-public class NotComparator implements Comparator {
-    private Comparator c;
+public class NotComparator<T> implements Comparator<T> {
+    private Comparator<T> c;
     
     /** 
      * Creates a new instance of NotComparator 
      * 
      * @param c a comparator 
      */
-    public NotComparator(Comparator c) {
+    public NotComparator(Comparator<T> c) {
         this.c = c;
     }
 
-    public int compare(Object o1, Object o2) {
+    public int compare(T o1, T o2) {
         return -c.compare(o1, o2);
     }
 }

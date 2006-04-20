@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -39,7 +40,6 @@ import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.filesystems.FileLock;
@@ -123,7 +123,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
                     d.setOptions(new Object[] {DialogDescriptor.OK_OPTION});
                     java.awt.Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
                     dlg.pack();
-                    dlg.show();
+                    dlg.setVisible(true);
                 }
             });
         }
@@ -245,12 +245,12 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      */
     public String[] getOwners() {
         Iterator it = this.getSubtasks().iterator();
-        Set cat = new java.util.HashSet();
+        Set<String> cat = new java.util.HashSet<String>();
         while (it.hasNext()) {
             UserTask ut = (UserTask) it.next();
             findOwners(ut, cat);
         }
-        return (String[]) cat.toArray(new String[cat.size()]);
+        return cat.toArray(new String[cat.size()]);
     }
     
     /**
@@ -260,7 +260,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      * recursively
      * @param cat container for found owners. <String>
      */
-    private static void findOwners(UserTask task, Set cat) {
+    private static void findOwners(UserTask task, Set<String> cat) {
         if (task.getOwner().length() != 0)
             cat.add(task.getOwner());
         
@@ -277,12 +277,12 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      */
     public String[] getCategories() {
         Iterator it = this.getSubtasks().iterator();
-        Set cat = new java.util.HashSet();
+        Set<String> cat = new java.util.HashSet<String>();
         while (it.hasNext()) {
             UserTask ut = (UserTask) it.next();
             findCategories(ut, cat);
         }
-        return (String[]) cat.toArray(new String[cat.size()]);
+        return cat.toArray(new String[cat.size()]);
     }
     
     /**
@@ -292,7 +292,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      * recursively
      * @param cat container for found categories. String[]
      */
-    private static void findCategories(UserTask task, Set cat) {
+    private static void findCategories(UserTask task, Set<String> cat) {
         if (task.getCategory().length() != 0)
             cat.add(task.getCategory());
         
@@ -377,7 +377,8 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    ErrorManager.getDefault().notify(e);
+                    UTUtils.LOGGER.log(Level.WARNING, 
+                            "closing file failed", e); // NOI18N
                 }
             }
             ret.file = fo;
@@ -479,7 +480,8 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
                 try {
                     w.close();
                 } catch (IOException e) {
-                    ErrorManager.getDefault().notify(e);
+                    UTUtils.LOGGER.log(Level.WARNING, 
+                            "failed closing file", e);
                 }
             }
         } finally {
@@ -495,8 +497,8 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
                          FileUtil.toFile(this.file).getAbsolutePath()});
             } catch (Exception e) {
                 // Silently accept
-                ErrorManager.getDefault().notify(
-                     ErrorManager.INFORMATIONAL, e);
+                UTUtils.LOGGER.log(Level.INFO, 
+                        "chmod call failed", e); // NOI18N
             }
         }
 
@@ -593,7 +595,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      * @return list of UserTask
      */
     public List getAllSubtasks() {
-        List ret = new ArrayList();
+        List<UserTask> ret = new ArrayList<UserTask>();
         collectAllSubtasks(ret, getSubtasks());
         return ret;
     }
@@ -604,7 +606,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
      * @param ret output 
      * @param tasks a list of UserTasks
      */
-    private void collectAllSubtasks(List ret, UserTaskObjectList tasks) {
+    private void collectAllSubtasks(List<UserTask> ret, UserTaskObjectList tasks) {
         for (int i = 0; i < tasks.size(); i++) {
             ret.add(tasks.getUserTask(i));
             collectAllSubtasks(ret, tasks.getUserTask(i).getSubtasks());

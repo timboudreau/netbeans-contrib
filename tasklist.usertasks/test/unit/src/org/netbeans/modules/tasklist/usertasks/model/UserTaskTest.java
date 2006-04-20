@@ -99,4 +99,18 @@ public class UserTaskTest extends TestCase {
         UserTask.WorkPeriod w = (UserTask.WorkPeriod) wp.get(0);
         assertEquals(1, w.getDuration());
     }
+    
+    public void testStopIfSpentTimeComputed() {
+        UserTaskList list = new UserTaskList();
+        UserTask a = new UserTask("A", list);
+        list.getSubtasks().add(a);
+        
+        Settings.getDefault().setAutoSwitchToComputed(true);
+        a.start();
+        
+        UserTask b = new UserTask("B", list);
+        a.getSubtasks().add(b);
+        
+        assertFalse(a.isStarted());
+    }
 }

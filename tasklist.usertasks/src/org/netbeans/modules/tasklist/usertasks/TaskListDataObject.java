@@ -15,7 +15,8 @@ package org.netbeans.modules.tasklist.usertasks;
 
 import java.io.IOException;
 import javax.swing.SwingUtilities;
-import org.openide.ErrorManager;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
@@ -23,6 +24,7 @@ import org.openide.loaders.MultiDataObject;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.openide.util.NbBundle;
 
 
 /**
@@ -69,7 +71,10 @@ public class TaskListDataObject extends MultiDataObject implements OpenCookie {
                 view = new UserTaskView(tl, false);
                 view.showInMode();
             } catch (IOException e) {
-                ErrorManager.getDefault().notify(e);
+                NotifyDescriptor nd = new NotifyDescriptor.Message(
+                        NbBundle.getMessage(TaskListDataObject.class, 
+                        "ErrorReadingFile", e.getMessage())); // NOI18N
+                DialogDisplayer.getDefault().notify(nd);
             }
         } else {
             // This view already exists, show it...

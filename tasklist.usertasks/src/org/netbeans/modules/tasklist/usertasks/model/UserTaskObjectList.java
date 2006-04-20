@@ -71,7 +71,7 @@ public class UserTaskObjectList extends ObjectList {
         UserTask ut = (UserTask) element;
         if (ut.getParent() != null)
             ut.getParent().getSubtasks().remove(ut);
-        else
+        else if (ut.getList() != null)
             ut.getList().getSubtasks().remove(ut);
         if (parent instanceof UserTask) {
             ut.setParent((UserTask) parent);

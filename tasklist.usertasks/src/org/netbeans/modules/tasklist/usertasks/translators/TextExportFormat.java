@@ -15,8 +15,7 @@ package org.netbeans.modules.tasklist.usertasks.translators;
 
 import java.io.File;
 import java.io.InputStream;
-
-import javax.swing.filechooser.FileSystemView;
+import java.util.logging.Level;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -27,8 +26,9 @@ import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.cookies.OpenCookie;
@@ -66,8 +66,8 @@ public class TextExportFormat extends XmlExportFormat {
                     "TextFilter"), // NOI18N
                 new String[] {".txt"})); // NOI18N
         chooseFilePanel.setFile(new File(
-            FileSystemView.getFileSystemView().
-            getDefaultDirectory(), "tasklist.txt")); // NOI18N
+                Settings.getDefault().getLastUsedExportFolder(),
+                "tasklist.txt")); // NOI18N
         chooseFileWP.setContentHighlightedIndex(0);
 
         TextTemplatesPanel templatesPanel = new TextTemplatesPanel();
@@ -130,7 +130,7 @@ public class TextExportFormat extends XmlExportFormat {
                 DialogDisplayer.getDefault().notify(nd);
             }
         } catch (DataObjectNotFoundException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
         }
     }
    
@@ -141,10 +141,12 @@ public class TextExportFormat extends XmlExportFormat {
                 getResourceAsStream(res);
             return tf.newTransformer(new StreamSource(xsl));
         } catch (TransformerConfigurationException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, 
+                    "XSL-Transformer not found", e); // NOI18N
             return null;
         } catch (TransformerException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, 
+                    "XSL-Transformer cannot be created", e); // NOI18N
             return null;
         }
    }

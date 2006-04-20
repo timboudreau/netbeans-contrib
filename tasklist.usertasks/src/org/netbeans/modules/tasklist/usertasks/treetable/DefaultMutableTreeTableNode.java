@@ -3,6 +3,7 @@ package org.netbeans.modules.tasklist.usertasks.treetable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -10,9 +11,9 @@ import javax.swing.tree.TreeNode;
 /**
  * Default mutable TT node
  */
-public class DefaultMutableTreeTableNode extends DefaultMutableTreeNode implements
-TreeTableNode {
-    private ArrayList values;
+public class DefaultMutableTreeTableNode extends DefaultMutableTreeNode 
+        implements TreeTableNode {
+    private List<Object> values;
     
     /**
      * Creates a tree node that has no parent and no children, but which
@@ -49,7 +50,7 @@ TreeTableNode {
     
     public void setValueAt(Object aValue, int column) {
         if (values == null)
-            values = new ArrayList();
+            values = new ArrayList<Object>();
         
         while (values.size() <= column) {
             values.add(null);
@@ -75,10 +76,15 @@ TreeTableNode {
      *
      * @param c a comparator for nodes comparing
      */
-    public void sort(final Comparator c) {
+    @SuppressWarnings("unchecked") 
+    public void sort(final Comparator<TreeNode> c) {
         if (children == null)
             return;
+        
+        // children is defined as Vector. This results in an "unchecked call"
+        // warning
         Collections.sort(children, c);
+        
         for (int i = 0; i < getChildCount(); i++) {
             TreeNode tn = getChildAt(i);
             ((DefaultMutableTreeTableNode) tn).sort(c);

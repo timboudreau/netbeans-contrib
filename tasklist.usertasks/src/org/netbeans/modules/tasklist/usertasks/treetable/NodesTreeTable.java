@@ -17,13 +17,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
+import java.util.logging.Level;
 
 import javax.swing.Action;
 import javax.swing.JPopupMenu;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
-import org.openide.ErrorManager;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.awt.MouseUtils;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.AbstractNode;
@@ -129,7 +129,7 @@ public abstract class NodesTreeTable extends TreeTable {
                         em.setSelectedNodes(nodes);
                     }
                 } catch (PropertyVetoException ex) {
-                    ErrorManager.getDefault().notify(ex);
+                    UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
                 }
             }
         }

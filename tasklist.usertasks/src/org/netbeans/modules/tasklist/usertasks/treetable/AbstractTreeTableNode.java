@@ -108,13 +108,13 @@ public abstract class AbstractTreeTableNode implements TreeTableNode {
      * @return path to the root
      */
     public TreeTableNode[] getPathToRoot() {
-        List path = new ArrayList();
+        List<TreeTableNode> path = new ArrayList<TreeTableNode>();
         TreeTableNode n = this;
         while (n != null) {
             path.add(0, n);
             n = (TreeTableNode) n.getParent();
         }
-        return (TreeTableNode[]) path.toArray(new TreeTableNode[path.size()]);
+        return path.toArray(new TreeTableNode[path.size()]);
     }
     
     /**

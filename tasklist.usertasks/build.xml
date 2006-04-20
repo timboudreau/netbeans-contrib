@@ -53,8 +53,6 @@ Microsystems, Inc. All Rights Reserved.
     </target>
     
     <target name="changelog">
-        <style in="module-updates.xml" out="../www/updates/tasklist-usertasks.html" 
-            style="../www/updates/updates.xsl"/>
     </target>
     
     <target name="pmd-check">

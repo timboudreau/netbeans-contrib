@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -35,7 +36,6 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
 import org.netbeans.modules.tasklist.usertasks.renderers.UserTaskIconProvider;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
-import org.openide.ErrorManager;
 
 /**
  * TransferHandler for the table.
@@ -69,9 +69,9 @@ public class MyTransferHandler extends TransferHandler {
                 UTUtils.LOGGER.fine("stringFlavor is not supported"); // NOI18N
             }
         } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
         } catch (UnsupportedFlavorException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
         }
         return tasks;
     }
@@ -91,14 +91,14 @@ public class MyTransferHandler extends TransferHandler {
     protected Transferable createTransferable(JComponent c) {
         UserTasksTreeTable tt = (UserTasksTreeTable) c;
         TreePath[] paths = tt.getSelectedPaths();
-        List tasks = new ArrayList();
+        List<UserTask> tasks = new ArrayList<UserTask>();
         for (int i = 0; i < paths.length; i++) {
             Object last = paths[i].getLastPathComponent();
             if (last instanceof UserTaskTreeTableNode) {
                 tasks.add(((UserTaskTreeTableNode) last).getUserTask());
             }
         }
-        UserTask[] t = (UserTask[]) tasks.toArray(new UserTask[tasks.size()]);
+        UserTask[] t = tasks.toArray(new UserTask[tasks.size()]);
         t = UserTask.reduce(t);
         if (t.length == 0)
             return null;
@@ -161,10 +161,10 @@ public class MyTransferHandler extends TransferHandler {
         }
         
         UTUtils.LOGGER.fine("found list: " + list); // NOI18N
-        List tasks_ = new ArrayList(Arrays.asList(tasks));
-        Iterator it = tasks_.iterator();
+        List<UserTask> tasks_ = new ArrayList<UserTask>(Arrays.asList(tasks));
+        Iterator<UserTask> it = tasks_.iterator();
         while (it.hasNext()) {
-            UserTask ut = (UserTask) it.next();
+            UserTask ut = it.next();
             if (list.identityIndexOf(ut) >= 0) {
                 it.remove();
             }

@@ -17,7 +17,9 @@ import org.openide.util.Utilities;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
 
 /**
- * Dependencies for a task
+ * Dependencies for a task.
+ *
+ * @author tl
  */
 public class DependenciesPanel extends javax.swing.JPanel {
     private static final String BEGIN_BEGIN_MSG = 
@@ -26,7 +28,7 @@ public class DependenciesPanel extends javax.swing.JPanel {
         NbBundle.getMessage(DependenciesPanel.class, "EndBeginDep"); // NOI18N
 
     private UserTask ut;
-    private List dependencies = new ArrayList();
+    private List<Dependency> dependencies = new ArrayList<Dependency>();
     
     /**
      * Creates a panel
@@ -169,7 +171,7 @@ public class DependenciesPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jButtonRemoveActionPerformed
 
     private void jButtonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddActionPerformed
-        DependencyPanel dp = new DependencyPanel(ut);
+        DependencyPanel dp = new DependencyPanel(ut, dependencies);
         dp.setBorder(new EmptyBorder(11, 11, 12, 12));
         DialogDescriptor dd = new DialogDescriptor(dp, 
             NbBundle.getMessage(
@@ -177,7 +179,7 @@ public class DependenciesPanel extends javax.swing.JPanel {
         dp.setDialogDescriptor(dd);
         Dialog d = DialogDisplayer.getDefault().createDialog(dd);
         d.setBounds(Utilities.findCenterBounds(new Dimension(400, 400)));
-        d.show();
+        d.setVisible(true);
         if (dd.getValue() == DialogDescriptor.OK_OPTION) {
             UserTask sel = dp.getSelectedTask();
             int type = dp.getDependencyType();

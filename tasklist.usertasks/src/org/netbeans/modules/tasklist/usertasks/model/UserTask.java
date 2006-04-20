@@ -186,7 +186,7 @@ ObjectList.Owner {
      * @return reduced array
      */
     public static UserTask[] reduce(UserTask[] tasks) {
-        List res = new ArrayList();
+        List<UserTask> res = new ArrayList<UserTask>();
         for (int i = 0; i < tasks.length; i++) {
             boolean ok = true;
             for (int j = 0; j < tasks.length; j++) {
@@ -200,7 +200,7 @@ ObjectList.Owner {
             if (ok)
                 res.add(tasks[i]);
         }
-        return (UserTask[]) res.toArray(new UserTask[res.size()]);
+        return res.toArray(new UserTask[res.size()]);
     }
     
     /**
@@ -359,7 +359,7 @@ ObjectList.Owner {
     private int linenumber = -1;
     // </editor-fold>                        
     
-    private List dependencies = new ArrayList();
+    private List<Dependency> dependencies = new ArrayList<Dependency>();
     private String owner = ""; // NOI18N
     private long completedDate = 0;
     
@@ -507,12 +507,26 @@ ObjectList.Owner {
     }
     
     /**
+     * Returns the list where this task is contained.
+     *
+     * @return the list or null if this task is not in a UserTaskList
+     */
+    public UserTaskObjectList getParentObjectList() {
+        if (getParent() != null)
+            return getParent().getSubtasks();
+        else if (getList() != null)
+            return getList().getSubtasks();
+        else
+            return null;
+    }
+    
+    /**
      * Returns the path to this task starting with the user task list.
      *
      * @return path to this task
      */
     public TreePath getPathTo() {
-        List l = new ArrayList(10);
+        List<Object> l = new ArrayList<Object>(10);
         UserTask t = this;
         while (t != null) {
             l.add(0, t);
@@ -649,6 +663,8 @@ ObjectList.Owner {
      */
     public void setSpentTimeComputed(boolean v) {
         if (this.spentTimeComputed != v) {
+            if (isStarted())
+                stop();
             this.spentTimeComputed = v;
             firePropertyChange("spentTimeComputed", Boolean.valueOf(!v), // NOI18N
                 Boolean.valueOf(v));
@@ -730,7 +746,7 @@ ObjectList.Owner {
     }
     
     /**
-     * Checks whether this task could be started. This method als could
+     * Checks whether this task could be started. This method also could
      * return true for a task that is currently running.
      *
      * @return true = this task could be started
@@ -1261,7 +1277,7 @@ ObjectList.Owner {
      *
      * @return dependencies. List<Dependency>
      */
-    public List getDependencies() {
+    public List<Dependency> getDependencies() {
         return dependencies;
     }
     
@@ -1286,7 +1302,8 @@ ObjectList.Owner {
      * @return found tasks
      */
     public UserTask[] findTasksThatDependOnThisOne() {
-        List t = UTUtils.filter(new UTTreeIntf(getList()), new UnaryFunction() {
+        List<Object> t = UTUtils.filter(
+                new UTTreeIntf(getList()), new UnaryFunction() {
             public Object compute(Object obj) {
                 if (obj instanceof UserTask) {
                     UserTask ut = (UserTask) obj;
@@ -1644,11 +1661,11 @@ ObjectList.Owner {
         UserTaskList utl = new UserTaskList();
         BufferedReader reader = new BufferedReader(r);
         String line;
-        List res = new ArrayList();
+        List<UserTask> res = new ArrayList<UserTask>();
         while ((line = reader.readLine()) != null) {
             res.add(new UserTask(line, utl));
         }
-        return (UserTask[]) res.toArray(new UserTask[res.size()]);
+        return res.toArray(new UserTask[res.size()]);
     }
 
     /**

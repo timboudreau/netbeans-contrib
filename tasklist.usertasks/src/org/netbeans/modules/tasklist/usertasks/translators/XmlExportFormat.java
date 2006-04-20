@@ -19,8 +19,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-
-import javax.swing.filechooser.FileSystemView;
+import java.util.logging.Level;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -39,11 +38,11 @@ import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+import org.netbeans.modules.tasklist.usertasks.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
-import org.netbeans.modules.tasklist.usertasks.UserTaskView;
-import org.openide.ErrorManager;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 import org.w3c.dom.Document;
@@ -91,8 +90,8 @@ public class XmlExportFormat implements ExportImportFormat {
                     "XmlFilter"), // NOI18N
                 new String[] {".xml"})); // NOI18N
         chooseFilePanel.setFile(new File(
-            FileSystemView.getFileSystemView().
-            getDefaultDirectory(), "tasklist.xml")); // NOI18N
+                Settings.getDefault().getLastUsedExportFolder(), 
+                "tasklist.xml")); // NOI18N
         
         // create the wizard
         WizardDescriptor.Iterator iterator = 
@@ -125,7 +124,7 @@ public class XmlExportFormat implements ExportImportFormat {
         try {
             return TransformerFactory.newInstance().newTransformer();
         } catch (TransformerConfigurationException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, "", e);
             return null;
         }
     }
@@ -141,12 +140,14 @@ public class XmlExportFormat implements ExportImportFormat {
             Source source = new DOMSource(doc);
             Result result = new StreamResult(panel.getFile());
             t.transform(source, result);
+            Settings.getDefault().setLastUsedExportFolder(
+                    panel.getFile().getParentFile());
         } catch (TransformerException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e);
         } catch (ParserConfigurationException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e);
         } catch (SAXException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e);
         }
     }
 

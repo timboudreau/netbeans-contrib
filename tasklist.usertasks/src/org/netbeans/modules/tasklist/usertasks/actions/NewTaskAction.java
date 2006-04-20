@@ -266,7 +266,7 @@ public class NewTaskAction extends NodeAction {
         panel.setLineNumber(lineNumber);
         panel.focusSummary();
         
-        getDialog().show();
+        getDialog().setVisible(true);
 
         if (getDialogDescriptor().getValue() == NotifyDescriptor.OK_OPTION) {
             panel.fillObject(ut);

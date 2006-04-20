@@ -17,19 +17,19 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.util.Date;
+import javax.swing.JTable;
 import org.netbeans.modules.tasklist.usertasks.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableRenderer;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 
 /**
  * Renderer for the due date
  *
  * @author tl
  */
-public class DueDateTableCellRenderer extends DateTableCellRenderer implements
-TreeTableRenderer {
+public class DueDateTableCellRenderer extends DateTableCellRenderer {
     private Font boldFont, normalFont;
     
     /**
@@ -49,10 +49,11 @@ TreeTableRenderer {
         }
     }
 
-    public Component getTreeTableCellRendererComponent(
-        org.netbeans.modules.tasklist.usertasks.treetable.TreeTable table, 
-        Object node, Object value, boolean isSelected, boolean hasFocus, 
+    public Component getTableCellRendererComponent(
+        JTable table, 
+        Object value, boolean isSelected, boolean hasFocus, 
         int row, int column) {
+        Object node = ((TreeTable) table).getNodeForRow(row);
         if (normalFont == null || !normalFont.equals(table.getFont())) {
             normalFont = table.getFont();
             boldFont = normalFont.deriveFont(Font.BOLD);

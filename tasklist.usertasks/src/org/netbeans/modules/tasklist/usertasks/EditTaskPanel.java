@@ -45,6 +45,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.util.DurationFormat;
 
 /**
  * Panel used to enter/edit a user task.
@@ -251,24 +252,26 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         else
             jLabelCompleted.setText(""); // NOI18N
         
+        DurationFormat durf = new DurationFormat(DurationFormat.Type.LONG);
         DefaultListModel dlm = new DefaultListModel();
         for (int i = 0; i < item.getWorkPeriods().size(); i++) {
             UserTask.WorkPeriod wp = (UserTask.WorkPeriod)
                 item.getWorkPeriods().get(i);
             dlm.addElement(
                 df.format(new Date(wp.getStart())) + ", " + // NOI18N
-                new Duration(wp.getDuration(), 
+                durf.format(new Duration(wp.getDuration(), 
                     Settings.getDefault().getHoursPerDay(),
                     Settings.getDefault().getDaysPerWeek()
-                ).format()
+                ))
             );
         }
         jListWorkPeriods.setModel(dlm);
         
         jLabelSpentTimeToday.setText(
-            new Duration(item.getSpentTimeToday(),
+                durf.format(
+                new Duration(item.getSpentTimeToday(),
                 Settings.getDefault().getHoursPerDay(),
-                Settings.getDefault().getDaysPerWeek()).format());
+                Settings.getDefault().getDaysPerWeek())));
     }
     
     /**

@@ -21,12 +21,15 @@ import java.util.List;
 
 /**
  * This "advanced" class provides filtering and sorting of nodes
+ *
+ * T - type of the object in this node
  */
-public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
+public abstract class AdvancedTreeTableNode<T>
+        extends AbstractTreeTableNode {
     protected FilterIntf filter;
-    protected Comparator comparator;
+    protected Comparator<AdvancedTreeTableNode> comparator;
     protected DefaultTreeTableModel model;
-    protected Object object;
+    protected T object;
     
     /** 
      * Creates a new instance of AdvancedTreeTableNode 
@@ -36,7 +39,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      * @param object object associated with this node
      */
     public AdvancedTreeTableNode(DefaultTreeTableModel model, 
-        TreeTableNode parent, Object object) {
+        TreeTableNode parent, T object) {
         super(parent);
         this.model = model;
         this.object = object;
@@ -47,7 +50,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      *
      * @return object
      */
-    public Object getObject() {
+    public T getObject() {
         return object;
     }
     
@@ -71,7 +74,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      *
      * @param comparator new comparator
      */
-    public void setComparator(Comparator comparator) {
+    public void setComparator(Comparator<AdvancedTreeTableNode> comparator) {
         if (this.comparator == comparator)
             return;
         
@@ -79,15 +82,15 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
         
         if (this.children != null) {
             if (this.comparator != null) {
-                Arrays.sort(children, this.comparator);
+                Arrays.sort((AdvancedTreeTableNode[]) children, 
+                        this.comparator);
             } else {
                 AdvancedTreeTableNode[] newch = 
                     new AdvancedTreeTableNode[children.length];
-                Iterator it = this.getChildrenObjectsIterator();
+                Iterator<Object> it = this.getChildrenObjectsIterator();
                 int i = 0;
                 while (it.hasNext()) {
-                    Object obj = it.next();
-                    int index = getIndexOfObject(obj);
+                    int index = getIndexOfObject(it.next());
                     if (index >= 0)
                         newch[i++] = (AdvancedTreeTableNode) children[index];
                 }
@@ -95,7 +98,8 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
             }
             model.fireTreeStructureChanged(model, getPathToRoot());
             for (int i = 0; i < children.length; i++) {
-                ((AdvancedTreeTableNode) children[i]).setComparator(comparator);
+                ((AdvancedTreeTableNode<?>) children[i]).
+                        setComparator(comparator);
             }
         }
     }
@@ -105,7 +109,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      *
      * @return comparator or null
      */
-    public Comparator getComparator() {
+    public Comparator<AdvancedTreeTableNode> getComparator() {
         return comparator;
     }
     
@@ -135,14 +139,14 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      *
      * @return the iterator
      */
-    public abstract Iterator getChildrenObjectsIterator();
+    public abstract Iterator<Object> getChildrenObjectsIterator();
     
     /**
      * Creates a children node
      *
      * @param child child's object
      */
-    public abstract AdvancedTreeTableNode createChildNode(Object child);
+    public abstract AdvancedTreeTableNode<Object> createChildNode(Object child);
     
     /**
      * Filtering
@@ -157,8 +161,8 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     }
     
     protected void loadChildren() {
-        List ch = new ArrayList();
-        Iterator it = getChildrenObjectsIterator();
+        List<Object> ch = new ArrayList<Object>();
+        Iterator<Object> it = getChildrenObjectsIterator();
         while (it.hasNext()) {
             ch.add(it.next());
         }
@@ -167,8 +171,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
         if (getFilter() != null) {
             it = ch.iterator();
             while (it.hasNext()) {
-                Object obj = it.next();
-                if (!accept(obj))
+                if (!accept(it.next()))
                     it.remove();
             }
         }
@@ -180,7 +183,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
 
         // sorting
         if (getComparator() != null)
-            Arrays.sort(children, getComparator());
+            Arrays.sort((AdvancedTreeTableNode[]) children, getComparator());
     }
 
     public void refreshChildren() {
@@ -214,11 +217,10 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
             if (this.comparator == null) {
                 AdvancedTreeTableNode[] newch = 
                     new AdvancedTreeTableNode[children.length];
-                Iterator it = this.getChildrenObjectsIterator();
+                Iterator<Object> it = this.getChildrenObjectsIterator();
                 int i = 0;
                 while (it.hasNext()) {
-                    Object obj = it.next();
-                    int index = getIndexOfObject(obj);
+                    int index = getIndexOfObject(it.next());
                     if (index >= 0)
                         newch[i++] = (AdvancedTreeTableNode) children[index];
                 }
@@ -267,12 +269,13 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
             
             int index;
             if (getComparator() != null) {
-                index = Arrays.binarySearch(children, cn, getComparator());
+                index = Arrays.binarySearch(
+                        (AdvancedTreeTableNode[]) children, cn, getComparator());
                 if (index < 0)
                     index = -(index + 1);
             } else {
                 index = -1;
-                Iterator it = getChildrenObjectsIterator();
+                Iterator<Object> it = getChildrenObjectsIterator();
                 while (it.hasNext()) {
                     Object next = it.next();
                     if (!accept(next))
@@ -298,8 +301,11 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     /**
      * Fires the appropriate events if the object in this node has changed.
      */
+    @SuppressWarnings("unchecked")
     protected void fireObjectChanged() {
-        AdvancedTreeTableNode parent = (AdvancedTreeTableNode) getParent(); 
+        // TreeNode is not generic => SuppressWarnings
+        AdvancedTreeTableNode parent = 
+                (AdvancedTreeTableNode) getParent(); 
         TreeTableNode[] path = parent.getPathToRoot();
 
         assert parent.getIndex(this) != -1 : "parent=" + parent + // NOI18N
@@ -319,7 +325,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      *
      * @param child changed child node
      */
-    protected void childNodeChanged(AdvancedTreeTableNode child) {
+    protected void childNodeChanged(AdvancedTreeTableNode<?> child) {
         if (getFilter() != null) {
             if (!accept(child.getObject())) {
                 // this call is not really the right one here.

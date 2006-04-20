@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import javax.swing.Action;
 
 import javax.swing.ActionMap;
 import javax.swing.JComponent;
@@ -48,6 +49,8 @@ import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.core.util.RightSideBorder;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
+import org.netbeans.modules.tasklist.usertasks.actions.MoveLeftAction;
+import org.netbeans.modules.tasklist.usertasks.actions.MoveRightAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
@@ -67,7 +70,6 @@ import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
-import org.openide.ErrorManager;
 import org.openide.actions.FindAction;
 import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.ExplorerManager;
@@ -122,16 +124,18 @@ FilteredTopComponent {
         Settings.getDefault().addPropertyChangeListener(
             new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent e) {
-                    if (e.getPropertyName() != Settings.PROP_HOURS_PER_DAY ||
+                    if (e.getPropertyName() != Settings.PROP_HOURS_PER_DAY &&
                         e.getPropertyName() != Settings.PROP_DAYS_PER_WEEK)
                         return;
                     
+                    UserTaskView[] all;
                     synchronized(UserTaskView.class) {
-                        UserTaskView[] all = UserTaskViewRegistry.
+                        all = UserTaskViewRegistry.
                                 getInstance().getAll();
-                        for (int i = 0; i < all.length; i++) {
-                            all[i].repaint();
-                        }
+                    }
+                    UTUtils.LOGGER.fine("repainting"); // NOI18N
+                    for (int i = 0; i < all.length; i++) {
+                        all[i].repaint();
                     }
                 }
             }
@@ -146,6 +150,18 @@ FilteredTopComponent {
     private Filter activeFilter = null;
     private ExplorerManager manager;
     private boolean default_;
+    
+    /** View specific action for moving the selected task up. */
+    public MoveUpAction moveUpAction;
+    
+    /** View specific action for moving the selected task down. */
+    public MoveDownAction moveDownAction;
+    
+    /** View specific action for moving the selected task left. */
+    public MoveLeftAction moveLeftAction;
+    
+    /** View specific action for moving the selected task left. */
+    public MoveRightAction moveRightAction;
     
     /** 
      * Construct a new UserTaskView.  
@@ -174,7 +190,7 @@ FilteredTopComponent {
      *
      * @return TreeTable
      */
-    public TreeTable getTreeTable() {
+    public UserTasksTreeTable getTreeTable() {
         return tt;
     }
     
@@ -183,16 +199,19 @@ FilteredTopComponent {
      *
      * @return actions for the toolbar or null
      */
-    public SystemAction[] getToolBarActions() {
-        return new SystemAction[] {
+    public Action[] getToolBarActions() {
+        return new Action[] {
             SystemAction.get(NewTaskAction.class),
-            SystemAction.get(GoToUserTaskAction.class),
+            new GoToUserTaskAction(this),
+            null,
             SystemAction.get(FilterAction.class),
             SystemAction.get(RemoveFilterAction.class),
-            SystemAction.get(StartTaskAction.class),
-            SystemAction.get(PauseAction.class),
-            SystemAction.get(MoveUpAction.class),
-            SystemAction.get(MoveDownAction.class),
+            null,
+            new StartTaskAction(this),
+            PauseAction.getInstance(),
+            null,
+            moveUpAction,
+            moveDownAction,
             // SystemAction.get(AsListAction.class)
         };
     }
@@ -432,7 +451,7 @@ FilteredTopComponent {
             objectOutput.writeObject(null);
         }
 
-        Map m = new HashMap();
+        Map<String, Serializable> m = new HashMap<String, Serializable>();
         
         // scroll bars positions
         Point p = new Point(            
@@ -613,8 +632,8 @@ FilteredTopComponent {
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        SystemAction[] actions = getToolBarActions();
-        JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+        Action[] actions = getToolBarActions();
+        JToolBar toolbar = UTUtils.createToolbarPresenter(actions);
         toolbar.setFloatable(false);
         toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
         toolbar.setOrientation(JToolBar.VERTICAL);
@@ -659,13 +678,12 @@ FilteredTopComponent {
             }
             
         } catch (ClassNotFoundException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
         } catch (DataObjectNotFoundException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
         } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
         }
-        
     }
     
     /** 
@@ -845,6 +863,11 @@ FilteredTopComponent {
      * Configures actions.
      */
     private void configureActions() {
+        moveUpAction = new MoveUpAction(this);
+        moveDownAction = new MoveDownAction(this);
+        moveLeftAction = new MoveLeftAction(this);
+        moveRightAction = new MoveRightAction(this);
+        
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
                 put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 
                 InputEvent.CTRL_MASK), "moveUp"); // NOI18N
@@ -861,8 +884,8 @@ FilteredTopComponent {
             new UTPasteAction(this));
 
         map.put("delete", new UTDeleteAction(tt));  // NOI18N
-        map.put("moveUp", MoveUpAction.get(MoveUpAction.class)); // NOI18N
-        map.put("moveDown", MoveDownAction.get(MoveDownAction.class)); // NOI18N
+        map.put("moveUp", moveUpAction); // NOI18N
+        map.put("moveDown", moveDownAction); // NOI18N
 
         FindAction find = (FindAction) FindAction.get(FindAction.class);
         FilterAction filter = (FilterAction) 

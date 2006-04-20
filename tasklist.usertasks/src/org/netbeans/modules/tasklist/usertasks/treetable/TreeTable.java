@@ -23,9 +23,7 @@ import javax.swing.DefaultCellEditor;
 
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -252,15 +250,14 @@ public class TreeTable extends JTable {
         TreeTable.ExpandedNodesAndSelection ret =
             new TreeTable.ExpandedNodesAndSelection();
         
-        Enumeration en = tree.getExpandedDescendants( 
+        Enumeration<TreePath> en = tree.getExpandedDescendants( 
             new TreePath(getTreeTableModel().getRoot()));
         if (en != null) {
-            List exp = new ArrayList();
+            List<TreePath> exp = new ArrayList<TreePath>();
             while (en.hasMoreElements()) {
                 exp.add(en.nextElement());
             }
-            ret.expandedNodes = (TreePath[]) exp.toArray(
-                new TreePath[exp.size()]);
+            ret.expandedNodes = exp.toArray(new TreePath[exp.size()]);
         } else {
             ret.expandedNodes = new TreePath[0];
         }
@@ -642,7 +639,7 @@ public class TreeTable extends JTable {
 
         ColumnsConfig cc = (ColumnsConfig) config;
         
-        ArrayList newc = new ArrayList();
+        ArrayList<TableColumn> newc = new ArrayList<TableColumn>();
         TableColumnModel tcm = getColumnModel();
         assert tcm != null : "tcm == null"; // NOI18N
 
@@ -662,8 +659,7 @@ public class TreeTable extends JTable {
             tcm.removeColumn(tcm.getColumn(0));
         }
         for (int i = 0; i < newc.size(); i ++) {
-            TableColumn c = (TableColumn) newc.get(i);
-            tcm.addColumn(c);
+            tcm.addColumn(newc.get(i));
         }
     }
 
@@ -673,17 +669,17 @@ public class TreeTable extends JTable {
      * @return expanded nodes
      */
     public TreePath[] getExpandedNodes() {
-        Enumeration en = tree.getExpandedDescendants( 
+        Enumeration<TreePath> en = tree.getExpandedDescendants( 
             new TreePath(getTreeTableModel().getRoot()));
         
-        List paths = new ArrayList();
+        List<TreePath> paths = new ArrayList<TreePath>();
         if (en != null) {
             while (en.hasMoreElements()) {
-                paths.add((TreePath) en.nextElement());
+                paths.add(en.nextElement());
             }
         }
         
-        return (TreePath[]) paths.toArray(new TreePath[paths.size()]);
+        return paths.toArray(new TreePath[paths.size()]);
     }
     
     /**
@@ -705,7 +701,7 @@ public class TreeTable extends JTable {
      * @return replacement
      */
     public Serializable writeReplaceExpandedNodes(TreePath[] n) {
-        List paths = new ArrayList();
+        List<Serializable> paths = new ArrayList<Serializable>();
         for (int i = 0; i < n.length; i++) {
             paths.add(writeReplaceTreePath((TreePath) n[i]));
         }
@@ -723,7 +719,7 @@ public class TreeTable extends JTable {
         if (ser == null)
             return new TreePath[0];
         
-        List ret = new ArrayList();
+        List<TreePath> ret = new ArrayList<TreePath>();
         List l = (List) ser;
         for (int i = 0; i < l.size(); i++) {
             TreePath tp = readResolveTreePath(l.get(i));
@@ -731,7 +727,7 @@ public class TreeTable extends JTable {
                 ret.add(tp);
         }
         
-        return (TreePath[]) ret.toArray(new TreePath[ret.size()]);
+        return ret.toArray(new TreePath[ret.size()]);
     }
 
     /**
@@ -766,23 +762,24 @@ public class TreeTable extends JTable {
         return new TreePath(p);
     }
 
-    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-        if (renderer instanceof TreeTableRenderer) {
-            Object node = getNodeForRow(row);
-            Object value = getTreeTableModel().getValueAt(node, 
-                convertColumnIndexToModel(column));
-            boolean isSelected = isCellSelected(row, column);
-            boolean rowIsAnchor = (selectionModel.getAnchorSelectionIndex() == row);
-            boolean colIsAnchor =
-                (columnModel.getSelectionModel().getAnchorSelectionIndex() == column);
-            boolean hasFocus = (rowIsAnchor && colIsAnchor) && isFocusOwner();
-
-            return ((TreeTableRenderer) 
-                renderer).getTreeTableCellRendererComponent(this, 
-                    node, value, isSelected, hasFocus, row, column);
-        } else {
-            return super.prepareRenderer(renderer, row, column);
+    /**
+     * Returns all expanded nodes under the specified one.
+     *
+     * @param path a path
+     * @return all expanded paths (possibly one with <code>n</code> as the
+     * last component)
+     */
+    public TreePath[] getExpandedNodesUnder(TreePath path) {
+        Enumeration<TreePath> en = tree.getExpandedDescendants(path);
+        
+        List<TreePath> paths = new ArrayList<TreePath>();
+        if (en != null) {
+            while (en.hasMoreElements()) {
+                paths.add(en.nextElement());
+            }
         }
+        
+        return paths.toArray(new TreePath[paths.size()]);
     }
     
     /**

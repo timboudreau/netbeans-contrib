@@ -1,6 +1,7 @@
 package org.netbeans.modules.tasklist.usertasks.model;
 
 import java.util.TimerTask;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
@@ -54,7 +55,10 @@ public class StartedUserTask {
     static {
         TIMER.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                getInstance().timer();
+                if (SwingUtilities.isEventDispatchThread())
+                    getInstance().timer();
+                else
+                    SwingUtilities.invokeLater(this);
             }
         }, 0, 1000 * 15);
         ActivityListener.init();

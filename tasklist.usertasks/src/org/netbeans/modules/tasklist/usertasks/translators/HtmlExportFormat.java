@@ -17,8 +17,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import javax.swing.filechooser.FileSystemView;
+import java.util.logging.Level;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -29,7 +28,8 @@ import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
-import org.openide.ErrorManager;
+import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.WizardDescriptor;
 import org.openide.awt.HtmlBrowser;
 import org.openide.util.NbBundle;
@@ -66,8 +66,8 @@ public class HtmlExportFormat extends XmlExportFormat {
                     "HtmlFilter"), // NOI18N
                 new String[] {".html"})); // NOI18N
         chooseFilePanel.setFile(new File(
-            FileSystemView.getFileSystemView().
-            getDefaultDirectory(), "tasklist.html")); // NOI18N
+                Settings.getDefault().getLastUsedExportFolder(), 
+                "tasklist.html")); // NOI18N
         chooseFileWP.setContentHighlightedIndex(0);
 
         XslTemplatesPanel templatesPanel = new XslTemplatesPanel();
@@ -122,7 +122,7 @@ public class HtmlExportFormat extends XmlExportFormat {
             url = file.toURI().toURL();
         } catch (MalformedURLException e) {
             // Can't show URL
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e);
             return;
         }
 
@@ -136,10 +136,10 @@ public class HtmlExportFormat extends XmlExportFormat {
                 getResourceAsStream(res);
             return tf.newTransformer(new StreamSource(xsl));
         } catch (TransformerConfigurationException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, "", e);
             return null;
         } catch (TransformerException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.WARNING, "", e);
             return null;
         }
    }

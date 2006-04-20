@@ -13,16 +13,20 @@
 
 package org.netbeans.modules.tasklist.usertasks.util;
 
+import java.awt.Component;
+import java.awt.Dimension;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Action;
+import javax.swing.JButton;
 
 import javax.swing.JEditorPane;
+import javax.swing.JToolBar;
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.openide.ErrorManager;
 
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.LineCookie;
@@ -35,6 +39,7 @@ import org.openide.nodes.Node;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.text.Line;
 import org.openide.text.NbDocument;
+import org.openide.util.actions.Presenter;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -73,6 +78,40 @@ public final class UTUtils {
         sb.append(text);
         sb.append("</html>"); // NOI18N
         return sb.toString();
+    }
+    
+    /** Create the default toolbar representation of an array of actions.
+     * Null items in the array will add a separator to the toolbar.
+     *
+     * @param actions actions to show in the generated toolbar
+     * @return a toolbar instance displaying them
+     */
+    public static JToolBar createToolbarPresenter(Action[] actions) {
+        JToolBar p = new JToolBar();
+        int i;
+        int k = actions.length;
+
+        for (i = 0; i < k; i++) {
+            if (actions[i] == null) {
+                p.addSeparator(new Dimension(3, 3));
+            } else if (actions[i] instanceof Presenter.Toolbar) {
+                p.add(((Presenter.Toolbar) actions[i]).getToolbarPresenter());
+            } else {
+                p.add(actions[i]);
+            }
+        }
+        
+        final Dimension D = new Dimension(24, 24);
+        for (int j = 0; j < p.getComponentCount(); j++) {
+            Component c = p.getComponent(j);
+            if (c instanceof JButton) {
+                ((JButton) c).setPreferredSize(D);
+                ((JButton) c).setMinimumSize(D);
+                ((JButton) c).setMaximumSize(D);
+            }
+        }
+
+        return p;
     }
     
     /**
@@ -189,8 +228,9 @@ public final class UTUtils {
         try {
             dobj = DataObject.find(fo);
         } catch (DataObjectNotFoundException e) {
-            ErrorManager.getDefault().log(
-                "No data object could be found for file object " + fo); // NOI18N
+            LOGGER.log(Level.WARNING, 
+                    "No data object could be found for file object " +  // NOI18N
+                    fo, e);
         }
 
         if (dobj == null) 
@@ -209,14 +249,13 @@ public final class UTUtils {
                 }
             }
         } catch (Exception e) {
-            ErrorManager.getDefault().
-                notify(ErrorManager.INFORMATIONAL, e);
+            LOGGER.log(Level.INFO, "failed", e); // NOI18N
         }
         return null;
     }
 
     /**
-     * Finds URL with the type URLMapper.ECTERNAL for the specified
+     * Finds URL with the type URLMapper.EXTERNAL for the specified
      * Line object.
      *
      * @param line a line objct
@@ -251,8 +290,8 @@ public final class UTUtils {
      * @param t a tree
      * @param filter Boolean f(Object). Filter function.
      */
-    public static List filter(TreeIntf t, UnaryFunction filter) {
-        List r = new ArrayList();
+    public static <T> List<T> filter(TreeIntf<T> t, UnaryFunction filter) {
+        List<T> r = new ArrayList<T>();
         filter(t, t.getRoot(), filter, r);
         return r;
     }
@@ -264,8 +303,8 @@ public final class UTUtils {
      * @param node this node and all it's descendants will be filtered
      * @param result nodes that passed the filter will be stored here
      */
-    private static void filter(TreeIntf t, Object node, 
-            UnaryFunction filter, List result) {
+    private static <T> void filter(TreeIntf<T> t, T node, 
+            UnaryFunction filter, List<T> result) {
         if (((Boolean) filter.compute(node)).booleanValue())
             result.add(node);
         for (int i = 0; i < t.getChildCount(node); i++) {

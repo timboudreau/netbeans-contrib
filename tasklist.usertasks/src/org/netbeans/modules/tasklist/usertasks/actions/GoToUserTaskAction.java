@@ -12,12 +12,19 @@
  */
 package org.netbeans.modules.tasklist.usertasks.actions;
 
-import org.openide.nodes.Node;
+import java.awt.event.ActionEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
+import javax.swing.ImageIcon;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.openide.awt.HtmlBrowser;
 import org.openide.text.Line;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-
-import org.openide.util.actions.CookieAction;
+import org.openide.util.Utilities;
 
 
 /**
@@ -27,46 +34,31 @@ import org.openide.util.actions.CookieAction;
  * @author Tor Norbye
  * @author tl
  */
-public class GoToUserTaskAction extends CookieAction {
-
-    private static final long serialVersionUID = 1;
-
-    protected boolean asynchronous() {
-        return false;
+public class GoToUserTaskAction extends UTViewAction {
+    /**
+     * Constructor.
+     * 
+     * @param utv a user task view.
+     */
+    public GoToUserTaskAction(UserTaskView utv) {
+        super(utv, NbBundle.getMessage(GoToUserTaskAction.class, 
+                "LBL_Goto")); // NOI18N
+        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(
+                "org/netbeans/modules/tasklist/usertasks/actions/" + // NOI18N
+                "gotosource.png"))); // NOI18N
+    }
+    
+    public void actionPerformed(ActionEvent e) {
+        UserTask ut = getSingleSelectedTask();
+        if (ut.getLine() != null)
+            ut.getLine().show(Line.SHOW_GOTO);
+        else
+            HtmlBrowser.URLDisplayer.getDefault().showURL(ut.getUrl());
     }
 
-    /** 
-     * Do the actual jump to source
-     * @param nodes Nodes, where the selected node should be a task
-     * node. 
-     */    
-    protected void performAction(Node[] nodes) {
-        SingleLineCookie c = 
-            (SingleLineCookie) nodes[0].getCookie(SingleLineCookie.class);
-        Line line = c.getLine();
-        assert line != null;
-        line.show(Line.SHOW_GOTO);
-    }
-    
-    protected Class[] cookieClasses() {
-        return new Class[] {SingleLineCookie.class};
-    }
-    
-    protected int mode() {
-        return CookieAction.MODE_EXACTLY_ONE;
-    }    
-    
-    public String getName() {
-        return NbBundle.getMessage(GoToUserTaskAction.class, "LBL_Goto"); // NOI18N
-    }
-    
-    protected String iconResource() {
-        return "org/netbeans/modules/tasklist/usertasks/actions/gotosource.png"; // NOI18N
-    }
-    
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-        // If you will provide context help then use:
-        // return new HelpCtx (ShowTodoItemAction.class);
+    public void valueChanged(ListSelectionEvent e) {
+        UserTask ut = getSingleSelectedTask();
+        setEnabled(ut != null && 
+                (ut.getLine() != null || ut.getUrl() != null));
     }
 }

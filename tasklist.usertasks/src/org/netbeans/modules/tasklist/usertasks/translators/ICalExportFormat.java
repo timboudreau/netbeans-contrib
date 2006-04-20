@@ -30,8 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.filechooser.FileSystemView;
+import java.util.logging.Level;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -65,11 +64,12 @@ import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+import org.netbeans.modules.tasklist.usertasks.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
-import org.openide.ErrorManager;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 
@@ -135,21 +135,24 @@ public class ICalExportFormat implements ExportImportFormat {
                     new FileOutputStream(panel.getFile())), "UTF-8");
             try {
                 writeList(list, w, true);
+                Settings.getDefault().setLastUsedExportFolder(
+                        panel.getFile().getParentFile());
             } finally {
                 try {
                     w.close();
                 } catch (IOException e) {
-                    ErrorManager.getDefault().notify(e);
+                    UTUtils.LOGGER.log(Level.WARNING, 
+                            "Error closing file", e); // NOI18N
                 }
             }
         } catch (ParseException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
         } catch (URISyntaxException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
         } catch (ValidationException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
         } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
+            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
         }
     }
     
@@ -169,8 +172,8 @@ public class ICalExportFormat implements ExportImportFormat {
                     "IcsFilter"), // NOI18N
                 new String[] {".ics"})); // NOI18N
         chooseFilePanel.setFile(new File(
-            FileSystemView.getFileSystemView().
-            getDefaultDirectory(), "tasklist.ics")); // NOI18N
+                Settings.getDefault().getLastUsedExportFolder(), 
+                "tasklist.ics")); // NOI18N
         
         // create the wizard
         WizardDescriptor.Iterator iterator = 
@@ -229,7 +232,7 @@ public class ICalExportFormat implements ExportImportFormat {
             writeTask(cal, item, p);
         }
         
-        final List uids = new ArrayList();
+        final List<String> uids = new ArrayList<String>();
         UserTaskList.processDepthFirst(
             new UserTaskList.UserTaskProcessor() {
                 public void process(UserTask ut) {

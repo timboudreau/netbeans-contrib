@@ -50,7 +50,7 @@ class TimeoutProvider implements Runnable {
      * Create the linked list, and start the thread...
      */
     private TimeoutProvider() { 
-	alarms = new LinkedList();
+	alarms = new LinkedList<Entry>();
         alarms.add(new Entry(null, null, Long.MAX_VALUE));
 
 	thread = new Thread(this, "TimeoutProvider"); // NOI18N
@@ -139,7 +139,7 @@ class TimeoutProvider implements Runnable {
                     Thread.sleep(sleeptime);
                 }
                 
-                Vector vec = new Vector();
+                Vector<Entry> vec = new Vector<Entry>();
                 synchronized (alarms) {
                     ListIterator i = alarms.listIterator(0);
                     boolean done = false;
@@ -178,5 +178,5 @@ class TimeoutProvider implements Runnable {
     /** The one and only instance of the timeout provider */
     private static TimeoutProvider instance;
     /** A "sorted" linked list of objects to wait for */
-    private LinkedList alarms;
+    private LinkedList<Entry> alarms;
 }
