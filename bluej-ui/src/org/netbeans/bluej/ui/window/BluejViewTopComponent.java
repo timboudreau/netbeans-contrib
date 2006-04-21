@@ -53,7 +53,7 @@ import org.openide.windows.WindowManager;
 /**
  * Top component which displays something.
  */
-final class BluejViewTopComponent extends TopComponent implements ExplorerManager.Provider {
+public final class BluejViewTopComponent extends TopComponent implements ExplorerManager.Provider {
     
     private static final long serialVersionUID = 1L;
     
