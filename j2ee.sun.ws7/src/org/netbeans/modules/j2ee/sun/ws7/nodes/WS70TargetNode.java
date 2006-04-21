@@ -104,12 +104,19 @@ public class WS70TargetNode extends AbstractNode implements Node.Cookie{
     public boolean isRunning(){
         return manager.isRunning(configName);
     }
+    public boolean isLocalServer(){
+        return manager.isLocalServer();
+    }
     public void startTarget(){
         try{
             manager.startServer(configName);
         }catch(Exception ex){            
         }
-        invokeLogViewer();        
+        // If Webserver is a remote instance, can't see the logs
+        //Issue# 75329
+        if(manager.isLocalServer()){
+            invokeLogViewer();
+        }
     }
     public void stopTarget(){
         try{

@@ -90,6 +90,9 @@ public class WS70ManagerNode extends AbstractNode implements Node.Cookie{
             String.valueOf(cDm.getPort());        
         return url;
     }
+    public boolean isLocalServer(){
+        return manager.isLocalServer();
+    }
     public void invokeLogViewer(){
         String uri = manager.getUri();
         String location = manager.getServerLocation();

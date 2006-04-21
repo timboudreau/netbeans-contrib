@@ -37,7 +37,7 @@ public class ViewTargetServerLogAction extends NodeAction{
     protected void performAction(Node[] nodes){
         WS70TargetNode target = (WS70TargetNode)nodes[0].getCookie(WS70TargetNode.class);
         if(target==null){
-        ErrorManager.getDefault().log(
+            ErrorManager.getDefault().log(
                 ErrorManager.ERROR, NbBundle.getMessage(ViewTargetServerLogAction.class, "ERR_NULL_TARGET", this.getClass().getName()));
             return;
         }
@@ -45,6 +45,14 @@ public class ViewTargetServerLogAction extends NodeAction{
     }
     
     protected boolean enable(Node[] nodes){
+        if(nodes.length > 0) {
+            WS70TargetNode target = (WS70TargetNode)nodes[0].getCookie(WS70TargetNode.class);
+            if(target!=null){
+                return target.isLocalServer();
+            }else{
+                return false;
+            }            
+        }
         return nodes.length==1;
     }
     
