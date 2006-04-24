@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.LayoutManager;
 import java.io.Serializable;
+import javax.swing.JPanel;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -23,9 +24,11 @@ final class BluejWelcomeTopComponent extends TopComponent {
     static final String ICON_PATH = "org/netbeans/bluej/welcome/frame.gif";
     
     private static final String PREFERRED_ID = "BluejWelcomeTopComponent";
-    
+    private JPanel panel;
     private BluejWelcomeTopComponent() {
         initComponents();
+        panel = new TitlePanel50();
+        add(panel);
         setName(NbBundle.getMessage(BluejWelcomeTopComponent.class, "CTL_BluejWelcomeTopComponent"));
         setToolTipText(NbBundle.getMessage(BluejWelcomeTopComponent.class, "HINT_BluejWelcomeTopComponent"));
         setIcon(Utilities.loadImage(ICON_PATH, true));
@@ -38,42 +41,19 @@ final class BluejWelcomeTopComponent extends TopComponent {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jPanel1 = jPanel1 = new ImagePanel();
 
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 451, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 375, Short.MAX_VALUE)
-        );
+        setLayout(new java.awt.BorderLayout());
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
     
+    public void addNotify() {
+        super.addNotify();
+        
+    }
     
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
@@ -131,20 +111,5 @@ final class BluejWelcomeTopComponent extends TopComponent {
         }
     }
     
-    
-    public class ImagePanel extends javax.swing.JPanel {
-        
-        public ImagePanel() {
-        }
-        
-        /** Paint custom background. */
-        public void paint(Graphics g) {
-            
-            int xx = getWidth();
-            int yy = getHeight();            
-            Image image = Utilities.loadImage("org/netbeans/bluej/welcome/welcome-placeholder.png");  // NOI18N
-            g.drawImage(image, (xx-632)/2, (yy-447)/2, this);
-        }
-    }
     
 }
