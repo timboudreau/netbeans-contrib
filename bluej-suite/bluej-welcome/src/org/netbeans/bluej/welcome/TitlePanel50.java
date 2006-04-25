@@ -65,7 +65,6 @@ public class TitlePanel50 extends javax.swing.JPanel implements Runnable, java.a
         background = new ImageIcon(Utilities.loadImage("org/netbeans/bluej/welcome/welcome-placeholder.png"));  // NOI18N
         initComponents();
         
-        ((OvalButton)jButton1).setScale(1.333f);
         ((OvalButton)jButton2).setScale(1.333f);
         setLayout(this);
         setOpaque(false);        
@@ -99,7 +98,6 @@ public class TitlePanel50 extends javax.swing.JPanel implements Runnable, java.a
         
         g.drawImage(background.getImage(), offset_x, offset_y, this);
 
-        pc(jButton1, g);
         pc(jButton2, g);
         pc(jButton3, g);
         pc(jButton4, g);
@@ -142,7 +140,6 @@ public class TitlePanel50 extends javax.swing.JPanel implements Runnable, java.a
         //actionPerformed() and I don't want to create another class
         Cursor cur = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
         jLabel3.setCursor(cur);
-        jButton1.setCursor (cur);
         jButton2.setCursor(cur);
         jButton3.setCursor(cur);
         jButton4.setCursor(cur);
@@ -215,9 +212,9 @@ public class TitlePanel50 extends javax.swing.JPanel implements Runnable, java.a
             jButton2.setLocation(base_x, y);
             resize(jButton2, w, TOP_BUTTON_HEIGHT);                        
             
-            y -= TOP_BUTTON_HEIGHT + SMALL_SPACE;
-            jButton1.setLocation(base_x, y);
-            resize(jButton1, w, TOP_BUTTON_HEIGHT);                        
+//            y -= TOP_BUTTON_HEIGHT + SMALL_SPACE;
+//            jButton1.setLocation(base_x, y);
+//            resize(jButton1, w, TOP_BUTTON_HEIGHT);                        
 
             // horizontal line = base_y
 
@@ -253,17 +250,10 @@ public class TitlePanel50 extends javax.swing.JPanel implements Runnable, java.a
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jButton1 = new OvalButton();
         jButton2 = new OvalButton();
         jButton3 = new OvalButton();
         jButton4 = new OvalButton();
         jLabel3 = new javax.swing.JLabel();
-
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(TitlePanel50.class, "BK0001"));
-        jButton1.setFocusable(false);
-        jButton1.addActionListener(this);
-
-        add(jButton1);
 
         org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(TitlePanel50.class, "BK0002"));
         jButton2.setFocusable(false);
@@ -292,10 +282,7 @@ public class TitlePanel50 extends javax.swing.JPanel implements Runnable, java.a
     // Code for dispatching events from components to event handlers.
 
     public void actionPerformed(java.awt.event.ActionEvent evt) {
-        if (evt.getSource() == jButton1) {
-            TitlePanel50.this.jButton1ActionPerformed(evt);
-        }
-        else if (evt.getSource() == jButton2) {
+        if (evt.getSource() == jButton2) {
             TitlePanel50.this.jButton2ActionPerformed(evt);
         }
         else if (evt.getSource() == jButton3) {
@@ -339,14 +326,9 @@ public class TitlePanel50 extends javax.swing.JPanel implements Runnable, java.a
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         BusinessLogic.perform(2, this);
     }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        BusinessLogic.perform(1, this);
-    }//GEN-LAST:event_jButton1ActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
