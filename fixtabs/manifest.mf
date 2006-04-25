@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.fixtabs
+OpenIDE-Module-Install: org/netbeans/modules/fixtabs/ConvertTabsModuleInstall.class
+OpenIDE-Module-Layer: org/netbeans/modules/fixtabs/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/fixtabs/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
