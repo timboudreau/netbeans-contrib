@@ -21,6 +21,23 @@
         <copy todir="${cluster}">
             <fileset dir="changing-defaults"/>
         </copy>
+        <copy todir="${cluster}/etc">
+            <fileset dir="launcher">
+                <include name="nbbluej.clusters"/>
+                <include name="nbbluej.conf"/>
+            </fileset>
+        </copy>
+        <copy todir="${cluster}/lib">
+            <fileset dir="launcher/unix">
+                <include name="nbbluej"/>
+                <include name="windows/nbbluej.exe"/>
+                <include name="windows/nbbluej_w.exe"/>
+            </fileset>
+            <fileset dir="launcher/windows">
+                <include name="nbbluej.exe"/>
+                <include name="nbbluej_w.exe"/>
+            </fileset>
+        </copy>
     </target>
 
     <!-- custom clean target -->
