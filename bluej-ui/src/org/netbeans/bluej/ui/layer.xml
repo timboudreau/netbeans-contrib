@@ -3,17 +3,26 @@
 <filesystem>
     <folder name="Actions">
         <folder name="Window">
-            <file name="org-netbeans-bluej-ui-BlueJViewAction.instance"/>
+            <file name="org-netbeans-bluej-ui-BlueJViewAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.bluej.ui.BlueJViewAction"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
         <folder name="Window">
-            <attr name="org-netbeans-modules-project-ui-physical-tab-action.shadow/org-netbeans-bluej-ui-BlueJViewAction.shadow" boolvalue="true"/>
+            <attr name="ResultWindowOpenAction.shadow/org-netbeans-bluej-ui-BlueJViewAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-bluej-ui-BlueJViewAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-bluej-ui-BlueJViewAction.instance"/>
             </file>
-            <attr name="org-netbeans-bluej-ui-BlueJViewAction.shadow/ViewFavoritesTabAction.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-bluej-ui-BlueJViewAction.shadow/org-netbeans-modules-form-actions-InspectorAction.instance" boolvalue="true"/>
+            <attr name="org-netbeans-bluej-ui-BlueJViewAction.shadow/org-netbeans-core-windows-actions-SwitchToRecentDocumentAction.instance" boolvalue="true"/>
+            
         </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="D-9.shadow">
+            <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-bluej-ui-BlueJViewAction.instance"/>
+        </file>
     </folder>
     <folder name="Windows2">
         <folder name="Components">

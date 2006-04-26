@@ -12,12 +12,17 @@
  */
 package org.netbeans.bluej.ui;
 
+import javax.swing.Action;
 import org.netbeans.bluej.ui.window.BluejViewTopComponent;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 
 public final class BlueJViewAction extends CallableSystemAction {
+    
+    public BlueJViewAction() {
+        putValue(Action.ACCELERATOR_KEY, "B");
+    }
     
     public void performAction() {
         BluejViewTopComponent.findInstance().open();
