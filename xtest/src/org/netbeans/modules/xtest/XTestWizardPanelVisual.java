@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -33,8 +33,8 @@ public class XTestWizardPanelVisual extends JPanel implements HelpCtx.Provider {
         xtestScriptTextField.setText(testPath+"build.xml"); // NOI18N
         unitScriptTextField.setText(testPath+"build-unit.xml"); //NOI18N
         unitCfgTextField.setText(testPath+"cfg-unit.xml"); //NOI18N
-        functionalScriptTextField.setText(testPath+"build-functional.xml"); //NOI18N
-        functionalCfgTextField.setText(testPath+"cfg-functional.xml"); //NOI18N
+        functionalScriptTextField.setText(testPath+"build-qa-functional.xml"); //NOI18N
+        functionalCfgTextField.setText(testPath+"cfg-qa-functional.xml"); //NOI18N
         this.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(XTestWizardPanelVisual.class, "ACS_InfoPanel_A11YDesc"));  // NOI18N
         // Provide a name in the title bar.
         setName(NbBundle.getMessage(XTestWizardPanelVisual.class, "LBL_InfoPanel_FilesToBeCreated")); //NOI18N

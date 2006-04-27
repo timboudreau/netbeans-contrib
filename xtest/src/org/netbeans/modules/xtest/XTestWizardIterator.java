@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -47,7 +48,11 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.TemplateWizard;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.NbBundle;
-
+import org.netbeans.modules.apisupport.project.NbModuleProject;
+import org.netbeans.modules.apisupport.project.NbModuleProjectType;
+import org.netbeans.modules.apisupport.project.NbModuleTypeProvider;
+import org.netbeans.modules.apisupport.project.Util;
+import org.w3c.dom.Element;
 
 /** Wizard iterator to create XTest testing infrastructure in J2SE project. It
  * was inspired by JavaWizardIterator.
@@ -108,30 +113,56 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
         Project project = Templates.getProject(wiz);
         FileObject projectDirFO = Templates.getProject(wiz).getProjectDirectory();
         FileObject templateFolderFO = wiz.getTemplatesFolder().getPrimaryFile();
+        
+        Hashtable templates = new Hashtable();
+        templates.put("cfg-unit.xml", "cfg-unit.xml");  //NOI18N
+        if(project instanceof NbModuleProject) {
+            templates.put("build.xml", "nb.build.xml");  //NOI18N
+            templates.put("build-unit.xml", "nb.build-unit.xml");  //NOI18N
+            templates.put("build-qa-functional.xml", "nb.build-qa-functional.xml");  //NOI18N
+            templates.put("cfg-qa-functional.xml", "nb.cfg-qa-functional.xml");  //NOI18N
+        } else {
+            templates.put("build.xml", "build.xml");  //NOI18N
+            templates.put("build-unit.xml", "build-unit.xml");  //NOI18N
+            templates.put("build-qa-functional.xml", "build-qa-functional.xml");  //NOI18N
+            templates.put("cfg-qa-functional.xml", "cfg-qa-functional.xml");  //NOI18N
+        }
 
         Map map = getReplaceMap(project);
         FileObject testFO = FileUtil.createFolder(projectDirFO, "test");  // NOI18N
-        FileObject buildFO = templateFolderFO.getFileObject("TestingTools/build.xml");  // NOI18N
+        FileObject buildFO = templateFolderFO.getFileObject("TestingTools/"+templates.get("build.xml"));  // NOI18N
         //DataObject buildDO = DataObject.find(buildFO.copy(testFO, "build", "xml"));  // NOI18N
         DataObject buildDO = DataObject.find(createFromTemplate(buildFO, testFO, "build.xml", map));  // NOI18N
         // or also works
         //DataObject obj = DataObject.find(buildFO).createFromTemplate(DataFolder.findFolder(testFO), "build");
         createdObjects.add(buildDO);
-        FileObject buildUnitFO = templateFolderFO.getFileObject("TestingTools/build-unit.xml");  // NOI18N
+        FileObject buildUnitFO = templateFolderFO.getFileObject("TestingTools/"+templates.get("build-unit.xml"));  // NOI18N
         DataObject buildUnitDO = DataObject.find(createFromTemplate(buildUnitFO, testFO, "build-unit.xml", map));  // NOI18N
         createdObjects.add(buildUnitDO);
-        FileObject buildFunctionalFO = templateFolderFO.getFileObject("TestingTools/build-functional.xml");  // NOI18N
-        DataObject buildFunctionalDO = DataObject.find(createFromTemplate(buildFunctionalFO, testFO, "build-functional.xml", map));  // NOI18N
+        FileObject buildFunctionalFO = templateFolderFO.getFileObject("TestingTools/"+templates.get("build-qa-functional.xml"));  // NOI18N
+        DataObject buildFunctionalDO = DataObject.find(createFromTemplate(buildFunctionalFO, testFO, "build-qa-functional.xml", map));  // NOI18N
         createdObjects.add(buildFunctionalDO);
-        FileObject cfgUnitFO = templateFolderFO.getFileObject("TestingTools/cfg-unit.xml");  // NOI18N
+        FileObject cfgUnitFO = templateFolderFO.getFileObject("TestingTools/"+templates.get("cfg-unit.xml"));  // NOI18N
         DataObject cfgUnitDO = DataObject.find(cfgUnitFO.copy(testFO, "cfg-unit", "xml"));  // NOI18N
         createdObjects.add(cfgUnitDO);
-        FileObject cfgFunctionalFO = templateFolderFO.getFileObject("TestingTools/cfg-functional.xml");  // NOI18N
-        DataObject cfgFunctionalDO = DataObject.find(cfgFunctionalFO.copy(testFO, "cfg-functional", "xml"));  // NOI18N
+        FileObject cfgFunctionalFO = templateFolderFO.getFileObject("TestingTools/"+templates.get("cfg-qa-functional.xml"));  // NOI18N
+        DataObject cfgFunctionalDO = DataObject.find(cfgFunctionalFO.copy(testFO, "cfg-qa-functional", "xml"));  // NOI18N
         createdObjects.add(cfgFunctionalDO);
 
         addXTestTestRoots(project);
         return createdObjects;
+    }
+    
+    /** Returns type of project. It was copied from NbModuleProject. */
+    private static NbModuleTypeProvider.NbModuleType getModuleType(NbModuleProject nbProject) {
+        Element data = nbProject.getHelper().getPrimaryConfigurationData(true);
+        if (Util.findElement(data, "suite-component", NbModuleProjectType.NAMESPACE_SHARED) != null) { // NOI18N
+            return NbModuleTypeProvider.SUITE_COMPONENT;
+        } else if (Util.findElement(data, "standalone", NbModuleProjectType.NAMESPACE_SHARED) != null) { // NOI18N
+            return NbModuleTypeProvider.STANDALONE;
+        } else {
+            return NbModuleTypeProvider.NETBEANS_ORG;
+        }
     }
     
     public WizardDescriptor.Panel current() {
@@ -209,7 +240,7 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
      */
     private static void addXTestTestRoots(Project project) throws IOException, IllegalArgumentException {
         FileObject unitSrcFO = FileUtil.createFolder(project.getProjectDirectory(), "test/unit/src"); // NOI18N
-        FileObject functionalSrcFO = FileUtil.createFolder(project.getProjectDirectory(), "test/functional/src"); // NOI18N
+        FileObject functionalSrcFO = FileUtil.createFolder(project.getProjectDirectory(), "test/qa-functional/src"); // NOI18N
         if(!(project instanceof J2SEProject)) {
             // add new source roots for J2SEProject only. NbModuleProject should add new sources automatically.
             return;
@@ -246,26 +277,47 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
         ProjectManager.getDefault().saveProject(project);
     }
     
-    private Map replaceMap;
-    
     private Map getReplaceMap(Project project) {
-        if(replaceMap == null) {
-            replaceMap = new HashMap();
-            File xtestHome = InstalledFileLocator.getDefault().
-                    locate("xtest-distribution", "org.netbeans.modules.xtest", false);  // NOI18N
-            replaceMap.put("__XTEST_HOME__", xtestHome.getAbsolutePath()); // NOI18N
-            String projectName = ProjectUtils.getInformation(project).getName();
-            replaceMap.put("__XTEST_MODULE__", projectName); // NOI18N
-            File netbeansDestDir = InstalledFileLocator.getDefault().
-                    locate("core/core.jar", null, false);  // NOI18N
-            netbeansDestDir = new File(netbeansDestDir, "../../.."); // NOI18N
-            replaceMap.put("__NETBEANS_DEST_DIR__", netbeansDestDir.getAbsolutePath()); // NOI18N
-            File jemmyJar = InstalledFileLocator.getDefault().
-                    locate("modules/ext/jemmy.jar", "org.netbeans.modules.jemmy", false);  // NOI18N
-            if(jemmyJar != null) {
-                replaceMap.put("__JEMMY_JAR__", jemmyJar.getAbsolutePath()); // NOI18N
+        Map replaceMap = new HashMap();
+        File xtestHome = InstalledFileLocator.getDefault().
+                locate("xtest-distribution", "org.netbeans.modules.xtest", false);  // NOI18N
+        replaceMap.put("__XTEST_HOME__", xtestHome.getAbsolutePath()); // NOI18N
+        String projectName = ProjectUtils.getInformation(project).getName();
+        replaceMap.put("__XTEST_MODULE__", projectName); // NOI18N
+        File netbeansDestDir = InstalledFileLocator.getDefault().
+                locate("core/core.jar", null, false);  // NOI18N
+        // expects __NETBEANS_DEST_DIR__/platformX/core/core.jar
+        replaceMap.put("__NETBEANS_DEST_DIR__", 
+                netbeansDestDir.getAbsolutePath().replaceFirst(".platform.*core.jar", "")); // NOI18N
+        File jemmyJar = InstalledFileLocator.getDefault().
+                locate("modules/ext/jemmy.jar", "org.netbeans.modules.jemmy", false);  // NOI18N
+        if(jemmyJar != null) {
+            replaceMap.put("__JEMMY_JAR__", jemmyJar.getAbsolutePath()); // NOI18N
+        } else {
+            replaceMap.put("__JEMMY_JAR__", "jemmy.jar"); // NOI18N
+        }
+        if(project instanceof NbModuleProject) {
+            NbModuleProject nbProject = (NbModuleProject)project;
+            if(getModuleType(nbProject).equals(NbModuleTypeProvider.NETBEANS_ORG)) {
+                String relativePath = nbProject.getPathWithinNetBeansOrg();
+                String nbAllRelativePath = "../..";
+                int fromIndex = 0;
+                while((fromIndex = 1+relativePath.indexOf('/', fromIndex)) > 0) {
+                    nbAllRelativePath += "/..";
+                }
+                replaceMap.put("__XTEST_XML_TEMPLATE__", 
+                        nbAllRelativePath+"/nbbuild/templates/xtest.xml");  //NOI18N
+                replaceMap.put("__XTEST_UNIT_XML_TEMPLATE__", 
+                        nbAllRelativePath+"/nbbuild/templates/xtest-unit.xml");  //NOI18N
+                replaceMap.put("__XTEST_QA_FUNCTIONAL_XML_TEMPLATE__", 
+                        nbAllRelativePath+"/nbbuild/templates/xtest-qa-functional.xml");  //NOI18N
             } else {
-                replaceMap.put("__JEMMY_JAR__", "jemmy.jar"); // NOI18N
+                replaceMap.put("__XTEST_XML_TEMPLATE__", 
+                        "${xtest.home}/lib/templates/xtest.xml");  //NOI18N
+                replaceMap.put("__XTEST_UNIT_XML_TEMPLATE__", 
+                        "${xtest.home}/lib/templates/xtest-unit.xml");  //NOI18N
+                replaceMap.put("__XTEST_QA_FUNCTIONAL_XML_TEMPLATE__", 
+                        "${xtest.home}/lib/templates/xtest-qa-functional.xml");  //NOI18N
             }
         }
         return replaceMap;
@@ -289,8 +341,11 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
                     Object key;
                     while(iter.hasNext()) {
                         key = iter.next();
-                        // need to handle backslahes otherwise they are swallowed
-                        line = line.replaceAll(key.toString(), map.get(key).toString().replaceAll("\\\\", "\\\\\\\\"));
+                        // Need to handle backslahes otherwise they are swallowed
+                        // and also to escape $ character.
+                        line = line.replaceAll(
+                                    key.toString(),
+                                    map.get(key).toString().replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$"));
                     }
                     w.write(line+'\n');
                 }

@@ -7,10 +7,16 @@
             <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/xtest/resources/testingToolsCategory.html" />
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.xtest.resources.Bundle"/>
 
+            <!-- Templates for NB modules. -->
+            <file name="nb.build.xml" url="template.nb.build.xml"/>
+            <file name="nb.build-unit.xml" url="template.nb.build-unit.xml"/>
+            <file name="nb.build-qa-functional.xml" url="template.nb.build-qa-functional.xml"/>
+            <file name="nb.cfg-qa-functional.xml" url="template.nb.cfg-qa-functional.xml"/>
+            <!-- Shared or J2SE project templates. -->
             <file name="build-unit.xml" url="template.build-unit.xml"/>
             <file name="cfg-unit.xml" url="template.cfg-unit.xml"/>
-            <file name="build-functional.xml" url="template.build-functional.xml"/>
-            <file name="cfg-functional.xml" url="template.cfg-functional.xml"/>
+            <file name="build-qa-functional.xml" url="template.build-qa-functional.xml"/>
+            <file name="cfg-qa-functional.xml" url="template.cfg-qa-functional.xml"/>
             <file name="build.xml" url="template.build.xml">
                 <attr name="template" boolvalue="true" />
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/xtest/resources/XTest.html" />

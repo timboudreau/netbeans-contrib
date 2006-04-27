@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<project name="__XTEST_MODULE__/test-qa-functional" basedir="." default="all">
+
+    <!-- Path to Jemmy library -->
+    <path id="jemmy.path" location="__JEMMY_JAR__"/>
+    
+    <!-- ========= -->
+    <!-- Compilers -->
+    <!-- ========= -->
+
+    <!-- Compile functional tests. This target is used in cfg-qa-functional.xml. -->
+    <target name="qa-functional-compiler">
+        <!-- Build application before tests -->
+        <ant dir=".." target="jar"/>
+        <buildTests srcDir="qa-functional/src" compileExcludes="**/data/**">
+            <classpath>
+                <!-- Add classpath elements needed to compile tests -->
+                <path refid="jemmy.path"/>
+                <fileset dir="../dist" includes="*.jar"/>
+            </classpath>
+        </buildTests>
+    </target>
+    
+    <!-- ========= -->
+    <!-- Executors -->
+    <!-- ========= -->
+    
+    <!-- Run tests in JVM -->
+    <target name="run-jvm">        
+        <executeTests  pluginName="jvm">
+            <classpath>
+                <!-- Add classpath elements needed to run tests -->
+                <path refid="jemmy.path"/>
+                <fileset dir="../dist" includes="*.jar"/>
+            </classpath>
+        </executeTests>
+    </target>
+    
+</project>
+
