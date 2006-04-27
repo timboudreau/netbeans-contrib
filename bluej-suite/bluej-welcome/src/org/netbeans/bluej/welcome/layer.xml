@@ -11,6 +11,8 @@
             <file name="BluejWelcomeAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-bluej-welcome-BluejWelcomeAction.instance"/>
             </file>
+            <attr name="utilities-sep-3.instance/BluejWelcomeAction.shadow" boolvalue="true"/>
+            <attr name="BluejWelcomeAction.shadow/org-netbeans-core-actions-AboutAction.instance" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="Toolbars">
