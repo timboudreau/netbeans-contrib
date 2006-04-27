@@ -20,8 +20,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
 import org.openide.awt.HtmlRenderer;
-import org.openide.awt.ListPane;
-import org.openide.explorer.view.NodeListModel;
 import org.openide.explorer.view.NodeRenderer;
 import org.openide.explorer.view.Visualizer;
 import org.openide.nodes.Node;
@@ -63,7 +61,7 @@ public class HackedNodeRenderer extends NodeRenderer {
 
         //Do our additional configuration - set up the icon and possibly
         //do some hacks to make it look focused for TreeTableView
-        int iconWidth = configureFrom(renderer, list, false, sel, vis);
+        configureFrom(renderer, list, false, sel, vis);
 //
 //            //Indent elements in a ListView/ChoiceView relative to their position
 //            //in the node tree.  Only does anything if you've subclassed and
@@ -84,7 +82,7 @@ public class HackedNodeRenderer extends NodeRenderer {
      */
     private int configureFrom(
         HtmlRenderer.Renderer ren, Container target, boolean useOpenedIcon, boolean sel, Node vis
-    ) {
+    ) { //NOPMD
         int iconType = BeanInfo.ICON_COLOR_16x16;//large ? BeanInfo.ICON_COLOR_32x32 : BeanInfo.ICON_COLOR_16x16;
 
         Image image = useOpenedIcon ? vis.getOpenedIcon(iconType) : vis.getIcon(iconType);

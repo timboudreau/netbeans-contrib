@@ -13,11 +13,8 @@
 package org.netbeans.bluej.ui.window;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.SwingUtilities;
 import org.netbeans.bluej.api.BluejOpenCloseCallback;
-import org.openide.util.RequestProcessor;
 import org.openide.windows.WindowManager;
 
 /**
