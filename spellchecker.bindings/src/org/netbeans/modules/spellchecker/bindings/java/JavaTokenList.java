@@ -105,6 +105,42 @@ public class JavaTokenList implements TokenList {
 
         return span;
     }
+    
+    private void handleJavadocTag(CharSequence tag) {
+        if ("@see".contentEquals(tag) || "@throws".contentEquals(tag)) {
+            //ignore next "word", possibly dotted and hashed
+            Pair<CharSequence, Integer> data = wordBroker(currentBlockText, currentOffsetInComment, true);
+            
+            currentOffsetInComment = data.b + data.a.length();
+            return ;
+        }
+        
+        if ("@param".contentEquals(tag)) {
+            //ignore next word
+            Pair<CharSequence, Integer> data = wordBroker(currentBlockText, currentOffsetInComment, false);
+            
+            currentOffsetInComment = data.b + data.a.length();
+            return ;
+        }
+        
+        if ("@author".contentEquals(tag)) {
+            //ignore everything till the end of the line:
+            Pair<CharSequence, Integer> data = wordBroker(currentBlockText, currentOffsetInComment, false);
+            
+            while (data != null) {
+                currentOffsetInComment = data.b + data.a.length();
+                
+                if ('\n' == data.a.charAt(0)) {
+                    //continue
+                    return ;
+                }
+                
+                data = wordBroker(currentBlockText, currentOffsetInComment, false);
+            }
+            
+            return ;
+        }
+    }
 
     private boolean nextWordImpl() {
         try {
@@ -123,7 +159,7 @@ public class JavaTokenList implements TokenList {
                 }
 
                 String pairTag = null;
-                Pair<CharSequence, Integer> data = wordBroker(currentBlockText, currentOffsetInComment);
+                Pair<CharSequence, Integer> data = wordBroker(currentBlockText, currentOffsetInComment, false);
 
                 while (data != null) {
                     currentOffsetInComment = data.b + data.a.length();
@@ -138,8 +174,7 @@ public class JavaTokenList implements TokenList {
                         
                         switch (data.a.charAt(0)) {
                             case '@':
-                                //ignore tag
-                                //TODO: should ignore also arguments to the tags
+                                handleJavadocTag(data.a);
                                 break;
                             case '<':
                                 if (startsWith(data.a, "<a "))
@@ -148,13 +183,17 @@ public class JavaTokenList implements TokenList {
                                     pairTag = "</code>";
                                 if (startsWith(data.a, "<pre>"))
                                     pairTag = "</pre>";
+                                break;
+                            case '{':
+                                pairTag = "}";
+                                break;
                         }
                     } else {
                         if (pairTag.contentEquals(data.a))
                             pairTag = null;
                     }
 
-                    data = wordBroker(currentBlockText, currentOffsetInComment);
+                    data = wordBroker(currentBlockText, currentOffsetInComment, false);
                 }
                 
                 currentBlockText = null;
@@ -203,7 +242,7 @@ public class JavaTokenList implements TokenList {
         return Character.isLetter(c) || c == '\'';
     }
     
-    private Pair<CharSequence, Integer> wordBroker(CharSequence start, int offset) {
+    private Pair<CharSequence, Integer> wordBroker(CharSequence start, int offset, boolean treatSpecialCharactersAsLetterInsideWords) {
         int state = 0;
         int offsetStart = offset;
 
@@ -227,10 +266,18 @@ public class JavaTokenList implements TokenList {
                         offsetStart = offset;
                         break;
                     }
+                    if (current == '\n' || current == '}') {
+                        return new Pair<CharSequence, Integer>(start.subSequence(offset, offset + 1), offset);
+                    }
+                    if (current == '{') {
+                        state = 4;
+                        offsetStart = offset;
+                        break;
+                    }
                     break;
 
                 case 1:
-                    if (!isLetter(current)) {
+                    if (!isLetter(current) && ((current != '.' && current != '#') || !treatSpecialCharactersAsLetterInsideWords)) {
                         return new Pair<CharSequence, Integer>(start.subSequence(offsetStart, offset), offsetStart);
                     }
 
@@ -248,6 +295,16 @@ public class JavaTokenList implements TokenList {
                         return new Pair<CharSequence, Integer>(start.subSequence(offsetStart, offset + 1), offsetStart);
                     }
 
+                    break;
+                    
+                case 4:
+                    if (current == '@') {
+                        state = 2;
+                        break;
+                    }
+                    
+                    offset--;
+                    state = 0;
                     break;
             }
 

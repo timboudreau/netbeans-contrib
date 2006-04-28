@@ -62,6 +62,27 @@ public class JavaTokenListTest extends NbTestCase {
         );
     }
 
+    public void testDotDoesNotSeparateWords() throws Exception {
+        tokenListTest(
+                "/**tes.test*/",
+                "tes", "test"
+        );
+    }
+    
+    public void testTagHandling() throws Exception {
+        tokenListTest(
+                "/**@see aba.abb.abc.abd abe @param abf abg abh @author abi abj abk abl\n abm abn @throws abo.abp abq*/",
+                "abe", "abg", "abh", "abm", "abn", "abq"
+        );
+    }
+    
+    public void testLinkHandling() throws Exception {
+        tokenListTest(
+                "/**{@link aba abb abc} {abd }abe*/",
+                "abd", "abe"
+        );
+    }
+    
     public void testIsIdentifierLike() throws Exception {
         assertTrue(JavaTokenList.isIdentifierLike("JTable"));
         assertTrue(JavaTokenList.isIdentifierLike("getData"));
