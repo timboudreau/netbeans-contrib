@@ -224,8 +224,8 @@ public class DictionaryProviderImpl implements DictionaryProvider {
      * branding "f4j_ce" looks first for "f4j_ce" branding, then "f4j" branding, then none.
      */
     private static class LocaleIterator extends Object implements Iterator {
-        /** this flag means, if default locale is in progress */
-        private boolean defaultInProgress = false;
+//        /** this flag means, if default locale is in progress */
+//        private boolean defaultInProgress = false;
         
         /** this flag means, if empty sufix was exported yet */
         private boolean empty = false;
@@ -244,9 +244,9 @@ public class DictionaryProviderImpl implements DictionaryProvider {
          */
         public LocaleIterator(Locale locale) {
             this.locale = this.initLocale = locale;
-            if (locale.equals(Locale.getDefault())) {
-                defaultInProgress = true;
-            }
+//            if (locale.equals(Locale.getDefault())) {
+//                defaultInProgress = true;
+//            }
             current = '_' + locale.toString();
             if (NbBundle.getBranding() == null)
                 branding = null;
@@ -279,15 +279,15 @@ public class DictionaryProviderImpl implements DictionaryProvider {
             }
             else {
                 if (lastUnderbar == -1) {
-                    if (defaultInProgress)
+//                    if (defaultInProgress)
                         reset();
-                    else {
-                        // [PENDING] stuff with trying the default locale
-                        // after the real one does not actually seem to work...
-                        locale = Locale.getDefault();
-                        current = '_' + locale.toString();
-                        defaultInProgress = true;
-                    }
+//                    else {
+//                        // [PENDING] stuff with trying the default locale
+//                        // after the real one does not actually seem to work...
+//                        locale = Locale.getDefault();
+//                        current = '_' + locale.toString();
+//                        defaultInProgress = true;
+//                    }
                 }
                 else {
                     current = current.substring(0, lastUnderbar);

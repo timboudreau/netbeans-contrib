@@ -175,6 +175,8 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         
         long startTime = System.currentTimeMillis();
 
+        List<Highlight> localHighlights = new ArrayList<Highlight>();
+        
         resume();
 
         try {
@@ -206,7 +208,6 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
 
             l.setStartOffset(span[0]);
 
-            List<Highlight> localHighlights = new ArrayList<Highlight>();
             final Document doc = pane.getDocument();
             
             final boolean[] cont = new boolean [1];
@@ -241,6 +242,12 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                 
                 if (!cont[0])
                     break;
+                
+                if (word[0].length() < 2) {
+                    //ignore single letter words
+                    continue;
+                }
+                
                 Highlight h = null;
 
 //                System.err.println("word=" + word[0]);
@@ -255,9 +262,9 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                     localHighlights.add(h);
                 }
             }
-            setHighlights(file, localHighlights);
         } finally {
-            System.err.println("Spellchecker time: " + (System.currentTimeMillis() - startTime));
+            setHighlights(file, localHighlights);
+//            System.err.println("Spellchecker time: " + (System.currentTimeMillis() - startTime));
         }
     }
 
