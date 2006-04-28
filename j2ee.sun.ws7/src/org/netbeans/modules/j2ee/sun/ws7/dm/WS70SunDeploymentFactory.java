@@ -239,6 +239,10 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
             
             f = new File(libsLocation+"/webserv-admin.jar"); //NO I118N
             ws7Loader.addURL(f);
+
+            f = new File(libsLocation+"/webserv-admin-shared.jar"); //NO I118N
+            ws7Loader.addURL(f);
+            
         }catch(Exception ex){
             ex.printStackTrace();
         }
