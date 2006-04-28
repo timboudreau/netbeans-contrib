@@ -70,6 +70,10 @@ public final class ConvertTabsAction extends AbstractAction implements ChangeLis
 
     private BaseDocument getCurrentDocument() {
         JTextComponent nue = Registry.getMostActiveComponent();
+        if (nue == null) {
+            return null;
+        }
+
         Document d = nue.getDocument();
 
         if (d instanceof BaseDocument) {
