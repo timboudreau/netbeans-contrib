@@ -16,6 +16,8 @@ package org.netbeans.modules.spellchecker.options;
 import java.awt.Dialog;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import javax.swing.ComboBoxModel;
@@ -239,11 +241,22 @@ public class SpellcheckerOptionsPanel extends javax.swing.JPanel {
 
     private ComboBoxModel getLocaleModel() {
         DefaultComboBoxModel dlm = new DefaultComboBoxModel();
-
-        for (Locale l : Locale.getAvailableLocales()) {
+        List<Locale> locales = new ArrayList<Locale>(Arrays.asList(Locale.getAvailableLocales()));
+        
+        Collections.sort(locales, new LocaleComparator());
+        
+        for (Locale l : locales) {
             dlm.addElement(l);
         }
         
         return dlm;
+    }
+    
+    private static class LocaleComparator implements Comparator<Locale> {
+        
+        public int compare(Locale o1, Locale o2) {
+            return o1.toString().compareTo(o2.toString());
+        }
+        
     }
 }
