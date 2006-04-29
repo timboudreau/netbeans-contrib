@@ -37,7 +37,12 @@ public final class StripWhitespaceAction extends AbstractAction implements Chang
 
     public StripWhitespaceAction() {
         putValue (Action.NAME, NbBundle.getMessage(StripWhitespaceAction.class, 
-                "LBL_StripWhitespaceAction"));
+                "LBL_StripWhitespaceAction")
+                /* If we get an icon uncomment this
+                 , new ImageIcon(org.openide.util.Utilities.loadImage(
+                    "org/netbeans/modules/stripwhitespace/stripSpace.png"))
+                 */
+                );
         Registry.addChangeListener (WeakListeners.change(this, Registry.class));
     }
 
@@ -52,6 +57,10 @@ public final class StripWhitespaceAction extends AbstractAction implements Chang
     
     private BaseDocument getCurrentDocument() {
         JTextComponent nue = Registry.getMostActiveComponent();
+        if (nue == null) {
+            return null;
+        }
+
         Document d = nue.getDocument();
         if (d instanceof BaseDocument) {
             return (BaseDocument) d;

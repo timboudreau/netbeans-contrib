@@ -123,7 +123,12 @@ public class HighlightWhitespace implements PropertyChangeListener {
     private void repaintMostActiveComponent() {
         assert SwingUtilities.isEventDispatchThread();
 
-        EditorUI editorUI = Utilities.getEditorUI(Registry.getMostActiveComponent());
+        javax.swing.text.JTextComponent component = Registry.getMostActiveComponent();
+        if (component == null) {
+            return;
+        }
+
+        EditorUI editorUI = Utilities.getEditorUI(component);
         if (editorUI != null) {
             editorUI.repaint(0);
         }
