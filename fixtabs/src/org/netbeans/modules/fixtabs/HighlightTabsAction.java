@@ -30,8 +30,6 @@ public final class HighlightTabsAction extends BooleanStateAction {
 
     protected void initialize() {
         super.initialize();
-        // see org.openide.util.actions.SystemAction.iconResource() javadoc for more details
-        putValue("noIconInMenu", Boolean.TRUE);
     }
 
     public HelpCtx getHelpCtx() {

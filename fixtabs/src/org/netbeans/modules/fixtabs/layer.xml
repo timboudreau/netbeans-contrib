@@ -12,19 +12,18 @@
         </folder>
     </folder>
     <folder name="Menu">
-        <folder name="Edit">
-            <attr name="SeparatorAfterFindPrevious.instance/org-netbeans-modules-fixtabs-HighlightTabsAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-modules-stripwhitespace-StripWhitespaceAction.shadow/org-netbeans-modules-fixtabs-HighlightTabsAction.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-fixtabs-HighlightTabsAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-fixtabs-HighlightTabsAction.instance"/>
-            </file>
-            <attr name="org-netbeans-modules-fixtabs-HighlightTabsAction.shadow/org-netbeans-modules-fixtabs-ConvertTabsAction.shadow" boolvalue="true"/>
+        <folder name="Source">
             <file name="org-netbeans-modules-fixtabs-ConvertTabsAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-fixtabs-ConvertTabsAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-fixtabs-ConvertTabsAction.shadow/org-netbeans-modules-stripwhitespace-separatorAfter.instance" boolvalue="true"/>
-            <attr name="org-netbeans-modules-fixtabs-ConvertTabsAction.shadow/SeparatorAfterProjectsSearch.instance" boolvalue="true"/>
-
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="View">
+            <attr name="org-netbeans-modules-editor-MainMenuAction$ShowToolBarAction.instance/org-netbeans-modules-fixtabs-HighlightTabsAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-fixtabs-HighlightTabsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-fixtabs-HighlightTabsAction.instance"/>
+            </file>
         </folder>
     </folder>
     <folder name="OptionsDialog">
