@@ -49,9 +49,9 @@ public class ConvertTabsOptionsComponent extends javax.swing.JPanel {
         previewScrollPane = new javax.swing.JScrollPane();
         previewEditorPane = new javax.swing.JEditorPane();
 
-        org.openide.awt.Mnemonics.setLocalizedText(previewLabel, org.openide.util.NbBundle.getMessage(ConvertTabsOptionsComponent.class, "LBL_Preview"));
+        org.openide.awt.Mnemonics.setLocalizedText(previewLabel, org.openide.util.NbBundle.getMessage(ConvertTabsOptionsComponent.class, "LBL_Preview")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(changeColorButton, org.openide.util.NbBundle.getMessage(ConvertTabsOptionsComponent.class, "LBL_ChangeColor"));
+        org.openide.awt.Mnemonics.setLocalizedText(changeColorButton, org.openide.util.NbBundle.getMessage(ConvertTabsOptionsComponent.class, "LBL_ChangeColor")); // NOI18N
         changeColorButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 changeColorButtonActionPerformed(evt);
@@ -62,6 +62,7 @@ public class ConvertTabsOptionsComponent extends javax.swing.JPanel {
         previewEditorPane.setContentType("text/x-java");
         previewEditorPane.setEditable(false);
         previewEditorPane.setText("    /** The main method. */    \n    public static void main(String[] args) {    \n        System.out.println(\"Hello\");\n\tSystem.out.println(\"World\");\n    }    ");
+        previewEditorPane.setPreferredSize(null);
         previewScrollPane.setViewportView(previewEditorPane);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
@@ -73,7 +74,7 @@ public class ConvertTabsOptionsComponent extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(previewLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(previewScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
+                        .add(previewScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(changeColorButton)))
                 .addContainerGap())
@@ -85,8 +86,8 @@ public class ConvertTabsOptionsComponent extends javax.swing.JPanel {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(changeColorButton)
-                    .add(previewScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(154, Short.MAX_VALUE))
+                    .add(previewScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
