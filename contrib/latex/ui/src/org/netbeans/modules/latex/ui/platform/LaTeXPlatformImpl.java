@@ -23,7 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.netbeans.modules.latex.model.platform.LaTeXPlatform;
+import org.netbeans.modules.latex.model.platform.Viewer;
 import org.netbeans.modules.latex.ui.ModuleSettings;
+import org.netbeans.modules.latex.ui.viewer.ViewerImpl;
 import org.openide.ErrorManager;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileObject;
@@ -41,7 +43,7 @@ public class LaTeXPlatformImpl implements LaTeXPlatform {
     
     static {
         tool2DefaultArgs = new HashMap();
-        tool2DefaultArgs.put(TOOL_LATEX, "-interaction=nonstopmode {" + ARG_INPUT_FILE_BASE + "}");
+        tool2DefaultArgs.put(TOOL_LATEX, "-interaction=nonstopmode -src-specials {" + ARG_INPUT_FILE_BASE + "}");
         tool2DefaultArgs.put(TOOL_DVIPS, "-o {" + ARG_INPUT_FILE_BASE + "}.ps  {" + ARG_INPUT_FILE_BASE + "}");
         tool2DefaultArgs.put(TOOL_DVIPDF, "-o {" + ARG_INPUT_FILE_BASE + "}.pdf  {" + ARG_INPUT_FILE_BASE + "}");
         tool2DefaultArgs.put(TOOL_PS2PDF, "{" + ARG_INPUT_FILE_BASE + "}.ps");
@@ -58,8 +60,13 @@ public class LaTeXPlatformImpl implements LaTeXPlatform {
         tool2TargetExtensions.put(TOOL_GV, Arrays.asList(new String[0]));
     }
     
+    private List<Viewer> viewers = new ArrayList<Viewer>();
+    
     /** Creates a new instance of LaTeXPlatformImpl */
     public LaTeXPlatformImpl() {
+        viewers.add(new ViewerImpl());
+        viewers.add(new ProcessViewerImpl(this, TOOL_XDVI, "xdvi", "DVI Viewer", new String[] {".dvi"}));
+        viewers.add(new ProcessViewerImpl(this, TOOL_XDVI, "gv", "PS/PDF Viewer", new String[] {".ps", ".pdf"}));
     }
 
     private String getDefaultArgs(String tool) {
@@ -135,6 +142,10 @@ public class LaTeXPlatformImpl implements LaTeXPlatform {
         }
 
         return Collections.emptyList();
+    }
+
+    public List<Viewer> getViewers() {
+        return viewers;
     }
 
 }

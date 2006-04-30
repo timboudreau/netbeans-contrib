@@ -35,7 +35,7 @@ import org.openide.ErrorManager;
  *
  * @author Jan Lahoda
  */
-/*package private*/final class IconsCreator {
+public final class IconsCreator {
     
     private static boolean doDelete = false;
     
@@ -87,7 +87,7 @@ import org.openide.ErrorManager;
         return configurationUsable;
     }
     
-    private void waitFor(final Process p) throws InterruptedException {
+    public static void waitFor(final Process p) throws InterruptedException {
         new Thread() {
             public void run() {
                 InputStream is = null;

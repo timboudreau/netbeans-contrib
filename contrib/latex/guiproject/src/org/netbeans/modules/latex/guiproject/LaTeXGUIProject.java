@@ -36,6 +36,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.latex.guiproject.build.BuildConfigurationProvider;
 import org.netbeans.modules.latex.guiproject.ui.LaTeXGUIProjectCustomizer;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.DocumentNode;
@@ -116,6 +117,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
             new LaTeXSharabilityQuery(this),
             new LaTeXGUIProjectCustomizer(this),
             new LaTeXGUIProjectLocaleQueryImplementation(this),
+            new BuildConfigurationProvider(this),
         });
     }
     

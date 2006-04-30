@@ -16,6 +16,7 @@ package org.netbeans.modules.latex.guiproject;
 
 import java.io.File;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.latex.guiproject.build.BuildConfigurationProvider;
 import org.netbeans.modules.latex.model.platform.LaTeXPlatform;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
@@ -98,4 +99,9 @@ public final class Utilities {
         return (LaTeXPlatform) Lookup.getDefault().lookup(LaTeXPlatform.class);
     }
     
+    public static BuildConfigurationProvider getBuildConfigurationProvider(Project p) {
+        //TODO: verify that only LaTeXGUIProjects work in this method:
+        return (BuildConfigurationProvider) p.getLookup().lookup(BuildConfigurationProvider.class);
+    }
+
 }

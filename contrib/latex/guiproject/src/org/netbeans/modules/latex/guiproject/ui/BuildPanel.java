@@ -25,6 +25,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import org.netbeans.modules.latex.guiproject.LaTeXGUIProject;
+import org.netbeans.modules.latex.guiproject.Utilities;
 import org.netbeans.modules.latex.guiproject.build.BuildConfiguration;
 import org.netbeans.modules.latex.guiproject.build.BuildConfigurationProvider;
 import org.netbeans.modules.latex.guiproject.build.RunTypes;
@@ -167,12 +168,12 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
     
     public void load(ProjectSettings settings) {
         String buildConfigurationName = settings.getBuildConfigurationName();
-        BuildConfiguration configuration = BuildConfigurationProvider.getDefault().getBuildConfiguration(buildConfigurationName);
+        BuildConfiguration configuration = Utilities.getBuildConfigurationProvider(p).getBuildConfiguration(buildConfigurationName);
 
         jComboBox1.setSelectedItem(configuration);
 
         String showConfigurationName = settings.getShowConfigurationName();
-        ShowConfiguration showConfiguration = BuildConfigurationProvider.getDefault().getShowConfiguration(showConfigurationName);
+        ShowConfiguration showConfiguration = Utilities.getBuildConfigurationProvider(p).getShowConfiguration(showConfigurationName);
 
         jComboBox3.setSelectedItem(showConfiguration);
 
@@ -193,7 +194,7 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
     private ComboBoxModel createBuildConfigurationModel() {
         DefaultComboBoxModel dlm = new DefaultComboBoxModel();
 
-        for (BuildConfiguration conf : BuildConfigurationProvider.getDefault().getBuildConfigurations()) {
+        for (BuildConfiguration conf : Utilities.getBuildConfigurationProvider(p).getBuildConfigurations()) {
             dlm.addElement(conf);
         }
 
@@ -213,7 +214,7 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
     private ComboBoxModel createShowConfigurationModel() {
         DefaultComboBoxModel dlm = new DefaultComboBoxModel();
 
-        for (ShowConfiguration conf : BuildConfigurationProvider.getDefault().getShowConfigurations()) {
+        for (ShowConfiguration conf : Utilities.getBuildConfigurationProvider(p).getShowConfigurations()) {
             dlm.addElement(conf);
         }
 

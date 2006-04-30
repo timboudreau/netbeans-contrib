@@ -16,31 +16,19 @@ package org.netbeans.modules.latex.guiproject;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import javax.swing.Action;
-import javax.swing.JEditorPane;
-import javax.swing.text.Document;
-import javax.swing.text.StyledDocument;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.latex.guiproject.build.BuildConfiguration;
-import org.netbeans.modules.latex.guiproject.build.BuildConfigurationProvider;
 import org.netbeans.modules.latex.guiproject.build.ShowConfiguration;
 import org.netbeans.modules.latex.guiproject.ui.ProjectSettings;
-import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
-import org.openide.ErrorManager;
 import org.openide.LifecycleManager;
 import org.openide.execution.ExecutionEngine;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.URLMapper;
 import org.openide.modules.InstalledFileLocator;
-import org.openide.text.NbDocument;
 import org.openide.util.Lookup;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
@@ -98,21 +86,21 @@ public class ActionsFactory implements ActionProvider {
 
                 private boolean doBuild() {
                     if (COMMAND_CLEAN.equals(command) || COMMAND_REBUILD.equals(command)) {
-                        BuildConfiguration conf = BuildConfigurationProvider.getDefault().getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
+                        BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
                         
                         if (!conf.clean(project, inout))
                             return false;
                     }
                     
                     if (COMMAND_BUILD.equals(command) || COMMAND_REBUILD.equals(command) || LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
-                        BuildConfiguration conf = BuildConfigurationProvider.getDefault().getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
+                        BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
                         
                         if (!conf.build(project, inout))
                             return false;
                     }
                     
                     if (LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
-                        ShowConfiguration conf = BuildConfigurationProvider.getDefault().getShowConfiguration(ProjectSettings.getDefault(project).getShowConfigurationName());
+                        ShowConfiguration conf = Utilities.getBuildConfigurationProvider(project).getShowConfiguration(ProjectSettings.getDefault(project).getShowConfigurationName());
                         
                         if (!conf.build(project, inout))
                             return false;
@@ -133,21 +121,21 @@ public class ActionsFactory implements ActionProvider {
     
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
         if (COMMAND_CLEAN.equals(command) || COMMAND_REBUILD.equals(command)) {
-            BuildConfiguration conf = BuildConfigurationProvider.getDefault().getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
+            BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
             
             if (conf == null || !conf.isSupported(project))
                 return false;
         }
         
         if (COMMAND_BUILD.equals(command) || COMMAND_REBUILD.equals(command) || LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
-            BuildConfiguration conf = BuildConfigurationProvider.getDefault().getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
+            BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
             
             if (conf == null || !conf.isSupported(project))
                 return false;
         }
         
         if (LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
-            ShowConfiguration conf = BuildConfigurationProvider.getDefault().getShowConfiguration(ProjectSettings.getDefault(project).getShowConfigurationName());
+            ShowConfiguration conf = Utilities.getBuildConfigurationProvider(project).getShowConfiguration(ProjectSettings.getDefault(project).getShowConfigurationName());
             
             if (conf == null || !conf.isSupported(project))
                 return false;

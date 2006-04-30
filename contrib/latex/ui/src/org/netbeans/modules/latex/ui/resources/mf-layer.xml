@@ -49,27 +49,28 @@ Contributor(s): Jan Lahoda
        </folder>
        <folder name="LaTeX">
           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.latex.ui.Bundle"/>
+           <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow">
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance"/>
+           </file>
+           
+           <attr name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow/org-netbeans-modules-latex-refactoring-actions-separatorBefore.instance" boolvalue="true"/>
+           
            <folder name="Bibliography">
                <file name="CiteAction.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CiteAction"/>
                </file>
            </folder>
            
-           <folder name="References">
+           <file name="CountWordsAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CountWordsAction"/>
+           </file>
+            <folder name="References">
                <file name="RefAction.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.RefAction"/>
                </file>
            </folder>
-           
-           <file name="org-netbeans-modules-latex-ui-actions-GoToFileAction.instance"/>
-           <file name="CountWordsAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CountWordsAction"/>
-           </file>
-           
-           <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance"/>
-           </file>
-       </folder>
+            <file name="org-netbeans-modules-latex-ui-actions-GoToFileAction.instance"/>
+        </folder>
     </folder>
 
     <folder name="Actions">
@@ -302,34 +303,34 @@ Contributor(s): Jan Lahoda
     </folder>
     
     <folder name="OptionsDialog">
-        <file name="org-netbeans-modules-latex-ui-options-LaTeXOption.instance" />
+        <file name="org-netbeans-modules-latex-ui-options-LaTeXOption.instance"/>
     </folder>
 
     <folder name="LaTeXPalette">
         <folder name="Templates">
             <file name="frac.instance">
-                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode" />
-                <attr name="displayCommand" stringvalue="\frac{a}{b}" />
-                <attr name="iconCommand" stringvalue="\frac{a}{b}" />
-                <attr name="insertCommand" stringvalue="\frac{${a}}{${b}}" />
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode"/>
+                <attr name="displayCommand" stringvalue="\frac{a}{b}"/>
+                <attr name="iconCommand" stringvalue="\frac{a}{b}"/>
+                <attr name="insertCommand" stringvalue="\frac{${a}}{${b}}"/>
             </file>
             <file name="lim.instance">
-                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode" />
-                <attr name="displayCommand" stringvalue="\lim_{x \to limit}" />
-                <attr name="iconCommand" stringvalue="\lim_{x \to l}" />
-                <attr name="insertCommand" stringvalue="\lim_{${x} \to ${limit}}" />
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode"/>
+                <attr name="displayCommand" stringvalue="\lim_{x \to limit}"/>
+                <attr name="iconCommand" stringvalue="\lim_{x \to l}"/>
+                <attr name="insertCommand" stringvalue="\lim_{${x} \to ${limit}}"/>
             </file>
             <file name="sum.instance">
-                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode" />
-                <attr name="displayCommand" stringvalue="\sum_{low}^{high}" />
-                <attr name="iconCommand" stringvalue="\sum_{l}^{h}" />
-                <attr name="insertCommand" stringvalue="\sum_{${low}}^{${high}}" />
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode"/>
+                <attr name="displayCommand" stringvalue="\sum_{low}^{high}"/>
+                <attr name="iconCommand" stringvalue="\sum_{l}^{h}"/>
+                <attr name="insertCommand" stringvalue="\sum_{${low}}^{${high}}"/>
             </file>
             <file name="integral.instance">
-                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode" />
-                <attr name="displayCommand" stringvalue="\int_{low}^{high} function dx}" />
-                <attr name="iconCommand" stringvalue="\int_{l}^{h}" />
-                <attr name="insertCommand" stringvalue="\int_{${low}}^{${high}} ${function} d${x}" />
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode"/>
+                <attr name="displayCommand" stringvalue="\int_{low}^{high} function dx}"/>
+                <attr name="iconCommand" stringvalue="\int_{l}^{h}"/>
+                <attr name="insertCommand" stringvalue="\int_{${low}}^{${high}} ${function} d${x}"/>
             </file>
 
         </folder>

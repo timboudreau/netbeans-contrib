@@ -93,6 +93,12 @@ public final class BuildConfiguration {
             }
         }
         
+        file.getParent().refresh(false);
+        
+        for (FileObject child : file.getChildren()) {
+            child.refresh();
+        }
+        
         return result;
     }
 

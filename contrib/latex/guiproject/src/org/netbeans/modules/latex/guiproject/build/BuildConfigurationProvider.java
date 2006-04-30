@@ -15,7 +15,10 @@ package org.netbeans.modules.latex.guiproject.build;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.netbeans.modules.latex.guiproject.LaTeXGUIProject;
+import org.netbeans.modules.latex.guiproject.Utilities;
 import org.netbeans.modules.latex.model.platform.LaTeXPlatform;
+import org.netbeans.modules.latex.model.platform.Viewer;
 
 /**
  *
@@ -23,21 +26,14 @@ import org.netbeans.modules.latex.model.platform.LaTeXPlatform;
  */
 public final class BuildConfigurationProvider {
     
-    private static BuildConfigurationProvider INSTANCE;
-    
-    public static synchronized BuildConfigurationProvider getDefault() {
-        if (INSTANCE == null) {
-            INSTANCE = new BuildConfigurationProvider();
-        }
-        
-        return INSTANCE;
-    }
-    
     private List<BuildConfiguration> configurations;
     private List<ShowConfiguration> showConfigurations;
+
+    private LaTeXGUIProject project;
     
     /** Creates a new instance of BuildConfigurationProvider */
-    private BuildConfigurationProvider() {
+    public BuildConfigurationProvider(LaTeXGUIProject project) {
+        this.project = project;
         configurations = new ArrayList();
         configurations.add(new BuildConfiguration("latex", "latex", new String[] {
             LaTeXPlatform.TOOL_LATEX,
@@ -56,8 +52,12 @@ public final class BuildConfigurationProvider {
             LaTeXPlatform.TOOL_DVIPDF,
         }));
         showConfigurations = new ArrayList();
-        showConfigurations.add(new ShowConfiguration("xdvi", "DVI Viewer", LaTeXPlatform.TOOL_XDVI));
-        showConfigurations.add(new ShowConfiguration("gv", "PS/PDF Viewer", LaTeXPlatform.TOOL_GV));
+
+        LaTeXPlatform platform = Utilities.getPlatform(project);
+
+        for (Viewer v : platform.getViewers()) {
+            showConfigurations.add(new ShowConfiguration(v));
+        }
     }
     
     public List<BuildConfiguration> getBuildConfigurations() {
@@ -72,8 +72,8 @@ public final class BuildConfigurationProvider {
             if (name.equals(b.getName()))
                 return b;
         }
-        
-        throw new IllegalStateException();
+
+        return null;
     }
     
     public List<ShowConfiguration> getShowConfigurations() {
@@ -88,8 +88,8 @@ public final class BuildConfigurationProvider {
             if (name.equals(b.getName()))
                 return b;
         }
-        
-        throw new IllegalStateException();
+
+        return null;
     }
 
 }

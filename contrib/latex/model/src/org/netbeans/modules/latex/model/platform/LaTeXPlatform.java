@@ -35,11 +35,13 @@ public interface LaTeXPlatform {
     public static final String ARG_INPUT_FILE_BASE = "input-file-base";
     public static final String ARG_INPUT_FILE      = "input-file";
     public static final String ARG_INPUT_FILE_ABSOLUTE = "input-file-absolute";
-    
+
     public NbProcessDescriptor getTool(String tool);
     
     public boolean isToolConfigured(String tool);
 
     public List<URI> getTargetFiles(String tool, FileObject inputSourceFile);
+
+    public List<Viewer> getViewers();
 
 }
