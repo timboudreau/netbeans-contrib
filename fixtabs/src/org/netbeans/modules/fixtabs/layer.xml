@@ -17,8 +17,6 @@
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-fixtabs-ConvertTabsAction.instance"/>
             </file>
         </folder>
-    </folder>
-    <folder name="Menu">
         <folder name="View">
             <attr name="org-netbeans-modules-editor-MainMenuAction$ShowToolBarAction.instance/org-netbeans-modules-fixtabs-HighlightTabsAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-fixtabs-HighlightTabsAction.shadow">
