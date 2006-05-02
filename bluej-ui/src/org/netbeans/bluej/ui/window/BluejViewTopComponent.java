@@ -229,7 +229,7 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
         }
     }
 
-    final class LookupProvider implements Lookup.Provider {
+    final static class LookupProvider implements Lookup.Provider {
 
         private Lookup lookup;
 
