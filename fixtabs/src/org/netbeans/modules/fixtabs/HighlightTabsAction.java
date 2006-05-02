@@ -28,10 +28,6 @@ public final class HighlightTabsAction extends BooleanStateAction {
         return NbBundle.getMessage(HighlightTabsAction.class, "LBL_HighlightWhitespaceAction");
     }
 
-    protected void initialize() {
-        super.initialize();
-    }
-
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }

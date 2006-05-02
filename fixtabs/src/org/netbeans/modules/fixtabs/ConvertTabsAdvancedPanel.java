@@ -61,7 +61,7 @@ public class ConvertTabsAdvancedPanel extends AdvancedOption {
             Mutex.EVENT.readAccess(new Runnable() {
 
                 public void run() {
-                    component.setHighlightingColor(ConvertTabsOptions.getDefault().getHighlightingColor());;
+                    component.setHighlightingColor(ConvertTabsOptions.getDefault().getHighlightingColor());
                 }
             });
         }

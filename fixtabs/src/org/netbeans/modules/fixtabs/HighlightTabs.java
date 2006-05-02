@@ -77,7 +77,7 @@ public class HighlightTabs implements PropertyChangeListener {
 
                     if (layer == null) {
                         layer = new Layer();
-                        editorUI.addLayer(new Layer(), Layer.VISIBILITY);
+                        editorUI.addLayer(layer, Layer.VISIBILITY);
                         INSTALLED.add(editorUI);
 
                         // needed in order to repaint the active component when the module

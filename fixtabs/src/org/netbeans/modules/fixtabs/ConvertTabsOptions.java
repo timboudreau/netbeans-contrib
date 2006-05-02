@@ -38,7 +38,7 @@ public class ConvertTabsOptions {
 
     private static final String PROPERTIES_FILE = "fixtabs.properties"; // NOI18N
 
-    private static ConvertTabsOptions DEFAULT = new ConvertTabsOptions();
+    private static final ConvertTabsOptions DEFAULT = new ConvertTabsOptions();
 
     private Properties props = new Properties();
     private PropertyChangeSupport propertySupport = new PropertyChangeSupport(this);

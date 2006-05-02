@@ -38,7 +38,7 @@ import org.openide.util.WeakListeners;
 
 /**
  * Convert Tab characters in the current file into spaces.
- * (This was based on the stripwhitespace module by Andrei Badea)
+ * (This was based on the stripwhitespace module by Tim Boudreau and Andrei Badea)
  *
  * @author Tor Norbye
  */
@@ -54,7 +54,6 @@ public final class ConvertTabsAction extends AbstractAction implements ChangeLis
 
         // see org.openide.util.actions.SystemAction.iconResource() javadoc for more details
         //putValue("noIconInMenu", Boolean.TRUE);
-
         Registry.addChangeListener(WeakListeners.change(this, Registry.class));
     }
 
@@ -70,6 +69,7 @@ public final class ConvertTabsAction extends AbstractAction implements ChangeLis
 
     private BaseDocument getCurrentDocument() {
         JTextComponent nue = Registry.getMostActiveComponent();
+
         if (nue == null) {
             return null;
         }
@@ -126,7 +126,14 @@ public final class ConvertTabsAction extends AbstractAction implements ChangeLis
                             }
 
                             if (remove) {
-                                String spaces = Utilities.getTabInsertString(d, offset);
+                                d.remove(offset, 1);
+
+                                int startLinePos = Utilities.getRowStart(d, offset);
+                                int col = offset - startLinePos;
+                                int spacesPerTab = d.getTabSize();
+                                int len =
+                                    ((col + spacesPerTab) / spacesPerTab * spacesPerTab) - col;
+                                String spaces = new String(Analyzer.getSpacesBuffer(len), 0, len);
 
                                 if (LOG) {
                                     LOGGER.log(ErrorManager.INFORMATIONAL,
@@ -134,7 +141,7 @@ public final class ConvertTabsAction extends AbstractAction implements ChangeLis
                                         " chars and replace with " + spaces.length() + " spaces"); // NOI18N
                                 }
 
-                                d.replace(offset, 1, spaces, null);
+                                d.insertString(offset, spaces, null);
                             }
                         }
                     }
