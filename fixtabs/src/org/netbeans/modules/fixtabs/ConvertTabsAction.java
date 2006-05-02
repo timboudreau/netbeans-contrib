@@ -97,6 +97,7 @@ public final class ConvertTabsAction extends AbstractAction implements ChangeLis
         public void run() {
             // Go backwards so I don't have to update offset positions
             int ct = d.getDefaultRootElement().getElementCount();
+            int spacesPerTab = d.getTabSize(); // Not necessarily == d.getFormatter().getTabSize()
 
             if (LOG) {
                 LOGGER.log(ErrorManager.INFORMATIONAL,
@@ -126,13 +127,14 @@ public final class ConvertTabsAction extends AbstractAction implements ChangeLis
                             }
 
                             if (remove) {
-                                d.remove(offset, 1);
-
                                 int startLinePos = Utilities.getRowStart(d, offset);
-                                int col = offset - startLinePos;
-                                int spacesPerTab = d.getTabSize();
-                                int len =
-                                    ((col + spacesPerTab) / spacesPerTab * spacesPerTab) - col;
+                                int colBeforeTab =
+                                    getExpandedOffset(s, offset - curr.getStartOffset(),
+                                        startLinePos - curr.getStartOffset(), spacesPerTab);
+                                int colAfterTab =
+                                    getExpandedOffset(s, offset - curr.getStartOffset() + 1,
+                                        startLinePos - curr.getStartOffset(), spacesPerTab);
+                                int len = colAfterTab - colBeforeTab;
                                 String spaces = new String(Analyzer.getSpacesBuffer(len), 0, len);
 
                                 if (LOG) {
@@ -141,6 +143,7 @@ public final class ConvertTabsAction extends AbstractAction implements ChangeLis
                                         " chars and replace with " + spaces.length() + " spaces"); // NOI18N
                                 }
 
+                                d.remove(offset, 1);
                                 d.insertString(offset, spaces, null);
                             }
                         }
@@ -150,6 +153,24 @@ public final class ConvertTabsAction extends AbstractAction implements ChangeLis
                 //rollback somehow?
                 ErrorManager.getDefault().notify(e);
             }
+        }
+
+        /** Compute the visual column for a given offset in a line, starting from startLinePos */
+        private int getExpandedOffset(String s, int offset, int startLinePos, int tabSize) {
+            int col = 0;
+
+            for (int i = startLinePos; i < offset; i++) {
+                if (s.charAt(i) == '\t') {
+                    // Compute the tab size at this point
+                    int len = ((col + tabSize) / tabSize * tabSize) - col;
+                    col += len;
+                } else {
+                    // All other characters contribute only one space
+                    col++;
+                }
+            }
+
+            return col;
         }
     }
 }
