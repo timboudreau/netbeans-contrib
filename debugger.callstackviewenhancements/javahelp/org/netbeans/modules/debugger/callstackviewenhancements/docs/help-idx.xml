@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : help-idx.xml
+    Created on : May 1, 2006
+    Author     : sc32560
+    Description:
+        Purpose of the document follows.
+-->
+
+<index version="2.0">	
+  <indexitem text="JPDA (Java) Debugger Call Stack View Enhancements Module" target="homeID" />	
+</index>

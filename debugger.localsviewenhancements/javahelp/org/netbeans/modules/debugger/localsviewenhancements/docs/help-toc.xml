@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : help-toc.xml
+    Created on : May 1, 2006
+    Author     : sc32560
+    Description:
+        Purpose of the document follows.
+-->
+
+<toc version="2.0">
+    <tocitem text="JPDA (Java) Debugger Locals View Enhancements Module">
+       <tocitem text="JPDA (Java) Debugger Locals View Enhancements Module" target="homeID" />
+    </tocitem>
+</toc>
