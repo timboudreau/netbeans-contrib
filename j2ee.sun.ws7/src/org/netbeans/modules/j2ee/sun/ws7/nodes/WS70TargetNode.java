@@ -27,11 +27,10 @@ import org.openide.util.Lookup;
 
 import java.io.File;
 import org.openide.windows.InputOutput;
-import org.openide.windows.IOProvider;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collections;
 import java.lang.reflect.Method;
 import javax.swing.Action;
 import java.awt.Image;
@@ -45,18 +44,34 @@ import org.openide.util.actions.SystemAction;
 import org.openide.actions.PropertiesAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.StartStopServerAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewTargetServerLogAction;
+import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.EditServerXmlAction;
 import org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70LogViewer;
+
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.cookies.EditorCookie;
+
+import org.openide.windows.IOProvider;
+import org.openide.windows.OutputWriter;
 
 /**
  *
  * @author Mukesh Garg
  */
 public class WS70TargetNode extends AbstractNode implements Node.Cookie{
-    WS70SunDeploymentManager manager;
-    Target target;
-    Lookup looup;
-    String configName;
-    boolean isConfigChanged = false;    
+    private WS70SunDeploymentManager manager;
+    private Target target;
+    private Lookup looup;
+    private String configName;
+    private boolean isConfigChanged = false;
+    private static Map serverXmlListeners = 
+            Collections.synchronizedMap((Map)new HashMap(2,1));
+    
     /** Creates a new instance of WS70TargetNode */
     public WS70TargetNode(Lookup lookup){            
         super(new Children.Array());
@@ -96,7 +111,8 @@ public class WS70TargetNode extends AbstractNode implements Node.Cookie{
     public Action[] getActions(boolean context) {
         return new SystemAction[] {               
             SystemAction.get(StartStopServerAction.class),            
-            null,
+            null,            
+            SystemAction.get(EditServerXmlAction.class),
             SystemAction.get(ViewTargetServerLogAction.class),
         };
     }
@@ -139,6 +155,39 @@ public class WS70TargetNode extends AbstractNode implements Node.Cookie{
         }
         
     }
+    public void showServerXml(){
+        String location = manager.getServerLocation()+File.separator+
+                          "admin-server"+File.separator+"config-store"+ //NOI18N
+                          File.separator+configName+ File.separator+//NOI18N
+                          "config";//NOI18N
+        File serverXmlFile = new File(location, "server.xml");//NOI18N
+        FileObject fileObject = FileUtil.toFileObject(serverXmlFile);
+        if (fileObject == null) {
+            OutputWriter writer = IOProvider.getDefault().getStdOut();
+            writer.println(NbBundle.getMessage(WS70TargetNode.class, 
+                              "ERR_Server_XML_not_found", configName));            
+            return;
+        }
+        DataObject dataObject = null;
+        try {
+            dataObject = DataObject.find(fileObject);
+        } catch(DataObjectNotFoundException ex) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+        }
+        if (dataObject != null) {                        
+            EditorCookie editorCookie = (EditorCookie)dataObject.getCookie(EditorCookie.class);
+            if (editorCookie != null) {
+                editorCookie.open();
+                if(serverXmlListeners.get(location)==null){                    
+                    ServerFileChangeListener listener = new ServerFileChangeListener(editorCookie);                    
+                    fileObject.addFileChangeListener(listener);
+                    serverXmlListeners.put(location, listener);
+                }                
+            } else {
+                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Cannot find EditorCookie."); // NOI18N
+            }
+        }
+    } 
     private void setMyDisplayName(){        
         this.setDisplayName(target.getName());
     }
@@ -158,5 +207,28 @@ public class WS70TargetNode extends AbstractNode implements Node.Cookie{
         }
 
     }
-
+ private class ServerFileChangeListener extends FileChangeAdapter{
+     private EditorCookie cookie;
+     public ServerFileChangeListener(EditorCookie e){         
+         cookie = e;
+     }
+     public void fileChanged(FileEvent fe){
+         if(!cookie.isModified()){
+            return; // server.xml was modified outside of IDE
+         }
+         OutputWriter writer = IOProvider.getDefault().getStdOut();
+         
+         try {
+             FileObject obj = fe.getFile();            
+             writer.println(NbBundle.getMessage(WS70TargetNode.class, 
+                              "MSG_Deploying_Config", configName));
+             manager.deployAndReconfig(configName);
+             writer.println(NbBundle.getMessage(WS70TargetNode.class, 
+                              "MSG_Config_Deployed", configName));
+         } catch(Exception ex){
+             writer.println(NbBundle.getMessage(WS70TargetNode.class, 
+                              "ERR_Config_deployed_failed", ex.getMessage()));
+         }
+     }
+ }
 }

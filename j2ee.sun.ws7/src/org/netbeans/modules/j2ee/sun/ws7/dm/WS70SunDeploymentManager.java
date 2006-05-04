@@ -464,15 +464,12 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         }        
         return null;        
     }
-    public boolean deployAndReconfig(String configName){
+    public void deployAndReconfig(String configName) throws Exception {
         try{                                                                  
             Method deployAndReconfig = dmClass.getDeclaredMethod("deployAndReconfig",  new Class[]{String.class});
-            Boolean retVal= (Boolean)deployAndReconfig.invoke(this.ws70DM, new Object[]{configName});            
-            return retVal.booleanValue();
-            
+            deployAndReconfig.invoke(this.ws70DM, new Object[]{configName});            
         }catch(Exception ex){            
-            ex.printStackTrace();
-            return false;
+            throw ex;            
         }                 
     }
     public void changeDebugStatus(String configName, 
