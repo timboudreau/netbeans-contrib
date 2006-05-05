@@ -11,6 +11,12 @@
         showing the class of the <code>this</code> variable
         associated with the stack frame if it is different from the class
         that declares the method associated with the stack frame.
+        <br>
+        The call stack view shows the custom icons (similar to Navigator window)
+        for constructors and methods with public, protected, private, (package),
+        and static qualifiers. This behaviour can be turned off by setting the
+        system property -
+        <code>-Dorg.netbeans.modules.debugger.callstackviewenhancements.dontShowCustomIcons=true</code>
         <h2>How to use</h2>
         Simply debug any Java application. You should see the above additional
         information in the Call Stack view.
