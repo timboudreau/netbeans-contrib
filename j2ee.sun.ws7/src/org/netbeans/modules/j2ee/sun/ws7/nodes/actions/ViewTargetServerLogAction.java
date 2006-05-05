@@ -46,12 +46,15 @@ public class ViewTargetServerLogAction extends NodeAction{
     
     protected boolean enable(Node[] nodes){
         if(nodes.length > 0) {
-            WS70TargetNode target = (WS70TargetNode)nodes[0].getCookie(WS70TargetNode.class);
-            if(target!=null){
-                return target.isLocalServer();
-            }else{
-                return false;
-            }            
+            Object obj = nodes[0].getCookie(WS70TargetNode.class);
+            if(obj!=null && obj instanceof WS70TargetNode){
+                WS70TargetNode target = (WS70TargetNode)obj;
+                if(target!=null){
+                    return target.isLocalServer();
+                }else{
+                    return false;
+                }                            
+            } 
         }
         return nodes.length==1;
     }

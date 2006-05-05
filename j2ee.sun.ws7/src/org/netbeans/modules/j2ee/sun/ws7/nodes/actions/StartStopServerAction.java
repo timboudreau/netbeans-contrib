@@ -35,7 +35,8 @@ import org.netbeans.modules.j2ee.sun.ws7.nodes.WS70TargetNode;
 
 public class StartStopServerAction extends NodeAction{
 
-    private boolean running;    
+    private boolean running;
+    private WS70TargetNode target;
 
     /** Creates a new instance of StartStopServerAction */
 
@@ -49,7 +50,6 @@ public class StartStopServerAction extends NodeAction{
                 ErrorManager.ERROR, NbBundle.getMessage(StartStopServerAction.class, "ERR_NULL_TARGET", this.getClass().getName()));            
             return;
         }
-
         if(!running){
             target.startTarget();
         }else{
@@ -57,33 +57,28 @@ public class StartStopServerAction extends NodeAction{
         }
     }   
 
-    protected boolean enable(Node[] nodes){       
-        if(nodes.length > 0) {
+    protected boolean enable(Node[] nodes){
+        
+        if(nodes.length > 0) {            
             Node node = nodes[0];
             Object obj = nodes[0].getCookie(WS70TargetNode.class);
-            if(obj instanceof WS70TargetNode){
-                WS70TargetNode target = (WS70TargetNode)obj;
-                if(target!=null){
-                    if(target.isRunning()) {
-                        running = true;
-                    } else {
-                        running = false;
-                    }
-                }else{                    
-                    ErrorManager.getDefault().log(
-                        ErrorManager.ERROR, NbBundle.getMessage(StartStopServerAction.class, "ERR_NULL_TARGET", this.getClass().getName()));
-                }
+            if(obj!=null && obj instanceof WS70TargetNode){
+                target = (WS70TargetNode)obj;
             }
         }
         return nodes.length==1;
     }
     
-    public String getName(){
+    public String getName(){        
+        if(target!=null){
+            running = target.isRunning();        
+        }
         if(!running){
             return NbBundle.getMessage(StartStopServerAction.class, "LBL_StartInstanceAction");
         }else{
             return NbBundle.getMessage(StartStopServerAction.class, "LBL_StopInstanceAction");
         }
+        
     }
     public HelpCtx getHelpCtx(){
         return HelpCtx.DEFAULT_HELP;

@@ -47,7 +47,7 @@ public class EditServerXmlAction  extends NodeAction{
     protected boolean enable(Node[] nodes){
         if(nodes.length > 0) {
             Object obj = nodes[0].getCookie(WS70TargetNode.class);
-            if(obj instanceof WS70TargetNode){
+            if(obj!=null && obj instanceof WS70TargetNode){
                 WS70TargetNode target = (WS70TargetNode)obj;
                 if(target!=null){
                     return target.isLocalServer();

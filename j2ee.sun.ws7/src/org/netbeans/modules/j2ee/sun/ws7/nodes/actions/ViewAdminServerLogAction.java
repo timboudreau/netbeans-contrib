@@ -42,11 +42,14 @@ public class ViewAdminServerLogAction extends NodeAction{
     
     protected boolean enable(Node[] nodes){
         if(nodes.length>0){
-            WS70ManagerNode managerNode = (WS70ManagerNode)nodes[0].getCookie(WS70ManagerNode.class);
-            if (managerNode != null) {
-                return managerNode.isLocalServer();
-            }else{
-                return false;
+            Object obj = nodes[0].getCookie(WS70ManagerNode.class);
+            if(obj !=null && obj instanceof WS70ManagerNode){
+                WS70ManagerNode managerNode = (WS70ManagerNode)obj;
+                if (managerNode != null) {
+                    return managerNode.isLocalServer();
+                }else{
+                    return false;
+                }
             }
         }
         return nodes.length==1;

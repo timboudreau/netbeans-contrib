@@ -55,14 +55,16 @@ public class EnableDisableModuleAction extends NodeAction{
     protected boolean enable(Node[] nodes){        
         if(nodes.length > 0) {
             Node node = nodes[0];
-            
-            WS70WebModule module = (WS70WebModule)nodes[0].getCookie(WS70WebModule.class);
-            if(module!=null){
-                if(module.isModuleEnabled()) {
-                    enabled = true;
-                } else {
-                    enabled = false;
-                }               
+            Object obj = nodes[0].getCookie(WS70WebModule.class);
+            if(obj!=null && obj instanceof WS70WebModule){
+                WS70WebModule module = (WS70WebModule)obj;
+                if(module!=null){
+                    if(module.isModuleEnabled()) {
+                        enabled = true;
+                    } else {
+                        enabled = false;
+                    }               
+                }
             }
         }        
   
