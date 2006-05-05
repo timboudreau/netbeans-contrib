@@ -7,12 +7,17 @@
     <body> 
         <h1>JPDA (Java) Debugger Locals View Enhancements</h1>	
         <h2>Features </h2>
-	This module enhances the Locals View of JPDA (Java) Debugger by adding the following columns:
-	<ul>
+        This module enhances the Locals View of JPDA (Java) Debugger by adding the following columns:
+        <ul>
             <li><b>Modifiers</b> - this columns displays the modifiers of field in Locals View.
             <li><b>Declared Type</b> - this column displays the declared type of the field in Locals View.
             <li><b>Declared In</b> - this column displays the class in which the field in Locals View is declared.
-	</ul>
+        </ul>
+        <br>
+        The call stack view shows the custom icons (similar to the navigator window)
+        for local variables and fields with public, protected, private, (package),
+        and static qualifiers. This behaviour can be turned off by setting the system property -
+        <code>-Dorg.netbeans.modules.debugger.callstackviewenhancements.dontShowCustomIcons=true</code>
         <h2>How to use</h2>
         Simply debug any Java application. You should see the above additional column in the Local Variables view.
         <h2>Example</h2>
@@ -21,10 +26,10 @@
         <br>
         <image src="maindotjava.jpg" alt="javaApplication11.Main Source">
         <p>
-        The following image shows the enahanced Local Variables view.
-        Notice that the actual type of field <code>javaApplication11.Main.o</code> is <code>Properties</code> (Type column).
-        The declared type of field <code>javaApplication11.Main.o</code> is <code>Object</code> (Declared Type column). 
-        Also notice the Modifiers and Declared In columns.
+            The following image shows the enahanced Local Variables view.
+            Notice that the actual type of field <code>javaApplication11.Main.o</code> is <code>Properties</code> (Type column).
+            The declared type of field <code>javaApplication11.Main.o</code> is <code>Object</code> (Declared Type column). 
+            Also notice the Modifiers and Declared In columns.
         </p>
         <br>
         <image src="localsviewenhancement.jpg" alt="Enhanced Local Variables view">
