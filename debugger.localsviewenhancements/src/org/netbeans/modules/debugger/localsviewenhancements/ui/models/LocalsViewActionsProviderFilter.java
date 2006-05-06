@@ -22,6 +22,7 @@ import org.netbeans.api.debugger.DebuggerManager;
 import org.netbeans.api.debugger.Session;
 import org.netbeans.api.debugger.jpda.Field;
 import org.netbeans.api.debugger.jpda.LocalVariable;
+import org.netbeans.api.debugger.jpda.This;
 import org.netbeans.api.debugger.jpda.Variable;
 import org.netbeans.jmi.javamodel.ClassDefinition;
 import org.netbeans.jmi.javamodel.JavaClass;
@@ -94,7 +95,19 @@ public class LocalsViewActionsProviderFilter implements NodeActionsProviderFilte
                 if (variableType != null && !variableType.trim().isEmpty()) {
                     myActions.add(GOTO_TYPE_ACTION);
                 }
-                myActions.add(GOTO_DECLARED_TYPE_ACTION);
+                if (variable instanceof This) {
+                    // actual type is same as declared type
+                } else if (variable instanceof LocalVariable) {
+                    String declaredType = ((LocalVariable) variable).getDeclaredType();
+                    if (!declaredType.equals(variableType)) {
+                        myActions.add(GOTO_DECLARED_TYPE_ACTION);
+                    }
+                } else if (variable instanceof Field) {
+                    String declaredType = ((Field) variable).getDeclaredType();
+                    if (!declaredType.equals(variableType)) {
+                        myActions.add(GOTO_DECLARED_TYPE_ACTION);
+                    }
+                }
             }
         } else {
             return actions;

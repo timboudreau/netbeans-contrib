@@ -50,20 +50,20 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
     }
     
     private static final String[] primitivesArray = new String[] {
-        "boolean",
-        "byte",
-        "char",
-        "double",
-        "float",
-        "int",
-        "long",
-        "short",
+        "boolean", // NOI18N
+        "byte",    // NOI18N
+        "char",    // NOI18N
+        "double",  // NOI18N
+        "float",   // NOI18N
+        "int",     // NOI18N
+        "long",    // NOI18N
+        "short",   // NOI18N
     };
     
     private static final List primitivesList = Arrays.asList(primitivesArray);
     
-    private static final Action GOTO_TYPE_ACTION = Models.createAction(
-            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("CTL_GotoTypeAction") + " of this",
+    private static final Action GOTO_TYPE_OF_THIS_ACTION = Models.createAction(
+            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("CTL_GotoTypeAction") + " of this", // NOI18N
             new Models.ActionPerformer() {
         public boolean isEnabled(Object node) {
             return true;
@@ -99,7 +99,7 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
             This thisOfCallStackFrame = callStackFrame.getThisVariable();
             if (thisOfCallStackFrame != null) {
                 if (!callStackFrame.getClassName().equals(thisOfCallStackFrame.getType())) {
-                    myActions.add(GOTO_TYPE_ACTION);
+                    myActions.add(GOTO_TYPE_OF_THIS_ACTION);
                 }
             }
             try {
