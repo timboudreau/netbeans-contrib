@@ -116,8 +116,7 @@ public class DocumentTopComponent extends TopComponent /*implements KeyListener 
             public void actionPerformed(ActionEvent e) {
                 DVIPageDescription d = (DVIPageDescription) pages.getSelectedItem();
                 
-                viewer.page = d.getPageNumber();
-                viewer.showPage();
+                viewer.setPage(d.getPageNumber());
             }
         });
         toolBar.add(zoomOutButton);
@@ -170,15 +169,13 @@ public class DocumentTopComponent extends TopComponent /*implements KeyListener 
             int scrollToPage = findPageForPosition(scrollTo);
             
             if (scrollToPage != (-1)) {
-                viewer.page = scrollToPage;
-                viewer.showPage();
+                viewer.setPage(scrollToPage);
                 wasInitialized = true;
             }
         }
 
         if (!wasInitialized) {
-            viewer.page = 1;
-            viewer.showPage();
+            viewer.setPage(1);
             wasInitialized = true;
         }
     }
@@ -277,14 +274,27 @@ public class DocumentTopComponent extends TopComponent /*implements KeyListener 
         public DocumentComponent() {
             this.page = 1;
             
-//            showPage();
-
             setFocusable(true);
             setRequestFocusEnabled(true);
             setVerifyInputWhenFocusTarget(false);
             addKeyListener(this);
             addMouseListener(this);
             addMouseMotionListener(this);
+        }
+        
+        private void setPage(int page) {
+            if (page < 1)
+                page = 1;
+            
+            if (desc.size() != 0 && desc.size() < page)
+                page = desc.size();
+            
+            this.page = page;
+            
+            if (pages.getModel().getSize() >= page)
+                pages.setSelectedIndex(page - 1);
+            
+            showPage();
         }
         
         protected void paintComponent(Graphics g) {
@@ -321,12 +331,10 @@ public class DocumentTopComponent extends TopComponent /*implements KeyListener 
         public void keyPressed(KeyEvent e) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_PAGE_DOWN:
-                    page++;
-                    showPage();
+                    setPage(page + 1);
                     break;
                 case KeyEvent.VK_PAGE_UP:
-                    page--;
-                    showPage();
+                    setPage(page - 1);
                     break;
             }
         }
