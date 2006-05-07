@@ -56,8 +56,6 @@ public class BuildMonitorPanel extends JPanel implements FileChangeListener {
 		continue;
 	    try {
 		BuildMonitor monitor = (BuildMonitor)ic.instanceCreate();
-                if (monitor.getName() == null)
-                    monitor.setName((String)dataObject.getPrimaryFile().getAttribute("name"));
 		BuildStatus status = new BuildStatus(monitor);
 		add(status);
 		if (i+1 < children.length)
@@ -67,6 +65,8 @@ public class BuildMonitorPanel extends JPanel implements FileChangeListener {
 	    }
         }
 	
+        revalidate();
+        repaint();
     }
     
     private void rebuildPanel() {
@@ -99,5 +99,7 @@ public class BuildMonitorPanel extends JPanel implements FileChangeListener {
     }
 
     public void fileFolderCreated(FileEvent fe) {}
-    public void fileDataCreated(FileEvent fe) {}
+    public void fileDataCreated(FileEvent fe) {
+        rebuildPanel();
+    }
 }

@@ -33,7 +33,8 @@ public class BuildMonitorBeanInfo extends SimpleBeanInfo {
         try {
             descriptors = new PropertyDescriptor[] { 
                 getDescriptor("URL", false), //NOI18N
-                getDescriptor("pollMinutes", false) //NOI18N
+                getDescriptor("pollMinutes", false), //NOI18N
+                getDescriptor("name", false), //NOI18N
             };
         } catch (IntrospectionException ex) {
             org.openide.ErrorManager.getDefault().notify(ex);

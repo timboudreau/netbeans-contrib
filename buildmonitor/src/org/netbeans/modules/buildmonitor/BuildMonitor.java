@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -50,8 +51,8 @@ import org.xml.sax.helpers.DefaultHandler;
 public class BuildMonitor implements Serializable, HelpCtx.Provider {
     private URL buildStatusURL;
     private int pollMinutes;
-    private transient String name;
-    private transient PropertyChangeListener listener; // only one view supported
+    private String name;
+    private transient PropertyChangeSupport pcs;
     private transient Timer timer;
     
     // from build status file
@@ -82,6 +83,7 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     }
     
     private BuildMonitor(String name, URL url, int minutes) {
+        this.pcs = new PropertyChangeSupport(this);
 	this.name = name;
 	buildStatusURL = url;
 	pollMinutes = minutes;
@@ -175,19 +177,15 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     }
     
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-	this.listener = listener;
+        pcs.addPropertyChangeListener(listener);
     }
     
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-	if (listener == this.listener)
-	    this.listener = null;
+        pcs.removePropertyChangeListener(listener);
     }
     
     private void firePropertyChange(String name, Object value) {
-	if (listener != null) {    
-	    PropertyChangeEvent event = new PropertyChangeEvent(this, name, null, value);
-	    listener.propertyChange(event);
-	}	
+        pcs.firePropertyChange(name, null, value);
     }
     
     private String getString(String key) {
@@ -338,6 +336,7 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
 
     private void readObject (java.io.ObjectInputStream ois) throws java.io.IOException, ClassNotFoundException {
         ois.defaultReadObject();
+        pcs = new PropertyChangeSupport(this);
         updateBuildStatus();
         startTimer();
     }
