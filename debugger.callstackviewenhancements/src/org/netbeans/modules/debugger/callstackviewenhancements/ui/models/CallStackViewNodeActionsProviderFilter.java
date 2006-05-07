@@ -47,20 +47,7 @@ import org.openide.util.NbBundle;
 public class CallStackViewNodeActionsProviderFilter implements NodeActionsProviderFilter {
     
     public CallStackViewNodeActionsProviderFilter() {
-    }
-    
-    private static final String[] primitivesArray = new String[] {
-        "boolean", // NOI18N
-        "byte",    // NOI18N
-        "char",    // NOI18N
-        "double",  // NOI18N
-        "float",   // NOI18N
-        "int",     // NOI18N
-        "long",    // NOI18N
-        "short",   // NOI18N
-    };
-    
-    private static final List primitivesList = Arrays.asList(primitivesArray);
+    }   
     
     private static final Action GOTO_TYPE_OF_THIS_ACTION = Models.createAction(
             NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("CTL_GotoTypeAction") + " of this", // NOI18N
@@ -69,7 +56,7 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
             return true;
         }
         public void perform(Object[] nodes) {
-            gotoTypeOf((CallStackFrame) nodes [0]);
+            Utils.gotoTypeOf((CallStackFrame) nodes [0]);
         }
     },
             Models.MULTISELECTION_TYPE_EXACTLY_ONE
@@ -87,7 +74,7 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
         }
         
         public void perform(Object[] nodes) {
-            showType(typeName);
+            Utils.showType(typeName);
         }
     }
     
@@ -109,8 +96,8 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                     LocalVariable localVariable = localVariables[i];
                     String typeName = localVariable.getType();
                     if (typeName != null) {
-                        final String typeNameFinal = stripArray(typeName);
-                        if (!primitivesList.contains(typeNameFinal) && !alreadyAddedTypeName.contains(typeNameFinal)) {
+                        final String typeNameFinal = Utils.stripArray(typeName);
+                        if (!Utils.primitivesList.contains(typeNameFinal) && !alreadyAddedTypeName.contains(typeNameFinal)) {
                             myActions.add(
                                     Models.createAction(
                                     NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("CTL_GotoTypeAction") + " " + typeNameFinal,
@@ -123,8 +110,8 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                     }
                     String declaredTypeName = localVariable.getDeclaredType();
                     if (declaredTypeName != null) {
-                        final String declaredTypeNameFinal = stripArray(declaredTypeName);
-                        if (!primitivesList.contains(declaredTypeNameFinal) && !alreadyAddedTypeName.contains(declaredTypeNameFinal)) {
+                        final String declaredTypeNameFinal = Utils.stripArray(declaredTypeName);
+                        if (!Utils.primitivesList.contains(declaredTypeNameFinal) && !alreadyAddedTypeName.contains(declaredTypeNameFinal)) {
                             myActions.add(
                                     Models.createAction(
                                     NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("CTL_GotoTypeAction") + " " + declaredTypeNameFinal,
@@ -156,117 +143,5 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
     }
     
     public void removeModelListener(ModelListener l) {
-    }
-    
-    private static void gotoTypeOf(CallStackFrame callStackFrame) {
-        if (callStackFrame == null) {
-            return;
-        }
-        This thisOfCallStackFrame = callStackFrame.getThisVariable();
-        if (thisOfCallStackFrame != null) {
-            if (!callStackFrame.getClassName().equals(thisOfCallStackFrame.getType())) {
-                showType(thisOfCallStackFrame.getType());
-            }
-        }
-    }
-    
-    private static void gotoTypeOf(LocalVariable localVariable) {
-        String typeName = localVariable.getType();
-        
-        if (typeName == null) {
-            return;
-        }
-        
-        showType(typeName);
-    }
-    
-    private static void gotoDeclaredTypeOf(LocalVariable localVariable) {
-        String declaredTypeName = localVariable.getDeclaredType();
-        
-        if (declaredTypeName == null) {
-            return;
-        }
-        
-        showType(declaredTypeName);
-    }
-    
-    private static void showType(String typeName) {
-        if (typeName == null) {
-            return;
-        }
-        
-        typeName = stripArray(typeName);
-        
-        if (primitivesList.contains(typeName)) {
-            return;
-        }
-        
-        JavaClass clazz = (JavaClass) JavaModel.getDefaultExtent().getType().resolve(typeName.replace('$', '.'));
-        if (clazz == null) {
-            typeName = stripInner(typeName);
-            Session session = DebuggerManager.getDebuggerManager().getCurrentSession();
-            if (session != null) {
-                DebuggerEngine debuggerEngine = session.getCurrentEngine();
-                if (debuggerEngine != null) {
-                    SourcePathProvider sourcePathProvider =
-                            (SourcePathProvider) debuggerEngine.lookupFirst(null, SourcePathProvider.class);
-                    if (sourcePathProvider != null) {
-                        String url = sourcePathProvider.getURL(typeName.replace('.', '/') + ".java", true);
-                        EditorContext editorContext = (EditorContext) DebuggerManager.getDebuggerManager().lookupFirst(null, EditorContext.class);
-                        if (editorContext != null) {
-                            editorContext.showSource(url, 1, null);
-                        }
-                    }
-                }
-            }
-        } else {
-            openElement(clazz);
-        }
-    }
-    
-    private static void openElement(ClassDefinition element) {
-        try {
-            try {
-                JavaModel.getJavaRepository().beginTrans(false);
-                ClassDefinition classDefinition = JMIUtils.getSourceElementIfExists((ClassDefinition) element);
-                if (classDefinition != null) {
-                    element = classDefinition;
-                }
-                JMIUtils.openElement(element);
-            } finally {
-                JavaModel.getJavaRepository().endTrans();
-            }
-        } catch (javax.jmi.reflect.InvalidObjectException e) {
-            ErrorManager.getDefault().notify(e);
-        }
-    }
-    
-    private static String stripInner(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-        
-        typeName = stripArray(typeName);
-        
-        int dollarAt = typeName.indexOf("$");
-        if (dollarAt != -1) {
-            // strip inner classes
-            typeName = typeName.substring(0, dollarAt);
-        }
-        
-        return typeName;
-    }
-    
-    private static String stripArray(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-        
-        // strip array
-        while (typeName.endsWith("[]")) {
-            typeName = typeName.substring(0, typeName.length() - 2);
-        }
-        
-        return typeName;
     }
 }
