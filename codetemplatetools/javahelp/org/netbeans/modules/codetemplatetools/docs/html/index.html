@@ -27,10 +27,18 @@
             <li>Invoke <img alt="Create Template..." src="newtemplate.gif"/> <b>Create Template...</b> action </li>
             <li>Name the template and insert any parameters using the <code>${parameter-name}</code>
             syntax </li>
-            <li>Supports additonal parameter <code>${selection}</code>. If the text editor had
-            any selection, that selection will be inserted at the location of
-            ${selection} parameter. Use ${selection editable=false} to prevent
-            editing of inserted text </li>
+            <li>Supports additonal parameters:
+                <ul>
+                    <li><code>${selection}</code> - If the text editor had
+                    any selection, that selection will be inserted at the location of
+                    ${selection} parameter. Use ${selection editable=false} to prevent
+                    editing of inserted text.</li>
+                    <li> <code>${clipboard-content}</code> - If the clipboard had
+                    any text, that text will be inserted at the location of
+                    ${clipboard-content} parameter. Use ${clipboard-content editable=false}
+                    to prevent editing of inserted text</li>
+                </ul>
+            </li>
             <li>Click on Save to save the Code Template </li>
         </ul>
         <p><img alt="createtemplate.jpg"
@@ -77,9 +85,9 @@
             Register are pasted. </li>
         </ul>
         <p>
-        The Registers are implemented as Code Templates with name <code>REG_ +  registerName</code>.
-        The <code>REG_</code> can be overridden using the System property
-        <code>-Dorg.netbeans.modules.codetemplatetools.REGISTER_PREFIX=prefix</code>.
+            The Registers are implemented as Code Templates with name <code>REG_ +  registerName</code>.
+            The <code>REG_</code> can be overridden using the System property
+            <code>-Dorg.netbeans.modules.codetemplatetools.REGISTER_PREFIX=prefix</code>.
         </p>
     </body>
 </html>

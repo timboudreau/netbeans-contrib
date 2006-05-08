@@ -68,6 +68,7 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
     private static String[] parameters = new String[] {
         "${" + CodeTemplateParameter.CURSOR_PARAMETER_NAME + "}",
         "${"+ SelectionCodeTemplateProcessor.SELECTION_PARAMETER + " " + CodeTemplateParameter.EDITABLE_HINT_NAME + "=false}",
+        "${"+ SelectionCodeTemplateProcessor.CLIPBOARD_CONTENT_PARAMETER + " " + CodeTemplateParameter.EDITABLE_HINT_NAME + "=false}",
     };
     
     /** Creates new form CreateCodeTemplatePanel */
