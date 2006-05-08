@@ -23,7 +23,7 @@ import javax.swing.event.EventListenerList;
 /**
  * A list of objects that allows listening for changes
  */
-public class ObjectList extends AbstractList {
+public class ObjectList<E> extends AbstractList<E> {
     /**
      * Owner of an ObjectList
      */
@@ -140,7 +140,7 @@ public class ObjectList extends AbstractList {
     private EventListenerList listeners = null;
     
     /** internal representation */
-    private List objects = null;
+    private List<E> objects = null;
     
     /**
      * Creates a new instance of ObjectList
@@ -166,11 +166,11 @@ public class ObjectList extends AbstractList {
         return sz;
     }
     
-    public Object set(int index, Object obj) {
+    public E set(int index, E obj) {
         if (objects == null)
-            objects = new ArrayList();
+            objects = new ArrayList<E>();
         
-        Object old = objects.set(index, obj);
+        E old = objects.set(index, obj);
         if (hasListeners()) {
             fireEvent(new Event(this, Event.EVENT_REMOVED, 
                 new int[] {index}, new Object[]{old}));
@@ -229,14 +229,15 @@ public class ObjectList extends AbstractList {
         }
     }
     
-    public Object get(int index) {
+    public E get(int index) {
         if (objects == null)
             throw new IndexOutOfBoundsException("Empty list"); // NOI18N
         
         return objects.get(index);
     }
     
-    public void add(int index, Object element) {
+    @Override
+    public void add(int index, E element) {
 	if (objects == null)
             objects = new ArrayList();
         
@@ -252,10 +253,10 @@ public class ObjectList extends AbstractList {
         }
     }
     
-    public Object remove(int index) {
+    public E remove(int index) {
 	if (objects == null)
             throw new IndexOutOfBoundsException("Empty list"); // NOI18N
-        Object obj = objects.remove(index);
+        E obj = objects.remove(index);
         if (hasListeners() || obj instanceof Listener) {
             Event e = new Event(this, Event.EVENT_REMOVED, 
                 new int[] {index}, new Object[] {obj});
