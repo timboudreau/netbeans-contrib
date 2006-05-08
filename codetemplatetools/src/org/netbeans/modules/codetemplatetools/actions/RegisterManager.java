@@ -15,7 +15,9 @@ package org.netbeans.modules.codetemplatetools.actions;
 
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
@@ -23,6 +25,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.text.Document;
+import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
+import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.editor.options.BaseOptions;
 import org.openide.windows.WindowManager;
 
@@ -175,6 +180,7 @@ public class RegisterManager {
         if (register == null) {
             return;
         }
+        
         pasteFromRegister(editorPane, register);
     }
     
@@ -184,32 +190,23 @@ public class RegisterManager {
             return;
         }
         
-        String registerValue = getRegisterValue(editorPane, register);
-        if (registerValue == null) {
-            registerValue = "";
-        }
-        editorPane.replaceSelection(registerValue);
+        register = REGISTER_PREFIX + register;
+        Document doc = editorPane.getDocument();
+        CodeTemplateManager codeTemplateManager = CodeTemplateManager.get(doc);
+        Collection codeTemplatesCollection = codeTemplateManager.getCodeTemplates();
+        for (Iterator it = codeTemplatesCollection.iterator(); it.hasNext();) {
+            CodeTemplate codeTemplate = (CodeTemplate) it.next();
+            if (codeTemplate.getAbbreviation().equals(register)) {
+                codeTemplate.insert(editorPane);
+                break;
+            }
+        }        
     }
     
     private static void beep() {
         Toolkit.getDefaultToolkit().beep();
     }
-    
-    private static String getRegisterValue(JEditorPane editorPane, String register) {
-        Class kitClass = editorPane.getEditorKit().getClass();
-        BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
-        if (baseOptions == null) {
-            beep();
-            return null;
-        }
         
-        Map abbreviationsMap = baseOptions.getAbbrevMap();
-        if (abbreviationsMap == null) {
-            return "";
-        }
-        return (String) abbreviationsMap.get(REGISTER_PREFIX + register);
-    }
-    
     private static void setRegisterValue(JEditorPane editorPane, String register, String text) {
         Class kitClass = editorPane.getEditorKit().getClass();
         BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
