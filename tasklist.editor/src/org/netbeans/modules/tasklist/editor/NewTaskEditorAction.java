@@ -21,9 +21,7 @@ import javax.swing.text.JTextComponent;
 
 import org.netbeans.editor.BaseAction;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.editor.LocaleSupport;
 import org.netbeans.editor.Utilities;
-import org.netbeans.editor.LocaleSupport.Localizer;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.openide.text.Line;
@@ -38,7 +36,7 @@ import org.openide.util.NbBundle;
  *
  * @author Tor Norbye
  */
-public class NewTaskEditorAction extends BaseAction implements Localizer {
+public class NewTaskEditorAction extends BaseAction {
 
     /**
      * Add a new task tied ot the current line
@@ -48,7 +46,6 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
 
     public NewTaskEditorAction() {
         super(NEW_USER_TASK_ACTION);
-        LocaleSupport.addLocalizer(this); // XXX is this too late?
     }
 
     static final long serialVersionUID = 8870696224845563315L;
@@ -85,6 +82,10 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
 
     public String getString(String str) {
         return NbBundle.getMessage(NewTaskEditorAction.class, str);
+    }
+
+    protected Class getShortDescriptionBundleClass() {
+        return NewTaskEditorAction.class;
     }
 
 }
