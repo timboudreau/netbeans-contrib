@@ -18,6 +18,8 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 /**
  * A list of "static" suggestions.
@@ -55,7 +57,7 @@ public class StaticSuggestions {
      */
     public synchronized void add(Suggestion s) {
         all.add(s);
-        fireChange();
+        fireIntervalAdded(all.size() - 1, all.size() - 1);
     }
     
     /**
@@ -67,7 +69,7 @@ public class StaticSuggestions {
         int index = all.indexOf(s);
         if (index >= 0) {
             all.remove(s);
-            fireChange();
+            fireIntervalRemoved(index, index);
         }
     }
     
@@ -81,9 +83,12 @@ public class StaticSuggestions {
     }
     
     /**
-     * Fires a ChangeEvent
+     * Fires a ListDataEvent
+     *
+     * @param index0 the one end of the intervall
+     * @param index1 the other end of the intervall
      */
-    private void fireChange() {
+    private void fireIntervalAdded(int index0, int index1) {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
         
@@ -91,11 +96,38 @@ public class StaticSuggestions {
         // those that are interested in this event
         ChangeEvent changeEvent = null;
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == ChangeListener.class) {
+            if (listeners[i] == ListDataListener.class) {
                 // Lazily create the event:
                 if (changeEvent == null)
                     changeEvent = new ChangeEvent(this);
-                ((ChangeListener)listeners[i+1]).stateChanged(changeEvent);
+                ((ListDataListener)listeners[i+1]).intervalAdded(
+                        new ListDataEvent(this, ListDataEvent.INTERVAL_ADDED, 
+                        index0, index1));
+            }
+        }
+    }
+    
+    /**
+     * Fires a ListDataEvent
+     *
+     * @param index0 the one end of the intervall
+     * @param index1 the other end of the intervall
+     */
+    private void fireIntervalRemoved(int index0, int index1) {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        ChangeEvent changeEvent = null;
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == ListDataListener.class) {
+                // Lazily create the event:
+                if (changeEvent == null)
+                    changeEvent = new ChangeEvent(this);
+                ((ListDataListener)listeners[i+1]).intervalAdded(
+                        new ListDataEvent(this, ListDataEvent.INTERVAL_REMOVED, 
+                        index0, index1));
             }
         }
     }
@@ -105,8 +137,8 @@ public class StaticSuggestions {
      *
      * @param l the listener that will be removed
      */
-    public void removeListener(ChangeListener l) {
-        this.listenerList.remove(ChangeListener.class, l);
+    public void removeListener(ListDataListener l) {
+        this.listenerList.remove(ListDataListener.class, l);
     }
     
     /**
@@ -115,7 +147,7 @@ public class StaticSuggestions {
      *
      * @param l a listener
      */
-    public void addListener(ChangeListener l) {
-        this.listenerList.add(ChangeListener.class, l);
+    public void addListener(ListDataListener l) {
+        this.listenerList.add(ListDataListener.class, l);
     }
 }
