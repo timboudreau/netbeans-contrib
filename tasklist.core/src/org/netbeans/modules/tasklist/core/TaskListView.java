@@ -65,6 +65,7 @@ import org.openide.windows.TopComponent;
 /**
  * View showing the task list items
  * @author Tor Norbye, Trond Norbye
+ * @author tl
  */
 public abstract class TaskListView extends TopComponent
 implements TaskListener, ExplorerManager.Provider, TaskSelector,
@@ -499,6 +500,10 @@ FilteredTopComponent
         add(centerPanel, BorderLayout.CENTER);
 
         loadColumnsConfiguration();
+        
+        Component north = getNorthComponent();
+        if (north != null)
+            add(north, BorderLayout.NORTH);
         
         JPanel toolbars = new JPanel();
         toolbars.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));

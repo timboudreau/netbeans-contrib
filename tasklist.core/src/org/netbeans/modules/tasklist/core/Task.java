@@ -30,6 +30,7 @@ import org.openide.nodes.Node.Cookie;
  * Class which represents a task in the tasklist.
  *
  * @author Tor Norbye
+ * @author tl
  */
 public class Task extends Suggestion implements Cloneable, Cookie {
     private static final Logger LOGGER = TLUtils.getLogger(Task.class);
@@ -48,15 +49,8 @@ public class Task extends Suggestion implements Cloneable, Cookie {
 
     /** Set&lt;TaskListener> */
     protected EventListenerList listeners = new EventListenerList();
-    // TODO: old code private Set listeners = new HashSet(2);
 
     private boolean visitable;
-
-    /**
-     * When true, don't notify anybody of updates to this object - and don't
-     * modify the edited timestamp. Used by the restore code.
-     */
-    protected boolean silentUpdate = false;
 
     private Task parent;
 
@@ -177,9 +171,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      */
     protected void firePropertyChange(String propertyName, Object oldValue,
     Object newValue) {
-        if (!silentUpdate) {
-            super.firePropertyChange(propertyName, oldValue, newValue);
-        }
+        super.firePropertyChange(propertyName, oldValue, newValue);
     }
 
     public void addTaskListener(TaskListener l) {
@@ -195,9 +187,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     }
 
     protected final void fireStructureChanged() {
-        if (silentUpdate)
-            return;
-        
         // Guaranteed to return a non-null array
         Object[] l = listeners.getListenerList();
         for (int i = l.length - 2; i >= 0; i -= 2) {
@@ -205,9 +194,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
                 ((TaskListener) l[i+1]).structureChanged(this);
             }
         }
-//            if (getList() instanceof TaskList) {
-//                ((TaskList) getList()).fireStructureChanged(this);
-//            }
+
         if (this instanceof TaskListener) {
             ((TaskListener) this).structureChanged(this);
         }
@@ -219,9 +206,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * @param t task that was added
      */
     protected final void fireAddedTask(Task t) {
-        if (silentUpdate)
-            return;
-        
         // Guaranteed to return a non-null array
         Object[] l = listeners.getListenerList();
         for (int i = l.length - 2; i >= 0; i -= 2) {
@@ -242,9 +226,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * @param index old index of the task
      */
     protected final void fireRemovedTask(Task t, int index) {
-        if (silentUpdate)
-            return;
-        
         // Guaranteed to return a non-null array
         Object[] l = listeners.getListenerList();
         for (int i = l.length - 2; i >= 0; i -= 2) {
@@ -252,9 +233,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
                 ((TaskListener) l[i+1]).removedTask(this, t, index);
             }
         }
-//            if (getList() instanceof TaskList) {
-//                ((TaskList) getList()).fireRemoved(this, t);
-//            }
+
         if (this instanceof TaskListener) {
             ((TaskListener) this).removedTask(this, t, index);
         }
@@ -285,7 +264,8 @@ public class Task extends Suggestion implements Cloneable, Cookie {
             // #48953 clone it for iterators safeness
             if (subtasksCopy == null) {
                 synchronized (subtasks) {
-                    subtasksCopy = Collections.unmodifiableList(new ArrayList(subtasks));
+                    subtasksCopy = Collections.unmodifiableList(
+                            new ArrayList(subtasks));
                 }
             }
             return subtasksCopy;
@@ -302,7 +282,11 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         return getSubtasks().iterator();
     }
 
-    /** @return subtasks count */
+    /** 
+     * Returns the number of subtasks.
+     *
+     * @return subtasks count 
+     */
     public final int subtasksCount() {
         if (subtasks == null) {
             return 0;
@@ -311,7 +295,9 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         }
     }
 
-    /** @return true if task exits in non-recursive subtasks. */
+    /** 
+     * @return true if task exits in non-recursive subtasks. 
+     */
     public final boolean containsSubtask(Task task) {
         if (subtasks == null) {
             return false;
@@ -397,8 +383,8 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         }
 
         // XXX does not work with SuggetionList.addCategory:152
-       // assert !subtasks.contains(subtask);
-       if (subtasks.contains(subtask)) return;
+        // assert !subtasks.contains(subtask);
+        if (subtasks.contains(subtask)) return;
 
         if (append) {
             subtasks.add(subtask);
@@ -409,16 +395,12 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         fireAddedTask(subtask);
     }
 
-    /** Remove a particular subtask
-     * @param subtask The subtask to be removed */
+    /** 
+     * Remove a particular subtask
+     *
+     * @param subtask The subtask to be removed 
+     */
     public void removeSubtask(Task subtask) {
-	//subtask.list = null;
-
-//        if (subtask.getAnnotation() != null) {
-//            subtask.getAnnotation().detach();
-//            subtask.setAnnotation(null);
-//        }
-
         // We need the list reference later, when looking for a reincarnation
         // of the task. So instead use the zombie field to mark deleted items.
         subtask.zombie = true;
@@ -447,7 +429,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         return parent;
     }
 
-
     /** Traverse to root task (or self)*/
     public final Task getRoot() {
         Task parent = getParent();
@@ -466,20 +447,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         if (nextLevel == null) return false;
         return isParentOf(nextLevel);  // recursion
     }
-
-    /**
-     * XXX make paskage private or even private
-     * @deprecated iCalSupport should use addSubtask
-     */
-    /*public final void setParent(Task parent) {
-        this.parent = parent;
-        // Should we broadcast this change??? Probably not, it's always
-        // manipulated as part of add/deletion operations which are tracked
-        // elsewhere (see addSubTask for example)
-        // if (!silentUpdate) {
-        //     supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-        // }
-    }*/
 
     /**
      * Indicate if this item is a "zombie" (e.g. it has been removed
@@ -537,36 +504,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     }
 
 
-    /** Generate a string summary of the task; only used
-     * for debugging. DO NOT depend on this format for anything!
-     * Use generate() instead.
-     * @return summary string */
-    /*
-    public String toString() {
-        return "Task[\"" + desc + "\"]"; // NOI18N
-        //return "Task[\"" + desc + "\", " + priority + ", " + done + "]"; // NOI18N
-        //return "Task[desc=\"" + desc + "\",prio=" + priority + ",done=" + done + ",temp=" + temporary + ",uid=" + uid + ",cat=" + category + ",created=" + created + ",edited=" + edited + "file=" + filename + ",line=" + linenumber + "] " + super.toString(); // NOI18N
-    }
-    */
-
-    /** Setter for property silentUpdate.
-     * When true, don't notify anybody of updates to this object - and don't
-        modify the edited timestamp. Used by the restore code.
-     * @param silentUpdate New value of property silentUpdate.
-     @param fireChildren If true, fire children property changes
-                            when updates are reenabled
-     */
-    // XXX make private again!
-    public void setSilentUpdate(boolean silentUpdate,
-                                boolean fireChildren) {
-        this.silentUpdate = silentUpdate;
-        if (!silentUpdate) {
-            if (fireChildren) {
-                fireStructureChanged();
-            }
-        }
-    }
-
     /**
      * Counts all subtasks of this task recursively.
      *
@@ -599,23 +536,14 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         }
     }
 
-    /** Create an identical copy of a task (a deep copy, e.g. the
-        list of subtasks will be cloned as well */
+    /** 
+     * Create an identical copy of a task (a deep copy, e.g. the
+     * list of subtasks will be cloned as well 
+     */
     protected Object clone() {
         Task t = new Task();
         t.copyFrom(this);
         return t;
-    }
-
-    /**
-     * Clones task's properies without its
-     * membership relations (parent).
-     */
-    final Task cloneTask() {
-        // Does not work well as we subclass a suggestion that is 1:1 to its agent 
-        Task clone = (Task) clone();
-        clone.parent = null;
-        return clone;
     }
 
     /**

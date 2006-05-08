@@ -30,7 +30,8 @@ import java.beans.PropertyChangeEvent;
  * @author Tor Norbye
  * @author Petr Kuzel
  */
-public final class TaskEditorListener implements TaskViewListener, PropertyChangeListener {
+public final class TaskEditorListener implements TaskViewListener, 
+        PropertyChangeListener {
     /** Annotation showing the current position */
     transient private Annotation taskMarker = null;
 
