@@ -18,6 +18,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -33,6 +34,7 @@ import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -66,11 +68,11 @@ import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.TextExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
-import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
+import org.netbeans.modules.tasklist.core.table.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.actions.FindAction;
+import org.openide.awt.MouseUtils;
 import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
@@ -92,6 +94,8 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 
 /** 
@@ -626,6 +630,23 @@ FilteredTopComponent {
             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+        
+        scrollPane.addMouseListener(new MouseUtils.PopupMouseAdapter() {
+            public void showPopup(MouseEvent e) {
+                UserTasksTreeTable tt = getTreeTable();
+                tt.getSelectionModel().setSelectionInterval(0, 0);
+                TreePath path = new TreePath(tt.getTreeTableModel().getRoot());
+                tt.scrollTo(path);
+                
+                Node n = getExplorerManager().getSelectedNodes()[0];
+                
+                Action[] actions = n.getActions(false);
+                JPopupMenu pm = Utilities.actionsToPopup(actions,
+                    e.getComponent());
+                if(pm != null)
+                    pm.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
         
         ChooseColumnsPanel.installChooseColumnsButton(scrollPane);
         

@@ -87,7 +87,7 @@ public abstract class AdvancedTreeTableNode<T>
             } else {
                 AdvancedTreeTableNode[] newch = 
                     new AdvancedTreeTableNode[children.length];
-                Iterator<Object> it = this.getChildrenObjectsIterator();
+                Iterator<?> it = this.getChildrenObjectsIterator();
                 int i = 0;
                 while (it.hasNext()) {
                     int index = getIndexOfObject(it.next());
@@ -139,14 +139,14 @@ public abstract class AdvancedTreeTableNode<T>
      *
      * @return the iterator
      */
-    public abstract Iterator<Object> getChildrenObjectsIterator();
+    public abstract Iterator<?> getChildrenObjectsIterator();
     
     /**
      * Creates a children node
      *
      * @param child child's object
      */
-    public abstract AdvancedTreeTableNode<Object> createChildNode(Object child);
+    public abstract AdvancedTreeTableNode<?> createChildNode(Object child);
     
     /**
      * Filtering
@@ -162,7 +162,7 @@ public abstract class AdvancedTreeTableNode<T>
     
     protected void loadChildren() {
         List<Object> ch = new ArrayList<Object>();
-        Iterator<Object> it = getChildrenObjectsIterator();
+        Iterator<?> it = getChildrenObjectsIterator();
         while (it.hasNext()) {
             ch.add(it.next());
         }
@@ -217,7 +217,7 @@ public abstract class AdvancedTreeTableNode<T>
             if (this.comparator == null) {
                 AdvancedTreeTableNode[] newch = 
                     new AdvancedTreeTableNode[children.length];
-                Iterator<Object> it = this.getChildrenObjectsIterator();
+                Iterator<?> it = this.getChildrenObjectsIterator();
                 int i = 0;
                 while (it.hasNext()) {
                     int index = getIndexOfObject(it.next());
@@ -275,7 +275,7 @@ public abstract class AdvancedTreeTableNode<T>
                     index = -(index + 1);
             } else {
                 index = -1;
-                Iterator<Object> it = getChildrenObjectsIterator();
+                Iterator<?> it = getChildrenObjectsIterator();
                 while (it.hasNext()) {
                     Object next = it.next();
                     if (!accept(next))

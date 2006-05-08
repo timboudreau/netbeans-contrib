@@ -37,6 +37,12 @@ public class TaskListDataObject extends MultiDataObject implements OpenCookie {
 
     private static final long serialVersionUID = 1;
 
+    /**
+     * 
+     * @param pf 
+     * @param loader 
+     * @throws org.openide.loaders.DataObjectExistsException 
+     */
     public TaskListDataObject(FileObject pf, TaskListLoader loader)
 			    throws DataObjectExistsException {
 	super(pf, loader);

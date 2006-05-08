@@ -22,6 +22,7 @@ import org.netbeans.modules.tasklist.usertasks.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 
 /**

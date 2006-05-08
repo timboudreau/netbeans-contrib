@@ -18,6 +18,7 @@
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
 import javax.swing.tree.TreeModel;
+import org.netbeans.modules.tasklist.core.table.SortingModel;
 
 /**
  * TreeTableModel is the model used by a JTreeTable. It extends TreeModel

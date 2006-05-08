@@ -13,15 +13,15 @@
 
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
+import java.util.ResourceBundle;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 /**
@@ -44,7 +44,24 @@ public class PriorityListCellRenderer extends DefaultListCellRenderer {
 
     private static final long serialVersionUID = 1;
 
-    private static final String[] TAGS = SuggestionPriority.getPriorityNames();
+    private static String[] TAGS;
+
+    /** Keys for the Bundle.properties */
+    private static final String[] PRIORITIES_KEYS = {
+        "PriorityHigh",  // NOI18N
+        "PriorityMediumHigh", // NOI18N
+        "PriorityMedium", // NOI18N
+        "PriorityMediumLow", // NOI18N
+        "PriorityLow" // NOI18N
+    };
+
+    static {
+        TAGS = new String[PRIORITIES_KEYS.length];
+        ResourceBundle rb = NbBundle.getBundle(PriorityListCellRenderer.class);
+        for (int i = 0; i < PRIORITIES_KEYS.length; i++) {
+            TAGS[i] = rb.getString(PRIORITIES_KEYS[i]);
+        }
+    }
 
     /**
      * Default colors for diferent priorities

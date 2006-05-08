@@ -263,6 +263,10 @@ ObjectList.Owner {
     public static final String PROP_WORK_PERIODS = "workPeriods"; // NOI18N
     public static final String PROP_START = "start"; // NOI18N
     public static final String PROP_SPENT_TIME_TODAY = "spentTimeToday"; // NOI18N
+    
+    /** last modified. long as returned by System.currentTimeMillise() */
+    public static final String PROP_LAST_EDITED_DATE = 
+            "lastEditedDate"; // NOI18N
 
     // ATTENTION: if you add new fields here do not forget to update copyFrom
     
@@ -325,7 +329,7 @@ ObjectList.Owner {
     
     private String category;
     private long created;
-    private long edited;
+    private long lastEditedDate;
 
     /**
      * true means that the effort will be computed automatically as them sum of the
@@ -370,7 +374,7 @@ ObjectList.Owner {
     private long start = -1;
     
     // <WorkPeriod>
-    private ObjectList workPeriods = new ObjectList();
+    private ObjectList<WorkPeriod> workPeriods = new ObjectList<WorkPeriod>();
     // ATTENTION: if you add new fields here do not forget to update copyFrom
     
     /**
@@ -476,7 +480,7 @@ ObjectList.Owner {
         setDetails(details);
 
         created = System.currentTimeMillis();
-        edited = created;
+        lastEditedDate = created;
 
 	if (domain == null) {
             try {
@@ -502,7 +506,7 @@ ObjectList.Owner {
      *
      * @return <WorkPeriod>
      */
-    public ObjectList getWorkPeriods() {
+    public ObjectList<WorkPeriod> getWorkPeriods() {
         return workPeriods;
     }
     
@@ -1247,14 +1251,16 @@ ObjectList.Owner {
      * @return the date when the item was last edited.
      */
     public long getLastEditedDate() {
-	return edited;
+	return lastEditedDate;
     }
 
     /** 
      * Set the date when the item was last edited 
+     *
+     * @param ed new date as returned by System.currentTimeMillis
      */
     public void setLastEditedDate(long ed) {
-        edited = ed;
+        lastEditedDate = ed;
     }
     
     public int hashCode() {
@@ -1381,7 +1387,7 @@ ObjectList.Owner {
         percentComputed = from.percentComputed;
         category = from.category;
         created = from.created;
-        edited = from.edited;
+        lastEditedDate = from.lastEditedDate;
         effort = from.effort;
         effortComputed = from.effortComputed;
         spentTime = from.spentTime;
@@ -1391,12 +1397,13 @@ ObjectList.Owner {
         owner = from.owner;
         completedDate = from.completedDate;
         start = from.start;
+        lastEditedDate = from.lastEditedDate;
         
         workPeriods.clear();
         for (int i = 0; i < from.workPeriods.size(); i++) {
             WorkPeriod wp = (WorkPeriod) from.workPeriods.get(i);
             try {
-                workPeriods.add(wp.clone());
+                workPeriods.add((WorkPeriod) wp.clone());
             } catch (CloneNotSupportedException e) {
                 throw new InternalError("unexpected"); // NOI18N
             }
@@ -1520,7 +1527,7 @@ ObjectList.Owner {
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        edited = System.currentTimeMillis();
+        lastEditedDate = System.currentTimeMillis();
     }
 
     /**

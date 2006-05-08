@@ -15,8 +15,6 @@ package org.netbeans.modules.tasklist.usertasks.editors;
 
 import java.beans.PropertyEditorSupport;
 import javax.swing.JLabel;
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 

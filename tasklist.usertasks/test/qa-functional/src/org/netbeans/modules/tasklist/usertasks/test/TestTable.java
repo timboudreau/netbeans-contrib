@@ -37,7 +37,7 @@ import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.jemmy.operators.Operator;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
+import org.netbeans.modules.tasklist.core.table.TreeTable;
 
 /**
  * Tests for the TreeTable

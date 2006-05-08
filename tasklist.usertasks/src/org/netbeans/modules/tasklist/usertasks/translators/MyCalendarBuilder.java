@@ -46,10 +46,13 @@ public class MyCalendarBuilder extends CalendarBuilder {
         super.parameter(name, value);
     }
 
+    @SuppressWarnings("unchecked")
     public void startComponent(String name) {
         if (name.equals("X"))
             name = "X-UNKNOWN";
+        
         cmps.add(name);
+        
         super.startComponent(name);
     }
 

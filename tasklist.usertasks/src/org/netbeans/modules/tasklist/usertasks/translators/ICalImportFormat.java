@@ -138,7 +138,7 @@ public class ICalImportFormat implements ExportImportFormat {
         CalendarBuilder cb = new MyCalendarBuilder();
         
         // <Dep> used for reading dependencies
-        List dependencies = new ArrayList();
+        List<Dep> dependencies = new ArrayList<Dep>();
     
         UTUtils.LOGGER.fine("building calendar"); // NOI18N
         
@@ -218,7 +218,7 @@ public class ICalImportFormat implements ExportImportFormat {
      * @param dependencies <Dep> container for dependencies
      */
     private static void readVTODO(UserTaskList utl, Component cmp,
-        List dependencies) {
+        List<Dep> dependencies) {
         PropertyList pl = cmp.getProperties();
         Property prop = pl.getProperty(Property.SUMMARY);
         String summary = (prop == null) ? "" : prop.getValue(); // NOI18N

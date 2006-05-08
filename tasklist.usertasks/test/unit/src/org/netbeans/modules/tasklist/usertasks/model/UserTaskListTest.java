@@ -109,6 +109,10 @@ public class UserTaskListTest extends NbTestCase {
      * other tasks in a list.
      */
     public void testLastModified() {
+        // utl 
+        //  |-ut
+        //    |-ut3
+        //  |-ut2
         UserTaskList utl = new UserTaskList();
         UserTask ut = new UserTask("test", utl);
         UserTask ut2 = new UserTask("test2", utl);

@@ -58,6 +58,8 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.core.table.SortingModel;
+import org.netbeans.modules.tasklist.usertasks.treetable.*;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 
@@ -76,47 +78,10 @@ public class TreeTable extends JTable {
     /**
      * Columns configuration
      */
-    public static final class ColumnsConfig implements Serializable {
+    public static final class ColumnsConfig extends 
+            org.netbeans.modules.tasklist.core.table.ColumnsConfig {
         public static final long serialVersionUID = 2L;
-        
-        /** 
-         * Model indexes for visible columns
-         */
-        public int[] columns;
-        
-        /**
-         * Widths of the columns in pixels
-         */
-        public int[] columnWidths;
-        
-        /**
-         * Model index or -1
-         */
-        public int sortedColumn = -1;
-        
-        /**
-         * Sorting order
-         */
-        public boolean ascending;
-        
-        public String toString() {
-            StringBuffer sb = new StringBuffer();
-            sb.append("ColumnsConfig["); // NOI18N
-            sb.append("sortedColumn=").append(sortedColumn); // NOI18N
-            sb.append(", ascending=").append(sortedColumn); // NOI18N
-            sb.append(", columns=["); // NOI18N
-            for (int i = 0; i < columns.length; i++) {
-                if (i != 0)
-                    sb.append(", "); // NOI18N
-                sb.append(columns[i]);
-                sb.append("->"); // NOI18N
-                sb.append(columnWidths[i]);
-            }
-            sb.append("]"); // NOI18N
-            sb.append("]"); // NOI18N
-            return sb.toString();
-        }
-    }
+    }    
     
     /**
      * Expanded nodes and selection.
@@ -781,6 +746,13 @@ public class TreeTable extends JTable {
         
         return paths.toArray(new TreePath[paths.size()]);
     }
+
+    /*
+     *TODO: remove. For profiling only.
+     *
+    public void paint(Graphics g) {
+        super.paint(g);
+    }*/
     
     /**
      * A TreeCellRenderer that displays a JTree.

@@ -308,6 +308,7 @@ public class ICalExportFormat implements ExportImportFormat {
      * @param position position of the VTODO-element in cal.getComponents()
      * Length of the array should be 1 (in/out argument).
      */
+    @SuppressWarnings("unchecked")
     private void writeTask(Calendar cal, UserTask task, int[] position) 
     throws IOException, URISyntaxException, ParseException, ValidationException {
         VToDo vtodo = find(cal, task.getUID());

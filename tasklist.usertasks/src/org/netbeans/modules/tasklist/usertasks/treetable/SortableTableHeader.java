@@ -19,11 +19,14 @@ import java.awt.event.MouseEvent;
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
+import org.netbeans.modules.tasklist.core.table.SortingModel;
 
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  * A table header that can work together with SortingModel
+ *
+ * @author tl
  */
 public class SortableTableHeader extends JTableHeader {
     private static final long serialVersionUID = 1;

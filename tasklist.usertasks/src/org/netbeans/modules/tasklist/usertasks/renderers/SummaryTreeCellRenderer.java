@@ -14,7 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
 import java.awt.Component;
-import java.awt.Image;
+import java.awt.Font;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
@@ -24,15 +24,14 @@ import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
 /**
  * Cell renderer for the summary attribute
  */
 public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
-
     private static final long serialVersionUID = 1;
 
+    private Font boldFont, normalFont;
     private ImageIcon icon = new ImageIcon();
     
     public SummaryTreeCellRenderer() {
@@ -49,13 +48,19 @@ public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
 				   boolean leaf, int row, boolean hasFocus) {
         super.getTreeCellRendererComponent(tree, value, selected, expanded,
             leaf, row, hasFocus);
+        if (normalFont == null || !normalFont.equals(tree.getFont())) {
+            normalFont = tree.getFont();
+            boldFont = normalFont.deriveFont(Font.BOLD);
+        }
         if (value instanceof UserTaskListTreeTableNode) {
             icon.setImage(UserTaskIconProvider.getUserTaskListImage());
             setText(NbBundle.getMessage(SummaryTreeCellRenderer.class, 
                 "TaskList")); // NOI18N
+            setFont(normalFont);
         } else {
             UserTaskTreeTableNode utl = (UserTaskTreeTableNode) value;
             UserTask ut = utl.getUserTask();
+            setFont(ut.isStarted() ? boldFont : normalFont);
             setText(ut.getSummary());
             icon.setImage(UserTaskIconProvider.getUserTaskImage(ut, utl.isUnmatched()));
         }

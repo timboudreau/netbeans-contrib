@@ -52,7 +52,6 @@ import org.netbeans.modules.tasklist.usertasks.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.transfer.UserTasksTransferable;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
-import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
 import org.openide.actions.PasteAction;
@@ -128,6 +127,7 @@ public final class UserTaskNode extends AbstractNode {
 
     /**
      * Returns the task associated with this node
+     * @return 
      */
     public UserTask getTask() {
         return item;
@@ -426,12 +426,14 @@ public final class UserTaskNode extends AbstractNode {
         return true;
     }
     
-    protected void createPasteTypes(java.awt.datatransfer.Transferable t, List s) {
+    @SuppressWarnings("unchecked")
+    protected void createPasteTypes(java.awt.datatransfer.Transferable t, 
+            List s) {
         // UTUtils.LOGGER.fine("entering"); // NOI18N
         super.createPasteTypes(t, s);
         PasteType p = createTodoPasteType(this, t);
         if (p != null) {
-            s.add(p);
+            s.add(p); // generates a warning
         }
     }
 
@@ -587,8 +589,8 @@ public final class UserTaskNode extends AbstractNode {
                 } 
             } catch (UnsupportedFlavorException ufe) {
                 // Should not happen.
-                IOException ioe = new IOException(ufe.toString());
-                ErrorManager.getDefault().annotate(ioe, ufe);
+                IOException ioe = (IOException) new IOException(
+                        ufe.toString()).initCause(ufe);
                 throw ioe;
             }
             return null;

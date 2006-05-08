@@ -14,16 +14,19 @@
 package org.netbeans.modules.tasklist.usertasks.editors;
 
 import java.awt.Component;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.ResourceBundle;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import org.netbeans.modules.tasklist.usertasks.Settings;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.openide.util.NbBundle;
+import org.netbeans.modules.tasklist.usertasks.util.DurationFormat;
 
 /**
  * TableCellEditor for duration values.
@@ -31,30 +34,11 @@ import org.openide.util.NbBundle;
  * @author tl
  */
 public class EffortTableCellEditor extends DefaultCellEditor {
-    private static String[] TEXTS = {
-        "Duration5Min", // NOI18N
-        "Duration10Min", // NOI18N
-        "Duration15Min", // NOI18N
-        "Duration20Min", // NOI18N
-        "Duration30Min", // NOI18N
-        "Duration45Min", // NOI18N
-        "Duration1Hour", // NOI18N
-        "Duration1_5Hour", // NOI18N
-        "Duration2Hours", // NOI18N
-        "Duration2_5Hours", // NOI18N
-        "Duration3Hours", // NOI18N
-        "Duration4Hours", // NOI18N
-        "Duration5Hours", // NOI18N
-        "Duration6Hours", // NOI18N
-        "Duration7Hours", // NOI18N
-        "Duration8Hours" // NOI18N
-    };
-    
     /**
-     * Corresponds to duration values in TAGS.
      * This array must be sorted.
      */
     private static final int[] DURATIONS = new int[] {
+        0,
         5,
         10,
         15,
@@ -70,38 +54,61 @@ public class EffortTableCellEditor extends DefaultCellEditor {
         300,
         360,
         420,
-        480
+        480,
+        12 * 60,
+        8 * 60 * 2
     };
-
-    static {
-        assert DURATIONS.length == TEXTS.length;
-        
-        ResourceBundle rb = NbBundle.getBundle(EffortTableCellEditor.class);
-        for (int i = 0; i < TEXTS.length; i++) {
-            TEXTS[i] = rb.getString(TEXTS[i]);
-        }
-    }
+    
+    private List<Integer> durations;
+    private List<String> texts;
     
     /**
-     * Creates a new instance of PriorityTableCellRenderer
+     * Creates a new instance.
      */
     public EffortTableCellEditor() {
-        super(new JComboBox(TEXTS));
+        super(new JComboBox());
     }
 
     public Component getTableCellEditorComponent(JTable table, Object value,
         boolean isSelected, int row, int column) {
+        int d;
         if (value instanceof UserTask) {
-            int d = ((UserTask) value).getEffort();
-            int index = Arrays.binarySearch(DURATIONS, d);
-            if (index >= 0)
-                ((JComboBox) editorComponent).setSelectedIndex(index);
+            d = ((UserTask) value).getEffort();
+        } else if (value instanceof Integer) {
+            d = ((Integer) value).intValue();
+        } else {
+            d = 0;
         }
+
+        durations = new ArrayList<Integer>();
+        for (int dur: DURATIONS) {
+            durations.add(dur);
+        }
+
+        int index = Collections.binarySearch(durations, d);
+        if (index < 0) {
+            index = -index - 1;
+            durations.add(index, d);
+        }
+
+        DurationFormat df = new DurationFormat(DurationFormat.Type.LONG);
+        texts = new ArrayList<String>(durations.size());
+        Settings s = Settings.getDefault();
+        int hpd = s.getHoursPerDay();
+        int dpw = s.getDaysPerWeek();
+        for (int dur: durations) {
+            texts.add(df.format(new Duration(dur, hpd, dpw)));
+        }
+        
+        ((JComboBox) editorComponent).setModel(
+                new DefaultComboBoxModel(
+                texts.toArray(new String[texts.size()])));
+        ((JComboBox) editorComponent).setSelectedIndex(index);
         return editorComponent;
     }
     
     public Object getCellEditorValue() { 
         int index = ((JComboBox) editorComponent).getSelectedIndex();
-        return new Integer(DURATIONS[index]);
+        return durations.get(index);
     }
 }

@@ -13,9 +13,9 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import com.toedter.calendar.JDateChooserCellEditor;
+import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,6 @@ import java.util.logging.Level;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -185,17 +184,9 @@ public class UserTasksTreeTable extends NodesTreeTable {
         if (tcm.getColumnCount() < 14)
             return;
         
+        JDateChooserCellEditor dc = new JDateChooserCellEditor();
+        
         SortingHeaderRenderer r = new SortingHeaderRenderer();
-        r.setIcon(new ImageIcon(
-            UserTasksTreeTable.class.getResource("priority.gif"))); // NOI18N
-        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setHeaderRenderer(r);
-        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellRenderer(
-            new PriorityTableCellRenderer());
-        
-        tcm.getColumn(UserTasksTreeTableModel.EFFORT).setCellEditor(
-                new EffortTableCellEditor());
-        
-        r = new SortingHeaderRenderer();
         r.setIcon(new ImageIcon(
             UserTasksTreeTable.class.getResource("checkbox.gif"))); // NOI18N
         tcm.getColumn(UserTasksTreeTableModel.DONE).setHeaderRenderer(r);
@@ -203,27 +194,43 @@ public class UserTasksTreeTable extends NodesTreeTable {
             new DoneTreeTableCellRenderer());
         tcm.getColumn(UserTasksTreeTableModel.DONE).setMinWidth(17);
         
-        tcm.getColumn(UserTasksTreeTableModel.PERCENT_COMPLETE).setCellRenderer(
-            new PercentsTableCellRenderer());
-        DurationTableCellRenderer dr = new DurationTableCellRenderer();
-        tcm.getColumn(UserTasksTreeTableModel.REMAINING_EFFORT).setCellRenderer(dr);
-        tcm.getColumn(UserTasksTreeTableModel.SPENT_TIME).setCellRenderer(dr);
-        tcm.getColumn(UserTasksTreeTableModel.LINE_NUMBER).setCellRenderer(
-            new LineTableCellRenderer());
-        DateTableCellRenderer dcr = new DateTableCellRenderer();
-        tcm.getColumn(UserTasksTreeTableModel.CREATED).setCellRenderer(dcr);
-        tcm.getColumn(UserTasksTreeTableModel.LAST_EDITED).setCellRenderer(dcr);
-        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellRenderer(dcr);
-        tcm.getColumn(UserTasksTreeTableModel.COMPLETED_DATE)
-            .setCellRenderer(dcr);
         tcm.getColumn(UserTasksTreeTableModel.PERCENT_COMPLETE).
             setCellEditor(new PercentsTableCellEditor());
-        
+        tcm.getColumn(UserTasksTreeTableModel.PERCENT_COMPLETE).setCellRenderer(
+            new PercentsTableCellRenderer());
+
+        DurationTableCellRenderer dr = new DurationTableCellRenderer();
+        tcm.getColumn(UserTasksTreeTableModel.REMAINING_EFFORT).setCellRenderer(dr);
+
+        tcm.getColumn(UserTasksTreeTableModel.SPENT_TIME).setCellRenderer(dr);
+        tcm.getColumn(UserTasksTreeTableModel.SPENT_TIME).setCellEditor(
+                new EffortTableCellEditor());
+
+        tcm.getColumn(UserTasksTreeTableModel.LINE_NUMBER).setCellRenderer(
+            new LineTableCellRenderer());
+
+        DateTableCellRenderer dcr = new DateTableCellRenderer();
+        tcm.getColumn(UserTasksTreeTableModel.CREATED).setCellRenderer(dcr);
+
+        tcm.getColumn(UserTasksTreeTableModel.LAST_EDITED).setCellRenderer(dcr);
+
+        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellRenderer(dcr);
+
+        tcm.getColumn(UserTasksTreeTableModel.COMPLETED_DATE)
+            .setCellRenderer(dcr);
+
         tcm.getColumn(UserTasksTreeTableModel.CATEGORY).
             setCellEditor(new CategoryTableCellEditor());
         tcm.getColumn(UserTasksTreeTableModel.CATEGORY).
             setCellRenderer(new CategoryTableCellRenderer());
         
+        SortingHeaderRenderer priorityRenderer = new SortingHeaderRenderer();
+        priorityRenderer.setIcon(new ImageIcon(
+            UserTasksTreeTable.class.getResource("priority.gif"))); // NOI18N
+        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setHeaderRenderer(
+                priorityRenderer);
+        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellRenderer(
+            new PriorityTableCellRenderer());
         tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellEditor(
             new PriorityTableCellEditor());
         tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellRenderer(
@@ -231,6 +238,8 @@ public class UserTasksTreeTable extends NodesTreeTable {
         
         tcm.getColumn(UserTasksTreeTableModel.EFFORT).setCellRenderer(
             new EffortTableCellRenderer());
+        tcm.getColumn(UserTasksTreeTableModel.EFFORT).setCellEditor(
+                new EffortTableCellEditor());
 
         tcm.getColumn(UserTasksTreeTableModel.OWNER).
             setCellEditor(new OwnerTableCellEditor());
@@ -240,8 +249,10 @@ public class UserTasksTreeTable extends NodesTreeTable {
         tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellRenderer(
             new DueDateTableCellRenderer());
         tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setWidth(100);
+        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellEditor(dc);
         
         tcm.getColumn(UserTasksTreeTableModel.START).setCellRenderer(dcr);
+        tcm.getColumn(UserTasksTreeTableModel.START).setCellEditor(dc);
 
         tcm.getColumn(UserTasksTreeTableModel.SPENT_TIME_TODAY).setCellRenderer(dr);
     }
@@ -329,5 +340,9 @@ public class UserTasksTreeTable extends NodesTreeTable {
         //    Thread.dumpStack();
         
         super.setColumnModel(columnModel);
+    }
+
+    public void paint(Graphics g) {
+        super.paint(g);
     }
 }

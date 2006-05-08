@@ -20,7 +20,7 @@ import org.netbeans.modules.tasklist.usertasks.*;
 /**
  * List of UserTasks
  */
-public class UserTaskObjectList extends ObjectList {
+public class UserTaskObjectList extends ObjectList<UserTask> {
     private ObjectList.Owner parent;
     
     /**
@@ -67,7 +67,7 @@ public class UserTaskObjectList extends ObjectList {
         return -1;
     }
     
-    public void add(int index, Object element) {
+    public void add(int index, UserTask element) {
         UserTask ut = (UserTask) element;
         if (ut.getParent() != null)
             ut.getParent().getSubtasks().remove(ut);
@@ -83,8 +83,8 @@ public class UserTaskObjectList extends ObjectList {
         super.add(index, element);
     }
     
-    public Object remove(int index) {
-        Object element = super.remove(index);
+    public UserTask remove(int index) {
+        UserTask element = super.remove(index);
         ((UserTask) element).setParent(null);
         ((UserTask) element).setList(null);
         return element;

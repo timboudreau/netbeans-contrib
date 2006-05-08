@@ -20,6 +20,7 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.core.table.SortingModel;
 
 /**
  * Default model for TreeTable
