@@ -13,8 +13,8 @@
 
 package org.netbeans.modules.tasklist.suggestions.ui;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import javax.swing.ButtonGroup;
+import org.netbeans.modules.tasklist.core.table.ChooseColumnsPanel;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.nodes.Node;
@@ -31,10 +31,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 
@@ -197,7 +202,44 @@ public class SuggestionsView extends TaskListView implements SuggestionView {
             );
     }
 
-    
+    protected Component createNorthComponent() {
+        SystemAction[] actions = new SystemAction[] {
+            SystemAction.get(FixAction.class),
+            SystemAction.get(ShowSuggestionAction.class),
+            SystemAction.get(FilterAction.class),
+            null,
+            SystemAction.get(RemoveFilterAction.class),
+            SystemAction.get(ShowCategoryAction.class),
+            SystemAction.get(EditTypesAction.class),
+            SystemAction.get(DisableAction.class),
+            null,
+            SystemAction.get(ExportAction.class)
+        };
+
+        JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+        toolbar.setFloatable(false);
+        toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
+            
+        toolbar.setFloatable(false);
+        // TODO: toolbar.setLayout(new ToolbarLayout());
+
+        ButtonGroup bg = new ButtonGroup();
+        JToggleButton cur = new JToggleButton("Current File", true); // TODO: NOI18N
+        bg.add(cur);
+        JToggleButton openedFiles = 
+                new JToggleButton("Opened Projects", false); // TODO: NOI18N
+        bg.add(openedFiles);
+        JToggleButton openedProjects = 
+                new JToggleButton("Opened Files", false); // TODO: NOI18N
+        bg.add(openedProjects);
+        
+        toolbar.add(cur, 0);
+        toolbar.add(openedFiles, 1); // TODO: NOI18N
+        toolbar.add(openedProjects, 2); // TODO: NOI18N
+
+        return toolbar;
+    }
+   
     protected String preferredID() {
         return getClass().getName();
     }
@@ -307,25 +349,6 @@ public class SuggestionsView extends TaskListView implements SuggestionView {
 
     protected TaskAnnotation getAnnotation(Task task) {
         return new SuggestionAnno(task, this);
-    }
-
-    public SystemAction[] getToolBarActions() {
-        return new SystemAction[] {
-            SystemAction.get(FixAction.class),
-            SystemAction.get(ShowSuggestionAction.class),
-            SystemAction.get(FilterAction.class),
-            SystemAction.get(RemoveFilterAction.class)
-        };
-    }
-
-    public SystemAction[] getGlobalToolBarActions() {
-        return new SystemAction[] {
-            SystemAction.get(ShowCategoryAction.class),
-            SystemAction.get(EditTypesAction.class),
-            SystemAction.get(DisableAction.class),
-            null,
-            SystemAction.get(ExportAction.class),
-        };
     }
 
     /** 
@@ -494,8 +517,9 @@ public class SuggestionsView extends TaskListView implements SuggestionView {
         JTabbedPane tp = new JTabbedPane();
         tp.addTab("Current File", cmp); // TODO: i18n
         JTable t = new SuggestionsTable();
-        tp.addTab("Open Projects", new JScrollPane( // TODO: i18n
-            t));
+        JScrollPane sp = new JScrollPane(t);
+        ChooseColumnsPanel.installChooseColumnsButton(sp);
+        tp.addTab("Open Projects", sp);// TODO: i18n
         return tp;
     }
 
