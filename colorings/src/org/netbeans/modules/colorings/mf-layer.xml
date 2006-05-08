@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
+<filesystem>
+    <folder name="Editors">
+        <folder name="Eclipse">
+            <folder name="Defaults">
+                <file name="defaultColoring.xml" url="Eclipse-fontsColorsDefaults.xml"/>
+                <file name="editorColoring.xml" url="Eclipse-editor.xml"/>
+            </folder>
+        </folder>
+        <folder name="application">
+            <folder name="xml-dtd">
+                <folder name="Eclipse">
+                    <folder name="Defaults">
+                        <file name="coloring.xml" url="Eclipse-DTD-coloring.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+        <folder name="text">
+            <folder name="css">
+                <folder name="Eclipse">
+                    <folder name="Defaults">
+                        <file name="coloring.xml" url="Eclipse-CSS-coloring.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="html">
+                <folder name="Eclipse">
+                    <folder name="Defaults">
+                        <file name="coloring.xml" url="Eclipse-HTML-coloring.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="x-java">
+                <folder name="Eclipse">
+                    <folder name="Defaults">
+                        <file name="coloring.xml" url="Eclipse-Java-coloring.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="x-jsp">
+                <folder name="Eclipse">
+                    <folder name="Defaults">
+                       <file name="coloring.xml" url="Eclipse-JSP-coloring.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="plain">
+                <folder name="Eclipse">
+                    <folder name="Defaults">
+                        <file name="coloring.xml" url="Eclipse-plain-coloring.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="x-properties">
+                <folder name="Eclipse">
+                    <folder name="Defaults">
+                        <file name="coloring.xml" url="Eclipse-properties-coloring.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="x-sql">
+                <folder name="Eclipse">
+                    <folder name="Defaults">
+                        <file name="coloring.xml" url="Eclipse-SQL-coloring.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="xml">
+                <folder name="Eclipse">
+                    <folder name="Defaults">
+                        <file name="coloring.xml" url="Eclipse-XML-coloring.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

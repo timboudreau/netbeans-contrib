@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<fontscolors>
+    <fontcolor name="guarded" bgColor="gray"/>
+    <fontcolor name="caret-color-insert-mode" foreColor="white" bgColor="white"/>
+    <fontcolor name="highlight-caret-row" bgColor="ffe8f2fe"/>
+    <fontcolor name="status-bar" foreColor="black" bgColor="ffece9d8"/>
+    <fontcolor name="line-number" foreColor="ff787878"/>
+    <fontcolor name="block-search" bgColor="ffe0e8f1"/>
+    <fontcolor name="code-folding-bar" foreColor="lightGray"/>
+    <fontcolor name="selection" foreColor="white" bgColor="ff316ac2"/>
+    <fontcolor name="text-limit-line-color" foreColor="lightGray"/>
+    <fontcolor name="highlight-match-brace" foreColor="lightGray"/>
+    <fontcolor name="highlight-search" bgColor="fff6f88b"/>
+    <fontcolor name="status-bar-bold" bgColor="red"/>
+    <fontcolor name="inc-search" bgColor="ffff9900"/>
+    <fontcolor name="code-folding" foreColor="lightGray"/>
+</fontscolors>
