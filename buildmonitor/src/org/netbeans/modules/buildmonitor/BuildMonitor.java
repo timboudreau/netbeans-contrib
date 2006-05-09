@@ -33,6 +33,7 @@ import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 import org.openide.xml.XMLUtil;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -64,6 +65,8 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     private transient String statusDescription;
     private transient String guid;
     private transient String pubDate;
+    
+    private static RequestProcessor WORKER = new RequestProcessor("build status updater");
 
     private static final long serialVersionUID = 5735178156173098330L;
     
@@ -93,15 +96,10 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     }
 
     private void startTimer() {
-        final String threadName = name != null ? name + " build status" : "build status";
         int pollMilliseconds = pollMinutes * 60 /*seconds*/ * 1000 /* millis */;
 	timer = new Timer(pollMilliseconds, new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-                new Thread(new Runnable() {
-                    public void run() {
-                        updateBuildStatus();
-                    }
-                }, threadName).start(); //NOI18N
+                updateBuildStatus();
 	    }
 	});
 	timer.start();
@@ -195,17 +193,14 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     public void updateBuildStatus() {
         if (getURL() == null)
             return;
-        new StatusUpdater().start();
+        WORKER.post(new StatusUpdater());
     }
     
     /**
      * Updates the monitor status by parsing the specified URL contents.
      * This is done on a separate thread so as to not block the event queue.
      */
-    private class StatusUpdater extends Thread {
-        StatusUpdater() {
-            super(name != null ? name : "build status" + " updater");
-        }
+    private class StatusUpdater implements Runnable {
         
         public void run() {
             try {
