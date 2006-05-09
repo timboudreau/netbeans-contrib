@@ -28,7 +28,10 @@ Contributor(s): Daniel Blaukopf.
             <value>"Checked in", "Local", "Editing", "Ignored", "Needs checkout", "Writable but not checked out for editing", ""</value>
         </variable>
         <variable basic="false" name="GENERIC_STATUS_MODIFIED">
-            <value>"Local", "Editing", "Writable but not checked out for editing"</value>
+            <value>"Editing", "Writable but not checked out for editing"</value>
+        </variable>
+        <variable basic="false" name="GENERIC_STATUS_LOCAL">
+            <value>"Local"</value>
         </variable>
         <variable basic="false" name="GENERIC_STATUS_UP_TO_DATE">
             <value>"Checked in", ""</value>
@@ -38,7 +41,7 @@ Contributor(s): Daniel Blaukopf.
         </variable>
         <variable name="ICONS_FOR_FILE_STATUSES" basic="false">
             <value>
-                "org/netbeans/modules/vcs/profiles/resources/badgeUpToDate.gif",
+                "",
                 "",
                 "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif",
                 "",
