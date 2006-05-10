@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.toolsintegration
+OpenIDE-Module-Layer: org/netbeans/modules/toolsintegration/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/toolsintegration/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
+Name: org/netbeans/modules/toolsintegration/ExternalToolDataLoader.class
+OpenIDE-Module-Class: Loader
+
