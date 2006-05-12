@@ -36,6 +36,7 @@ import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.DocC
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.EnvironmentCompletionItem;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.LabelCompletionItem;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.ValueCompletionItem;
+import org.netbeans.modules.latex.model.IconsStorage;
 import org.netbeans.modules.latex.model.LabelInfo;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
@@ -81,7 +82,8 @@ public class TexCompletion implements CompletionProvider {
                             BlockNode node = findBlockNode(source, doc, pos.getOffset());
                             resultSet.addItem(new ValueCompletionItem(start, commandName + "{" + node.getEnvironment().getName() + "}"));
                         } else {
-                            resultSet.addItem(new CommandCompletionItem(start, comm));
+                            boolean isIcon = IconsStorage.getDefault().getAllIconNames().contains(commandName);
+                            resultSet.addItem(new CommandCompletionItem(start, comm, isIcon));
                         }
                     }
                 }

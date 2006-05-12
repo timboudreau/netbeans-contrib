@@ -17,8 +17,12 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.swing.ImageIcon;
+import javax.swing.ImageIcon;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -26,6 +30,8 @@ import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.completion.Completion;
 import org.netbeans.modules.latex.editor.AnalyseBib;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionJavaDoc;
+import org.netbeans.modules.latex.model.IconsStorage;
+import org.netbeans.modules.latex.model.IconsStorage.ChangeableIcon;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.Environment;
@@ -133,14 +139,30 @@ public abstract class TexCompletionItem implements CompletionItem {
         return getText();
     }
     
-    public static final class CommandCompletionItem extends TexCompletionItem {
+    public static final class CommandCompletionItem extends TexCompletionItem implements ChangeListener {
         
         private Command command;
+        private ChangeableIcon cIcon;
+        private ImageIcon icon;
         
         /** Creates a new instance of TexCompletionItem */
-        public CommandCompletionItem(int substituteOffset, Command command) {
+        public CommandCompletionItem(int substituteOffset, Command command, boolean isIcon) {
             super(substituteOffset);
             this.command = command;
+            cIcon = isIcon ? IconsStorage.getDefault().getIcon(command.getCommand(), 16, 16) : null;
+            if (cIcon != null)
+                cIcon.addChangeListener(this);
+            updateIcon();
+        }
+        
+        private void updateIcon() {
+            if (cIcon == null)
+                return;
+            
+            BufferedImage  i = new BufferedImage(cIcon.getIconWidth(), cIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+            
+            cIcon.paintIcon(null, i.getGraphics(), 0, 0);
+            icon = new ImageIcon(i);
         }
     
         public int getSortPriority() {
@@ -160,7 +182,7 @@ public abstract class TexCompletionItem implements CompletionItem {
         }
         
         public ImageIcon getIcon() {
-            return null;
+            return icon;
         }
         
         protected boolean acceptKey(char c) {
@@ -176,6 +198,10 @@ public abstract class TexCompletionItem implements CompletionItem {
         
         public String toString() {
             return command.getCommand();
+        }
+
+        public void stateChanged(ChangeEvent ev) {
+            updateIcon();
         }
     }
 
