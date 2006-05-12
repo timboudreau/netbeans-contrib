@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -17,11 +17,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import junit.framework.Assert;
 import org.netbeans.api.xml.services.UserCatalog;
+import org.netbeans.junit.MockServices;
 import org.netbeans.junit.NbTestCase;
-import org.netbeans.modules.xmlnavigation.XMLNavigatorPanel.Item;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
-import org.openide.util.lookup.ProxyLookup;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -32,36 +29,13 @@ import org.xml.sax.SAXException;
  */
 public class XMLNavigatorPanelTest extends NbTestCase {
     
-    static {
-        System.setProperty("org.openide.util.Lookup", Lkp.class.getName());
-        Assert.assertEquals(Lkp.class, Lookup.getDefault().getClass());
-    }
-    public static final class Lkp extends ProxyLookup {
-        private static Lkp DEFAULT;
-        public Lkp() {
-            Assert.assertNull(DEFAULT);
-            DEFAULT = this;
-            setLookup(new Object[0]);
-        }
-        public static void setLookup(Object[] instances) {
-            ClassLoader l = Lkp.class.getClassLoader();
-            DEFAULT.setLookups(new Lookup[] {
-                Lookups.fixed(instances),
-                Lookups.metaInfServices(l),
-                Lookups.singleton(l),
-            });
-        }
-    }
-    
     public XMLNavigatorPanelTest(String name) {
         super(name);
     }
     
     protected void setUp() throws Exception {
         super.setUp();
-        Lkp.setLookup(new Object[] {
-            new TestCatalog(),
-        });
+        MockServices.setServices(new Class[] {TestCatalog.class});
     }
     
     public void testParseXHTML() throws Exception {
@@ -132,11 +106,11 @@ public class XMLNavigatorPanelTest extends NbTestCase {
          */
     }
     
-    private static Item[] parse(String xml) throws Exception {
+    private static XMLNavigatorPanel.Item[] parse(String xml) throws Exception {
         return XMLNavigatorPanel.parse(new InputSource(new StringReader(xml)), null);
     }
     
-    private static String itemsSummary(Item[] items) {
+    private static String itemsSummary(XMLNavigatorPanel.Item[] items) {
         StringBuffer b = new StringBuffer();
         for (int i = 0; i < items.length; i++) {
             b.append(items[i].getLine());
@@ -151,7 +125,7 @@ public class XMLNavigatorPanelTest extends NbTestCase {
         return b.toString();
     }
     
-    private static final class TestCatalog extends UserCatalog implements EntityResolver {
+    public static final class TestCatalog extends UserCatalog implements EntityResolver {
         public TestCatalog() {}
         public EntityResolver getEntityResolver() {
             return this;
