@@ -38,11 +38,11 @@ public abstract class IconsStorage {
         return (IconsStorage) Lookup.getDefault().lookup(IconsStorage.class);
     }
     
-    public abstract List/*<String>*/ getAllIconNames();
+    public abstract List<String> getAllIconNames();
     
-    public abstract List/*<String>*/ getIconNamesForCathegory(String catName);
+    public abstract List<String> getIconNamesForCathegory(String catName);
     
-    public abstract Collection/*<String>*/ getCathegories();
+    public abstract Collection<String> getCathegories();
     
     public abstract String getCathegoryDisplayName(String catName);
 
