@@ -59,7 +59,7 @@ public final class IconsStorageImpl extends IconsStorage {
         return (IconsStorageImpl) getDefault();
     }
 
-    private Map/*<String, List<String>>*/ cathegory2Names;
+    private Map<String, List<String>> cathegory2Names;
     
     private Icon waitIcon;
     private Icon noIcons;
@@ -67,7 +67,7 @@ public final class IconsStorageImpl extends IconsStorage {
     /** Creates a new instance of IconsStorageImpl */
     public IconsStorageImpl() {
 //        Thread.dumpStack();
-        expression2Icon = new HashMap/*<String, SoftReference<Icon>>*/();
+        expression2Icon = new HashMap<String, Reference<Icon>>();
         listeners = new HashMap();
         iconsToCreate = new Queue();
         iconsCreator  = new RequestProcessor("LaTeX Icons Creator");
@@ -81,6 +81,15 @@ public final class IconsStorageImpl extends IconsStorage {
         Image noIconsImage = Utilities.loadImage("org/netbeans/modules/latex/ui/resources/no_icon.gif");
         
         noIcons = new ImageIcon(noIconsImage);
+        
+        //prepopulate all listed icons:
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                for (String i : getAllIconNames()) {
+                    getIcon(i);
+                }
+            }
+        });
     }
 
     public ChangeableIcon getIcon(String command) {
@@ -91,19 +100,19 @@ public final class IconsStorageImpl extends IconsStorage {
         return true;
     }
 
-    public List getIconNamesForCathegory(String catName) {
+    public List<String> getIconNamesForCathegory(String catName) {
         assureLoaded();
         
         return (List) cathegory2Names.get(catName);
     }
 
-    public List getAllIconNames() {
+    public List<String> getAllIconNames() {
         assureLoaded();
         
         List result = new ArrayList();
         
-        for (Iterator i = cathegory2Names.values().iterator(); i.hasNext(); ) {
-            result.addAll((List) i.next());
+        for (List<String> l : cathegory2Names.values()) {
+            result.addAll(l);
         }
         
         return result;
@@ -115,7 +124,7 @@ public final class IconsStorageImpl extends IconsStorage {
         return iconDir;
     }
 
-    public Collection getCathegories() {
+    public Collection<String> getCathegories() {
         assureLoaded();
         return cathegory2Names.keySet();
     }
@@ -196,7 +205,7 @@ public final class IconsStorageImpl extends IconsStorage {
         }
     }
     
-    private Map/*<String, SoftReference<Icon>>*/ expression2Icon;
+    private Map<String, Reference<Icon>> expression2Icon;
     
     private final RequestProcessor iconsCreator;
     private final Queue iconsToCreate;
@@ -305,7 +314,7 @@ public final class IconsStorageImpl extends IconsStorage {
 
     public ChangeableIcon getIcon(String expression, int sizeX, int sizeY) {
         ChangeableIcon i = null;
-        SoftReference sr = (SoftReference) expression2Icon.get(expression2Icon);
+        Reference sr = expression2Icon.get(expression);
         
         if (sr != null) {
             i = (ChangeableIcon) sr.get();
