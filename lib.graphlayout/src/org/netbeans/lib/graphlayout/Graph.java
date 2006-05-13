@@ -13,6 +13,7 @@
 
 package org.netbeans.lib.graphlayout;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +39,12 @@ public final class Graph extends Object {
     }
     
     public java.awt.Component createRenderer () {
-        javax.swing.JPanel p = new javax.swing.JPanel ();
+        javax.swing.JPanel p = new javax.swing.JPanel () {
+            public void setPreferredSize(Dimension d) {
+                initialize(d);
+                super.setPreferredSize(d);
+            }
+        };
         p.setLayout (new java.awt.BorderLayout ());
         final Renderer r = new Renderer (this);
         final javax.swing.JScrollPane pane = new javax.swing.JScrollPane (r);
