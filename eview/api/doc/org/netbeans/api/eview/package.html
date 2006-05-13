@@ -1,0 +1,377 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Nokia. Portions Copyright 2006 Nokia. All Rights Reserved.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+<head>
+<title> EView API</title>
+<style type="text/css">
+<!--
+body {color: #000000; background-color: #ffffff; font-family: Monospaced}
+table {color: #804040; background-color: #e0e0e0; font-family: Monospaced}
+.xml-attribute {color: #007c00}
+.xml-pi-start {color: #00007c; font-family: Monospaced; font-weight: bold}
+.xml-tag {color: #0000ff}
+.xml-comment {color: #006666}
+.xml-value {color: #99006b}
+.xml-pi-content {color: #00007c}
+.java-string-literal {color: #99006b}
+.java-layer-method {font-family: Monospaced; font-weight: bold}
+.java-keywords {color: #000099; font-family: Monospaced; font-weight: bold}
+.java-block-comment {color: #737373}
+-->
+</style>
+</head>
+
+<body>
+
+<h1> API usage </h1>
+
+<h2> Panel creation </h2>
+
+To obtain an instance of a GUI panel you can call method 
+<span class="java-layer-method">createExtensiblePanel</span>. After calling the method you can 
+obtain a reference to panelData object that
+allows you to read and write values to the GUI conrols:
+<pre>
+ExtensibleView.<span class="java-layer-method">createExtensiblePanel</span>(<span class="java-string-literal">&quot;MainConfigFolder&quot;</span>);
+PanelData panelData = ExtensibleView.<span class="java-layer-method">getPanelData</span>(et);
+panelData.<span class="java-layer-method">addPropertyChangeListener</span>(<span class="java-keywords">new</span> <span class="java-layer-method">PropertyChangeListener</span>() {
+    <span class="java-keywords">public</span> <span class="java-keywords">void</span> <span class="java-layer-method">propertyChange</span>(PropertyChangeEvent pce) {
+        <span class="java-layer-method">enableSave</span>();
+    }
+});
+</pre>
+
+<h2> Data transfer to/from GUI elements </h2>
+
+To retrieve the data from the created panel you can call
+<pre>
+panelData.<span class="java-layer-method">getValues</span>();
+</pre>
+
+Similarly if you want to set data values before the control is used by the user
+you can call method setValue:
+<pre>
+panelData.<span class="java-layer-method">setValue</span>(<span class="java-string-literal">&quot;name&quot;</span>, value);
+</pre>
+
+<h1> Layer XML configuration and examples </h1>
+
+When using the EView library your layer XML configuration will have following
+folder:
+<pre>
+A - MainConfigFolder
+    B - Panel folder
+        C - GUI control file 1
+        D - GUI control file 2
+        E - Optional GUI control folder config
+</pre>
+
+Main config folder A is referenced from the call to
+<code>createExtensiblePanel</code>. This folder can contain any number of
+subfolders each representing one section of the resulting panel.
+
+<h2> Panel with expandable handle </h2>
+
+Folder representing expandable handle with sub-panel must supply the
+"createHandle" attributue:
+
+<pre>
+<span class="xml-tag">&lt;folder</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"FirstSection"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"createHandle"</span> <span class="xml-attribute">boolvalue</span><span class="xml-attribute">=</span><span class="xml-value">"true"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"SystemFileSystem.localizingBundle"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"com.mycompany.aaa.Bundle"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"rows"</span> <span class="xml-attribute">intvalue</span><span class="xml-attribute">=</span><span class="xml-value">"7"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"columns"</span> <span class="xml-attribute">intvalue</span><span class="xml-attribute">=</span><span class="xml-value">"2"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"labelFormat"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"{9}, {2} Created by {3} at {1} - {6}"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/folder</span><span class="xml-tag">&gt;</span>
+</pre>
+
+Number or rows and columns in tabular panel layout are specified using 
+the "rows" and "columns" attributes. The "labelFormat" attribute specifies
+string displayed as the title of the expandable handle. It is a format string
+with parameters - the values of the parameters are string representations of
+the values that the user entered into the individual controls.
+
+<h2> Available controls </h2>
+
+There is number of standard types of controls. If you would need something
+that is not part of the standard controls you can create your own control
+types (see section <a href="#customControls"> Using custom controls</a>.
+
+<h3> TextField </h3>
+
+Probably the most common type of control is a text field (JTextField).
+
+<pre>
+<span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"Originator.instance"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"componentID"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"originator"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"javax.swing.JTextField"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">methodvalue</span><span class="xml-attribute">=</span><span class="xml-value">"org.netbeans.api.eview.ExtensibleView.createControl"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"label"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"Originator"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"type"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"TextField"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+</pre>
+
+<h3> TextArea </h3>
+
+Multi line text area can be created using following attributes:
+
+<pre>
+<span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"Description.instance"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"componentID"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"description"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"javax.swing.JTextArea"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">methodvalue</span><span class="xml-attribute">=</span><span class="xml-value">"org.netbeans.api.eview.ExtensibleView.createControl"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"label"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"Description"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"labelAbove"</span> <span class="xml-attribute">boolvalue</span><span class="xml-attribute">=</span><span class="xml-value">"true"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"type"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"TextArea"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+</pre>
+
+Please note the usage of the "labelAbove" attribute in the example: it is saying
+that the label should be displayed above the control (usefull especially for
+bigger text areas).
+
+<h3> CheckBox </h3>
+
+To create a check box you can use:
+<pre>
+<span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"Valid.instance"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"componentID"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"valid"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"javax.swing.JCheckBox"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">methodvalue</span><span class="xml-attribute">=</span><span class="xml-value">"org.netbeans.api.eview.ExtensibleView.createControl"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"label"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"Valid"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"type"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"CheckBox"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+
+</pre>
+
+<h3> ComboBox </h3>
+
+Combo boxes must specify a separate subfolder ("configFolder") holding
+the available values for the combo:
+
+<pre>
+<span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"InitMode.instance"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"componentID"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"initiatingMode"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"javax.swing.JComboBox"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">methodvalue</span><span class="xml-attribute">=</span><span class="xml-value">"org.netbeans.api.eview.ExtensibleView.createControl"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"label"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"LBL_InitiatingMode"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"labelBundle"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"com.mycompany.aaa.Bundle"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"type"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"ComboBox"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"configFolder"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"initModes"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+<span class="xml-tag">&lt;folder</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"initModes"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"ALARMORIGINATED.instance"</span><span class="xml-tag">&gt;</span>
+        <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"SystemFileSystem.localizingBundle"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"com.mycompany.aaa.Bundle"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"java.lang.String"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"ALARMORIGINATED"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"value"</span> <span class="xml-attribute">intvalue</span><span class="xml-attribute">=</span><span class="xml-value">"7"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"ALARMORIGINATED.instance/CUSTOMERDIRECT.instance"</span> <span class="xml-attribute">boolvalue</span><span class="xml-attribute">=</span><span class="xml-value">"true"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"CUSTOMERDIRECT.instance"</span><span class="xml-tag">&gt;</span>
+        <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"java.lang.String"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"CUSTOMERDIRECT"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"value"</span> <span class="xml-attribute">intvalue</span><span class="xml-attribute">=</span><span class="xml-value">"0"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+<span class="xml-tag">&lt;/folder</span><span class="xml-tag">&gt;</span>
+
+</pre>
+
+<h3> Master Detail Combo</h3>
+
+You might want to create a combo box whose values depend on the value that
+the user selected in another combo box (master - detail relationship).
+You can craete special type of combo box diplaying the dependant
+data:
+
+<pre>
+<span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"Status.instance"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"componentID"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"status"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"javax.swing.JComponent"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">methodvalue</span><span class="xml-attribute">=</span><span class="xml-value">"org.netbeans.api.eview.ExtensibleView.createControl"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"type"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"DetailCombo"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"masterID"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"state"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"configFolder"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"status"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"label"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"Status"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+<span class="xml-tag">&lt;folder</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"status"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;folder</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"CLEARED"</span><span class="xml-tag">&gt;</span>
+        <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"key"</span> <span class="xml-attribute">intvalue</span><span class="xml-attribute">=</span><span class="xml-value">"4"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"CLEAREDAWAITINGCUSTVERIFICATION.instance"</span><span class="xml-tag">&gt;</span>
+            <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"SystemFileSystem.localizingBundle"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"com.mycompany.aaa.Bundle"</span><span class="xml-tag">/&gt;</span>
+            <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"java.lang.String"</span><span class="xml-tag">/&gt;</span>
+            <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"CLEAREDAWAITINGCUSTVERIFICATION"</span><span class="xml-tag">/&gt;</span>
+            <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"value"</span> <span class="xml-attribute">intvalue</span><span class="xml-attribute">=</span><span class="xml-value">"-1"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+        <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"CLEAREDAWAITINGCUSTVERIFICATION.instance/CLEAREDCUSTADVISED.instance"</span> <span class="xml-attribute">boolvalue</span><span class="xml-attribute">=</span><span class="xml-value">"true"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"CLEAREDCUSTADVISED.instance"</span><span class="xml-tag">&gt;</span>
+            <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"SystemFileSystem.localizingBundle"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"com.mycompany.aaa.Bundle"</span><span class="xml-tag">/&gt;</span>
+            <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"java.lang.String"</span><span class="xml-tag">/&gt;</span>
+            <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"CLEAREDCUSTADVISED"</span><span class="xml-tag">/&gt;</span>
+            <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"value"</span> <span class="xml-attribute">intvalue</span><span class="xml-attribute">=</span><span class="xml-value">"0"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;/folder</span><span class="xml-tag">&gt;</span>
+<span class="xml-tag">&lt;/folder</span><span class="xml-tag">&gt;</span>
+</pre>
+
+As you can see from the example one more folder level is inserted to the config
+folder. For the details combo the displayed values are taken from the folder
+with the same name as the currently selected value in the master combo.
+
+<h3> Filler </h3>
+
+If you need an empty space in the tabular layout:
+
+<pre>
+<span class="xml-tag">&lt;file</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"Filler1.instance"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"componentID"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"filler1"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceClass"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"javax.swing.JComponent"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"instanceCreate"</span> <span class="xml-attribute">methodvalue</span><span class="xml-attribute">=</span><span class="xml-value">"org.netbeans.api.eview.ExtensibleView.createControl"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"type"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"Filler"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/file</span><span class="xml-tag">&gt;</span>
+
+</pre>
+
+<h2> <a name="#customControls"> Using custom controls </a> </h2>
+
+If you need a special type of control or you would want e.g. to more
+dynamically populate the contol content you might use your own types of
+control. In such case you need to implement a static factory method
+producing instances of <a href="">org.netbeans.api.eview.ControlFactory</a>:
+
+<pre>
+<span class="java-keywords">public</span> <span class="java-keywords">class</span> DateTimeControlFactory <span class="java-keywords">implements</span> ControlFactory {
+
+    <span class="java-block-comment">/** Shared event instance. */</span>
+    <span class="java-keywords">private</span> <span class="java-keywords">static</span> <span class="java-keywords">final</span> PropertyChangeEvent pcEvent = <span class="java-keywords">new</span> <span class="java-layer-method">PropertyChangeEvent</span>(DateTimeControlFactory.<span class="java-keywords">class</span>, <span class="java-string-literal">&quot;state&quot;</span>, <span class="java-keywords">null</span>, <span class="java-keywords">null</span>);
+    
+    <span class="java-block-comment">/** Date value that is put into the control right after initialization */</span>
+    <span class="java-keywords">private</span> Date initValue;
+    
+    <span class="java-block-comment">/**</span>
+<span class="java-block-comment">     * Creates a new instance of DateTimeControlFactory </span>
+<span class="java-block-comment">     */</span>
+    <span class="java-keywords">public</span> <span class="java-layer-method">DateTimeControlFactory</span>(FileObject f) {
+        Object o1 = f.<span class="java-layer-method">getAttribute</span>(<span class="java-string-literal">&quot;initValue&quot;</span>);
+        <span class="java-keywords">if</span> (o1 <span class="java-keywords">instanceof</span> Date) {
+            initValue = (Date)o1;
+        }
+    }
+
+    <span class="java-keywords">public</span> <span class="java-keywords">void</span> <span class="java-layer-method">addPropertyChangeListener</span>(JComponent c, PropertyChangeListener l) {
+        <span class="java-keywords">if</span> (c <span class="java-keywords">instanceof</span> TTCDateAndTime) {
+            TTCDateAndTime dt = (TTCDateAndTime)c;
+            ControlListener controlListener = <span class="java-keywords">new</span> <span class="java-layer-method">ControlListener</span>(l);
+            dt.<span class="java-layer-method">removeDateChangeListener</span>(controlListener);
+            dt.<span class="java-layer-method">addDateChangeListener</span>(controlListener);
+        }
+    }
+
+    <span class="java-keywords">public</span> JComponent <span class="java-layer-method">createComponent</span>() {
+        TTCDateAndTime result = <span class="java-keywords">new</span> <span class="java-layer-method">TTCDateAndTime</span>();
+        <span class="java-keywords">if</span> (initValue != <span class="java-keywords">null</span>) {
+            result.<span class="java-layer-method">setDate</span>(initValue);
+        }
+        <span class="java-keywords">return</span> result;
+    }
+
+    <span class="java-keywords">public</span> Object <span class="java-layer-method">getValue</span>(JComponent c) {
+        <span class="java-keywords">if</span> (c <span class="java-keywords">instanceof</span> TTCDateAndTime) {
+            TTCDateAndTime dat = (TTCDateAndTime)c;
+            <span class="java-keywords">return</span> dat.<span class="java-layer-method">getDate</span>();
+        }
+        <span class="java-keywords">return</span> <span class="java-keywords">null</span>;
+    }
+
+    <span class="java-keywords">public</span> String <span class="java-layer-method">convertValueToString</span>(JComponent c, Object value) {
+        <span class="java-keywords">if</span> (value <span class="java-keywords">instanceof</span> Date) {
+            <span class="java-keywords">return</span> DateFormat.<span class="java-layer-method">getDateTimeInstance</span>().<span class="java-layer-method">format</span>((Date)value);
+        }
+        <span class="java-keywords">return</span> <span class="java-keywords">null</span>;
+    }
+    
+    <span class="java-keywords">public</span> <span class="java-keywords">void</span> <span class="java-layer-method">removePropertyChangeListener</span>(JComponent c, PropertyChangeListener l) {
+        <span class="java-keywords">if</span> (c <span class="java-keywords">instanceof</span> TTCDateAndTime) {
+            TTCDateAndTime dat = (TTCDateAndTime)c;
+            ControlListener controlListener = <span class="java-keywords">new</span> <span class="java-layer-method">ControlListener</span>(l);
+            dat.<span class="java-layer-method">removeDateChangeListener</span>(controlListener);
+        }
+    }
+
+    <span class="java-keywords">public</span> <span class="java-keywords">void</span> <span class="java-layer-method">setValue</span>(JComponent c, Object value) {
+        <span class="java-keywords">if</span> ((c <span class="java-keywords">instanceof</span> TTCDateAndTime) &amp;&amp; (value <span class="java-keywords">instanceof</span> Date)) {
+            TTCDateAndTime dat = (TTCDateAndTime)c;
+            dat.<span class="java-layer-method">setDate</span>((Date)value);
+        }
+    }
+    
+    <span class="java-block-comment">/**</span>
+<span class="java-block-comment">     * This method is called from the layer file.</span>
+<span class="java-block-comment">     */</span>
+    <span class="java-keywords">public</span> <span class="java-keywords">static</span> ControlFactory <span class="java-layer-method">createControl</span>(FileObject config) {
+        <span class="java-keywords">return</span> <span class="java-keywords">new</span> <span class="java-layer-method">DateTimeControlFactory</span>(config);
+    }
+    
+    <span class="java-block-comment">/**</span>
+<span class="java-block-comment">     * Listener attached to the control to propagate changes to our</span>
+<span class="java-block-comment">     * listeners.</span>
+<span class="java-block-comment">     */</span>
+    <span class="java-keywords">private</span> <span class="java-keywords">class</span> ControlListener <span class="java-keywords">implements</span> DateChangeListener {
+        <span class="java-keywords">private</span> PropertyChangeListener pcl;
+        <span class="java-keywords">public</span> <span class="java-layer-method">ControlListener</span>(PropertyChangeListener pcl){
+            <span class="java-keywords">this</span>.pcl = pcl;
+        }
+        <span class="java-keywords">public</span> <span class="java-keywords">boolean</span> <span class="java-layer-method">equals</span>(Object anotherObject) {
+            <span class="java-keywords">if</span> ( ! ( anotherObject <span class="java-keywords">instanceof</span> ControlListener ) ) {
+                <span class="java-keywords">return</span> <span class="java-keywords">false</span>;
+            }
+            ControlListener theOtherOne = (ControlListener)anotherObject;
+            <span class="java-keywords">return</span> pcl.<span class="java-layer-method">equals</span>(theOtherOne.pcl);
+        }
+        <span class="java-keywords">public</span> <span class="java-keywords">int</span> <span class="java-layer-method">hashCode</span>() {
+            <span class="java-keywords">return</span> pcl.<span class="java-layer-method">hashCode</span>();
+        }
+
+        <span class="java-keywords">public</span> <span class="java-keywords">void</span> <span class="java-layer-method">dateStateChanged</span>(DateChangeEvent dateChangeEvent) {
+            pcl.<span class="java-layer-method">propertyChange</span>(pcEvent);
+        }
+
+        <span class="java-keywords">public</span> <span class="java-keywords">void</span> <span class="java-layer-method">timeStateChanged</span>(DateChangeEvent dateChangeEvent) {
+            pcl.<span class="java-layer-method">propertyChange</span>(pcEvent);
+        }
+    }
+}
+</pre>
+
+<h2> Localization </h2>
+
+As you could in the previous example most of the values can be customized
+from the Bundle.properties files.
+<pre>
+<span class="xml-tag">&lt;attr</span> <span class="xml-attribute">name</span><span class="xml-attribute">=</span><span class="xml-value">"SystemFileSystem.localizingBundle"</span> <span class="xml-attribute">stringvalue</span><span class="xml-attribute">=</span><span class="xml-value">"com.mycompany.aaa.Bundle"</span><span class="xml-tag">/&gt;</span>
+</pre>
+
+When such attribute is set for an element the mentioned budle must contain
+key value pair:
+
+<pre>
+Full/Path/To/File=Localized message
+</pre>
+
+while the path to the file must match the file or folder name where the
+"SystemFileSystem.localizingBundle" attribute was set.
+
+</body>
+
+</html>
