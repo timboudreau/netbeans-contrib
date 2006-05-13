@@ -30,7 +30,7 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
     private java.util.HashMap colors = new java.util.HashMap ();
     private int colorindex = 0;
     private static Color[] basecolors = {
-        Color.CYAN, Color.YELLOW, Color.BLUE, Color.RED, Color.MAGENTA, Color.ORANGE, Color.BLACK
+        Color.CYAN, Color.YELLOW, Color.BLUE, Color.RED, Color.MAGENTA, Color.ORANGE, Color.DARK_GRAY
     };
     private int zoom = 100;
     private AffineTransform lastTransform;
@@ -60,6 +60,9 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
     private Color findColor (Vertex v) {
         Color c = (Color)colors.get (v.info);
         if (c == null) {
+            if (colorindex == basecolors.length) {
+                colorindex = 0;
+            }
             c = basecolors[colorindex++];
             colors.put (v.info, c);
         }
