@@ -129,13 +129,13 @@
         <field field-type="int">
             <name>wait-timeout</name>
             <field-value>
-                <default-field-value>60000</default-field-value>
+                <default-field-value>60</default-field-value>
             </field-value>
         </field>
         <field field-type="int">
             <name>idle-timeout</name>
             <field-value>
-                <default-field-value>300</default-field-value>
+                <default-field-value>60</default-field-value>
             </field-value>
         </field>
         <field field-type="list">
