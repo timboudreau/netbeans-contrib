@@ -24,5 +24,22 @@
           </folder>
       </folder>
   </folder>
+  
+    <folder name="Menu">
+       <folder name="LaTeX">
+           <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow">
+	        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-editor-completion-latex-help-InstallHelpAction.instance"/>
+           </file>
+           
+           <attr name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow/org-netbeans-modules-latex-refactoring-actions-separatorBefore.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+
+    <folder name="Actions">
+        <folder name="LaTeX">
+           <file name="org-netbeans-modules-latex-editor-completion-latex-help-InstallHelpAction.instance"/>
+        </folder>
+    </folder>
+    
 </filesystem>
 

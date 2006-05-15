@@ -7,13 +7,15 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.editor.completion.latex;
 
 import java.net.URL;
 import javax.swing.Action;
+import org.netbeans.api.editor.completion.Completion;
+import org.netbeans.modules.latex.editor.completion.latex.help.InstallHelp;
 import org.netbeans.spi.editor.completion.CompletionDocumentation;
 
 /**
@@ -38,6 +40,11 @@ public class TexCompletionDocumentation implements CompletionDocumentation {
     }
 
     public CompletionDocumentation resolveLink(String link) {
+        if (TexCompletionJavaDoc.HELP_NOT_INSTALLED_LINK.equals(link)) {
+            //install help:
+            Completion.get().hideAll();
+            InstallHelp.installHelp();
+        }
         return null;
     }
 

@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -15,7 +15,6 @@
 package org.netbeans.modules.latex.ui;
 
 import org.netbeans.modules.latex.model.command.DebuggingSupport;
-import org.netbeans.modules.latex.ui.wizards.install.PostInstallWizard;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -29,7 +28,6 @@ public class UIModuleInstall extends ModuleInstall {
     }
 
     public void restored() {
-        PostInstallWizard.getDefault().showWizard(false);
         DebuggingSupport.getDefault().addPropertyChangeListener(new DebugImpl());
         Autodetector.registerAutodetection();
         

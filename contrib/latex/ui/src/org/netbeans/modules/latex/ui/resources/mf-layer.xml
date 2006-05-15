@@ -49,12 +49,6 @@ Contributor(s): Jan Lahoda
        </folder>
        <folder name="LaTeX">
           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.latex.ui.Bundle"/>
-           <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow">
-	        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance"/>
-           </file>
-           
-           <attr name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow/org-netbeans-modules-latex-refactoring-actions-separatorBefore.instance" boolvalue="true"/>
-           
            <folder name="Bibliography">
                <file name="CiteAction.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CiteAction"/>
@@ -79,7 +73,6 @@ Contributor(s): Jan Lahoda
            <file name="org-netbeans-modules-latex-ui-actions-CountWordsAction.instance"/>
            <file name="org-netbeans-modules-latex-ui-actions-CiteAction.instance"/>
            <file name="org-netbeans-modules-latex-ui-actions-RefAction.instance"/>
-           <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.instance"/>
 
            <!--Toolbar actions:-->
             <file name="Emph.instance">

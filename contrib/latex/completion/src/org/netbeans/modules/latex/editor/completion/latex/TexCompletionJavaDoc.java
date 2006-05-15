@@ -7,16 +7,18 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.editor.completion.latex;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Properties;
@@ -32,6 +34,7 @@ import org.openide.modules.InstalledFileLocator;
 import org.openide.util.RequestProcessor;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionDocumentation;
 import org.netbeans.spi.editor.completion.CompletionTask;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -46,7 +49,9 @@ public class TexCompletionJavaDoc {
     
     private static final boolean debug = true;
     
-    public static final String NOT_FOUND = "Help for this item not found.";
+    public static final String NOT_FOUND = NbBundle.getMessage(TexCompletionJavaDoc.class, "LBL_NoHelpForItem");
+    public static final String HELP_NOT_INSTALLED_LINK = "install-help"; // NOI18N
+    public static final String HELP_NOT_INSTALLED = NbBundle.getMessage(TexCompletionJavaDoc.class, "LBL_HelpNotInstalled", new Object[] {HELP_NOT_INSTALLED_LINK});
     
     /** Creates a new instance of TexCompletionJavaDoc */
     public TexCompletionJavaDoc() {
@@ -54,7 +59,7 @@ public class TexCompletionJavaDoc {
     
     private File getHelpSource() {
         //TODO: NB specific (not StandAlone!)
-        File help = InstalledFileLocator.getDefault().locate("var/latex/latex2e.jar", null, true);
+        File help = InstalledFileLocator.getDefault().locate("var/latex/latex2e.jar", null, true); // NOI18N
         
         if (help == null && Boolean.getBoolean("netbeans.module.test")) {
             File moduleJar = new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile());
@@ -117,10 +122,10 @@ public class TexCompletionJavaDoc {
 	if (file == null)
 	    return null;
 
-        JarEntry dirEntry = file.getJarEntry("index.properties");
+        JarEntry dirEntry = file.getJarEntry("index.properties"); // NOI18N
         
         if (dirEntry == null)
-            throw new IllegalArgumentException("The provided help file does not have index.properties file.");
+            throw new IllegalArgumentException("The provided help file does not have index.properties file."); // NOI18N
         
         Properties dir = new Properties();
         InputStream ins = file.getInputStream(dirEntry);
@@ -135,8 +140,9 @@ public class TexCompletionJavaDoc {
         Properties dir  = getDirectory();
         JarFile    file = getJarFile();
 	
-	if (dir == null || file == null)
-	    return null;
+	if (dir == null || file == null) {
+	    return new ByteArrayInputStream(HELP_NOT_INSTALLED.getBytes());
+        }
 
         String     targetName = dir.getProperty(item);
         
