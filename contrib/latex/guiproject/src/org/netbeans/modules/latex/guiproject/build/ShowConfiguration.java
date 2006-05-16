@@ -180,7 +180,7 @@ public final class ShowConfiguration {
     }
 
     public boolean isSupported(LaTeXGUIProject p, BuildConfiguration conf) {
-        return getURIToShow(p, conf) != null;
+        return conf.isSupported(p) && getURIToShow(p, conf) != null;
 //        LaTeXPlatform platform = Utilities.getPlatform(p);
 //        
 //        if (!platform.isToolConfigured(tool) && !IN_IDE_PDF_VIEWER.equals(tool))
