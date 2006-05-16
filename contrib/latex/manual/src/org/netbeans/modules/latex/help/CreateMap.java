@@ -7,7 +7,7 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -33,15 +33,6 @@ public class CreateMap {
     public CreateMap() {
     }
     
-//    private static String helpContent =
-//       "" + 
-//       "" + 
-//       "";
-//    
-//    private static void help() {
-//        System.err.println(helpContent);
-//    }
-    
     /**
      * @param args the command line arguments
      */
@@ -53,8 +44,13 @@ public class CreateMap {
 	
         File baseDir = new File(args[0]);
 	
-	if (!baseDir.exists() || !baseDir.isDirectory()) {
-	   System.err.println("The specified base dir does not exist or is not a directory.");
+	if (!baseDir.exists()) {
+	   System.err.println(baseDir.getAbsolutePath() + " does not exist.");
+	   return ;
+	}
+        
+	if (!baseDir.isDirectory()) {
+	   System.err.println(baseDir.getAbsolutePath() + " is not a directory.");
 	   return ;
 	}
 	

@@ -17,4 +17,34 @@
 <project name="org.netbeans.modules.latex.help" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.latex.help.</description>
     <import file="../module-support.xml" />
+
+  <target name="help-init">
+    <property environment="ENV." />
+    <condition property="hasLaTeX2HTML">
+       <available file="latex2html" filepath="${ENV.PATH}" />
+    </condition>
+    <fail unless="hasLaTeX2HTML">
+        The latex2html is required to build this module.
+    </fail>
+  </target>
+
+  <target name="compile-help" depends="help-init" if="hasLaTeX2HTML">
+    <mkdir dir="build/classes/org/netbeans/modules/latex/help" />
+    
+    <exec executable="latex2html">
+	<arg value="-antialias" />
+	<arg value="-antialias_text" />
+        <arg value="-dir" />
+        <arg value="build/classes/org/netbeans/modules/latex/help" />
+        <arg value="LaTeXManual.tex" />
+    </exec>
+    
+     <java classname="org.netbeans.modules.latex.help.CreateMap"
+           classpath="build/classes">
+         <arg value="${basedir}/build/classes/org/netbeans/modules/latex/help" />
+     </java>
+  </target>
+
+  <target name="compile" depends="projectized-common.compile,compile-help" />
+  
 </project>
