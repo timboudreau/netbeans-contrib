@@ -125,7 +125,7 @@ int WINAPI
 
     strcat(nbexec, "\\lib\\nbexec.exe");
 
-    sprintf(cmdline2, "\"%s\" %s -J-Dnetbeans.importclass=org.netbeans.upgrade.AutoUpgrade -J-Dnetbeans.accept_license_class=org.netbeans.license.AcceptLicense --branding nbbluej --clusters \"%s\" --userdir \"%s\" %s %s",
+    sprintf(cmdline2, "\"%s\" %s -J-Dnetbeans.importclass=org.netbeans.bluej.upgrade.AutoUpgrade -J-Dnetbeans.accept_license_class=org.netbeans.bluej.license.AcceptLicense --branding nbbluej --clusters \"%s\" --userdir \"%s\" %s %s",
             nbexec,
             jdkswitch,
             dirs,
