@@ -23,7 +23,7 @@ import org.netbeans.modules.schema2beans.Schema2BeansRuntimeException;
 /**
  * Code reused from Appserver common API module 
  */
-public interface WS70Resources extends org.netbeans.modules.j2ee.sun.dd.api.RootInterface {
+public interface WS70Resources extends  org.netbeans.modules.j2ee.sun.dd.api.CommonDDBean {
     
         public static final String CUSTOM_RESOURCE = "CustomResource";	// NOI18N
 	public static final String EXTERNAL_JNDI_RESOURCE = "ExternalJndiResource";	// NOI18N

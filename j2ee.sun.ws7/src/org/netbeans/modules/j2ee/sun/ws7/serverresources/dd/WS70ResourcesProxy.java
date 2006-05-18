@@ -17,6 +17,7 @@
  */
 
 package org.netbeans.modules.j2ee.sun.ws7.serverresources.dd;
+import org.netbeans.modules.j2ee.sun.dd.api.CommonDDBean;
 
 /**
  *
@@ -301,6 +302,15 @@ public class WS70ResourcesProxy implements WS70Resources {
         }
         return proxy;
     }
+   /** Resources have no version (at present) so we could throw 
+       UnsupportedOperationException but it's probably just better to 
+       clone it since that is what this method does anyway.
+    *
+     */
+    public CommonDDBean cloneVersion(String version) {
+        return (CommonDDBean) clone();
+    }
+
 
     public void write(java.io.File f) throws java.io.IOException, org.netbeans.modules.schema2beans.Schema2BeansRuntimeException {
         if (resourcesRoot!=null) resourcesRoot.write(f);
