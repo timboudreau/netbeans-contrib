@@ -16,12 +16,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
-import org.netbeans.samples.modulesystem.sayhello.api.HelloTip;
+import org.netbeans.samples.modulesystem.sayhello.api.HelloProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
 
-public class ReadTip implements HelloTip {
+public class ReadTip implements HelloProvider {
     public String giveMeATip() {
         try {
             FileObject root = Repository.getDefault().getDefaultFileSystem().getRoot();

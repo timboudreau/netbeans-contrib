@@ -10,12 +10,9 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-package org.netbeans.samples.modulesystem.sayciao;
+package org.netbeans.samples.modulesystem.sayhello.api;
 
-import org.netbeans.samples.modulesystem.sayhello.api.HelloProvider;
-
-public final class Ciao implements HelloProvider {
-    public String giveMeATip() {
-        return "Ciao, Mondo!";
-    }
+public interface HelloProvider {
+    public String giveMeATip();
 }
+

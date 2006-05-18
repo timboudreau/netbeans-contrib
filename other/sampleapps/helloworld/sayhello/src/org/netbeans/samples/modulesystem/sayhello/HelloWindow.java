@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.samples.modulesystem.sayhello.api.HelloTip;
+import org.netbeans.samples.modulesystem.sayhello.api.HelloProvider;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 
@@ -100,15 +100,15 @@ public class HelloWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_exitActionPerformed
 
     private void sayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sayActionPerformed
-        Collection<? extends HelloTip> all;
-        all = Lookup.getDefault().lookupAll(HelloTip.class);
+        Collection<? extends HelloProvider> all;
+        all = Lookup.getDefault().lookupAll(HelloProvider.class);
 
         if (all.isEmpty()) {
             text.setText("I do not know what to say");
             return;
         }
 
-        List<? extends HelloTip> l = new ArrayList <HelloTip> (all);
+        List<? extends HelloProvider> l = new ArrayList <HelloProvider> (all);
         Collections.shuffle(l);
 
         text.setText(l.get(0).giveMeATip());
