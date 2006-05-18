@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.bluej.upgrader
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: org/netbeans/bluej/upgrade/Bundle.properties
+
