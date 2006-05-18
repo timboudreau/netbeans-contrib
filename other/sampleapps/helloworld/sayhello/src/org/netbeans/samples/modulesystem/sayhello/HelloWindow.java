@@ -46,8 +46,8 @@ public class HelloWindow extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         text.setColumns(20);
         text.setEditable(false);
+        text.setFont(new java.awt.Font("Dialog", 0, 18));
         text.setRows(5);
-        text.setEnabled(false);
         text.setFocusable(false);
         jScrollPane1.setViewportView(text);
 
@@ -100,20 +100,18 @@ public class HelloWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_exitActionPerformed
 
     private void sayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sayActionPerformed
-        Lookup.Template t = new Lookup.Template(HelloTip.class);
-        Lookup.Result res = Lookup.getDefault().lookup(t);
-        Collection all = res.allInstances();
+        Collection<? extends HelloTip> all;
+        all = Lookup.getDefault().lookupAll(HelloTip.class);
 
         if (all.isEmpty()) {
             text.setText("I do not know what to say");
             return;
         }
 
-        List l = new ArrayList(all);
+        List<? extends HelloTip> l = new ArrayList <HelloTip> (all);
         Collections.shuffle(l);
 
-        HelloTip tip = (HelloTip)l.get(0);
-        text.setText(tip.giveMeATip());
+        text.setText(l.get(0).giveMeATip());
     }//GEN-LAST:event_sayActionPerformed
     
     /**
