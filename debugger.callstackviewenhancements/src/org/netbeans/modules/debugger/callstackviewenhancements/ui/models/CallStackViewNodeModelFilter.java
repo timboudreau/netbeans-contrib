@@ -46,14 +46,14 @@ public class CallStackViewNodeModelFilter implements NodeModelFilter {
                         return displayName.substring(0, displayName.length() - 6)
                         + " [ "
                                 + thisOfCallStackFrame.getType()
-                                + " extends "
+                                + " subclass of "
                                 + callStackFrame.getClassName()
                                 + " ]</html>";
                     } else {
                         return displayName
                                 + " [ "
                                 + thisOfCallStackFrame.getType()
-                                + " extends "
+                                + " subclass of "
                                 + callStackFrame.getClassName()
                                 + " ]";
                     }

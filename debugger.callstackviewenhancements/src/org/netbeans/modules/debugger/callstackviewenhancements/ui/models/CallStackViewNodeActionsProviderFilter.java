@@ -47,20 +47,7 @@ import org.openide.util.NbBundle;
 public class CallStackViewNodeActionsProviderFilter implements NodeActionsProviderFilter {
     
     public CallStackViewNodeActionsProviderFilter() {
-    }   
-    
-    private static final Action GOTO_TYPE_OF_THIS_ACTION = Models.createAction(
-            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("CTL_GotoTypeAction") + " of this", // NOI18N
-            new Models.ActionPerformer() {
-        public boolean isEnabled(Object node) {
-            return true;
-        }
-        public void perform(Object[] nodes) {
-            Utils.gotoTypeOf((CallStackFrame) nodes [0]);
-        }
-    },
-            Models.MULTISELECTION_TYPE_EXACTLY_ONE
-            );
+    }
     
     private static class GotoLocalVariableTypeAction implements Models.ActionPerformer {
         private String typeName;
@@ -83,15 +70,22 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
         List myActions = new ArrayList();
         if (node instanceof CallStackFrame) {
             CallStackFrame callStackFrame = (CallStackFrame) node;
+            List alreadyAddedTypeName = new ArrayList();
             This thisOfCallStackFrame = callStackFrame.getThisVariable();
             if (thisOfCallStackFrame != null) {
-                if (!callStackFrame.getClassName().equals(thisOfCallStackFrame.getType())) {
-                    myActions.add(GOTO_TYPE_OF_THIS_ACTION);
+                final String thisTypeNameFinal = thisOfCallStackFrame.getType();
+                if (!callStackFrame.getClassName().equals(thisTypeNameFinal)) {
+                    myActions.add(
+                            Models.createAction(
+                            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("CTL_GotoTypeAction") + " " + thisTypeNameFinal + " (this)",
+                            new GotoLocalVariableTypeAction(thisTypeNameFinal),
+                            Models.MULTISELECTION_TYPE_EXACTLY_ONE
+                            ));
+                    alreadyAddedTypeName.add(thisTypeNameFinal);
                 }
             }
             try {
                 LocalVariable[] localVariables = callStackFrame.getLocalVariables();
-                ArrayList alreadyAddedTypeName = new ArrayList();
                 for (int i = 0; i < localVariables.length; i++) {
                     LocalVariable localVariable = localVariables[i];
                     String typeName = localVariable.getType();
