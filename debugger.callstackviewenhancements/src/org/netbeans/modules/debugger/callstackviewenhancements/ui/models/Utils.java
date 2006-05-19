@@ -136,6 +136,9 @@ public class Utils {
                 if (classDefinition != null) {
                     clazz = classDefinition;
                     FileObject fileObject = JavaModel.getFileObject(clazz.getResource());
+                    if (fileObject == null) {
+                        return null;
+                    }
                     File file = FileUtil.toFile(fileObject);
                     if (file == null) {
                         try {

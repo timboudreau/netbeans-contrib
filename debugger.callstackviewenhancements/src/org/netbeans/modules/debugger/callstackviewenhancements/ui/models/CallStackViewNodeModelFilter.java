@@ -30,11 +30,11 @@ import org.netbeans.spi.viewmodel.UnknownTypeException;
  */
 public class CallStackViewNodeModelFilter implements NodeModelFilter {
     private static boolean dontShowCustomIcons = Boolean.getBoolean("org.netbeans.modules.debugger.callstackviewenhancements.dontShowCustomIcons");
-    
+
     public CallStackViewNodeModelFilter() {
-        
+
     }
-    
+
     public String getDisplayName(NodeModel original, Object node) throws UnknownTypeException {
         String displayName = original.getDisplayName(node);
         if (node instanceof CallStackFrame) {
@@ -43,16 +43,30 @@ public class CallStackViewNodeModelFilter implements NodeModelFilter {
             if (thisOfCallStackFrame != null) {
                 if (!callStackFrame.getClassName().equals(thisOfCallStackFrame.getType())) {
                     if (displayName.endsWith("<html>")) {
-                        displayName = displayName.substring(0, displayName.length() - 6) + " [ " + thisOfCallStackFrame.getType() + " ]</html>";
+                        return displayName.substring(0, displayName.length() - 6)
+                        + " [ "
+                                + thisOfCallStackFrame.getType()
+                                + " extends "
+                                + callStackFrame.getClassName()
+                                + " ]</html>";
                     } else {
-                        displayName = displayName + " [ " + thisOfCallStackFrame.getType() + " ]";
+                        return displayName
+                                + " [ "
+                                + thisOfCallStackFrame.getType()
+                                + " extends "
+                                + callStackFrame.getClassName()
+                                + " ]";
                     }
                 }
             }
+            displayName = displayName
+                    + " [ "
+                    + callStackFrame.getClassName()
+                    + " ]";
         }
         return displayName;
     }
-    
+
     public String getIconBase(NodeModel original, Object node) throws UnknownTypeException {
         if (!dontShowCustomIcons) {
             if (node instanceof CallStackFrame) {
@@ -100,17 +114,17 @@ public class CallStackViewNodeModelFilter implements NodeModelFilter {
         }
         return original.getIconBase(node);
     }
-    
+
     public String getShortDescription(NodeModel original, Object node) throws UnknownTypeException {
         return original.getShortDescription(node);
     }
-    
+
     public void addModelListener(ModelListener l) {
     }
-    
+
     public void removeModelListener(ModelListener l) {
     }
-    
+
     private com.sun.jdi.Method getModifiers(CallStackFrame callStackFrame) {
         Class callStackFrameClass = callStackFrame.getClass();
         try {
@@ -129,7 +143,7 @@ public class CallStackViewNodeModelFilter implements NodeModelFilter {
         } catch (SecurityException ex) {
         } catch (NoSuchMethodException ex) {
         }
-        
+
         return null;
     }
 }

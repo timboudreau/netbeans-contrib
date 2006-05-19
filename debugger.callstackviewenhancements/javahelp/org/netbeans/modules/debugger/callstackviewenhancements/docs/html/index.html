@@ -12,6 +12,8 @@
         associated with the stack frame if it is different from the class
         that declares the method associated with the stack frame.
         <br>
+        In the location column it shows the location of source file when available.
+        <br>
         The call stack view shows the custom icons (similar to Navigator window)
         for constructors and methods with public, protected, private, (package),
         and static qualifiers. This behaviour can be turned off by setting the
@@ -33,20 +35,22 @@
         </ul>
         <h2>Example</h2>
         The following images shows a Java classes - parent class
-        <code>humanresources.Person</code> and sub class 
+        <code>humanresources.Person</code> and sub class
         <code>humanresources.Employee</code> being debugged. The debugger has
-        stopped at a line in <code>humanresources.Person</code>'s 
+        stopped at a line in <code>humanresources.Person</code>'s
         <code>toString()</code> method which has been called from
         <code>humanresources.Employee</code>'s <code>toString()</code> method.
         <br>
         <image src="persondotjava.jpg" alt="humanresources.Person Source"><br>
         <image src="employeedotjava.jpg" alt="humanresources.Employee Source"><br>
         <p>
-            The following image shows the enahanced Call Stack view.
-            Notice that the actual type of <code>this</code> variable of first
-            stack frame is <code>humanresources.Employee</code>. Therefore the
-            label shows the class of <code>this</code> variable along with the
-            class declaring the method associated with the call stack frame. The
+            The following image shows the enahanced Call Stack view. Fully
+            qualified name of the class declaring the method is shown next to
+            the location in the Name column. Also, notice that the actual type
+            of <code>this</code> variable of first stack frame is 
+            <code>humanresources.Employee</code>. Therefore the label shows the
+            class of <code>this</code> variable along with the class declaring
+            the method associated with the call stack frame. The 
             <b>Go to type of this</b> action opens the source file for
             <code>humanresources.Employee</code>.
         </p>
