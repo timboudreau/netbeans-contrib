@@ -5,8 +5,10 @@
 
 package org.netbeans.modules.debugger.callstackviewenhancements.ui.models;
 
+import com.sun.jdi.StackFrame;
 import java.io.File;
-import java.net.MalformedURLException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import org.netbeans.api.debugger.DebuggerEngine;
@@ -186,5 +188,27 @@ public class Utils {
         }
         
         return typeName;
+    }
+    
+    static com.sun.jdi.Method getMethod(CallStackFrame callStackFrame) {
+        Class callStackFrameClass = callStackFrame.getClass();
+        try {
+            Method method = callStackFrameClass.getMethod("getStackFrame", new Class[0]);
+            try {
+                Object stackFrameObject = method.invoke(callStackFrame, new Object[0]);
+                if (stackFrameObject instanceof StackFrame) {
+                    StackFrame stackFrame = (StackFrame) stackFrameObject;
+                    com.sun.jdi.Method jdiMethod = stackFrame.location().method();
+                    return jdiMethod;
+                }
+            } catch (IllegalArgumentException ex) {
+            } catch (InvocationTargetException ex) {
+            } catch (IllegalAccessException ex) {
+            }
+        } catch (SecurityException ex) {
+        } catch (NoSuchMethodException ex) {
+        }
+
+        return null;
     }
 }

@@ -7,13 +7,20 @@
     <body>
         <h1>JPDA (Java) Debugger Call Stack View Enhancements</h1>
         <h2>Features </h2>
-        This module enhances the Call Stack View of JPDA (Java) Debugger by
-        showing the class of the <code>this</code> variable
-        associated with the stack frame if it is different from the class
-        that declares the method associated with the stack frame.
-        <br>
-        In the location column it shows the location of source file when available.
-        <br>
+        This module enhances the Call Stack View of JPDA (Java) Debugger by adding the following columns:
+        <ul>
+            <li><b>Modifiers</b> - this columns displays the modifiers of the method
+            associated with the stack frame.
+            <li><b>Method</b> - this columns displays the name, parameters and
+            return type of the method associated with the stack frame.
+            <li><b>Declaring Class</b> - this column displays the class declaring
+            the method associated with the stack frame.
+            <li><b>this Class</b> - this column displays the class of
+            <code>this</code> variable associated with the non-static stack frame.
+            Note: The class <code>this</code> of may be different from the Declaring class.
+            <li><b>Location Path</b> - when available this column displays the
+            full path of the location of the method associated with the stack frame.
+        </ul>
         The call stack view shows the custom icons (similar to Navigator window)
         for constructors and methods with public, protected, private, (package),
         and static qualifiers. This behaviour can be turned off by setting the
@@ -44,15 +51,8 @@
         <image src="persondotjava.jpg" alt="humanresources.Person Source"><br>
         <image src="employeedotjava.jpg" alt="humanresources.Employee Source"><br>
         <p>
-            The following image shows the enahanced Call Stack view. Fully
-            qualified name of the class declaring the method is shown next to
-            the location in the Name column. Also, notice that the actual type
-            of <code>this</code> variable of first stack frame is 
-            <code>humanresources.Employee</code>. Therefore the label shows the
-            class of <code>this</code> variable along with the class declaring
-            the method associated with the call stack frame. The 
-            <b>Go to type of this</b> action opens the source file for
-            <code>humanresources.Employee</code>.
+            The following image shows the enahanced Call Stack view. Note the
+            additional columns and popup actions.
         </p>
         <br>
         <image src="callstackview.jpg" alt="Enhanced Call Stack view">

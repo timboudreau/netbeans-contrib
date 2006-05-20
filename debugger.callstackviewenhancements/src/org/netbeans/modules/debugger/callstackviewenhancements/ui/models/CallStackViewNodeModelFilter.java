@@ -36,41 +36,13 @@ public class CallStackViewNodeModelFilter implements NodeModelFilter {
     }
 
     public String getDisplayName(NodeModel original, Object node) throws UnknownTypeException {
-        String displayName = original.getDisplayName(node);
-        if (node instanceof CallStackFrame) {
-            CallStackFrame callStackFrame = (CallStackFrame) node;
-            This thisOfCallStackFrame = callStackFrame.getThisVariable();
-            if (thisOfCallStackFrame != null) {
-                if (!callStackFrame.getClassName().equals(thisOfCallStackFrame.getType())) {
-                    if (displayName.endsWith("<html>")) {
-                        return displayName.substring(0, displayName.length() - 6)
-                        + " [ "
-                                + thisOfCallStackFrame.getType()
-                                + " subclass of "
-                                + callStackFrame.getClassName()
-                                + " ]</html>";
-                    } else {
-                        return displayName
-                                + " [ "
-                                + thisOfCallStackFrame.getType()
-                                + " subclass of "
-                                + callStackFrame.getClassName()
-                                + " ]";
-                    }
-                }
-            }
-            displayName = displayName
-                    + " [ "
-                    + callStackFrame.getClassName()
-                    + " ]";
-        }
-        return displayName;
+        return original.getDisplayName(node);        
     }
 
     public String getIconBase(NodeModel original, Object node) throws UnknownTypeException {
         if (!dontShowCustomIcons) {
             if (node instanceof CallStackFrame) {
-                com.sun.jdi.Method method = getModifiers((CallStackFrame) node);
+                com.sun.jdi.Method method = Utils.getMethod((CallStackFrame) node);
                 if (method != null) {
                     if (method.isSynthetic()) {
                         return "org/netbeans/modules/java/navigation/resources/methods";
@@ -123,27 +95,5 @@ public class CallStackViewNodeModelFilter implements NodeModelFilter {
     }
 
     public void removeModelListener(ModelListener l) {
-    }
-
-    private com.sun.jdi.Method getModifiers(CallStackFrame callStackFrame) {
-        Class callStackFrameClass = callStackFrame.getClass();
-        try {
-            Method method = callStackFrameClass.getMethod("getStackFrame", new Class[0]);
-            try {
-                Object stackFrameObject = method.invoke(callStackFrame, new Object[0]);
-                if (stackFrameObject instanceof StackFrame) {
-                    StackFrame stackFrame = (StackFrame) stackFrameObject;
-                    com.sun.jdi.Method jdiMethod = stackFrame.location().method();
-                    return jdiMethod;
-                }
-            } catch (IllegalArgumentException ex) {
-            } catch (InvocationTargetException ex) {
-            } catch (IllegalAccessException ex) {
-            }
-        } catch (SecurityException ex) {
-        } catch (NoSuchMethodException ex) {
-        }
-
-        return null;
-    }
+    }   
 }
