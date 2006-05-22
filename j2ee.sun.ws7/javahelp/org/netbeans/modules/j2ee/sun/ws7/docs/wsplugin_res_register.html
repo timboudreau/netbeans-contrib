@@ -24,9 +24,7 @@
 <ol>
 <li>Locate the object in the Projects window or Files window.</li>
 <li>Right-click the object and choose Register.</li>
-<li>In the Java Message Service Resource Registration dialog box, check to make sure the JNDI resource name and the server instance are correct.</li>
-<li>Click Register.</li>
-<li>Click Close when you get the registration successful message.</li>
+<li>Click Register and then click Close when you get the registration successful message.</li>
 </ol>
 <p>After the object is registered with the server it is visible in the Runtime window under the Servers node under the node corresponding to the type of resource. You can modify some of the properties of the resource object by opening the properties window for the object.</p>
 <p><b>To delete a resource from the server:</b></p>
@@ -35,10 +33,8 @@
 <li>Right-click the object node and select Delete.</li>
 </ol>
 <p>When you delete a resource from the server it is no longer visible in the Runtime window.</p>
-<p><b>Notes:</b></p>
-<ul>
-<li>After a resource has been removed from the server, it is still listed as a resource in your project. Unless you delete the resource from your project, when you deploy your application the resource will be registered again. To completely delete the resource and ensure that it is not registered again, delete the resource using the pop-up menu in the Files window or the Projects window.</li>
-<li>The JNDI name for a resource must be unique. If the JNDI name is already taken by another resource, an error message will appear in the dialog box when you try to register the resource. To change the JNDI name, right-click the resource in the Files or Projects window, choose Properties and change the JNDI name.</li>
+<ul class="note">
+<li>The JNDI name for a resource must be unique. If the JNDI name is already taken by another resource, that resource will be updated with the attributes and properties of the current resource. A message will appear to inform you that the resource has been updated.</li>
 </ul>
 <dl>
 <dt><a name="seealso">See Also</a></dt>
