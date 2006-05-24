@@ -22,9 +22,10 @@
             </file>
         </folder>-->
         
+        <!--#76761: this would switch off completion for kits using old code completion API. Needs to be registered per mime type:
         <folder name="CompletionProviders">
             <file name="org-netbeans-modules-spellchecker-completion-WordCompletion.instance"/>
-        </folder>
+        </folder>-->
     </folder>
 
     <folder name="OptionsDialog">

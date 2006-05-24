@@ -25,6 +25,10 @@
                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.spellchecker.hints.DictionaryBasedHintsProvider.create" />
                     </file>
                 </folder>
+                
+                <folder name="CompletionProviders">
+                    <file name="org-netbeans-modules-spellchecker-completion-WordCompletion.instance"/>
+                </folder>
             </folder>
         </folder>
     </folder>
