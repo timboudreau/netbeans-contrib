@@ -56,7 +56,7 @@
         <field field-type="string">
             <name>store-protocol-class</name>
             <field-value>
-                <default-field-value>com.sun.mail.imap.IMAPStoreab</default-field-value>
+                <default-field-value>com.sun.mail.imap.IMAPStore</default-field-value>
             </field-value>
         </field>
         <field field-type="string">
@@ -72,5 +72,6 @@
             </field-value>
         </field>
     </field-group>
+
 </wizard>
 

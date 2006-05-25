@@ -186,17 +186,17 @@ public class CommonGeneralFinishVisualPanel extends javax.swing.JPanel implement
                 }
                 for (int h = 0; h < tags.length; h++) {                    
                     if(isVendorField){
-                        jComboBox.addItem(bundle.getString("DBVendor_" + tags[h])); //NOI18N
+                        jComboBox.addItem(bundle.getString("DBVendor_" + tags[h])); //NOI18N                        
                     }else{
                         jComboBox.addItem(tags[h]);
-                    }                        
+                    }
                 }
-                final int index = i;
+                final int index = i;                
                 jComboBox.addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         jComboBoxActionPerformed(evt, index);
                     }
-                });
+                });                
                 gridBagConstraints = new java.awt.GridBagConstraints();
                 gridBagConstraints.gridx = 1;
                 gridBagConstraints.gridy =  k;
@@ -231,6 +231,7 @@ public class CommonGeneralFinishVisualPanel extends javax.swing.JPanel implement
                 gridBagConstraints.gridy =  k;
                 gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
                 gridBagConstraints.insets = new java.awt.Insets(2, 20, gap, 0);
+                gridBagConstraints.weightx = 1.0;
                 jFields[i] = jTextField;
                 jPanel1[j].add(jTextField, gridBagConstraints);
             }
