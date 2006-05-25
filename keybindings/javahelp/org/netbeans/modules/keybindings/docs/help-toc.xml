@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : help-toc.xml
+    Created on : May 12 2006
+    Author     : Sandip Chitale
+    Description:
+        Purpose of the document follows.
+-->
+
+<toc version="2.0">
+    <tocitem text="Key Bindings Explorer Module">
+       <tocitem text="Key Bindings Explorer Module" target="homeID" />
+    </tocitem>
+</toc>

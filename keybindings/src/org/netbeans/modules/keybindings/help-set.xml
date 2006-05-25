@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : helpset.xml
+    Created on : May 12 2006
+    Author     : Sandip Chitale
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE helpsetref PUBLIC
+          "-//NetBeans//DTD JavaHelp Help Set Reference 1.0//EN"
+          "http://www.netbeans.org/dtds/helpsetref-1_0.dtd">
+<helpsetref url="nbdocs:/org/netbeans/modules/keybindings/docs/help-set.hs"/>
+

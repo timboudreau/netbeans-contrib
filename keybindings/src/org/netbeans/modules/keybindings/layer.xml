@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-keybindings-ui-ShowKeyBindingsAction.instance"/>
+            <file name="org-netbeans-modules-keybindings-ui-ShowActionBindingsAction.instance"/>
+        </folder>
+    </folder>
+
+    <folder name="Toolbars">
+        <folder name="Tools">
+            <file name="ShowKeyBindingsAction.shadow">
+                <attr name="originalFile"
+                stringvalue="Actions/Tools/org-netbeans-modules-keybindings-ui-ShowKeyBindingsAction.instance"/>
+            </file>
+            <attr name="org-openide-actions-SaveAllAction.instance/ShowKeyBindingsAction.shadow" boolvalue="true" />
+            <file name="ShowActionBindingsAction.shadow">
+                <attr name="originalFile"
+                stringvalue="Actions/Tools/org-netbeans-modules-keybindings-ui-ShowActionBindingsAction.instance"/>
+            </file>
+            <attr name="ShowKeyBindingsAction.shadow/ShowActionBindingsAction.shadow" boolvalue="true" />
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="Tools">
+            <file name="KeyBindingsSeparator.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-core-actions-SystemExit.instance/KeyBindingsSeparator.instance" boolvalue="true" />
+            <file name="ShowKeyBindingsAction.shadow">
+                <attr name="originalFile"
+                stringvalue="Actions/Tools/org-netbeans-modules-keybindings-ui-ShowKeyBindingsAction.instance"/>
+            </file>
+            <attr name="KeyBindingsSeparator.instance/ShowKeyBindingsAction.shadow" boolvalue="true" />
+            <file name="ShowActionBindingsAction.shadow">
+                <attr name="originalFile"
+                stringvalue="Actions/Tools/org-netbeans-modules-keybindings-ui-ShowActionBindingsAction.instance"/>
+            </file>
+            <attr name="ShowKeyBindingsAction.shadow/ShowActionBindingsAction.shadow" boolvalue="true" />
+        </folder>
+    </folder>
+    
+    <folder name="Shortcuts">
+            <file name="A-U K.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-keybindings-ui-ShowKeyBindingsAction.instance"/>
+            </file>
+            <file name="A-U A.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-keybindings-ui-ShowActionBindingsAction.instance"/>
+            </file>        
+    </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-netbeans-modules-keybindings-help-set.xml" url="help-set.xml"/>
+            <attr name="org-netbeans-modules-usersguide-below-regular.txt/org-netbeans-modules-keybindings-help-set.xml" boolvalue="true"/>
+        </folder>
+    </folder>
+</filesystem>
