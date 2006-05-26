@@ -63,8 +63,14 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
     }
     
     public void run () {
+        
+        
+        
         try {
-            main (new String[0]);
+            main (new String[] {
+                getParameter("url"),
+                getParameter("suffix"),
+            });
         } catch (Exception ex) {
             JOptionPane.showMessageDialog (this, ex);
         }
@@ -73,8 +79,8 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
         load.setText ("Show Dependencies");
     }
     
-    private static String baseURL = "http://contrib.netbeans.org/unbranded-source/browse/~checkout~/ide/golden/";
-    private static String suffix = "?content-type=text/plain";
+    private static String baseURL = "";
+    private static String suffix = "";
     
     private static InputStream read (String what) throws Exception {
         byte[] ret = (byte[])cache.get (what);
@@ -106,6 +112,10 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
         if (args.length == 1) {
             baseURL = args[0];
             suffix = "";
+        }
+        if (args.length == 2) {
+            baseURL = args[0];
+            suffix = args[1];
         }
         
         Graph g = Graph.create ();
