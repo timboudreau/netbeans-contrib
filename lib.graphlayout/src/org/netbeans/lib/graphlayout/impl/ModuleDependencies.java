@@ -35,6 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 import org.netbeans.lib.graphlayout.*;
@@ -72,6 +73,8 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
         load.setText ("Show Dependencies");
     }
     
+    private static String baseURL = "http://contrib.netbeans.org/unbranded-source/browse/~checkout~/ide/golden/";
+    private static String suffix = "?content-type=text/plain";
     
     private static InputStream read (String what) throws Exception {
         byte[] ret = (byte[])cache.get (what);
@@ -79,8 +82,7 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
             return new ByteArrayInputStream (ret);
         }
         
-        String url = "http://contrib.netbeans.org/unbranded-source/browse/~checkout~/ide/golden/"
-                + what + ".txt?content-type=text/plain";
+        String url = baseURL + what + ".txt" + suffix;
         URL u = new URL (url);
         InputStream is = u.openStream ();
         ByteArrayOutputStream out;
@@ -101,6 +103,11 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
     }
 
     public static void main (String[] args) throws Exception {
+        if (args.length == 1) {
+            baseURL = args[0];
+            suffix = "";
+        }
+        
         Graph g = Graph.create ();
         Graph impl = Graph.create ();
 
@@ -109,17 +116,24 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
         readVertexes (g, modules, null, read ("modules"), -1);
         readVertexes (impl, modules, null, read ("modules"), -1);
         readVertexes (g, modules, requires, read ("deps"), 1);
+        readVertexes (g, modules, 
+            Pattern.compile("  FRIEND ([^ /]+).*"), 
+            Pattern.compile("  (PACKAGE|EXTERNAL).*"), 
+            read ("friend-packages"), 
+            10,
+            true
+        );
         readVertexes (g, modules, requires, read ("impl-deps"), 50);
         readVertexes (impl, modules, requires, read ("impl-deps"), 1);
         
         JFrame f = new JFrame ("NetBeans Modules Dependencies");
-        
         JTabbedPane pane = new JTabbedPane ();
         Component implRend = impl.createRenderer();
-        pane.add ("Implementation Dependencies", implRend);
+        pane.add ("Impl Deps", implRend);
+        pane.add ("Impl Matrix", impl.createMatrix());
         Component gRend = g.createRenderer();
-        pane.add ("All Dependencies", gRend);
-        
+        pane.add ("All Deps", gRend);
+        pane.add ("All Matrix", g.createMatrix());
         f.getContentPane ().add (BorderLayout.CENTER, pane);
         try {
             f.setDefaultCloseOperation (WindowConstants.EXIT_ON_CLOSE);
@@ -136,6 +150,9 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
     }
     
     private static void readVertexes (Graph g, Pattern nodeAndGroup, Pattern dep, InputStream is, int strength) throws IOException {
+        readVertexes(g, nodeAndGroup, dep, null, is, strength, false);
+    }
+    private static void readVertexes (Graph g, Pattern nodeAndGroup, Pattern dep, Pattern ignore, InputStream is, int strength, boolean revert) throws IOException {
         BufferedReader r = new BufferedReader (new InputStreamReader (is));
         Vertex previousVertex = null;
         String previousVertexName = null;
@@ -149,7 +166,10 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
             boolean matcherMatchers = m.matches ();
             boolean depMatchers = dm != null && dm.matches ();
             if (!matcherMatchers && !depMatchers) {
-                throw new IOException ("No match found: " + l);
+                if (ignore == null || !ignore.matcher(l).matches()) {
+                    throw new IOException ("No match found: " + l);
+                }
+                continue;
             }
             
             if (matcherMatchers) {
@@ -177,8 +197,19 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
                 if (name.startsWith ("org.openide.modules.os")) {
                     continue;
                 }
+                if (name.indexOf("ModuleFormat") >= 0) {
+                    continue;
+                }
+                
+                String v1 = previousVertexName;
+                String v2 = name;
+                if (revert) {
+                    String x = v1;
+                    v1 = v2;
+                    v2 = x;
+                }
 
-                g.createEdge (previousVertexName, name, strength, true);
+                g.createEdge(v1, v2, strength, true);
             }
         }
     }

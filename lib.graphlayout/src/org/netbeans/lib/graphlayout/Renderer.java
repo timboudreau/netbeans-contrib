@@ -29,7 +29,7 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
     private javax.swing.Timer timer;
     private java.util.HashMap colors = new java.util.HashMap ();
     private int colorindex = 0;
-    private static Color[] basecolors = {
+    static final Color[] basecolors = {
         Color.CYAN, Color.YELLOW, Color.BLUE, Color.RED, Color.MAGENTA, Color.ORANGE, Color.DARK_GRAY
     };
     private int zoom = 100;

@@ -35,6 +35,10 @@ public final class Vertex {
         this.info = info;
     }
     
+    public String toString() {
+        return "Vertex[" + name + "]";
+    }
+    
     final void addEdge (Edge e) {
         edges++;
     }

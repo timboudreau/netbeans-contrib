@@ -15,8 +15,18 @@ package org.netbeans.lib.graphlayout;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.ListIterator;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /** Graph with vertexes and edges.
  *
@@ -25,6 +35,8 @@ import java.util.Iterator;
 public final class Graph extends Object {
     final ArrayList vertexes = new ArrayList ();
     final ArrayList edges = new ArrayList ();
+    
+    private ArrayList listeners = new ArrayList();
     
     private int middleSize = 100;
     private int gridSize = 300;
@@ -36,6 +48,10 @@ public final class Graph extends Object {
     
     public static Graph create () {
         return new Graph ();
+    }
+    
+    public java.awt.Component createMatrix() {
+        return new Matrix(this);
     }
     
     public java.awt.Component createRenderer () {
@@ -77,6 +93,7 @@ public final class Graph extends Object {
                             it.remove ();
                         }
                     }
+                    fireChange();
                     r.repaint ();
                 }
             }
@@ -104,12 +121,14 @@ public final class Graph extends Object {
         
         Vertex v = new Vertex (name, description);
         vertexes.add (v);
+        fireChange();
         return v;
     }
     
     public Edge createEdge (Vertex v1, Vertex v2, int strength) {
         Edge e = new Edge (v1, v2, strength);
         edges.add (e);
+        fireChange();
         return e;
     }
     
@@ -120,6 +139,7 @@ public final class Graph extends Object {
             strength
         );
         edges.add (e);
+        fireChange();
         return e;
     }
     
@@ -141,6 +161,7 @@ public final class Graph extends Object {
                 }
             }
         }
+        fireChange();
     }
     
     public void removeGroup (String info) {
@@ -166,6 +187,7 @@ public final class Graph extends Object {
                 }
             }
         }
+        fireChange();
     }
     
     private Vertex findVertex (String name, boolean createVertexesIfNecessary) {
@@ -201,6 +223,29 @@ public final class Graph extends Object {
             }
         }
         return null;
+    }
+    
+    //
+    // listeners
+    //
+    
+    final synchronized void addChangeListener(ChangeListener l) {
+        listeners.add(l);
+    }
+
+    final synchronized void removeChangeListener(ChangeListener l) {
+        listeners.remove(l);
+    }
+    
+    final void fireChange() {
+        ChangeEvent ev = new ChangeEvent(this);
+        ChangeListener[] arr;
+        synchronized (this) {
+            arr = (ChangeListener[])listeners.toArray(new ChangeListener[0]);
+        }
+        for (int i = 0; i < arr.length; i++) {
+            arr[i].stateChanged(ev);
+        }
     }
     
     //
@@ -273,4 +318,120 @@ public final class Graph extends Object {
     private void log (String msg) {
         System.err.println("MSG: " + msg);
     }
+
+    
+    void topologicallySortVertexes() throws TopologicalSortException {
+        HashMap all = new HashMap();
+        
+        Iterator it = edges.iterator();
+        while (it.hasNext()) {
+            Edge edge = (Edge)it.next();
+            
+            Collection to = (Collection)all.get(edge.v1);
+            if (to == null) {
+                HashSet s = new HashSet();
+                all.put(edge.v1, s);
+                to = s;
+            }
+            to.add(edge.v2);
+        }
+    
+        ArrayList v = new ArrayList(vertexes);
+        Collections.reverse(v);
+        TopologicalSortException e = new TopologicalSortException(v, all);
+        //e.reverse = true;
+        List sort = e.partialSort();
+        vertexes.clear();
+        vertexes.addAll(sort);
+        if (e.unsortableSets() != null && e.unsortableSets().length > 0) {
+            throw e;
+        }
+    }
+    
+    void mergeVertexes(String name, String[] string) {
+        HashSet toRemoveNames = new HashSet(Arrays.asList(string));
+        HashSet toRemoveVertex = new HashSet();
+        HashSet toRemoveEdges = new HashSet();
+        
+        HashMap toEdges = new HashMap();
+        HashMap fromEdges = new HashMap();
+        
+        Iterator it = new ArrayList(edges).iterator();
+        while(it.hasNext()) {
+            Edge edge = (Edge)it.next();
+            
+            boolean f1 = toRemoveNames.contains(edge.v1.name);
+            boolean f2 = toRemoveNames.contains(edge.v2.name);
+            
+            if (f1) {
+                toRemoveVertex.add(edge.v1);
+            }
+            if (f2) {
+                toRemoveVertex.add(edge.v2);
+            }
+            
+            if (f1 && f2) {
+                toRemoveEdges.add(edge);
+                continue;
+            }
+            
+            if (f1) {
+                Edge from = (Edge)fromEdges.get(edge.v2.name);
+                int strength;
+                if (from != null) {
+                    edges.remove(from);
+                    strength = edge.strength + from.strength;
+                } else {
+                    strength = edge.strength;
+                }
+                from = createEdge(name, edge.v2.name, strength, true);
+                fromEdges.put(edge.v2.name, from);
+                toRemoveEdges.add(edge);
+                continue;
+            }
+            if (f2) {
+                Edge to = (Edge)toEdges.get(edge.v1.name);
+                int strength;
+                if (to != null) {
+                    edges.remove(to);
+                    strength = edge.strength + to.strength;
+                } else {
+                    strength = edge.strength;
+                }
+                to = createEdge(edge.v1.name, name, strength, true);
+                fromEdges.put(edge.v1.name, to);
+                toRemoveEdges.add(edge);
+                continue;
+            }
+        }
+        this.vertexes.removeAll(toRemoveVertex);
+        this.edges.removeAll(toRemoveEdges);
+    }
+
+    void sortByGroups() {
+        ListIterator it = vertexes.listIterator(vertexes.size());
+        int cnt = Integer.MAX_VALUE;
+        final HashMap indexes = new HashMap();
+        while (it.hasPrevious()) {
+            Vertex v = (Vertex)it.previous();
+            Integer c = (Integer)indexes.get(v.info);
+            if (c == null) {
+                indexes.put(v.info, new Integer(cnt--));
+            }
+        }
+        
+        class Cmp implements Comparator {
+            public int compare(Object o1, Object o2) {
+                Vertex v1 = (Vertex)o1;
+                Vertex v2 = (Vertex)o2;
+                
+                Integer i1 = (Integer)indexes.get(v1.info);
+                Integer i2 = (Integer)indexes.get(v2.info);
+                return i1.intValue() - i2.intValue();
+            }
+        }
+        
+        Collections.sort(vertexes, new Cmp());
+    }
+
 }

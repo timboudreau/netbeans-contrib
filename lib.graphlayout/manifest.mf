@@ -2,5 +2,7 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.lib.graphlayout
 OpenIDE-Module-Layer: org/netbeans/lib/graphlayout/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/lib/graphlayout/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.1
+Main-Class: org.netbeans.lib.graphlayout.impl.ModuleDependencies
+
 
