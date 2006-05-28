@@ -188,11 +188,7 @@ Microsystems, Inc. All Rights Reserved.
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <friend-packages>
-                <friend>org.netbeans.modules.jackpot.rules</friend>
-                <package>org.netbeans.modules.jackpot</package>
-                <package>org.netbeans.modules.jackpot.actions</package>
-            </friend-packages>
+            <public-packages/>
         </data>
     </configuration>
 </project>
