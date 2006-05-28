@@ -50,11 +50,11 @@ public final class Graph extends Object {
         return new Graph ();
     }
     
-    public java.awt.Component createMatrix() {
+    public javax.swing.JComponent createMatrix() {
         return new Matrix(this);
     }
     
-    public java.awt.Component createRenderer () {
+    public javax.swing.JComponent createRenderer () {
         javax.swing.JPanel p = new javax.swing.JPanel () {
             public void setPreferredSize(Dimension d) {
                 initialize(d);

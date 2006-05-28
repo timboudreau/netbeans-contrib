@@ -138,10 +138,10 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
         
         JFrame f = new JFrame ("NetBeans Modules Dependencies");
         JTabbedPane pane = new JTabbedPane ();
-        Component implRend = impl.createRenderer();
+        JComponent implRend = impl.createRenderer();
         pane.add ("Impl Deps", implRend);
         pane.add ("Impl Matrix", impl.createMatrix());
-        Component gRend = g.createRenderer();
+        JComponent gRend = g.createRenderer();
         pane.add ("All Deps", gRend);
         pane.add ("All Matrix", g.createMatrix());
         f.getContentPane ().add (BorderLayout.CENTER, pane);
