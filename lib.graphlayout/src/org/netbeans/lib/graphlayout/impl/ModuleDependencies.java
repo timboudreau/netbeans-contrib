@@ -50,7 +50,12 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
     private JButton load;
     
     public ModuleDependencies () {
-        load = new JButton ("Show Dependencies");
+        String b = getParameter("button.message");
+        if (b == null) {
+            b = "Show Dependencies";
+        }
+        
+        load = new JButton (b);
         load.addActionListener (this);
         getContentPane ().add (BorderLayout.CENTER, load);
     }
@@ -138,12 +143,12 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
         
         JFrame f = new JFrame ("NetBeans Modules Dependencies");
         JTabbedPane pane = new JTabbedPane ();
-        JComponent implRend = impl.createRenderer();
-        pane.add ("Impl Deps", implRend);
-        pane.add ("Impl Matrix", impl.createMatrix());
         JComponent gRend = g.createRenderer();
-        pane.add ("All Deps", gRend);
         pane.add ("All Matrix", g.createMatrix());
+        pane.add ("All Deps", gRend);
+        JComponent implRend = impl.createRenderer();
+        pane.add ("Impl Matrix", impl.createMatrix());
+        pane.add ("Impl Deps", implRend);
         f.getContentPane ().add (BorderLayout.CENTER, pane);
         try {
             f.setDefaultCloseOperation (WindowConstants.EXIT_ON_CLOSE);
