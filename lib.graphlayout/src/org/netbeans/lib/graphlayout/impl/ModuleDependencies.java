@@ -49,15 +49,18 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
     private static Map/*<String,byte[]>*/ cache = new HashMap ();
     private JButton load;
     
-    public ModuleDependencies () {
-        String b = getParameter("button.message");
-        if (b == null) {
-            b = "Show Dependencies";
-        }
-        
-        load = new JButton (b);
+    public void start() {
+        load = new JButton (getButtonMessge());
         load.addActionListener (this);
         getContentPane ().add (BorderLayout.CENTER, load);
+    }
+    
+    private String getButtonMessge() {
+        String b = getParameter("button.message"); // NOI18N
+        if (b == null) {
+            b = "Show Dependencies"; 
+        }
+        return b;
     }
     
     public void actionPerformed (ActionEvent ev) {
@@ -81,7 +84,7 @@ public final class ModuleDependencies extends JApplet implements ActionListener,
         }
         load.setCursor (null);
         load.setEnabled (true);
-        load.setText ("Show Dependencies");
+        load.setText (getButtonMessge());
     }
     
     private static String baseURL = "";
