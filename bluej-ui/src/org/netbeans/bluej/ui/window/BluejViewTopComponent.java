@@ -62,9 +62,7 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
     private static final String PREFERRED_ID = "BluejViewTopComponent"; //NOI18N
     private ListView view;
     private ExplorerManager manager;
-    private JButton upButton;
     
-    private JComboBox projectsCombo;
     private ItemListener itemListener;
     private LookupProvider lookProvider;
     
@@ -93,9 +91,7 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
             ExplorerUtils.createLookup(manager, map),
             Lookups.proxy(lookProvider)
         }));
-        JPanel toolbarPanel = new JPanel();
-        upButton = new JButton("Up");
-        upButton.addActionListener(new ActionListener() {
+        btnUp.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Node nd = manager.getExploredContext();
                 if (nd.getParentNode() != null) {
@@ -107,20 +103,15 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
             public void propertyChange(PropertyChangeEvent evt) {
                 if (ExplorerManager.PROP_EXPLORED_CONTEXT.equals(evt.getPropertyName())) {
                     Node cont = manager.getExploredContext();
-                    upButton.setEnabled(cont != null && cont.getParentNode() != null);
+                    btnUp.setEnabled(cont != null && cont.getParentNode() != null);
                 }
             }
         });
         
-        toolbarPanel.setLayout(new BorderLayout());
-        toolbarPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        toolbarPanel.add(upButton, BorderLayout.WEST);
         
-        projectsCombo = new JComboBox();
-        projectsCombo.setEditable(false);
-        projectsCombo.setMinimumSize(new Dimension(150, 22));
-        projectsCombo.setPreferredSize(new Dimension(150, 22));
-        toolbarPanel.add(projectsCombo, BorderLayout.EAST);
+        comProject.setEditable(false);
+        comProject.setMinimumSize(new Dimension(150, 22));
+        comProject.setPreferredSize(new Dimension(150, 22));
         itemListener = new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 // change main project and selected project in the BJ view
@@ -132,8 +123,6 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
                 }
             }
         };
-        
-        add(toolbarPanel, BorderLayout.NORTH);
     }
     
     public ExplorerManager getExplorerManager() {
@@ -161,13 +150,52 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        pnlToolbar = new javax.swing.JPanel();
+        lblProject = new javax.swing.JLabel();
+        comProject = new javax.swing.JComboBox();
+        btnUp = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
+
+        pnlToolbar.setMinimumSize(new java.awt.Dimension(200, 10));
+        org.openide.awt.Mnemonics.setLocalizedText(lblProject, "Project Name :");
+
+        comProject.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        org.openide.awt.Mnemonics.setLocalizedText(btnUp, "Up");
+
+        org.jdesktop.layout.GroupLayout pnlToolbarLayout = new org.jdesktop.layout.GroupLayout(pnlToolbar);
+        pnlToolbar.setLayout(pnlToolbarLayout);
+        pnlToolbarLayout.setHorizontalGroup(
+            pnlToolbarLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(pnlToolbarLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(lblProject)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(comProject, 0, 218, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(btnUp)
+                .addContainerGap())
+        );
+        pnlToolbarLayout.setVerticalGroup(
+            pnlToolbarLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(pnlToolbarLayout.createSequentialGroup()
+                .add(6, 6, 6)
+                .add(pnlToolbarLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(lblProject)
+                    .add(btnUp)
+                    .add(comProject, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+        );
+        add(pnlToolbar, java.awt.BorderLayout.NORTH);
 
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnUp;
+    private javax.swing.JComboBox comProject;
+    private javax.swing.JLabel lblProject;
+    private javax.swing.JPanel pnlToolbar;
     // End of variables declaration//GEN-END:variables
     
     /**
@@ -203,14 +231,14 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
     }
     
     public void componentOpened() {
-        projectsCombo.setModel(OpenedBluejProjects.getInstance().getComboModel());
+        comProject.setModel(OpenedBluejProjects.getInstance().getComboModel());
         updateContent();
-        projectsCombo.addItemListener(itemListener);
+        comProject.addItemListener(itemListener);
     }
     
     public void componentClosed() {
-        projectsCombo.removeItemListener(itemListener);
-        projectsCombo.setModel(new DefaultComboBoxModel());
+        comProject.removeItemListener(itemListener);
+        comProject.setModel(new DefaultComboBoxModel());
     }
     
     /** replaces this in object stream */
