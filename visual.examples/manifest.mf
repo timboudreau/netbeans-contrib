@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.graph.examples
-OpenIDE-Module-Layer: org/netbeans/graph/examples/resources/layer.xml
-OpenIDE-Module-Localizing-Bundle: org/netbeans/graph/examples/resources/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-
