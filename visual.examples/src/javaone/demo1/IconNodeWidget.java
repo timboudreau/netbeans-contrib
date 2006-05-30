@@ -1,0 +1,47 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package javaone.demo1;
+
+import javaone.support.DemoSupport;
+import org.netbeans.api.visual.layout.SerialLayout;
+import org.netbeans.api.visual.widget.ImageWidget;
+import org.netbeans.api.visual.widget.LabelWidget;
+import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.api.visual.widget.Widget;
+
+/**
+ * @author David Kaspar
+ */
+public class IconNodeWidget extends Widget {
+    
+    public IconNodeWidget(Scene scene, String icon, String label) {
+        super (scene);
+        
+        setOpaque (true);
+        setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL, SerialLayout.Alignment.CENTER, 4)); // use vertical layout
+        
+        addChild (new ImageWidget (scene, DemoSupport.loadImage (icon))); // add image sub-widget
+        addChild (new LabelWidget (scene, label)); // add label sub-widget
+    }
+    
+    public static void main (String[] args) {
+        Scene scene = new Scene (); // create a scene
+        
+        IconNodeWidget iconNode = new IconNodeWidget (scene, "javaone/resources/netbeans_logo.gif", "Visual Library"); // create our icon node
+        scene.addChild (iconNode); // add the icon node into scene
+        
+        DemoSupport.show (scene.createView ()); // create and show the view in JFrame
+    }
+    
+}
