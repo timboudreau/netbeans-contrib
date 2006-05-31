@@ -24,8 +24,8 @@
         </folder>
         <folder name="Source">
             <!-- TODO - decide where in the menu to put it -->
-            <file name="org-netbeans-modules-stripwhitespace-separatorAfter.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            <file name="org-netbeans-modules-stripwhitespace-StripWhitespaceAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-stripwhitespace-StripWhitespaceAction.instance"/>
             </file>
         </folder>
     </folder>
@@ -42,7 +42,6 @@
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-stripwhitespace-HighlightWhitespaceAction.instance"/>
         </file>
     </folder>
-    <!-- Don't put in Toolbar until StripWhitespaceAction has an icon.
     <folder name="Toolbars">
         <folder name="Edit">
             <attr name="org-openide-actions-FindAction.instance/org-netbeans-modules-stripwhitespace-StripWhitespaceAction.shadow" boolvalue="true"/>
@@ -51,5 +50,4 @@
             </file>
         </folder>
     </folder>
-    -->
 </filesystem>

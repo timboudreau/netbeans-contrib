@@ -16,6 +16,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
@@ -31,18 +32,15 @@ import org.openide.ErrorManager;
 import org.openide.util.WeakListeners;
 
 public final class StripWhitespaceAction extends AbstractAction implements ChangeListener {
-    
+
     private static final ErrorManager LOGGER = ErrorManager.getDefault().getInstance("org.netbeans.modules.stripwhitespace.StripWhitespaceAction"); // NOI18N
     private static final boolean LOG = LOGGER.isLoggable(ErrorManager.INFORMATIONAL);
 
     public StripWhitespaceAction() {
-        putValue (Action.NAME, NbBundle.getMessage(StripWhitespaceAction.class, 
-                "LBL_StripWhitespaceAction")
-                /* If we get an icon uncomment this
-                 , new ImageIcon(org.openide.util.Utilities.loadImage(
-                    "org/netbeans/modules/stripwhitespace/stripSpace.png"))
-                 */
-                );
+        super(NbBundle.getMessage(StripWhitespaceAction.class, "LBL_StripWhitespaceAction"),
+            new ImageIcon(org.openide.util.Utilities.loadImage(
+                    "org/netbeans/modules/stripwhitespace/removetralingwhitespace.gif")));
+
         Registry.addChangeListener (WeakListeners.change(this, Registry.class));
     }
 
@@ -54,7 +52,7 @@ public final class StripWhitespaceAction extends AbstractAction implements Chang
             Toolkit.getDefaultToolkit().beep();
         }
     }
-    
+
     private BaseDocument getCurrentDocument() {
         JTextComponent nue = Registry.getMostActiveComponent();
         if (nue == null) {
@@ -72,13 +70,13 @@ public final class StripWhitespaceAction extends AbstractAction implements Chang
     public void stateChanged(ChangeEvent e) {
         setEnabled(getCurrentDocument() != null);
     }
-    
+
     private static final class Stripper implements Runnable {
         private final BaseDocument d;
         public Stripper (BaseDocument d) {
             this.d = d;
         }
-        
+
         public void run() {
             int ct = d.getDefaultRootElement().getElementCount();
             if (LOG) {
