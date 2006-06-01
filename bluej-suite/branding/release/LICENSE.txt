@@ -554,27 +554,14 @@ Licensee/Company: Entity receiving Software.
 Effective Date: Date of delivery of the Software to You.
 
 Software:
----------------------- vvvvv --- removed --- vvvvv -----------------------
--PLUGIN FOR SUN JAVA SYSTEM APPLICATION SERVER PLATFORM
-EDITION TO NETBEANS IDE
----------------------- ^^^^^ --- removed --- ^^^^^ -----------------------
 -JAX-RPC 1.1.3
 -JAXP 1.3.1
 -SAAJ 1.2.2
 -JavaMail 1.3.1
----------------------- vvvvv --- removed --- vvvvv -----------------------
--JavaServer Faces 1.1_01
----------------------- ^^^^^ --- removed --- ^^^^^ -----------------------
 -Java Help 2.0
----------------------- vvvvv --- removed --- vvvvv -----------------------
--J2EE Deployment 1.1 SPECIFICATION INTERFACE CLASSES
----------------------- ^^^^^ --- removed --- ^^^^^ -----------------------
 -Javac compiler 5.0
 -Java Metadata Interface (JMI) 1.0 SPECIFICATION INTERFACE
 CLASSES
----------------------- vvvvv --- removed --- vvvvv -----------------------
--JMX 1.2
----------------------- ^^^^^ --- removed --- ^^^^^ -----------------------
 
 License Term:  Perpetual (subject to termination under the
 SLA)
