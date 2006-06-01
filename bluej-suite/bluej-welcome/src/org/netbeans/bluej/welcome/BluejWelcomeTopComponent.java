@@ -21,16 +21,16 @@ final class BluejWelcomeTopComponent extends TopComponent {
     
     private static BluejWelcomeTopComponent instance;
     /** path to the icon used by the component and its open action */
-    static final String ICON_PATH = "org/netbeans/bluej/welcome/frame.gif";
+    static final String ICON_PATH = "org/netbeans/bluej/welcome/frame.gif"; // NOI18N
     
-    private static final String PREFERRED_ID = "BluejWelcomeTopComponent";
+    private static final String PREFERRED_ID = "BluejWelcomeTopComponent"; // NOI18N
     private JPanel panel;
     private BluejWelcomeTopComponent() {
         initComponents();
         panel = new TitlePanel50();
         add(panel);
-        setName(NbBundle.getMessage(BluejWelcomeTopComponent.class, "CTL_BluejWelcomeTopComponent"));
-        setToolTipText(NbBundle.getMessage(BluejWelcomeTopComponent.class, "HINT_BluejWelcomeTopComponent"));
+        setName(NbBundle.getMessage(BluejWelcomeTopComponent.class, "CTL_BluejWelcomeTopComponent")); // NOI18N
+        setToolTipText(NbBundle.getMessage(BluejWelcomeTopComponent.class, "HINT_BluejWelcomeTopComponent")); // NOI18N
         setIcon(Utilities.loadImage(ICON_PATH, true));
     }
     
@@ -73,13 +73,13 @@ final class BluejWelcomeTopComponent extends TopComponent {
     public static synchronized BluejWelcomeTopComponent findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
         if (win == null) {
-            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find BluejWelcome component. It will not be located properly in the window system.");
+            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find BluejWelcome component. It will not be located properly in the window system."); // NOI18N
             return getDefault();
         }
         if (win instanceof BluejWelcomeTopComponent) {
             return (BluejWelcomeTopComponent)win;
         }
-        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
+        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior."); // NOI18N
         return getDefault();
     }
     

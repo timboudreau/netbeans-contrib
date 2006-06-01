@@ -81,8 +81,8 @@ final class BusinessLogic {
         try {
             start(client);
             URL url = new URL(NbBundle.getMessage(BusinessLogic.class, bundleKey));
-            if (url.getProtocol().equalsIgnoreCase("nbinst")) {
-                url = externalizeURL(url); // NOI18N
+            if (url.getProtocol().equalsIgnoreCase("nbinst")) { // NOI18N
+                url = externalizeURL(url);
             }
             HtmlBrowser.URLDisplayer.getDefault().showURL(url);            
         } catch (java.net.MalformedURLException ex) {
