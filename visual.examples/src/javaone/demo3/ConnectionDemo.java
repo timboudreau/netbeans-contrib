@@ -42,7 +42,7 @@ public class ConnectionDemo {
         mainLayer.addChild(first);
         
         ImageWidget second = new ImageWidget (scene);
-        second.setImage (DemoSupport.loadImage ("resources/b.png"));
+        second.setImage (DemoSupport.loadImage ("javaone/resources/b.png"));
         second.setPreferredLocation(new Point (300, 200));
         second.getActions().addAction(new MoveAction ());
         mainLayer.addChild(second);
