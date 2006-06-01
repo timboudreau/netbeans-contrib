@@ -34,7 +34,7 @@ public final class BlueJViewAction extends CallableSystemAction {
     }
     
     protected String iconResource() {
-        return "org/netbeans/bluej/ui/window/bluejview.png"; //NOI18N
+        return "org/netbeans/bluej/ui/window/bluejview.png"; // NOI18N
     }
     
     public HelpCtx getHelpCtx() {

@@ -30,7 +30,7 @@
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Component id="lblProject" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="comProject" pref="218" max="32767" attributes="0"/>
+                  <Component id="comProject" pref="219" max="32767" attributes="0"/>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Component id="btnUp" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -53,24 +53,21 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="lblProject">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Project Name :"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JComboBox" name="comProject">
-          <Properties>
-            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="4">
-                <StringItem index="0" value="Item 1"/>
-                <StringItem index="1" value="Item 2"/>
-                <StringItem index="2" value="Item 3"/>
-                <StringItem index="3" value="Item 4"/>
-              </StringArray>
+            <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="comProject"/>
+            </Property>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/bluej/ui/window/Bundle.properties" key="lblProject.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
+        <Component class="javax.swing.JComboBox" name="comProject">
+        </Component>
         <Component class="javax.swing.JButton" name="btnUp">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Up"/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/bluej/ui/window/Bundle.properties" key="btnUp.label" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
           </Properties>
         </Component>
       </SubComponents>

@@ -57,9 +57,9 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
     
     private static BluejViewTopComponent instance;
     /** path to the icon used by the component and its open action */
-    static final String ICON_PATH = "org/netbeans/bluej/ui/window/bluejview.png"; //NOI18N
+    static final String ICON_PATH = "org/netbeans/bluej/ui/window/bluejview.png"; // NOI18N
     
-    private static final String PREFERRED_ID = "BluejViewTopComponent"; //NOI18N
+    private static final String PREFERRED_ID = "BluejViewTopComponent"; // NOI18N
     private ListView view;
     private ExplorerManager manager;
     
@@ -72,7 +72,7 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
         map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
         map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
         map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
-        map.put("delete", ExplorerUtils.actionDelete(manager, true));
+        map.put("delete", ExplorerUtils.actionDelete(manager, true)); // NOI18N
 
         initComponents();
         setName(NbBundle.getMessage(BluejViewTopComponent.class, "CTL_BluejViewTopComponent"));
@@ -158,11 +158,10 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
         setLayout(new java.awt.BorderLayout());
 
         pnlToolbar.setMinimumSize(new java.awt.Dimension(200, 10));
-        org.openide.awt.Mnemonics.setLocalizedText(lblProject, "Project Name :");
+        lblProject.setLabelFor(comProject);
+        org.openide.awt.Mnemonics.setLocalizedText(lblProject, org.openide.util.NbBundle.getMessage(BluejViewTopComponent.class, "lblProject.text"));
 
-        comProject.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        org.openide.awt.Mnemonics.setLocalizedText(btnUp, "Up");
+        org.openide.awt.Mnemonics.setLocalizedText(btnUp, org.openide.util.NbBundle.getMessage(BluejViewTopComponent.class, "btnUp.label"));
 
         org.jdesktop.layout.GroupLayout pnlToolbarLayout = new org.jdesktop.layout.GroupLayout(pnlToolbar);
         pnlToolbar.setLayout(pnlToolbarLayout);
@@ -172,7 +171,7 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
                 .addContainerGap()
                 .add(lblProject)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(comProject, 0, 218, Short.MAX_VALUE)
+                .add(comProject, 0, 219, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(btnUp)
                 .addContainerGap())
@@ -216,13 +215,13 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
     public static synchronized BluejViewTopComponent findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
         if (win == null) {
-            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find BluejView component. It will not be located properly in the window system.");
+            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find BluejView component. It will not be located properly in the window system."); // NOI18N
             return getDefault();
         }
         if (win instanceof BluejViewTopComponent) {
             return (BluejViewTopComponent)win;
         }
-        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
+        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior."); // NOI18N
         return getDefault();
     }
     
