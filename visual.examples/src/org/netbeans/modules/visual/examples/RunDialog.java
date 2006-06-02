@@ -46,7 +46,7 @@ public class RunDialog extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Run Dialog");
         list.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "javaone.demo1.IconNodeWidget", "javaone.demo2.ActionDemo", "javaone.demo3.ConnectionDemo", "javaone.demo4.GraphDemo", "javaone.demo5.ManyObjectsDemo", "javaone.demo6.LODDemo", "test.general.GraphSceneTest", "test.huge.HugeTest", "test.lod.LevelOfDetailsTest", "test.vmd.VMDTest" };
+            String[] strings = { "javaone.demo1.IconNodeWidget", "javaone.demo2.ActionDemo", "javaone.demo3.ConnectionDemo", "javaone.demo4.GraphDemo", "javaone.demo5.ManyObjectsDemo", "javaone.demo6.LODDemo", "test.general.GraphSceneTest", "test.huge.HugeTest", "test.lod.LevelOfDetailsTest", "test.vmd.VMDTest", "test.animator.AnimatorTest" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
