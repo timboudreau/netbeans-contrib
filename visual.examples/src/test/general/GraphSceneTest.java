@@ -37,7 +37,7 @@ public class GraphSceneTest {
         LabelWidget label = new LabelWidget (scene);
         label.setOpaque (true);
         label.setBackground (Color.GREEN);
-        label.setText ("ABCD");
+        label.setLabel ("ABCD");
         scene.addChild (label);
 
         SceneSupport.show (scene);

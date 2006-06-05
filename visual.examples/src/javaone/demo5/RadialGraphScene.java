@@ -54,7 +54,7 @@ public class RadialGraphScene extends GraphScene<String, String, NodeController.
         LabelWidget label = new LabelWidget (this);
         label.setBorder (lineBorder);
         label.setCheckClipping (true);
-        label.setText (node);
+        label.setLabel (node);
         label.setOpaque (true);
         label.getActions ().addAction (hoverAction);
         label.getActions ().addAction (moveAction);
