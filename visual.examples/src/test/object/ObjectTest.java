@@ -10,15 +10,16 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-package test.animator;
+package test.object;
 
+import org.netbeans.api.visual.action.PanAction;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.action.ZoomAction;
 import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
-import org.netbeans.api.visual.action.*;
-import org.netbeans.api.visual.model.ObjectState;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
@@ -29,30 +30,30 @@ import java.util.Collection;
 /**
  * @author David Kaspar
  */
-public class AnimatorTest extends GraphScene.StringGraph {
+public class ObjectTest extends GraphScene.StringGraph {
 
     private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
 
     private Widget layer;
 
-    private WidgetAction hoverAction = new MyHover ();
+    private MyAction action = new MyAction ();
 
-    public AnimatorTest () {
+    public ObjectTest () {
         layer = new Widget (this);
         addChild (layer);
         getActions ().addAction (new ZoomAction ());
         getActions ().addAction (new PanAction ());
-        getActions ().addAction (hoverAction);
-        getActions ().addAction (new MyAction ());
+        getActions ().addAction (action);
     }
 
     protected NodeController.StringNode attachNodeController (String node) {
         IconNodeWidget widget = new IconNodeWidget (this);
-        widget.setImage (IMAGE);
+        widget.setImage (test.object.ObjectTest.IMAGE);
         widget.setLabel (node);
         layer.addChild (widget);
 
-        widget.getActions ().addAction (hoverAction);
+        widget.getActions ().addAction (createSelectAction ());
+        widget.getActions ().addAction (createHoverAction ());
         widget.getActions ().addAction (new MoveAction ());
 
         return new NodeController.StringNode (node, widget);
@@ -68,22 +69,17 @@ public class AnimatorTest extends GraphScene.StringGraph {
     protected void attachEdgeTarget (EdgeController.StringEdge edgeController, NodeController.StringNode targetNodeController) {
     }
 
-    public class MyHover extends MouseHoverAction.TwoStated {
-
-        protected void unsetHovering (Widget widget) {
-            widget.setState (ObjectState.NORMAL);
-        }
-
-        protected void setHovering (Widget widget) {
-            widget.setState (new ObjectState (false, false, false, true));
-        }
-    }
-
     public class MyAction extends WidgetAction.Adapter {
 
         public State mouseClicked (Widget widget, WidgetMouseEvent event) {
-            moveTo (event.getButton () == MouseEvent.BUTTON1 ? event.getPoint () : null);
-            return State.CONSUMED;
+            if (event.getButton () == MouseEvent.BUTTON3) {
+                moveTo (event.getPoint ());
+                return State.CONSUMED;
+            } else if (event.getButton () == MouseEvent.BUTTON2) {
+                moveTo (null);
+                return State.CONSUMED;
+            }
+            return State.REJECTED;
         }
 
     }
@@ -96,7 +92,7 @@ public class AnimatorTest extends GraphScene.StringGraph {
     }
 
     public static void main (String[] args) {
-        AnimatorTest scene = new AnimatorTest ();
+        ObjectTest scene = new ObjectTest ();
         scene.addNode ("form [Form]");
         scene.addNode ("list [List]");
         scene.addNode ("canvas [Canvas]");

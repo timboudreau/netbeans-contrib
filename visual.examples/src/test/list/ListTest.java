@@ -18,9 +18,9 @@ import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.graph.PinController;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.widget.WidgetState;
 import org.netbeans.api.visual.widget.general.ListItemWidget;
 import org.netbeans.api.visual.widget.general.ListWidget;
+import org.netbeans.api.visual.model.ObjectState;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
@@ -81,11 +81,11 @@ public class ListTest extends GraphPinScene.StringGraph {
     public class MyHover extends MouseHoverAction.TwoStated {
 
         protected void unsetHovering (Widget widget) {
-            widget.setState (WidgetState.NORMAL);
+            widget.setState (ObjectState.NORMAL);
         }
 
         protected void setHovering (Widget widget) {
-            widget.setState (WidgetState.HOVERED);
+            widget.setState (new ObjectState (false, false, false, true));
         }
     }
 
