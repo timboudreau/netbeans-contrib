@@ -15,6 +15,7 @@ package test.object;
 import org.netbeans.api.visual.action.PanAction;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.graph.NodeController;
