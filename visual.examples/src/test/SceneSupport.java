@@ -28,6 +28,7 @@ import java.util.Collection;
 public class SceneSupport {
 
     public static void show (final Scene scene) {
+        int width=800,height=600;
         JFrame frame = new JFrame ();//new JDialog (), true);
         JComponent sceneView = scene.createView ();
         JScrollPane panel = new JScrollPane (sceneView);
@@ -36,8 +37,9 @@ public class SceneSupport {
         panel.getVerticalScrollBar ().setUnitIncrement (32);
         panel.getVerticalScrollBar ().setBlockIncrement (256);
         frame.add (panel, BorderLayout.CENTER);
-        frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
-        frame.setSize (800, 600);
+        frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
+        java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setBounds((screenSize.width-width)/2, (screenSize.height-height)/2, width, height);
         frame.setVisible (true);
     }
 

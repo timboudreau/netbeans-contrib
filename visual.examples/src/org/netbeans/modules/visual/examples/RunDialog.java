@@ -137,7 +137,7 @@ public class RunDialog extends javax.swing.JFrame {
         final String value = (String) list.getSelectedValue();
         if (value == null)
             return;
-        setVisible(false);
+        //setVisible(false);
         try {
             Class c = Class.forName(value);
             Method m = c.getDeclaredMethod("main", new Class[] { String[].class });
