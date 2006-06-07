@@ -21,7 +21,8 @@ import java.util.zip.*;
 /**
  * Locate a specified class from a starting directory/jar file, searching
  * any jar files that are located.  Use the -p flag to specify searching
- * for a package instead of a class.
+ * for a package instead of a class, and the -s flag to specify searching for
+ * service instances.
  * <h4>Examples</h4>
  * To find which jar provides <code>org.openide.ErrorManager</code> in a
  * NetBeans distribution:
@@ -33,19 +34,41 @@ import java.util.zip.*;
  * <pre>
  *    java -jar jfind.jar -p javax.crypto <i>JDK-directory</i>
  * </pre>
+ * To find which jars provide service instances for the NetBeans
+ * <code>org.openide.awt.StatusLineElementProvider</code> interface in a
+ * NetBeans distribution:
+ * <pre>
+ *    java -jar jfind.jar -s org.openide.awt.StatusLineElementProvider <i>dist</i>
+ * </pre>
  *
  * @author Tom Ball
  */
 public class JFind implements Runnable {
+    enum QueryType {
+        CLASS, PACKAGE, SERVICE
+    }
+    
     static void usage() {
-	fatal("usage: java JFind [-p] classname [starting path]");
+	fatal("usage: java JFind [-ps] classname [starting path]");
     }
 
     private String classname;
     private File root;
+    private QueryType type;
 
-    public JFind(String classname, String path, boolean pkg) {
-	this.classname = classname.replace('.', '/') + (pkg ? "/" : ".class");
+    public JFind(String classname, String path, QueryType type) {
+        this.type = type;
+        switch (type) {
+            case CLASS: 
+                this.classname = classname.replace('.', '/') + ".class";
+                break;
+            case PACKAGE:
+                this.classname = classname.replace('.', '/') + "/";
+                break;
+            case SERVICE:
+                this.classname = "META-INF/services/" + classname;
+                break;
+        }
 	root = new File(path);
 	if (!root.exists())
 	    fatal(root.getPath() + " doesn't exist");
@@ -63,7 +86,12 @@ public class JFind implements Runnable {
 	if (f.isDirectory()) {
 	    File classFile = new File(f, classname);
 	    if (classFile.exists()) {
-		System.out.println(f.getPath());
+		System.out.print(f.getPath());
+                if (type == QueryType.SERVICE) {
+                    System.out.println(":");
+                    printFile(new FileInputStream(classFile));
+                } else
+                    System.out.println();
 		return;
 	    }
 	    String[] files = f.list();
@@ -79,7 +107,12 @@ public class JFind implements Runnable {
                     String name = getModuleName(jarFile);
                     if (name != null)
                         System.out.print(name + ": ");
-		    System.out.println(f.getPath());
+		    System.out.print(f.getPath());
+                    if (type == QueryType.SERVICE) {
+                        System.out.println(":");
+                        printFile(jarFile.getInputStream(entry));
+                    } else
+                        System.out.println();
 		    return;
 		}
 	    } catch (ZipException e) {
@@ -89,6 +122,17 @@ public class JFind implements Runnable {
 		    jarFile.close();
 	    }
 	}
+    }
+    
+    private void printFile(InputStream in) throws IOException {
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String line;
+            while ((line = br.readLine()) != null)
+                System.out.println("\t" + line);
+        } finally {
+            in.close();
+        }
     }
     
     private static String getModuleName(JarFile jar) {
@@ -120,14 +164,28 @@ public class JFind implements Runnable {
         int nargs = args.length;
         int iarg = 0;
         boolean pkg = false;
-        if (args[iarg].equals("-p")) {
-            pkg = true;
-            iarg++;
+        boolean svc = false;
+        while (args[iarg].startsWith("-")) {
+            if (args[iarg].equals("-p")) {
+                if (svc)
+                    usage();
+                pkg = true;
+                iarg++;
+            }
+            else if (args[iarg].equals("-s")) {
+                if (pkg)
+                    usage();
+                svc = true;
+                iarg++;
+            }
+            else
+                usage();
         }
+        QueryType type = pkg ? QueryType.PACKAGE : svc ? QueryType.SERVICE : QueryType.CLASS;
 	String classname = args[iarg++];
 	if (iarg == nargs)
-	    new JFind(classname, ".", pkg).run();
+	    new JFind(classname, ".", type).run();
 	else for (int i = iarg; i < nargs; i++)
-	    new JFind(classname, args[i], pkg).run();
+	    new JFind(classname, args[i], type).run();
     }
 }
