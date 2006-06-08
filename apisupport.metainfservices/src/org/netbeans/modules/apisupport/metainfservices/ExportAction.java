@@ -151,12 +151,17 @@ public final class ExportAction extends CookieAction {
         }
     }
 
-    private static void findInterfaces(JavaClass clazz, List<String> all) {
+    static void findInterfaces(JavaClass clazz, List<String> all) {
         if (clazz == null) {
             return;
         }
 
         String n = clazz.getName();
+        int idx = n.indexOf("<");
+        if (idx >= 0) {
+            n = n.substring(0, idx).trim();
+        }
+
         if (!all.contains(n)) {
             all.add(n);
         }

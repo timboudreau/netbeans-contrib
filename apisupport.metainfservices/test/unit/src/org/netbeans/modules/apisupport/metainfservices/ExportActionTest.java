@@ -15,7 +15,25 @@ package org.netbeans.modules.apisupport.metainfservices;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+import javax.jmi.reflect.RefClass;
+import javax.jmi.reflect.RefException;
+import javax.jmi.reflect.RefFeatured;
+import javax.jmi.reflect.RefObject;
+import javax.jmi.reflect.RefPackage;
+import org.netbeans.jmi.javamodel.ClassDefinition;
+import org.netbeans.jmi.javamodel.Constructor;
+import org.netbeans.jmi.javamodel.Element;
+import org.netbeans.jmi.javamodel.ElementPartKind;
+import org.netbeans.jmi.javamodel.Field;
+import org.netbeans.jmi.javamodel.JavaClass;
+import org.netbeans.jmi.javamodel.JavaDoc;
+import org.netbeans.jmi.javamodel.Method;
+import org.netbeans.jmi.javamodel.MultipartId;
+import org.netbeans.jmi.javamodel.Resource;
 import org.netbeans.junit.NbTestCase;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -73,6 +91,38 @@ public class ExportActionTest extends NbTestCase {
         assertTrue("R is there", all.contains(R.class));
     }
 
+    public void testRemovesAnnotations() throws Exception {
+        JavaClassImpl impl = new JavaClassImpl();
+        impl.setName("org.tst.Test");
+        impl.setSimpleName("Test");
+
+        JavaClassImpl par = new JavaClassImpl();
+        par.setName("org.par.Parent <X,Y>");
+        par.setSimpleName("Parent <X,Y>");
+
+        impl.setSuperClass(par);
+
+        JavaClassImpl obj = new JavaClassImpl();
+        obj.setName("java.lang.Object");
+        obj.setSimpleName("Object");
+
+        par.setSuperClass(obj);
+
+        ArrayList<String> names = new ArrayList<String>();
+        ExportAction.findInterfaces(impl, names);
+
+        assertEquals("Three", 3, names.size());
+
+        for (String n : names) {
+            if (n.indexOf("<") >= 0) {
+                fail("Contains wrong char: " + n);
+            }
+            if (n.endsWith(" ")) {
+                fail("Ends with space:[" + n + "]");
+            }
+        }
+    }
+
     public static class R extends Object implements Runnable {
         public void run() {
         }
@@ -81,5 +131,286 @@ public class ExportActionTest extends NbTestCase {
     public static class Q implements Runnable {
         public void run() {
         }
+    }
+
+    private static final class JavaClassImpl implements JavaClass {
+        private String simpleName;
+        private String name;
+        private JavaClass superClass;
+        public List<JavaClass> interfaces = Collections.emptyList();
+
+        public Collection findSubTypes(boolean recursively) {
+            fail("Not implemented");
+            return null;
+        }
+
+        public boolean isInterface() {
+            fail("Not implemented");
+            return false;
+        }
+
+        public void setInterface(boolean newValue) {
+            fail("Not implemented");
+        }
+
+        public String getSimpleName() {
+            return simpleName;
+        }
+
+        public void setSimpleName(String newValue) {
+            simpleName = newValue;
+        }
+
+        public boolean isInner() {
+            return false;
+        }
+
+        public Collection getSubClasses() {
+            fail("Not implemented");
+            return null;
+        }
+
+        public Collection getImplementors() {
+            fail("Not implemented");
+            return null;
+        }
+
+        public int getStartOffset() {
+            return 0;
+        }
+
+        public int getEndOffset() {
+            return 0;
+        }
+
+        public Resource getResource() {
+            fail("Not implemented");
+            return null;
+        }
+
+        public int getPartStartOffset(ElementPartKind part) {
+            fail("Not implemented");
+            return 0;
+        }
+
+        public int getPartEndOffset(ElementPartKind part) {
+            fail("Not implemented");
+            return 0;
+        }
+
+        public void replaceChild(Element oldChild, Element newChild) {
+        }
+
+        public List getChildren() {
+            fail("Not implemented");
+            return null;
+        }
+
+        public boolean isValid() {
+            return true;
+        }
+
+        public Element duplicate() {
+            try {
+                return (JavaClass)clone();
+            } catch (CloneNotSupportedException ex) {
+                throw new IllegalStateException(ex);
+            }
+        }
+
+        public boolean refIsInstanceOf(RefObject refObject, boolean b) {
+            fail("Not implemented");
+            return false;
+        }
+
+        public RefClass refClass() {
+            fail("No");
+            return null;
+        }
+
+        public RefFeatured refImmediateComposite() {
+            fail("No");
+            return null;
+        }
+
+        public RefFeatured refOutermostComposite() {
+            fail("No");
+            return null;
+        }
+
+        public void refDelete() {
+        }
+
+        public void refSetValue(RefObject refObject, Object object) {
+        }
+
+        public void refSetValue(String string, Object object) {
+        }
+
+        public Object refGetValue(RefObject refObject) {
+            fail("No");
+            return null;
+        }
+
+        public Object refGetValue(String string) {
+            fail("No");
+            return null;
+        }
+
+        public Object refInvokeOperation(RefObject refObject, List list) throws RefException {
+            fail("No");
+            return null;
+        }
+
+        public Object refInvokeOperation(String string, List list) throws RefException {
+            fail("No");
+            return null;
+        }
+
+        public RefObject refMetaObject() {
+            fail("No");
+            return null;
+        }
+
+        public RefPackage refImmediatePackage() {
+            fail("No");
+            return null;
+        }
+
+        public RefPackage refOutermostPackage() {
+            fail("No");
+            return null;
+        }
+
+        public String refMofId() {
+            fail("No");
+            return null;
+        }
+
+        public Collection refVerifyConstraints(boolean b) {
+            fail("No");
+            return null;
+        }
+
+        public boolean isDeprecated() {
+            fail("No");
+            return false;
+        }
+
+        public void setDeprecated(boolean newValue) {
+        }
+
+        public ClassDefinition getDeclaringClass() {
+            fail("No");
+            return null;
+        }
+
+        public int getModifiers() {
+            fail("No");
+            return 0;
+        }
+
+        public void setModifiers(int newValue) {
+        }
+
+        public String getJavadocText() {
+            fail("No");
+            return null;
+        }
+
+        public void setJavadocText(String newValue) {
+        }
+
+        public JavaDoc getJavadoc() {
+            fail("No");
+            return null;
+        }
+
+        public void setJavadoc(JavaDoc newValue) {
+        }
+
+        public List getAnnotations() {
+            fail("No");
+            return null;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String newValue) {
+            this.name = newValue;
+        }
+
+        public Collection getReferences() {
+            fail("No");
+            return null;
+        }
+
+        public Field getField(String name, boolean includeSupertypes) {
+            fail("No");
+            return null;
+        }
+
+        public Method getMethod(String name, List parameters, boolean includeSupertypes) {
+            fail("No");
+            return null;
+        }
+
+        public JavaClass getInnerClass(String simpleName, boolean includeSupertypes) {
+            fail("No");
+            return null;
+        }
+
+        public Constructor getConstructor(List parameters, boolean includeSupertypes) {
+            fail("No");
+            return null;
+        }
+
+        public boolean isSubTypeOf(ClassDefinition javaClass) {
+            fail("No");
+            return false;
+        }
+
+        public List getContents() {
+            fail("No");
+            return null;
+        }
+
+        public MultipartId getSuperClassName() {
+            fail("No");
+            return null;
+        }
+
+        public void setSuperClassName(MultipartId newValue) {
+        }
+
+        public List getInterfaceNames() {
+            fail("No");
+            return null;
+        }
+
+        public List getFeatures() {
+            fail("No");
+            return null;
+        }
+
+        public List getInterfaces() {
+            return interfaces;
+        }
+
+        public JavaClass getSuperClass() {
+            return superClass;
+        }
+
+        public void setSuperClass(JavaClass newValue) {
+            this.superClass = newValue;
+        }
+
+        public List getTypeParameters() {
+            fail("No");
+            return null;
+        }
+
     }
 }
