@@ -31,7 +31,7 @@
             </file>
         </folder>
         <folder name="QuerySets">
-            <file name="nbmrules.queryset" url="nbmrules.queryset">
+            <file name="nbmrules.queryset" url="nbmrules.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.apisupport.jackpotrules.Bundle"/>
             </file>
         </folder>
