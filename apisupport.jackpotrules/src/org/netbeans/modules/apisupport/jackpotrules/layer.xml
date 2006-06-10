@@ -29,6 +29,11 @@
                 <attr name="transformer" stringvalue="Converts to NbBundle.getBundle()"/>
                 <attr name="description" stringvalue="Converts java.util.ResourceBundle.getBundle() to org.openide.util.NbBundle.getBundle().  NbBundle interacts better with classloaders in environments such as NetBeans."/>
             </file>
+            <file name="filesystems.rules" url="filesystems.rules">
+                <attr name="inspector" stringvalue="Deprecated usages of Filesystems API"/>
+                <attr name="transformer" stringvalue="Uses preferred Filesystems API methods"/>
+                <attr name="description" stringvalue="Check for various method calls and idioms in Filesystems which are deprecated or obsoleted."/>
+            </file>
         </folder>
         <folder name="QuerySets">
             <file name="nbmrules.queryset" url="nbmrules.xml">

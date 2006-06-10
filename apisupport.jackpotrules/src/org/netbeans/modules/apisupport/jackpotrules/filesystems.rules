@@ -1,0 +1,90 @@
+{
+    $ss1$;
+    org.openide.filesystems.FileLock $lock = $fo.lock();
+    try {
+        java.io.OutputStream $os = $fo.getOutputStream($lock);
+        $ss2$;
+    } finally {
+        $lock.releaseLock();
+    }
+    $ss3$;
+}
+=>
+{
+    $ss1$;
+    java.io.OutputStream $os = $fo.getOutputStream();
+    $ss2$;
+    $ss3$;
+}
+::
+$fo instanceof org.openide.filesystems.FileObject;
+
+// XXX can't seem to get the next two to match for some reason:
+
+{
+    $ss1$;
+    org.openide.filesystems.FileLock $lock = null;
+    try {
+        lock = $fo.lock();
+        java.io.OutputStream $os = $fo.getOutputStream($lock);
+        $ss2$;
+    } catch (java.io.IOException $e) {
+        $ss3$;
+    } finally {
+        if ($lock != null) {
+            $lock.releaseLock();
+        }
+    }
+    $ss4$;
+}
+=>
+{
+    $ss1$;
+    try {
+        java.io.OutputStream $os = $fo.getOutputStream();
+        $ss2$;
+    } catch (java.io.IOException $e) {
+        $ss3$;
+    }
+    $ss4$;
+}
+::
+$fo instanceof org.openide.filesystems.FileObject;
+
+{
+    $ss1$;
+    org.openide.filesystems.FileLock $lock = null;
+    try {
+        lock = $fo.lock();
+        java.io.OutputStream $os = $fo.getOutputStream($lock);
+        $ss2$;
+    } finally {
+        if ($lock != null) {
+            $lock.releaseLock();
+        }
+    }
+    $ss3$;
+}
+=>
+{
+    $ss1$;
+    java.io.OutputStream $os = $fo.getOutputStream();
+    $ss2$;
+    $ss3$;
+}
+::
+$fo instanceof org.openide.filesystems.FileObject;
+
+$fo.isReadOnly()
+=>
+!$fo.canWrite()
+::
+$fo instanceof org.openide.filesystems.FileObject;
+
+/*XXX #77671 "recursive rule detected"??
+org.openide.filesystems.Repository.getDefault().findResource($r)
+=>
+org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource($r)
+::
+$r instanceof java.lang.String;
+*/

@@ -5,4 +5,5 @@
     <inspection file="jdk5.rules"/>
     <inspection file="lookup-convenience.rules"/>
     <inspection file="resourcebundle2nbbundle.rules"/>
+    <inspection file="filesystems.rules"/>
 </queryset>
