@@ -7,5 +7,5 @@
 <tc-ref version="2.0">
     <module name="org.netbeans.core.output2/1" spec="1.1" />
     <tc-id id="output" />
-    <state opened="true" />
+    <state opened="false" />
 </tc-ref>
