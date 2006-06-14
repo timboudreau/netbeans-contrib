@@ -35,6 +35,9 @@
     </target>
     
     <target name="debug-fix" depends="-init">
+        <depend srcdir="${src.dir}" destdir="${classes.dir}" cache="build/depcache">
+            <classpath path="${cp}"/>
+        </depend>
         <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.4" debug="true" deprecation="${deprecation}">
             <classpath path="${cp}"/>
             <include name="${class}.java"/>

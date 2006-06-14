@@ -13,6 +13,9 @@
 
     <target name="compile" depends="-init" description="Compile main sources.">
         <mkdir dir="${classes.dir}"/>
+        <depend srcdir="${src.dir}" destdir="${classes.dir}" cache="build/depcache">
+            <classpath path="${cp}"/>
+        </depend>
         <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.4" debug="${debug}" deprecation="${deprecation}">
             <classpath path="${cp}"/>
         </javac>
@@ -37,6 +40,9 @@
 
     <target name="compile-tests" depends="compile">
         <mkdir dir="${test.classes.dir}"/>
+        <depend srcdir="${test.dir}" destdir="${test.classes.dir}" cache="build/test-depcache">
+            <classpath path="${test.cp}"/>
+        </depend>
         <javac srcdir="${test.dir}" destdir="${test.classes.dir}" source="1.4" debug="true" deprecation="${deprecation}">
             <classpath path="${test.cp}"/>
         </javac>
