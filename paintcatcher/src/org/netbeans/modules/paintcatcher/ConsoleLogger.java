@@ -19,6 +19,7 @@ package org.netbeans.modules.paintcatcher;
 
 import java.awt.Component;
 import java.awt.event.PaintEvent;
+import java.lang.StackTraceElement;
 import java.util.EventObject;
 import javax.swing.AbstractButton;
 
@@ -49,13 +50,34 @@ class ConsoleLogger implements Logger {
         maybePrintBreak();
         System.err.println((idx++) + ":" + System.currentTimeMillis() + ":" + msg + " " + componentToString(c));
         if (dumpStack) {
-            Thread.dumpStack();
+            dumpStack();
         }
     }    
     
     public void log(String msg, EventObject eo) {
         maybePrintBreak();
         System.err.println((idx++) + ":" + System.currentTimeMillis() + ":" + (msg != null ? msg + " " : "") + "on " + eventToString(eo));
+        if (dumpStack) {
+            dumpStack();
+        }
+    }    
+    
+    private boolean dontLogCaretEvents = true;
+    
+    private void dumpStack() {
+        if (!dontLogCaretEvents) {
+            Thread.dumpStack();
+        } else {
+            Exception e = new Exception();
+            e.fillInStackTrace();
+            StackTraceElement[] ste = e.getStackTrace();
+            for (int i = 0; i < ste.length; i++) {
+                if (ste[i].toString().contains ("BaseCaret")) {
+                    return;
+                }
+            }
+            e.printStackTrace();
+        }
     }
     
     private void maybePrintBreak() {

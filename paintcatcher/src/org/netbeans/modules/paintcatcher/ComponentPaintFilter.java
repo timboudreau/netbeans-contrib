@@ -38,13 +38,15 @@ public class ComponentPaintFilter implements Filter {
         this.anc = matchIfAncestor;
     }
     
+    
+    
     public boolean match(Component c) {
         if (c == null) {
             return false;
         }
         boolean result = c.getClass() == clazz;
         if (subs) {
-            result |= clazz.isAssignableFrom(clazz);
+            result |= clazz.isAssignableFrom(c.getClass());
         }
         if (anc) {
             Object o = SwingUtilities.getAncestorOfClass(clazz, c);
@@ -63,5 +65,12 @@ public class ComponentPaintFilter implements Filter {
         boolean result = eo instanceof PaintEvent;
         return result;
     }    
+    
+    public void foo() {
+        
+    }
+    
+    
+    
     
 }
