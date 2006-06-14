@@ -4,3 +4,4 @@ OpenIDE-Module-Install: org/netbeans/modules/paintcatcher/PaintCatcherModule.cla
 OpenIDE-Module-Layer: org/netbeans/modules/paintcatcher/layer.xml
 OpenIDE-Module-Specification-Version: 1.4
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/paintcatcher/Bundle.properties
+
