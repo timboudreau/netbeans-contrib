@@ -104,10 +104,13 @@ public class ConnectScene extends GraphScene.StringGraph {
             return sourceController != null;
         }
 
-        protected boolean isTargetWidget (Widget sourceWidget, Widget targetWidget) {
+        protected ConnectorState isTargetWidget (Widget sourceWidget, Widget targetWidget) {
             ObjectController objectController = findObjectController (targetWidget);
-            targetController = objectController instanceof NodeController.StringNode ? (NodeController.StringNode) objectController : null;
-            return targetController != null  &&  ! sourceController.equals (targetController);
+            if (objectController instanceof NodeController.StringNode) {
+                targetController = (NodeController.StringNode) objectController;
+                return ! sourceController.equals (targetController) ? ConnectorState.ACCEPT : ConnectorState.REJECT_AND_STOP;
+            }
+            return objectController != null ? ConnectorState.REJECT_AND_STOP : ConnectorState.REJECT;
         }
 
         protected void createConnection (Widget sourceWidget, Widget targetWidget) {
