@@ -17,6 +17,8 @@
  */
 
 package org.netbeans.modules.paintcatcher;
+import org.openide.ErrorManager;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -165,9 +167,18 @@ public class ConfigurationPanel extends javax.swing.JPanel {
             return null;
         }
         try {
-            Class result = Class.forName(s);
+            ClassLoader old = Thread.currentThread().getContextClassLoader();
+            Class result;
+            try {
+                ClassLoader cl = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
+                Thread.currentThread().setContextClassLoader(cl);
+                result = Class.forName(s);
+            } finally {
+                Thread.currentThread().setContextClassLoader(old);
+            }
             return result;
         } catch (Exception e) {
+            ErrorManager.getDefault().notify(e);
             return null;
         }
     }

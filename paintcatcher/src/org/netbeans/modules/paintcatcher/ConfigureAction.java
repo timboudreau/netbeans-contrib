@@ -49,7 +49,7 @@ public class ConfigureAction extends CallableSystemAction {
         
         Dialog d = DialogDisplayer.getDefault().createDialog(dd);
         d.setModal(true);
-        d.show();
+        d.setVisible(true);
         if (true) {
             logAWTEvents = panel.isLogAWTEvents();
             matchIfAncestor = panel.isMatchIfAncestor();

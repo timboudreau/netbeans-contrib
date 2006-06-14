@@ -13,14 +13,12 @@
 package org.netbeans.modules.paintcatcher;
 
 import java.awt.Toolkit;
-import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.BooleanStateAction;
-import org.openide.util.actions.CallableSystemAction;
 
 /**
  * Action that can always be invoked and work procedurally.

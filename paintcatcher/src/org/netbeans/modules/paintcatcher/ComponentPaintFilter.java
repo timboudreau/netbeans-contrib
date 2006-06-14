@@ -18,7 +18,6 @@
 
 package org.netbeans.modules.paintcatcher;
 
-import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.event.PaintEvent;
 import javax.swing.SwingUtilities;
