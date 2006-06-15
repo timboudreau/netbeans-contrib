@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -35,10 +36,10 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.ContextAwareAction;
 import org.openide.util.Lookup;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
-import org.openide.util.Utilities;
 import org.openide.util.actions.Presenter;
 import org.openide.util.NbBundle;
 import org.openide.awt.DynamicMenuContent;
@@ -55,24 +56,33 @@ import org.openide.execution.ExecutorTask;
  *  --------------------------
  *  Build unit Tests
  *  Run unit Tests
- *  Measure unit Tests Coverage
+ *  Measure unit Test Coverage
  *  --------------------------
  *  Build qa-functional Tests
  *  Run qa-functional Tests
- *  Measure qa-functional Tests Coverage
+ *  Measure qa-functional Test Coverage
  * </pre>
  *
  * <p>The menu is available only for projects that contains some tests.
  *
  * @author Jiri.Skrivanek@sun.com
  */
-public final class XTestProjectMenuItem extends AbstractAction implements Presenter.Popup  {
+public final class XTestProjectMenuItem extends AbstractAction implements Presenter.Popup, ContextAwareAction {
     
-    private static final String name = NbBundle.getBundle(XTestProjectMenuItem.class).getString("CTL_MenuItem_XTest");
-    
+    private static final String NAME = NbBundle.getBundle(XTestProjectMenuItem.class).getString("CTL_MenuItem_XTest");
+    private Lookup context;
+
     /** Creates XTest sub menu. */
     public XTestProjectMenuItem() {
-        super(name);
+        this(null);
+    }
+
+    /** Creates XTest sub menu. 
+     * @param actionContext context of action
+     */
+    public XTestProjectMenuItem(Lookup actionContext) {
+        super(NAME);
+        this.context = actionContext;
     }
     
     /** No action for sub menu holder. 
@@ -89,6 +99,13 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
         return new XTestProjectMenuItems();
     }
 
+    /** Creates action instance for provided context. 
+     * @param actionContext action context
+     */
+    public Action createContextAwareInstance(Lookup actionContext) {
+        return new XTestProjectMenuItem(actionContext);
+    }
+
     /** Sub menu items. */
     class XTestProjectMenuItems extends JMenuItem implements DynamicMenuContent {
         
@@ -98,20 +115,17 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
                 // hide sub menu
                 return new JComponent[0];
             }
-            JComponent [] items = new JComponent[actions.length];
             final JMenu menu = new JMenu();
-            Mnemonics.setLocalizedText(menu, name);
+            Mnemonics.setLocalizedText(menu, NAME);
             for (int i = 0; i < actions.length; i++) {
                 Action action = actions[i];
                 if (action == null) {
-                    items[i] = new JSeparator();    // workaround openide bug
+                    menu.add(new JSeparator());
                 } else {
                     JMenuItem item = new JMenuItem();
                     Actions.connect(item, actions[i], false);
-                    Mnemonics.setLocalizedText(item, item.getText());
-                    items[i] = item;
+                    menu.add(item);
                 }
-                menu.add(items[i]);
             }
             return new JComponent[] { menu };
         }
@@ -122,8 +136,8 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
     }
     
     /** Returns array of actions for all test types in selected project. */
-    private static Action[] actions() {
-        Project project = getProject();
+    private Action[] actions() {
+        Project project = (Project)context.lookup(Project.class);
         ArrayList actions = new ArrayList();
         
         String[] testTypes = findTestTypes(project);
@@ -158,14 +172,14 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
         return (Action[])actions.toArray(new Action[actions.size()]);
     }
     
-    private static AbstractAction createAction(String displayName, final Project project, 
+    private AbstractAction createAction(String displayName, final Project project, 
             final String testType, final String[] targets, final boolean showResults) {
         
         return new AbstractAction(displayName) {
             /** Enabled only if one project is selected and test/build.xml exists. */
             public boolean isEnabled() {
                 // enable only if one project is selected
-                if(isOneProjectSelected()) {
+                if(context.lookup(new Lookup.Template(Project.class)).allInstances().size() == 1) {
                     return findTestBuildXml(project) != null;
                 }
                 return false;
@@ -200,18 +214,21 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
         if(buildXml == null) {
             return false;
         }
-        DataObject d = null;
+        DataObject d;
         try {
             d = DataObject.find(buildXml);
         } catch (DataObjectNotFoundException ex) {
             ErrorManager.getDefault().notify(ex);
+            return false;
         }
         AntProjectCookie apc = (AntProjectCookie)d.getCookie(AntProjectCookie.class);
-        Iterator iter = null;
+        Iterator iter;
         try {
             iter = TargetLister.getTargets(apc).iterator();
         } catch (IOException ex) {
-            ErrorManager.getDefault().notify(ex);
+            // something wrong in build.xml => target not found
+            Logger.getAnonymousLogger().fine(ex.getMessage());
+            return false;
         }
         while(iter.hasNext()) {
             if(((TargetLister.Target)iter.next()).getName().equals(targetName)) {
@@ -274,17 +291,5 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
         String [] result = (String[])testTypes.toArray(new String[testTypes.size()]);
         Arrays.sort(result);
         return result;
-    }
-    
-    /** Returns selected project. */
-    private static Project getProject() {
-        Lookup lookup = Utilities.actionsGlobalContext();
-        return (Project)lookup.lookup(Project.class);
-    }
-
-    /** Returns true if only one project is selected, false otherwise. */
-    private static boolean isOneProjectSelected() {
-        return Utilities.actionsGlobalContext().lookup(
-                new Lookup.Template(Project.class)).allInstances().size() == 1;
     }
 }
