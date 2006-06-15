@@ -218,10 +218,10 @@ public class ColumnModels {
      */
     public static ColumnModel createLocalsModifiersColumn() {
         return new AbstractColumn(Constants.LOCALS_MODIFIERS_COLUMN_ID,
-                null,
-                null,
-                "CTL_LocalsView_Column_Modifiers_Name",
-                "CTL_LocalsView_Column_Modifiers_Desc",
+                "LocalsToString", // NOI18N Hardcoded :(
+                Constants.LOCALS_DECLARED_TYPE_COLUMN_ID,
+                "CTL_LocalsView_Column_Modifiers_Name", // NOI18N
+                "CTL_LocalsView_Column_Modifiers_Desc", // NOI18N
                 String.class,
                 true);
     }
@@ -233,10 +233,10 @@ public class ColumnModels {
      */
     public static ColumnModel createLocalsDeclaredTypeColumn() {
         return new AbstractColumn(Constants.LOCALS_DECLARED_TYPE_COLUMN_ID,
+                Constants.LOCALS_MODIFIERS_COLUMN_ID,
                 null,
-                null,
-                "CTL_LocalsView_Column_Declared_Type_Name",
-                "CTL_LocalsView_Column_Declared_Type_Desc",
+                "CTL_LocalsView_Column_Declared_Type_Name", // NOI18N
+                "CTL_LocalsView_Column_Declared_Type_Desc", // NOI18N
                 String.class,
                 true);
     }
@@ -248,10 +248,10 @@ public class ColumnModels {
      */
     public static ColumnModel createLocalsDeclaredInColumn() {
         return new AbstractColumn(Constants.LOCALS_DECLARED_IN_COLUMN_ID,
+                Constants.LOCALS_DECLARED_TYPE_COLUMN_ID,
                 null,
-                null,
-                "CTL_LocalsView_Column_Declared_In_Name",
-                "CTL_LocalsView_Column_Declared_In_Desc",
+                "CTL_LocalsView_Column_Declared_In_Name", // NOI18N
+                "CTL_LocalsView_Column_Declared_In_Desc", // NOI18N
                 String.class,
                 true);
     }
