@@ -36,7 +36,7 @@
         <Component class="javax.swing.JList" name="list">
           <Properties>
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
-              <StringArray count="12">
+              <StringArray count="13">
                 <StringItem index="0" value="javaone.demo1.IconNodeWidget"/>
                 <StringItem index="1" value="javaone.demo2.ActionDemo"/>
                 <StringItem index="2" value="javaone.demo3.ConnectionDemo"/>
@@ -49,6 +49,7 @@
                 <StringItem index="9" value="test.vmd.VMDTest"/>
                 <StringItem index="10" value="test.animator.AnimatorTest"/>
                 <StringItem index="11" value="test.object.ObjectTest"/>
+                <StringItem index="12" value="test.connect.ConnectScene"/>
               </StringArray>
             </Property>
             <Property name="selectionMode" type="int" value="0"/>
