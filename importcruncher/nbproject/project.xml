@@ -115,7 +115,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>0</release-version>
+                        <release-version>0-1</release-version>
                         <specification-version>1.2</specification-version>
                     </run-dependency>
                 </dependency>
