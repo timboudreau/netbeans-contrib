@@ -46,10 +46,6 @@ Results of Accessibility test
    - none.
 
  Components with potential mnemonics conflict:
- - components with mnemonic 'L' :
-   Class: javax.swing.JLabel {  jLabel1 |  tooltip } 
-   Class: javax.swing.JLabel {  jLabel3 |  tooltip } 
-
  - components with mnemonic 'B' :
    Class: javax.swing.JButton {  jButton1 |  } 
    Class: javax.swing.JRadioButton {  jRadioButton1 |  } 

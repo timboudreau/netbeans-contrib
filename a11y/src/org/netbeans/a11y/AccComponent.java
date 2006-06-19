@@ -7,20 +7,26 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.a11y;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.accessibility.*;
+import java.awt.Component;
+import java.awt.Container;
+
+import javax.accessibility.Accessible;
+import javax.accessibility.AccessibleContext;
+
+import javax.swing.AbstractButton;
+import javax.swing.JLabel;
+
 
 /**
  * AccComponent is used only for internal presentation of components after test finished,
  * for AWT-tree. After each seelction of thic component Panel of parameters is refreshed.
- * 
+ *
  * @author  Marian.Mirilovic@Sun.Com
  */
 public class AccComponent extends Object{
@@ -137,7 +143,7 @@ public class AccComponent extends Object{
         } else
             return text_bad;
     }
-
+    
     public String toString() {
         return className;
     }

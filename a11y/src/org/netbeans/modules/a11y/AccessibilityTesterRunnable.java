@@ -7,14 +7,11 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.a11y;
-
-import java.awt.event.AWTEventListener;
-import java.awt.event.KeyEvent;
 
 import java.awt.Container;
 import java.awt.Window;
@@ -22,14 +19,15 @@ import java.awt.Frame;
 import java.awt.Dialog;
 import java.awt.Toolkit;
 import java.awt.AWTEvent;
+import java.awt.event.AWTEventListener;
+import java.awt.event.KeyEvent;
 
-import javax.swing.JLabel;
-import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 
 import org.netbeans.a11y.ui.AccessibilityPanel;
 import org.netbeans.a11y.AccessibilityTestRunner;
 import org.netbeans.a11y.TestSettings;
+
 import java.io.Writer;
 import java.io.PrintWriter;
 
@@ -68,8 +66,8 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
             if ((awtEvent instanceof KeyEvent)&&(awtEvent.getID()==KeyEvent.KEY_RELEASED)&&(((KeyEvent)awtEvent).getKeyCode()==KeyEvent.VK_F11)&&(((KeyEvent)awtEvent).getModifiers()==KeyEvent.CTRL_MASK)) {
                 if (testedContainer==null) {
                     testedContainer=(Container)awtEvent.getSource();
-//                    Hack for TopComponents while (!((testedContainer instanceof Window)||(testedContainer instanceof JInternalFrame))) {
-                    while (!((testedContainer instanceof Window)||(testedContainer instanceof JInternalFrame) || isTopComponentInIDE())) {                    
+                    //                    Hack for TopComponents while (!((testedContainer instanceof Window)||(testedContainer instanceof JInternalFrame))) {
+                    while (!((testedContainer instanceof Window)||(testedContainer instanceof JInternalFrame) || isTopComponentInIDE())) {
                         testedContainer = testedContainer.getParent();
                     }
                 } else {
@@ -84,7 +82,7 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
             Class c = Class.forName("org.openide.windows.TopComponent",true,Thread.currentThread().getContextClassLoader());
             return c.isInstance(testedContainer);
         }catch(Exception exc){
-            exc.printStackTrace(System.out);            
+            exc.printStackTrace(System.out);
             return false;
         }
     }
@@ -99,7 +97,7 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
                     while (testedContainer==null) {
                         Thread.currentThread().sleep(300);
                     }
-        
+                    
                     runTest();
                 }
                 
@@ -119,7 +117,7 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
     
     private void runTest() throws InterruptedException {
         while (testedContainer==null) {
-                Thread.currentThread().sleep(300);
+            Thread.currentThread().sleep(300);
         }
         
         try {
@@ -179,14 +177,14 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
             testedContainerTitle = ((JInternalFrame)testedContainer).getTitle();
         }
         
-        // hack for IDE testing, because if component is TopComponent - it hasn't set title, 
+        // hack for IDE testing, because if component is TopComponent - it hasn't set title,
         // but name of the component can get by getComponent() method
         if(isTopComponentInIDE()){
             try {
-//                Class c = Class.forName("org.openide.windows.TopComponent");
-//                java.lang.reflect.Method m = c.getDeclaredMethod("getDisplayName", new Class[] {});
-//                        
-//                testedContainerTitle = (String)m.invoke(testedContainer, new Object[] {} );
+                //                Class c = Class.forName("org.openide.windows.TopComponent");
+                //                java.lang.reflect.Method m = c.getDeclaredMethod("getDisplayName", new Class[] {});
+                //
+                //                testedContainerTitle = (String)m.invoke(testedContainer, new Object[] {} );
                 testedContainerTitle = ((java.awt.Component)testedContainer).getName();
             } catch (Exception x) {
                 x.printStackTrace(System.out);

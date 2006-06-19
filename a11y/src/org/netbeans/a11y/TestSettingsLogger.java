@@ -7,16 +7,20 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.a11y;
 
-import java.io.*;
-import java.awt.*;
-import java.util.*;
-import javax.accessibility.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.Writer;
+
+import java.util.HashSet;
+import java.util.Iterator;
+
 
 /** A properties logger for AccessibilityTester that will show the create a
  *  xml log with properties for result of AccessibilityTester test.
@@ -140,18 +144,18 @@ public class TestSettingsLogger extends AccessibilityTester.ReportGenerator{
         
         String t = parseTestSetting(data,"window_title");
         readedSettings.setWindowTitle(t);
-
+        
         String t1 = parseTestCase(data,"implement_accessible_interface");
         readedSettings.accessibleInterface = getValue(t1);
         readedSettings.AI_showingOnly = getValueOfOption(t1, "showingOnly");
-
+        
         String t2 = parseTestCase(data,"accessibility_properties");
         readedSettings.accessibleProperties = getValue(t2);
         
         if(readedSettings.accessibleProperties){
             readedSettings.AP_showingOnly = getValueOfOption(t2, "showingOnly");
             readedSettings.AP_focusTraversableOnly= getValueOfOption(t2, "focusTraversableOnly");
-        
+            
             readedSettings.AP_accessibleName = getValueOfProperty(t2, "accessibilityName");
             readedSettings.AP_accessibleDescription = getValueOfProperty(t2, "accessibilityDescription");
             readedSettings.AP_labelForSet = getValueOfProperty(t2, "labelFor");
@@ -172,7 +176,7 @@ public class TestSettingsLogger extends AccessibilityTester.ReportGenerator{
         String t3 = parseTestCase(data,"focusTraversable");
         readedSettings.tabTraversal = getValue(t3);
         readedSettings.TT_showingOnly = getValueOfOption(t3, "showingOnly");
-
+        
         String e = parseExcludedClasses(data);
         StringBuffer bufferEx = new StringBuffer();
         StringBuffer buffer = new StringBuffer(e);
@@ -198,7 +202,7 @@ public class TestSettingsLogger extends AccessibilityTester.ReportGenerator{
         
         return readedSettings;
     }
-
+    
     private static String parseTestSetting(String data, String settingName) {
         return parse("<TestSetting name=\""+settingName+"\" value=\"", "\"", data);
     }
@@ -210,7 +214,7 @@ public class TestSettingsLogger extends AccessibilityTester.ReportGenerator{
     private static String parseExcludedClasses(String data) {
         return parse("<ExcludedClasses>","</ExcludedClasses>", data);
     }
-
+    
     private static String parseTestResults(String data) {
         return parse("<TestResultsSettings>","</TestResultsSettings>",data);
     }
@@ -226,11 +230,11 @@ public class TestSettingsLogger extends AccessibilityTester.ReportGenerator{
     private static boolean getValueOfSubProperty(String line, String subPropertyName) {
         return makeBoolean(parse("<SubProperty name=\""+subPropertyName+"\" value=\"", "\"", line));
     }
-
+    
     private static String getValueOfSubProperty_string(String line, String subPropertyName) {
         return parse("<SubProperty name=\""+subPropertyName+"\" value=\"", "\"", line);
     }
-
+    
     private static String getValueOfExcluded(String line) {
         return parse("<ExcludedClass name=\"", "\"", line);
     }

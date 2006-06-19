@@ -7,15 +7,15 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.a11y;
 
 import org.openide.nodes.Node;
+
 import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 
 import org.netbeans.a11y.tester.UIAccessibilityTester;
@@ -70,4 +70,4 @@ public class TestIDEWindowA11YAction extends NodeAction {
         return false;
     }
 }
-    
+

@@ -19,6 +19,7 @@ Microsystems, Inc. All Rights Reserved.
         <testset dir=".">
             <patternset>
 		<include name="TesterTest.class"/>
+		<include name="TabbedTest.class"/>
             </patternset>
         </testset>
     </testbag>

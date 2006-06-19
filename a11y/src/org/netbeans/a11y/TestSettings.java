@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -58,7 +58,7 @@ public class TestSettings {
     public boolean report_description;
     public boolean report_position;
     public boolean storeToXML;
-
+    
     /** Test if component has name. */
     public boolean test_name;
     
@@ -153,21 +153,21 @@ public class TestSettings {
     }
     
     public void setAP(boolean value) {
-            this.AP_showingOnly = value;
-            this.AP_focusTraversableOnly = value;
-            
-            this.AP_accessibleName = value;
-            this.AP_accessibleDescription = value;
-            this.AP_labelForSet = value;
-            this.AP_noLabelFor = value;
-            this.AP_nlf_text = value;
-            this.AP_nlf_table = value;
-            this.AP_nlf_list = value;
-            this.AP_nlf_tree = value;
-            this.AP_nlf_tabbedPane = value;
-            this.AP_mnemonics = value;
-            this.AP_m_abstractButtons = value;
-            this.AP_m_label = value;
-            this.AP_m_defaultCancel = value;
+        this.AP_showingOnly = value;
+        this.AP_focusTraversableOnly = value;
+        
+        this.AP_accessibleName = value;
+        this.AP_accessibleDescription = value;
+        this.AP_labelForSet = value;
+        this.AP_noLabelFor = value;
+        this.AP_nlf_text = value;
+        this.AP_nlf_table = value;
+        this.AP_nlf_list = value;
+        this.AP_nlf_tree = value;
+        this.AP_nlf_tabbedPane = value;
+        this.AP_mnemonics = value;
+        this.AP_m_abstractButtons = value;
+        this.AP_m_label = value;
+        this.AP_m_defaultCancel = value;
     }
 }

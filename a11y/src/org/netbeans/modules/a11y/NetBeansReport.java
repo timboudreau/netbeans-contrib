@@ -7,20 +7,40 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.a11y;
 
-import java.io.*;
-import java.awt.*;
-import java.util.*;
-import javax.accessibility.*;
-import org.netbeans.a11y.*;
-import org.netbeans.modules.form.*;
-import org.openide.windows.*;
-import org.openide.nodes.*;
+import java.awt.Component;
+import java.awt.Point;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import javax.accessibility.AccessibleContext;
+
+import org.netbeans.a11y.AccessibilityTester;
+import org.netbeans.a11y.TestSettings;
+
+import org.netbeans.modules.form.ComponentInspector;
+import org.netbeans.modules.form.RADComponent;
+import org.netbeans.modules.form.VisualReplicator;
+
+import org.openide.nodes.Node;
+
+import org.openide.windows.OutputEvent;
+import org.openide.windows.OutputListener;
+import org.openide.windows.OutputWriter;
+
 
 /**
  *  A report generator for AccessibilityTester that will show the variable name

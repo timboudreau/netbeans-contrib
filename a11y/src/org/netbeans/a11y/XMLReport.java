@@ -7,16 +7,27 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.a11y;
 
-import java.io.*;
-import java.awt.*;
-import java.util.*;
-import javax.accessibility.*;
+import java.awt.Component;
+import java.awt.Point;
+
+import java.io.PrintWriter;
+import java.io.Writer;
+
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import javax.accessibility.AccessibleContext;
+
 
 /**
  *  A report generator for AccessibilityTester that will show the create a
@@ -71,13 +82,13 @@ public class XMLReport extends AccessibilityTester.ReportGenerator{
         printComponents(getNoLabelForPointing(),out,"nolabelfor", testSettings.AP_noLabelFor);
         printComponents(getNoMnemonic(),out,"nomnemonic", testSettings.AP_mnemonics);
         printComponents(getWrongMnemonic(),out,"wrongmnemonic", testSettings.AP_mnemonics);
-
+        
         Hashtable hs = getMnemonicConflict();
         if(!hs.isEmpty()){
             out.println("\t <potentialmnemonicsconflict>");
-
+            
             Enumeration enumer = hs.keys();
-        
+            
             while(enumer.hasMoreElements()) {
                 String key = (String)enumer.nextElement();
                 char k = (char) Integer.parseInt(key);
@@ -85,7 +96,7 @@ public class XMLReport extends AccessibilityTester.ReportGenerator{
             }
             
             out.println("\t </potentialmnemonicsconflict>");
-                
+            
         }
         
         
@@ -173,8 +184,7 @@ public class XMLReport extends AccessibilityTester.ReportGenerator{
                 Point top = getTestTarget().getLocationOnScreen();
                 Point child = comp.getLocationOnScreen();
                 componentPrintString.append("\t\t\t <position>[" + (child.x - top.x) + "," + (child.y - top.y) + "]</position>\n");
-            }
-            catch(Exception e){}
+            } catch(Exception e){}
         }
         
         componentPrintString.append("\t\t </component>");

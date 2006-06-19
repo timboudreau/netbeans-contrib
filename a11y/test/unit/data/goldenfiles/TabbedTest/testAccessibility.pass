@@ -1,0 +1,46 @@
+Results of Accessibility test
+
+
+ Doesn't implement Accessible :
+   - none.
+
+ No Accessible name :
+   - none.
+
+ No Accessible description :
+   Class: TabbedJFrame {   |  } 
+   Class: javax.swing.JButton {  Button 1 |  } 
+   Class: javax.swing.JButton {  Button 11 |  } 
+   Class: javax.swing.JButton {  Button 2 |  } 
+   Class: javax.swing.JButton {  Button 31 |  } 
+   Class: javax.swing.JTabbedPane {  Label tab 3 |  } 
+   Class: javax.swing.JTextField {  Label 11 |  } 
+   Class: javax.swing.JTextField {  Label 13 |  } 
+
+
+ Label with LABEL_FOR not set :
+   - none.
+
+ Components with no LABEL_FOR pointing to it :
+   - none.
+
+ Components with no mnemonic :
+   - none.
+
+ Components with wrong mnemonic (mnemonic isn't ASCII , label doesn't contain mnemonic):
+   - none.
+
+ Components with potential mnemonics conflict:
+ - components with mnemonic '3' :
+   Class: javax.swing.JButton {  Button 31 |  } 
+   Class: javax.swing.JLabel {  Label tab 3 |  } 
+
+ - components with mnemonic '1' :
+   Class: javax.swing.JButton {  Button 1 |  } 
+   Class: javax.swing.JButton {  Button 11 |  } 
+   Class: javax.swing.JLabel {  Label 11 |  } 
+   Class: javax.swing.JLabel {  Label 13 |  } 
+
+
+ Components not reachable with tab traversal :
+   - none.

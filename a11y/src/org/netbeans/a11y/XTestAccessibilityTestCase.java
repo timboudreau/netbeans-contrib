@@ -7,13 +7,12 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.a11y;
 
-import org.netbeans.a11y.*;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -26,7 +25,6 @@ import java.awt.Frame;
 import javax.swing.JInternalFrame;
 
 import org.netbeans.junit.NbTestCase;
-//import org.netbeans.junit.NbTestSuite;
 
 
 /**
@@ -37,9 +35,8 @@ public abstract class XTestAccessibilityTestCase extends NbTestCase {
     
     protected PrintStream ref;
     protected PrintStream log;
-
+    
     private String settingsFileName;
-    private TestSettings settings;
     private Component testedComponent;
     
     
@@ -90,15 +87,13 @@ public abstract class XTestAccessibilityTestCase extends NbTestCase {
                 if (report_filename != null) {
                     try {
                         xml_writer = new java.io.FileWriter(new java.io.File(report_filename + ".xml"));
-                    }
-                    catch(Exception e){
+                    } catch(Exception e){
                         e.printStackTrace(log);
                         xml_writer = new java.io.PrintWriter(log);
                     }
                     try {
                         txt_writer = new java.io.FileWriter(new java.io.File(report_filename + ".txt"));
-                    }
-                    catch(Exception e){
+                    } catch(Exception e){
                         e.printStackTrace(log);
                         txt_writer = new java.io.PrintWriter(log);
                     }
@@ -123,7 +118,7 @@ public abstract class XTestAccessibilityTestCase extends NbTestCase {
     }
     
     /** Set result file.
-     * @return  path to result file */    
+     * @return  path to result file */
     public String setResultFile(){
         String name = System.getProperty("a11ytest.result_dir");
         if(name == null)
@@ -134,7 +129,7 @@ public abstract class XTestAccessibilityTestCase extends NbTestCase {
     
     /** Get window title
      * @param component
-     * @return  window title */    
+     * @return  window title */
     private String getWindowTitle(Component component){
         if(component instanceof Frame) {
             return ((Frame)component).getTitle();
@@ -147,13 +142,13 @@ public abstract class XTestAccessibilityTestCase extends NbTestCase {
     }
     
     
-    /** Set path to settings file 
-     * @return  path to settings file */    
+    /** Set path to settings file
+     * @return  path to settings file */
     public abstract String setSettingsFile();
     
     
     /** Get tested component. This method must return tested component. It's called from from <code>setUp</code>.
      * If this method return null, test <b>failed</b>.
-     * @return  tested component */    
+     * @return  tested component */
     public abstract Component getTestedComponent();
 }

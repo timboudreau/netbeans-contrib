@@ -7,14 +7,11 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.a11y.ui;
-
-import javax.swing.JLabel;
-import javax.swing.JTextField;
 
 import javax.accessibility.AccessibleContext;
 
@@ -29,9 +26,6 @@ import org.netbeans.a11y.TestSettingsLogger;
  *  @author  Marian.Mirilovic@sun.com
  */
 public class AccessibilityPanel extends javax.swing.JPanel {
-    
-    /* Status label used for informing user about runned actions. */
-    //private JLabel statusLabel;
     
     private javax.swing.DefaultListModel listModel = null;
     
@@ -54,7 +48,7 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         TestSettings defaultTS = new TestSettings();
         defaultTS.setDefaultSettings();
         setTests(defaultTS);
-
+        
         if(!Boolean.getBoolean("a11ytest.name")) {
             cbTestName.setVisible(false);
             cbTestName.setSelected(false);
@@ -608,7 +602,7 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         add(removePanel, java.awt.BorderLayout.SOUTH);
 
     }//GEN-END:initComponents
-
+    
     private void removeTabButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTabButtonActionPerformed
         int index = jTabbedPane1.getSelectedIndex();
         if(index > 3)
@@ -965,13 +959,13 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         
         panel.setDividerSize(5);
         panel.setDividerLocation(0.4);
-
+        
     }
     
 /*    public JLabel getStatusLabel() {
         return statusLabel;
     }
-*/
+ */
     
     public void setStatusText(String text) {
         if(statusLabel != null)
@@ -1004,7 +998,7 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         showingOnly_T.setEnabled(enable);
         properties.setEnabled(enable);
         traversal.setEnabled(enable);
-
+        
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

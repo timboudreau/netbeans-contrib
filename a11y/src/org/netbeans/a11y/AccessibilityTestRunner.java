@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -16,7 +16,6 @@ package org.netbeans.a11y;
 import org.netbeans.a11y.ui.AccPropPanel;
 import org.netbeans.a11y.ui.AccessibilityPanel;
 
-import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -66,10 +65,12 @@ public class AccessibilityTestRunner{
         JScrollPane jscrollPaneAWTtree = new JScrollPane();
         
         awtTree.addTreeSelectionListener(
-        new javax.swing.event.TreeSelectionListener() {
+                new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode)awtTree.getLastSelectedPathComponent();
-                if ((node == null) || node.isRoot()) return;
+                
+                if ((node == null) || node.isRoot())
+                    return;
                 
                 AccComponent comp = (AccComponent)node.getUserObject();
                 propertiesPanel.updatePanel(comp);

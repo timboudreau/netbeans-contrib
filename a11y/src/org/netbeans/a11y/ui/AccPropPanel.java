@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -15,8 +15,6 @@ package org.netbeans.a11y.ui;
 
 import org.netbeans.a11y.AccComponent;
 
-import java.awt.Component;
-import java.awt.Container;
 import javax.swing.JLabel;
 
 /** Panel that displays interesting Accessibility values of components.
@@ -39,7 +37,7 @@ public class AccPropPanel extends javax.swing.JPanel {
     }
     
     /** Update panel for checked component.
-     * @param component checked component */    
+     * @param component checked component */
     public void updatePanel(AccComponent component){
         
         String cia = component.implementAccessible;
@@ -48,7 +46,7 @@ public class AccPropPanel extends javax.swing.JPanel {
         } else
             showBad(implementAccesssible,cia);
         
-            
+        
         showLabel(accessibleName, component.accessibleName);
         showLabel(accessibleDescription, component.accessibleDescription);
         showLabel(componentName, component.componentName);
@@ -60,7 +58,7 @@ public class AccPropPanel extends javax.swing.JPanel {
         showNeutral(focusableL,component.focusable);
         showNeutral(enabledL,component.enabled);
         showNeutral(visibleL,component.visible);
-
+        
         showInt(childrenL, component.childrens);
         showLabel(layoutL, component.layout);
         
@@ -68,7 +66,7 @@ public class AccPropPanel extends javax.swing.JPanel {
     
     /** Before showing label test for null value and write null -> showBad else showGood
      * @param label changed JLabel
-     * @param text  value */    
+     * @param text  value */
     private void showLabel(JLabel label, String text) {
         if (text == null)
             showBad(label,NULL);
@@ -76,10 +74,10 @@ public class AccPropPanel extends javax.swing.JPanel {
             showGood(label,text);
     }
     
-
+    
     /** Set text for label as good value ,  foreground = java.awt.Color(0, 102, 0)
      * @param label changed JLabel
-     * @param text  value */    
+     * @param text  value */
     private void showGood(JLabel label, String text) {
         label.setForeground(new java.awt.Color(0, 102, 0));
         label.setText(text);
@@ -87,7 +85,7 @@ public class AccPropPanel extends javax.swing.JPanel {
     
     /** Set text for label as bad value ,  foreground = java.awt.Color(0, 102, 0)
      * @param label changed JLabel
-     * @param text  value */    
+     * @param text  value */
     private void showBad(JLabel label, String text) {
         label.setForeground(new java.awt.Color(153, 0, 0));
         label.setText(text);
@@ -95,7 +93,7 @@ public class AccPropPanel extends javax.swing.JPanel {
     
     /** Set text for label as default value ,  foreground = java.awt.Color(0, 102, 0)
      * @param label changed JLabel
-     * @param text  value */    
+     * @param text  value */
     private void showNeutral(JLabel label, String text) {
         label.setForeground(defaultColor);
         label.setText(text);
@@ -104,7 +102,7 @@ public class AccPropPanel extends javax.swing.JPanel {
     /** Set text for label Menomic or Number of childrens
      * @param jLabel changed JLabel
      * @param number number to show
-     * @param is_mnemonic true - mnemonic, false - childrens */    
+     * @param is_mnemonic true - mnemonic, false - childrens */
     private void showInt(JLabel jLabel, String text) {
         if(text.equals(NO_MNEMONIC) || text.equals(NO_CHILDREN))
             showBad(jLabel, text);

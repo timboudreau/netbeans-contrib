@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006s Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -106,26 +106,26 @@ public class TextReport extends AccessibilityTester.ReportGenerator{
         Hashtable hs = getMnemonicConflict();
         if(!hs.isEmpty()){
             out.println("\n Components with potential mnemonics conflict:");
-
+            
             Enumeration enumer = hs.keys();
-        
+            
             while(enumer.hasMoreElements()) {
                 String key = (String)enumer.nextElement();
                 char k = (char) Integer.parseInt(key);
                 out.println(" - components with mnemonic '"+k+"' :");
                 printComponents((HashSet)hs.get(key),out, testSettings.AP_mnemonics);
             }
-                
+            
         }
-
+        
         out.println("\n Components not reachable with tab traversal :");
         printComponents(getNotTraversable(),out, testSettings.tabTraversal);
-
+        
         if(Boolean.getBoolean("a11ytest.name")) {
             out.println("\n No Component name :");
             printComponents(getNoComponentName(), out, testSettings.test_name);
         }
-
+        
         if(fileWriter){
             out.println("</PRE>");
             out.println("</BODY>");

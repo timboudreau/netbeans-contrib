@@ -7,15 +7,17 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.a11y;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+import java.text.DateFormat;
+
 
 /**
  *  Logging class for the AccessibilityTester suite of classes.
@@ -54,10 +56,9 @@ public class AccessibilityTestLogger{
         
         if (logFile != null){
             DateFormat df = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG);
-            Date date = new Date();
             
             try{
-                logFile.writeBytes(df.format(date) + ": " + s + newLine);
+                logFile.writeBytes(df.format(new java.util.Date()) + ": " + s + System.getProperty("line.separator", "\n"));
             } catch(IOException e){
                 // Ignore?
             }
@@ -65,6 +66,4 @@ public class AccessibilityTestLogger{
         }
     }
     
-    private static String newLine = System.getProperty("line.separator", "\n");
-    private DateFormat df = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
 }

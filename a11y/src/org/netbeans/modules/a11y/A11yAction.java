@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -17,7 +17,6 @@ import java.awt.Frame;
 import java.awt.Window;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 import org.openide.nodes.Node;
 
@@ -87,8 +86,7 @@ public class A11yAction extends CookieAction {
             RADComponentCookie cookie = (RADComponentCookie) node.getCookie(RADComponentCookie.class);
             formModel = cookie.getRADComponent().getFormModel();
             
-        }
-        else if (node.getCookie(FormCookie.class) != null){
+        } else if (node.getCookie(FormCookie.class) != null){
             FormCookie cookie = (FormCookie) node.getCookie(FormCookie.class);
             formModel = cookie.getFormModel();
         }
@@ -113,10 +111,10 @@ public class A11yAction extends CookieAction {
             if (formMode != null) {
                 // use reflection now
                 java.lang.reflect.Method m = c.getDeclaredMethod("dockInto", // NOI18N
-                    new Class[] {
-                        org.openide.windows.TopComponent.class,
-                        java.lang.Object.class });
-                        
+                        new Class[] {
+                    org.openide.windows.TopComponent.class,
+                    java.lang.Object.class });
+                
                 m.invoke(formMode, new Object[] { at, "EAST" } );
             }
         } catch (Exception x) {
@@ -135,12 +133,12 @@ public class A11yAction extends CookieAction {
         // a JFrame or Frame will be used (depending on form is Swing or AWT)
         Object formInstance = formContainer.getBeanInstance();
         Class frameClass = formInstance instanceof javax.swing.JComponent
-                        || formInstance instanceof JFrame
-                        || formInstance instanceof javax.swing.JDialog
-                        || formInstance instanceof javax.swing.JApplet
-                        || formInstance instanceof javax.swing.JWindow
-                        || (!(formInstance instanceof Window) && !(formInstance instanceof java.awt.Panel))
-            ? JFrame.class : Frame.class;
+                || formInstance instanceof JFrame
+                || formInstance instanceof javax.swing.JDialog
+                || formInstance instanceof javax.swing.JApplet
+                || formInstance instanceof javax.swing.JWindow
+                || (!(formInstance instanceof Window) && !(formInstance instanceof java.awt.Panel))
+                ? JFrame.class : Frame.class;
         
         try{
             
@@ -166,7 +164,7 @@ public class A11yAction extends CookieAction {
             java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
             java.awt.Dimension frameSize = frame.getSize();
             frame.setLocation(  screenSize.width+20 > frameSize.width ?     (screenSize.width - frameSize.width) / 2 : 0,
-                                screenSize.height+20 > frameSize.height ?   (screenSize.height - frameSize.height) / 2 : 0);
+                    screenSize.height+20 > frameSize.height ?   (screenSize.height - frameSize.height) / 2 : 0);
             
             frame.setVisible(true);
             
@@ -174,10 +172,10 @@ public class A11yAction extends CookieAction {
             threadInterrupt();
             
             OutputWriter writer = IOProvider.getDefault().getIO("Accessibility results", true).getOut();
-        
+            
             thread = new Thread(new AccessibilityTesterRunnable(at.getPanel(), frame, writer));
             thread.start();
-
+            
             //wait while finished test thread - because if you close frame first, test should be affected
             thread.join();
             
@@ -186,12 +184,12 @@ public class A11yAction extends CookieAction {
             //                wait(500);
             //            }
             
-      } catch (Exception ex){
+        } catch (Exception ex){
             if (Boolean.getBoolean("netbeans.debug.exceptions")){ // NOI18N
                 ex.printStackTrace();
             }
         }
-
+        
         if (frame != null){
             frame.setVisible(false);
             frame.dispose();
