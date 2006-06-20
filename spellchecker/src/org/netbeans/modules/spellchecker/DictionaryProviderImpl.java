@@ -72,7 +72,7 @@ public class DictionaryProviderImpl implements DictionaryProvider {
     }
     
     public static synchronized Locale[] getInstalledDictionariesLocales() {
-        // XXX see IZ for open RFE for IFL to return multiple results, which would mean only dirs[2] here would be needed
+        // XXX #36701: IFL should return multiple results, which would mean only dirs[2] here would be needed
         File[] dirs = new File[] {
             new File(System.getProperty("netbeans.home"), "modules" + File.separatorChar + "dict"), // NOI18N
             new File(System.getProperty("netbeans.user"), "modules" + File.separatorChar + "dict"), // NOI18N
