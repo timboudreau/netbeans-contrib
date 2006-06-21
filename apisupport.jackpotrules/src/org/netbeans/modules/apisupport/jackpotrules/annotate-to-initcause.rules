@@ -1,3 +1,70 @@
+//
+// attachMessage:
+//
+
+$ErrMgr.annotate($nue, org.openide.ErrorManager.UNKNOWN, $msg, null, null, null) => Exceptions.attachMessage($nue, $msg)
+:: $nue instanceof java.lang.Throwable, $msg instanceof java.lang.String, $ErrMgr instanceof org.openide.ErrorManager;
+
+$ErrMgr.annotate($nue, org.openide.ErrorManager.INFORMATIONAL, $msg, null, null, null) => Exceptions.attachMessage($nue, $msg)
+:: $nue instanceof java.lang.Throwable, $msg instanceof java.lang.String, $ErrMgr instanceof org.openide.ErrorManager;
+
+$ErrMgr.annotate($nue, org.openide.ErrorManager.EXCEPTION, $msg, null, null, null) => Exceptions.attachMessage($nue, $msg)
+:: $nue instanceof java.lang.Throwable, $msg instanceof java.lang.String, $ErrMgr instanceof org.openide.ErrorManager;
+
+
+//
+// attachLocalizedMessage:
+//
+
+$ErrMgr.annotate($nue, $msg) => Exceptions.attachLocalizedMessage($nue, $msg)
+:: $nue instanceof java.lang.Throwable, $msg instanceof java.lang.String, $ErrMgr instanceof org.openide.ErrorManager;
+
+$ErrMgr.annotate($nue, org.openide.ErrorManager.EXCEPTION, null, $msg, null, null) => Exceptions.attachLocalizedMessage($nue, $msg)
+:: $nue instanceof java.lang.Throwable, $msg instanceof java.lang.String, $ErrMgr instanceof org.openide.ErrorManager;
+
+$ErrMgr.annotate($nue, org.openide.ErrorManager.UNKNOWN, null, $msg, null, null) => Exceptions.attachLocalizedMessage($nue, $msg)
+:: $nue instanceof java.lang.Throwable, $msg instanceof java.lang.String, $ErrMgr instanceof org.openide.ErrorManager;
+
+//
+// friend contract for annotate(USER)
+//
+
+$ErrMgr.annotate($nue, org.openide.ErrorManager.USER, $msg, $locmsg, $cause, $date)
+=> UIException.annotateUser($nue, $msg, $locmsg, $cause, $date)
+::  $nue instanceof java.lang.Throwable,
+    $cause instanceof java.lang.Throwable || isNull($cause),
+    $msg instanceof java.lang.String || isNull($msg),
+    $locmsg instanceof java.lang.String || isNull($locmsg),
+    $date instanceof java.util.Date || isNull($date),
+    $ErrMgr instanceof org.openide.ErrorManager;
+
+//
+// ErrorManager.notify(Throwable t):
+//
+
+$ErrMgr.notify($nue) => Exceptions.printStackTrace($nue)
+:: $nue instanceof java.lang.Throwable, $ErrMgr instanceof org.openide.ErrorManager;
+
+
+$ErrMgr.notify(org.openide.ErrorManager.USER, $nue) => DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Exception($nue))
+:: $nue instanceof java.lang.Throwable, $ErrMgr instanceof org.openide.ErrorManager;
+
+$ErrMgr.notify(org.openide.ErrorManager.INFORMATIONAL, $nue) => Logger.global.log(Level.WARNING, null, $nue);
+:: $nue instanceof java.lang.Throwable, $ErrMgr instanceof org.openide.ErrorManager;
+
+$ErrMgr.notify(org.openide.ErrorManager.WARNING, $nue) => Logger.global.log(Level.WARNING, null, $nue);
+:: $nue instanceof java.lang.Throwable, $ErrMgr instanceof org.openide.ErrorManager;
+
+//
+// remove unused variables
+//
+
+//$EM $err = $EM.getDefault(); => ; :: !referenced($err), $EM instanceof org.openide.ErrorManager;
+
+//
+// initCause rules:
+//
+
 { $before$;
 $E $nue = new $E($orig.getMessage());
 $ErrMgr.annotate($nue, $orig);
@@ -10,6 +77,23 @@ throw ($E) new $E($orig.toString()).initCause($orig);
 ::
 $E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
     $ErrMgr instanceof org.openide.ErrorManager;
+
+{ $before$;
+$E $nue = new $E($orig.getMessage());
+$ErrMgr.copyAnnotation($nue, $orig);
+throw $nue;
+}
+=>
+{ $before$;
+throw ($E) new $E($orig.toString()).initCause($orig);
+}
+::
+$E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
+    $ErrMgr instanceof org.openide.ErrorManager;
+
+$ErrMgr.copyAnnotation($nue, $orig) => $nue.initCause($orig)
+:: $ErrMgr instanceof org.openide.ErrorManager, $nue instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable;
+
 
 { $before$;
 $E $nue = new $E($orig.getLocalizedMessage());
