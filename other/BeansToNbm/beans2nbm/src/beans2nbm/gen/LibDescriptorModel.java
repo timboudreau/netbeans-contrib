@@ -65,6 +65,7 @@ public class LibDescriptorModel implements FileModel {
         sb.append (".Bundle</localizing-bundle>\n");
         sb.append ("    <volume>\n");
         sb.append ("      <type>classpath</type>\n");
+        // XXX preferable to pass the module CNB in the host field of the nbinst URL
         sb.append ("      <resource>jar:nbinst:///libs/");
         sb.append (jarNameSimple);
         sb.append ("!/</resource>\n");
