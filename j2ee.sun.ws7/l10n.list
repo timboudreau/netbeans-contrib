@@ -2,6 +2,12 @@ webserver7/src/**/Bundle.properties
 webserver7/src/**/*.html
 webserver7/src/**/*.gif
 webserver7/src/**/*.png
-webserver7/javahelp/**/*.*
+webserver7/javahelp/**/*.html
+webserver7/javahelp/**/*.hs
+webserver7/javahelp/**/*.xml
+webserver7/javahelp/**/*.jhm
+webserver7/javahelp/**/*.css
+webserver7/javahelp/**/*.gif
+webserver7/javahelp/**/*.png
 
 
