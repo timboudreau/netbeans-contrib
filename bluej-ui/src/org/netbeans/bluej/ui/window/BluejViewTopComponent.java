@@ -133,13 +133,15 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
         Project project = OpenedBluejProjects.getInstance().getSelectedProject();
         if ( project != null && Arrays.asList(OpenProjects.getDefault().getOpenProjects()).contains(project)) {
             // if it's not in the list of opened projects we probably are closing multiple projects as once (or shutting down)
+            lookProvider.setLookup(Lookups.singleton(project));
             OpenProjects.getDefault().setMainProject(project);
             BluejLogicalViewProvider provider = (BluejLogicalViewProvider) project.getLookup().lookup(BluejLogicalViewProvider.class);
-            lookProvider.setLookup(Lookups.singleton(project));
             manager.setRootContext(provider.getBigIconRootNode());
+            Project np = (Project)getLookup().lookup(Project.class);
         } else {
-            manager.setRootContext(new AbstractNode(Children.LEAF));
             lookProvider.setLookup(Lookup.EMPTY);
+            manager.setRootContext(new AbstractNode(Children.LEAF));
+            getLookup().lookup(Project.class);
         }
     }
     
