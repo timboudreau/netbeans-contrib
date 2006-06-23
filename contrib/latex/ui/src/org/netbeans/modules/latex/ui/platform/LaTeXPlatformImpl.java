@@ -117,14 +117,21 @@ public class LaTeXPlatformImpl implements LaTeXPlatform {
     }
 
     private URI alterExtension(URI uri, String oldExtension, String newExtension) throws URISyntaxException {
-        URI u = new URI(uri.getScheme(), uri.getHost(), /*!!!*/uri.getPath().replaceFirst("." + oldExtension, "." + newExtension), uri.getFragment());
+        String pathName = /*!!!*/uri.getPath();
+
+        if (!pathName.endsWith("." + oldExtension)) // NOI18N
+            return uri;
+
+        pathName = pathName.substring(0, pathName.length() - oldExtension.length() - 1) + "." + newExtension; // NOI18N
+
+        URI u = new URI(uri.getScheme(), uri.getHost(), pathName, uri.getFragment());
 
         return u;
     }
 
     public List<URI> getTargetFiles(String tool, FileObject input) {
         if (!isToolConfigured(tool))
-            throw new IllegalArgumentException("tool= " + tool + " not supported");
+            throw new IllegalArgumentException("tool= " + tool + " not supported"); // NOI18N
 
         try {
             URI uri = input.getURL().toURI();
