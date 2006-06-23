@@ -23,6 +23,7 @@ import org.netbeans.api.visual.graph.PinController;
 import org.netbeans.api.visual.uml.UMLClassWidget;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.LayerWidget;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,27 +33,27 @@ import java.awt.*;
  */
 public class StringGraphPinScene extends GraphPinScene<String, String, String, NodeController.StringNode, EdgeController.StringEdge, PinController.StringPin> {
 
-    private Widget mainLayer;
-    private Widget connectionLayer;
+    private LayerWidget mainLayer;
+    private LayerWidget connectionLayer;
 
     private MoveAction moveAction = new MoveAction ();
     private MouseHoverAction mouseHoverAction = new StringGraphPinScene.MyMouseHoverAction ();
     private PopupMenuAction popupMenuAction = new StringGraphPinScene.MyPopupMenuAction ();
 
     public StringGraphPinScene () {
-        mainLayer = new Widget (this);
-        connectionLayer = new Widget (this);
+        mainLayer = new LayerWidget (this);
+        connectionLayer = new LayerWidget (this);
         addChild (mainLayer);
         addChild (connectionLayer);
 
         getActions ().addAction (mouseHoverAction);
     }
 
-    public Widget getMainLayer () {
+    public LayerWidget getMainLayer () {
         return mainLayer;
     }
 
-    public Widget getConnectionLayer () {
+    public LayerWidget getConnectionLayer () {
         return connectionLayer;
     }
 

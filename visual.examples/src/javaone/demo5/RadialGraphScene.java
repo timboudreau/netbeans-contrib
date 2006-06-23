@@ -24,6 +24,7 @@ import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.LayerWidget;
 
 import java.awt.*;
 
@@ -32,8 +33,8 @@ import java.awt.*;
  */
 public class RadialGraphScene extends GraphScene<String, String, NodeController.StringNode, EdgeController.StringEdge> {
 
-    private Widget nodesLayer = new Widget (this);
-    private Widget edgesLayer = new Widget (this);
+    private LayerWidget nodesLayer = new LayerWidget (this);
+    private LayerWidget edgesLayer = new LayerWidget (this);
 
     private LineBorder lineBorder = new LineBorder (1, Color.BLACK);
     private MyHoverAction hoverAction = new MyHoverAction ();

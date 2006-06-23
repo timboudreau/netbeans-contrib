@@ -24,6 +24,7 @@ import org.netbeans.api.visual.model.ObjectController;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.LayerWidget;
 import test.SceneSupport;
 
 import java.awt.event.MouseEvent;
@@ -33,9 +34,9 @@ import java.awt.event.MouseEvent;
  */
 public class ConnectScene extends GraphScene.StringGraph {
 
-    private Widget mainLayer = new Widget (this);
-    private Widget connectionLayer = new Widget (this);
-    private Widget interractionLayer = new Widget (this);
+    private LayerWidget mainLayer = new LayerWidget (this);
+    private LayerWidget connectionLayer = new LayerWidget (this);
+    private LayerWidget interractionLayer = new LayerWidget (this);
 
     private WidgetAction createAction = new SceneCreateAction ();
     private WidgetAction connectAction = new SceneConnectAction (interractionLayer);

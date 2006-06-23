@@ -17,10 +17,7 @@ import javaone.support.DemoSupport;
 import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.CircularAnchor;
-import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.ImageWidget;
-import org.netbeans.api.visual.widget.Scene;
-import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.*;
 
 import java.awt.*;
 
@@ -31,8 +28,8 @@ public class ConnectionDemo {
     
     public static void main (String[] args) {
         Scene scene = new Scene ();
-        
-        Widget mainLayer = new Widget (scene);
+
+        LayerWidget mainLayer = new LayerWidget (scene);
         scene.addChild(mainLayer);
         
         ImageWidget first = new ImageWidget (scene);
@@ -46,8 +43,8 @@ public class ConnectionDemo {
         second.setPreferredLocation(new Point (300, 200));
         second.getActions().addAction(new MoveAction ());
         mainLayer.addChild(second);
-        
-        Widget connectionLayer = new Widget (scene);
+
+        LayerWidget connectionLayer = new LayerWidget (scene);
         scene.addChild(connectionLayer);
         
         ConnectionWidget connection = new ConnectionWidget (scene);

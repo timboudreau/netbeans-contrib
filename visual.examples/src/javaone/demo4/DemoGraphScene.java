@@ -22,21 +22,21 @@ import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
-import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.LayerWidget;
 
 /**
  * @author David Kaspar
  */
 public class DemoGraphScene extends GraphScene.StringGraph {
 
-    private Widget mainLayer;
-    private Widget connectionLayer;
+    private LayerWidget mainLayer;
+    private LayerWidget connectionLayer;
 
     public DemoGraphScene() {
-        mainLayer = new Widget (this);
+        mainLayer = new LayerWidget (this);
         addChild(mainLayer);
 
-        connectionLayer = new Widget (this);
+        connectionLayer = new LayerWidget (this);
         addChild(connectionLayer);
     }
 

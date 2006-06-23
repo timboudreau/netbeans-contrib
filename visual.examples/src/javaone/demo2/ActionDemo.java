@@ -18,6 +18,7 @@ import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.LayerWidget;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +31,7 @@ public class ActionDemo {
     public static void main (String[] args) {
         Scene scene = new Scene ();
 
-        Widget layer = new Widget (scene);
+        LayerWidget layer = new LayerWidget (scene);
         scene.addChild(layer);
         
         LabelWidget hello1 = createLabel (scene, "Hello", 100, 100);

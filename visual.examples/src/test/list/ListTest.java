@@ -18,6 +18,7 @@ import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.graph.PinController;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.general.ListItemWidget;
 import org.netbeans.api.visual.widget.general.ListWidget;
 import org.netbeans.api.visual.model.ObjectState;
@@ -33,13 +34,13 @@ public class ListTest extends GraphPinScene.StringGraph {
 
     private static final Image IMAGE = Utilities.loadImage ("test/resources/custom_displayable_32.png"); // NOI18N
 
-    private Widget layer;
+    private LayerWidget layer;
 
     private WidgetAction hoverAction = new MyHover ();
     private WidgetAction moveAction = new MoveAction ();
 
     public ListTest () {
-        layer = new Widget (this);
+        layer = new LayerWidget (this);
         addChild (layer);
         getActions ().addAction (new ZoomAction ());
         getActions ().addAction (new PanAction ());

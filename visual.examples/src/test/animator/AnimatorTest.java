@@ -16,6 +16,7 @@ import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
 import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.model.ObjectState;
@@ -33,12 +34,12 @@ public class AnimatorTest extends GraphScene.StringGraph {
 
     private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
 
-    private Widget layer;
+    private LayerWidget layer;
 
     private WidgetAction hoverAction = new MyHover ();
 
     public AnimatorTest () {
-        layer = new Widget (this);
+        layer = new LayerWidget (this);
         addChild (layer);
         getActions ().addAction (new ZoomAction ());
         getActions ().addAction (new PanAction ());
