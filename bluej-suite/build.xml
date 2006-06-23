@@ -83,7 +83,24 @@
               builddir="build/l10n" buildnumber="${buildnumber}"
               excludepattern="**/ja/,**/*_ja.*"/>
     </target>    
+    
+    <target name="installers">
+        <ant dir="../../java/storagebuilder" inheritAll="false"/>
+        <property environment="myenv"/>
+        <echo>Installer intallation dir is: ${myenv.ISMP}</echo>
+        <!-- installers for NB 5 -->
+        <ant antfile="../../installer/coreidebluej/build.xml" target="build" inheritAll="false">
+            <property name="nbbluej.dir" location="build"/>
+            <property name="ismp.home" location="${myenv.ISMP}"/>
+            <property name="installer.basename" value="nbbluej5.0"/>
+        </ant>        
+        <ant antfile="../../installer/macbluej/build.xml" target="tarball" inheritAll="false">
+            <property name="nbbluej.dir" location="build"/>
+            <property name="ismp.home" location="${myenv.ISMP}"/>
+            <property name="installer.basename" value="nbbluej5.0"/>
+        </ant>        
+    </target>
 
-    <target name="all" depends="build-zip,l10n-kit"/>
+    <target name="all" depends="build-zip,l10n-kit,installers"/>
     
 </project>
