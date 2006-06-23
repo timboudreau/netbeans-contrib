@@ -36,6 +36,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.util.MapFormat;
+import org.openide.util.NbBundle;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 import org.openide.windows.OutputWriter;
@@ -68,7 +69,7 @@ public final class BuildConfiguration {
     }
     
     public boolean build(final LaTeXGUIProject p, final InputOutput inout) {
-        if (!isSupported(p))
+        if (getErrorIfAny(p) != null)
             throw new IllegalArgumentException();
         
         FileObject file = (FileObject) p.getSource().getMainFile();
@@ -179,7 +180,7 @@ public final class BuildConfiguration {
     }
     
     public boolean clean(final LaTeXGUIProject p, final InputOutput inout) {
-        if (!isSupported(p))
+        if (getErrorIfAny(p) != null)
             throw new IllegalArgumentException();
 
         FileObject file = (FileObject) p.getSource().getMainFile();
@@ -205,15 +206,19 @@ public final class BuildConfiguration {
         return true;
     }
 
-    public boolean isSupported(LaTeXGUIProject p) {
+    public String getErrorIfAny(LaTeXGUIProject p) {
         LaTeXPlatform platform = Utilities.getPlatform(p);
         
         for (String tool : tools) {
             if (!platform.isToolConfigured(tool))
-                return false;
+                return NbBundle.getMessage(BuildConfiguration.class, "LBL_ToolNotConfigured", new Object[] {String.valueOf(tool)});
         }
         
-        return true;
+        return null;
+    }
+
+    public boolean isSupported(LaTeXGUIProject p) {
+        return getErrorIfAny(p) == null;
     }
     
     static boolean run(NbProcessDescriptor descriptor, Map format, File wd, OutputWriter stdOut, OutputWriter stdErr) {

@@ -179,8 +179,19 @@ public final class ShowConfiguration {
         return null;
     }
 
+    public String getErrorIfAny(LaTeXGUIProject p, BuildConfiguration conf) {
+        if (!conf.isSupported(p))
+            return "Selected build configuration is not supported.";
+
+        if (getURIToShow(p, conf) == null) {
+            return "The selected build configuration does not create a required file type.";
+        }
+
+        return null;
+    }
+
     public boolean isSupported(LaTeXGUIProject p, BuildConfiguration conf) {
-        return conf.isSupported(p) && getURIToShow(p, conf) != null;
+        return getErrorIfAny(p, conf) == null;
 //        LaTeXPlatform platform = Utilities.getPlatform(p);
 //        
 //        if (!platform.isToolConfigured(tool) && !IN_IDE_PDF_VIEWER.equals(tool))

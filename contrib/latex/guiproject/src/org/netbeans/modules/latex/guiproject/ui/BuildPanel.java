@@ -30,6 +30,7 @@ import org.netbeans.modules.latex.guiproject.build.BuildConfiguration;
 import org.netbeans.modules.latex.guiproject.build.BuildConfigurationProvider;
 import org.netbeans.modules.latex.guiproject.build.RunTypes;
 import org.netbeans.modules.latex.guiproject.build.ShowConfiguration;
+import org.netbeans.spi.project.ui.support.ProjectCustomizer.Category;
 import org.openide.ErrorManager;
 import org.openide.awt.HtmlRenderer;
 import org.openide.xml.XMLUtil;
@@ -41,10 +42,12 @@ import org.openide.xml.XMLUtil;
 public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPresenter {
 
     private LaTeXGUIProject p;
+    private Category category;
 
     /** Creates new form BuildPanel */
-    public BuildPanel(LaTeXGUIProject p) {
+    public BuildPanel(LaTeXGUIProject p, Category category) {
         this.p = p;
+        this.category = category;
         initComponents();
     }
     
@@ -79,16 +82,31 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
 
         jComboBox2.setModel(createRunTypesModel());
         jComboBox2.setRenderer(new RunTypeListCellRendererImpl());
+        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox2ActionPerformed(evt);
+            }
+        });
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, "&Show Command:");
 
         jComboBox3.setModel(createShowConfigurationModel());
         jComboBox3.setRenderer(new ShowConfigurationListCellRendererImpl());
+        jComboBox3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox3ActionPerformed(evt);
+            }
+        });
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, "Document &Locale:");
 
         jComboBox4.setEditable(true);
         jComboBox4.setModel(createLocaleModel());
+        jComboBox4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox4ActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -135,10 +153,26 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jComboBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox4ActionPerformed
+        // TODO add your handling code here:
+        updateErrors();
+    }//GEN-LAST:event_jComboBox4ActionPerformed
+
+    private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
+        // TODO add your handling code here:
+        updateErrors();
+    }//GEN-LAST:event_jComboBox3ActionPerformed
+
+    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+        // TODO add your handling code here:
+        updateErrors();
+    }//GEN-LAST:event_jComboBox2ActionPerformed
+
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         // need to redraw the show combo, as the set of supported show commands may have changed:
         jComboBox3.invalidate();
         jComboBox3.repaint();
+        updateErrors();
     }//GEN-LAST:event_jComboBox1ActionPerformed
     
     
@@ -182,6 +216,8 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
         jComboBox2.setSelectedItem(bibTeXRunType);
         
         jComboBox4.setSelectedItem(settings.getLocale());
+
+        updateErrors();
     }
     
     public void store(ProjectSettings settings) {
@@ -231,6 +267,24 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
         return dlm;
     }
 
+    private void updateErrors() {
+        String error;
+
+        BuildConfiguration bConf = (BuildConfiguration) jComboBox1.getSelectedItem();
+
+        if ((error = bConf.getErrorIfAny(p)) != null) {
+            category.setErrorMessage(error);
+            return;
+        }
+
+        if ((error = ((ShowConfiguration) jComboBox3.getSelectedItem()).getErrorIfAny(p, bConf)) != null) {
+            category.setErrorMessage(error);
+            return;
+        }
+
+        category.setErrorMessage(null);
+    }
+
     private class BuildConfigurationListCellRendererImpl implements ListCellRenderer {
 
         private ListCellRenderer delegate = HtmlRenderer.createRenderer();
@@ -262,13 +316,17 @@ public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPr
             String displayName = null;
             ShowConfiguration configuration = (ShowConfiguration) value;
 
-            if (configuration.isSupported(p, (BuildConfiguration) jComboBox1.getSelectedItem()))
-                displayName = configuration.getDisplayName();
-            else {
-                try {
-                    displayName = "<html><font color='FF0000'>" + XMLUtil.toElementContent(configuration.getDisplayName());
-                } catch (CharConversionException e) {
-                    ErrorManager.getDefault().notify(e);
+            if (configuration == null) {
+                displayName = "<html><font color='FF0000'>error - unknown show configuration";
+            } else {
+                if (configuration.isSupported(p, (BuildConfiguration) jComboBox1.getSelectedItem()))
+                    displayName = configuration.getDisplayName();
+                else {
+                    try {
+                        displayName = "<html><font color='FF0000'>" + XMLUtil.toElementContent(configuration.getDisplayName());
+                    } catch (CharConversionException e) {
+                        ErrorManager.getDefault().notify(e);
+                    }
                 }
             }
 

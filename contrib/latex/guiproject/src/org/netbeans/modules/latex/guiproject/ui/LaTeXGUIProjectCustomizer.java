@@ -92,7 +92,7 @@ public class LaTeXGUIProjectCustomizer extends WindowAdapter implements Customiz
     
     public JComponent createImpl(ProjectCustomizer.Category category) {
         if (CAT_BUILD.equals(category.getName())) {
-            return new BuildPanel(project);
+            return new BuildPanel(project, category);
         }
         
         throw new IllegalArgumentException("Unsupported category: " + category.getName());
