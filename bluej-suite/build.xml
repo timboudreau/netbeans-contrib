@@ -68,5 +68,22 @@
             </zipfileset>
         </zip>
     </target>
+    
+    <target name="l10n-kit">
+        <property name="nb_all" location="../.."/>
+        <taskdef name="l10n" classname="org.netbeans.nbbuild.L10nTask"
+                 classpath="${nb_all}/nbbuild/nbantext.jar"/>
+        <mkdir dir="dist"/>
+        <delete dir="build/l10n"/>
+        <mkdir dir="build/l10n"/>
+        <property name="nbroot" location=".."/>
+        <l10n topdirs="${nb_all}" modules="ide"
+              localizablefile="bluejl10n.list" generatedfile="bluejl10n.list.translated"
+              distdir="dist" changedfile="bluejl10n.list.changed"
+              builddir="build/l10n" buildnumber="${buildnumber}"
+              excludepattern="**/ja/,**/*_ja.*"/>
+    </target>    
 
+    <target name="all" depends="build-zip,l10n-kit"/>
+    
 </project>
