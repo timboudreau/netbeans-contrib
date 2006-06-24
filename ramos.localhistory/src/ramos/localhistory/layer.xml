@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Build">
+            <file name="ramos-localhistory-LocalHistoryAction.instance"/>
+        </folder>
+        <folder name="Window">
+            <file name="ramos-localhistory-ui-DeletedFilesAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Editors">
+        
+        <!--
+        <folder name="Popup">
+        <file name="ramos-websearchengines-WebSearchIn.shadow" url="ramos-websearchengines-WebSearchIn.shadow">
+        <attr name="originalFile" stringvalue="Actions/Build/ramos-websearchengines-WebSearchIn.instance"/>
+        </file>
+        <attr name="ramos-websearchengines-WebSearchIn.shadow/org-netbeans-modules-project-ui-RunSingle.shadow" boolvalue="true"/>
+        </folder>
+        -->
+        <folder name="Popup">
+            <file name="ramos-localhistory-LocalHistoryAction.instance">
+                <attr name="instanceClass" stringvalue="ramos.localhistory.LocalHistoryAction"/>
+            </file>
+        </folder>
+       
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="DeletedFilesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/ramos-localhistory-ui-DeletedFilesAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="DeletedFilesTopComponent.settings" url="DeletedFilesTopComponentSettings.xml"/>
+            <file name="LocalHistoryTopComponent.settings" url="LocalHistoryTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="DeletedFilesTopComponent.wstcref" url="DeletedFilesTopComponentWstcref.xml"/>
+                <file name="LocalHistoryTopComponent.wstcref" url="LocalHistoryTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="local history">
+       <attr name="OpenIDE-Folder-SortMode" stringvalue="M"/>
+       <folder name="deleted"/>
+    </folder>
+</filesystem>
