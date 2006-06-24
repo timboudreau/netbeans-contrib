@@ -276,10 +276,8 @@ public final class LocalHistoryTopComponent extends TopComponent
    public ExplorerManager getExplorerManager() {
       return manager;
    }
-   static class MyComparator implements Comparator {
-      public int compare(Object o1, Object o2) {
-         FilterNode fn1 = (FilterNode) o1;
-         FilterNode fn2 = (FilterNode) o2;
+   static class MyComparator implements Comparator<FilterNode> {
+      public int compare(FilterNode fn1, FilterNode fn2) {
          DataObject do1 = fn1.getLookup().lookup(DataObject.class);
          DataObject do2 = fn2.getLookup().lookup(DataObject.class);
          FileObject fo1 = do1.getPrimaryFile();
