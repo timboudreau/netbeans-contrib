@@ -6,10 +6,10 @@
  * compliance with the License.  A copy of the License is available at
  * http://www.sun.com/
  *
- * The Original Code is Ramón Ramos. The Initial Developer of the Original
- * Code is Ramón Ramos. All rights reserved.
+ * The Original Code is Ramon Ramos. The Initial Developer of the Original
+ * Code is Ramon Ramos. All rights reserved.
  *
- * Copyright (c) 2006 Ramón Ramos
+ * Copyright (c) 2006 Ramon Ramos
  */
 package ramos.localhistory;
 
