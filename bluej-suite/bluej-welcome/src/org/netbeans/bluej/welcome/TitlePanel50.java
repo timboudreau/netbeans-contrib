@@ -62,7 +62,7 @@ public class TitlePanel50 extends javax.swing.JPanel implements Runnable, java.a
     private static final int TRANSPARENT_EDGE_WIDTH = 15;
     
     public TitlePanel50() {
-        background = new ImageIcon(Utilities.loadImage("org/netbeans/bluej/welcome/welcome-placeholder.png"));  // NOI18N
+        background = new ImageIcon(Utilities.loadImage("org/netbeans/bluej/welcome/background.png"));  // NOI18N
         initComponents();
         
         ((OvalButton)jButton2).setScale(1.333f);
