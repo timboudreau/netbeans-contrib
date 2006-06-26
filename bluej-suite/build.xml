@@ -67,6 +67,11 @@
                 <include name="**/lib/nbbluej"/>
             </zipfileset>
         </zip>
+        <chmod perm="755">
+            <fileset dir="${cluster}">
+                <include name="**/lib/nbbluej"/>
+            </fileset>
+        </chmod>
     </target>
     
     <target name="l10n-kit">
