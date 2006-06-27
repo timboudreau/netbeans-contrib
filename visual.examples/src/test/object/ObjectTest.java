@@ -12,10 +12,7 @@
  */
 package test.object;
 
-import org.netbeans.api.visual.action.PanAction;
-import org.netbeans.api.visual.action.WidgetAction;
-import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.graph.NodeController;
@@ -36,23 +33,26 @@ public class ObjectTest extends GraphScene.StringGraph {
 
     private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
 
-    private LayerWidget layer;
+    private LayerWidget backgroundLayer;
+    private LayerWidget mainLayer;
 
     private MyAction action = new MyAction ();
 
     public ObjectTest () {
-        layer = new LayerWidget (this);
-        addChild (layer);
+        addChild (backgroundLayer = new LayerWidget (this));
+        addChild (mainLayer = new LayerWidget (this));
+
         getActions ().addAction (new ZoomAction ());
         getActions ().addAction (new PanAction ());
         getActions ().addAction (action);
+        getActions ().addAction (new RectangularSelectAction (this, backgroundLayer));
     }
 
     protected NodeController.StringNode attachNodeController (String node) {
         IconNodeWidget widget = new IconNodeWidget (this);
         widget.setImage (test.object.ObjectTest.IMAGE);
         widget.setLabel (node);
-        layer.addChild (widget);
+        mainLayer.addChild (widget);
 
         widget.getActions ().addAction (createSelectAction ());
         widget.getActions ().addAction (createHoverAction ());
