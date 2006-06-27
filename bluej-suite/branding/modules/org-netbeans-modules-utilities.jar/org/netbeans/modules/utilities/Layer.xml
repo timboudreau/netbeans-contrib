@@ -8,14 +8,12 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
 
 <filesystem>
-
-  
 
     <folder name="Menu">
  
@@ -32,6 +30,9 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
                 </file>
                 <attr name="quick-start.url/using-netbeans.url" boolvalue="true"/>
+                <file name="platform-tutorial.url_hidden" url="nbresloc:/org/netbeans/modules/utilities/platform-tutorial.url">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
+                </file>
                 <file name="using-netbeans.url" url="nbresloc:/org/netbeans/modules/utilities/using-netbeans.url">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
                 </file>
@@ -44,12 +45,22 @@ Microsystems, Inc. All Rights Reserved.
             <file name="utilities-sep-2.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
             </file>
-            <attr name="utilities-sep-2.instance/utilities-sep-3.instance" boolvalue="true"/>
+            <attr name="utilities-sep-2.instance/netbeans-kb.url" boolvalue="true"/>
+            <file name="netbeans-kb.url_hidden">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
+            </file>         
+            <file name="relnotes.url_hidden">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
+            </file>
+            <attr name="relnotes.url/utilities-sep-3.instance" boolvalue="true"/>
+            <file name="utilities-sep-3.instance_hidden">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+	    </file>
             <attr name="utilities-sep-3.instance/utilities-sep-4.instance" boolvalue="true"/>
             <attr name="utilities-sep-4.instance/utilities-sep-5.instance" boolvalue="true"/>
             <file name="utilities-sep-5.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-            </file>
+	        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+	    </file>
             <attr name="utilities-sep-5.instance/org-netbeans-core-actions-WelcomeAction.instance" boolvalue="true"/>
         </folder> <!-- Help -->
     </folder> <!-- Menu -->
