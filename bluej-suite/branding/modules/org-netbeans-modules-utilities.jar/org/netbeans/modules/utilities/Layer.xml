@@ -53,7 +53,7 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
             </file>
             <attr name="relnotes.url/utilities-sep-3.instance" boolvalue="true"/>
-            <file name="utilities-sep-3.instance_hidden">
+            <file name="utilities-sep-3.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
 	    </file>
             <attr name="utilities-sep-3.instance/utilities-sep-4.instance" boolvalue="true"/>
