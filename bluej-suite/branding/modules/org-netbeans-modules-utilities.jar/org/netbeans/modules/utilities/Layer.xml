@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
             <folder name="Tutorials">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
                 <!--      <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/openide/resources/actions/empty.gif"/> -->
-                <file name="netbeans-bluej-tut.url" url="nbresloc:/org/netbeans/modules/utilities/quick-start.url">
+                <file name="netbeans-bluej-tut.url" url="nbresloc:/org/netbeans/modules/utilities/netbeans-bluej-tut.url">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
                 </file>
                 <attr name="netbeans-bluej-tut.url/quick-start.url" boolvalue="true"/>
