@@ -97,12 +97,12 @@
         <ant antfile="../../installer/coreidebluej/build.xml" target="build" inheritAll="false">
             <property name="nbbluej.dir" location="build"/>
             <property name="ismp.home" location="${myenv.ISMP}"/>
-            <property name="installer.basename" value="nbbluej5.0"/>
+            <property name="installer.basename" value="NetBeansBlueJ-5.0"/>
         </ant>        
         <ant antfile="../../installer/macbluej/build.xml" target="tarball" inheritAll="false">
             <property name="nbbluej.dir" location="build"/>
             <property name="ismp.home" location="${myenv.ISMP}"/>
-            <property name="installer.basename" value="nbbluej5.0"/>
+            <property name="tarball-name" value="NetBeansBlueJ-5.0-macos.tar.gz"/>
         </ant>        
     </target>
 
