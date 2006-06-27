@@ -137,6 +137,28 @@ public final class ErrorManagerTest extends NbTestCase {
             fail("No ErrorManager shall be there:\n" + txt);
         }
     }
+    public void testConvertToWarning() throws Exception {
+        File f = JackpotUtils.extractString(new File(getWorkDir(), "A.java"),
+            "package test;\n" +
+            "class A {\n" +
+            " public static void main(String[] args) {\n" +
+            "       NullPointerException e = new NullPointerException();\n" +
+            "       org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.EXCEPTION, e);" +
+            " }\n" +
+            "}\n"
+        );
+
+        JackpotUtils.apply(getWorkDir(), script);
+
+        String txt = JackpotUtils.readFile(f, false);
+
+        if (txt.indexOf("ErrorManager") >= 0) {
+            fail("No ErrorManager shall be there:\n" + txt);
+        }
+        if (!txt.replace('\n', ' ').matches(".*Logger.global.log *\\(Level.WARNING, *null, *e *\\).*")) {
+            fail("Logger.global shall be there:\n" + txt);
+        }
+    }
 
     public void testConvertToLogging() throws Exception {
         File f = JackpotUtils.extractString(new File(getWorkDir(), "A.java"),
@@ -156,7 +178,7 @@ public final class ErrorManagerTest extends NbTestCase {
         if (txt.indexOf("ErrorManager") >= 0) {
             fail("No ErrorManager shall be there:\n" + txt);
         }
-        if (!txt.replace('\n', ' ').matches(".*Logger.global.log *\\(Level.WARNING, *null, *e *\\).*")) {
+        if (!txt.replace('\n', ' ').matches(".*Logger.global.log *\\(Level.INFO, *null, *e *\\).*")) {
             fail("Logger.global shall be there:\n" + txt);
         }
     }
