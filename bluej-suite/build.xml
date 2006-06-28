@@ -82,7 +82,7 @@
         <delete dir="build/l10n"/>
         <mkdir dir="build/l10n"/>
         <property name="nbroot" location=".."/>
-        <l10n topdirs="${nb_all}" modules="ide"
+        <l10n topdirs="${nb_all}" modules="ide,installer"
               localizablefile="bluejl10n.list" generatedfile="bluejl10n.list.translated"
               distdir="dist" changedfile="bluejl10n.list.changed"
               builddir="build/l10n" buildnumber="${buildnumber}"
