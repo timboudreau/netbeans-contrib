@@ -26,9 +26,9 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
                 </file>
                 <attr name="netbeans-bluej-tut.url/quick-start.url" boolvalue="true"/>
-                     <file name="quick-start.url" url="nbresloc:/org/netbeans/modules/utilities/quick-start.url">
+           <!--     <file name="quick-start.url" url="nbresloc:/org/netbeans/modules/utilities/quick-start.url">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
-                </file>
+                </file>-->
                 <attr name="quick-start.url/using-netbeans.url" boolvalue="true"/>
                 <file name="platform-tutorial.url_hidden" url="nbresloc:/org/netbeans/modules/utilities/platform-tutorial.url">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.url.Bundle"/>
