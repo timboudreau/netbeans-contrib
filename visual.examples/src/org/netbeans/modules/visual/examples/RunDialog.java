@@ -24,6 +24,11 @@ public class RunDialog extends javax.swing.JFrame {
     /** Creates new form RunDialog */
     public RunDialog() {
         initComponents();
+        list.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "javaone.demo1.IconNodeWidget", "javaone.demo2.ActionDemo", "javaone.demo3.ConnectionDemo", "javaone.demo4.GraphDemo", "javaone.demo5.ManyObjectsDemo", "javaone.demo6.LODDemo", "test.general.GraphSceneTest", "test.huge.HugeTest", "test.lod.LevelOfDetailsTest", "test.vmd.VMDTest", "test.animator.AnimatorTest", "test.object.ObjectTest", "test.connect.ConnectScene", "test.connectionlabels.ConnectionLabelsTest", "test.devolve.DevolveTest" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
     }
 
     /** This method is called from within the constructor to
@@ -45,11 +50,6 @@ public class RunDialog extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Run Dialog");
-        list.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "javaone.demo1.IconNodeWidget", "javaone.demo2.ActionDemo", "javaone.demo3.ConnectionDemo", "javaone.demo4.GraphDemo", "javaone.demo5.ManyObjectsDemo", "javaone.demo6.LODDemo", "test.general.GraphSceneTest", "test.huge.HugeTest", "test.lod.LevelOfDetailsTest", "test.vmd.VMDTest", "test.animator.AnimatorTest", "test.object.ObjectTest", "test.connect.ConnectScene" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
         list.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         list.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {

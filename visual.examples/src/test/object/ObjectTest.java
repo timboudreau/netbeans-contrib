@@ -56,7 +56,7 @@ public class ObjectTest extends GraphScene.StringGraph {
 
         widget.getActions ().addAction (createSelectAction ());
         widget.getActions ().addAction (createHoverAction ());
-        widget.getActions ().addAction (new MoveAction ());
+        widget.getActions ().addAction (createMoveAction ());
 
         return new NodeController.StringNode (node, widget);
     }
