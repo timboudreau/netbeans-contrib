@@ -1,14 +1,20 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <!--
-                Sun Public License Notice
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
 
-The contents of this file are subject to the Sun Public License
-Version 1.0 (the "License"). You may not use this file except in
-compliance with the License. A copy of the License is available at
-http://www.sun.com/
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
 
-The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <html>
@@ -17,12 +23,12 @@ Microsystems, Inc. All Rights Reserved.
   </head>
   <body>
   <h1>Cache API</h1>
-  The purpose of this library is to provide a convenient way to build data 
+  The purpose of this library is to provide a convenient way to build data
   caches - that is, some data which is stored persistently, but has minimal
   retrieval overhead.
   <p>
   Essentially, a Cache acts as an indexed list of <code>java.nio.ByteBuffer</code>s
-  which may have data appended, deleted or replaced.  They are 
+  which may have data appended, deleted or replaced.  They are
   optimized for data which mainly grows - that is, data is appended to the
   end.  If you are dealing with data in which arbitrary elements from 
   arbitrary positions may change frequently, this library is probably 
