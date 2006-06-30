@@ -1,14 +1,21 @@
-/*                         Sun Public License Notice
+/* The contents of this file are subject to the terms of the Common Development
+/* and Distribution License (the License). You may not use this file except in
+/* compliance with the License.
  *
- * The contents of this file are subject to the Sun Public License Version 
- * 1.0 (the "License"). You may not use this file except in compliance with 
- * the License. A copy of the License is available at http://www.sun.com/
- * 
- * The Original Code is RemoteFS. The Initial Developer of the Original
- * Code is Libor Martinek. Portions created by Libor Martinek are 
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+/* or http://www.netbeans.org/cddl.txt.
+/*
+/* When distributing Covered Code, include this CDDL Header Notice in each file
+/* and include the License file at http://www.netbeans.org/cddl.txt.
+/* If applicable, add the following below the CDDL Header, with the fields
+/* enclosed by brackets [] replaced by your own identifying information:
+/* "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is RemoteFS. The Initial Developer of the Original
+/* Software is Libor Martinek. Portions created by Libor Martinek are
  * Copyright (C) 2000. All Rights Reserved.
- * 
- * Contributor(s): Libor Martinek. 
+ *
+ * Contributor(s): Libor Martinek.
  */
 
 package org.netbeans.modules.remotefs.ftpclient;
@@ -21,14 +28,14 @@ import org.netbeans.modules.remotefs.core.RemoteFileAttributes;
  *
  * @author  Libor Martinek
  * @version 1.0
- */ 
+ */
 public class FTPFileAttributes extends RemoteFileAttributes  {
 
     private String rights = null;
     private int links = 0;
     private String user = null;
     private String group = null;
-    
+
     /** Create new FTPFileAttributes */
     public FTPFileAttributes(FTPFileName name,boolean isdirectory,String rights,int links,
                             String user,String group,long size,java.util.Date date) {
