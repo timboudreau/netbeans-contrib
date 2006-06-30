@@ -31,7 +31,7 @@ import org.netbeans.api.editor.completion.Completion;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionTask;
-importorg.netbeans.spi.editor.completion.support.CompletionUtilities;
+import org.netbeans.spi.editor.completion.support.CompletionUtilities;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
