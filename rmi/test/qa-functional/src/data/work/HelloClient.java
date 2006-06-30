@@ -1,15 +1,15 @@
 /*
  *
- * 
+ *
  * HelloClient.java -- synopsis.
- * 
- * 
+ *
+ *
  *  August 31, 2000
  *  <<Revision>>
- * 
+ *
  *  SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
- * 
- *  Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
+ *
+ *  Copyright © 1997-2006 Sun Microsystems, Inc. All rights reserved.
  *  Use is subject to license terms.
  */
 
@@ -32,14 +32,14 @@ public class HelloClient extends Object {
   /** Creates new RMIClient */
   public HelloClient() {
   }
-  
+
   /**
   * @param args the command line arguments
   */
   public static void main (String args[]) throws IOException {
     String result = ""; // NOI18N
     HelloWorld obj;
-    if (args.length != 2) 
+    if (args.length != 2)
         System.err.println(bundle.getString("Parameter_expected__service_URL_and_output_file."));
     else {
         try {

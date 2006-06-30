@@ -1,15 +1,15 @@
 /*
  *
- * 
+ *
  * Support.java -- synopsis.
- * 
- * 
+ *
+ *
  *  August 31, 2000
  *  <<Revision>>
- * 
+ *
  *  SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
- * 
- *  Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
+ *
+ *  Copyright © 1997-2006 Sun Microsystems, Inc. All rights reserved.
  *  Use is subject to license terms.
  */
 package support;
@@ -17,7 +17,7 @@ package support;
 import java.awt.*;
 import java.io.*;
 import javax.swing.table.*;
-import support.PropertySupport; 
+import support.PropertySupport;
 import org.openide.*;
 import org.openide.filesystems.*;
 import org.openide.cookies.*;
@@ -28,7 +28,7 @@ import org.openide.loaders.*;
 import org.openide.windows.*;
 import org.openide.util.*;
 import org.openide.nodes.*;
-import org.netbeans.modules.java.JavaDataObject; 
+import org.netbeans.modules.java.JavaDataObject;
 
 /** Support routines for RMI Tests
  *
@@ -40,7 +40,7 @@ import org.netbeans.modules.java.JavaDataObject;
 public class Support {
     public static final java.util.ResourceBundle bundle=java.util.ResourceBundle.getBundle("data/RMITests");
 /** name of the RMI Executor
- */    
+ */
     public static final String RMI_EXECUTOR = bundle.getString("RMI_Executor");
 /** name of the RMI Client Executor
  */    

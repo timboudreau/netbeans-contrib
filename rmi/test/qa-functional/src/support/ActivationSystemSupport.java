@@ -1,15 +1,15 @@
 /*
  *
- * 
+ *
  * RMIRegistrySupport.java -- synopsis.
- * 
- * 
+ *
+ *
  *  April 28, 2000
  *  <<Revision>>
- * 
+ *
  *  SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
- * 
- *  Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
+ *
+ *  Copyright © 1997-2006 Sun Microsystems, Inc. All rights reserved.
  *  Use is subject to license terms.
  */
 package support;
@@ -32,7 +32,7 @@ public class ActivationSystemSupport  {
             regs.removeAS((ActivationSystemItem)asi.next());
         }
   }
-  
+
   public static void updateAllActivationSystemItems() {
         RMIRegistryItems regs=RMIRegistryItems.getInstance();
         java.util.Iterator asi=regs.getASSet().iterator();

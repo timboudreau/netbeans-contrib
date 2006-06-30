@@ -1,18 +1,18 @@
 /*
  *
- * 
+ *
  * PropertySupport.java -- synopsis.
- * 
- * 
+ *
+ *
  *  April 13, 2000
  *  <<Revision>>
- * 
+ *
  *  SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
- * 
- *  Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
+ *
+ *  Copyright © 1997-2006 Sun Microsystems, Inc. All rights reserved.
  *  Use is subject to license terms.
  */
- 
+
 package support;
 
 import java.util.*;
@@ -28,22 +28,22 @@ public class PropertySupport extends Object {
   /** Creates new PropertySupport */
   public PropertySupport() {
   }
-  
+
     /**
   This method get you node's property value. You must put property name into method's
   arguments in following format:
-  
+
       "Property List"/"Property Name"
-  
+
   for example, if you want to get compiler type from a node, you should put into
   argument:
-  
+
       Execution/Compiler
-  
-  For easier use, display names of properties are used. It mean, if you see a property 
+
+  For easier use, display names of properties are used. It mean, if you see a property
   name in property edit window, you can put this name into this function argument.
-  
-  */  
+
+  */
   public static Object getPropertyValue(String propertyName, Node n) throws Exception {
     Node.PropertySet[] nps = n.getPropertySets();
     //main part, for example "Execution"

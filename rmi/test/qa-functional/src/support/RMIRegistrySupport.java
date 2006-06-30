@@ -1,15 +1,15 @@
 /*
  *
- * 
+ *
  * RMIRegistrySupport.java -- synopsis.
- * 
- * 
+ *
+ *
  *  April 28, 2000
  *  <<Revision>>
- * 
+ *
  *  SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
- * 
- *  Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
+ *
+ *  Copyright © 1997-2006 Sun Microsystems, Inc. All rights reserved.
  *  Use is subject to license terms.
  */
 package support;
@@ -35,7 +35,7 @@ public class RMIRegistrySupport  {
     RMIRegistrySettings registrysettings = (RMIRegistrySettings) SystemOption.findObject(RMIRegistrySettings.class, true);
     registrysettings.setInternalRegistryPort(RMIRegistrySettings.REGISTRY_NONE);
   }
-  
+
   /* Set internal registry with default port 1099 and start registry */
   public static void setInternalRegistryPort() {
     setInternalRegistryPort(1099);

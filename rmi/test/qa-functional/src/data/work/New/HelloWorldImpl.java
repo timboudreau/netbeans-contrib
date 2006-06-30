@@ -1,15 +1,15 @@
 /*
  *
- * 
+ *
  * HelloWorldImpl.java -- synopsis.
- * 
- * 
+ *
+ *
  *  August 31, 2000
  *  <<Revision>>
- * 
+ *
  *  SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
- * 
- *  Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
+ *
+ *  Copyright © 1997-2006 Sun Microsystems, Inc. All rights reserved.
  *  Use is subject to license terms.
  */
 
@@ -33,7 +33,7 @@ public class HelloWorldImpl extends UnicastRemoteObject implements HelloWorld {
 
   /** Registration name */
   static protected String objURLName;
-    
+
   /** Constructs HelloWorldImpl object and exports it on default port.
    */
   public HelloWorldImpl() throws RemoteException {
