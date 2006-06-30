@@ -30,7 +30,9 @@ public class SceneSupport {
     public static void show (final Scene scene) {
         int width=800,height=600;
         JFrame frame = new JFrame ();//new JDialog (), true);
-        JComponent sceneView = scene.createView ();
+        JComponent sceneView = scene.getComponent ();
+        if (sceneView == null)
+            sceneView = scene.createView ();
         JScrollPane panel = new JScrollPane (sceneView);
         panel.getHorizontalScrollBar ().setUnitIncrement (32);
         panel.getHorizontalScrollBar ().setBlockIncrement (256);
