@@ -41,7 +41,7 @@ public class Install {
         install();
     }
 
-    public staticvoid install() {
+    public static void install() {
         final UIDefaults uid = UIManager.getDefaults();
         originalImpl = uid.getUIClass(KEY);
         Class impl = ChooserComponentUI.class;

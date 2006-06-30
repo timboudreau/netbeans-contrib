@@ -39,7 +39,7 @@ public class ProjectPackagerSettings extends SystemOption {
     /**
      * SMTP server property
      */
-    publicstatic final String PROP_SMTP_SERVER = NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_Server");
+    public static final String PROP_SMTP_SERVER = NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_Server");
     /**
      * SMTP username property
      */
