@@ -1,4 +1,4 @@
-// -*- java -*- 
+// -*- java -*-
 /*
  * IDL.jjt -- synopsis.
  *
@@ -8,7 +8,7 @@
  *
  * SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
  *
- * Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
+ * Copyright © 1997-2006 Sun Microsystems, Inc. All rights reserved.
  * Use is subject to license terms.
  */
 
