@@ -188,3 +188,43 @@ return ($E) new $E($msg).initCause($orig);
 ::
 $E instanceof java.lang.Throwable, $orig instanceof java.lang.Throwable,
     $ErrMgr instanceof org.openide.ErrorManager, $msg instanceof java.lang.String;
+
+
+//
+// Change order of initCause and attachMessage
+//
+
+{ $before$;
+org.openide.util.Exceptions.attachMessage($nue, $msg);
+  $middle$;
+$nue.initCause($anotherEx);
+  $after$;
+}
+=>
+{ $before$;
+  $middle$;
+$nue.initCause($anotherEx);
+org.openide.util.Exceptions.attachMessage($nue, $msg);
+  $after$;
+}
+::
+$nue instanceof java.lang.Throwable, $anotherEx instanceof java.lang.Throwable,
+$msg instanceof java.lang.String;
+
+
+{ $before$;
+org.openide.util.Exceptions.attachLocalizedMessage($nue, $msg);
+  $middle$;
+$nue.initCause($anotherEx);
+  $after$;
+}
+=>
+{ $before$;
+  $middle$;
+$nue.initCause($anotherEx);
+org.openide.util.Exceptions.attachLocalizedMessage($nue, $msg);
+  $after$;
+}
+::
+$nue instanceof java.lang.Throwable, $anotherEx instanceof java.lang.Throwable,
+$msg instanceof java.lang.String;

@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.netbeans.junit.NbTestCase;
 
@@ -345,6 +347,44 @@ public final class ErrorManagerTest extends NbTestCase {
         }
         if (txt.replace('\n', ' ').indexOf("$") >= 0) {
             fail("NO $ shall be there:\n" + txt);
+        }
+    }
+    
+    
+    public void testUsingAttachMessageAndThenInitCauseIsNotGoodIdea() throws Exception {
+        doUsingAttachMessageAndThenInitCauseIsNotGoodIdea("attachMessage");
+    }
+    
+    public void testUsingAttachLocMessageAndThenInitCauseIsNotGoodIdea() throws Exception {
+        doUsingAttachMessageAndThenInitCauseIsNotGoodIdea("attachLocalizedMessage");
+    }
+    
+    private void doUsingAttachMessageAndThenInitCauseIsNotGoodIdea(String method) throws Exception {
+        File f = JackpotUtils.extractString(new File(getWorkDir(), "A.java"),
+            "package test;\n" +
+            "import java.io.IOException;\n" +
+            "class A {\n" +
+            " public static void main(String[] args) throws IOException {\n" +
+            "       try {" +
+            "          System.exit(0);\n" +
+            "        } catch( IllegalArgumentException iaE ) {" + 
+            "           IOException io = new IOException();" +
+            "           org.openide.util.Exceptions." + method + "(io, \"msg\");\n" +
+            "           iaE.printStackTrace();\n" + 
+            "           io.initCause(iaE);\n" +
+            "           throw io;\n" + 
+            "        }" +
+            " }\n" +
+            "}\n"
+        );
+
+        JackpotUtils.apply(getWorkDir(), script);
+
+        String txt = JackpotUtils.readFile(f, false);
+
+        Matcher m = Pattern.compile("initCause.*" + method, Pattern.DOTALL).matcher(txt);
+        if (!m.find()) {
+            fail("First of all we should use initCause and then attachMessage:\n" + txt);
         }
     }
     
