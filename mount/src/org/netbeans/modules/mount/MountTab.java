@@ -35,7 +35,7 @@ import org.openide.windows.WindowManager;
 /**
  * @author Petr Hrebejk, Jesse Glick
  */
-public classMountTab extends TopComponent 
+public class MountTab extends TopComponent 
                         implements ExplorerManager.Provider {
                 
     public static final String ID = "mount"; // NOI18N
