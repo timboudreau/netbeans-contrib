@@ -25,7 +25,7 @@ public class RunDialog extends javax.swing.JFrame {
     public RunDialog() {
         initComponents();
         list.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "javaone.demo1.IconNodeWidget", "javaone.demo2.ActionDemo", "javaone.demo3.ConnectionDemo", "javaone.demo4.GraphDemo", "javaone.demo5.ManyObjectsDemo", "javaone.demo6.LODDemo", "test.general.GraphSceneTest", "test.huge.HugeTest", "test.lod.LevelOfDetailsTest", "test.vmd.VMDTest", "test.animator.AnimatorTest", "test.object.ObjectTest", "test.connect.ConnectScene", "test.connectionlabels.ConnectionLabelsTest", "test.devolve.DevolveTest", "test.swingborder.SwingBorderTest" };
+            String[] strings = { "javaone.demo1.IconNodeWidget", "javaone.demo2.ActionDemo", "javaone.demo3.ConnectionDemo", "javaone.demo4.GraphDemo", "javaone.demo5.ManyObjectsDemo", "javaone.demo6.LODDemo", "test.general.GraphSceneTest", "test.huge.HugeTest", "test.lod.LevelOfDetailsTest", "test.vmd.VMDTest", "test.animator.AnimatorTest", "test.object.ObjectTest", "test.connect.ConnectScene", "test.connectionlabels.ConnectionLabelsTest", "test.devolve.DevolveTest", "test.swingborder.SwingBorderTest", "test.multiview.MultiViewTest" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });

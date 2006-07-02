@@ -86,7 +86,7 @@ public class ObjectTest extends GraphScene.StringGraph {
 
     }
 
-    private void moveTo (Point point) {
+    public void moveTo (Point point) {
         Collection<NodeController.StringNode> nodes = getNodes ();
         int index = 0;
         for (NodeController.StringNode node : nodes)
