@@ -48,7 +48,7 @@ Microsystems, Inc. All Rights Reserved.
             releasedate="${nbm.release.date}"
             moduleauthor="${nbm.module.author}">
             <license>
-                <text>The Jalopy NetBeans Plugin module is under SPL.</text>
+                <text>The Jalopy NetBeans Plugin module is under CDDL.</text>
                 <text>For the Jalopy Source Code Formatter code itself:</text>
                 <file location="external/${jalopy.license}"/>
                 <text>For the bundled Log4j Logging Toolkit:</text>
