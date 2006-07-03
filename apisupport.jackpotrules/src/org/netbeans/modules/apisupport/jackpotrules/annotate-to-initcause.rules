@@ -49,13 +49,13 @@ $ErrMgr.notify($nue) => Exceptions.printStackTrace($nue)
 $ErrMgr.notify(org.openide.ErrorManager.USER, $nue) => DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Exception($nue))
 :: $nue instanceof java.lang.Throwable, $ErrMgr instanceof org.openide.ErrorManager;
 
-$ErrMgr.notify(org.openide.ErrorManager.INFORMATIONAL, $nue) => Logger.global.log(Level.INFO, null, $nue);
+$ErrMgr.notify(org.openide.ErrorManager.INFORMATIONAL, $nue) => Logger.getLogger("global").log(Level.INFO, null, $nue);
 :: $nue instanceof java.lang.Throwable, $ErrMgr instanceof org.openide.ErrorManager;
 
-$ErrMgr.notify(org.openide.ErrorManager.WARNING, $nue) => Logger.global.log(Level.WARNING, null, $nue);
+$ErrMgr.notify(org.openide.ErrorManager.WARNING, $nue) => Logger.getLogger("global").log(Level.WARNING, null, $nue);
 :: $nue instanceof java.lang.Throwable, $ErrMgr instanceof org.openide.ErrorManager;
 
-$ErrMgr.notify(org.openide.ErrorManager.EXCEPTION, $nue) => Logger.global.log(Level.WARNING, null, $nue);
+$ErrMgr.notify(org.openide.ErrorManager.EXCEPTION, $nue) => Logger.getLogger("global").log(Level.WARNING, null, $nue);
 :: $nue instanceof java.lang.Throwable, $ErrMgr instanceof org.openide.ErrorManager;
 
 //

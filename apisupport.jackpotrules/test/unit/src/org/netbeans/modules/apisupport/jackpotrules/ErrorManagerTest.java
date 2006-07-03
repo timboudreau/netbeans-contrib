@@ -163,7 +163,7 @@ public final class ErrorManagerTest extends NbTestCase {
         if (txt.indexOf("ErrorManager") >= 0) {
             fail("No ErrorManager shall be there:\n" + txt);
         }
-        if (!txt.replace('\n', ' ').matches(".*Logger.global.log *\\(Level.WARNING, *null, *e *\\).*")) {
+        if (!txt.replace('\n', ' ').matches(".*Logger.getLogger *\\( *\"global *\"\\).log *\\(Level.WARNING, *null, *e *\\).*")) {
             fail("Logger.global shall be there:\n" + txt);
         }
     }
@@ -186,7 +186,7 @@ public final class ErrorManagerTest extends NbTestCase {
         if (txt.indexOf("ErrorManager") >= 0) {
             fail("No ErrorManager shall be there:\n" + txt);
         }
-        if (!txt.replace('\n', ' ').matches(".*Logger.global.log *\\(Level.INFO, *null, *e *\\).*")) {
+        if (!txt.replace('\n', ' ').matches(".*Logger.getLogger *\\( *\"global\" *\\).log *\\(Level.INFO, *null, *e *\\).*")) {
             fail("Logger.global shall be there:\n" + txt);
         }
     }
@@ -288,7 +288,7 @@ public final class ErrorManagerTest extends NbTestCase {
             fail("No ErrorManager shall be there:\n" + txt);
         }
 
-        if (!txt.replace('\n', ' ').matches(".*Logger.global.log *\\(Level.WARNING, *null, *npe *\\).*")) {
+        if (!txt.replace('\n', ' ').matches(".*Logger.getLogger *\\( *\"global\" *\\).log *\\(Level.WARNING, *null, *npe *\\).*")) {
             fail("Logger.global shall be there:\n" + txt);
         }
     }
