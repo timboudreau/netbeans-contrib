@@ -16,7 +16,6 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.codetemplatetools.ui.view;
 
 import java.awt.Component;
@@ -32,33 +31,46 @@ import org.netbeans.modules.codetemplatetools.SelectionCodeTemplateProcessor;
  */
 public class CodeTemplateListCellRenderer extends DefaultListCellRenderer {
     public Component getListCellRendererComponent(
-    JList list,
-    Object value,
-    int index,
-    boolean isSelected,
-    boolean cellHasFocus) {
+            JList list,
+            Object value,
+            int index,
+            boolean isSelected,
+            boolean cellHasFocus) {
         JLabel label = (JLabel) super.getListCellRendererComponent(
-        list,
-        value,
-        index,
-        isSelected,
-        cellHasFocus);
+                list,
+                value,
+                index,
+                isSelected,
+                cellHasFocus);
         if (value instanceof CodeTemplate) {
             CodeTemplate codeTemplate = (CodeTemplate) value;
             label.setText(codeTemplate.getAbbreviation());
-            if (isForSelection(codeTemplate)) {                
-                label.setIcon(Icons.TEMPLATE_FOR_SELECTION_ICON);
+            if (isForSelection(codeTemplate)) {
+                if (isForClipboardContent(codeTemplate)) {
+                    label.setIcon(Icons.TEMPLATE_FOR_CLIPBOARDCONTENT_AND_SELECTION_ICON);
+                } else {
+                    label.setIcon(Icons.TEMPLATE_FOR_SELECTION_ICON);
+                }
                 label.setToolTipText(codeTemplate.getDescription() + " [selection]");
             } else {
-                label.setIcon(Icons.TEMPLATE_ICON);
+                if (isForClipboardContent(codeTemplate)) {
+                    label.setIcon(Icons.TEMPLATE_FOR_CLIPBOARDCONTENT_ICON);
+                } else {
+                    label.setIcon(Icons.TEMPLATE_ICON);
+                }
                 label.setToolTipText(codeTemplate.getDescription());
             }
         }
         return label;
     }
     private static String selectionParameterString = "${" + SelectionCodeTemplateProcessor.SELECTION_PARAMETER;
+    private static String clipboardContentParameterString = "${" + SelectionCodeTemplateProcessor.CLIPBOARD_CONTENT_PARAMETER;
     
     private static boolean isForSelection(CodeTemplate codeTemplate) {
         return codeTemplate.getParametrizedText().indexOf(selectionParameterString) != -1;
+    }
+    
+    private static boolean isForClipboardContent(CodeTemplate codeTemplate) {
+        return codeTemplate.getParametrizedText().indexOf(clipboardContentParameterString) != -1;
     }
 }

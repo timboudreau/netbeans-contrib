@@ -16,7 +16,6 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.codetemplatetools.actions;
 
 import java.awt.BorderLayout;
@@ -102,7 +101,7 @@ public class RegisterManager {
                 panel,
                 "Select a Register",
                 JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {       
+                JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
             lastUsedRegister = (String) registersList.getSelectedItem();
             return lastUsedRegister;
         }
@@ -206,13 +205,13 @@ public class RegisterManager {
                 codeTemplate.insert(editorPane);
                 break;
             }
-        }        
+        }
     }
     
     private static void beep() {
         Toolkit.getDefaultToolkit().beep();
     }
-        
+    
     private static void setRegisterValue(JEditorPane editorPane, String register, String text) {
         Class kitClass = editorPane.getEditorKit().getClass();
         BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);

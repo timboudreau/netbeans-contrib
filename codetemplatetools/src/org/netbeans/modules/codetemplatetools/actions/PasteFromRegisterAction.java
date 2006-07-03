@@ -74,7 +74,5 @@ public final class PasteFromRegisterAction extends CookieAction {
     
     protected boolean asynchronous() {
         return false;
-    }
-    
+    }    
 }
-

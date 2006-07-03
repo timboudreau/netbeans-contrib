@@ -74,7 +74,5 @@ public final class CutToRegisterAction extends CookieAction {
     
     protected boolean asynchronous() {
         return false;
-    }
-    
+    }    
 }
-

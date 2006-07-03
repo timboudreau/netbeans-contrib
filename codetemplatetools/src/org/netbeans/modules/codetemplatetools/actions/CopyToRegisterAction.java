@@ -74,7 +74,5 @@ public final class CopyToRegisterAction extends CookieAction {
     
     protected boolean asynchronous() {
         return false;
-    }
-    
+    }    
 }
-
