@@ -36,6 +36,9 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.ShowTemplatesAction"/>
             </file>
+            <file name="org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.SurroundWithAction"/>                
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -57,6 +60,19 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.instance"/>
             </file>
             <attr name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.shadow/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.shadow/org-netbeans-modules-codetemplatetools-actions-separatorBefore.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-codetemplatetools-actions-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-modules-codetemplatetools-actions-separatorBefore.instance/org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.shadow/org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-modules-codetemplatetools-actions-separatorAfter.instance/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance"/>
             </file>
@@ -81,7 +97,7 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow/org-openide-actions-CutAction.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow/org-openide-actions-CutAction.instance" boolvalue="true"/>            
         </folder>
     </folder>
     <folder name="Editors">
