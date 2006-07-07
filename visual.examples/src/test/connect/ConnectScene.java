@@ -14,8 +14,10 @@ package test.connect;
 
 import org.netbeans.api.visual.action.ConnectAction;
 import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.action.ReconnectAction;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.RectangularAnchor;
+import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.border.LineBorder;
 import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.graph.GraphScene;
@@ -40,6 +42,7 @@ public class ConnectScene extends GraphScene.StringGraph {
 
     private WidgetAction createAction = new SceneCreateAction ();
     private WidgetAction connectAction = new SceneConnectAction (interractionLayer);
+    private WidgetAction reconnectAction = new SceneReconnectAction ();
 
     private long nodeCounter = 0;
     private long edgeCounter = 0;
@@ -55,6 +58,8 @@ public class ConnectScene extends GraphScene.StringGraph {
     protected NodeController.StringNode attachNodeController (String node) {
         LabelWidget label = new LabelWidget (this, node);
         label.setBorder (new LineBorder (4));
+        label.getActions ().addAction (createHoverAction ());
+        label.getActions ().addAction (createSelectAction ());
         label.getActions ().addAction (connectAction);
         mainLayer.addChild (label);
         return new NodeController.StringNode (node, label);
@@ -63,6 +68,10 @@ public class ConnectScene extends GraphScene.StringGraph {
     protected EdgeController.StringEdge attachEdgeController (String edge) {
         ConnectionWidget connection = new ConnectionWidget (this);
         connection.setTargetAnchorShape (AnchorShape.TRIANGLE_FILLED);
+        connection.setEndPointShape (PointShape.SQUARE_FILLED_BIG);
+        connection.getActions ().addAction (createHoverAction ());
+        connection.getActions ().addAction (createSelectAction ());
+        connection.getActions ().addAction (reconnectAction);
         connectionLayer.addChild (connection);
         return new EdgeController.StringEdge (edge, connection);
     }
@@ -111,6 +120,7 @@ public class ConnectScene extends GraphScene.StringGraph {
                 targetController = (NodeController.StringNode) objectController;
                 return ! sourceController.equals (targetController) ? ConnectorState.ACCEPT : ConnectorState.REJECT_AND_STOP;
             }
+            targetController = null;
             return objectController != null ? ConnectorState.REJECT_AND_STOP : ConnectorState.REJECT;
         }
 
@@ -118,6 +128,54 @@ public class ConnectScene extends GraphScene.StringGraph {
             EdgeController.StringEdge edge = addEdge (Long.toString (edgeCounter ++));
             setEdgeSource (edge, sourceController);
             setEdgeTarget (edge, targetController);
+        }
+
+    }
+
+    private class SceneReconnectAction extends ReconnectAction {
+
+        EdgeController.StringEdge edge;
+        NodeController.StringNode originalNode;
+        NodeController.StringNode replacementNode;
+
+        public SceneReconnectAction () {
+        }
+
+        protected boolean isSourceReconnectable (ConnectionWidget connectionWidget) {
+            ObjectController objectController = findObjectController (connectionWidget);
+            if (objectController instanceof EdgeController.StringEdge)
+                edge = (EdgeController.StringEdge) objectController;
+            else
+                edge = null;
+            originalNode = edge != null ? getEdgeSource (edge) : null;
+            return originalNode != null;
+        }
+
+        protected boolean isTargetReconnectable (ConnectionWidget connectionWidget) {
+            ObjectController objectController = findObjectController (connectionWidget);
+            if (objectController instanceof EdgeController.StringEdge)
+                edge = (EdgeController.StringEdge) objectController;
+            else
+                edge = null;
+            originalNode = edge != null ? getEdgeTarget (edge) : null;
+            return originalNode != null;
+        }
+
+        protected ConnectorState isReplacementWidget (ConnectionWidget connectionWidget, Widget replacementWidget, boolean recoonectingSource) {
+            ObjectController objectController = findObjectController (replacementWidget);
+            if (objectController instanceof NodeController.StringNode) {
+                replacementNode = (NodeController.StringNode) objectController;
+                return ! originalNode.equals (replacementNode) ? ConnectorState.ACCEPT : ConnectorState.REJECT_AND_STOP;
+            }
+            replacementNode = null;
+            return objectController != null ? ConnectorState.REJECT_AND_STOP : ConnectorState.REJECT;
+        }
+
+        protected void setConnectionAnchor (ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
+            if (reconnectingSource)
+                setEdgeSource (edge, replacementNode);
+            else
+                setEdgeTarget (edge, replacementNode);
         }
 
     }
