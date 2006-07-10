@@ -172,7 +172,9 @@ public class ConnectScene extends GraphScene.StringGraph {
         }
 
         protected void setConnectionAnchor (ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
-            if (reconnectingSource)
+            if (replacementWidget == null)
+                removeEdge (edge);
+            else if (reconnectingSource)
                 setEdgeSource (edge, replacementNode);
             else
                 setEdgeTarget (edge, replacementNode);
