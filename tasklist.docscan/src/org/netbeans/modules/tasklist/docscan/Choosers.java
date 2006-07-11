@@ -19,15 +19,11 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import java.awt.Component;
 import java.awt.Image;
-import java.awt.Panel;
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Collections;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
@@ -37,6 +33,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -149,7 +146,7 @@ class Choosers {
         }
 
         public Image getIcon(int type) {
-            return convertIconToImage(ProjectUtils.getInformation(project).getIcon());
+            return Utilities.icon2Image(ProjectUtils.getInformation(project).getIcon());
         }
 
         public Image getOpenedIcon(int type) {
@@ -190,7 +187,7 @@ class Choosers {
             if (group != null) {
                 Icon icon  = group.getIcon(false);
                 if (icon != null) {
-                    return convertIconToImage(icon);
+                    return Utilities.icon2Image(icon);
                 }
             }
 
@@ -207,7 +204,7 @@ class Choosers {
             if (group != null) {
                 Icon icon  = group.getIcon(true);
                 if (icon != null) {
-                    return convertIconToImage(icon);
+                    return Utilities.icon2Image(icon);
                 }
             }
 
@@ -256,26 +253,5 @@ class Choosers {
                 }
             }
         }
-    }
-
-
-    private static Component CONVERTOR_COMPONENT = new Panel();
-
-    /**
-     * Converts Icon to Image
-     */
-    private static Image convertIconToImage(Icon icon) {
-
-        if ( icon instanceof ImageIcon ) {
-            return ((ImageIcon)icon).getImage();
-        }
-
-        int height = icon.getIconHeight();
-        int width = icon.getIconWidth();
-
-        BufferedImage bImage = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
-        icon.paintIcon( CONVERTOR_COMPONENT, bImage.getGraphics(), 0, 0 );
-
-        return bImage;
     }
 }
