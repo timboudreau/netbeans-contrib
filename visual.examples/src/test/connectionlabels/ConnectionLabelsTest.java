@@ -66,8 +66,9 @@ public class ConnectionLabelsTest {
         edge.setConstraint (label1, ConnectionWidgetLayout.Alignment.TOP_RIGHT, 10);
         label1.getActions ().addAction (action);
 
-        LabelWidget label2 = new LabelWidget (scene, "Edge Center Label");
+        LabelWidget label2 = new LabelWidget (scene, "Movable Edge Center Label");
         label2.setOpaque (true);
+        label2.getActions ().addAction (new MoveAction ());
         edge.addChild (label2);
         edge.setConstraint (label2, ConnectionWidgetLayout.Alignment.CENTER_RIGHT, 0.5f);
         label2.getActions ().addAction (action);
