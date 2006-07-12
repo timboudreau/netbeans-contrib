@@ -13,7 +13,8 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import org.openide.ErrorManager;
 
-/**
+/** TODO rename to InsertStringBeforeVariableDeclarationSuggestionPerformer and refactor accordingly.
+ *
  * @version $Id$
  * @author <a href="mailto:mick@wever.org">Michael Semb Wever</a>
  */

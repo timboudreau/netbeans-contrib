@@ -13,11 +13,8 @@ package org.netbeans.modules.tasklist.checkstyle;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
-import javax.swing.text.StyledDocument;
 
 import org.netbeans.modules.tasklist.client.Suggestion;
-import org.netbeans.modules.tasklist.client.SuggestionPerformer;
-import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
 import org.openide.ErrorManager;
 
@@ -36,6 +33,9 @@ public final class DeleteLineSuggestionPerformer extends AbstractSuggestionPerfo
     }
 
     public void perform(final Suggestion suggestion) {
+        
+        // check line hasn't changed already
+        super.perform(suggestion);
         
         final Element elm = getElement(doc, lineno-1);
         if (elm == null) {
@@ -63,7 +63,6 @@ public final class DeleteLineSuggestionPerformer extends AbstractSuggestionPerfo
     }
 
     protected void performImpl(int docPosition) throws BadLocationException {
-        throw new UnsupportedOperationException("DeleteLineSuggestionPerformer overrides perform(..) directly.");
     }
 
 }

@@ -27,23 +27,27 @@ import javax.swing.text.StyledDocument;
 
 import org.netbeans.modules.tasklist.client.Suggestion;
 import org.netbeans.modules.tasklist.client.SuggestionPerformer;
-import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
 import org.openide.ErrorManager;
 
 /** Handles remembering (through changes as well) the line and column of the violation.
  *
- * @author hair
+ * @author <a href="mailto:mick@wever.org">Michael Semb Wever</a>
  * @version $Id$
  */
 public abstract class AbstractSuggestionPerformer implements SuggestionPerformer {
 
+    /** TODO comment me **/
     protected final Document doc;
 
+    /** TODO comment me **/
     protected final int lineno;
-    
+
+    /** TODO comment me **/
     protected String columnOnwards;
     
+    protected String originalLine;
+
     /**
      * Creates a new instance of AbstractSuggestionPerformer
      */
@@ -51,52 +55,40 @@ public abstract class AbstractSuggestionPerformer implements SuggestionPerformer
             final Document doc,
             final int lineno,
             final int column) {
-        
+
         this.doc = doc;
         this.lineno = lineno;
-        
+
         // instead of remembering the column remember the string from the column to the end of the line.
-        final Element elm = getElement(doc, lineno -1  );
+        final Element elm = getElement(doc, lineno -  1);
         if (elm == null) {
             ErrorManager.getDefault().log(ErrorManager.USER, "getElement was null");
             return;
         }
         final int offset = elm.getStartOffset();
-        final int endOffset = elm.getEndOffset()-1;
-        if( column >= 0 ){
-            try {
-
-                columnOnwards = doc.getText(offset + column -1, endOffset-(offset+column -1));
-
-            } catch (BadLocationException ex) {
-                ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
-            }
-        }
-    }
-
-    public void perform(final Suggestion suggestion) {
-        
-        final Element elm = getElement(doc, lineno -1  );
-        if (elm == null) {
-            ErrorManager.getDefault().log(ErrorManager.USER, "getElement was null");
-            return;
-        }
-        final int offset = elm.getStartOffset();
-        final int endOffset = elm.getEndOffset()-1;
+        final int endOffset = elm.getEndOffset() - 1;
+        final int columnOffset = offset + Math.max(0, column)  -   1;
         try {
-            final String line = doc.getText(offset,endOffset-offset);
-            final int idx = line.indexOf(columnOnwards);
-            if( idx >= 0 ){
-                performImpl(offset+idx);
-            }else{
-                ErrorManager.getDefault().log(ErrorManager.USER, "Lost position of violation, fix not performed.");
-            }
-            
+
+            originalLine = doc.getText(columnOffset, endOffset);
+            columnOnwards = doc.getText(columnOffset, endOffset - columnOffset);
+
         } catch (BadLocationException ex) {
             ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }
     }
-    
+
+    /** TODO comment me **/
+    public void perform(final Suggestion suggestion)    {
+
+        if (!performOnAdjacentLine(lineno, false) && !performOnAdjacentLine(lineno, true)) {
+
+            ErrorManager.getDefault().log(ErrorManager.USER,
+                                    "Lost position of violation, no fix performed");
+        }
+    }
+
+    /** TODO comment me **/
     protected abstract void performImpl(int docPosition) throws BadLocationException;
 
     /** Such a simple operation there's no need to ask for confirmation.
@@ -106,29 +98,61 @@ public abstract class AbstractSuggestionPerformer implements SuggestionPerformer
         return null;
     }
 
+    /** TODO comment me **/
     public boolean hasConfirmation() {
         return false;
     }
-    
+
     /** copied from ChangeCopyrightDatesPerformer **/
     protected final static Element getElement(final Document d, final int linenumber) {
         if (d == null) {
             ErrorManager.getDefault().log(ErrorManager.USER, "d was null");
             return null;
         }
-        
+
         if (!(d instanceof StyledDocument)) {
             ErrorManager.getDefault().log(ErrorManager.USER, "Not a styleddocument");
             return null;
         }
-        
+
         final StyledDocument doc = (StyledDocument) d;
         Element e = doc.getParagraphElement(0).getParentElement();
-        if (e == null) {
+        if (e == null)  {
             // try default root (should work for text/plain)
             e = doc.getDefaultRootElement();
         }
         final Element elm = e.getElement(linenumber);
         return elm;
-    }    
+    }
+
+    /** TODO comment me **/
+    private boolean performOnAdjacentLine(final int lNumber, final boolean incrementLine)   {
+
+        boolean result = false;
+        if (lNumber > 0)  {
+            final Element elm = getElement(doc, lNumber - 1);
+            if (elm == null)     {
+                ErrorManager.getDefault().log(ErrorManager.USER, "getElement was null");
+
+            }      else  {
+                final int offset = elm.getStartOffset();
+                final int endOffset = elm.getEndOffset() - 1;
+                try    {
+                    final String line = doc.getText(offset, endOffset - offset);
+                    final int idx = line.indexOf(columnOnwards);
+                    if (line.equals(originalLine) && idx >= 0)    {
+                        performImpl(offset + idx);
+                        result = true;
+
+                    }  else  {
+                        // try preceding line
+                        result = performOnAdjacentLine(incrementLine ? lNumber + 1 : lNumber - 1, incrementLine);
+                    }
+                } catch (BadLocationException ex) {
+                    ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
+                }
+            }
+        }
+        return result;
+    }
 }

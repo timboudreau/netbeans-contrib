@@ -19,40 +19,40 @@
 
 package org.netbeans.modules.tasklist.checkstyle;
 
-import java.io.*;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import javax.swing.text.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.util.List;
-import java.util.Properties;
+import com.puppycrawl.tools.checkstyle.Checker;
+import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
+import com.puppycrawl.tools.checkstyle.ModuleFactory;
+import com.puppycrawl.tools.checkstyle.PropertiesExpander;
+import com.puppycrawl.tools.checkstyle.api.AuditEvent;
+import com.puppycrawl.tools.checkstyle.api.AuditListener;
+import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
+import com.puppycrawl.tools.checkstyle.api.Configuration;
+import com.puppycrawl.tools.checkstyle.api.SeverityLevel;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Properties;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.List;
+import javax.swing.text.Document;
 import org.netbeans.modules.tasklist.checkstyle.options.CheckstyleSettings;
+import org.netbeans.modules.tasklist.client.SuggestionAgent;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
+import org.netbeans.modules.tasklist.client.SuggestionPerformer;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
-import org.openide.cookies.SourceCookie;
-import org.openide.explorer.view.*;
-import org.openide.nodes.*;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileObject;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.Line;
-import org.openide.util.NbBundle;
 import org.openide.util.SharedClassObject;
-import org.openide.util.Utilities;
-import org.openide.text.DataEditorSupport;
-
-import com.puppycrawl.tools.checkstyle.*;
-import com.puppycrawl.tools.checkstyle.api.*;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.client.*;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
@@ -66,15 +66,17 @@ import org.netbeans.modules.tasklist.providers.SuggestionContext;
  * @todo Add automatic fixers for some of these rules.
  * @todo Refactor so I can share some code with the pmd bridge
  * <p>
- * @author Tor Norbye
+ * @author <a href="mailto:mick@wever.org">Michael Semb Wever</a>
  */
 
 
 public class ViolationProvider extends DocumentSuggestionProvider
     implements AuditListener {
 
+    /** TODO comment me **/
     final private static String TYPE = "checkstyle-violations"; // NOI18N
 
+    /** **/
     public String getType() {
         return TYPE;
     }
@@ -83,6 +85,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
      * methods. */
     private List tasks = null;
     
+    /** TODO comment me **/
     public List scan(final SuggestionContext env) {
         tasks = null;
         this.env = env;
@@ -120,7 +123,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
         } catch (DataObjectNotFoundException e) {
             ErrorManager.getDefault().notify(e);
         }
-        final File file = (dataobject != null && dataobject.isModified() == false) ? FileUtil.toFile(fo) : null;
+        final File file = (dataobject != null && !dataobject.isModified()) ? FileUtil.toFile(fo) : null;
 
         if (file != null) {
             try {
@@ -138,7 +141,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
                 tmp.deleteOnExit();
                 out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(tmp)));
                 final CharSequence chars = env.getCharSequence();
-                for (int i=0; i<chars.length(); i++) {
+                for (int i = 0; i < chars.length(); i++) {
                     out.write(chars.charAt(i));
                 }
                 if (callCheckstyle(file) == false) {
@@ -162,6 +165,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
         return tasks;
     }
 
+    /** TODO comment me **/
     private boolean callCheckstyle(final File file) {
         // TODO: this should only be done once, not for each scan!!!
         try {
@@ -170,21 +174,14 @@ public class ViolationProvider extends DocumentSuggestionProvider
             checker.setModuleFactory(moduleFactory);
             Configuration config = null;
             final Properties props = System.getProperties();
-//            // For now, grab the configuration from the module
-//            final File f = org.openide.modules.InstalledFileLocator.getDefault().locate("configs/checkstyle.xml", "org.netbeans.modules.tasklist.checkstyle", false);
-//            //System.out.println("FILE LOCATED = " + f);
-//            if (f == null) {
-//                ErrorManager.getDefault().log("Couldn't find configs/checkstyle.xml");
-//                return false;
-//            }
-            final CheckstyleSettings settings 
-                    = (CheckstyleSettings)SharedClassObject.findObject(CheckstyleSettings.class, true);
             
+            final CheckstyleSettings settings 
+                    = (CheckstyleSettings) SharedClassObject.findObject(CheckstyleSettings.class, true);            
 
             config = ConfigurationLoader.loadConfiguration(settings.getCheckstyle(), new PropertiesExpander(props));
             checker.configure(config);
             checker.addListener(this);
-            checker.process(new File[] { file }); // Yuck!
+            checker.process(new File[] {file }); // Yuck!
             return true;
         } catch (CheckstyleException e) {
             ErrorManager.getDefault().notify(e);
@@ -198,7 +195,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
      * notify that the audit is about to start
      * @param aEvt the event details
      */
-    public void auditStarted(AuditEvent aEvt) {
+    public void auditStarted(final AuditEvent aEvt) {
         //System.out.println("audidStarted(" + aEvt + ")");
     }
 
@@ -206,7 +203,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
      * notify that the audit is finished
      * @param aEvt the event details
      */
-    public void auditFinished(AuditEvent aEvt) {
+    public void auditFinished(final AuditEvent aEvt) {
         //System.out.println("audidFinished(" + aEvt + ")");
     }
 
@@ -214,7 +211,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
      * notify that audit is about to start on a specific file
      * @param aEvt the event details
      */
-    public void fileStarted(AuditEvent aEvt) {
+    public void fileStarted(final AuditEvent aEvt) {
         //System.out.println("fileStarted(" + aEvt + ")");
     }
 
@@ -222,7 +219,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
      * notify that audit is finished on a specific file
      * @param aEvt the event details
      */
-    public void fileFinished(AuditEvent aEvt) {
+    public void fileFinished(final AuditEvent aEvt) {
         //System.out.println("fileFinished(" + aEvt + ")");
     }
 
@@ -231,7 +228,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
      * @param aEvt the event details
      * @param aThrowable details of the exception
      */
-    public void addException(AuditEvent aEvt, Throwable aThrowable) {
+    public void addException(final AuditEvent aEvt, final Throwable aThrowable) {
         ///System.out.println("addException(" + aEvt + "," + aThrowable + ")");
     }
     
@@ -244,9 +241,9 @@ public class ViolationProvider extends DocumentSuggestionProvider
         //System.out.println("addError(" + aEvt + ")");
         
         try {
-            final int lineNo = Math.max(1,aEvt.getLine());
+            final int lineNo = Math.max(1,   aEvt.getLine());
             final Line line = TLUtils.getLineByNumber(dataobject, lineNo);
-                    
+
             final SuggestionPerformer action = getAction(aEvt);
             final String description = aEvt.getLocalizedMessage().getMessage();
                     
@@ -261,58 +258,75 @@ public class ViolationProvider extends DocumentSuggestionProvider
 
             final SeverityLevel sv = aEvt.getSeverityLevel();
             
-            if (sv == SeverityLevel.IGNORE) {
-                s.setPriority(SuggestionPriority.LOW);
-            } else if (sv == SeverityLevel.INFO) {
-                s.setPriority(SuggestionPriority.MEDIUM_LOW);
-            } else if (sv == SeverityLevel.WARNING) {
-                s.setPriority(SuggestionPriority.MEDIUM);
-            } else if (sv == SeverityLevel.ERROR) {
-                // Even most of the errors seem pretty tame - "line longer than
-                // 80 characters", etc. - so make these medium as well.
-                // Would be nice if Checkstyle would be more careful with
-                // the use of the ERROR level.
-                s.setPriority(SuggestionPriority.MEDIUM);
-            } 
-            
-            s.setLine(line);
-            
-            if (tasks == null) {
-                tasks = new ArrayList(40); // initial guess
-            }
-            tasks.add(s.getSuggestion());
+            if (sv != SeverityLevel.IGNORE) {
+                
+                if (sv == SeverityLevel.INFO) {
+                    s.setPriority(SuggestionPriority.LOW);
+                    
+                } else if (sv == SeverityLevel.WARNING) {
+                    s.setPriority(SuggestionPriority.MEDIUM_LOW);
+                    
+                } else if (sv == SeverityLevel.ERROR) {
+                    // Even most of the errors seem pretty tame - "line longer than
+                    // 80 characters", etc. - so make these medium as well.
+                    // Would be nice if Checkstyle would be more careful with
+                    // the use of the ERROR level.
+                    s.setPriority(SuggestionPriority.MEDIUM);
+                }
 
-        } catch (Exception e) {
+                s.setLine(line);
+                s.setDetails(aEvt.getLocalizedMessage().getKey());
+
+                if (tasks == null) {
+                    tasks = new ArrayList(40); // initial guess
+                }
+                tasks.add(s.getSuggestion());
+            }
+
+        } catch (Exception e)  {
             ErrorManager.getDefault().notify(e);
         }
     }
 
+    /** TODO comment me **/
     private SuggestionPerformer getAction(
             final AuditEvent aEvt) {
-        
+
         final String key = aEvt.getLocalizedMessage().getKey();
-        if( key != null ){
-            System.out.println(key);
+        if (key != null) {
             
-            if( key.contains("trailing")  // FIXME i18n me. problem is that this comes from the checkstyle.xml
-                    && key.contains("spaces") ){ // and can be specified in any language with a common key.
+            
+            if (key.contains("trailing")  // FIXME i18n me. problem is that this comes from the checkstyle.xml
+                    && key.contains("spaces"))  { // and can be specified in any language with a common key.
                 return new TrailingSpacesSuggestionPerformer(env.getDocument(),aEvt.getLine());
-            }else if( "import.unused".equals(key) ){
+                
+            }  else if ("import.unused".equals(key) || "import.avoidStar".equals(key)) {
                 return new DeleteLineSuggestionPerformer(env.getDocument(),aEvt.getLine());
-            }else if( "ws.notPreceded".equals(key) ){
-                return new InsertSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
-            }else if( "ws.notFollowed".equals(key) ){
-                return new InsertSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
-            }else if( "ws.preceded".equals(key) ){
-                return new DeleteSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
-            }else if( "ws.followed".equals(key) ){
-                return new DeleteSpaceSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
-            }else if( "final.parameter".equalsIgnoreCase(key) ){
-                return new InsertFinalKeywordSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
-            }else if( "final.variable".equalsIgnoreCase(key) ){
+                
+            }  else if ("ws.notPreceded".equals(key) || "ws.notFollowed".equals(key)) {
+                return new InsertStringSuggestionPerformer(env.getDocument(),   aEvt.getLine(), aEvt.getColumn())
+                        .setString(" ");
+                
+            }  else if ("ws.preceded".equals(key) || "ws.followed".equals(key)) {
+                return new DeleteSpaceSuggestionPerformer(env.getDocument(), aEvt.getLine(), aEvt.getColumn());
+                
+            }  else if ("final.parameter".equalsIgnoreCase(key)) {
+                return new InsertStringSuggestionPerformer(env.getDocument(), aEvt.getLine(), aEvt.getColumn())
+                        .setString("final ");
+                
+            }  else if ("final.variable".equalsIgnoreCase(key))  {
                 return new InsertFinalVariableKeywordSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn());
+                
+            }  else if ("javadoc.missing".equalsIgnoreCase(key)){
+                return new InsertStringSuggestionPerformer(env.getDocument(),aEvt.getLine(),aEvt.getColumn())
+                        .setString("/** TODO comment me. **/\n    ");
+                
+            }  else if ("javadoc.noperiod".equalsIgnoreCase(key)) {
+                return new InsertStringSuggestionPerformer(env.getDocument(), aEvt.getLine(), aEvt.getColumn())
+                        .setString(".");
+                
             }
-           
+
         }
         return null;
     }
@@ -321,9 +335,13 @@ public class ViolationProvider extends DocumentSuggestionProvider
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
 
+    /** **/
     private SuggestionContext env;
+    /** TODO comment me **/
     private DataObject dataobject = null;
+    /** TODO comment me **/
     private Document document = null;
+    /** **/
     private Object request = null;
 }
 

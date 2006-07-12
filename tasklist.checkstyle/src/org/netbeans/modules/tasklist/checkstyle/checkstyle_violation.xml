@@ -17,7 +17,6 @@ The Original Software is NetBeans. The Initial Developer of the Original
 Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-
 <!DOCTYPE type PUBLIC "-//NetBeans//DTD suggestion type 1.0//EN" "http://www.netbeans.org/dtds/suggestion-type-1_0.dtd">
 <type
     name="checkstyle-violations"
@@ -26,4 +25,3 @@ Microsystems, Inc. All Rights Reserved.
     localizing_bundle="org.netbeans.modules.tasklist.checkstyle.Bundle"
     icon="nbresloc:org/netbeans/modules/tasklist/checkstyle/checkstyle.gif"
 />
-
