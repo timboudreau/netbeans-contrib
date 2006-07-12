@@ -40,7 +40,7 @@ public class Problem extends Item {
         return new Point();
     }
 
-    publicvoid replace() throws IOException {
+    public void replace() throws IOException {
         throw new IOException ("Can't replace a problem");
     }
 
