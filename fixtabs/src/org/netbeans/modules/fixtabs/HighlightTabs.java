@@ -34,7 +34,7 @@ import org.netbeans.editor.Coloring;
 import org.netbeans.editor.DrawContext;
 import org.netbeans.editor.DrawLayer;
 import org.netbeans.editor.EditorUI;
-importorg.netbeans.editor.FinderFactory;
+import org.netbeans.editor.FinderFactory;
 import org.netbeans.editor.MarkFactory;
 import org.netbeans.editor.Registry;
 import org.netbeans.editor.Utilities;
