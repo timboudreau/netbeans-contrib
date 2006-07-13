@@ -20,6 +20,7 @@ import org.netbeans.api.visual.border.LineBorder;
 import org.netbeans.api.visual.layout.ConnectionWidgetLayout;
 import org.netbeans.api.visual.router.OrthogonalSearchRouter;
 import org.netbeans.api.visual.widget.*;
+import org.netbeans.api.visual.model.ObjectState;
 import test.SceneSupport;
 
 import java.awt.*;
@@ -35,7 +36,7 @@ public class ConnectionLabelsTest {
         scene.addChild (mainLayer);
         LayerWidget connectionLayer = new LayerWidget (scene);
         scene.addChild (connectionLayer);
-        WidgetAction action = new MouseHoverAction.SceneLookFeel (scene);
+        WidgetAction action = new MyHoverAction (scene);
         scene.getActions ().addAction (action);
 
         LabelWidget sourceNode = new LabelWidget (scene, "Source");
@@ -80,6 +81,30 @@ public class ConnectionLabelsTest {
         label3.getActions ().addAction (action);
 
         SceneSupport.show (scene);
+    }
+
+    private static class MyHoverAction extends MouseHoverAction.TwoStated {
+
+        private Scene scene;
+
+        public MyHoverAction (Scene scene) {
+            this.scene = scene;
+        }
+
+        protected void unsetHovering (Widget widget) {
+            if (widget != null) {
+                widget.setBackground (scene.getLookFeel ().getBackground (ObjectState.NORMAL));
+                widget.setForeground (scene.getLookFeel ().getForeground (ObjectState.NORMAL));
+            }
+        }
+
+        protected void setHovering (Widget widget) {
+            if (widget != null) {
+                ObjectState state = ObjectState.NORMAL.deriveSelected (true);
+                widget.setBackground (scene.getLookFeel ().getBackground (state));
+                widget.setForeground (scene.getLookFeel ().getForeground (state));
+            }
+        }
     }
 
 }

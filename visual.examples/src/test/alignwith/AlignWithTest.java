@@ -15,6 +15,7 @@ package test.alignwith;
 import org.netbeans.api.visual.action.AlignWithMoveAction;
 import org.netbeans.api.visual.action.InplaceEditorAction;
 import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.action.SelectAction;
 import org.netbeans.api.visual.border.SwingBorder;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
@@ -67,13 +68,10 @@ public class AlignWithTest extends Scene {
         mainLayer.addChild (widget);
     }
 
-    private class CreateAction extends WidgetAction.Adapter {
+    private class CreateAction extends SelectAction {
 
-        public State mousePressed (Widget widget, WidgetMouseEvent event) {
-            if (event.getClickCount () != 1)
-                return State.REJECTED;
-            createLabel ("Double-click to rename me", event.getPoint ());
-            return State.CONSUMED;
+        public void doSelect (Widget widget, Point localLocation) {
+            createLabel ("Double-click to rename me", localLocation);
         }
 
     }
