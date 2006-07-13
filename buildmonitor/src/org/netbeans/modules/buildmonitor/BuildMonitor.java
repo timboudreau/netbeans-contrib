@@ -17,12 +17,10 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-
 package org.netbeans.modules.buildmonitor;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
@@ -67,12 +65,13 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     private transient URL buildLink;
     private transient String buildDescription;
     private transient Status lastStatus;
+    private transient String lastStatusText;
     private transient URL statusLink;
     private transient String statusDescription;
     private transient String guid;
     private transient String pubDate;
     
-    private static RequestProcessor WORKER = new RequestProcessor("build status updater");
+    static RequestProcessor WORKER = new RequestProcessor("build status updater");
 
     private static final long serialVersionUID = 5735178156173098330L;
     
@@ -123,12 +122,7 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     public Status getStatus() {
 	return lastStatus != null ? lastStatus : Status.NO_STATUS_AVAIL;
     }
-    
-    private void setStatus(Status newStatus) {
-	lastStatus = newStatus;
-	firePropertyChange("status", newStatus); //NOI18N
-    }
-    
+
     public URL getURL() {
 	return buildStatusURL;
     }
@@ -164,8 +158,9 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     }
 
     public String getStatusDescription() {
-        return statusDescription != null ? 
-            statusDescription : getString("TOOLTIP_NO_STATUS"); //NOI18N
+        return statusDescription != null ? statusDescription :
+            // Hudson provides no description
+            (lastStatusText != null ? lastStatusText : getString("TOOLTIP_NO_STATUS")); //NOI18N
     }
 
     public String getGuid() {
@@ -266,12 +261,16 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
         private boolean inItem;
         private boolean skipRemainingItems;
         private StringBuffer buffer;
+        private String href;
 	public void startElement(String namespaceURI, String localName,
 				 String rawName, Attributes attrs) 
 	    throws SAXException {
             buffer = new StringBuffer();
-            if (rawName.equalsIgnoreCase("item")) //NOI18N
+            if (rawName.equalsIgnoreCase("item") || rawName.equalsIgnoreCase("entry")) //NOI18N
                 inItem = true;
+            if (rawName.equalsIgnoreCase("link")) {
+                href = attrs.getValue("href");
+            }
 	}
 
         public void characters(char buf[], int offset, int len) throws SAXException {
@@ -283,21 +282,26 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
             if (skipRemainingItems)
                 return;
             String text = buffer.toString();
-            if (rawName.equalsIgnoreCase("item")) { //NOI18N
+            if (rawName.equalsIgnoreCase("item") || rawName.equalsIgnoreCase("entry")) { //NOI18N
                 inItem = false;
                 // only first item is read, since it has the most recent status
                 skipRemainingItems = true;
+                // XXX would more simply throw a StopException
             }
             else if (rawName.equalsIgnoreCase("title")) { //NOI18N
                 if (inItem)
-                    lastStatus = Status.lookup(text);
+                    lastStatus = Status.lookup(lastStatusText = text);
                 else
                     title = text;
             }
             else if (rawName.equalsIgnoreCase("link")) { //NOI18N
                 URL url = null;
                 try {
-                    url = new URL(text);
+                    if (text.length() > 0) {
+                        url = new URL(text);
+                    } else if (href != null && href.length() > 0) {
+                        url = new URL(href);
+                    }
                 } catch (MalformedURLException e) {
                     ErrorManager.getDefault().notify(e);
                 }

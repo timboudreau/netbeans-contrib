@@ -82,4 +82,9 @@ public class Status {
 	this.name = NbBundle.getBundle(Status.class).getString(nameKey);
 	this.icon = new ImageIcon(Utilities.loadImage(iconResource), name);
     }
+
+    public String toString() {
+        return getName();
+    }
+    
 }
