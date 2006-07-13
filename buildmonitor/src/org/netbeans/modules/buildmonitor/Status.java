@@ -20,6 +20,7 @@
 
 package org.netbeans.modules.buildmonitor;
 
+import java.util.Locale;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import javax.swing.*;
@@ -66,6 +67,12 @@ public class Status {
             return FAILED;
         if (TESTS_FAILED.name.equals(text))
             return TESTS_FAILED;
+        if (text.toLowerCase(Locale.US).indexOf("succe") != -1) {
+            return SUCCESS;
+        }
+        if (text.toLowerCase(Locale.US).indexOf("fail") != -1) {
+            return FAILED;
+        }
         return NO_STATUS_AVAIL;
     }
 
