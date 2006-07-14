@@ -1,0 +1,11 @@
+
+* How to build
+-------------------------------
+
+The module depends on openide/convertor which is not part of the platform by
+default. You will need to go to nbbuild and run this anytime after the clean build:
+
+ant -Dmodules= -Dfixedmodules=openide/convertor merge
+
+After that the PrimitiveSettings module will build/run normally.
+

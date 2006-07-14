@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.primitivesettings
+OpenIDE-Module-Layer: org/netbeans/modules/primitivesettings/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/primitivesettings/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
+Name: org/netbeans/modules/primitivesettings/PrimitiveSettingConvertor.class
+NetBeans-Convertor: {http://www.netbeans.org/ns/primitiveSetting}primitive-setting, java.lang.Boolean
+NetBeans-Convertor-2: {http://www.netbeans.org/ns/primitiveSetting}primitive-setting, java.lang.Byte
+NetBeans-Convertor-3: {http://www.netbeans.org/ns/primitiveSetting}primitive-setting, java.lang.Character
+NetBeans-Convertor-4: {http://www.netbeans.org/ns/primitiveSetting}primitive-setting, java.lang.Double
+NetBeans-Convertor-5: {http://www.netbeans.org/ns/primitiveSetting}primitive-setting, java.lang.Float
+NetBeans-Convertor-6: {http://www.netbeans.org/ns/primitiveSetting}primitive-setting, java.lang.Integer
+NetBeans-Convertor-7: {http://www.netbeans.org/ns/primitiveSetting}primitive-setting, java.lang.Long
+NetBeans-Convertor-8: {http://www.netbeans.org/ns/primitiveSetting}primitive-setting, java.lang.Short
+NetBeans-Convertor-9: {http://www.netbeans.org/ns/primitiveSetting}primitive-setting, java.lang.String
