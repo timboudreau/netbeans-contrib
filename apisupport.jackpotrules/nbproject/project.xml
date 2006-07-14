@@ -7,7 +7,7 @@
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.modules.jackpot</code-name-base>
-                    <build-prerequisite/>
+                    <build-prerequisite/> <!-- XXX should be removed (cf. #54161) -->
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.4.5</specification-version>
@@ -15,7 +15,7 @@
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.jackpot.rules</code-name-base>
-                    <build-prerequisite/>
+                    <build-prerequisite/> <!-- XXX should be removed (cf. #54161) -->
                     <run-dependency>
                         <specification-version>1.2.3</specification-version>
                     </run-dependency>
