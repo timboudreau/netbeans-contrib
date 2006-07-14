@@ -12,11 +12,12 @@
  */
 package javaone.demo5;
 
-import javaone.support.DemoSupport;
 import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.graph.NodeController;
 
 import java.awt.*;
+
+import test.SceneSupport;
 
 /**
  * @author David Kaspar
@@ -30,7 +31,7 @@ public class ManyObjectsDemo {
         createStructure (scene, 2, 100, 1100, 1000, 1000);
         createStructure (scene, 3, 1000, 5000, 7500, 9500);
 
-        DemoSupport.show (scene.createView ());
+        SceneSupport.show (scene.createView ());
     }
 
     private static void createStructure (RadialGraphScene scene, int setID, int count, int centerX, int centerY, float maxRadius) {

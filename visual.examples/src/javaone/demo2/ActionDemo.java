@@ -13,12 +13,12 @@
 
 package javaone.demo2;
 
-import javaone.support.DemoSupport;
 import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.widget.LabelWidget;
+import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.widget.LayerWidget;
+import test.SceneSupport;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,13 +27,13 @@ import java.awt.*;
  * @author David Kaspar
  */
 public class ActionDemo {
-    
+
     public static void main (String[] args) {
         Scene scene = new Scene ();
 
         LayerWidget layer = new LayerWidget (scene);
         scene.addChild(layer);
-        
+
         LabelWidget hello1 = createLabel (scene, "Hello", 100, 100);
         layer.addChild (hello1);
         LabelWidget hello2 = createLabel (scene, "NetBeans", 300, 200);
@@ -44,18 +44,18 @@ public class ActionDemo {
 
         hello1.getActions().addAction (new MoveAction ());
         hello2.getActions().addAction (new MoveAction ());
-        
+
         MyHoverAction hoverAction = new MyHoverAction ();
         scene.getActions().addAction (hoverAction);
         hello1.getActions().addAction (hoverAction);
         hello2.getActions().addAction (hoverAction);
-        
+
         hello1.getActions().addAction(new MyPopupAction ());
         hello2.getActions().addAction(new MyPopupAction ());
-        
-        DemoSupport.show (scene.createView());
+
+        SceneSupport.show (scene.createView ());
     }
-    
+
     private static LabelWidget createLabel (Scene scene, String text, int x, int y) {
         LabelWidget widget = new LabelWidget (scene, text);
         widget.setFont(scene.getDefaultFont().deriveFont(24.0f));
@@ -63,9 +63,9 @@ public class ActionDemo {
         widget.setPreferredLocation (new Point (x, y));
         return widget;
     }
-    
+
     private static class MyHoverAction extends MouseHoverAction.TwoStated {
-        
+
         protected void unsetHovering(Widget widget) {
             if (widget != null) {
                 widget.setBackground (Color.WHITE);
@@ -79,9 +79,9 @@ public class ActionDemo {
                 widget.setForeground (Color.WHITE);
             }
         }
-        
+
     }
-    
+
     private static class MyPopupAction extends PopupMenuAction {
 
         public JPopupMenu getPopupMenu(Widget widget) {
@@ -89,7 +89,7 @@ public class ActionDemo {
             menu.add("Open");
             return menu;
         }
-        
+
     }
-    
+
 }

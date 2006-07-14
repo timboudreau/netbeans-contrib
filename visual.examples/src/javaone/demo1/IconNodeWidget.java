@@ -13,35 +13,36 @@
 
 package javaone.demo1;
 
-import javaone.support.DemoSupport;
 import org.netbeans.api.visual.layout.SerialLayout;
 import org.netbeans.api.visual.widget.ImageWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
+import org.openide.util.Utilities;
+import test.SceneSupport;
 
 /**
  * @author David Kaspar
  */
 public class IconNodeWidget extends Widget {
-    
+
     public IconNodeWidget(Scene scene, String icon, String label) {
         super (scene);
-        
+
         setOpaque (true);
         setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL, SerialLayout.Alignment.CENTER, 4)); // use vertical layout
-        
-        addChild (new ImageWidget (scene, DemoSupport.loadImage (icon))); // add image sub-widget
+
+        addChild (new ImageWidget (scene, Utilities.loadImage (icon))); // add image sub-widget
         addChild (new LabelWidget (scene, label)); // add label sub-widget
     }
-    
+
     public static void main (String[] args) {
         Scene scene = new Scene (); // create a scene
-        
+
         IconNodeWidget iconNode = new IconNodeWidget (scene, "javaone/resources/netbeans_logo.gif", "Visual Library"); // create our icon node
         scene.addChild (iconNode); // add the icon node into scene
-        
-        DemoSupport.show (scene.createView ()); // create and show the view in JFrame
+
+        SceneSupport.show (scene.createView ()); // create and show the view in JFrame
     }
-    
+
 }
