@@ -23,6 +23,8 @@ import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
 import org.netbeans.api.visual.action.SwitchCardAction;
 import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.action.PanAction;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
@@ -66,6 +68,8 @@ public class CardContainerWidget extends Widget {
 
     public static void main (String[] args) {
         Scene scene  = new Scene();
+        scene.getActions ().addAction (new ZoomAction ());
+        scene.getActions ().addAction (new PanAction ());
 
         LayerWidget layer = new LayerWidget (scene);
         scene.addChild (layer);

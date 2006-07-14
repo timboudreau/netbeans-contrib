@@ -1,0 +1,69 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+package test.resize;
+
+import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.ResizeAction;
+import org.netbeans.api.visual.border.ImageBorder;
+import org.netbeans.api.visual.border.ResizeBorder;
+import org.netbeans.api.visual.border.SwingBorder;
+import org.netbeans.api.visual.widget.LabelWidget;
+import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Scene;
+import org.openide.util.Utilities;
+import test.SceneSupport;
+
+import javax.swing.border.BevelBorder;
+import java.awt.*;
+
+/**
+ * @author David Kaspar
+ */
+public class ResizeTest extends Scene {
+
+    private LayerWidget layer;
+    private ResizeAction resizeAction;
+    private MoveAction moveAction;
+
+    public ResizeTest () {
+        setBackground (Color.LIGHT_GRAY);
+
+        layer = new LayerWidget (this);
+        addChild (layer);
+
+        resizeAction = new ResizeAction ();
+        moveAction = new MoveAction ();
+
+        createLabel (100, 100).setBorder (new ResizeBorder (5));
+        createLabel (200, 200).setBorder (new ResizeBorder (8, Color.BLACK, true));
+        createLabel (300, 300).setBorder (new SwingBorder (this, new BevelBorder (BevelBorder.RAISED)));
+        createLabel (400, 400).setBorder (new ImageBorder (new Insets (5, 5, 5, 5), Utilities.loadImage ("org/netbeans/modules/visual/resources/border/shadow_normal.png"))); // NOI18N
+    }
+
+    public LabelWidget createLabel (int x, int y) {
+        LabelWidget label = new LabelWidget (this, "Drag border to resize me. Drag inner area to move me.");
+        label.setOpaque (true);
+        label.setBackground (Color.WHITE);
+        label.setCheckClipping (true);
+        label.setPreferredLocation (new Point (x, y));
+        label.getActions ().addAction (resizeAction);
+        label.getActions ().addAction (moveAction);
+        layer.addChild (label);
+        return label;
+    }
+
+    public static void main (String[] args) {
+        SceneSupport.show (new ResizeTest ());
+    }
+
+}
