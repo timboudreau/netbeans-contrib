@@ -51,10 +51,6 @@ Microsystems, Inc. All Rights Reserved.
         <fail unless="commons-collections.present">Missing library.
             ${readme.txt} 
         </fail>
-        <available file="../external/checkstyle_checks.xml" property="checkstyle-rule.present" />
-        <fail unless="checkstyle-rule.present">Missing library.
-            ${readme.txt}
-        </fail>
         
         <mkdir dir="${cluster}/modules/ext"/>
         <copy todir="${cluster}/modules/ext">
@@ -66,8 +62,6 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="commons-collections.jar"/>
             </fileset>
         </copy>
-       <mkdir dir="${cluster}/configs"/>
-       <copy tofile="${cluster}/configs/checkstyle.xml" file="../external/checkstyle_checks.xml"/>
     </target>
     
     <target name="changelog">
