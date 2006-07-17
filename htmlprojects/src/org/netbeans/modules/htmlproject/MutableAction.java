@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Locale;
 import javax.swing.AbstractAction;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
@@ -112,7 +113,7 @@ class MutableAction extends AbstractAction {
     private File search(File fld) {
         File[] f = fld.listFiles();
         for (int i = 0; i < f.length; i++) {
-            String s = f[i].getName().toUpperCase();
+            String s = f[i].getName().toUpperCase(Locale.ENGLISH);
             if ("INDEX.HTML".equals(s) || "INDEX.HTM".equals(s)) { //NOI18N
                 return f[i];
             } else if (f[i].isDirectory()) {

@@ -16,6 +16,7 @@ package org.netbeans.modules.htmlproject;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 import javax.swing.AbstractAction;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -57,7 +58,7 @@ public class ColocatedHtmlFileAction extends AbstractAction {
                         " file names");
                 DialogDisplayer.getDefault().notify(msg);
             } else {
-                if (!txt.toUpperCase().endsWith(".HTML") && !txt.toUpperCase().endsWith(".HTM")) {
+                if (!txt.toUpperCase(Locale.ENGLISH).endsWith(".HTML") && !txt.toUpperCase(Locale.ENGLISH).endsWith(".HTM")) {
                     txt = txt + ".html";
                 }
                 final File nue = new File (f.getParentFile(), line.getInputText() + ".html");
