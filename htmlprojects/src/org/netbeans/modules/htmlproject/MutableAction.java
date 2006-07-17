@@ -43,9 +43,11 @@ class MutableAction extends AbstractAction {
         String nm;
         switch(ix) {
             case CLOSE:
+                // XXX bad, should use standard action
                 nm = "Close Project";
                 break;
             case DELETE:
+                // XXX bad, should use standard action
                 nm = "Delete Project";
                 break;
             case VIEW:
@@ -55,9 +57,11 @@ class MutableAction extends AbstractAction {
                 nm = "Zip Project (Build)";
                 break;
             case CLEAN :
+                // XXX bad, should use standard action
                 nm = "Clean Project";
                 break;
             case PROPS :
+                // XXX bad, should use standard action
                 nm = "Properties";
                 break;
             default:
