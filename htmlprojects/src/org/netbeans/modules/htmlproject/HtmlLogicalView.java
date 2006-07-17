@@ -628,7 +628,7 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
             String[] result = new String[1];
             if (!EventQueue.isDispatchThread()) {
                 File f = getFile();
-                if (f.exists() && f.isFile()) {
+                if (f.exists() && f.isFile() && f.length() > 20) {
                     FileChannel fc;
                     try {
                         fc = new FileInputStream(f).getChannel();
@@ -636,6 +636,7 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
                         fc.read(buf);
                         fc.close();
                         buf.flip();
+                        //XXX actually detect the encoding in the file header
                         CharSequence seq = decoder.decode(buf);
                         Matcher matcher = pat.matcher(seq);
                         if (matcher.lookingAt()) {
