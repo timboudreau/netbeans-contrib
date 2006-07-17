@@ -118,7 +118,7 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
         }
     }
 
-    public void setDisplayName (String s) {
+    public void setDisplayName (String s) throws IOException {
         String old = getDisplayName();
         if (!old.equals(s)) {
             HtmlProjectFactory.putHtmlProjectName(dir, s);
@@ -359,7 +359,11 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
             if (ch.showOpenDialog(null) == JFileChooser.APPROVE_OPTION &&
                     ch.getSelectedFile().exists() && ch.getSelectedFile().canWrite()) {
                 path = FileUtil.normalizeFile(ch.getSelectedFile()).getPath();
-                HtmlProjectFactory.putHtmlMainFile(dir, path);
+                try {
+                    HtmlProjectFactory.putHtmlMainFile(dir, path);
+                } catch (IOException x) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
+                }
             } else {
                 StatusDisplayer.getDefault().setStatusText("No main file set ");
                 Toolkit.getDefaultToolkit().beep();
@@ -394,16 +398,20 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
             ch.setDialogType(JFileChooser.CUSTOM_DIALOG);
             ch.setCurrentDirectory(f);
             ch.setMultiSelectionEnabled(false);
-            ch.setDialogTitle("Choose a Destination Directory for the Zip File");
+            ch.setDialogTitle("Choose a Destination Directory for the ZIP File"); // XXX I18N
             ch.setApproveButtonText("Select");
             ch.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             ch.setFileHidingEnabled(true);
             if (ch.showOpenDialog(null) == JFileChooser.APPROVE_OPTION &&
                     ch.getSelectedFile().exists() && ch.getSelectedFile().isDirectory()) {
                 s = ch.getSelectedFile().getPath();
-                HtmlProjectFactory.putHtmlZipDestDir(dir, s);
+                try {
+                    HtmlProjectFactory.putHtmlZipDestDir(dir, s);
+                } catch (IOException x) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
+                }
             } else {
-                StatusDisplayer.getDefault().setStatusText("Cannot write to " +
+                StatusDisplayer.getDefault().setStatusText("Cannot write to " + // XXX I18N
                         ch.getSelectedFile().getName());
                 Toolkit.getDefaultToolkit().beep();
                 return null;

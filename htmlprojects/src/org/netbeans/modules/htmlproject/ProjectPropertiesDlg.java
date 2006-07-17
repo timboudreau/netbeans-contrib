@@ -18,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
+import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -26,6 +27,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -233,15 +235,19 @@ public class ProjectPropertiesDlg extends javax.swing.JPanel implements Document
     void commit() {
         change();
         if (!isProblem()) {
-            String nm = nameField.getText();
-            project.setDisplayName (nm);
+            try {
+                String nm = nameField.getText();
+                project.setDisplayName(nm);
 
-            FileObject dir = project.getProjectDirectory();
-            String path = mainFileField.getText();
-            HtmlProjectFactory.putHtmlMainFile(dir, path);
+                FileObject dir = project.getProjectDirectory();
+                String path = mainFileField.getText();
+                HtmlProjectFactory.putHtmlMainFile(dir, path);
 
-            path = zipField.getText();
-            HtmlProjectFactory.putHtmlZipDestDir(dir, path);
+                path = zipField.getText();
+                HtmlProjectFactory.putHtmlZipDestDir(dir, path);
+            } catch (IOException x) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
+            }
         }
     }
 

@@ -11,22 +11,15 @@ and include the License file at http://www.netbeans.org/cddl.txt.
 If applicable, add the following below the CDDL Header, with the fields
 enclosed by brackets [] replaced by your own identifying information:
 "Portions Copyrighted [year] [name of copyright owner]" */
+
 package org.netbeans.modules.htmlproject;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 
 /**
  * A very simple html project w/ no metadata dir.
@@ -47,7 +40,7 @@ public final class HtmlProjectFactory implements ProjectFactory {
                 result = fo.getFileObject ("nbweb") != null;
             }
             if (!result) {
-                result = getKnownHtmlProjects().contains (fo.getPath());
+                result = isKnownHtmlProject(fo);
             }
         }
         return result;
@@ -56,7 +49,9 @@ public final class HtmlProjectFactory implements ProjectFactory {
     public Project loadProject(FileObject fo, ProjectState state) throws IOException {
         if (isProject (fo)) {
             HtmlProject result = new HtmlProject (fo, state);
+            /* Not a good idea to modify state without user action:
             addKnownHtmlProject (result);
+             */
             return result;
         } else {
             return null;
@@ -67,75 +62,44 @@ public final class HtmlProjectFactory implements ProjectFactory {
         //do nothing
     }
 
-    public static Set getKnownHtmlProjects() {
-        String s = Preferences.userNodeForPackage(HtmlProjectFactory.class).get(HTML_PRJ_KEY, "");
-        HashSet result = new HashSet();
-        for (StringTokenizer tok = new StringTokenizer (s, ","); tok.hasMoreTokens();) {
-            result.add (tok.nextToken().trim());
-        }
-        return result;
-    }
+    private static final String KEY_BASE = "org.netbeans.modules.htmlproject.";
+    private static final String KEY_MARKER = KEY_BASE + "marker";
+    private static final String KEY_NAME = KEY_BASE + "name";
+    private static final String KEY_ZIP_DEST_DIR = KEY_BASE + "zipDestDir";
+    private static final String KEY_MAIN_FILE = KEY_BASE + "mainFile";
 
-    private static final String HTML_PRJ_KEY = "htmlProjects";
-    public static void addKnownHtmlProject (HtmlProject proj) {
+    private static void addKnownHtmlProject (HtmlProject proj) throws IOException {
         addKnownHtmlProject (proj.getProjectDirectory());
     }
-    public static void addKnownHtmlProject (FileObject fdir) {
-        String dir = fdir.getPath();
-        if (!getKnownHtmlProjects().contains(dir)) {
-            String s= Preferences.userNodeForPackage(HtmlProjectFactory.class).get(HTML_PRJ_KEY, "");
-            s = s + ',' + dir;
-            Preferences.userNodeForPackage(HtmlProjectFactory.class).put(HTML_PRJ_KEY,
-                    s);
-        }
+    public static void addKnownHtmlProject (FileObject projdir) throws IOException {
+        projdir.setAttribute(KEY_MARKER, Boolean.TRUE);
+    }
+    private static boolean isKnownHtmlProject(FileObject projdir) {
+        return Boolean.TRUE.equals(projdir.getAttribute(KEY_MARKER));
     }
 
-    static void putHtmlProjectName(FileObject dir, String name) {
-        String path = FileUtil.toFile(dir).getPath();
-        Preferences.userNodeForPackage(HtmlProjectFactory.class).put (path, 
-                name);
-    }
-
-    static String getHtmlProjectName (FileObject dir) {
-        String path = FileUtil.toFile(dir).getPath();
-        return Preferences.userNodeForPackage(HtmlProjectFactory.class).get (
-                path, null);
+    static String getHtmlProjectName (FileObject projdir) {
+        return (String) projdir.getAttribute(KEY_NAME);
     }
 
     static String getZipDestDir (FileObject projdir) {
-        String path = FileUtil.toFile(projdir).getPath();
-        return Preferences.userNodeForPackage(HtmlProjectFactory.class).get (
-                path + ".zipdir", null); //NOI18N
+        return (String) projdir.getAttribute(KEY_ZIP_DEST_DIR);
     }
 
     static String getProjectMainFile (FileObject projdir) {
-        String path = FileUtil.toFile(projdir).getPath();
-        return Preferences.userNodeForPackage(HtmlProjectFactory.class).get (
-                path + ".mainfile", null); //NOI18N
+        return (String) projdir.getAttribute(KEY_MAIN_FILE);
     }
 
-    static void putHtmlZipDestDir(FileObject zipdir, String name) {
-        String path = FileUtil.toFile(zipdir).getPath();
-        Preferences.userNodeForPackage(HtmlProjectFactory.class).put (
-                path + ".zipdir", name); //NOI18N
+    static void putHtmlProjectName(FileObject projdir, String name) throws IOException {
+        projdir.setAttribute(KEY_NAME, name);
     }
 
-    static void putHtmlMainFile(FileObject file, String name) {
-        String path = FileUtil.toFile(file).getPath();
-        Preferences.userNodeForPackage(HtmlProjectFactory.class).put (
-                path + ".mainfile", name); //NOI18N
+    static void putHtmlZipDestDir(FileObject projdir, String name) throws IOException {
+        projdir.setAttribute(KEY_ZIP_DEST_DIR, name);
     }
 
-    static {
-        if (Boolean.getBoolean ("nb.htmlproject.clear")) { //NOI18N
-            Preferences p = Preferences.userNodeForPackage(
-                    HtmlProjectFactory.class);
-            try {
-                p.clear();
-                p.flush();
-            } catch (BackingStoreException bse) {
-                ErrorManager.getDefault().notify (bse);
-            }
-        }
+    static void putHtmlMainFile(FileObject projdir, String name) throws IOException {
+        projdir.setAttribute(KEY_MAIN_FILE, name);
     }
+
 }
