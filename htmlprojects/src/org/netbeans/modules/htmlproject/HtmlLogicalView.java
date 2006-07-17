@@ -484,7 +484,8 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
             setName (relPath);
             setDisplayName (f.getName());
             setShortDescription(relPath);
-            index = "INDEX".equals(HtmlLogicalView.getName(f).toUpperCase(Locale.ENGLISH)); //NOI18N
+            index = "INDEX".equals(HtmlLogicalView.getName(f).toUpperCase(Locale.ENGLISH)) // NOI18N
+                    && projDir.equals(FileUtil.toFileObject(f).getParent());
         }
 
         private boolean checked = false;
