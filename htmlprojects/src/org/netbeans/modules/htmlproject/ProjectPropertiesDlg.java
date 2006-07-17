@@ -199,27 +199,27 @@ public class ProjectPropertiesDlg extends javax.swing.JPanel implements Document
             setProblem ("\\ and / characters not allowed");
             return;
         }
-        if (main.length() == 0) {
-            setProblem ("Choose a main file for this project");
-            return;
+        if (main.length() > 0) {
+            File f = new File(main);
+            if (!f.exists()) {
+                setProblem("File does not exist (" + f.getPath() + ")");
+                return;
+            }
+            if (!f.isFile()) {
+                setProblem("Directories cannot be shown");
+                return;
+            }
         }
-        File f = new File (main);
-        if (!f.exists()) {
-            setProblem ("File does not exist (" + f.getPath() + ")");
-            return;
-        }
-        if (!f.isFile()) {
-            setProblem ("Directories cannot be shown");
-            return;
-        }
-        f = new File (zip);
-        if (!f.exists()) {
-            setProblem ("Directory does not exist (" + f.getPath() + ")");
-            return;
-        }
-        if (!f.isDirectory()) {
-            setProblem ("Zip dir is not a directory");
-            return;
+        if (zip.length() > 0) {
+            File f = new File(zip);
+            if (!f.exists()) {
+                setProblem("Directory does not exist (" + f.getPath() + ")");
+                return;
+            }
+            if (!f.isDirectory()) {
+                setProblem("ZIP dir is not a directory");
+                return;
+            }
         }
         setProblem ("");
     }
@@ -241,10 +241,14 @@ public class ProjectPropertiesDlg extends javax.swing.JPanel implements Document
 
                 FileObject dir = project.getProjectDirectory();
                 String path = mainFileField.getText();
-                HtmlProjectFactory.putHtmlMainFile(dir, path);
+                if (path.length() > 0) {
+                    HtmlProjectFactory.putHtmlMainFile(dir, path);
+                }
 
                 path = zipField.getText();
-                HtmlProjectFactory.putHtmlZipDestDir(dir, path);
+                if (path.length() > 0) {
+                    HtmlProjectFactory.putHtmlZipDestDir(dir, path);
+                }
             } catch (IOException x) {
                 ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
             }
@@ -280,7 +284,7 @@ public class ProjectPropertiesDlg extends javax.swing.JPanel implements Document
         ch.setDialogType(JFileChooser.CUSTOM_DIALOG);
         ch.setCurrentDirectory(f);
         ch.setMultiSelectionEnabled(false);
-        ch.setDialogTitle("Choose a Destination Directory for the Zip File");
+        ch.setDialogTitle("Choose a Destination Directory for the ZIP File");
         ch.setApproveButtonText("Select");
         ch.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         ch.setFileHidingEnabled(true);
