@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="OpenBraceAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createSemicolonAction"/>
+            </file>
+            
+            <file name="AddI18nAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createAddI18nAction"/>
+            </file>
+            
+            <file name="org-netbeans-modules-semicolon-LineCompletionAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.createOpenBraceAction"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createSemicolonAction"/>
+            </file>
+            
+            <file name="DeletePreviousLineAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.DeletePreviousLineAction"/>
+            </file>
+            
+            <file name="org-netbeans-modules-semicolon-DeleteNextLineAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.DeleteNextLineAction"/>
+            </file>
+        </folder>
+    </folder>
+    
+    <folder name="Shortcuts">
+        <file name="D-OPEN_BRACKET.shadow">
+            <attr name="originalFile" stringvalue="Actions/Build/OpenBraceAction.instance"/>
+        </file>
+        <file name="D-SEMICOLON.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/LineCompletionAction.instance"/>
+        </file>
+        <file name="OS-J.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/DeleteNextLineAction.instance"/>
+        </file>
+        <file name="OS-K.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/DeletePreviousAction.instance"/>
+        </file>
+        <file name="DO-I.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/AddI18nAction.instance"/>
+        </file>
+    </folder>
+</filesystem>
