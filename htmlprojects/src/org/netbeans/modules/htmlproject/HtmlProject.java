@@ -18,11 +18,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -34,10 +36,12 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.spi.project.ActionProvider;
+import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.ui.CustomizerProvider;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
@@ -53,12 +57,16 @@ import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
+import org.openide.xml.XMLUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 /**
  *
  * @author Tim Boudreau
  */
-public class HtmlProject implements Project, ProjectInformation, LogicalViewProvider, ActionProvider, /*XXX AuxiliaryConfiguration*/ CustomizerProvider {
+public class HtmlProject implements Project, ProjectInformation, LogicalViewProvider, ActionProvider, AuxiliaryConfiguration, CustomizerProvider {
     private final FileObject dir;
     private ProjectState state;
     private Lookup lkp;
@@ -421,5 +429,42 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
 
     public void showCustomizer() {
         ProjectPropertiesDlg.showDialog(this);
+    }
+
+    public Element getConfigurationFragment(String elementName, String namespace, boolean shared) {
+        String s = (String) dir.getAttribute(namespace + "#" + elementName);
+        if (s != null) {
+            try {
+                return XMLUtil.parse(new InputSource(new StringReader(s)), false, true, null, null).getDocumentElement();
+            } catch (Exception x) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
+            }
+        }
+        return null;
+    }
+
+    public void putConfigurationFragment(Element fragment, boolean shared) throws IllegalArgumentException {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            doc.appendChild(doc.importNode(fragment, true));
+            XMLUtil.write(doc, baos, "UTF-8");
+            dir.setAttribute(fragment.getNamespaceURI() + "#" + fragment.getLocalName(), baos.toString("UTF-8"));
+        } catch (Exception x) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
+        }
+    }
+
+    public boolean removeConfigurationFragment(String elementName, String namespace, boolean shared) throws IllegalArgumentException {
+        String k = namespace + "#" + elementName;
+        if (dir.getAttribute(k) != null) {
+            try {
+                dir.setAttribute(k, null);
+            } catch (IOException x) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
+                return true;
+            }
+        }
+        return false;
     }
 }
