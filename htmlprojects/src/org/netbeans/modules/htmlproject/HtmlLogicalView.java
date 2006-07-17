@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +46,7 @@ import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.ErrorManager;
 import org.openide.actions.FileSystemAction;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
+import org.openide.cookies.EditCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
@@ -241,7 +243,7 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
                 result.setDisplayName(o.toString());
             } else if (o instanceof File) {
                 File f = (File) o;
-                String ext = getExt (f).toUpperCase();
+                String ext = getExt (f).toUpperCase(Locale.ENGLISH);
                 boolean isHtml = isHtml (f);
                 boolean usable = isUsable (f);
                 if (!sortByFolder) {
@@ -433,7 +435,7 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
     }
 
     private static boolean isUsable (File f) {
-        String ext = HtmlLogicalView.getExt(f).toUpperCase();
+        String ext = HtmlLogicalView.getExt(f).toUpperCase(Locale.ENGLISH);
         boolean usable =
                 "HTML".equals (ext) ||"HTM".equals(ext) || //NOI18N
                 "JS".equals(ext) || "CSS".equals(ext) || //NOI18N
@@ -443,7 +445,7 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
     }
 
     private static boolean isHtml (File f) {
-        String ext = HtmlLogicalView.getExt(f).toUpperCase();
+        String ext = HtmlLogicalView.getExt(f).toUpperCase(Locale.ENGLISH);
         boolean html =
                 "HTML".equals (ext) ||"HTM".equals(ext); //NOI18N
         return html;
@@ -493,7 +495,7 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
             setName (relPath);
             setDisplayName (f.getName());
             setShortDescription(relPath);
-            index = "INDEX".equals(HtmlLogicalView.getName(f).toUpperCase()); //NOI18N
+            index = "INDEX".equals(HtmlLogicalView.getName(f).toUpperCase(Locale.ENGLISH)); //NOI18N
         }
 
         private boolean checked = false;
@@ -565,7 +567,18 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
                 DataObject dob;
                 try {
                     dob = DataObject.find(fob);
-                    return (OpenCookie) dob.getCookie (OpenCookie.class);
+                    OpenCookie oc = (OpenCookie) dob.getCookie(OpenCookie.class);
+                    if (oc == null) {
+                        final EditCookie ec = (EditCookie) dob.getCookie(EditCookie.class);
+                        if (ec != null) {
+                            oc = new OpenCookie() {
+                                public void open() {
+                                    ec.edit();
+                                }
+                            };
+                        }
+                    }
+                    return oc;
                 } catch (DataObjectNotFoundException ex) {
                     throw new IllegalStateException (ex);
                 }
