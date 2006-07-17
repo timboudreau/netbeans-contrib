@@ -1,0 +1,4 @@
+.*<a\s*href\s*="?(.*?)"?>
+DOTALL
+0
+stripMarkup

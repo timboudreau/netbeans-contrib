@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Navigator">
+        <folder name="Panels">
+            <folder name="text">
+                <folder name="html">
+                    <file name="org-netbeans-modules-genericnavigator-GenericNavPanel.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="GenericNavigator">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+        <folder name="text">
+            <folder name="html">
+
+                <file name="Headers.patternItem" url="headers_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" 
+                        stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                </file>
+
+                <attr name="Headers.patternItem/Hyperlinks.patternItem" boolvalue="true"/>
+                <file name="Hyperlinks.patternItem" url="links_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" 
+                        stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                </file>
+
+                <attr name="Hyperlinks.patternItem/ListItems.patternItem" boolvalue="true"/>
+                <file name="ListItems.patternItem" url="listitem_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" 
+                        stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                </file>
+
+            </folder>
+        </folder>
+    </folder>
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-genericnavigator-GenericNavigatorOptionsAdvancedOption.instance"/>
+        </folder>
+    </folder>
+</filesystem>

@@ -1,0 +1,4 @@
+<\s*[Ll][Ii]\s*>(.*?)<\s*/[lL][iI]\s*>
+CASE_INSENSITIVE, DOTALL, MULTILINE 
+0
+stripMarkup
