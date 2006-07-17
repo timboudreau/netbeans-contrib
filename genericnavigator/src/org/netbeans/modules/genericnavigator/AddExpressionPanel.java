@@ -84,8 +84,6 @@ public class AddExpressionPanel extends javax.swing.JPanel implements DocumentLi
         s.add ("text/x-properties");
         mimeBox.setModel (new DefaultComboBoxModel (new Vector(s)));
         EdRen edren = new EdRen();
-//        matches.setDefaultRenderer(Object.class, edren);
-//        matches.setDefaultEditor(Object.class, edren);
         matches.getTableHeader().setDefaultRenderer(edren);
         matches.getTableHeader().addMouseListener(edren);
 
@@ -437,9 +435,9 @@ public class AddExpressionPanel extends javax.swing.JPanel implements DocumentLi
         if (p.trim().length() == 0) {
             p = validatePattern();
         }
-        if (p.trim().length() == 0) {
-            p = validateGroups();
-        }
+//        if (p.trim().length() == 0) {
+//            p = validateGroups();
+//        }
         setProblem (p);
         if (!isProblem()) {
             updateMatches();
@@ -547,6 +545,11 @@ public class AddExpressionPanel extends javax.swing.JPanel implements DocumentLi
             if (i < vals.length && vals[i]) {
                 result.add (new Integer(i));
             }
+        }
+        if (result.isEmpty()) {
+            //Always at least handle the default group, otherwise we never
+            //match anything
+            result.add (new Integer(0));
         }
         Integer[] arr = (Integer[]) result.toArray(new Integer[result.size()]);
         return (int[]) Utilities.toPrimitiveArray(arr);

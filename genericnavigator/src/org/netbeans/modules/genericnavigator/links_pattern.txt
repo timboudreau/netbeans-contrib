@@ -1,4 +1,4 @@
-.*<a\s*href\s*="?(.*?)"?>
-DOTALL
+.*<a\s*href\s*=["\s'](.*?)["\s'>]
+DOTALL, MULTILINE, CASE_INSENSITIVE
 0
 stripMarkup

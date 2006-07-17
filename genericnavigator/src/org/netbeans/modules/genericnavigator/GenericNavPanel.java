@@ -35,7 +35,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -81,31 +80,13 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
     private JList jl = new JList(mdl);
     private JScrollPane pane = new JScrollPane(jl);
     private JComboBox box = new JComboBox();
-    private JPanel pnl = new JPanel();/* {
-        public void doLayout() {
-            System.err.println("LAYOUT BOX VISIBLE " + box.isVisible());
-            int h = getHeight();
-            int w = getWidth();
-            if (box.isVisible()) {
-                int hMinus = Math.min (24, box.getPreferredSize().height);
-                h -= hMinus;
-                box.setBounds (0, getHeight() - hMinus, w, hMinus);
-                System.err.println("h " + h + " hminus " + hMinus + " w " + w + " y " + (getHeight() - hMinus));
-            } else {
-                box.setBounds (0,0,0,0);
-            }
-            System.err.println("BOX BOUNDS " + box.getBounds());
-            pnl.setBounds (0, 0, w, h);
-        }
-    };
-                                       */
+    private JPanel pnl = new JPanel();
     private RequestProcessor.Task task = null;
     private volatile boolean active;
     private Lookup last = null;
     private static final ByteBuffer buf = ByteBuffer.allocate(8192);
     private static final CharsetDecoder decoder = Charset.defaultCharset().newDecoder();
     private JPanel innerPanel = new JPanel();
-    private JButton jb = new JButton ("..."); //NOI18N
     static final WeakSet cache = new WeakSet();
 
     public GenericNavPanel() {
@@ -117,10 +98,8 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         pnl.add (innerPanel, BorderLayout.SOUTH);
         innerPanel.setLayout (new BorderLayout());
         innerPanel.add (box, BorderLayout.CENTER);
-        innerPanel.add (jb, BorderLayout.EAST);
         innerPanel.setBorder (new EmptyBorder (5,5,5,5));
         pane.setPreferredSize (new Dimension(300, 200));
-        jb.addActionListener(this);
         box.addActionListener (this);
         ViewTooltips.register (jl);
         //Used to update the combo box when the options dialog adds/removes
@@ -384,61 +363,11 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
     }
 
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == jb) {
-            final AddDialog adder = new AddDialog(null);
-            Object o = box.getSelectedItem();
-            if (o instanceof PatternItem) {
-                adder.setPatternItem ((PatternItem) o);
-            }
-
-            class L implements ActionListener, ChangeListener {
-                public void actionPerformed(ActionEvent e) {
-
-                }
-                public void stateChanged (ChangeEvent ce) {
-                    System.err.println("CHANGE: " + adder.isProblem());
-                    if (desc != null) {
-                        desc.setValid (!adder.isProblem());
-                    }
-                }
-                DialogDescriptor desc = null;
-            };
-            L l = new L();
-
-            adder.setMimeType (mimeType == null ? "text/plain" : mimeType); //NOI18N
-            DialogDescriptor dlg = new DialogDescriptor (adder,
-                    getString("TTL_AddItem"), //NOI18N
-                    true,
-                    NotifyDescriptor.OK_CANCEL_OPTION,
-                    NotifyDescriptor.OK_OPTION,
-                    l);
-
-            l.desc = dlg;
-            adder.addChangeListener (l);
-
-            boolean ok = NotifyDescriptor.OK_OPTION.equals(
-                    DialogDisplayer.getDefault().notify(dlg));
-
-            if (ok) {
-                assert adder.getPatternItem() != null;
-                try {
-                    adder.getPatternItem().save(
-                            adder.getMimeType(), adder.getDisplayName());
-
-                    ((DefaultComboBoxModel) box.getModel()).addElement(
-                            adder.getPatternItem());
-                    resultChanged (null);
-                } catch (IOException ex) {
-                    ErrorManager.getDefault().notify (ErrorManager.USER, ex);
-                }
-            }
-        } else {
-            synchronized (this) {
-                if (task != null) {
-                    task.schedule(500);
-                } else {
-                    task = rp.post(this);
-                }
+        synchronized (this) {
+            if (task != null) {
+                task.schedule(500);
+            } else {
+                task = rp.post(this);
             }
         }
     }
