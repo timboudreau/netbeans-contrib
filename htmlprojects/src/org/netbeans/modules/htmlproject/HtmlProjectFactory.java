@@ -15,6 +15,7 @@ package org.netbeans.modules.htmlproject;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.prefs.BackingStoreException;
@@ -28,7 +29,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
 /**
- * A very simple html project w/ no metadata.
+ * A very simple html project w/ no metadata dir.
  *
  * @author Tim Boudreau
  */
@@ -39,7 +40,7 @@ public final class HtmlProjectFactory implements ProjectFactory {
     public boolean isProject(FileObject fo) {
         boolean result = false;
         if (fo.isFolder()) {
-            String nm = fo.getName().toUpperCase();
+            String nm = fo.getName().toUpperCase(Locale.ENGLISH);
             result = "WWW".equals(nm) ||
                     "PUBLIC-HTML".equals(nm);
             if (!result) {
