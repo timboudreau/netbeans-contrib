@@ -30,18 +30,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import org.netbeans.api.project.FileOwnerQuery;
-
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.spi.project.ActionProvider;
-import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.ProjectState;
+import org.netbeans.spi.project.ui.CustomizerProvider;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.ErrorManager;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
@@ -55,13 +53,12 @@ import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
-import org.w3c.dom.Element;
 
 /**
  *
  * @author Tim Boudreau
  */
-public class HtmlProject implements Project, ProjectInformation, LogicalViewProvider, ActionProvider, AuxiliaryConfiguration {
+public class HtmlProject implements Project, ProjectInformation, LogicalViewProvider, ActionProvider, /*XXX AuxiliaryConfiguration*/ CustomizerProvider {
     private final FileObject dir;
     private ProjectState state;
     private Lookup lkp;
@@ -422,16 +419,7 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
         return new File (s);
     }
 
-    //TODO:  What to do with this stuff - do we care?
-    public Element getConfigurationFragment(String elementName, String namespace, boolean shared) {
-        return null;
-    }
-
-    public void putConfigurationFragment(Element fragment, boolean shared) throws IllegalArgumentException {
-        //do nothing
-    }
-
-    public boolean removeConfigurationFragment(String elementName, String namespace, boolean shared) throws IllegalArgumentException {
-        return true;
+    public void showCustomizer() {
+        ProjectPropertiesDlg.showDialog(this);
     }
 }
