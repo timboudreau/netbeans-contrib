@@ -29,11 +29,8 @@ import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
@@ -42,7 +39,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.ErrorManager;
 import org.openide.actions.FileSystemAction;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
@@ -123,13 +119,6 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
             }
             return null;
         }
-    }
-
-    public String getHtmlDisplayName() {
-        if (proj.equals(OpenProjects.getDefault().getMainProject())) {
-            return "<b>" + getDisplayName(); //NOI18N
-        }
-        return null;
     }
 
     public Action[] getActions(boolean popup) {
