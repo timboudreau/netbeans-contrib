@@ -161,7 +161,7 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
 
     public Icon getIcon() {
         return new ImageIcon (Utilities.loadImage (
-                "org/netbeans/modules/htmlproject/hprj.gif"));
+                "org/netbeans/modules/htmlproject/htmlProject.png"));
     }
 
     public Project getProject() {
