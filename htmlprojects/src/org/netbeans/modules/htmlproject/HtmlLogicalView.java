@@ -89,8 +89,7 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
         l.view = this;
         this.proj = proj;
         setDisplayName (proj.getDisplayName());
-        setIconBaseWithExtension("org/netbeans/modules/htmlproject/" + //NOI18N
-                "htmlProject.png"); //NOI18N
+        setIconBaseWithExtension("org/netbeans/modules/htmlproject/htmlProject.png"); // NOI18N
         proj.addPropertyChangeListener(WeakListeners.propertyChange(this, proj));
     }
 
