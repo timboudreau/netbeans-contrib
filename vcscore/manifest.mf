@@ -3,6 +3,5 @@ OpenIDE-Module: org.netbeans.modules.vcscore/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/vcscore/Bundle.properties
 OpenIDE-Module-Implementation-Version: 42
 OpenIDE-Module-Layer: org/netbeans/modules/vcscore/resources/mf-layer.xml
-OpenIDE-Module-Requires: org.openide.windows.IOProvider
 OpenIDE-Module-Install: org/netbeans/modules/vcscore/VcsModule.class
 
