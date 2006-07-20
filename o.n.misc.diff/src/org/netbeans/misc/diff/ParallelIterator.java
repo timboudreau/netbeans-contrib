@@ -89,7 +89,7 @@ final class ParallelIterator {
     /**
      * The current change, which may in range as additional items are found
      */
-    private Change currChange = null;
+    private ListDiffChange currChange = null;
 
 
     ParallelIterator (List old, List nue) {
@@ -112,7 +112,7 @@ final class ParallelIterator {
 
         } else if ( !old.isEmpty () && nue.isEmpty () ) {
             //New is empty - one big deletion
-            Change change = new Change ( 0, Change.DELETE );
+            ListDiffChange change = new ListDiffChange ( 0, Change.DELETE );
             change.setEnd ( old.size () - 1 );
             changes.add ( change );
             oi = null;
@@ -121,7 +121,7 @@ final class ParallelIterator {
 
         } else if ( old.isEmpty () && !nue.isEmpty () ) {
             //Old is empty - one big addition
-            Change change = new Change ( 0, Change.INSERT );
+            ListDiffChange change = new ListDiffChange ( 0, Change.INSERT );
             change.setEnd ( nue.size () - 1 );
             changes.add ( change );
             oi = null;
@@ -192,7 +192,7 @@ final class ParallelIterator {
             if ( lastNue == null && lastOld != null ) {
                 //We're off the end of the new array, handle trailing deletions and finish
                 writeChange();
-                Change last = new Change (index + offset, (old.size()-1) + offset, Change.DELETE);
+                ListDiffChange  last = new ListDiffChange  (index + offset, (old.size()-1) + offset, Change.DELETE);
                 currChange = last;
                 done = true;
 
@@ -342,13 +342,13 @@ final class ParallelIterator {
      */
     private void addChange (int type, int idx) {
         if ( currChange == null ) {
-            currChange = new Change ( idx + offset, type );
+            currChange = new ListDiffChange ( idx + offset, type );
         } else {
             if ( currChange.getType () == type ) {
                 currChange.inc ();
             } else {
                 writeChange ();
-                currChange = new Change ( idx + offset, type );
+                currChange = new ListDiffChange ( idx + offset, type );
             }
         }
     }

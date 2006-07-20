@@ -1,0 +1,179 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+package org.netbeans.misc.diff;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+/**
+ * Convenience class for producing Diff objects when the set of changes are 
+ * known to the code producing the diff, and should not be calculated from a 
+ * set of lists.
+ *
+ * @author Tim Boudreau
+ */
+public final class SimpleDiff implements Diff {
+    private List old;
+    private List nue;
+    private List changes;
+    public SimpleDiff() {
+        //do nothing
+    }
+    
+    /** Create a diff with initial lists */
+    public SimpleDiff (List old, List nue) {
+        this.old = old;
+        this.nue = nue;
+    }
+    
+    /** Create a diff with initial lists and a single change */
+    public SimpleDiff (List old, List nue, int start, int end, int type) {
+        this (old, nue);
+        add (start, end, type);
+    }
+    
+    /** Create a diff with no start and end lists and a single change */
+    public SimpleDiff (int start, int end, int type) {
+        add (start, end, type);
+    }
+    
+    /** Set the pre-change list's contents.  This method will not copy 
+     * the list */
+    public void setOld (List old) {
+        setOld (old, false);
+    }
+    
+    /** Set the post-change lists's contents.  This method will not copy the
+     * list */
+    public void setNew (List nue) {
+        setNew (old, false);
+    }
+    
+    /** Set the pre-change list's contents.  If the copy argument is true,
+     * a copy of the passed in list, not the original, will be saved */
+    public void setOld (List old, boolean copy) {
+        this.old = copy ? new ArrayList (old) : old;
+    }
+    
+    /** Set the pre-change list's contents.  If the copy argument is true,
+     * a copy of the passed in list, not the original, will be saved */
+    public void setNew (List nue, boolean copy) {
+        this.nue= copy ? new ArrayList (nue) : nue;
+    }
+
+    /**
+     * Add a change to this diff. 
+     */
+    public void add (int start, int end, int type) {
+        changes.add (new C(start, end, type));
+    }
+    
+    /**
+     * Add a change to this diff.
+     */
+    public void add (Change change) {
+        changes.add (new C (change));
+    }
+
+    public List getChanges() {
+        return Collections.unmodifiableList(changes);
+    }
+
+    public List getOld() {
+        return old;
+    }
+
+    public List getNew() {
+        return nue;
+    }
+    
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        for (Iterator i = changes.iterator(); i.hasNext();) {
+            Change change = (Change) i.next();
+            sb.append (change);
+            if (i.hasNext()) {
+                sb.append (",");
+            }
+        }
+        return sb.toString();
+    }
+    
+    private static final class C implements Change {
+        private final int start;
+        private final int end;
+        private final int type;
+        C (int start, int end, int type) {
+            this.start = start;
+            this.end = end;
+            this.type = type;
+            assert start > end : "Start must be greater than end";
+            assert type == CHANGE || type == DELETE || type == INSERT : 
+                "Unknown change type: " + type;
+        }
+        
+        C (Change change) {
+            this.start = change.getStart();
+            this.end = change.getEnd();
+            this.type = change.getType();
+        }
+        
+        public int getStart() {
+            return start;
+        }
+
+        public int getEnd() {
+            return end;
+        }
+
+        public int getType() {
+            return type;
+        }
+        
+        public boolean equals (Object o) {
+            if (o instanceof Change) {
+                Change c = (Change) o;
+                return c.getStart() == getStart() && c.getEnd() == getEnd() && c.getType() == getType();
+            } else {
+                return false;
+            }
+        }
+        
+        public int hashCode() {
+            return (start + end) * ((type + 3) * 1299709);
+        }
+        
+        public final String toString () {
+            StringBuffer sb = new StringBuffer ();
+            switch ( type ) {
+                case INSERT:
+                    sb.append ( "INSERT " ); //NOI18N
+                    break;
+                case DELETE:
+                    sb.append ( "DELETE " ); //NOI18N
+                    break;
+                case CHANGE:
+                    sb.append ( "CHANGE " ); //NOI18N
+                    break;
+                default :
+                    assert false;
+            }
+            sb.append ( start );
+            sb.append ( '-' ); //NOI18N
+            sb.append ( end );
+            return sb.toString ();
+        }        
+    }
+}
