@@ -12,15 +12,9 @@
  */
 package test.inplace;
 
-import org.netbeans.api.visual.action.InplaceEditorAction;
-import org.netbeans.api.visual.action.PanAction;
-import org.netbeans.api.visual.action.WidgetAction;
-import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.graph.EdgeController;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.layout.SerialLayout;
-import org.netbeans.api.visual.model.ObjectController;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -42,6 +36,7 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
     private LayerWidget mainLayer;
     private WidgetAction editorAction;
     private boolean forceLayout;
+    private WidgetAction moveAction = new MoveAction ();
 
     public InplaceEditorTest () {
         addChild (mainLayer = new LayerWidget (this));
@@ -54,28 +49,28 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
         forceLayout = true;
     }
 
-    protected NodeController.StringNode attachNodeController (String node) {
+    protected Widget attachNodeWidget (String node) {
         IconNodeWidget widget = new IconNodeWidget (this);
         widget.setImage (IMAGE);
         widget.setLabel (node);
         mainLayer.addChild (widget);
 
         widget.getActions ().addAction (createSelectAction ());
-        widget.getActions ().addAction (createHoverAction ());
-        widget.getActions ().addAction (createMoveAction ());
+        widget.getActions ().addAction (createObjectHoverAction ());
+        widget.getActions ().addAction (moveAction);
         widget.getLabelWidget ().getActions ().addAction (editorAction);
 
-        return new NodeController.StringNode (node, widget);
+        return widget;
     }
 
-    protected EdgeController.StringEdge attachEdgeController (String edge) {
+    protected Widget attachEdgeWidget (String edge) {
         return null;
     }
 
-    protected void attachEdgeSource (EdgeController.StringEdge edgeController, NodeController.StringNode sourceNodeController) {
+    protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
     }
 
-    protected void attachEdgeTarget (EdgeController.StringEdge edgeController, NodeController.StringNode targetNodeController) {
+    protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
     }
 
     protected void notifyValidated () {
@@ -94,8 +89,8 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
         public State keyPressed (Widget widget, WidgetKeyEvent event) {
             if (! isEditorVisible ()) {
                 if (event.getKeyCode () == KeyEvent.VK_F2) {
-                    ObjectController controller = findObjectController (widget);
-                    if (controller != null  &&  getSelectedObjects ().contains (controller))
+                    Object object = findObject (widget);
+                    if (object != null  &&  getSelectedObjects ().contains (object))
                         if (openEditor (widget))
                             return State.createLocked (widget, this);
                 }

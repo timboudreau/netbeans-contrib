@@ -12,12 +12,9 @@
  */
 package javaone.demo5;
 
-import org.netbeans.api.visual.graph.EdgeController;
-import org.netbeans.api.visual.graph.NodeController;
+import test.SceneSupport;
 
 import java.awt.*;
-
-import test.SceneSupport;
 
 /**
  * @author David Kaspar
@@ -35,20 +32,22 @@ public class ManyObjectsDemo {
     }
 
     private static void createStructure (RadialGraphScene scene, int setID, int count, int centerX, int centerY, float maxRadius) {
-        NodeController.StringNode rootNode = scene.addNode ("Root of Set no. " + setID);
-        rootNode.getMainWidget ().setPreferredLocation (new Point (centerX, centerY));
+        String rootNode = "Root of Set no. " + setID;
+        scene.addNode (rootNode).setPreferredLocation (new Point (centerX, centerY));
 
         for (int index = 1; index <= count; index ++) {
-            NodeController.StringNode nodeController = scene.addNode ("Set no. " + setID + " - Child " + index);
             double radius = maxRadius * index / count;
             double angle = 2 * Math.PI * index / count;
             int x = (int) (centerX + radius * Math.cos (angle));
             int y = (int) (centerY + radius * Math.sin (angle));
-            nodeController.getMainWidget ().setPreferredLocation (new Point (x, y));
 
-            EdgeController.StringEdge edgeController = scene.addEdge ("Set no. " + setID + " - Edge " + index);
-            scene.setEdgeSource (edgeController, rootNode);
-            scene.setEdgeTarget (edgeController, nodeController);
+            String node = "Set no. " + setID + " - Child " + index;
+            scene.addNode (node).setPreferredLocation (new Point (x, y));
+
+            String edge = "Set no. " + setID + " - Edge " + index;
+            scene.addEdge (edge);
+            scene.setEdgeSource (edge, rootNode);
+            scene.setEdgeTarget (edge, node);
         }
     }
 

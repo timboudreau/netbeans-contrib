@@ -13,18 +13,15 @@
 package test.object;
 
 import org.netbeans.api.visual.action.*;
-import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.graph.NodeController;
-import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.Collection;
 
 /**
  * @author David Kaspar
@@ -36,6 +33,7 @@ public class ObjectTest extends GraphScene.StringGraph {
     private LayerWidget backgroundLayer;
     private LayerWidget mainLayer;
 
+    private MoveAction moveAction = new MoveAction ();
     private MyAction action = new MyAction ();
 
     public ObjectTest () {
@@ -48,27 +46,27 @@ public class ObjectTest extends GraphScene.StringGraph {
         getActions ().addAction (new RectangularSelectAction (this, backgroundLayer));
     }
 
-    protected NodeController.StringNode attachNodeController (String node) {
+    protected Widget attachNodeWidget (String node) {
         IconNodeWidget widget = new IconNodeWidget (this);
         widget.setImage (test.object.ObjectTest.IMAGE);
         widget.setLabel (node);
         mainLayer.addChild (widget);
 
         widget.getActions ().addAction (createSelectAction ());
-        widget.getActions ().addAction (createHoverAction ());
-        widget.getActions ().addAction (createMoveAction ());
+        widget.getActions ().addAction (createObjectHoverAction ());
+        widget.getActions ().addAction (moveAction);
 
-        return new NodeController.StringNode (node, widget);
+        return widget;
     }
 
-    protected EdgeController.StringEdge attachEdgeController (String edge) {
+    protected Widget attachEdgeWidget (String edge) {
         return null;
     }
 
-    protected void attachEdgeSource (EdgeController.StringEdge edgeController, NodeController.StringNode sourceNodeController) {
+    protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
     }
 
-    protected void attachEdgeTarget (EdgeController.StringEdge edgeController, NodeController.StringNode targetNodeController) {
+    protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
     }
 
     public class MyAction extends WidgetAction.Adapter {
@@ -87,10 +85,9 @@ public class ObjectTest extends GraphScene.StringGraph {
     }
 
     public void moveTo (Point point) {
-        Collection<NodeController.StringNode> nodes = getNodes ();
         int index = 0;
-        for (NodeController.StringNode node : nodes)
-            getSceneAnimator ().getPreferredLocationAnimator ().setPreferredLocation (node.getMainWidget (), point != null ? point : new Point (++ index * 100, index * 100));
+        for (String node : getNodes ())
+            getSceneAnimator ().getPreferredLocationAnimator ().setPreferredLocation (findWidget (node), point != null ? point : new Point (++ index * 100, index * 100));
     }
 
     public static void main (String[] args) {

@@ -12,14 +12,14 @@
  */
 package test.general;
 
-import org.netbeans.api.visual.graph.EdgeController;
-import org.netbeans.api.visual.graph.NodeController;
-import org.netbeans.api.visual.graph.PinController;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.api.visual.widget.Widget;
 import test.SceneSupport;
 
+import javax.swing.*;
 import java.awt.*;
+import java.util.Collection;
 
 /**
  * @author David Kaspar
@@ -47,31 +47,27 @@ public class GraphSceneTest {
         StringGraphScene scene = new StringGraphScene ();
 
         for (int a = 1; a <= 100; a ++)
-            scene.addNode (String.valueOf(a)).getMainWidget ().setPreferredLocation (new Point (a * 10, a * 10));
+            scene.addNode (String.valueOf(a)).setPreferredLocation (new Point (a * 10, a * 10));
 
         SceneSupport.show (scene);
     }
 
-    private static EdgeController.StringEdge createConnection (StringGraphScene scene, String edgeID, NodeController.StringNode node1, NodeController.StringNode node2) {
-        EdgeController.StringEdge edge = scene.addEdge (edgeID);
-        scene.setEdgeSource (edge, node1);
-        scene.setEdgeTarget (edge, node2);
-        return edge;
+    private static void createConnection (StringGraphScene scene, String edgeID, String nodeID1, String nodeID2) {
+        scene.addEdge (edgeID);
+        scene.setEdgeSource (edgeID, nodeID1);
+        scene.setEdgeTarget (edgeID, nodeID2);
     }
 
     public static void testConnectionWidget () {
         StringGraphScene scene = new StringGraphScene ();
 
-        NodeController.StringNode node1 = scene.addNode ("1");
-        node1.getMainWidget ().setPreferredLocation (new Point (100, 100));
-        NodeController.StringNode node2 = scene.addNode ("2");
-        node2.getMainWidget ().setPreferredLocation (new Point (400, 400));
-        NodeController.StringNode node3 = scene.addNode ("3");
-        node3.getMainWidget ().setPreferredLocation (new Point (500, 100));
+        scene.addNode ("1").setPreferredLocation (new Point (100, 100));
+        scene.addNode ("2").setPreferredLocation (new Point (400, 400));
+        scene.addNode ("3").setPreferredLocation (new Point (500, 100));
 
-        createConnection (scene, "A", node1, node2);
-        createConnection (scene, "B", node2, node3);
-        createConnection (scene, "C", node3, node1);
+        createConnection (scene, "A", "1", "2");
+        createConnection (scene, "B", "2", "3");
+        createConnection (scene, "C", "3", "1");
 
         SceneSupport.show (scene);
     }
@@ -80,15 +76,15 @@ public class GraphSceneTest {
         StringGraphScene scene = new StringGraphScene ();
 
         for (int a = 0; a < 3; a ++) {
-            NodeController.StringNode aNode = scene.addNode ("A" + a);
-            aNode.getMainWidget ().setPreferredLocation (new Point (100, 100));
-            NodeController.StringNode bNode = scene.addNode ("B" + a);
-            bNode.getMainWidget ().setPreferredLocation (new Point (400, 400));
+            String n1 = "A" + a;
+            scene.addNode (n1).setPreferredLocation (new Point (100, 100));
+            String n2 = "B" + a;
+            scene.addNode (n2).setPreferredLocation (new Point (400, 400));
 
-            createConnection (scene, "C" + a, aNode, bNode);
+            createConnection (scene, "C" + a, n1, n2);
         }
 
-        SceneSupport.startAnimation (scene, scene.getMainLayer (), 100);
+        startAnimation (scene, scene.getMainLayer (), 100);
         SceneSupport.show (scene);
     }
 
@@ -96,32 +92,33 @@ public class GraphSceneTest {
         StringGraphScene scene = new StringGraphScene ();
 
         for (int a = 1; a <= 100; a ++)
-            scene.addNode (String.valueOf(a)).getMainWidget ().setPreferredLocation (new Point (a * 10, a * 10));
+            scene.addNode (String.valueOf(a)).setPreferredLocation (new Point (a * 10, a * 10));
 
-        SceneSupport.startAnimation (scene, scene.getMainLayer (), 0);
+        startAnimation (scene, scene.getMainLayer (), 0);
         SceneSupport.show (scene);
     }
 
     public static void testAddRemove () {
         StringGraphScene scene = new StringGraphScene ();
 
-        SceneSupport.startAddRemove (scene, 500);
+        startAddRemove (scene, 500);
         SceneSupport.show (scene);
     }
 
     public static void testGraphScene () {
         final StringGraphScene scene = new StringGraphScene ();
 
-        NodeController.StringNode previousNodeController = null;
+        String previousNodeID = null;
         for (int a = 0; a < 10; a ++) {
-            NodeController.StringNode nodeController = scene.addNode (String.valueOf(a));
-            nodeController.getMainWidget ().setPreferredLocation (new Point (SceneSupport.randInt (1000), SceneSupport.randInt (1000)));
-            if (previousNodeController != null) {
-                EdgeController.StringEdge edgeController = scene.addEdge (String.valueOf (a));
-                scene.setEdgeSource (edgeController, previousNodeController);
-                scene.setEdgeTarget (edgeController, nodeController);
+            String nodeID = "node" + String.valueOf (a);
+            scene.addNode (nodeID).setPreferredLocation (new Point (SceneSupport.randInt (1000), SceneSupport.randInt (1000)));
+            if (previousNodeID != null) {
+                String edgeID = "edge" + String.valueOf (a);
+                scene.addEdge (edgeID);
+                scene.setEdgeSource (edgeID, previousNodeID);
+                scene.setEdgeTarget (edgeID, nodeID);
             }
-            previousNodeController = nodeController;
+            previousNodeID = nodeID;
         }
 
         SceneSupport.show (scene);
@@ -130,22 +127,84 @@ public class GraphSceneTest {
     public static void testGraphPinScene () {
         final StringGraphPinScene scene = new StringGraphPinScene ();
 
-        NodeController.StringNode rootNode = scene.addNode ("Root");
-        rootNode.getMainWidget ().setPreferredLocation (new Point (30, 500));
+        String rootNode = "Root";
+        scene.addNode (rootNode).setPreferredLocation (new Point (30, 500));
 
         for (int a = 0; a < 10; a ++) {
-            PinController.StringPin rootPin = scene.addPin (rootNode, "+Pin" + a);
+            String rootPin = "+Pin" + a;
+            scene.addPin (rootNode, rootPin);
 
-            NodeController.StringNode childNode = scene.addNode ("Child" + a);
-            childNode.getMainWidget ().setPreferredLocation (new Point (500, a * 100));
-            PinController.StringPin childPin = scene.addPin (childNode, "-Pin" + a);
+            String childNode = "Child" + a;
+            scene.addNode (childNode).setPreferredLocation (new Point (500, a * 100));
 
-            EdgeController.StringEdge edgeController = scene.addEdge (String.valueOf (a));
-            scene.setEdgeSource (edgeController, rootPin);
-            scene.setEdgeTarget (edgeController, childPin);
+            String childPin = "-Pin" + a;
+            scene.addPin (childNode, childPin);
+
+            String edge = "edge" + String.valueOf (a);
+            scene.addEdge (edge);
+            scene.setEdgeSource (edge, rootPin);
+            scene.setEdgeTarget (edge, childPin);
         }
 
         SceneSupport.show (scene);
+    }
+
+    public static void startAnimation (Scene scene, Widget widget, int delay) {
+        SwingUtilities.invokeLater (new Animation (scene, widget, delay));
+    }
+
+    static class Animation implements Runnable {
+
+        private Scene scene;
+        private Widget widget;
+        private int delay;
+
+        public Animation (Scene scene, Widget widget, int delay) {
+            this.scene = scene;
+            this.widget = widget;
+            this.delay = delay;
+        }
+
+        public void run () {
+            Collection<Widget> children = widget.getChildren ();
+//            Widget child = children.iterator ().next ();
+            for (Widget child : children)
+                child.setPreferredLocation (new Point (SceneSupport.randInt (1000), SceneSupport.randInt (1000)));
+            scene.validate ();
+
+            SceneSupport.invokeLater (this, delay);
+        }
+
+    }
+
+    private static void startAddRemove (StringGraphScene scene, int delay) {
+        SwingUtilities.invokeLater (new AddRemove (scene, delay));
+    }
+
+    private static class AddRemove implements Runnable {
+
+        private StringGraphScene scene;
+        private int delay;
+        private String node;
+
+        public AddRemove (StringGraphScene scene, int delay) {
+            this.scene = scene;
+            this.delay = delay;
+            this.node = null;
+        }
+
+        public void run () {
+            if (node == null) {
+                node = "Node";
+                scene.addNode (node).setPreferredLocation (new Point (SceneSupport.randInt (1000), SceneSupport.randInt (1000)));
+            } else {
+                scene.removeNode (node);
+                node = null;
+            }
+            scene.validate ();
+            SceneSupport.invokeLater (this, delay);
+        }
+
     }
 
 }

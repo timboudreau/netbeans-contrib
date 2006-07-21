@@ -27,7 +27,7 @@ public class LODDemo {
 
     public static void main (String[] args) {
         Scene scene = new Scene ();
-        scene.getActions().addAction(new ZoomAction (1.1));
+        scene.getActions().addAction(new ZoomAction (1.2, false));
         scene.getActions().addAction(new PanAction ());
 
         scene.setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL));

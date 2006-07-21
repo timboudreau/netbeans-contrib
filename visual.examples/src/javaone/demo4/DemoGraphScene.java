@@ -14,15 +14,15 @@
 package javaone.demo4;
 
 import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.RectangularAnchor;
 import org.netbeans.api.visual.border.LineBorder;
-import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Widget;
 
 /**
  * @author David Kaspar
@@ -32,6 +32,8 @@ public class DemoGraphScene extends GraphScene.StringGraph {
     private LayerWidget mainLayer;
     private LayerWidget connectionLayer;
 
+    private WidgetAction moveAction = new MoveAction ();
+
     public DemoGraphScene() {
         mainLayer = new LayerWidget (this);
         addChild(mainLayer);
@@ -40,27 +42,29 @@ public class DemoGraphScene extends GraphScene.StringGraph {
         addChild(connectionLayer);
     }
 
-    protected NodeController.StringNode attachNodeController(String node) {
+    protected Widget attachNodeWidget (String node) {
         LabelWidget label = new LabelWidget (this, node);
         label.setBorder (new LineBorder (4));
-        label.getActions().addAction(new MoveAction ());
+        label.getActions ().addAction (moveAction);
         mainLayer.addChild (label);
-        return new NodeController.StringNode (node, label);
+        return label;
     }
 
-    protected EdgeController.StringEdge attachEdgeController(String edge) {
+    protected Widget attachEdgeWidget (String edge) {
         ConnectionWidget connection = new ConnectionWidget (this);
-        connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
-        connectionLayer.addChild(connection);
-        return new EdgeController.StringEdge (edge, connection);
+        connection.setTargetAnchorShape (AnchorShape.TRIANGLE_FILLED);
+        connectionLayer.addChild (connection);
+        return connection;
     }
 
-    protected void attachEdgeSource(EdgeController.StringEdge edgeController, NodeController.StringNode sourceNodeController) {
-        ((ConnectionWidget) edgeController.getMainWidget ()).setSourceAnchor(sourceNodeController != null ? new RectangularAnchor (sourceNodeController.getMainWidget()) : null);
+    protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
+        Widget w = sourceNode != null ? findWidget (sourceNode) : null;
+        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (w != null ? new RectangularAnchor (w) : null);
     }
 
-    protected void attachEdgeTarget(EdgeController.StringEdge edgeController, NodeController.StringNode targetNodeController) {
-        ((ConnectionWidget) edgeController.getMainWidget ()).setTargetAnchor(targetNodeController != null ? new RectangularAnchor (targetNodeController.getMainWidget()) : null);
+    protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
+        Widget w = targetNode != null ? findWidget (targetNode) : null;
+        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (w != null ? new RectangularAnchor (w) : null);
     }
 
 }

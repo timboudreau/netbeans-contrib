@@ -12,15 +12,11 @@
  */
 package test;
 
-import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.widget.Scene;
-import org.netbeans.api.visual.widget.Widget;
 import org.openide.util.RequestProcessor;
-import test.general.StringGraphScene;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collection;
 
 /**
  * @author David Kaspar
@@ -59,64 +55,6 @@ public class SceneSupport {
                 SwingUtilities.invokeLater (runnable);
             }
         }, delay);
-    }
-
-    public static void startAnimation (Scene scene, Widget widget, int delay) {
-        SwingUtilities.invokeLater (new Animation (scene, widget, delay));
-    }
-
-    static class Animation implements Runnable {
-
-        private Scene scene;
-        private Widget widget;
-        private int delay;
-
-        public Animation (Scene scene, Widget widget, int delay) {
-            this.scene = scene;
-            this.widget = widget;
-            this.delay = delay;
-        }
-
-        public void run () {
-            Collection<Widget> children = widget.getChildren ();
-//            Widget child = children.iterator ().next ();
-            for (Widget child : children)
-                child.setPreferredLocation (new Point (randInt (1000), randInt (1000)));
-            scene.validate ();
-
-            invokeLater (this, delay);
-        }
-
-    }
-
-    public static void startAddRemove (StringGraphScene scene, int delay) {
-        SwingUtilities.invokeLater (new AddRemove (scene, delay));
-    }
-
-    static class AddRemove implements Runnable {
-
-        private StringGraphScene scene;
-        private int delay;
-        private NodeController.StringNode nodeController;
-
-        public AddRemove (StringGraphScene scene, int delay) {
-            this.scene = scene;
-            this.delay = delay;
-            this.nodeController = null;
-        }
-
-        public void run () {
-            if (nodeController == null) {
-                nodeController = scene.addNode ("Node");
-                nodeController.getMainWidget ().setPreferredLocation (new Point (randInt (1000), randInt (1000)));
-            } else {
-                scene.removeNode (nodeController);
-                nodeController = null;
-            }
-            scene.validate ();
-            invokeLater (this, delay);
-        }
-
     }
 
 }

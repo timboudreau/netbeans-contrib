@@ -12,13 +12,8 @@
  */
 package test.devolve;
 
-import org.netbeans.api.visual.action.PanAction;
-import org.netbeans.api.visual.action.RectangularSelectAction;
-import org.netbeans.api.visual.action.WidgetAction;
-import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.graph.EdgeController;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.layout.SerialLayout;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -36,13 +31,16 @@ public class DevolveTest extends GraphScene.StringGraph {
 
     private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
 
-    private LayerWidget backgroundLayer;
     private LayerWidget mainLayer;
 
     private DevolveTest.MyAction action = new DevolveTest.MyAction ();
 
+    private WidgetAction moveAction = new MoveAction ();
+
     public DevolveTest () {
-        addChild (backgroundLayer = new LayerWidget (this));
+        LayerWidget backgroundLayer = new LayerWidget (this);
+        addChild (backgroundLayer);
+
         addChild (mainLayer = new LayerWidget (this));
 
         mainLayer.setDevolveLayout (new SerialLayout (SerialLayout.Orientation.HORIZONTAL));
@@ -53,27 +51,27 @@ public class DevolveTest extends GraphScene.StringGraph {
         getActions ().addAction (new RectangularSelectAction (this, backgroundLayer));
     }
 
-    protected NodeController.StringNode attachNodeController (String node) {
+    protected Widget attachNodeWidget (String node) {
         IconNodeWidget widget = new IconNodeWidget (this);
         widget.setImage (IMAGE);
         widget.setLabel (node);
         mainLayer.addChild (widget);
 
         widget.getActions ().addAction (createSelectAction ());
-        widget.getActions ().addAction (createHoverAction ());
-        widget.getActions ().addAction (createMoveAction ());
+        widget.getActions ().addAction (createObjectHoverAction ());
+        widget.getActions ().addAction (moveAction);
 
-        return new NodeController.StringNode (node, widget);
+        return widget;
     }
 
-    protected EdgeController.StringEdge attachEdgeController (String edge) {
+    protected Widget attachEdgeWidget (String edge) {
         return null;
     }
 
-    protected void attachEdgeSource (EdgeController.StringEdge edgeController, NodeController.StringNode sourceNodeController) {
+    protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
     }
 
-    protected void attachEdgeTarget (EdgeController.StringEdge edgeController, NodeController.StringNode targetNodeController) {
+    protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
     }
 
     public class MyAction extends WidgetAction.Adapter {
@@ -94,7 +92,7 @@ public class DevolveTest extends GraphScene.StringGraph {
         scene.addNode ("list [List]");
         scene.addNode ("canvas [Canvas]");
         scene.addNode ("alert [Alert]");
-        // scene.mainLayer.reevaluateLayout (true); // WARNING: Initial reevaluateLayout will not work because the scene is not initialized completely.
+        // scene.mainLayer.reevaluateLayout (true); // WARNING: Initial reevaluateLayout will not work because the scene is not initialized completely yet.
         SceneSupport.show (scene);
     }
 

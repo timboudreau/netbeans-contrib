@@ -12,9 +12,9 @@
  */
 package test.vmd;
 
-import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.vmd.VMDGraphScene;
-import org.netbeans.api.visual.vmd.VMDNodeController;
+import org.netbeans.api.visual.vmd.VMDNodeWidget;
+import org.netbeans.api.visual.vmd.VMDPinWidget;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
@@ -41,48 +41,50 @@ public class VMDTest {
     public static void main (String[] args) {
         VMDGraphScene scene = new VMDGraphScene ();
 
-        VMDNodeController mobile = createNode (scene, 100, 100, IMAGE_LIST, "menu", "List", null);
+        String mobile = createNode (scene, 100, 100, IMAGE_LIST, "menu", "List", null);
         createPin (scene, mobile, "start", IMAGE_ITEM, "Start", "Element");
         createPin (scene, mobile, "resume", IMAGE_ITEM, "Resume", "Element");
 
-        VMDNodeController menu = createNode (scene, 400, 400, IMAGE_LIST, "menu", "List", null);
+        String menu = createNode (scene, 400, 400, IMAGE_LIST, "menu", "List", null);
         createPin (scene, menu, "game", IMAGE_ITEM, "New Game", "Element");
         createPin (scene, menu, "options", IMAGE_ITEM, "Options", "Element");
         createPin (scene, menu, "help", IMAGE_ITEM, "Help", "Element");
         createPin (scene, menu, "exit", IMAGE_ITEM, "Exit", "Element");
 
-        VMDNodeController game = createNode (scene, 600, 100, IMAGE_CANVAS, "gameCanvas", "MyCanvas", Arrays.asList (GLYPH_PRE_CODE, GLYPH_POST_CODE, GLYPH_CANCEL));
+        String game = createNode (scene, 600, 100, IMAGE_CANVAS, "gameCanvas", "MyCanvas", Arrays.asList (GLYPH_PRE_CODE, GLYPH_POST_CODE, GLYPH_CANCEL));
         createPin (scene, game, "ok", IMAGE_COMMAND, "okCommand1", "Command");
         createPin (scene, game, "cancel", IMAGE_COMMAND, "cancelCommand1", "Command");
 
-        createEdge (scene, mobile, "start", menu);
-        createEdge (scene, mobile, "resume", menu);
+        createEdge (scene, "start", menu);
+        createEdge (scene, "resume", menu);
 
-        createEdge (scene, menu, "game", game);
-        createEdge (scene, menu, "exit", mobile);
+        createEdge (scene, "game", game);
+        createEdge (scene, "exit", mobile);
 
-        createEdge (scene, game, "ok", menu);
-        createEdge (scene, game, "cancel", menu);
+        createEdge (scene, "ok", menu);
+        createEdge (scene, "cancel", menu);
 
         SceneSupport.show (scene);
     }
 
-    private static VMDNodeController createNode (VMDGraphScene scene, int x, int y, Image image, String name, String type, List<Image> glyphs) {
-        VMDNodeController nodeController = scene.addNode ("node" + nodeID ++);
-        nodeController.getMainWidget ().setPreferredLocation (new Point (x, y));
-        nodeController.setNodeProperties (image, name, type, glyphs);
-        scene.addPin (nodeController, VMDGraphScene.PIN_ID_DEFAULT);
-        return nodeController;
+    private static String createNode (VMDGraphScene scene, int x, int y, Image image, String name, String type, List<Image> glyphs) {
+        String nodeID = "node" + VMDTest.nodeID ++;
+        VMDNodeWidget widget = (VMDNodeWidget) scene.addNode (nodeID);
+        widget.setPreferredLocation (new Point (x, y));
+        widget.setNodeProperties (image, name, type, glyphs);
+        scene.addPin (nodeID, nodeID + VMDGraphScene.PIN_ID_DEFAULT_SUFFIX);
+        return nodeID;
     }
 
-    private static void createPin (VMDGraphScene scene, VMDNodeController nodeController, String pinID, Image image, String name, String type) {
-        scene.addPin (nodeController, pinID).setProperties (image, name, type);
+    private static void createPin (VMDGraphScene scene, String nodeID, String pinID, Image image, String name, String type) {
+        ((VMDPinWidget) scene.addPin (nodeID, pinID)).setProperties (image, name, type);
     }
 
-    private static void createEdge (VMDGraphScene scene, VMDNodeController sourceNodeController, String sourcePin, VMDNodeController targetNodeController) {
-        EdgeController.StringEdge edge = scene.addEdge ("edge" + edgeID ++);
-        scene.setEdgeSource (edge, scene.getPinController (sourceNodeController, sourcePin));
-        scene.setEdgeTarget (edge, scene.getPinController (targetNodeController, VMDGraphScene.PIN_ID_DEFAULT));
+    private static void createEdge (VMDGraphScene scene, String sourcePinID, String targetNodeID) {
+        String edgeID = "edge" + VMDTest.edgeID ++;
+        scene.addEdge (edgeID);
+        scene.setEdgeSource (edgeID, sourcePinID);
+        scene.setEdgeTarget (edgeID, targetNodeID + VMDGraphScene.PIN_ID_DEFAULT_SUFFIX);
     }
 
 }

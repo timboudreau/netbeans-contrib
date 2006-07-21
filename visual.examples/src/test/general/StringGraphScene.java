@@ -16,13 +16,11 @@ import org.netbeans.api.visual.action.MouseHoverAction;
 import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.PopupMenuAction;
 import org.netbeans.api.visual.anchor.RectangularAnchor;
-import org.netbeans.api.visual.graph.EdgeController;
-import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.uml.UMLClassWidget;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.graph.GraphScene;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +28,7 @@ import java.awt.*;
 /**
  * @author David Kaspar
  */
-public class StringGraphScene extends GraphScene<String, String, NodeController.StringNode, EdgeController.StringEdge> {
+public class StringGraphScene extends GraphScene.StringGraph {
 
     private LayerWidget mainLayer;
     private LayerWidget connectionLayer;
@@ -48,15 +46,7 @@ public class StringGraphScene extends GraphScene<String, String, NodeController.
         getActions ().addAction (mouseHoverAction);
     }
 
-    public LayerWidget getMainLayer () {
-        return mainLayer;
-    }
-
-    public LayerWidget getConnectionLayer () {
-        return connectionLayer;
-    }
-
-    protected NodeController.StringNode attachNodeController (String node) {
+    protected Widget attachNodeWidget (String node) {
         UMLClassWidget widget = new UMLClassWidget (this);
         widget.setClassName ("Class" + node);
         widget.addMember (widget.createMember ("x: double"));
@@ -71,21 +61,29 @@ public class StringGraphScene extends GraphScene<String, String, NodeController.
         widget.getActions ().addAction (mouseHoverAction);
         widget.getActions ().addAction (popupMenuAction);
 
-        return new NodeController.StringNode (node, widget);
+        return widget;
     }
 
-    protected EdgeController.StringEdge attachEdgeController (String edge) {
+    protected Widget attachEdgeWidget (String edge) {
         ConnectionWidget connectionWidget = new ConnectionWidget (this);
         connectionLayer.addChild (connectionWidget);
-        return new EdgeController.StringEdge (edge, connectionWidget);
+        return connectionWidget;
     }
 
-    protected void attachEdgeSource (EdgeController.StringEdge edgeController, NodeController.StringNode sourceNodeController) {
-        ((ConnectionWidget) edgeController.getMainWidget ()).setSourceAnchor (new RectangularAnchor (sourceNodeController.getMainWidget ()));
+    protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
+        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (RectangularAnchor.create (findWidget (sourceNode)));
     }
 
-    protected void attachEdgeTarget (EdgeController.StringEdge edgeController, NodeController.StringNode targetNodeController) {
-        ((ConnectionWidget) edgeController.getMainWidget ()).setTargetAnchor (new RectangularAnchor (targetNodeController.getMainWidget ()));
+    protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
+        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (RectangularAnchor.create (findWidget (targetNode)));
+    }
+
+    public LayerWidget getMainLayer () {
+        return mainLayer;
+    }
+
+    public LayerWidget getConnectionLayer () {
+        return connectionLayer;
     }
 
     private static class MyMouseHoverAction extends MouseHoverAction.TwoStated {

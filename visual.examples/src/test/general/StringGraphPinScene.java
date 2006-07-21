@@ -12,32 +12,26 @@
  */
 package test.general;
 
-import org.netbeans.api.visual.action.MouseHoverAction;
 import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.PopupMenuAction;
 import org.netbeans.api.visual.anchor.CenterAnchor;
-import org.netbeans.api.visual.graph.EdgeController;
 import org.netbeans.api.visual.graph.GraphPinScene;
-import org.netbeans.api.visual.graph.NodeController;
-import org.netbeans.api.visual.graph.PinController;
 import org.netbeans.api.visual.uml.UMLClassWidget;
 import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Widget;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * @author David Kaspar
  */
-public class StringGraphPinScene extends GraphPinScene<String, String, String, NodeController.StringNode, EdgeController.StringEdge, PinController.StringPin> {
+public class StringGraphPinScene extends GraphPinScene.StringGraph {
 
     private LayerWidget mainLayer;
     private LayerWidget connectionLayer;
 
     private MoveAction moveAction = new MoveAction ();
-    private MouseHoverAction mouseHoverAction = new StringGraphPinScene.MyMouseHoverAction ();
     private PopupMenuAction popupMenuAction = new StringGraphPinScene.MyPopupMenuAction ();
 
     public StringGraphPinScene () {
@@ -45,8 +39,45 @@ public class StringGraphPinScene extends GraphPinScene<String, String, String, N
         connectionLayer = new LayerWidget (this);
         addChild (mainLayer);
         addChild (connectionLayer);
+    }
 
-        getActions ().addAction (mouseHoverAction);
+    protected Widget attachNodeWidget (String node) {
+        UMLClassWidget widget = new UMLClassWidget (this);
+        widget.setClassName ("Class " + node);
+        mainLayer.addChild (widget);
+
+        widget.getActions ().addAction (moveAction);
+        widget.getActions ().addAction (createObjectHoverAction ());
+        widget.getActions ().addAction (popupMenuAction);
+
+        return widget;
+    }
+
+    protected Widget attachPinWidget (String node, String pin) {
+        UMLClassWidget classWidget = ((UMLClassWidget) findWidget (node));
+        if (pin.charAt (0) == '+') {
+            Widget member = classWidget.createMember (pin.substring (1));
+            classWidget.addMember (member);
+            return member;
+        } else {
+            Widget operation = classWidget.createOperation (pin.substring (1));
+            classWidget.addOperation (operation);
+            return operation;
+        }
+    }
+
+    protected Widget attachEdgeWidget (String edge) {
+        ConnectionWidget connectionWidget = new ConnectionWidget (this);
+        connectionLayer.addChild (connectionWidget);
+        return connectionWidget;
+    }
+
+    protected void attachEdgeSourceAnchor (String edge, String oldSourcePin, String sourcePin) {
+        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (new CenterAnchor (findWidget (sourcePin)));
+    }
+
+    protected void attachEdgeTargetAnchor (String edge, String oldTargetPin, String targetPin) {
+        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (new CenterAnchor (findWidget (targetPin)));
     }
 
     public LayerWidget getMainLayer () {
@@ -55,57 +86,6 @@ public class StringGraphPinScene extends GraphPinScene<String, String, String, N
 
     public LayerWidget getConnectionLayer () {
         return connectionLayer;
-    }
-
-    protected NodeController.StringNode attachNodeController (String node) {
-        UMLClassWidget widget = new UMLClassWidget (this);
-        widget.setClassName ("Class" + node);
-        mainLayer.addChild (widget);
-
-        widget.getActions ().addAction (moveAction);
-        widget.getActions ().addAction (mouseHoverAction);
-        widget.getActions ().addAction (popupMenuAction);
-
-        return new NodeController.StringNode (node, widget);
-    }
-
-    protected EdgeController.StringEdge attachEdgeController (String edge) {
-        ConnectionWidget connectionWidget = new ConnectionWidget (this);
-        connectionLayer.addChild (connectionWidget);
-        return new EdgeController.StringEdge (edge, connectionWidget);
-    }
-
-    protected PinController.StringPin attachPinController (NodeController.StringNode nodeController, String pin) {
-        UMLClassWidget classWidget = ((UMLClassWidget) nodeController.getMainWidget ());
-        if (pin.charAt (0) == '+') {
-            Widget member = classWidget.createMember (pin.substring (1));
-            classWidget.addMember (member);
-            return new PinController.StringPin (pin, member);
-        } else {
-            Widget operation = classWidget.createOperation (pin.substring (1));
-            classWidget.addOperation (operation);
-            return new PinController.StringPin (pin, operation);
-        }
-    }
-
-    protected void attachEdgeSource (EdgeController.StringEdge edgeController, PinController.StringPin sourcePinController) {
-        ((ConnectionWidget) edgeController.getMainWidget ()).setSourceAnchor (new CenterAnchor (sourcePinController.getMainWidget ()));
-    }
-
-    protected void attachEdgeTarget (EdgeController.StringEdge edgeController, PinController.StringPin targetPinController) {
-        ((ConnectionWidget) edgeController.getMainWidget ()).setTargetAnchor (new CenterAnchor (targetPinController.getMainWidget ()));
-    }
-
-    private static class MyMouseHoverAction extends MouseHoverAction.TwoStated {
-
-        protected void unsetHovering (Widget widget) {
-            widget.setBackground (Color.WHITE);
-        }
-
-        protected void setHovering (Widget widget) {
-            widget.setBackground (Color.CYAN);
-        }
-
     }
 
     private static class MyPopupMenuAction extends PopupMenuAction {

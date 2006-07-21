@@ -18,20 +18,18 @@ import org.netbeans.api.visual.action.ZoomAction;
 import org.netbeans.api.visual.action.MouseHoverAction;
 import org.netbeans.api.visual.anchor.RectangularAnchor;
 import org.netbeans.api.visual.border.LineBorder;
-import org.netbeans.api.visual.graph.EdgeController;
-import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.graph.NodeController;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.graph.GraphScene;
 
 import java.awt.*;
 
 /**
  * @author David Kaspar
  */
-public class RadialGraphScene extends GraphScene<String, String, NodeController.StringNode, EdgeController.StringEdge> {
+public class RadialGraphScene extends GraphScene.StringGraph {
 
     private LayerWidget nodesLayer = new LayerWidget (this);
     private LayerWidget edgesLayer = new LayerWidget (this);
@@ -51,7 +49,7 @@ public class RadialGraphScene extends GraphScene<String, String, NodeController.
         getActions ().addAction (panAction);
     }
 
-    protected NodeController.StringNode attachNodeController (String node) {
+    protected Widget attachNodeWidget (String node) {
         LabelWidget label = new LabelWidget (this);
         label.setBorder (lineBorder);
         label.setBackground (Color.WHITE);
@@ -61,24 +59,24 @@ public class RadialGraphScene extends GraphScene<String, String, NodeController.
         label.getActions ().addAction (hoverAction);
         label.getActions ().addAction (moveAction);
         nodesLayer.addChild (label);
-        return new NodeController.StringNode (node, label);
+        return label;
     }
 
-    protected EdgeController.StringEdge attachEdgeController (String edge) {
+    protected Widget attachEdgeWidget (String edge) {
         ConnectionWidget connection = new ConnectionWidget (this);
         connection.setCheckClipping (true);
         edgesLayer.addChild (connection);
-        return new EdgeController.StringEdge (edge, connection);
+        return connection;
     }
 
-    protected void attachEdgeSource (EdgeController.StringEdge edgeController, NodeController.StringNode sourceNodeController) {
-        ConnectionWidget widget = ((ConnectionWidget) edgeController.getMainWidget ());
-        widget.setSourceAnchor (new RectangularAnchor (sourceNodeController.getMainWidget ()));
+    protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
+        ConnectionWidget widget = (ConnectionWidget) findWidget (edge);
+        widget.setSourceAnchor (new RectangularAnchor (findWidget (sourceNode)));
     }
 
-    protected void attachEdgeTarget (EdgeController.StringEdge edgeController, NodeController.StringNode targetNodeController) {
-        ConnectionWidget widget = ((ConnectionWidget) edgeController.getMainWidget ());
-        widget.setTargetAnchor (new RectangularAnchor (targetNodeController.getMainWidget ()));
+    protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
+        ConnectionWidget widget = (ConnectionWidget) findWidget (edge);
+        widget.setTargetAnchor (new RectangularAnchor (findWidget (targetNode)));
     }
 
     private static class MyHoverAction extends MouseHoverAction.TwoStated {

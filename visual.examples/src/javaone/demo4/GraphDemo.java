@@ -13,8 +13,7 @@
 
 package javaone.demo4;
 
-import org.netbeans.api.visual.graph.EdgeController;
-import org.netbeans.api.visual.graph.NodeController;
+import org.netbeans.api.visual.widget.Widget;
 import test.SceneSupport;
 
 import java.awt.*;
@@ -27,16 +26,20 @@ public class GraphDemo {
     public static void main (String[] args) {
         DemoGraphScene scene = new DemoGraphScene ();
 
-        NodeController.StringNode hello = scene.addNode ("Hello");
-        NodeController.StringNode world = scene.addNode ("World");
+        String helloNodeID = "Hello";
+        String worldNodeID = "World";
+        String edge = "edge";
 
-        EdgeController.StringEdge edge = scene.addEdge ("edge");
+        Widget hello = scene.addNode (helloNodeID);
+        Widget world = scene.addNode (worldNodeID);
 
-        scene.setEdgeSource(edge, hello);
-        scene.setEdgeTarget(edge, world);
+        scene.addEdge (edge);
 
-        hello.getMainWidget().setPreferredLocation(new Point (100, 100));
-        world.getMainWidget().setPreferredLocation(new Point (400, 200));
+        scene.setEdgeSource(edge, helloNodeID);
+        scene.setEdgeTarget(edge, worldNodeID);
+
+        hello.setPreferredLocation (new Point (100, 100));
+        world.setPreferredLocation (new Point (400, 200));
 
         SceneSupport.show(scene.createView());
     }

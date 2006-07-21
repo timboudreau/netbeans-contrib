@@ -12,20 +12,19 @@
  */
 package test.animator;
 
-import org.netbeans.api.visual.graph.EdgeController;
+import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.PanAction;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.action.ZoomAction;
 import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.graph.NodeController;
-import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
-import org.netbeans.api.visual.action.*;
-import org.netbeans.api.visual.model.ObjectState;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.Collection;
 
 /**
  * @author David Kaspar
@@ -36,48 +35,36 @@ public class AnimatorTest extends GraphScene.StringGraph {
 
     private LayerWidget layer;
 
-    private WidgetAction hoverAction = new MyHover ();
+    private MoveAction moveAction = new MoveAction ();
 
     public AnimatorTest () {
         layer = new LayerWidget (this);
         addChild (layer);
         getActions ().addAction (new ZoomAction ());
         getActions ().addAction (new PanAction ());
-        getActions ().addAction (hoverAction);
         getActions ().addAction (new MyAction ());
     }
 
-    protected NodeController.StringNode attachNodeController (String node) {
+    protected Widget attachNodeWidget (String node) {
         IconNodeWidget widget = new IconNodeWidget (this);
         widget.setImage (IMAGE);
         widget.setLabel (node);
         layer.addChild (widget);
 
-        widget.getActions ().addAction (hoverAction);
-        widget.getActions ().addAction (new MoveAction ());
+        widget.getActions ().addAction (createObjectHoverAction ());
+        widget.getActions ().addAction (moveAction);
 
-        return new NodeController.StringNode (node, widget);
+        return widget;
     }
 
-    protected EdgeController.StringEdge attachEdgeController (String edge) {
+    protected Widget attachEdgeWidget (String edge) {
         return null;
     }
 
-    protected void attachEdgeSource (EdgeController.StringEdge edgeController, NodeController.StringNode sourceNodeController) {
+    protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
     }
 
-    protected void attachEdgeTarget (EdgeController.StringEdge edgeController, NodeController.StringNode targetNodeController) {
-    }
-
-    public class MyHover extends MouseHoverAction.TwoStated {
-
-        protected void unsetHovering (Widget widget) {
-            widget.setState (ObjectState.NORMAL);
-        }
-
-        protected void setHovering (Widget widget) {
-            widget.setState (new ObjectState (false, false, false, true));
-        }
+    protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
     }
 
     public class MyAction extends WidgetAction.Adapter {
@@ -90,10 +77,9 @@ public class AnimatorTest extends GraphScene.StringGraph {
     }
 
     private void moveTo (Point point) {
-        Collection<NodeController.StringNode> nodes = getNodes ();
         int index = 0;
-        for (NodeController.StringNode node : nodes)
-            getSceneAnimator ().getPreferredLocationAnimator ().setPreferredLocation (node.getMainWidget (), point != null ? point : new Point (++ index * 100, index * 100));
+        for (String node : getNodes ())
+            getSceneAnimator ().getPreferredLocationAnimator ().setPreferredLocation (findWidget (node), point != null ? point : new Point (++ index * 100, index * 100));
     }
 
     public static void main (String[] args) {

@@ -12,16 +12,15 @@
  */
 package test.list;
 
-import org.netbeans.api.visual.action.*;
-import org.netbeans.api.visual.graph.EdgeController;
+import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.PanAction;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.action.ZoomAction;
 import org.netbeans.api.visual.graph.GraphPinScene;
-import org.netbeans.api.visual.graph.NodeController;
-import org.netbeans.api.visual.graph.PinController;
-import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.ListItemWidget;
 import org.netbeans.api.visual.widget.general.ListWidget;
-import org.netbeans.api.visual.model.ObjectState;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
@@ -36,7 +35,6 @@ public class ListTest extends GraphPinScene.StringGraph {
 
     private LayerWidget layer;
 
-    private WidgetAction hoverAction = new MyHover ();
     private WidgetAction moveAction = new MoveAction ();
 
     public ListTest () {
@@ -44,62 +42,52 @@ public class ListTest extends GraphPinScene.StringGraph {
         addChild (layer);
         getActions ().addAction (new ZoomAction ());
         getActions ().addAction (new PanAction ());
-        getActions ().addAction (hoverAction);
     }
 
-    protected NodeController.StringNode attachNodeController (String node) {
+    protected Widget attachNodeWidget (String node) {
         ListWidget list = new ListWidget (this);
         list.setImage (IMAGE);
         list.setLabel (node);
 
         list.getActions ().addAction (moveAction);
-        list.getActions ().addAction (hoverAction);
-        addChild (list);
+        list.getActions ().addAction (createObjectHoverAction ());
+        layer.addChild (list);
 
-        return new NodeController.StringNode (node, list);
+        return list;
     }
 
-    protected EdgeController.StringEdge attachEdgeController (String edge) {
-        return null;
-    }
-
-    protected PinController.StringPin attachPinController (NodeController.StringNode nodeController, String pin) {
+    protected Widget attachPinWidget (String node, String pin) {
         ListItemWidget item = new ListItemWidget (this);
         item.setLabel (pin);
 
-        item.getActions ().addAction (hoverAction);
-        nodeController.getMainWidget ().addChild (item);
+        item.getActions ().addAction (createObjectHoverAction ());
+        findWidget (node).addChild (item);
 
-        return new PinController.StringPin (pin, item);
+        return item;
     }
 
-    protected void attachEdgeSource (EdgeController.StringEdge edgeController, PinController.StringPin sourcePinController) {
+    protected Widget attachEdgeWidget (String edge) {
+        return null;
     }
 
-    protected void attachEdgeTarget (EdgeController.StringEdge edgeController, PinController.StringPin targetPinController) {
+    protected void attachEdgeSourceAnchor (String edge, String oldSourcePin, String sourcePin) {
     }
 
-    public class MyHover extends MouseHoverAction.TwoStated {
-
-        protected void unsetHovering (Widget widget) {
-            widget.setState (ObjectState.NORMAL);
-        }
-
-        protected void setHovering (Widget widget) {
-            widget.setState (new ObjectState (false, false, false, true));
-        }
+    protected void attachEdgeTargetAnchor (String edge, String oldTargetPin, String targetPin) {
     }
 
     public static void main (String[] args) {
         ListTest scene = new ListTest ();
 
-        NodeController.StringNode node1 = scene.addNode ("Displayables");
+        String node1 = "Displayables";
+        scene.addNode (node1);
         scene.addPin (node1, "Alert");
         scene.addPin (node1, "Form");
         scene.addPin (node1, "List");
         scene.addPin (node1, "TextBox");
 
-        NodeController.StringNode node2 = scene.addNode ("Commands");
+        String node2 = "Commands";
+        scene.addNode (node2);
         scene.addPin (node2, "Back");
         scene.addPin (node2, "Cancel");
         scene.addPin (node2, "Exit");
