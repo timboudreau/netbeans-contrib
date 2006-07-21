@@ -69,8 +69,13 @@ public class AnimatorTest extends GraphScene.StringGraph {
 
     public class MyAction extends WidgetAction.Adapter {
 
-        public State mouseClicked (Widget widget, WidgetMouseEvent event) {
+        public State mousePressed (Widget widget, WidgetMouseEvent event) {
             moveTo (event.getButton () == MouseEvent.BUTTON1 ? event.getPoint () : null);
+            return State.CONSUMED;
+        }
+
+        public State mouseDragged (Widget widget, WidgetMouseEvent event) {
+            moveTo (event.getPoint ());
             return State.CONSUMED;
         }
 
@@ -80,6 +85,7 @@ public class AnimatorTest extends GraphScene.StringGraph {
         int index = 0;
         for (String node : getNodes ())
             getSceneAnimator ().getPreferredLocationAnimator ().setPreferredLocation (findWidget (node), point != null ? point : new Point (++ index * 100, index * 100));
+//            findWidget (node).setPreferredLocation (point != null ? point : new Point (++ index * 100, index * 100));
     }
 
     public static void main (String[] args) {
