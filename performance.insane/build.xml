@@ -28,7 +28,7 @@ Microsystems, Inc. All Rights Reserved.
             <classpath path="${cp.cli}"/>
         </javac>
         <copy todir="build/cliclasses">
-            <fileset dir="clisrc" excludesfile="../../nbbuild/standard-jar-excludes.txt"/>
+            <fileset dir="clisrc" excludes="${jar-excludes}"/>
         </copy>
     </target>
 

@@ -28,7 +28,7 @@ All Rights Reserved.
             <include name="org/netbeans/modules/enode/test/*.java"/>
         </javac>
         <copy todir="${build.classes.dir}">
-          <fileset dir="${src.dir}" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"/>
+          <fileset dir="${src.dir}" excludes="${jar-excludes}"/>
         </copy>
     </target>
  
