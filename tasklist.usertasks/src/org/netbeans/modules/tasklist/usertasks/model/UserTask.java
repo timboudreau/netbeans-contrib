@@ -35,10 +35,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.util.UTTreeIntf;
+import org.netbeans.modules.tasklist.usertasks.util.UTListTreeAbstraction;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 import org.openide.filesystems.FileObject;
@@ -122,7 +123,6 @@ ObjectList.Owner {
             today.set(Calendar.MINUTE, 0);
             today.set(Calendar.SECOND, 0);
             today.set(Calendar.MILLISECOND, 0);
-            // UTUtils.LOGGER.fine(today + " - " + start);
             return today.getTimeInMillis() <= start;
         }
     }
@@ -280,10 +280,10 @@ ObjectList.Owner {
     protected EventListenerList listeners = new EventListenerList();
 
     /**
-     * When true, don't notify anybody of updates to this object - and don't
-     * modify the edited timestamp. Used by the restore code.
+     * When false, don't update the "last modified" date. 
+     * Used by the restore code.
      */
-    protected boolean silentUpdate = false;
+    private boolean updateLastModified = true;
 
     private UserTask parent;
 
@@ -468,7 +468,6 @@ ObjectList.Owner {
                     setSpentTime_(computeSpentTime());
                 }
                 if (UserTask.this.list != null) {
-                    // UTUtils.LOGGER.fine("ut.structureChanged markChanged"); // NOI18N
                     UserTask.this.list.markChanged();
                 }
             }
@@ -652,16 +651,14 @@ ObjectList.Owner {
         
         if (this.spentTime != spentTime) {
             this.spentTime = spentTime;
-            if (!silentUpdate) {
-                firePropertyChange("spentTime",  // NOI18N
-                    new Integer(old), new Integer(spentTime));
-                if (getParent() != null) {
-                    UserTask p = (UserTask) getParent();
-                    if (p.isSpentTimeComputed())
-                        p.setSpentTime_(p.computeSpentTime());
-                    if (p.isSpentTimeComputed())
-                        p.setSpentTime_(p.computeSpentTime());
-                }
+            firePropertyChange("spentTime",  // NOI18N
+                new Integer(old), new Integer(spentTime));
+            if (getParent() != null) {
+                UserTask p = (UserTask) getParent();
+                if (p.isSpentTimeComputed())
+                    p.setSpentTime_(p.computeSpentTime());
+                if (p.isSpentTimeComputed())
+                    p.setSpentTime_(p.computeSpentTime());
             }
         }
     }
@@ -1007,7 +1004,6 @@ ObjectList.Owner {
     
         if (!isDone()) {
             UserTask[] t = findTasksThatDependOnThisOne();
-            UTUtils.LOGGER.fine("t.length = " + t.length); // NOI18N
             for (int i = 0; i < t.length; i++) {
                 Dependency d = t[i].findDependencyOn(this);
                 if (d.getType() == Dependency.END_BEGIN) {
@@ -1035,14 +1031,12 @@ ObjectList.Owner {
         
         if (this.progress != progress) {
             this.progress = progress;
-            if (!silentUpdate) {
-                firePropertyChange("progress",  // NOI18N
-                    new Float(old), new Float(progress));
-                if (getParent() != null) {
-                    UserTask p = (UserTask) getParent();
-                    if (p.isProgressComputed())
-                        p.setProgress_(p.computeProgress());
-                }
+            firePropertyChange("progress",  // NOI18N
+                new Float(old), new Float(progress));
+            if (getParent() != null) {
+                UserTask p = (UserTask) getParent();
+                if (p.isProgressComputed())
+                    p.setProgress_(p.computeProgress());
             }
         }
     }
@@ -1315,15 +1309,12 @@ ObjectList.Owner {
      */
     public UserTask[] findTasksThatDependOnThisOne() {
         List<Object> t = UTUtils.filter(
-                new UTTreeIntf(getList()), new UnaryFunction() {
+                new UTListTreeAbstraction(getList()), new UnaryFunction() {
             public Object compute(Object obj) {
                 if (obj instanceof UserTask) {
                     UserTask ut = (UserTask) obj;
-                    // UTUtils.LOGGER.fine("testing " + ut);
                     Boolean b = Boolean.valueOf(
                             ut.findDependencyOn(UserTask.this) != null);
-                    //UTUtils.LOGGER.fine("b = " + b + " for " + 
-                    //        ut + " and " + UserTask.this);
                     return b;
                 } else {
                     return Boolean.FALSE;
@@ -1393,7 +1384,6 @@ ObjectList.Owner {
         percentComputed = from.percentComputed;
         category = from.category;
         created = from.created;
-        lastEditedDate = from.lastEditedDate;
         effort = from.effort;
         effortComputed = from.effortComputed;
         spentTime = from.spentTime;
@@ -1506,16 +1496,14 @@ ObjectList.Owner {
         
         if (this.effort != effort) {
             this.effort = effort;
-            if (!silentUpdate) {
-                firePropertyChange("effort",  // NOI18N
-                    new Integer(old), new Integer(effort));
-                if (getParent() != null) {
-                    UserTask p = (UserTask) getParent();
-                    if (p.isEffortComputed())
-                        p.setEffort_(p.computeEffort());
-                    if (p.isProgressComputed())
-                        p.setProgress_(p.computeProgress());
-                }
+            firePropertyChange("effort",  // NOI18N
+                new Integer(old), new Integer(effort));
+            if (getParent() != null) {
+                UserTask p = (UserTask) getParent();
+                if (p.isEffortComputed())
+                    p.setEffort_(p.computeEffort());
+                if (p.isProgressComputed())
+                    p.setProgress_(p.computeProgress());
             }
         }
     }
@@ -1533,7 +1521,8 @@ ObjectList.Owner {
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        lastEditedDate = System.currentTimeMillis();
+        if (updateLastModified)
+            setLastEditedDate(System.currentTimeMillis());
     }
 
     /**
@@ -1551,9 +1540,7 @@ ObjectList.Owner {
      * @param newValue new value (may be null)
      */
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-        if (!silentUpdate) {
-            supp.firePropertyChange(propertyName, oldValue, newValue);
-        }
+        supp.firePropertyChange(propertyName, oldValue, newValue);
         if (list != null)
             list.markChanged();
     }
@@ -1916,5 +1903,14 @@ ObjectList.Owner {
             if (wp.getDuration() == 0)
                 it.remove();
         }
+    }
+
+    /**
+     * Sets whether the "last modified" date should be updated.
+     *
+     * @param b true = last modified date will be updated
+     */
+    public void setUpdateLastModified(boolean b) {
+        this.updateLastModified = b;
     }
 }

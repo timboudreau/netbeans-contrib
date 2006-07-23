@@ -3,12 +3,10 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import javax.swing.AbstractAction;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTasksTreeTable;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
@@ -39,9 +37,6 @@ implements ListSelectionListener {
     }
 
     public void valueChanged(ListSelectionEvent event) {
-        // if (UTUtils.LOGGER.isLoggable(Level.FINE))
-        //    new Exception().printStackTrace();
-        
         int[] rows = tt.getSelectedRows();
         if (rows.length == 0)
             return;
@@ -126,6 +121,7 @@ implements ListSelectionListener {
         // perform action if confirmed
         if (doConfirm(tasks)) {
             //tt.setPaintDisabled(true);
+            tt.clearSelection();
             for (int i = 0; i < tasks.length; i++) {
                 UserTask item = tasks[i].getUserTask();
                 UserTaskList utl = item.getList();

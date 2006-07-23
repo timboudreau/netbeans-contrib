@@ -19,7 +19,6 @@
 
 package org.netbeans.modules.tasklist.usertasks.test;
 
-import java.awt.Point;
 import java.awt.Rectangle;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
@@ -35,15 +34,13 @@ import org.netbeans.jellytools.actions.Action;
 import org.netbeans.jellytools.actions.OpenAction;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.EventTool;
-import org.netbeans.jemmy.operators.ButtonOperator;
 import org.netbeans.jemmy.operators.DialogOperator;
 import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.operators.JPopupMenuOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
-import org.netbeans.jemmy.operators.Operator;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
-import org.netbeans.modules.tasklist.core.table.TreeTable;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 
 /**
  * Tests for the TreeTable

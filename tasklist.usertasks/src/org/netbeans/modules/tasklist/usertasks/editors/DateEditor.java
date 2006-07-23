@@ -24,6 +24,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.editors;
 
+import java.text.MessageFormat;
 import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,6 +38,7 @@ import org.openide.explorer.propertysheet.PropertyEnv;
 
 // bugfix# 9219 for attachEnv() method
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
  
 
@@ -74,8 +76,7 @@ implements ExPropertyEditor {
             String msg = NbBundle.getMessage(DateEditor.class,
                 "IllegalDateValue", new Object[] {s}); //NOI18N
             RuntimeException iae = new IllegalArgumentException(msg); 
-            ErrorManager.getDefault().annotate(iae, ErrorManager.USER, msg,
-                msg, e, new java.util.Date());
+            Exceptions.attachLocalizedMessage(iae, msg);
             throw iae;
         }
     }

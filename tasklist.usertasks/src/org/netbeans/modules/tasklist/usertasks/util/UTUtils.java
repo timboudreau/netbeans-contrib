@@ -49,6 +49,8 @@ import org.openide.util.actions.Presenter;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 /**
  * Utility methods for usertasks.
@@ -62,6 +64,49 @@ public final class UTUtils {
         LOGGER.setLevel(Level.OFF);
     }
 
+    /**
+     * Creates a tag in another one.
+     *
+     * @param el an XML node
+     * @param tagName name of the new sub-tag
+     * @return created element
+     */
+    public static Element appendElement(Element el, String tagName) {
+        Element r = el.getOwnerDocument().createElement(tagName);
+        el.appendChild(r);
+        return r;
+    }
+    
+    /**
+     * Creates a tag in another one.
+     *
+     * @param el an XML node
+     * @param tagName name of the new sub-tag
+     * @param content content for the new tag
+     * @return created element
+     */
+    public static Element appendElement(Element el, String tagName, 
+            String content) {
+        Element r = el.getOwnerDocument().createElement(tagName);
+        el.appendChild(r);
+        Text txt = el.getOwnerDocument().createTextNode(content);
+        r.appendChild(txt);
+        return r;
+    }
+    
+    /**
+     * Appends a text element.
+     *
+     * @param el an element
+     * @param content text
+     * @return el
+     */
+    public static Element appendText(Element el, String content) {
+        Text txt = el.getOwnerDocument().createTextNode(content);
+        el.appendChild(txt);
+        return el;
+    }
+    
     /**
      * Prepares a (possibly) multi line text for showing as a tooltip
      * (converts it to html).
@@ -181,20 +226,15 @@ public final class UTUtils {
      */
     public static Line findCursorPosition(Node[] nodes) {
         if (nodes == null) {
-            UTUtils.LOGGER.fine("nodes == null"); // NOI18N
             return null;
         }
 
-        UTUtils.LOGGER.fine("searching in " + nodes.length + " nodes"); // NOI18N
         for (int i = 0; i < nodes.length; i++) {
-            UTUtils.LOGGER.fine("searching in " + nodes[i]); // NOI18N
             EditorCookie ec = (EditorCookie) nodes[i].getCookie(EditorCookie.class);
 
             if (ec != null) {
-                UTUtils.LOGGER.fine("ec found"); // NOI18N
                 JEditorPane[] editorPanes = ec.getOpenedPanes();
                 if ((editorPanes != null) && (editorPanes.length > 0)) {
-                    UTUtils.LOGGER.fine("editorPanes found"); // NOI18N
                     int line = NbDocument.findLineNumber(
                         ec.getDocument(),
                         editorPanes[0].getCaret().getDot());
@@ -296,7 +336,7 @@ public final class UTUtils {
      * @param t a tree
      * @param filter Boolean f(Object). Filter function.
      */
-    public static <T> List<T> filter(TreeIntf<T> t, UnaryFunction filter) {
+    public static <T> List<T> filter(TreeAbstraction<T> t, UnaryFunction filter) {
         List<T> r = new ArrayList<T>();
         filter(t, t.getRoot(), filter, r);
         return r;
@@ -309,12 +349,76 @@ public final class UTUtils {
      * @param node this node and all it's descendants will be filtered
      * @param result nodes that passed the filter will be stored here
      */
-    private static <T> void filter(TreeIntf<T> t, T node, 
+    private static <T> void filter(TreeAbstraction<T> t, T node, 
             UnaryFunction filter, List<T> result) {
         if (((Boolean) filter.compute(node)).booleanValue())
             result.add(node);
         for (int i = 0; i < t.getChildCount(node); i++) {
             filter(t, t.getChild(node, i), filter, result);
         }
+    }
+    
+    /**
+     * Processes all nodes in a tree in a depth-first manner.
+     *
+     * @param tree a tree
+     * @param f a function to be applied to each node
+     */
+    public static <T> void processDepthFirst(TreeAbstraction<T> tree,
+            UnaryFunction f) {
+        processDepthFirst(tree, tree.getRoot(), f);
+    }
+    
+    /**
+     * Processes all nodes under the specified in a depth-first manner.
+     *
+     * @param tree a tree
+     * @param f a function to be applied to each node.
+     */
+    private static <T> void processDepthFirst(TreeAbstraction<T> tree,
+            T object, UnaryFunction f) {
+        for (int i = 0; i < tree.getChildCount(object); i++) {
+            processDepthFirst(tree, tree.getChild(object, i), f);
+        }
+        f.compute(object) ;
+    }
+
+    /**
+     * Processes all nodes in a tree in a breadth-first manner.
+     *
+     * @param tree a tree
+     * @param f a function to be applied to each node
+     */
+    public static <T> void processBreadthFirst(TreeAbstraction<T> tree,
+            UnaryFunction f) {
+        processBreadthFirst(tree, tree.getRoot(), f);
+    }
+    
+    /**
+     * Processes all nodes under the specified in a breadth-first manner.
+     *
+     * @param tree a tree
+     * @param f a function to be applied to each node.
+     */
+    private static <T> void processBreadthFirst(TreeAbstraction<T> tree,
+            T object, UnaryFunction f) {
+        f.compute(object);
+        for (int i = 0; i < tree.getChildCount(object); i++) {
+            processBreadthFirst(tree, tree.getChild(object, i), f);
+        }
+    }
+
+    /**
+     * Computes a sum of an array.
+     *
+     * @param values array of values
+     * @return sum of the values
+     */
+    public static long sum(long[] values) {
+        long r = 0;
+        for (int i = 0; i < values.length; i++) {
+            r += values[i];
+        }
+        return r;
     }
 }

@@ -207,7 +207,6 @@ public class TreeTableDragGestureRecognizer implements MouseListener,
                                 e.getX() - 
                                 table.getCellRect(0, column, true).x, 
                                 e.getY());
-                        UTUtils.LOGGER.fine(tp + "");
                         return tp != null;
                     } else {
                         return true;

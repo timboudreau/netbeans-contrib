@@ -545,8 +545,10 @@ public class ICalExportFormat implements ExportImportFormat {
         for (int i = 0; i < wks.size(); i++) {
             UserTask.WorkPeriod wk = (UserTask.WorkPeriod) wks.get(i);
             prop = new XProperty("X-NETBEANS-WORK-PERIOD"); // NOI18N
-            prop.getParameters().add(new XParameter("X-NETBEANS-START",
-                DATEFORMAT.format(new Date(wk.getStart()))));
+            String v = DATEFORMAT.format(new java.util.Date(wk.getStart()));
+            prop.getParameters().add(new XParameter(
+                    "X-NETBEANS-START", // NOI18N
+                    v));
             prop.setValue(Integer.toString(wk.getDuration()));
             pl.add(prop);
         }

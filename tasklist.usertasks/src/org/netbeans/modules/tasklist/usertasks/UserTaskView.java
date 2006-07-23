@@ -69,6 +69,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.UTDeleteAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTPasteAction;
 import org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter;
 import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
+import org.netbeans.modules.tasklist.usertasks.translators.HistoryTextExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.HtmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
@@ -143,7 +144,6 @@ FilteredTopComponent {
                         all = UserTaskViewRegistry.
                                 getInstance().getAll();
                     }
-                    UTUtils.LOGGER.fine("repainting"); // NOI18N
                     for (int i = 0; i < all.length; i++) {
                         all[i].repaint();
                     }
@@ -303,8 +303,6 @@ FilteredTopComponent {
             // Read tasklist file name
             String urlString = (String)objectInput.readObject();
 
-            UTUtils.LOGGER.fine("reading url " + urlString); // NOI18N
-
             if (urlString != null) {
                 URL url = new URL(urlString);
                 FileObject fo = URLMapper.findFileObject(url);
@@ -359,13 +357,8 @@ FilteredTopComponent {
             
             // columns
             TreeTable.ColumnsConfig cc = (TreeTable.ColumnsConfig) m.get("columns"); // NOI18N
-            if (UTUtils.LOGGER.isLoggable(Level.FINE))
-                UTUtils.LOGGER.fine(cc.toString());
             if (cc != null) {
-                UTUtils.LOGGER.fine("setting columns"); // NOI18N
                 tt.setColumnsConfig(cc);
-            } else {
-                UTUtils.LOGGER.fine("no columns found"); // NOI18N
             }
             
             // active filter 25. March 2005
@@ -398,8 +391,6 @@ FilteredTopComponent {
      * @throws IOException  
      */    
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
-        UTUtils.LOGGER.fine(""); // NOI18N
-        
         // Don't call super.writeExternal.
         // Our parent is TopComponent.
         // TopComponent persists the name and tooltip text; we
@@ -472,9 +463,6 @@ FilteredTopComponent {
         // columns
         Serializable cc = tt.getColumnsConfig();
         m.put("columns", cc); // NOI18N
-        if (UTUtils.LOGGER.isLoggable(Level.FINE))
-            UTUtils.LOGGER.fine(cc.toString());
-        
         
         // active filter
         if (getFilter() != null)
@@ -600,7 +588,8 @@ FilteredTopComponent {
             new TextExportFormat(),
             new XmlExportFormat(), 
             new HtmlExportFormat(),
-            new ICalExportFormat()
+            new ICalExportFormat(),
+            new HistoryTextExportFormat()
         };
     }
     

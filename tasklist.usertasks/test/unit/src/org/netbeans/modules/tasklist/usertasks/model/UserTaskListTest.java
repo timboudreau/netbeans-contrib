@@ -33,6 +33,7 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.Repository;
@@ -75,7 +76,9 @@ public class UserTaskListTest extends NbTestCase {
         Writer w = new OutputStreamWriter(out, "UTF-8");
         ICalExportFormat exp = new ICalExportFormat();
         exp.writeList(utl, w, true);
-        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        byte[] bytes = out.toByteArray();
+        String s = new String(bytes);
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         ICalImportFormat imp = new ICalImportFormat();
 
         utl = new UserTaskList();
@@ -137,6 +140,62 @@ public class UserTaskListTest extends NbTestCase {
         ut.setSpentTimeComputed(true);
         ut3.setDone(true);
         assertEquals(15, ut2.getLastEditedDate());
+    }
+    
+    /**
+     * Opening a task list should not trigger the last modified date.
+     */
+    public void testLastModified2() throws Exception {
+        UTUtils.LOGGER.fine("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+        // utl 
+        //  |-ut
+        //    |-ut2
+        //    |-ut3
+        UserTaskList utl = new UserTaskList();
+        UserTask ut = new UserTask("test", utl);
+        UserTask ut2 = new UserTask("test2", utl);
+        UserTask ut3 = new UserTask("test2", utl);
+        utl.getSubtasks().add(ut);
+        ut.getSubtasks().add(ut2);
+        ut.getSubtasks().add(ut3);
+        ut3.setDone(true);
+        ut.setProgressComputed(true);
+        
+        ut.setLastEditedDate(15000);
+        ut2.setLastEditedDate(15000);
+        ut3.setLastEditedDate(15000);
+        
+        utl = saveAndLoad(utl);
+        ut = utl.getSubtasks().get(0);
+        ut2 = ut.getSubtasks().get(0);
+        ut3 = ut.getSubtasks().get(1);
+        
+        assertEquals(15000, ut.getLastEditedDate());
+        assertEquals(15000, ut2.getLastEditedDate());
+        assertEquals(15000, ut3.getLastEditedDate());
+    }
+    
+    /**
+     * Stores and loads working periods.
+     */
+    public void testWorkPeriods() throws Exception {
+        // utl 
+        //  |-ut
+        UserTaskList utl = new UserTaskList();
+        UserTask ut = new UserTask("test", utl);
+        utl.getSubtasks().add(ut);
+        
+        long time = System.currentTimeMillis();
+        UserTask.WorkPeriod wp = new UserTask.WorkPeriod(time, 2);
+        ut.getWorkPeriods().add(wp);
+        
+        utl = saveAndLoad(utl);
+        ut = utl.getSubtasks().get(0);
+        wp = ut.getWorkPeriods().get(0);
+        
+        long delta = Math.abs(wp.getStart() - time);
+        assertTrue(Long.toString(delta), delta < 1000);
+        assertEquals(wp.getDuration(), 2);
     }
     
     /**

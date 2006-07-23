@@ -106,11 +106,6 @@ public class SortingHeaderRenderer extends JPanel implements TableCellRenderer {
             if (iconPref.width != 0)
                 x = x + iconPref.width + 2;
             label.setBounds(x, 0, w, parent.getHeight());
-
-            /*
-            UTUtils.LOGGER.fine("icon " + icon.getBounds().toString()); // NOI18N
-            UTUtils.LOGGER.fine("label" + label.getBounds().toString()); // NOI18N
-            */
         }
         
         public java.awt.Dimension minimumLayoutSize(java.awt.Container parent) {

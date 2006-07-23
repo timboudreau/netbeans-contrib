@@ -74,10 +74,8 @@ public class StartTaskAction extends UTViewAction implements
                 UserTask ut = ((UserTaskTreeTableNode) last).getUserTask();
                 // TODO: ut.getDependencies().addListener()...
                 en = ut.isStartable() && !ut.isStarted();
-                if (en) {
-                    this.ut = ut;
-                    this.ut.addPropertyChangeListener(this);
-                }
+                this.ut = ut;
+                this.ut.addPropertyChangeListener(this);
             }
         }
         setEnabled(en);

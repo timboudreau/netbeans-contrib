@@ -59,11 +59,13 @@ import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.OpenFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+import org.netbeans.modules.tasklist.usertasks.util.TreeAbstraction;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
+import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
@@ -97,7 +99,8 @@ public class ICalImportFormat implements ExportImportFormat {
         CHOOSE_FILE_PANEL_PROP = "ChooseFilePanel"; // NOI18N
     
     private static final String DATEFORMATZ = "yyyyMMdd'T'HHmmss'Z'"; // NOI18N
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(DATEFORMATZ);
+    private static final SimpleDateFormat formatter = 
+            new SimpleDateFormat(DATEFORMATZ);
     
     /** Used to read in dependencies */
     private static class Dep {
@@ -139,15 +142,13 @@ public class ICalImportFormat implements ExportImportFormat {
      * @param utl a task list
      * @param is .ics
      */
-    public static void read(UserTaskList utl, InputStream is) throws 
+    public static void read(final UserTaskList utl, InputStream is) throws 
         IOException, ParserException {
         CalendarBuilder cb = new MyCalendarBuilder();
         
         // <Dep> used for reading dependencies
         List<Dep> dependencies = new ArrayList<Dep>();
     
-        UTUtils.LOGGER.fine("building calendar"); // NOI18N
-        
         Reader r = new InputStreamReader(is, "UTF-8");
         StringWriter w = new StringWriter();
         convertToRFC2445(r, w);
@@ -156,19 +157,16 @@ public class ICalImportFormat implements ExportImportFormat {
         Calendar cal = cb.build(r);
         for (Iterator i = cal.getComponents().iterator(); i.hasNext();) {
             Component component = (Component) i.next();
-            // UTUtils.LOGGER.fine("component.name = " + component.getName()); // NOI18N
             if (component.getName().equals(Component.VTODO)) {
                 readVTODO(utl, component, dependencies);
             }
         }
 
         // Dependencies
-        UTUtils.LOGGER.finer("processing dependencies: " + dependencies.size()); // NOI18N
         for (int i = 0; i < dependencies.size(); i++) {
             Dep d = (Dep) dependencies.get(i);
             UserTask ut = utl.findItem(
                 utl.getSubtasks().iterator(), d.dependsOn);
-            UTUtils.LOGGER.finer("found task " + ut); // NOI18N
             if (ut != null) {
                 d.ut.getDependencies().add(new Dependency(ut, d.type));
             }
@@ -176,6 +174,33 @@ public class ICalImportFormat implements ExportImportFormat {
 
         dependencies.clear();
 
+        TreeAbstraction tree = new TreeAbstraction() {
+            public Object getChild(Object obj, int index) {
+                if (obj instanceof UserTaskList) {
+                    return ((UserTaskList) obj).getSubtasks().get(index);
+                } else {
+                    return ((UserTask) obj).getSubtasks().get(index);
+                }
+            }
+            public int getChildCount(Object obj) {
+                if (obj instanceof UserTaskList) {
+                    return ((UserTaskList) obj).getSubtasks().size();
+                } else {
+                    return ((UserTask) obj).getSubtasks().size();
+                }
+            }
+            public Object getRoot() {
+                return utl;
+            }
+        };
+        UTUtils.processDepthFirst(tree, new UnaryFunction() {
+            public Object compute(Object obj) {
+                if (obj instanceof UserTask) {
+                    ((UserTask) obj).setUpdateLastModified(true);
+                }
+                return null;
+            }
+        });
         utl.userObject = cal;
     }
     
@@ -229,6 +254,7 @@ public class ICalImportFormat implements ExportImportFormat {
         Property prop = pl.getProperty(Property.SUMMARY);
         String summary = (prop == null) ? "" : prop.getValue(); // NOI18N
         UserTask ut = new UserTask(summary, utl);
+        ut.setUpdateLastModified(false);
         
         prop = pl.getProperty(Property.CREATED);
         if (prop != null)
@@ -237,10 +263,6 @@ public class ICalImportFormat implements ExportImportFormat {
         prop = pl.getProperty(Property.UID);
         if (prop != null)
             ut.setUID(prop.getValue());
-        
-        prop = pl.getProperty(Property.LAST_MODIFIED);
-        if (prop != null)
-            ut.setLastEditedDate(((DateProperty) prop).getDate().getTime());
         
         prop = pl.getProperty(Property.DTSTART);
         if (prop != null)
@@ -358,7 +380,8 @@ public class ICalImportFormat implements ExportImportFormat {
             if (p != null) {
                 try {
                     int dur = Integer.parseInt(prop.getValue());
-                    long start = formatter.parse(p.getValue()).getTime();
+                    String v = p.getValue();
+                    long start = formatter.parse(v).getTime();
                     UserTask.WorkPeriod wp = new UserTask.WorkPeriod(start, dur);
                     ut.getWorkPeriods().add(wp);
                 } catch (ParseException e) {
@@ -488,7 +511,6 @@ public class ICalImportFormat implements ExportImportFormat {
             }
         } else if (url != null) {
             try {
-                UTUtils.LOGGER.fine("setting url to " + url + " for " + ut); // NOI18N
                 ut.setUrl(new URL(url));
                 ut.setLineNumber(lineno - 1);
             } catch (MalformedURLException e) {
@@ -523,6 +545,10 @@ public class ICalImportFormat implements ExportImportFormat {
             parent = utl.findItem(utl.getSubtasks().iterator(), related);
         }
             
+        prop = pl.getProperty(Property.LAST_MODIFIED);
+        if (prop != null)
+            ut.setLastEditedDate(((DateProperty) prop).getDate().getTime());
+        
         if (parent != null)
             parent.getSubtasks().add(ut);
         else

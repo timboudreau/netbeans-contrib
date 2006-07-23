@@ -43,7 +43,6 @@ import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
-import org.netbeans.modules.tasklist.usertasks.actions.CopyHoursToClipboardAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
@@ -186,7 +185,6 @@ public final class UserTaskNode extends AbstractNode {
                 null,
                 SystemAction.get(PurgeTasksAction.class),
                 SystemAction.get(ClearCompletedAction.class),
-                new CopyHoursToClipboardAction(),
                 null,
                 SystemAction.get(ExpandAllUserTasksAction.class),
                 SystemAction.get(CollapseAllAction.class),
@@ -435,7 +433,6 @@ public final class UserTaskNode extends AbstractNode {
     @SuppressWarnings("unchecked")
     protected void createPasteTypes(java.awt.datatransfer.Transferable t, 
             List s) {
-        // UTUtils.LOGGER.fine("entering"); // NOI18N
         super.createPasteTypes(t, s);
         PasteType p = createTodoPasteType(this, t);
         if (p != null) {
@@ -452,7 +449,6 @@ public final class UserTaskNode extends AbstractNode {
      */
     public static PasteType createTodoPasteType(
     Node target, Transferable t) {
-        // UTUtils.LOGGER.fine("entering");
         if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
             try {
                 // Multiselection
@@ -492,7 +488,6 @@ public final class UserTaskNode extends AbstractNode {
     }
     
     public Transferable clipboardCopy() throws IOException {
-        UTUtils.LOGGER.fine("entering"); // NOI18N
         final UserTask copy = (UserTask) item.clone();
         return new ExTransferable.Single(UserTasksTransferable.USER_TASKS_FLAVOR) {
             protected Object getData() {
@@ -509,7 +504,6 @@ public final class UserTaskNode extends AbstractNode {
     public void destroy() throws IOException {
         AdvancedTreeTableNode n = 
             (AdvancedTreeTableNode) this.node.findNextNodeAfterDelete();
-        UTUtils.LOGGER.fine("selected node after delete:" + n); // NOI18N
         item.destroy();
         if (item.getParent() != null)
             item.getParent().getSubtasks().remove(item);
@@ -587,8 +581,6 @@ public final class UserTaskNode extends AbstractNode {
                 } 
                 
                 if (t.isDataFlavorSupported(UserTasksTransferable.USER_TASKS_FLAVOR)) {
-                    UTUtils.LOGGER.fine(t.getTransferData(
-                        UserTasksTransferable.USER_TASKS_FLAVOR).getClass().getName());
                     UserTask item = 
                         (UserTask) t.getTransferData(UserTasksTransferable.USER_TASKS_FLAVOR);
                     addTask(item);

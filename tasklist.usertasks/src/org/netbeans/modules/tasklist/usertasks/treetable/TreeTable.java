@@ -333,9 +333,7 @@ public class TreeTable extends JTable {
      * @param path to make visible
      */
     public void scrollTo(TreePath path) {
-        UTUtils.LOGGER.fine("scrolling to " + path); // NOI18N
         int row = this.getRowForPath(path);
-        UTUtils.LOGGER.fine("row = " + row); // NOI18N
         if (row > 0) {
             Rectangle r = this.getCellRect(row, 0, true);
             this.scrollRectToVisible(r);
@@ -487,8 +485,6 @@ public class TreeTable extends JTable {
      * the tree in the background, and then draw the editor over it.
      */
     public boolean editCellAt(int row, int column, EventObject e){
-        if (e == null && UTUtils.LOGGER.isLoggable(Level.FINE)) 
-            Thread.dumpStack();
         if (cellEditor != null && !cellEditor.stopCellEditing()) {
             return false;
         }
@@ -601,9 +597,6 @@ public class TreeTable extends JTable {
      * @param config columns configuration
      */
     public void setColumnsConfig(ColumnsConfig config) {
-        //if (UTUtils.LOGGER.isLoggable(Level.FINE))
-        //    Thread.dumpStack();
-        
         assert config != null : "config == null"; // NOI18N
         
         this.createDefaultColumnsFromModel();
@@ -982,23 +975,7 @@ public class TreeTable extends JTable {
 	    int offset = bounds.x;
             Rectangle cb = TreeTable.this.getCellRect(r, c, false);
             offset += cb.x;
-	    TreeCellRenderer tcr = t.getCellRenderer();
-	    if (tcr instanceof DefaultTreeCellRenderer) {
-		Object node = t.getPathForRow(offsetRow).
-		                getLastPathComponent();
-		Icon icon;
-		if (t.getModel().isLeaf(node))
-		    icon = ((DefaultTreeCellRenderer)tcr).getLeafIcon();
-		else if (tree.isExpanded(offsetRow))
-		    icon = ((DefaultTreeCellRenderer)tcr).getOpenIcon();
-		else
-		    icon = ((DefaultTreeCellRenderer)tcr).getClosedIcon();
-		if (icon != null) {
-                    UTUtils.LOGGER.fine("offset=" + offset); // NOI18N
-		    offset += ((DefaultTreeCellRenderer)tcr).getIconTextGap() +
-			      icon.getIconWidth();
-		}
-	    }
+            offset += 19;
 	    ((TreeTableTextField)getComponent()).offset = offset;
 	    return component;
 	}
@@ -1010,15 +987,6 @@ public class TreeTable extends JTable {
 	public boolean isCellEditable(EventObject e) {
 	    if (e instanceof MouseEvent) {
 		MouseEvent me = (MouseEvent)e;
-                
-                if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
-                    UTUtils.LOGGER.fine("mouse listeners:"); // NOI18N
-                    MouseListener[] ml = TreeTable.this.getMouseListeners();
-                    for (int i = 0; i < ml.length; i++) {
-                        UTUtils.LOGGER.fine("mouse listener: " + 
-                                ml[i]);
-                    }
-                }
                 
 		// If the modifiers are not 0 (or the left mouse button),
                 // tree may try and toggle the selection, and table

@@ -42,7 +42,6 @@ public class MyCalendarBuilder extends CalendarBuilder {
 
     public void parameter(String name, String value) throws java.net.URISyntaxException {
         String c = (String) cmps.get(cmps.size() - 1);
-        UTUtils.LOGGER.fine(c + " " + property + " " + name + " " + value); // NOI18N
         if (c.equals("VTODO") && "X-NETBEANS-WORK-PERIOD".equals(property) &&  // NOI18N
             name.equals("START")) // NOI18N
             name = "X-NETBEANS-START"; // NOI18N

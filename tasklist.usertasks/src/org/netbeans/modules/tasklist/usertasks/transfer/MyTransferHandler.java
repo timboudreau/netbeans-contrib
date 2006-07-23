@@ -59,7 +59,6 @@ public class MyTransferHandler extends TransferHandler {
         try {
             if (t.isDataFlavorSupported(UserTasksTransferable.
                     USER_TASKS_FLAVOR)) {
-                UTUtils.LOGGER.fine("User Tasks Flavor is supported"); // NOI18N
                 tasks = (UserTask[]) t.getTransferData(
                         UserTasksTransferable.USER_TASKS_FLAVOR);
                 for (int i = 0; i < tasks.length; i++) {
@@ -68,11 +67,7 @@ public class MyTransferHandler extends TransferHandler {
             } else if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                 String text = (String) t.getTransferData(
                         DataFlavor.stringFlavor);
-                UTUtils.LOGGER.fine("stringFlavor is supported " + text); // NOI18N
                 tasks = UserTask.parse(new StringReader(text));
-                UTUtils.LOGGER.fine(tasks.length + " tasks parsed"); // NOI18N
-            } else {
-                UTUtils.LOGGER.fine("stringFlavor is not supported"); // NOI18N
             }
         } catch (IOException e) {
             UTUtils.LOGGER.log(Level.WARNING, "", e); // NOI18N
@@ -112,7 +107,6 @@ public class MyTransferHandler extends TransferHandler {
         transferredTasks = t;
         
         UserTask[] cloned = new UserTask[t.length];
-        UTUtils.LOGGER.fine("transferredTasks.length " + transferredTasks.length);
         for (int i = 0; i < t.length; i++) {
             cloned[i] = t[i].cloneTask();
         }
@@ -166,7 +160,6 @@ public class MyTransferHandler extends TransferHandler {
             list = utl.getSubtasks();
         }
         
-        UTUtils.LOGGER.fine("found list: " + list); // NOI18N
         List<UserTask> tasks_ = new ArrayList<UserTask>(Arrays.asList(tasks));
         Iterator<UserTask> it = tasks_.iterator();
         while (it.hasNext()) {
@@ -196,16 +189,12 @@ public class MyTransferHandler extends TransferHandler {
     }
 
     protected void exportDone(JComponent source, Transferable data, int action) {
-        UTUtils.LOGGER.fine("action = " + // NOI18N
-                action);
         if (action == MOVE && transferredTasks != null) {
             UserTasksTreeTable tt = (UserTasksTreeTable) source;
             
             // TODO: any delete in the tree leads to
             // clearing the selection in the table. This is a workaround:
             TreePath[] sel = tt.getSelectedPaths();
-            
-            UTUtils.LOGGER.fine("sel.length= " + sel.length); // NOI18N
             
             for (int i = 0; i < transferredTasks.length; i++) {
                 UserTask ut = transferredTasks[i];

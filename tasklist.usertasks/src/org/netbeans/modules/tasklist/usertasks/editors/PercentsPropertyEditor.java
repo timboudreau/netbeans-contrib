@@ -23,8 +23,7 @@ import java.beans.PropertyEditorSupport;
 
 import javax.swing.JProgressBar;
 import javax.swing.UIManager;
-
-import org.openide.ErrorManager;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -70,9 +69,7 @@ public class PercentsPropertyEditor extends PropertyEditorSupport {
                 new java.lang.IllegalArgumentException(
                     NbBundle.getMessage(PercentsPropertyEditor.class, 
                     "NotANumber")); // NOI18N
-            ErrorManager.getDefault().annotate(iae, ErrorManager.USER, 
-                iae.getMessage(), 
-                iae.getMessage(), e, new java.util.Date());
+            Exceptions.attachLocalizedMessage(iae, iae.getMessage());
             throw iae;
         }
     }

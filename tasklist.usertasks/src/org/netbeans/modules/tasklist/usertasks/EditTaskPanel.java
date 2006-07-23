@@ -20,6 +20,7 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -96,7 +97,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
                 parsePercents(p);
                 return true;
             } catch (NumberFormatException e) {
-                UTUtils.LOGGER.fine("wrong format"); // NOI18N
                 return false;
             }
         }
@@ -170,6 +170,11 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         dp = new DependenciesPanel();
         dp.setBorder(new EmptyBorder(11, 11, 12, 12));
         jPanelDependencies.add(dp, BorderLayout.CENTER);
+        
+        Dimension d = jDateChooserDue.getPreferredSize();
+        d.width = 150;
+        jDateChooserDue.setPreferredSize(d);
+        jDateChooserStart.setPreferredSize(d);
     }
     
     public void addNotify() {
@@ -215,7 +220,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         if (categories.length > 0) {
             DefaultComboBoxModel model = new DefaultComboBoxModel(categories);
             categoryCombo.setModel(model);
-            UTUtils.LOGGER.fine("categories.size = " + categories.length); // NOI18N
         }
         categoryCombo.setSelectedItem(item.getCategory());
         
@@ -361,7 +365,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         Date ret;
         if (dueCheckBox.isSelected()) {
             ret = jDateChooserDue.getDate();
-            UTUtils.LOGGER.fine(ret.toString());
             Calendar c = Calendar.getInstance();
             c.setTime(ret);
             c.set(Calendar.HOUR_OF_DAY, 0);
@@ -369,7 +372,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             c.set(Calendar.SECOND, 0);
             c.set(Calendar.MILLISECOND, 0);
             ret = c.getTime();
-            UTUtils.LOGGER.fine("corrected:" + ret.toString()); // NOI18N
         } else {
             ret = null;
         }

@@ -2,65 +2,168 @@
 <html>
 <head>
 
+
+
+
+  
+  
+  
   <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+
+
+  
+  
+  
   <title>Available Actions</title>
-
-
 </head>
 
 
 <body>
 
+
+
+
 <h2>Available Actions</h2>
+
+
+
 
 <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
 
+
+
+
   <tbody>
+
+
+
 
     <tr>
 
+
+
+
       <td style="vertical-align: top;">
+      
+      
+      
       <h3>Toolbar</h3>
 
-      <img src="images/toolbar.gif" alt="Toolbar"></td>
+
+
+
+      <img src="images/newTask.gif" alt="New Task" style="width: 16px; height: 16px;"> - New Subtask... (Insert)<br>
+      <img src="images/showSource.gif" alt="Go To Source" style="width: 16px; height: 16px;"> - Go To Source<br>
+      <img src="images/filterAction.gif" title="" alt="Search/Filter..." style="width: 16px; height: 16px;"> - Search/Filter...<br>
+      <img src="images/removefilter.png" title="" alt="Remove Filter" style="width: 16px; height: 16px;"> - Remove Filter<br>
+      <img src="images/startTask.gif" alt="Start a task" style="width: 16px; height: 16px;"> - Start<br>
+      <img src="images/pause.gif" title="" alt="Pause" style="width: 16px; height: 16px;"> - Pause<br>
+      <img src="images/moveUp.gif" title="" alt="Move Up" style="width: 16px; height: 16px;"> - Move Up<br>
+      <img src="images/moveDown.gif" title="" alt="Move Down" style="width: 16px; height: 16px;"> - Move Down
+      <h3></h3>
+      <h3></h3>
+      <h3></h3>
+      <h3></h3>
+      </td>
+
+
+
 
       <td style="vertical-align: top;">
+      
+      
+      
       <h3>Task's local menu</h3>
 
-      <h3><img src="images/menu.gif" alt="Local Menu"></h3>
+
+
+
+      
+      
+      
+      <h3><img style="width: 211px; height: 463px;" src="images/menu.gif" alt="Local Menu"></h3>
+
+
+
 
       </td>
+
+
+
 
       <td style="vertical-align: top;">
+      
+      
+      
       <h3>Task List's local menu</h3>
 
-      <img src="images/listMenu.gif" alt="Task List Menu"><br>
+
+
+
+      <img style="width: 189px; height: 192px;" src="images/listMenu.gif" alt="Task List Menu"><br>
+
+
+
 
       </td>
 
-      <td style="vertical-align: top; width: 90%;"><br>
 
-      </td>
+
+
+      
+
+
 
     </tr>
 
+
+
+
+  
+  
+  
   </tbody>
 </table>
 
+
+
+
 <br>
+
+
+
 
 <h3>New Subtask... (<img src="images/newTask.gif" alt="New Task" style="width: 16px; height: 16px;">)<br>
 
+
+
+
 </h3>
+
+
+
 
 creates a new subtask of the selected task and opens a <a href="newTaskDialog.html">dialog</a> to edit
 the task.<br>
 
+
+
+
 <h3>New Task List...</h3>
+
+
+
 
 creates a new task list in the file system.<br>
 
+
+
+
 <h3>Start (<img src="images/startTask.gif" alt="Start a task" style="width: 16px; height: 16px;">)</h3>
+
+
+
 
 starts the task. The small icon (<img src="images/startedBadge.gif" alt="Started" style="width: 8px; height: 8px;">)
 marks the
@@ -69,35 +172,86 @@ started after a NetBeans restart. The owner of a started task will be
 set to the name of the current user if it was empty.
 <h3>Pause (<img src="images/pause.gif" title="" alt="Pause" style="width: 16px; height: 16px;">)<br>
 
+
+
+
 </h3>
+
+
+
 
 stops the task if it is currently running.<br>
 
+
+
+
 <h3>Show Task</h3>
+
+
+
 
 shows a dialog where the task's properties could be edited.<br>
 
-<h3>Go To Source (<img src="images/showSource.gif" title="" alt="Go To Source" style="width: 16px; height: 16px;">)<br>
+
+
+
+<h3>Go To Source (<img src="images/showSource.gif" alt="Go To Source" style="width: 16px; height: 16px;">)<br>
+
+
+
 
 </h3>
 
+
+
+
 shows the file assciated with this task in the editor.<br>
 
+
+
+
 <h3>Cut, Copy, Paste, Delete </h3>
+
+
+
 
 These work just the way you would expect it. Select a tasks. Then use
 the toolbar - or context
 menu or keyboard shortcut - actions to invoke cut,
 copy, paste or delete.<br>
 
+
+
+
 <h3>Move Up (<img src="images/moveUp.gif" title="" alt="Move Up" style="width: 16px; height: 16px;">)/Move
 Down (<img src="images/moveDown.gif" title="" alt="Move Down" style="width: 16px; height: 16px;">)<br>
 
+
+
+
 </h3>
+
+
+
 
 move the selected task up or down.<br>
 
-<h3> Import </h3>
+<h3>Move Left/Move Right<br>
+
+
+
+
+</h3>
+
+
+
+
+move the selected task left or right (changes nesting).<br>
+
+<h3>Import </h3>
+
+
+
 
 You can import certain <a href="translators.html">types
 of data</a>
@@ -106,28 +260,58 @@ as well. Currently only iCalendar and xCalendar files
 are supported, but we hope to support at least ASCII
 todo files soon.<br>
 
+
+
+
 <h3>Export </h3>
+
+
+
 
 You can create an <a href="translators.html">HTML or XML</a>
 version
 of your task list. <br>
 
+
+
+
 <h3>Search/Filter... (<img src="images/filterAction.gif" title="" alt="Search/Filter..." style="width: 16px; height: 16px;">)<br>
 
+
+
+
 </h3>
+
+
+
 
 shows a <a href="filter.html">dialog</a> where
 filters could be
 defined.<br>
 
+
+
+
 <h3>Remove Filter (<img src="images/removefilter.png" title="" alt="Remove Filter" style="width: 16px; height: 16px;">)<br>
+
+
+
 
 </h3>
 
+
+
+
 removes the currently active filter.<br>
+
+
+
 
 <span style="font-weight: bold;"></span>
 <h3>Purge Completed</h3>
+
+
+
 
 when you've marked tasks complete (by either selecting "True" for
 the "Done" property, or "100%" for the "Percent Complete" property)
@@ -135,32 +319,54 @@ you can get rid of the tasks by using the "Purge Completed"
 action.
 <h3>Clear Percent Complete<br>
 
+
+
+
 </h3>
+
+
+
 
 clears the completion status by all subtasks of the currently selected
 task. This action is very useful for working with checklists.<br>
 
-<h3>Copy Todays Hours to the Clipboard<br>
 
-</h3>
-
-copies information about tasks you have worked on today&nbsp;into
-the clipboard.
 <h3>Expand All/Collapse All<br>
 
+
+
+
 </h3>
+
+
+
 
 You can quickly expand/collapse all the tasks shown in a tasklist
 by selecting the "Expand/Collapse All" context menu item.<br>
 
+
+
+
 <h3>Properties</h3>
 
+
+
+
 shows a property with task's properties.<br>
+
+
+
 
 <hr>Comments &amp; requests to <a href="mailto:dev@tasklist.netbeans.org"><code>dev@tasklist.netbeans.org</code></a>.
 Further information at <a href="http://tasklist.netbeans.org/"><code>http://tasklist.netbeans.org</code></a>.<br>
 
+
+
+
 <br>
+
+
+
 
 </body>
 </html>

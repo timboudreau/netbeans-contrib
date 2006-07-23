@@ -75,32 +75,24 @@ public class TextExportFormat extends XmlExportFormat {
                 Settings.getDefault().getLastUsedExportFolder(),
                 "tasklist.txt")); // NOI18N
         chooseFileWP.setContentHighlightedIndex(0);
-
-        TextTemplatesPanel templatesPanel = new TextTemplatesPanel();
-        SimpleWizardPanel templatesWP = new SimpleWizardPanel(templatesPanel);
-        templatesWP.setFinishPanel(true);
-        templatesWP.setContentHighlightedIndex(1);
+        chooseFilePanel.setOpenFileCheckBoxVisible(true);
 
         // create wizard descriptor
         WizardDescriptor.Iterator iterator = 
             new WizardDescriptor.ArrayIterator(
-                new WizardDescriptor.Panel[] {chooseFileWP, templatesWP});
+                new WizardDescriptor.Panel[] {chooseFileWP});
         WizardDescriptor wd = new WizardDescriptor(iterator);
         wd.putProperty("WizardPanel_contentData", // NOI18N
             new String[] {
                 NbBundle.getMessage(
                     TextExportFormat.class, "TextChooseDestination"), // NOI18N
-                NbBundle.getMessage(
-                    TextExportFormat.class, "TextChooseLayout") // NOI18N
             }
-        ); // NOI18N
+        ); // NOI18N 
         wd.putProperty("WizardPanel_autoWizardStyle", Boolean.TRUE); // NOI18N
         wd.putProperty("WizardPanel_contentDisplayed", Boolean.TRUE); // NOI18N
         wd.putProperty("WizardPanel_contentNumbered", Boolean.TRUE); // NOI18N
         wd.setTitle(NbBundle.getMessage(TextExportFormat.class,
             "ExportText")); // NOI18N
-        wd.putProperty(getClass().getName() + 
-            ".TemplatesPanel", templatesPanel); // NOI18N
         wd.putProperty(CHOOSE_FILE_PANEL_PROP, chooseFilePanel);
         wd.setTitleFormat(new java.text.MessageFormat("{0}")); // NOI18N
         
@@ -161,11 +153,8 @@ public class TextExportFormat extends XmlExportFormat {
     WizardDescriptor wd) {
         SaveFilePanel chooseFilePanel = (SaveFilePanel)
             wd.getProperty(CHOOSE_FILE_PANEL_PROP);
-        TextTemplatesPanel templatesPanel = (TextTemplatesPanel)
-            wd.getProperty(getClass().getName() + 
-                ".TemplatesPanel"); // NOI18N
         super.doExportImport(provider, wd);
-        if (templatesPanel.getOpenFile()) {
+        if (chooseFilePanel.getOpenExportedFile()) {
             openFileInIde(chooseFilePanel.getFile());
         }
     }
