@@ -41,7 +41,7 @@ Microsystems, Inc. All Rights Reserved.
           </filterchain>
         </copy>
         <copy todir="${build.classes.dir}">
-            <fileset dir="${src.dir}" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"/>
+            <fileset dir="${src.dir}" excludes="${jar-excludes}"/>
             <fileset dir="classes_1_5">
                  <exclude name="**" if="have-jdk-1.5"/>
             </fileset>

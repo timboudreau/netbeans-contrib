@@ -73,7 +73,7 @@ Microsystems, Inc. All Rights Reserved.
     <jar jarfile="${cluster}/modules/test-profile.jar"
          manifest="manifest-subst.mf"
          basedir="src"
-         excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
+         excludes="**/*.java"
 	 excludes="src/org/netbeans/modules/vcs/profiles/testprofiles/mf-layer_XX.xml" 
          compress="false">
     </jar>
