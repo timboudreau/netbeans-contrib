@@ -25,11 +25,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <import file="nbproject/build-impl.xml"/>
 
     <target name="test">
-        <ant dir="bibtex" target="test" inheritAll="false" />
-        <ant dir="completion" target="test" inheritAll="false" />
-        <ant dir="core" target="test" inheritAll="false" />
-        <ant dir="guiproject" target="test" inheritAll="false" />
-        <ant dir="refactoring" target="test" inheritAll="false" />
+        <subant target="test" buildpath="bibtex:core:guiproject:refactoring" inheritall="false" failonerror="false" />
+<!--        <ant dir="completion" target="test" inheritAll="false" />-->
         
         <property name="results.dir" location="${basedir}/build/test/unit/results" />
         <mkdir dir="${results.dir}" />

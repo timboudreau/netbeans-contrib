@@ -26,12 +26,12 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         quiet="true"
         failonerror="true" />
         <cvs cvsroot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
-        command="co -P contrib/editorhints/editorhighlights contrib/fscompletion"
+        command="co -P contrib/editorhints/editorhighlights contrib/editorhints/spi contrib/fscompletion junit/external xtest/nbjunit xtest/external libs/external"
         dest="${nb-root}"
         quiet="true"
         failonerror="true" />
         <cvs cvsroot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
-        command="co -rrelease50 -P nbbuild lexer openide editor projects"
+        command="co -rrelease50 -P nbbuild lexer openide editor projects libs/swing-layout core/progress core/options"
         dest="${nb-root}"
         quiet="true"
         failonerror="true" />
@@ -64,9 +64,23 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         <ant dir="${nb-root}/nbbuild" target="bootstrap" inheritall="false"/>
         <ant dir="${nb-root}/contrib/fscompletion" inheritall="false" />
         <ant dir="${nb-root}/contrib/editorhints/editorhighlights" inheritall="false" />
+        <ant dir="${nb-root}/contrib/editorhints/spi" inheritall="false" />
         <ant dir="${nb-root}/lexer" inheritall="false" />
         <ant dir="${nb-root}/lexer/editorbridge" inheritall="false" />
+	<subant buildpath="${nb-root}/xtest/nbjunit" inheritall="false" failonerror="false" target="jar">
+	    <property name="javadoc.title" value="NBJunit" />
+	</subant>
 	
+	<mkdir dir="${nb-root}/nbbuild/netbeans/testtools/modules/ext" />
+	
+        <jar jarfile="${nb-root}/nbbuild/netbeans/testtools/modules/ext/nbjunit.jar">
+            <zipfileset src="${nb-root}/nbbuild/netbeans/testtools/modules/org-netbeans-modules-nbjunit.jar">
+                <include name="**/*"/>
+                <exclude name="META-INF/MANIFEST.MF"/>
+            </zipfileset>
+        </jar>
+        <copy file="${nb-root}/xtest/external/insanelib.jar" todir="${nb-root}/nbbuild/netbeans/testtools/modules/ext"/>
+
 	<subant buildpath="../spellchecker" target="cluster-zip" inheritAll="false" inheritrefs="fale" >
             <property name="harness.dir" location="${nb-root}/nbbuild/netbeans/harness" />
             <property name="netbeans.dest.dir" location="${nb-root}/nbbuild/netbeans" />
@@ -78,6 +92,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <target name="clean-full-platform" depends="init">
         <subant buildpath="${nb-root}/contrib/fscompletion:${nb-root}/contrib/editorhints/editorhighlights:${nb-root}/lexer:${nb-root}/lexer/editorbridge" target="clean" inheritall="false" failonerror="false"/>
 	<delete dir="${nb-root}/nbbuild/netbeans/extra" />
+	<delete dir="${nb-root}/nbbuild/netbeans/testtools" />
     </target>
 
     <target name="build" depends="init,build-full-platform">
@@ -88,10 +103,10 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     </target>
 
     <target name="test" depends="init,build-full-platform,build">
-<!--        <ant target="test" inheritAll="false">
+        <ant target="test" inheritAll="false">
             <property name="harness.dir" location="${nb-root}/nbbuild/netbeans/harness" />
             <property name="netbeans.dest.dir" location="${nb-root}/nbbuild/netbeans" />
-        </ant>-->
+        </ant>
     </target>
 
     <target name="clean-latex">
