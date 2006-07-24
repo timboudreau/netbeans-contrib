@@ -19,8 +19,8 @@ import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Arrays;
 
 /**
  * @author David Kaspar
