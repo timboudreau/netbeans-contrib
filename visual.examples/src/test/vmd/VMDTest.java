@@ -77,7 +77,7 @@ public class VMDTest {
     }
 
     private static void createPin (VMDGraphScene scene, String nodeID, String pinID, Image image, String name, String type) {
-        ((VMDPinWidget) scene.addPin (nodeID, pinID)).setProperties (image, name, type);
+        ((VMDPinWidget) scene.addPin (nodeID, pinID)).setProperties (name, null);
     }
 
     private static void createEdge (VMDGraphScene scene, String sourcePinID, String targetNodeID) {
