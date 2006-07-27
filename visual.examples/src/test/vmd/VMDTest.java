@@ -15,12 +15,14 @@ package test.vmd;
 import org.netbeans.api.visual.vmd.VMDGraphScene;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
+import org.netbeans.api.visual.widget.Widget;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
 import java.util.List;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * @author David Kaspar
@@ -50,6 +52,8 @@ public class VMDTest {
         createPin (scene, menu, "options", IMAGE_ITEM, "Options", "Element");
         createPin (scene, menu, "help", IMAGE_ITEM, "Help", "Element");
         createPin (scene, menu, "exit", IMAGE_ITEM, "Exit", "Element");
+        createPin (scene, menu, "listCommand1", IMAGE_COMMAND, "Yes", "Command");
+        createPin (scene, menu, "listCommand2", IMAGE_COMMAND, "No", "Command");
 
         String game = createNode (scene, 600, 100, IMAGE_CANVAS, "gameCanvas", "MyCanvas", Arrays.asList (GLYPH_PRE_CODE, GLYPH_POST_CODE, GLYPH_CANCEL));
         createPin (scene, game, "ok", IMAGE_COMMAND, "okCommand1", "Command");
@@ -63,6 +67,12 @@ public class VMDTest {
 
         createEdge (scene, "ok", menu);
         createEdge (scene, "cancel", menu);
+
+        VMDNodeWidget widget = (VMDNodeWidget) scene.findWidget (menu);
+        HashMap<String, List<Widget>> categories = new HashMap<String, List<Widget>> ();
+        categories.put ("Elements", Arrays.asList (scene.findWidget ("game"), scene.findWidget ("options"), scene.findWidget ("help"), scene.findWidget ("exit")));
+        categories.put ("Commands", Arrays.asList (scene.findWidget ("listCommand1"), scene.findWidget ("listCommand2")));
+        widget.sortPins (categories);
 
         SceneSupport.show (scene);
     }
