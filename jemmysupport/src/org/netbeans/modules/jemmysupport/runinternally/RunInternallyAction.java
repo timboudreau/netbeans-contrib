@@ -27,10 +27,14 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.apache.tools.ant.module.api.AntProjectCookie;
 import org.apache.tools.ant.module.api.support.ActionUtils;
+import org.apache.tools.ant.module.api.support.TargetLister;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
@@ -38,6 +42,7 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.queries.FileBuiltQuery;
 import org.netbeans.jmi.javamodel.JavaClass;
 import org.netbeans.jmi.javamodel.Resource;
+import org.netbeans.modules.apisupport.project.NbModuleProject;
 import org.netbeans.modules.javacore.api.JavaModel;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.ErrorManager;
@@ -47,6 +52,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.actions.NodeAction;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -107,7 +113,11 @@ public class RunInternallyAction extends NodeAction {
             DataObject dObj = getSelectedDataObject(context);
             FileObject fObj = dObj.getPrimaryFile();
             FileBuiltQuery.Status status = FileBuiltQuery.getStatus(fObj);
-            return status != null;
+            if(status != null) {
+                return true;
+            } else {
+                return isNBQAFunctional(fObj);
+            }
         }
         return false;
     }
@@ -146,7 +156,9 @@ public class RunInternallyAction extends NodeAction {
         String classname = getSelectedMainClass(context);
         
         FileBuiltQuery.Status builtStatus = FileBuiltQuery.getStatus(fObj);
-        if(builtStatus.isBuilt()) {
+        if(builtStatus == null) {
+            executeNBQAFunctional(fObj, classname);
+        } else if(builtStatus.isBuilt()) {
             // it is built, so execute
             execute(fObj, classname);
         } else {
@@ -318,6 +330,73 @@ public class RunInternallyAction extends NodeAction {
         } catch (IOException ex) {
             ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
         }
+    }
+    
+    /** Executes internal-execution target from test/build.xml. */
+    private void executeNBQAFunctional(FileObject fObj, String classname) {
+        try {
+            String[] targets = {"internal-execution"}; // NOI18N
+            Properties props = new Properties();
+            props.setProperty("xtest.testtype", "qa-functional"); // NOI18N
+            props.setProperty("classname", classname); // NOI18N
+            ActionUtils.runTarget(findTestBuildXml(FileOwnerQuery.getOwner(fObj)), targets, props);
+        } catch (IllegalArgumentException ex) {
+            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+        } catch (IOException ex) {
+            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+        }
+    }
+    
+    /** Returns FileObject representing test/build.xml or null if it doesn't exist. */
+    private static FileObject findTestBuildXml(Project project) {
+        return project.getProjectDirectory().getFileObject("test/build.xml"); // NOI18N
+    }
+    
+    /** Returns true if FileObject is under test/qa-functional/src and 
+     * target internal-execution exists in test/build.xml.
+     */
+    private static boolean isNBQAFunctional(FileObject fo) {
+        Project project = FileOwnerQuery.getOwner(fo);
+        if(project instanceof NbModuleProject) {
+            NbModuleProject nbProject = (NbModuleProject)project;
+            String qaFunctionalPath = nbProject.evaluator().getProperty("test.qa-functional.src.dir"); //NOI18N
+            FileObject qaFunctionalFo = nbProject.getHelper().resolveFileObject(qaFunctionalPath);
+            // if FileObject under test/qa-functional/src
+            if(FileUtil.isParentOf(qaFunctionalFo, fo)) {
+                FileObject buildXmlFo = findTestBuildXml(project);
+                return targetExists(buildXmlFo, "internal-execution"); //NOI18N
+            }
+        }
+        return false;
+    }
+    
+    /** Returns true if target is available in build script. */
+    private static boolean targetExists(FileObject buildXml, String targetName) {
+        if(buildXml == null) {
+            return false;
+        }
+        DataObject d;
+        try {
+            d = DataObject.find(buildXml);
+        } catch (DataObjectNotFoundException ex) {
+            Logger.getAnonymousLogger().log(Level.SEVERE, ex.getMessage(), ex);
+            return false;
+        }
+        AntProjectCookie apc = (AntProjectCookie)d.getCookie(AntProjectCookie.class);
+        Iterator iter;
+        try {
+            iter = TargetLister.getTargets(apc).iterator();
+        } catch (IOException ex) {
+            // something wrong in build.xml => target not found
+            Logger.getAnonymousLogger().fine(ex.getMessage());
+            return false;
+        }
+        while(iter.hasNext()) {
+            if(((TargetLister.Target)iter.next()).getName().equals(targetName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
