@@ -41,7 +41,7 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
         <file name="CA-A.instance">
 	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.namelookup.NameLookupAction"/>
 	</file>
-        <file name="CA-F6.instance">
+        <file name="C-F10.instance">
 	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.runinternally.RunInternallyAction"/>
 	</file>
         <file name="CA-B.instance">
