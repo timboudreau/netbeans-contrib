@@ -21,6 +21,7 @@ package org.netbeans.modules.latex.editor.completion.latex;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -184,7 +185,13 @@ public class TexCompletionTest extends NbTestCase {
         
         CompletionImpl impl = CompletionImpl.get();
         
-        CompletionResultSetImpl resultSetImpl = impl.createTestResultSet(compTask, CompletionProvider.COMPLETION_QUERY_TYPE);
+        Constructor[] ctors = CompletionResultSetImpl.class.getDeclaredConstructors();
+        
+        assertEquals(1, ctors.length);
+        
+	ctors[0].setAccessible(true);
+	
+        CompletionResultSetImpl resultSetImpl = (CompletionResultSetImpl) ctors[0].newInstance(new Object[] {impl, "TestResult", compTask, CompletionProvider.COMPLETION_QUERY_TYPE}); // NOI18N
         
         compTask.query(resultSetImpl.getResultSet());
         
