@@ -104,6 +104,7 @@ public class TexCompletionTest extends NbTestCase {
     }
 
     protected void setUp() throws Exception {
+        System.setProperty("netbeans.user", getWorkDir().getAbsolutePath());
         UnitUtilities.initLookup();
         UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[0]);
     }
