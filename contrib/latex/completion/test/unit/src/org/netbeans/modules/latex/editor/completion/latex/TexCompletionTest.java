@@ -197,7 +197,7 @@ public class TexCompletionTest extends NbTestCase {
         
         long started = System.currentTimeMillis();
         
-        while (!resultSetImpl.isFinished() && (System.currentTimeMillis() - started) < 5000000)
+        while (!resultSetImpl.isFinished() && (System.currentTimeMillis() - started) < 10000)
             Thread.sleep(100);
         
         assertTrue(resultSetImpl.isFinished());
