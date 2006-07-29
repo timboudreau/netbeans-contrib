@@ -282,10 +282,6 @@ Contributor(s): Jan Lahoda
                 <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.loaders.TexCloneableEditorCreatorJustForUI"/>
 <!--                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.ui.TexCloneableEditor$Creator"/>-->
             </file>
-            <file name="IconsStorage.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.IconsStorageImpl"/>
-                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.IconsStorage"/>
-            </file>
         </folder>
     </folder>
     
@@ -327,9 +323,15 @@ Contributor(s): Jan Lahoda
             </file>
             <file name="integral.instance">
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode"/>
-                <attr name="displayCommand" stringvalue="\int_{low}^{high} function dx}"/>
+                <attr name="displayCommand" stringvalue="\int_{low}^{high} function dx"/>
                 <attr name="iconCommand" stringvalue="\int_{l}^{h}"/>
                 <attr name="insertCommand" stringvalue="\int_{${low}}^{${high}} ${function} d${x}"/>
+            </file>
+            <file name="prod.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.ui.palette.IconNode.createIconNode"/>
+                <attr name="displayCommand" stringvalue="\prod_{low}^{high} function"/>
+                <attr name="iconCommand" stringvalue="\prod_{l}^{h}"/>
+                <attr name="insertCommand" stringvalue="\prod_{${low}}^{${high}} ${function}"/>
             </file>
 
         </folder>
