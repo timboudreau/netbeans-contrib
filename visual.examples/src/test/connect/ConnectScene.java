@@ -13,17 +13,17 @@
 package test.connect;
 
 import org.netbeans.api.visual.action.ConnectAction;
-import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.action.ReconnectAction;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
-import org.netbeans.api.visual.anchor.RectangularAnchor;
 import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.border.LineBorder;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
-import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Widget;
 import test.SceneSupport;
 
 import java.awt.event.MouseEvent;
@@ -77,12 +77,12 @@ public class ConnectScene extends GraphScene.StringGraph {
 
     protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
         Widget w = sourceNode != null ? findWidget (sourceNode) : null;
-        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (w != null ? new RectangularAnchor (w) : null);
+        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (AnchorFactory.createRectangularAnchor (w));
     }
 
     protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
         Widget w = targetNode != null ? findWidget (targetNode) : null;
-        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (w != null ? new RectangularAnchor (w) : null);
+        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (AnchorFactory.createRectangularAnchor (w));
     }
 
     private class SceneCreateAction extends WidgetAction.Adapter {

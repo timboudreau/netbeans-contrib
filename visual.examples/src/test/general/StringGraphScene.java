@@ -15,12 +15,12 @@ package test.general;
 import org.netbeans.api.visual.action.MouseHoverAction;
 import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.PopupMenuAction;
-import org.netbeans.api.visual.anchor.RectangularAnchor;
+import org.netbeans.api.visual.anchor.AnchorFactory;
+import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.uml.UMLClassWidget;
 import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.LayerWidget;
-import org.netbeans.api.visual.graph.GraphScene;
+import org.netbeans.api.visual.widget.Widget;
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,11 +71,11 @@ public class StringGraphScene extends GraphScene.StringGraph {
     }
 
     protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
-        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (RectangularAnchor.create (findWidget (sourceNode)));
+        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (AnchorFactory.createRectangularAnchor (findWidget (sourceNode)));
     }
 
     protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
-        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (RectangularAnchor.create (findWidget (targetNode)));
+        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (AnchorFactory.createRectangularAnchor (findWidget (targetNode)));
     }
 
     public LayerWidget getMainLayer () {

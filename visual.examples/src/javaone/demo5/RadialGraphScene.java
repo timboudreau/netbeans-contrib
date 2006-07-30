@@ -16,7 +16,7 @@ import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.PanAction;
 import org.netbeans.api.visual.action.ZoomAction;
 import org.netbeans.api.visual.action.MouseHoverAction;
-import org.netbeans.api.visual.anchor.RectangularAnchor;
+import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.border.LineBorder;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
@@ -71,12 +71,12 @@ public class RadialGraphScene extends GraphScene.StringGraph {
 
     protected void attachEdgeSourceAnchor (String edge, String oldSourceNode, String sourceNode) {
         ConnectionWidget widget = (ConnectionWidget) findWidget (edge);
-        widget.setSourceAnchor (new RectangularAnchor (findWidget (sourceNode)));
+        widget.setSourceAnchor (AnchorFactory.createRectangularAnchor (findWidget (sourceNode)));
     }
 
     protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
         ConnectionWidget widget = (ConnectionWidget) findWidget (edge);
-        widget.setTargetAnchor (new RectangularAnchor (findWidget (targetNode)));
+        widget.setTargetAnchor (AnchorFactory.createRectangularAnchor (findWidget (targetNode)));
     }
 
     private static class MyHoverAction extends MouseHoverAction.TwoStated {

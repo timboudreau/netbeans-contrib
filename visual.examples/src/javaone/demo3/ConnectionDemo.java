@@ -14,8 +14,8 @@
 package javaone.demo3;
 
 import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
-import org.netbeans.api.visual.anchor.CircularAnchor;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.ImageWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
@@ -52,8 +52,8 @@ public class ConnectionDemo {
         scene.addChild(connectionLayer);
 
         ConnectionWidget connection = new ConnectionWidget (scene);
-        connection.setSourceAnchor(new CircularAnchor (first, 32));
-        connection.setTargetAnchor(new CircularAnchor (second, 32));
+        connection.setSourceAnchor(AnchorFactory.createCircularAnchor (first, 32));
+        connection.setTargetAnchor(AnchorFactory.createCircularAnchor (second, 32));
         connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
         connectionLayer.addChild(connection);
 

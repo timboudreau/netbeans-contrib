@@ -14,7 +14,7 @@ package test.general;
 
 import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.PopupMenuAction;
-import org.netbeans.api.visual.anchor.CenterAnchor;
+import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.uml.UMLClassWidget;
 import org.netbeans.api.visual.widget.ConnectionWidget;
@@ -73,11 +73,11 @@ public class StringGraphPinScene extends GraphPinScene.StringGraph {
     }
 
     protected void attachEdgeSourceAnchor (String edge, String oldSourcePin, String sourcePin) {
-        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (new CenterAnchor (findWidget (sourcePin)));
+        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (AnchorFactory.createCenterAnchor (findWidget (sourcePin)));
     }
 
     protected void attachEdgeTargetAnchor (String edge, String oldTargetPin, String targetPin) {
-        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (new CenterAnchor (findWidget (targetPin)));
+        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (AnchorFactory.createCenterAnchor (findWidget (targetPin)));
     }
 
     public LayerWidget getMainLayer () {

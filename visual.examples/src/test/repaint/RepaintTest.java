@@ -12,10 +12,10 @@
  */
 package test.repaint;
 
-import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.widget.*;
-import org.netbeans.api.visual.anchor.RectangularAnchor;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
@@ -61,13 +61,13 @@ public class RepaintTest extends Scene {
         addChild (connLayer);
 
         ConnectionWidget conn1 = new ConnectionWidget (this);
-        conn1.setSourceAnchor (new RectangularAnchor (image1));
-        conn1.setTargetAnchor (new RectangularAnchor (floatingImage));
+        conn1.setSourceAnchor (AnchorFactory.createRectangularAnchor (image1));
+        conn1.setTargetAnchor (AnchorFactory.createRectangularAnchor (floatingImage));
         connLayer.addChild (conn1);
 
         ConnectionWidget conn2 = new ConnectionWidget (this);
-        conn2.setSourceAnchor (new RectangularAnchor (floatingImage));
-        conn2.setTargetAnchor (new RectangularAnchor (image2));
+        conn2.setSourceAnchor (AnchorFactory.createRectangularAnchor (floatingImage));
+        conn2.setTargetAnchor (AnchorFactory.createRectangularAnchor (image2));
         connLayer.addChild (conn2);
 
         getActions ().addAction (new MyAction ());

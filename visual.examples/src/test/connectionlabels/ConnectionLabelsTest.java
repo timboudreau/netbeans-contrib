@@ -12,15 +12,15 @@
  */
 package test.connectionlabels;
 
-import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.MouseHoverAction;
+import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.WidgetAction;
-import org.netbeans.api.visual.anchor.DirectionalAnchor;
+import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.border.LineBorder;
 import org.netbeans.api.visual.layout.ConnectionWidgetLayout;
+import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.router.OrthogonalSearchRouter;
 import org.netbeans.api.visual.widget.*;
-import org.netbeans.api.visual.model.ObjectState;
 import test.SceneSupport;
 
 import java.awt.*;
@@ -56,8 +56,8 @@ public class ConnectionLabelsTest {
         targetNode.setPreferredLocation (new Point (350, 200));
 
         ConnectionWidget edge = new ConnectionWidget (scene);
-        edge.setSourceAnchor (new DirectionalAnchor (sourceNode, DirectionalAnchor.Kind.HORIZONTAL));
-        edge.setTargetAnchor (new DirectionalAnchor (targetNode, DirectionalAnchor.Kind.HORIZONTAL));
+        edge.setSourceAnchor (AnchorFactory.createDirectionalAnchor (sourceNode, AnchorFactory.DirectionalAnchorKind.HORIZONTAL));
+        edge.setTargetAnchor (AnchorFactory.createDirectionalAnchor (targetNode, AnchorFactory.DirectionalAnchorKind.HORIZONTAL));
         edge.setRouter (new OrthogonalSearchRouter (new OrthogonalSearchRouter.WidgetsCollisionCollector (mainLayer)));
         connectionLayer.addChild (edge);
 
