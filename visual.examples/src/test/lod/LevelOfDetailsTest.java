@@ -15,12 +15,12 @@ package test.lod;
 import org.netbeans.api.visual.action.MouseHoverAction;
 import org.netbeans.api.visual.action.PanAction;
 import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.border.LineBorder;
 import org.netbeans.api.visual.layout.SerialLayout;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LevelOfDetailsWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.border.BorderFactory;
 import test.SceneSupport;
 
 import java.awt.*;
@@ -46,7 +46,7 @@ public class LevelOfDetailsTest {
         scene.addChild(createLabel (scene, "For more details zoom into the rectangle below.", 72));
         
         Widget root = new LevelOfDetailsWidget (scene, 0.21, 0.3, Double.MAX_VALUE, Double.MAX_VALUE);
-        root.setBorder (new LineBorder (10));
+        root.setBorder (BorderFactory.createLineBorder (10));
         root.setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL, SerialLayout.Alignment.JUSTIFY, 4));
         scene.addChild (root);
         
@@ -54,14 +54,14 @@ public class LevelOfDetailsTest {
             root.addChild(createLabel (scene, "Row: " + a, 36));
             
             Widget row = new LevelOfDetailsWidget (scene, 0.3, 0.5, Double.MAX_VALUE, Double.MAX_VALUE);
-            row.setBorder(new LineBorder (4));
+            row.setBorder(BorderFactory.createLineBorder (4));
             row.setLayout (new SerialLayout (SerialLayout.Orientation.HORIZONTAL, SerialLayout.Alignment.JUSTIFY, 4));
             row.getActions().addAction(hover);
             root.addChild (row);
             
             for (int b = 0; b < 20; b ++) {
                 Widget item = new LevelOfDetailsWidget (scene, 0.5, 1.0, Double.MAX_VALUE, Double.MAX_VALUE);
-                item.setBorder (new LineBorder (2));
+                item.setBorder (BorderFactory.createLineBorder (2));
                 item.addChild (createLabel (scene, "Item-" + a + "," + b, 18));
                 item.getActions().addAction(hover);
                 row.addChild(item);

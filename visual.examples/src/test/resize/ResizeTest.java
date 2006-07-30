@@ -14,16 +14,13 @@ package test.resize;
 
 import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.ResizeAction;
-import org.netbeans.api.visual.border.ImageBorder;
-import org.netbeans.api.visual.border.ResizeBorder;
-import org.netbeans.api.visual.border.SwingBorder;
+import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 
 /**
@@ -44,10 +41,10 @@ public class ResizeTest extends Scene {
         resizeAction = new ResizeAction ();
         moveAction = new MoveAction ();
 
-        createLabel (100, 100).setBorder (new ResizeBorder (5));
-        createLabel (200, 200).setBorder (new ResizeBorder (8, Color.BLACK, true));
-        createLabel (300, 300).setBorder (new SwingBorder (this, new BevelBorder (BevelBorder.RAISED)));
-        createLabel (400, 400).setBorder (new ImageBorder (new Insets (5, 5, 5, 5), Utilities.loadImage ("org/netbeans/modules/visual/resources/border/shadow_normal.png"))); // NOI18N
+        createLabel (100, 100).setBorder (BorderFactory.createResizeBorder (5));
+        createLabel (200, 200).setBorder (BorderFactory.createResizeBorder (8, Color.BLACK, true));
+        createLabel (300, 300).setBorder (BorderFactory.createBevelBorder (true));
+        createLabel (400, 400).setBorder (BorderFactory.createImageBorder (new Insets (5, 5, 5, 5), Utilities.loadImage ("org/netbeans/modules/visual/resources/border/shadow_normal.png"))); // NOI18N
     }
 
     public LabelWidget createLabel (int x, int y) {

@@ -14,9 +14,9 @@ package test.scroll;
 
 import org.netbeans.api.visual.action.ResizeAction;
 import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.border.ResizeBorder;
 import org.netbeans.api.visual.layout.SerialLayout;
 import org.netbeans.api.visual.widget.*;
+import org.netbeans.api.visual.border.BorderFactory;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
@@ -33,7 +33,7 @@ public class ScrollTest extends Scene {
         addChild (layer);
 
         ScrollWidget scroll = new ScrollWidget (this);
-        scroll.setBorder (new ResizeBorder (8, Color.BLUE, false));
+        scroll.setBorder (BorderFactory.createResizeBorder (8, Color.BLUE, false));
         scroll.setPreferredLocation (new Point (50, 50));
         scroll.setMinimalSize (new Dimension (100, 200));
         scroll.setMaximalSize (new Dimension (500, 500));

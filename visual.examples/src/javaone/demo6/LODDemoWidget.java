@@ -13,12 +13,12 @@
 
 package javaone.demo6;
 
-import org.netbeans.api.visual.border.LineBorder;
 import org.netbeans.api.visual.layout.SerialLayout;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LevelOfDetailsWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.border.BorderFactory;
 
 /**
  * @author David Kaspar
@@ -31,7 +31,7 @@ public class LODDemoWidget extends LevelOfDetailsWidget {
     public LODDemoWidget(Scene scene, int level, double zoom) {
         super (scene, zoom, zoom * ZOOM_MULT, Double.MAX_VALUE, Double.MAX_VALUE);
 
-        setBorder (new LineBorder (2));
+        setBorder (BorderFactory.createLineBorder (2));
 
         if (level > 1) {
             Widget vbox = new Widget (scene);

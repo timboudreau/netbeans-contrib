@@ -55,7 +55,7 @@ public class VMDTest {
         createPin (scene, menu, "listCommand1", IMAGE_COMMAND, "Yes", "Command");
         createPin (scene, menu, "listCommand2", IMAGE_COMMAND, "No", "Command");
 
-        String game = createNode (scene, 600, 100, IMAGE_CANVAS, "gameCanvas", "MyCanvas", Arrays.asList (GLYPH_PRE_CODE, GLYPH_POST_CODE, GLYPH_CANCEL));
+        String game = createNode (scene, 600, 100, IMAGE_CANVAS, "gameCanvas", "MyCanvas", Arrays.asList (GLYPH_PRE_CODE, GLYPH_CANCEL, GLYPH_POST_CODE));
         createPin (scene, game, "ok", IMAGE_COMMAND, "okCommand1", "Command");
         createPin (scene, game, "cancel", IMAGE_COMMAND, "cancelCommand1", "Command");
 

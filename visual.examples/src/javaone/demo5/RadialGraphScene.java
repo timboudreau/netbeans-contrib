@@ -17,7 +17,8 @@ import org.netbeans.api.visual.action.PanAction;
 import org.netbeans.api.visual.action.ZoomAction;
 import org.netbeans.api.visual.action.MouseHoverAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
-import org.netbeans.api.visual.border.LineBorder;
+import org.netbeans.api.visual.border.BorderFactory;
+import org.netbeans.api.visual.border.Border;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -34,7 +35,7 @@ public class RadialGraphScene extends GraphScene.StringGraph {
     private LayerWidget nodesLayer = new LayerWidget (this);
     private LayerWidget edgesLayer = new LayerWidget (this);
 
-    private LineBorder lineBorder = new LineBorder (1, Color.BLACK);
+    private Border lineBorder = BorderFactory.createLineBorder (1, Color.BLACK);
     private MyHoverAction hoverAction = new MyHoverAction ();
     private MoveAction moveAction = new MoveAction ();
     private ZoomAction zoomAction = new ZoomAction ();

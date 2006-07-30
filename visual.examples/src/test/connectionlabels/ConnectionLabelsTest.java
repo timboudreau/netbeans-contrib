@@ -16,11 +16,11 @@ import org.netbeans.api.visual.action.MouseHoverAction;
 import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
-import org.netbeans.api.visual.border.LineBorder;
 import org.netbeans.api.visual.layout.ConnectionWidgetLayout;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.router.OrthogonalSearchRouter;
 import org.netbeans.api.visual.widget.*;
+import org.netbeans.api.visual.border.BorderFactory;
 import test.SceneSupport;
 
 import java.awt.*;
@@ -40,7 +40,7 @@ public class ConnectionLabelsTest {
         scene.getActions ().addAction (action);
 
         LabelWidget sourceNode = new LabelWidget (scene, "Source");
-        sourceNode.setBorder (new LineBorder (1));
+        sourceNode.setBorder (BorderFactory.createLineBorder ());
         sourceNode.setOpaque (true);
         mainLayer.addChild (sourceNode);
         sourceNode.getActions ().addAction (action);
@@ -48,7 +48,7 @@ public class ConnectionLabelsTest {
         sourceNode.setPreferredLocation (new Point (50, 100));
 
         LabelWidget targetNode = new LabelWidget (scene, "Target");
-        targetNode.setBorder (new LineBorder (1));
+        targetNode.setBorder (BorderFactory.createLineBorder ());
         targetNode.setOpaque (true);
         mainLayer.addChild (targetNode);
         targetNode.getActions ().addAction (action);

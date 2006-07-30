@@ -14,16 +14,15 @@ package test.alignwith;
 
 import org.netbeans.api.visual.action.AlignWithMoveAction;
 import org.netbeans.api.visual.action.InplaceEditorAction;
-import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.action.SelectAction;
-import org.netbeans.api.visual.border.SwingBorder;
+import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.border.BorderFactory;
 import test.SceneSupport;
 
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 
 /**
@@ -59,7 +58,7 @@ public class AlignWithTest extends Scene {
 
         widget.setOpaque (true);
         widget.setBackground (Color.LIGHT_GRAY);
-        widget.setBorder (new SwingBorder (scene, new BevelBorder (BevelBorder.RAISED)));
+        widget.setBorder (BorderFactory.createBevelBorder (true));
         widget.setPreferredLocation (location);
 
         widget.getActions ().addAction (moveAction);

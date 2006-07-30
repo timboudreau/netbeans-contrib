@@ -12,14 +12,12 @@
  */
 package test.swingborder;
 
+import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.SerialLayout;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.border.CompositeBorder;
-import org.netbeans.api.visual.border.ImageBorder;
-import org.netbeans.api.visual.border.SwingBorder;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
@@ -34,7 +32,7 @@ import java.awt.*;
  */
 public class SwingBorderTest {
 
-    private static org.netbeans.api.visual.border.Border BORDER_SHADOW_NORMAL = new ImageBorder (new Insets (6, 6, 6, 6), Utilities.loadImage ("org/netbeans/modules/visual/resources/border/shadow_normal.png")); // NOI18N
+    private static org.netbeans.api.visual.border.Border BORDER_SHADOW_NORMAL = BorderFactory.createImageBorder (new Insets (6, 6, 6, 6), Utilities.loadImage ("org/netbeans/modules/visual/resources/border/shadow_normal.png")); // NOI18N
 
     public static void main (String[] args) {
         Scene scene = new Scene ();
@@ -51,7 +49,7 @@ public class SwingBorderTest {
         // otherwise the SwingBorder insets would not be resolved correctly
         scene.createView ();
         Widget label = new LabelWidget (scene, "Composite");
-        label.setBorder (new CompositeBorder (BORDER_SHADOW_NORMAL, new SwingBorder (scene, new TitledBorder (new EtchedBorder (EtchedBorder.LOWERED), "Composite")), BORDER_SHADOW_NORMAL));
+        label.setBorder (BorderFactory.createCompositeBorder (BORDER_SHADOW_NORMAL, BorderFactory.createSwingBorder (scene, new TitledBorder (new EtchedBorder (EtchedBorder.LOWERED), "Composite")), BORDER_SHADOW_NORMAL));
         scene.addChild (label);
 
         SceneSupport.show (scene);

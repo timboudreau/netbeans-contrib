@@ -12,23 +12,21 @@
  */
 package test.card;
 
-import org.netbeans.api.visual.border.LineBorder;
-import org.netbeans.api.visual.border.SwingBorder;
+import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.PanAction;
+import org.netbeans.api.visual.action.SwitchCardAction;
+import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.CardLayout;
 import org.netbeans.api.visual.layout.SerialLayout;
 import org.netbeans.api.visual.widget.LabelWidget;
+import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
-import org.netbeans.api.visual.action.SwitchCardAction;
-import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.action.PanAction;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 
 /**
@@ -47,11 +45,11 @@ public class CardContainerWidget extends Widget {
         LabelWidget switchButton = new LabelWidget (scene, "Click me to switch card.");
         switchButton.setOpaque (true);
         switchButton.setBackground (Color.LIGHT_GRAY);
-        switchButton.setBorder (new SwingBorder (scene, new BevelBorder (BevelBorder.RAISED)));
+        switchButton.setBorder (BorderFactory.createBevelBorder (true));
         addChild (switchButton);
 
         container = new Widget (scene);
-        container.setBorder (new LineBorder (1));
+        container.setBorder (BorderFactory.createLineBorder ());
         addChild (container);
 
         cardLayout = new CardLayout (container);

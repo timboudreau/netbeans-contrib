@@ -14,7 +14,7 @@ package test.component;
 
 import org.netbeans.api.visual.action.ZoomAction;
 import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.border.LineBorder;
+import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.SerialLayout;
 import org.netbeans.api.visual.widget.*;
 import test.SceneSupport;
@@ -46,7 +46,7 @@ public class ComponentTest extends Scene {
     private Widget createMoveableComponent (Component component) {
         Widget widget = new Widget (this);
         widget.setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL));
-        widget.setBorder (new LineBorder (1));
+        widget.setBorder (BorderFactory.createLineBorder ());
         widget.getActions ().addAction (moveAction);
 
         LabelWidget label = new LabelWidget (this, "Drag this to move widget");

@@ -18,12 +18,12 @@ import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.PointShape;
-import org.netbeans.api.visual.border.LineBorder;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.border.BorderFactory;
 import test.SceneSupport;
 
 import java.awt.event.MouseEvent;
@@ -56,7 +56,7 @@ public class ConnectScene extends GraphScene.StringGraph {
 
     protected Widget attachNodeWidget (String node) {
         LabelWidget label = new LabelWidget (this, node);
-        label.setBorder (new LineBorder (4));
+        label.setBorder (BorderFactory.createLineBorder (4));
         label.getActions ().addAction (createObjectHoverAction ());
         label.getActions ().addAction (createSelectAction ());
         label.getActions ().addAction (connectAction);
