@@ -201,7 +201,12 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                 // otherwise get NPEs when trying to display anything, since icons are all null.
                 Install.uninstall();
                 filechooser.updateUI();
-                // XXX could perhaps wait for the file chooser to be closed and call Install.install() again?
+                // When closed, reinstall UI so it will be available for the next chooser.
+                filechooser.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        Install.install();
+                    }
+                });
             }
         });
         JPanel leftButtons = new JPanel();

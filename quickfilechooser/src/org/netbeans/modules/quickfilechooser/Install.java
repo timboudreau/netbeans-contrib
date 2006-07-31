@@ -42,22 +42,24 @@ public class Install {
     }
 
     public static void install() {
-        final UIDefaults uid = UIManager.getDefaults();
-        originalImpl = uid.getUIClass(KEY);
-        Class impl = ChooserComponentUI.class;
-        final String val = impl.getName();
-        uid.put(KEY, val);
-        // To make it work in NetBeans too:
-        uid.put(val, impl);
-        // #61147: prevent NB from switching to a different UI later (under GTK):
-        uid.addPropertyChangeListener(pcl = new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                String name = evt.getPropertyName();
-                if ((name.equals(KEY) || name.equals("UIDefaults")) && !val.equals(uid.get(KEY))) {
-                    uid.put(KEY, val);
+        if (!isInstalled()) {
+            final UIDefaults uid = UIManager.getDefaults();
+            originalImpl = uid.getUIClass(KEY);
+            Class impl = ChooserComponentUI.class;
+            final String val = impl.getName();
+            uid.put(KEY, val);
+            // To make it work in NetBeans too:
+            uid.put(val, impl);
+            // #61147: prevent NB from switching to a different UI later (under GTK):
+            uid.addPropertyChangeListener(pcl = new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {
+                    String name = evt.getPropertyName();
+                    if ((name.equals(KEY) || name.equals("UIDefaults")) && !val.equals(uid.get(KEY))) {
+                        uid.put(KEY, val);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
     
     public static void uninstall() {
