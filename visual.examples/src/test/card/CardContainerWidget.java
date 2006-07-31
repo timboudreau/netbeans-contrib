@@ -17,8 +17,7 @@ import org.netbeans.api.visual.action.PanAction;
 import org.netbeans.api.visual.action.SwitchCardAction;
 import org.netbeans.api.visual.action.ZoomAction;
 import org.netbeans.api.visual.border.BorderFactory;
-import org.netbeans.api.visual.layout.CardLayout;
-import org.netbeans.api.visual.layout.SerialLayout;
+import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
@@ -35,12 +34,11 @@ import java.awt.*;
 public class CardContainerWidget extends Widget {
 
     private Widget container;
-    private CardLayout cardLayout;
 
     public CardContainerWidget (Scene scene) {
         super (scene);
 
-        setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL));
+        setLayout (LayoutFactory.createVerticalLayout ());
 
         LabelWidget switchButton = new LabelWidget (scene, "Click me to switch card.");
         switchButton.setOpaque (true);
@@ -52,16 +50,15 @@ public class CardContainerWidget extends Widget {
         container.setBorder (BorderFactory.createLineBorder ());
         addChild (container);
 
-        cardLayout = new CardLayout (container);
-        container.setLayout (cardLayout);
+        container.setLayout (LayoutFactory.createCardLayout (container));
 
         switchButton.getActions ().addAction (new SwitchCardAction (container));
     }
 
     public void addCard (Widget widget) {
         container.addChild (widget);
-        if (cardLayout.getActiveChildWidget () == null)
-            cardLayout.setActiveChildWidget (widget);
+        if (LayoutFactory.getActiveCard (container) == null)
+            LayoutFactory.setActiveCard (container, widget);
     }
 
     public static void main (String[] args) {

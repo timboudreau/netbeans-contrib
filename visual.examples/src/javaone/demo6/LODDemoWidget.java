@@ -13,12 +13,12 @@
 
 package javaone.demo6;
 
-import org.netbeans.api.visual.layout.SerialLayout;
+import org.netbeans.api.visual.border.BorderFactory;
+import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LevelOfDetailsWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.border.BorderFactory;
 
 /**
  * @author David Kaspar
@@ -35,15 +35,15 @@ public class LODDemoWidget extends LevelOfDetailsWidget {
 
         if (level > 1) {
             Widget vbox = new Widget (scene);
-            vbox.setLayout(new SerialLayout (SerialLayout.Orientation.VERTICAL, SerialLayout.Alignment.JUSTIFY, 1));
+            vbox.setLayout(LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 1));
             addChild (vbox);
 
             Widget hbox1 = new Widget (scene);
-            hbox1.setLayout(new SerialLayout (SerialLayout.Orientation.HORIZONTAL, SerialLayout.Alignment.JUSTIFY, 1));
+            hbox1.setLayout(LayoutFactory.createHorizontalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 1));
             vbox.addChild(hbox1);
 
             Widget hbox2 = new Widget (scene);
-            hbox2.setLayout(new SerialLayout (SerialLayout.Orientation.HORIZONTAL, SerialLayout.Alignment.JUSTIFY, 1));
+            hbox2.setLayout(LayoutFactory.createHorizontalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 1));
             vbox.addChild(hbox2);
 
             hbox1.addChild(new LODDemoWidget (scene, level - 1, zoom * ZOOM_MULT));

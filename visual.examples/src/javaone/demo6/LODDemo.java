@@ -15,7 +15,7 @@ package javaone.demo6;
 
 import org.netbeans.api.visual.action.PanAction;
 import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.layout.SerialLayout;
+import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import test.SceneSupport;
@@ -30,7 +30,7 @@ public class LODDemo {
         scene.getActions().addAction(new ZoomAction (1.2, false));
         scene.getActions().addAction(new PanAction ());
 
-        scene.setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL));
+        scene.setLayout (LayoutFactory.createVerticalLayout ());
         scene.addChild(new LabelWidget (scene, "Zoom inside the rectangle"));
 
         scene.addChild (new LODDemoWidget (scene, 5, 0.5));

@@ -15,12 +15,12 @@ package test.lod;
 import org.netbeans.api.visual.action.MouseHoverAction;
 import org.netbeans.api.visual.action.PanAction;
 import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.layout.SerialLayout;
+import org.netbeans.api.visual.border.BorderFactory;
+import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LevelOfDetailsWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.border.BorderFactory;
 import test.SceneSupport;
 
 import java.awt.*;
@@ -33,7 +33,7 @@ public class LevelOfDetailsTest {
     public static void main (String[] args) {
         Scene scene = new Scene ();
         scene.setZoomFactor(0.2);
-        scene.setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL));
+        scene.setLayout (LayoutFactory.createVerticalLayout ());
         scene.getActions().addAction(new ZoomAction (1.1));
         scene.getActions().addAction(new PanAction ());
         MouseHoverAction hover = new MouseHoverAction.TwoStated () {
@@ -47,7 +47,7 @@ public class LevelOfDetailsTest {
         
         Widget root = new LevelOfDetailsWidget (scene, 0.21, 0.3, Double.MAX_VALUE, Double.MAX_VALUE);
         root.setBorder (BorderFactory.createLineBorder (10));
-        root.setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL, SerialLayout.Alignment.JUSTIFY, 4));
+        root.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 4));
         scene.addChild (root);
         
         for (int a = 0; a < 10; a ++) {
@@ -55,7 +55,7 @@ public class LevelOfDetailsTest {
             
             Widget row = new LevelOfDetailsWidget (scene, 0.3, 0.5, Double.MAX_VALUE, Double.MAX_VALUE);
             row.setBorder(BorderFactory.createLineBorder (4));
-            row.setLayout (new SerialLayout (SerialLayout.Orientation.HORIZONTAL, SerialLayout.Alignment.JUSTIFY, 4));
+            row.setLayout (LayoutFactory.createHorizontalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 4));
             row.getActions().addAction(hover);
             root.addChild (row);
             

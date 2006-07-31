@@ -14,7 +14,7 @@ package test.inplace;
 
 import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.layout.SerialLayout;
+import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -77,7 +77,7 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
         if (forceLayout) {
             SwingUtilities.invokeLater (new Runnable() {
                 public void run () {
-                    mainLayer.reevaluateLayout (new SerialLayout (SerialLayout.Orientation.HORIZONTAL), false);
+                    mainLayer.reevaluateLayout (LayoutFactory.createHorizontalLayout (), false);
                 }
             });
             forceLayout = false;

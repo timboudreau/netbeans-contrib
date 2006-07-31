@@ -16,11 +16,11 @@ import org.netbeans.api.visual.action.MouseHoverAction;
 import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
-import org.netbeans.api.visual.layout.ConnectionWidgetLayout;
+import org.netbeans.api.visual.border.BorderFactory;
+import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.router.OrthogonalSearchRouter;
 import org.netbeans.api.visual.widget.*;
-import org.netbeans.api.visual.border.BorderFactory;
 import test.SceneSupport;
 
 import java.awt.*;
@@ -64,20 +64,20 @@ public class ConnectionLabelsTest {
         LabelWidget label1 = new LabelWidget (scene, "Source Top Label");
         label1.setOpaque (true);
         edge.addChild (label1);
-        edge.setConstraint (label1, ConnectionWidgetLayout.Alignment.TOP_RIGHT, 10);
+        edge.setConstraint (label1, LayoutFactory.ConnectionWidgetLayoutAlignment.TOP_RIGHT, 10);
         label1.getActions ().addAction (action);
 
         LabelWidget label2 = new LabelWidget (scene, "Movable Edge Center Label");
         label2.setOpaque (true);
         label2.getActions ().addAction (new MoveAction ());
         edge.addChild (label2);
-        edge.setConstraint (label2, ConnectionWidgetLayout.Alignment.CENTER_RIGHT, 0.5f);
+        edge.setConstraint (label2, LayoutFactory.ConnectionWidgetLayoutAlignment.CENTER_RIGHT, 0.5f);
         label2.getActions ().addAction (action);
 
         LabelWidget label3 = new LabelWidget (scene, "Target Bottom Label");
         label3.setOpaque (true);
         edge.addChild (label3);
-        edge.setConstraint (label3, ConnectionWidgetLayout.Alignment.BOTTOM_LEFT, -10);
+        edge.setConstraint (label3, LayoutFactory.ConnectionWidgetLayoutAlignment.BOTTOM_LEFT, -10);
         label3.getActions ().addAction (action);
 
         SceneSupport.show (scene);

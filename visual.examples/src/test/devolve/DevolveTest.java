@@ -14,7 +14,7 @@ package test.devolve;
 
 import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.layout.SerialLayout;
+import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
@@ -43,7 +43,7 @@ public class DevolveTest extends GraphScene.StringGraph {
 
         addChild (mainLayer = new LayerWidget (this));
 
-        mainLayer.setDevolveLayout (new SerialLayout (SerialLayout.Orientation.HORIZONTAL));
+        mainLayer.setDevolveLayout (LayoutFactory.createHorizontalLayout ());
 
         getActions ().addAction (new ZoomAction ());
         getActions ().addAction (new PanAction ());

@@ -14,9 +14,9 @@ package test.scroll;
 
 import org.netbeans.api.visual.action.ResizeAction;
 import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.layout.SerialLayout;
-import org.netbeans.api.visual.widget.*;
 import org.netbeans.api.visual.border.BorderFactory;
+import org.netbeans.api.visual.layout.LayoutFactory;
+import org.netbeans.api.visual.widget.*;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
@@ -40,7 +40,7 @@ public class ScrollTest extends Scene {
         layer.addChild (scroll);
 
         Widget view = new Widget (this);
-        view.setLayout (new SerialLayout (SerialLayout.Orientation.VERTICAL));
+        view.setLayout (LayoutFactory.createVerticalLayout ());
 
         view.addChild (new LabelWidget (this, "Shrink the area for showing scroll bars"));
         view.addChild (new LabelWidget (this, "Drag scroll bars to move the view"));
