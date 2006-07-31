@@ -84,7 +84,7 @@ public class AnimatorTest extends GraphScene.StringGraph {
     private void moveTo (Point point) {
         int index = 0;
         for (String node : getNodes ())
-            getSceneAnimator ().getPreferredLocationAnimator ().setPreferredLocation (findWidget (node), point != null ? point : new Point (++ index * 100, index * 100));
+            getSceneAnimator ().animatePreferredLocation (findWidget (node), point != null ? point : new Point (++ index * 100, index * 100));
 //            findWidget (node).setPreferredLocation (point != null ? point : new Point (++ index * 100, index * 100));
     }
 

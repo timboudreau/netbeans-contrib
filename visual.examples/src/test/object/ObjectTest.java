@@ -87,7 +87,7 @@ public class ObjectTest extends GraphScene.StringGraph {
     public void moveTo (Point point) {
         int index = 0;
         for (String node : getNodes ())
-            getSceneAnimator ().getPreferredLocationAnimator ().setPreferredLocation (findWidget (node), point != null ? point : new Point (++ index * 100, index * 100));
+            getSceneAnimator ().animatePreferredLocation (findWidget (node), point != null ? point : new Point (++ index * 100, index * 100));
     }
 
     public static void main (String[] args) {
