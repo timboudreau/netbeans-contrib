@@ -15,6 +15,7 @@ package test.devolve;
 import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.layout.LayoutFactory;
+import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
@@ -32,9 +33,8 @@ public class DevolveTest extends GraphScene.StringGraph {
     private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
 
     private LayerWidget mainLayer;
-
+    private SceneLayout.DevolveWidgetLayout devolveLayout;
     private DevolveTest.MyAction action = new DevolveTest.MyAction ();
-
     private WidgetAction moveAction = new MoveAction ();
 
     public DevolveTest () {
@@ -43,7 +43,7 @@ public class DevolveTest extends GraphScene.StringGraph {
 
         addChild (mainLayer = new LayerWidget (this));
 
-        mainLayer.setDevolveLayout (LayoutFactory.createHorizontalLayout ());
+        devolveLayout = new SceneLayout.DevolveWidgetLayout (mainLayer, LayoutFactory.createHorizontalLayout (), true);
 
         getActions ().addAction (new ZoomAction ());
         getActions ().addAction (new PanAction ());
@@ -78,7 +78,7 @@ public class DevolveTest extends GraphScene.StringGraph {
 
         public State mouseClicked (Widget widget, WidgetMouseEvent event) {
             if (event.getButton () != MouseEvent.BUTTON1) {
-                mainLayer.reevaluateLayout (true);
+                devolveLayout.invokeLayout ();
                 return State.CONSUMED;
             }
             return State.REJECTED;
@@ -92,7 +92,7 @@ public class DevolveTest extends GraphScene.StringGraph {
         scene.addNode ("list [List]");
         scene.addNode ("canvas [Canvas]");
         scene.addNode ("alert [Alert]");
-        // scene.mainLayer.reevaluateLayout (true); // WARNING: Initial reevaluateLayout will not work because the scene is not initialized completely yet.
+        scene.devolveLayout.invokeLayout ();
         SceneSupport.show (scene);
     }
 
