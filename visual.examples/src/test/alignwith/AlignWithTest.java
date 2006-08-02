@@ -69,7 +69,7 @@ public class AlignWithTest extends Scene {
 
     private class CreateAction extends SelectAction {
 
-        public void doSelect (Widget widget, Point localLocation) {
+        public void doSelect (Widget widget, Point localLocation, boolean invertSelection) {
             createLabel ("Double-click to rename me", localLocation);
         }
 
