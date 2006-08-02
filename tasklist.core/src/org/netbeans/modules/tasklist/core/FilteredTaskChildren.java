@@ -50,7 +50,8 @@ final class FilteredTaskChildren extends FilterNode.Children {
         this.view = view;
     }
 
-    protected Node [] createNodes(Object key) {
+    @Override
+    protected Node[] createNodes(Node key) {
         if (!(key instanceof Node))
             return new Node[0];
         
