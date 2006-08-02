@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Build">
+            <file name="org-netbeans-modules-java-closurenavigator-ViewClosure.instance"/>
+        </folder>
+    </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Popup">
+                    <file name="org-netbeans-modules-java-closurenavigator-separatorBefore.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="org-netbeans-modules-java-closurenavigator-separatorBefore.instance/org-netbeans-modules-java-closurenavigator-ViewClosure.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-java-closurenavigator-ViewClosure.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-java-closurenavigator-ViewClosure.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-java-closurenavigator-ViewClosure.shadow/org-netbeans-modules-java-closurenavigator-separatorAfter.instance" boolvalue="true"/>
+                    <file name="org-netbeans-modules-java-closurenavigator-separatorAfter.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="org-netbeans-modules-java-closurenavigator-separatorAfter.instance/goto" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Actions">
+                    <file name="org-netbeans-modules-java-closurenavigator-ViewClosure.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-java-closurenavigator-ViewClosure.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-java-closurenavigator-ViewClosure.shadow/OpenAction.instance" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
