@@ -38,6 +38,7 @@ import java.io.File;
 import java.util.*;
 import org.openide.util.NbBundle;
 import javax.accessibility.*;
+import org.openide.text.CloneableEditorSupport;
 
 public class UpdateStdOutPanel extends SingleNodeView  {
 
@@ -193,13 +194,8 @@ public class UpdateStdOutPanel extends SingleNodeView  {
         File tempFile = (File)info.getAttribute(PIPED_FILE);
         if (tempFile != null && tempFile.exists()) {
             String mime = getMIMEType(fo);
-            epFile.setContentType(mime);
-            EditorKit kit = JEditorPane.createEditorKitForContentType(mime);
+            EditorKit kit = CloneableEditorSupport.getEditorKit(mime);
 //            D.deb("MIME = "+mime+": I have kit = "+kit); // NOI18N
-            if (kit == null) {
-                epFile.setContentType("text/plain"); // NOI18N
-                kit = JEditorPane.createEditorKitForContentType("text/plain"); // NOI18N
-            }
             epFile.setEditorKit(kit);
             Document doc = kit.createDefaultDocument();
             try {

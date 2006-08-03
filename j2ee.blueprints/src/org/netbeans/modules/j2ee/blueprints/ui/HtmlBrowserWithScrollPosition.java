@@ -47,7 +47,6 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
 
         // construct html pane
         html = new JEditorPane();
-        html.setEditorKitForContentType("text/html", new HTMLEditorKit()); //NOI18N
         html.setEditable(false);
         html.addHyperlinkListener(this);
 
