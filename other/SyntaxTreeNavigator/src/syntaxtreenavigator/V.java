@@ -50,17 +50,24 @@ public class V extends DefaultMutableTreeNode {
     public String toString() {
         String nm = title == null ? strippedClassName(o.getClass()) : title;
         StringBuffer result = new StringBuffer (nm.length() + 20);
+        result.append ("<html>");
         result.append (nm);
         if (o instanceof JCMethodDecl) {
+            result.append ("<font color=#AAAAAA>");
             result.append (' ');
             result.append ('(');
             result.append (((JCMethodDecl) o).getName());
             result.append(')');
         } else if (o instanceof JCTree.JCVariableDecl) {
+            result.append ("<font color=#AAAAAA>");
             result.append (' ');
             result.append ('(');
             result.append (((JCVariableDecl) o).getName());
             result.append(')');
+        }
+        if (o instanceof Collection) {
+            result.insert(0, "<html><b>");
+            result.append ("</b> (collection)");
         }
         return result.toString();
     }

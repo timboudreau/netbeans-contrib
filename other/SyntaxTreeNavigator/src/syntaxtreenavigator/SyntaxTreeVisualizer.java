@@ -318,13 +318,23 @@ public class SyntaxTreeVisualizer extends javax.swing.JFrame implements Diagnost
         root = new DefaultMutableTreeNode ("Root");
         DefaultTreeModel mdl = new DefaultTreeModel (root);
         
+        V first = null;
         for (Iterator it = task.parse().iterator(); it.hasNext();) {
             JCTree.JCCompilationUnit unit = (JCTree.JCCompilationUnit) it.next();
 //            unit.accept (new V());
 //            root.add (new BigHonkinVisitor (unit));
-            root.add (new V(unit));
+            V v = new V(unit);
+            if (first == null) {
+                first = v;
+            }
+            root.add (v);
         }
         tree.setModel(mdl);
+        tree.expandRow(0);
+        if (first != null) {
+            tree.getSelectionModel().setSelectionPath(new TreePath(new Object[] {mdl.getRoot(),
+            first}));
+        }
         filenameLabel.setText(file.getPath());
     }
 
