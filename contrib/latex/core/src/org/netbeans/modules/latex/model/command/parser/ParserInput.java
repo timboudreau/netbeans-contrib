@@ -147,6 +147,10 @@ public class ParserInput implements DocumentListener {
         return usedFiles;
     }
     
+    public void goBack(int howMany) {
+        index = currentTRE.getElementIndex(currentTRE.getElementOffset(index) - howMany);
+    }
+    
     public void changedUpdate(DocumentEvent e) {
     }
     

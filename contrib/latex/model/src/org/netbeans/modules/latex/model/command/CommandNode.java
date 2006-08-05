@@ -14,46 +14,24 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.model.command;
 
-import org.netbeans.modules.latex.model.command.Command.Param;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-
 /**
  *
  * @author Jan Lahoda
  */
-public interface CommandNode extends Node {
-
+public interface CommandNode extends ArgumentContainingNode {
+    
     /** Return the command represented by this node.
      *
      *  @return command represented by this node.
      */
     public Command getCommand();
-
-    /** Return how many arguments are represented by this object.
-     *  Note that this is not how many arguments is supposed the
-     *  command to have.<BR>
-     *  Exactly said, the arguments hold in this node are arguments
-     *  0-(getArgumentCount()-1) of the command represented by this node.
-     *
-     *  @return the number of arguments represented by this object
-     */
-    public int     getArgumentCount();
-    
-//    public Param   getArgumentDescription(int index);
-    
-    /** Returns index-th argument.
-     *
-     *  @param the index (0-getArgumentCount() - 1) of the argument to return.
-     *  @return the index-throws argument
-     */
-    public ArgumentNode getArgument(int index);
     
     /** Check whether the command is overally valid. Particulary following items
      *  should be checked:

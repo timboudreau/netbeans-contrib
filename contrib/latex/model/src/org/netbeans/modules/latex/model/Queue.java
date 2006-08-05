@@ -22,27 +22,26 @@
 package org.netbeans.modules.latex.model;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class Queue {
-
-    private LinkedList queue;
-
+public class Queue<T> {
+    
+    private LinkedList<T> queue;
+    
     /** Creates a new instance of Queue */
     public Queue() {
-        queue = new LinkedList();
+        queue = new LinkedList<T>();
     }
-
-    public void put(Object obj) {
+    
+    public void put(T obj) {
         queue.addLast(obj);
     }
-
-    public Object pop() {
+    
+    public T pop() {
         return queue.removeFirst();
     }
 
@@ -50,9 +49,9 @@ public class Queue {
         return queue.size() == 0;
     }
     
-    public void putAll(Collection c) {
-        for (Iterator i = c.iterator(); i.hasNext(); ) {
-            put(i.next());
+    public void putAll(Collection<? extends T> c) {
+        for (T t : c) {
+            put(t);
         }
     }
 }

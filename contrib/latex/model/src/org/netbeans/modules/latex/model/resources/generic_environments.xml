@@ -166,3 +166,77 @@ Microsystems, Inc. All Rights Reserved.
 <environment name="minipage"></environment>
 
 <environment name="equation"></environment>
+
+<environment name="quote"></environment>
+
+<environment name="quotation"></environment>
+
+<environment name="verbatim">
+    <argument type="special">
+        <attribute name="type" value="verbatim-env" />
+        <attribute name="end-tag" value="\end{verbatim}" />
+    </argument>
+</environment>
+
+<environment name="algorithmic">
+    <attribute name="par" value="true" />
+    <commands>
+        <command name="\REQUIRE">
+            <attribute name="par" value="true" />
+            <argument type="free">
+                <attribute name="#text" value="true" />
+            </argument>
+        </command>
+        <command name="\ENSURE">
+            <attribute name="par" value="true" />
+            <argument type="free">
+                <attribute name="#text" value="true" />
+            </argument>
+        </command>
+        <command name="\STATE">
+            <attribute name="par" value="true" />
+            <argument type="free">
+                <attribute name="#text" value="true" />
+            </argument>
+        </command>
+        <command name="\COMMENT">
+            <attribute name="par" value="true" />
+            <argument type="free">
+                <attribute name="#text" value="true" />
+            </argument>
+        </command>
+        <command name="\FOR">
+            <attribute name="par" value="true" />
+            <argument type="free">
+                <attribute name="#text" value="true" />
+            </argument>
+        </command>
+        <command name="\FORALL">
+            <attribute name="par" value="true" />
+            <argument type="free">
+                <attribute name="#text" value="true" />
+            </argument>
+        </command>
+        <command name="\ENDFOR">
+            <attribute name="par" value="true" />
+        </command>
+        <command name="\IF">
+            <attribute name="par" value="true" />
+            <argument type="free">
+                <attribute name="#text" value="true" />
+            </argument>
+        </command>
+        <command name="\ENDIF">
+            <attribute name="par" value="true" />
+        </command>
+        <command name="\WHILE">
+            <attribute name="par" value="true" />
+            <argument type="free">
+                <attribute name="#text" value="true" />
+            </argument>
+        </command>
+        <command name="\ENDWHILE">
+            <attribute name="par" value="true" />
+        </command>
+    </commands>
+</environment>

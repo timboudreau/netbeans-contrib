@@ -5,36 +5,24 @@
  *
  * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
  * or http://www.netbeans.org/cddl.txt.
- *
+
  * When distributing Covered Code, include this CDDL Header Notice in each file
  * and include the License file at http://www.netbeans.org/cddl.txt.
  * If applicable, add the following below the CDDL Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * The Original Software is the LaTeX module.
- * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
- * All Rights Reserved.
- *
- * Contributor(s): Jan Lahoda.
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
  */
+
 package org.netbeans.modules.latex.model.command;
 
 /**
  *
  * @author Jan Lahoda
  */
-public interface BlockNode extends ArgumentContainingNode {
-    
-    public CommandNode getBeginCommand();
-
-    public CommandNode getEndCommand();
-
-    public TextNode    getContent();
-
-    public String      getBlockName();
-
-    public Environment getEnvironment();
+public interface MathNode extends TextNode {
 
 }

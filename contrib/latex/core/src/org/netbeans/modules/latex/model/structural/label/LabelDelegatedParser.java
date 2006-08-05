@@ -23,11 +23,13 @@ package org.netbeans.modules.latex.model.structural.label;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
@@ -35,6 +37,9 @@ import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -52,10 +57,12 @@ public class LabelDelegatedParser extends DelegatedParser {
         captions.clear();
         captions.push("");
         label2Refs.clear();
+        errors.clear();
     }
     
     private Stack captions = new Stack();
     private Map/*<String, List or LabelStructuralElement>*/ label2Refs = new HashMap();
+    private Map<String, ErrorDescription> errors = new HashMap<String, ErrorDescription>();
     
     private void handleEnvCommand(CommandNode cnode) {
         Node parent = cnode.getParent();
@@ -74,8 +81,8 @@ public class LabelDelegatedParser extends DelegatedParser {
         }
     }
     
-    private void createRefElement(ArgumentNode anode) {
-        RefStructuralElement el = new RefStructuralElement(anode.getCommand(), anode.getText().toString());
+    private void createRefElement(ArgumentNode anode, CommandNode cmd) {
+        RefStructuralElement el = new RefStructuralElement(cmd, anode.getText().toString());
         
         Object fromMap = label2Refs.get(el.getLabel());
         
@@ -85,13 +92,14 @@ public class LabelDelegatedParser extends DelegatedParser {
         
         if (fromMap instanceof List) {
             ((List) fromMap).add(el);
+            errors.put(el.getLabel(), ErrorDescriptionFactory.createErrorDescription(ErrorDescription.SEVERITY_WARNING, "Undefined label: " + el.getLabel(), (FileObject) anode.getStartingPosition().getFile(), anode.getStartingPosition().getOffsetValue(), anode.getEndingPosition().getOffsetValue()));
         } else {
             ((LabelStructuralElement) fromMap).addSubElement(el);
         }
     }
     
-    private LabelStructuralElement createLabelElement(ArgumentNode anode) {
-        LabelStructuralElement el = new LabelStructuralElement(anode.getCommand(), anode.getText().toString(), captions.peek().toString());
+    private LabelStructuralElement createLabelElement(ArgumentNode anode, CommandNode cmd) {
+        LabelStructuralElement el = new LabelStructuralElement(cmd, anode.getText().toString(), captions.peek().toString());
         
         Object fromMap = label2Refs.get(el.getLabel());
         
@@ -105,6 +113,8 @@ public class LabelDelegatedParser extends DelegatedParser {
                 
                 el.addSubElement(refEl);
             }
+            
+            errors.remove(el.getLabel());
         }
         
         label2Refs.put(el.getLabel(), el);
@@ -135,13 +145,19 @@ public class LabelDelegatedParser extends DelegatedParser {
                     return null;
                 }
                 
-                if (anode.getArgument().hasAttribute("#label")) {
-                    return createLabelElement(anode);
-                }
+                ArgumentContainingNode arg = anode.getCommand();
                 
-                if (anode.getArgument().hasAttribute("#ref")) {
-                    createRefElement(anode);
-                    return null;
+                if (arg instanceof CommandNode) {
+                    CommandNode cmd = (CommandNode) arg;
+                    
+                    if (anode.getArgument().hasAttribute("#label")) {
+                        return createLabelElement(anode, cmd);
+                    }
+                    
+                    if (anode.getArgument().hasAttribute("#ref")) {
+                        createRefElement(anode, cmd);
+                        return null;
+                    }
                 }
             }
         }
@@ -156,6 +172,10 @@ public class LabelDelegatedParser extends DelegatedParser {
             "#caption",
             "#ref"
         };
+    }
+    
+    public Collection<ErrorDescription> getErrors() {
+        return errors.values();
     }
     
 }

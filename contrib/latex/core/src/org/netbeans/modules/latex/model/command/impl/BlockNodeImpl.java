@@ -36,7 +36,7 @@ import org.netbeans.modules.latex.test.TestCertificate;
  *
  * @author Jan Lahoda
  */
-public class BlockNodeImpl extends NodeImpl implements BlockNode {
+public class BlockNodeImpl extends ArgumentContainingNodeImpl implements BlockNode {
     
     public static final Environment NULL_ENVIRONMENT = new Environment("nullenvironments");
     
@@ -47,7 +47,7 @@ public class BlockNodeImpl extends NodeImpl implements BlockNode {
     
     /** Creates a new instance of BlockNodeImpl */
     public BlockNodeImpl(Node parent, NodeImpl previousCommandDefiningNode, Environment env) {
-        super(parent, previousCommandDefiningNode);
+        super(parent, previousCommandDefiningNode, env);
         this.environment = env;
     }
     

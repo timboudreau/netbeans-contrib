@@ -30,6 +30,7 @@ import org.netbeans.modules.latex.model.LabelInfo;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
 import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
+import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.Command;
@@ -79,7 +80,7 @@ public final class LaTeXGoToImpl {
             
             if (node instanceof ArgumentNode) {
                 ArgumentNode anode = (ArgumentNode) node;
-                CommandNode  cnode = anode.getCommand();
+                ArgumentContainingNode  cnode = anode.getCommand();
                 
                 if (anode.hasAttribute("#ref")) {
                     if (doOpen)
@@ -87,9 +88,9 @@ public final class LaTeXGoToImpl {
                     
                     return getSpanForNode(anode);
                 } else {
-                    if (cnode.getCommand().isInputLike()) {
+                    if (cnode instanceof CommandNode && ((CommandNode) cnode).getCommand().isInputLike()) {
                         if (doOpen)
-                            openInput(source, cnode);
+                            openInput(source, (CommandNode) cnode);
                         
                         return getSpanForNode(anode);
                     } else {

@@ -47,53 +47,16 @@ import org.openide.ErrorManager;
  *
  * @author Jan Lahoda
  */
-public class CommandNodeImpl extends NodeImpl implements CommandNode {
+public class CommandNodeImpl extends ArgumentContainingNodeImpl implements CommandNode {
     
     public static final Command NULL_COMMAND = new Command("\\nullcommand: ");
     private Command                   command;
-    private List/*<ArgumentNode>*/    arguments;
     
     
     /** Creates a new instance of CommandNodeImpl */
     public CommandNodeImpl(Node parent, Command command, NodeImpl previousCommandDefiningNode) {
-        super(parent, previousCommandDefiningNode);
+        super(parent, previousCommandDefiningNode, command);
         this.command = command;
-        arguments    = new ArrayList/*<ArgumentNode>*/();
-    }
-    
-    public ArgumentNode getArgument(int index) {
-        return (ArgumentNode) arguments.get(index);
-    }
-    
-    public int getArgumentCount() {
-        return arguments.size();
-    }
-    
-//    public Param getArgumentDescription(int index) {
-//        return command.getArgument(index);
-//    }
-    
-    public void putArgument(int index, ArgumentNode arg) {
-//        System.err.println("putArgument, command=" + this + ", argument=" + arg + ", children count=" + arg.getChildrenCount());
-        while (arguments.size() < index) {
-            ArgumentNodeImpl an = new ArgumentNodeImpl(this, false, ((NodeImpl) arg).getPreviousCommandDefiningNode());
-            
-            an.setArgument(command.getArgument(arguments.size()));
-            an.setStartingPosition(arg.getStartingPosition());
-            an.setEndingPosition(arg.getStartingPosition());
-            
-            arguments.add(an);
-        }
-        
-        if (arguments.size() == index) {
-            arguments.add(index, arg);
-        } else {
-            arguments.set(index, arg);
-        }
-    }
-    
-    public void addArgument(ArgumentNode arg) {
-        putArgument(arguments.size(), arg);
     }
     
     public Command getCommand() {
@@ -101,7 +64,7 @@ public class CommandNodeImpl extends NodeImpl implements CommandNode {
     }
     
     public boolean isComplete() {
-        return arguments.size() == command.getArgumentCount();
+        return getArgumentCount() == command.getArgumentCount();
     }
     
     public String toString() {

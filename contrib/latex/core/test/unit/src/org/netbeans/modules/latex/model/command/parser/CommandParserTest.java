@@ -34,13 +34,18 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.latex.UnitUtilities;
+import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.InputNode;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
+import org.netbeans.modules.latex.model.command.MathNode;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.TextNode;
+import org.netbeans.modules.latex.model.command.TraverseHandler;
+import org.netbeans.modules.latex.model.command.impl.BlockNodeImpl;
+import org.netbeans.modules.latex.model.command.impl.CommandNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
@@ -62,12 +67,13 @@ public class CommandParserTest extends NbTestCase {
     
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        
+        List<String> ignoredTests = Arrays.asList(new String[] {"testNewCommand2", "testEnvironmentInEnvironment3"});
+
         //testNewCommand2 is failing, exclude:
         for (Enumeration e = new TestSuite(CommandParserTest.class).tests(); e.hasMoreElements(); ) {
             Test t = (Test) e.nextElement();
             
-            if (!(t instanceof TestCase) || !"testNewCommand2".equals(((TestCase) t).getName())) {
+            if (!(t instanceof TestCase) || !ignoredTests.contains(((TestCase) t).getName())) {
                 suite.addTest(t);
             }
         }
@@ -248,4 +254,166 @@ public class CommandParserTest extends NbTestCase {
         }
     }
     
+    public void testVerbatimEnvironment() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testVerbatimEnvironment.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Collection errors = new ArrayList();
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        
+        DocumentNode node = new CommandParser().parse(lsi, errors);
+        
+        assertTrue("Errors: " + errors, errors.isEmpty());
+    }
+    
+    public void testFontGroup() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testFontGroup.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Collection errors = new ArrayList();
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        
+        DocumentNode node = new CommandParser().parse(lsi, errors);
+        
+        assertTrue("Errors: " + errors, errors.isEmpty());
+    }
+    
+    public void testMathNode1() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testMathNode1.tex");
+        
+        assertNotNull(testFileObject);
+        
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        LaTeXSource.Lock lock = lsi.lock(true);
+        
+        try {
+            DataObject od = DataObject.find(testFileObject);
+            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+            StyledDocument doc = ec.openDocument();
+            
+            Node node = lsi.findNode(doc, 45);
+            
+            assertTrue(node instanceof MathNode);
+            node = lsi.findNode(doc, 46);
+            assertTrue(node instanceof MathNode);
+            node = lsi.findNode(doc, 47);
+            assertTrue(node instanceof MathNode);
+        } finally {
+            lsi.unlock(lock);
+        }
+    }
+    
+    public void testMathNode2() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testMathNode2.tex");
+        
+        assertNotNull(testFileObject);
+        
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        LaTeXSource.Lock lock = lsi.lock(true);
+        
+        try {
+            DataObject od = DataObject.find(testFileObject);
+            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+            StyledDocument doc = ec.openDocument();
+            
+            Node node = lsi.findNode(doc, 27);
+            
+            assertTrue(node instanceof MathNode);
+            node = lsi.findNode(doc, 28);
+            assertTrue(node instanceof MathNode);
+            node = lsi.findNode(doc, 29);
+            assertTrue(node instanceof MathNode);
+        } finally {
+            lsi.unlock(lock);
+        }
+    }
+
+    public void testMathNode3() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testMathNode3.tex");
+        
+        assertNotNull(testFileObject);
+        
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        LaTeXSource.Lock lock = lsi.lock(true);
+        
+        try {
+            DataObject od = DataObject.find(testFileObject);
+            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+            StyledDocument doc = ec.openDocument();
+            
+            Node node = lsi.findNode(doc, 46);
+            
+            assertTrue(node instanceof MathNode);
+            node = lsi.findNode(doc, 47);
+            assertTrue(node instanceof MathNode);
+            node = lsi.findNode(doc, 48);
+            assertTrue(node instanceof MathNode);
+        } finally {
+            lsi.unlock(lock);
+        }
+    }
+    
+    public void testEnvironmentInEnvironment2() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testEnvironmentInEnvironment2.tex");
+        
+        assertNotNull(testFileObject);
+        
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        LaTeXSource.Lock lock = lsi.lock(true);
+        
+        try {
+            DataObject od = DataObject.find(testFileObject);
+            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+            StyledDocument doc = ec.openDocument();
+            
+            lsi.findNode(doc, 106);
+                
+            for (int offset = 0; offset < doc.getLength(); offset++) {
+                lsi.findNode(doc, offset);
+            }
+        } finally {
+            lsi.unlock(lock);
+        }
+    }
+
+    public void testEnvironmentInEnvironment3() throws Exception {
+        FileObject testFileObject = dataDir.getFileObject("testEnvironmentInEnvironment3.tex");
+        
+        assertNotNull(testFileObject);
+        
+        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        LaTeXSource.Lock lock = lsi.lock(true);
+        
+        try {
+            DataObject od = DataObject.find(testFileObject);
+            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+            StyledDocument doc = ec.openDocument();
+            
+            lsi.traverse(new TraverseHandler() {
+                public void argumentEnd(ArgumentNode node) {
+                }
+                public boolean argumentStart(ArgumentNode node) {
+                    return true;
+                }
+                public void blockEnd(BlockNode node) {
+                }
+                public boolean blockStart(BlockNode node) {
+                    assertTrue(node.getFullText().toString(), BlockNodeImpl.NULL_ENVIRONMENT != node.getEnvironment());
+                    return true;
+                }
+                public void commandEnd(CommandNode node) {
+                }
+                public boolean commandStart(CommandNode node) {
+                    assertTrue(node.getFullText().toString(), CommandNodeImpl.NULL_COMMAND != node.getCommand());
+                    return true;
+                }
+            }, LaTeXSource.HEAVY_LOCK);
+            
+        } finally {
+            lsi.unlock(lock);
+        }
+    }
+
 }

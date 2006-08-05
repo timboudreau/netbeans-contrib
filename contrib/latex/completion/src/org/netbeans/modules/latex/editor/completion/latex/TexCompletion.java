@@ -45,6 +45,7 @@ import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.Labe
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.ValueCompletionItem;
 import org.netbeans.modules.latex.model.IconsStorage;
 import org.netbeans.modules.latex.model.LabelInfo;
+import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.Command;
@@ -254,7 +255,12 @@ public class TexCompletion implements CompletionProvider {
         }
         
         public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
-            CommandNode cnode = node.getCommand();
+            ArgumentContainingNode container = node.getCommand();
+            
+            if (!(container instanceof CommandNode))
+                return;
+            
+            CommandNode cnode = (CommandNode) container;
             String      name  = null;
             
             if (cnode.getArgumentCount() != 2)
@@ -334,7 +340,12 @@ public class TexCompletion implements CompletionProvider {
         
         public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
             try {
-                CommandNode cnode = node.getCommand();
+                ArgumentContainingNode container = node.getCommand();
+                
+                if (!(container instanceof CommandNode))
+                    return;
+                
+                CommandNode cnode = (CommandNode) container;
                 List environments = source.getEnvironments(cnode.getStartingPosition());
                 Iterator            environmentsIter = environments.iterator();
                 
@@ -375,7 +386,13 @@ public class TexCompletion implements CompletionProvider {
         ArgumentNode argument = lookupArgument(source, doc, offset);
         
         if (argument != null) {
-            String commandString = argument.getCommand().getCommand().getCommand();
+            ArgumentContainingNode container = argument.getCommand();
+            
+            if (!(container instanceof CommandNode))
+                return;
+            
+            CommandNode cnode = (CommandNode) container;
+            String commandString = cnode.getCommand().getCommand();
             int    prefixLength = offset - argument.getStartingPosition().getOffsetValue();
             CharSequence argumentContent = argument.getText(); //jl: to be honest, I do not understand the stuff about argumentContent. getText returns only plain text, not commands!
             

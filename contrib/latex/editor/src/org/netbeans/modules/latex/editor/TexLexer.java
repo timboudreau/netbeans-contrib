@@ -38,7 +38,6 @@ import org.netbeans.spi.lexer.util.IntegerCache;
     private int         state;
 
     private static final boolean debug = Boolean.getBoolean("org.netbeans.modules.latex.lexer.debug");
-    private static final boolean fastMathStop = Boolean.getBoolean("org.netbeans.modules.latex.lexer.math") || true;
     
     /** Creates a new instance of TexLexer */
     public TexLexer() {
@@ -46,17 +45,15 @@ import org.netbeans.spi.lexer.util.IntegerCache;
         state = 0;
     }
     
-    private static final Integer[][] integers = new Integer[][] {
-        new Integer[] {new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Integer(4), new Integer(5), new Integer(6), new Integer(7), new Integer(8), new Integer(9), },
-        new Integer[] {new Integer(20), new Integer(21), new Integer(22), new Integer(23), new Integer(24), new Integer(25), new Integer(26), new Integer(27), new Integer(28), new Integer(29), },
-    };
+    private static final Integer[] integers =
+            new Integer[] {new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Integer(4), new Integer(5), new Integer(6), new Integer(7), new Integer(8), new Integer(9), };
     
     public Object getState() {
-        return integers[isInMath ? 1 : 0][state];
+        return integers[state];
 //        return IntegerCache.get(state + (isInMath ? 20 : 0));
     }
     
-    private static final String SPECIAL_COMMAND_CHARS = "{}\\";
+    private static final String SPECIAL_COMMAND_CHARS = "{}\\ []'`^\"~=.()|"; // NOI18N
     
     protected boolean isEOF(int read) {
         return (read == LexerInput.EOF) || (read == 65535 /*this is some nasty bug. no time for investigate it. it was in my code. should no be needed - remove when everything all is done.*/);
@@ -256,9 +253,6 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                     }
 		case 8:
 		    if (read != '\n') {
-		        if (fastMathStop)
-			   isInMath = false;
-
 		        if (!isEOF(read))
 			    input.backup(1);
 			
@@ -275,15 +269,7 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                             input.backup(1);
                     }
                     
-                    Token result;
-                    
-                    if (isInMath) {
-                        result = createToken(TexLanguage.MATH);
-                        isInMath = false;
-                    } else {
-                        isInMath = true;
-                        result = createToken(TexLanguage.MATH);
-                    }
+                    Token result = createToken(TexLanguage.MATH);
                     
                     state = 0;
                     return result;
@@ -303,13 +289,8 @@ import org.netbeans.spi.lexer.util.IntegerCache;
         }
     }
     
-    private boolean isInMath = false;
-    
     private Token createToken(TokenId id) {
         Token token = input.createToken(id); //!!!
-        
-        if (isInMath)
-            TokenAttributes.setInMath(token);
         
         return token;
     }
@@ -320,13 +301,6 @@ import org.netbeans.spi.lexer.util.IntegerCache;
             state = 0;            
         } else {
             int value = ((Integer) obj).intValue();
-            
-            if (value >= 20) {
-                isInMath = true;
-                value -= 20;
-            } else {
-                isInMath = false;
-            }
             
             state = value;
         }

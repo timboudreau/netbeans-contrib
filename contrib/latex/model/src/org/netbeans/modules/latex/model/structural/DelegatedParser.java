@@ -22,8 +22,12 @@
 package org.netbeans.modules.latex.model.structural;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.netbeans.modules.latex.model.command.Node;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.openide.filesystems.FileObject;
 
 /**SPI
  *
@@ -48,4 +52,9 @@ public abstract class DelegatedParser {
     public Object getKey(Node node) {
         return null;
     }
+    
+    public Collection<ErrorDescription> getErrors() {
+        return Collections.<ErrorDescription>emptyList();
+    }
+    
 }

@@ -23,6 +23,7 @@ package org.netbeans.modules.latex.model.command.impl;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
+import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.TraverseHandler;
@@ -39,7 +40,7 @@ public class ArgumentNodeImpl extends GroupNodeImpl implements ArgumentNode {
     private Param   param;
     
     /** Creates a new instance of ArgumentNodeImpl */
-    public ArgumentNodeImpl(CommandNode parent, boolean present, NodeImpl previousCommandDefiningNode) {
+    public ArgumentNodeImpl(ArgumentContainingNodeImpl parent, boolean present, NodeImpl previousCommandDefiningNode) {
         super(parent, previousCommandDefiningNode);
         
 //        System.err.println("ArgumentNodeImpl construstor=" + this);
@@ -68,8 +69,8 @@ public class ArgumentNodeImpl extends GroupNodeImpl implements ArgumentNode {
         this.param = param;
     }
     
-    public CommandNode getCommand() {
-        return (CommandNode) getParent();
+    public ArgumentContainingNode getCommand() {
+        return (ArgumentContainingNode) getParent();
     }
 
     public void traverse(TraverseHandler th) {

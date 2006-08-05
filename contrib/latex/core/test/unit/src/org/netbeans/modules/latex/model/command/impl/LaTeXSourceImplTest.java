@@ -77,6 +77,10 @@ public class LaTeXSourceImplTest extends NbTestCase {
             assertTrue(lsi.findNode(doc, offset) instanceof CommandNode);
             offset = NbDocument.findLineOffset(doc, 9) + 0;
             assertTrue(lsi.findNode(doc, offset) instanceof CommandNode);
+            
+            //no exception should be thrown when trying to find node outside the document:
+//            System.err.println(lsi.findNode(doc, 1000000));
+//            assertNull(lsi.findNode(doc, 1000000));
         } finally {
             lsi.unlock(lock);
         }

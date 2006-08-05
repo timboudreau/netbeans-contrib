@@ -25,6 +25,24 @@ Microsystems, Inc. All Rights Reserved.
 <command name="\\">
 </command>
 
+<command name="\[">
+</command>
+
+<command name="\]">
+</command>
+
+<command name="\ ">
+</command>
+
+<command name="\(">
+</command>
+
+<command name="\)">
+</command>
+
+<command name="\|">
+</command>
+
 <command name="\index">
   <argument type="mandatory">
     <attribute name="#text" value="true" />
@@ -253,6 +271,48 @@ Microsystems, Inc. All Rights Reserved.
   </argument>
 </command>
 
+<command name="\texttt">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\textup">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\textsl">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\textsc">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\textmd">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\textsf">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\cal">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
 <command name="\cite">
   <argument type="mandatory">
     <attribute name="#code" value="true" />
@@ -271,6 +331,12 @@ Microsystems, Inc. All Rights Reserved.
 </command>
 
 <command name="\author">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\date">
   <argument type="mandatory">
     <attribute name="#code" value="true" />
   </argument>
@@ -763,4 +829,129 @@ Microsystems, Inc. All Rights Reserved.
 
 <command name="\newpage">
   <attribute name="par" value="true" />
+</command>
+
+<command name="\mbox">
+    <argument type="mandatory">
+        <attribute name="#text" value="true" />
+    </argument>
+</command>
+
+<command name="\frac">
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+    </argument>
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+    </argument>
+</command>
+
+<command name="\cfrac">
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+    </argument>
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+    </argument>
+</command>
+
+<command name="\in">
+</command>
+
+<command name="\left">
+</command>
+
+<command name="\right">
+</command>
+
+<command name="\inf">
+</command>
+
+<command name="\displaystyle">
+</command>
+
+<command name="\sqrt">
+</command>
+
+<command name="\lim">
+</command>
+
+<command name="\prod">
+</command>
+
+<command name="\log">
+</command>
+
+<command name="\ln">
+</command>
+
+<!--accents:-->
+<command name="\'">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\`">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\^">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\~">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\=">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\.">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\u">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\u">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\v">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\H">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\t">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\c">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\d">
+    <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\b">
+    <argument type="mandatory">
+    </argument>
 </command>

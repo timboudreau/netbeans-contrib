@@ -34,7 +34,7 @@ public interface ArgumentNode extends GroupNode {
     public boolean isValidEnum();
 
     public Param   getArgument();
-
-    public CommandNode getCommand();
-
+    
+    public ArgumentContainingNode getCommand();
+    
 }

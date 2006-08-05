@@ -26,11 +26,20 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.text.Document;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
 import org.openide.windows.OutputWriter;
 
 /** This class may not use System.err! (it is redirected by the ant!)
@@ -48,6 +57,7 @@ import org.openide.windows.OutputWriter;
     private boolean done = false;
     private Stack<String> currentFile;
     private int lineNumber;
+    private Map<Document, List<ErrorDescription>> errors;
     
     private File baseDir;
     
@@ -58,6 +68,7 @@ import org.openide.windows.OutputWriter;
         autoflush = true;
         currentFile = new Stack<String>();
         lineNumber = 0;
+        errors = new HashMap<Document, List<ErrorDescription>>();
     }
 
     private FileObject getCurrentFile() {
@@ -67,6 +78,10 @@ import org.openide.windows.OutputWriter;
         return FileUtil.toFileObject(file);
     }
 
+    public Map<Document, List<ErrorDescription>> getErrors() {
+        return errors;
+    }
+    
     private class ErrorPattern {
         public Pattern pattern;
         public int     skip;
@@ -131,13 +146,23 @@ import org.openide.windows.OutputWriter;
                     
 //                    os.println(new File(baseDir, (String) currentFile.peek()).getAbsolutePath() + ":" + startLineNumber + ":0:" + endLineNumber  + ":0:" + line);
                     if (file != null) {
-                        out.println(line, new OutputListenerImpl(file, lineNumber, line));
-                    } else {
-                        out.println(line);
+                        DataObject d = DataObject.find(file);
+                        EditorCookie ec = (EditorCookie) d.getCookie(EditorCookie.class);
+                        Document doc = ec.openDocument();
+                        ErrorDescription err = ErrorDescriptionFactory.createErrorDescription(ErrorDescription.SEVERITY_VERIFIER, line, doc, startLineNumber);
+                        List<ErrorDescription> errorDescriptions = errors.get(doc);
+                        
+                        if (errorDescriptions == null) {
+                            errors.put(doc, errorDescriptions = new ArrayList<ErrorDescription>());
+                        }
+                        
+                        errorDescriptions.add(err);
                     }
+                    
+                    out.println(line);
                     if (autoflush) out.flush();
                     
-                    while (!"".equals(line = is.readLine()) && line != null && !pageDef.matcher(line).find()) { //??sufficient
+                    while (!"".equals(line = is.readLine()) && line != null && !pageDef.matcher(line).find() && line.charAt(0) == ')') { //??sufficient
                         out.println(line);
                         lineNumber++;
 

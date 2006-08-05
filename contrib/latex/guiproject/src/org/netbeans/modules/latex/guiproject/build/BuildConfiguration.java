@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import javax.swing.text.Document;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.latex.guiproject.LaTeXGUIProject;
 import org.netbeans.modules.latex.guiproject.Utilities;
@@ -34,6 +36,8 @@ import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.platform.LaTeXPlatform;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.HintsController;
 import org.openide.ErrorManager;
 import org.openide.LifecycleManager;
 import org.openide.execution.ExecutionEngine;
@@ -231,6 +235,7 @@ public final class BuildConfiguration {
         try {
             Process process = descriptor.exec(new MapFormat(format), null, true, wd);
             
+            Map<Document, List<ErrorDescription>> errors = new HashMap<Document, List<ErrorDescription>>();
             LaTeXCopyMaker scOut = new LaTeXCopyMaker(wd, process.getInputStream(), stdOut);
             LaTeXCopyMaker scErr = new LaTeXCopyMaker(wd, process.getErrorStream(), stdErr);
             
@@ -240,7 +245,15 @@ public final class BuildConfiguration {
             scOut.join();
             scErr.join();
 
-            return process.waitFor() == 0;
+            boolean result = process.waitFor() == 0;
+            
+            errors.putAll(scOut.getErrors());
+            errors.putAll(scErr.getErrors());
+            
+            for (Entry<Document, List<ErrorDescription>> e : errors.entrySet()) {
+                HintsController.setErrors(e.getKey(), e.getValue());
+            }
+            return result;
         } catch (InterruptedException ex) {
             ErrorManager.getDefault().notify(ex);
         } catch (IOException ex) {

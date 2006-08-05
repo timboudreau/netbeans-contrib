@@ -25,6 +25,7 @@ package org.netbeans.modules.latex.editor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.lang.InterruptedException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -43,12 +44,15 @@ import org.netbeans.editor.Settings;
 import org.netbeans.editor.SettingsNames;
 import org.netbeans.modules.latex.model.LabelInfo;
 import org.netbeans.modules.latex.model.Queue;
+import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandNode;
+import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
+import org.netbeans.modules.latex.model.command.MathNode;
 import org.netbeans.modules.latex.model.command.Node;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
@@ -68,11 +72,11 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
     
     private static RequestProcessor processor = new RequestProcessor("Coloring Updating Request Processor");
     
+    static {
+        processor.post(new ColoringTask(), 0, Thread.MIN_PRIORITY);
+    }
+    
     private static boolean STATIC_COLORING = Boolean.getBoolean("netbeans.latex.coloring.static");
-    
-    private RequestProcessor.Task task = null;
-    
-    private static final int MAX_ENTRIES = 1000;
     
     private boolean fullSyntacticColoring = false;
     
@@ -97,7 +101,6 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         this.document = doc;
         this.token2Coloring = new WeakHashMap();///*new CachingMap(*/new IdentityHashMap()/*, MAX_ENTRIES)*/;
         this.components = new WeakHashMap();
-        constructToBeUpdated();
         
         LaTeXSource source = LaTeXSource.get(org.netbeans.modules.latex.model.Utilities.getDefault().getFile(doc));
         
@@ -109,7 +112,6 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         fullSyntacticColoring = isFullSyntacticColoringImpl();
         
         updateDocumentVersion();
-//        doc.addDocumentListener(this);
     }
     
     private boolean isFullSyntacticColoringImpl() {
@@ -133,46 +135,30 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         components.put(jtc, jtc);
     }
     
-    private Queue/*<Token>*/ toBeUpdatedP1;
-    private Queue/*<Token>*/ toBeUpdatedP2;
+    private static Queue<TokenHolder> toBeUpdated = new Queue<TokenHolder>();
     
-    private static final int LOW_PRIORITY = 2;
-    private static final int HIGH_PRIORITY = 1;
-    
-    private synchronized void constructToBeUpdated() {
-        this.toBeUpdatedP1 = new Queue();
-        this.toBeUpdatedP2 = new Queue();
-    }
-    
-    private synchronized void addToBeUpdated(Token token, int priority) {
-        switch (priority) {
-            case HIGH_PRIORITY:
-                toBeUpdatedP1.put(token);
-                break;
-            case LOW_PRIORITY:
-                toBeUpdatedP2.put(token);
-                break;
-            default:
-                throw new IllegalStateException("priority=" + priority);
-        }
-
-        if (task == null) {
-            task = processor.post(new ColoringTask(), 0, Thread.MIN_PRIORITY);
+    private void addToBeUpdated(Token token) {
+        synchronized(ColoringEvaluator.class) {
+            toBeUpdated.put(new TokenHolder(this, token));
+            ColoringEvaluator.class.notifyAll();
         }
     }
     
-    private synchronized Token getToBeUpdated() {
-        if (!toBeUpdatedP1.empty())
-            return (Token) toBeUpdatedP1.pop();
+    private static synchronized TokenHolder getToBeUpdated() {
+        while (toBeUpdated.empty()) {
+            try {
+                ColoringEvaluator.class.wait();
+            } catch (InterruptedException e) {
+                //TODO: better logging:
+                e.printStackTrace();
+            }
+        }
         
-        return (Token) toBeUpdatedP2.pop();
+        return toBeUpdated.pop();
     }
     
     private synchronized boolean isEmptyToBeUpdated() {
-        boolean empty = toBeUpdatedP1.empty() && toBeUpdatedP2.empty();
-        
-        if (empty)
-            task = null;
+        boolean empty = toBeUpdated.empty();
         
         return empty;
     }
@@ -185,12 +171,12 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         else
             proposed = getStaticColoring(token);
         
-        if (TokenAttributes.isInMathToken(token)) {
-            if (proposed != null)
-                proposed = proposed.apply(getColoringForName(TexColoringNames.MATH));
-            else
-                proposed = getColoringForName(TexColoringNames.MATH);
-        }
+//        if (TokenAttributes.isInMathToken(token)) {
+//            if (proposed != null)
+//                proposed = proposed.apply(getColoringForName(TexColoringNames.MATH));
+//            else
+//                proposed = getColoringForName(TexColoringNames.MATH);
+//        }
         
         return proposed;
     }
@@ -201,10 +187,7 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         
         if (holder == null || holder.version < documentVersion) {
 //            System.err.println("not up-to-date.");
-            if (token.getId() == TexLanguage.WORD)
-                addToBeUpdated(token, LOW_PRIORITY);
-            else
-                addToBeUpdated(token, HIGH_PRIORITY);
+                addToBeUpdated(token);
         }
         
 //        System.err.println("cached coloring:" + c);
@@ -226,16 +209,16 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         if (!isFullSyntacticColoring())
             return false;
         
-        switch (token.getId().getIntId()) {
-            case TexLanguage.COMMAND_INT:
-            case TexLanguage.WORD_INT:
-                return true;
-            default:
-                return false;
-        }
-//        //XXX: this causes that the coloring is quite slow, but without this the #ref arguments will not be colored
-//        //properly...
-//        return true;
+//        switch (token.getId().getIntId()) {
+//            case TexLanguage.COMMAND_INT:
+//            case TexLanguage.WORD_INT:
+//                return true;
+//            default:
+//                return false;
+//        }
+        //XXX: this causes that the coloring is quite slow, but without this the #ref arguments will not be colored
+        //properly...
+        return true;
     }
     
     public synchronized Coloring getColoring(Token token) {
@@ -258,53 +241,54 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         return getColoringForName(id.getName());
     }
     
-    private class ColoringTask implements Runnable {
+    private static class ColoringTask implements Runnable {
         
         public void run() {
             int startAbs = Integer.MAX_VALUE;
             int endAbs   = Integer.MIN_VALUE;
             long lastUpdateTime = System.currentTimeMillis();
             
-            while (!isEmptyToBeUpdated()) {
-                Token token = null;
-                
-                synchronized (ColoringEvaluator.this) {
-                    token = getToBeUpdated();
+            while (true) {
+                try {
+                    TokenHolder token = getToBeUpdated();
                     
-                    ColoringHolder holder = (ColoringHolder) token2Coloring.get(token);
-                    
-                    if (holder != null && holder.version >= documentVersion)
-                        continue;
-                }
-                
-                if (token == null)
-                    continue;
-                
-                Coloring proposed = computeColoring(token);
-                
-                synchronized (ColoringEvaluator.this) {
-                    token2Coloring.put(token, new ColoringHolder(proposed, documentVersion));
-                    
-                    int start = Utilities.getTokenOffset(document, token);
-                    int end   = start + token.getText().length();
-                    
-                    if (start < startAbs)
-                        startAbs = start;
-                    
-                    if (end > endAbs)
-                        endAbs = end;
-                    
-                    if ((System.currentTimeMillis() - lastUpdateTime) >= 1000) {
-                        fireTokenColoringChanged(startAbs, endAbs);
-                        startAbs = Integer.MAX_VALUE;
-                        endAbs   = Integer.MIN_VALUE;
-                        lastUpdateTime = System.currentTimeMillis();
+                    synchronized (token.eval) {
+                        ColoringHolder holder = (ColoringHolder) token.eval.token2Coloring.get(token.token);
+                        
+                        if (holder != null && holder.version >= token.eval.documentVersion)
+                            continue;
                     }
+                    
+                    if (token == null)
+                        continue;
+                    
+                    Coloring proposed = token.eval.computeColoring(token.token);
+                    
+                    synchronized (token.eval) {
+                        token.eval.token2Coloring.put(token.token, new ColoringHolder(proposed, token.eval.documentVersion));
+                        
+                        int start = Utilities.getTokenOffset(token.eval.document, token.token);
+                        int end   = start + token.token.getText().length();
+                        
+                        if (start < startAbs)
+                            startAbs = start;
+                        
+                        if (end > endAbs)
+                            endAbs = end;
+                        
+                        if ((System.currentTimeMillis() - lastUpdateTime) >= 1000) {
+                            token.eval.fireTokenColoringChanged(startAbs, endAbs);
+                            startAbs = Integer.MAX_VALUE;
+                            endAbs   = Integer.MIN_VALUE;
+                            lastUpdateTime = System.currentTimeMillis();
+                        }
+                    }
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Throwable t) {
+                    ErrorManager.getDefault().notifyInformational(t);
                 }
             }
-            
-            if (endAbs != Integer.MIN_VALUE)
-                fireTokenColoringChanged(startAbs, endAbs);
         }
         
     }
@@ -313,17 +297,22 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
         SwingUtilities.invokeLater(
         new Runnable() {
             public void run() {
-                Iterator i = components.keySet().iterator();
-                
-                while (i.hasNext()) {
-                    JTextComponent comp = (JTextComponent) i.next();
+                try {
+                    Iterator i = components.keySet().iterator();
                     
-                    if (comp == null)
-                        continue;
-                    
-                    TextUI ui = (TextUI)comp.getUI();
-                    
-                    ui.damageRange(comp, start, end);
+                    while (i.hasNext()) {
+                        JTextComponent comp = (JTextComponent) i.next();
+                        
+                        if (comp == null)
+                            continue;
+                        
+                        TextUI ui = (TextUI)comp.getUI();
+                        
+                        ui.damageRange(comp, start, end);
+                    }
+                } catch (NullPointerException e) {
+                    //Sometimes a NPE from Views may occur. It it hopefully harmless.
+                    ErrorManager.getDefault().notifyInformational(e);
                 }
             }
         }
@@ -333,10 +322,40 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
     private Coloring computeColoring(Token token) {
         Coloring proposed = getColoringForTokenId(token.getId());
         
-        if (TokenAttributes.isInMathToken(token)) {
-            proposed = getColoringForName(TexColoringNames.MATH).apply(proposed);
-        }
+        LaTeXSource source = LaTeXSource.get(org.netbeans.modules.latex.model.Utilities.getDefault().getFile(document));
         
+        if (source != null && (source.isUpToDate() || source.getDocument() == null)) {
+            try {
+                if (source.getDocument() == null) {
+                    LaTeXSource.Lock lock1 = null;
+                    try {
+                        lock1 = source.lock(true);
+                    } finally {
+                        if (lock1 != null) {
+                            source.unlock(lock1);
+                        }
+                    }
+                }
+                
+                long start = System.currentTimeMillis();
+                int  offset = org.netbeans.modules.latex.editor.Utilities.getTokenOffset(document, token);
+                Node node  = source.findNode(document, offset);
+                long end   = System.currentTimeMillis();
+                
+                Node loop = node;
+                
+                while (!(loop instanceof DocumentNode)) {
+                    if (loop instanceof MathNode) {
+                        proposed = getColoringForName(TexColoringNames.MATH).apply(proposed);
+                        break;
+                    }
+                    loop = loop.getParent();
+                }
+            } catch (IOException e) {
+                ErrorManager.getDefault().notify(e);
+            }
+        }
+                
         if (token.getId() == TexLanguage.COMMAND) {
             proposed = findCommandColoring(token, proposed);
         }
@@ -445,12 +464,10 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
                                 proposed = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT).apply(proposed);
                             }
                         } else {
-                            CommandNode cnode = anode.getCommand();
+                            ArgumentContainingNode cnode = anode.getCommand();
                             
-                            Node parent = cnode.getParent();
-                            
-                            if (parent instanceof BlockNode) {
-                                BlockNode bnode = (BlockNode) parent;
+                            if (cnode instanceof CommandNode && cnode.getParent() instanceof BlockNode) {
+                                BlockNode bnode = (BlockNode) cnode.getParent();
                                 Environment env = source.getEnvironment(bnode.getStartingPosition(), bnode.getBlockName());
                                 
                                 if (env != null) {
@@ -546,6 +563,43 @@ public class ColoringEvaluator implements DocumentListener, LaTeXSource.Document
             this.coloring = coloring;
             this.version  = version;
         }
+    }
+    
+    private static class TokenHolder {
+        public ColoringEvaluator eval;
+        public Token token;
+        
+        public TokenHolder(ColoringEvaluator eval, Token token) {
+            this.eval = eval;
+            this.token = token;
+        }
+
+        public boolean equals(Object o) {
+            if (o == null)
+                return false;
+            if (getClass() != o.getClass())
+                return false;
+            final TokenHolder test = (TokenHolder) o;
+
+            if (this.eval != test.eval && this.eval != null &&
+                !this.eval.equals(test.eval))
+                return false;
+            if (this.token != test.token && this.token != null &&
+                !this.token.equals(test.token))
+                return false;
+            return true;
+        }
+
+        public int hashCode() {
+            int hash = 3;
+
+            hash = 13 * hash + (this.eval != null ? this.eval.hashCode()
+                                                  : 0);
+            hash = 13 * hash + (this.token != null ? this.token.hashCode()
+                                                   : 0);
+            return hash;
+        }
+
     }
     
     private static class CachingMap implements Map {

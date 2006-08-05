@@ -27,8 +27,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.latex.editor.TexLanguage;
-import org.netbeans.modules.latex.editor.TokenAttributes;
 import org.netbeans.modules.latex.editor.Utilities;
+import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
@@ -107,8 +107,9 @@ public class LaTeXTokenList implements TokenList, DocumentChangedListener {
     private boolean accept(LaTeXSource source, Token token) {
         try {
             //no spelling for tokens inside the math mode (temporary, until MathNode is created in structure):
-            if (TokenAttributes.isInMathToken(token))
-                return false;
+            //TODO:
+//            if (TokenAttributes.isInMathToken(token))
+//                return false;
 
             int  offset = Utilities.getTokenOffset(doc, token);
             Node node  = source.findNode(doc, offset);
@@ -120,11 +121,9 @@ public class LaTeXTokenList implements TokenList, DocumentChangedListener {
                     if (anode.getArgument().isEnumerable()) {
                         return false;
                     } else {
-                        CommandNode cnode = anode.getCommand();
+                        ArgumentContainingNode cnode = anode.getCommand();
                         
-                        Node parent = cnode.getParent();
-                        
-                        if (parent instanceof BlockNode) {
+                        if (cnode instanceof CommandNode && cnode.getParent() instanceof BlockNode) {
                             return false;
                         } else {
                             return !anode.getArgument().isCodeLike();
