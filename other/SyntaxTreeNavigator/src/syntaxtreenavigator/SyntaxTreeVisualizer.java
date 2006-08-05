@@ -47,6 +47,7 @@ public class SyntaxTreeVisualizer extends javax.swing.JFrame implements Diagnost
     
     /** Creates new form SyntaxTreeVisualizer */
     public SyntaxTreeVisualizer() {
+        setTitle ("Syntax Tree Visualizer");
         initComponents();
         Font f = filenameLabel.getFont();
         f = f.deriveFont(Font.BOLD);
@@ -271,6 +272,7 @@ public class SyntaxTreeVisualizer extends javax.swing.JFrame implements Diagnost
                 lastFile = jfc.getSelectedFile();
                 status.setText ("Opened " + jfc.getSelectedFile().getName());
                 tree.expandPath(new TreePath(tree.getModel().getRoot()));
+                setTitle ("Syntax Tree Visualizer - " + lastFile.getName());
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 JOptionPane.showMessageDialog(this, ioe.getLocalizedMessage());
