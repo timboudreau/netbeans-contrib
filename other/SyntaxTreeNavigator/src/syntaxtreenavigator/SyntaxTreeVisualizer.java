@@ -321,8 +321,6 @@ public class SyntaxTreeVisualizer extends javax.swing.JFrame implements Diagnost
         V first = null;
         for (Iterator it = task.parse().iterator(); it.hasNext();) {
             JCTree.JCCompilationUnit unit = (JCTree.JCCompilationUnit) it.next();
-//            unit.accept (new V());
-//            root.add (new BigHonkinVisitor (unit));
             V v = new V(unit);
             if (first == null) {
                 first = v;
