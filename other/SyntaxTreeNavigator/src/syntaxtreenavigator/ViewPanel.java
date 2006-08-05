@@ -117,7 +117,8 @@ public class ViewPanel extends javax.swing.JPanel implements TreeSelectionListen
         DefaultListModel lm = new DefaultListModel();
         for (Class c : s) {
             String str = c.getName();
-            if (str.startsWith("com.sun.source.tree") || str.startsWith("javax.tools")) {
+            if (str.startsWith("com.sun.source.tree") || str.startsWith("javax.tools") ||
+                    str.startsWith("javax.lang")) {
                 lm.addElement("<html><b>" + str);
             } else if (str.startsWith("java.lang") || str.startsWith("java.util")) {
                 lm.addElement("<html><font color=#999999>" + str);
