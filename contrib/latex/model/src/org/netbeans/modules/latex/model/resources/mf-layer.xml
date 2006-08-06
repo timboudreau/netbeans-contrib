@@ -74,6 +74,9 @@ Microsystems, Inc. All Rights Reserved.
         <file name="algpseudocode.xml" url="algpseudocode.xml">
             <attr name="command-package" stringvalue="true" />
         </file>
+        <file name="listings.xml" url="listings.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
         <file name="command_description.dtd" url="command_description.dtd" />
         <file name="generic_commands.xml" url="generic_commands.xml" />
         <file name="generic_environments.xml" url="generic_environments.xml" />
