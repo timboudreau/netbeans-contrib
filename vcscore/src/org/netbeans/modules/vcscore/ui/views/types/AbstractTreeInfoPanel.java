@@ -47,7 +47,7 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel {
 
     protected  String DEFAULT_FOLDER = "/org/openide/loaders/defaultFolder.gif"; // NOI18N
     protected  String DEFAULT_OPEN_FOLDER = "/org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
-    protected  String DEFAULT_FILE = "/org/openide/resources/defaultNode.gif"; // NOI18N
+    protected  String DEFAULT_FILE = "/org/openide/nodes/defaultNode.gif"; // NOI18N
     
 //    private ArrayList files;
 //    private ArrayList filesBackup;
