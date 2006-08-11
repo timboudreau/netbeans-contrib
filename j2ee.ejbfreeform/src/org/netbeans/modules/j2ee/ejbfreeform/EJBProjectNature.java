@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.ant.freeform.spi.HelpIDFragmentProvider;
 import org.netbeans.modules.ant.freeform.spi.ProjectNature;
 import org.netbeans.modules.ant.freeform.spi.ProjectPropertiesPanel;
 import org.netbeans.modules.ant.freeform.spi.TargetDescriptor;
@@ -70,6 +71,8 @@ public class EJBProjectNature implements ProjectNature {
     private static final String SCHEMA = "nbres:/org/netbeans/modules/j2ee/ejbfreeform/resources/freeform-project-ejb.xsd"; // NOI18N
     public static final String STYLE_CONFIG_FILES = "configFiles"; // NOI18N
     public static final String STYLE_EJBS = "ejbs"; // NOI18N
+
+    private static final String HELP_ID_FRAGMENT = "ejb"; // NOI18N
     
     private static final WeakHashMap/*<Project,WeakReference<Lookup>>*/ lookupCache = new WeakHashMap();
 
@@ -191,7 +194,14 @@ public class EJBProjectNature implements ProjectNature {
             EjbEnterpriseReferenceContainerSupport.createEnterpriseReferenceContainer(project, projectHelper),
             new EjbFreeFormActionProvider(project, projectHelper, aux),
             new ProjectOpenedHookImpl(project),
+            new HelpIDFragmentProviderImpl(),
         });
+    }
+    
+    private static final class HelpIDFragmentProviderImpl implements HelpIDFragmentProvider {
+        public String getHelpIDFragment() {
+            return HELP_ID_FRAGMENT;
+        }
     }
     
     private static final class ProjectLookup extends ProxyLookup implements AntProjectListener {
