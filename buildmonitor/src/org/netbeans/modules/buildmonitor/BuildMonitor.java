@@ -303,6 +303,7 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
                         url = new URL(href);
                     }
                 } catch (MalformedURLException e) {
+                    ErrorManager.getDefault().annotate(e, ErrorManager.UNKNOWN, "URL: " + text, null, null, null);
                     ErrorManager.getDefault().notify(e);
                 }
                 if (inItem)
