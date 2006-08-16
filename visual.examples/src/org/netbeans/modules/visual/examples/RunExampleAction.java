@@ -20,12 +20,16 @@ import org.openide.util.actions.CallableSystemAction;
  */
 public final class RunExampleAction extends CallableSystemAction {
 
+    public RunExampleAction () {
+        setEnabled (true);
+    }
+
     public void performAction() {
         RunDialog.main(null);
     }
 
     public String getName() {
-        return "&Visual Library Examples";
+        return "Show &Visual Library Examples Dialog";
     }
 
     public String iconResource() {

@@ -26,12 +26,6 @@ public class RunDialog extends javax.swing.JFrame {
         initComponents();
         list.setModel(new javax.swing.AbstractListModel() {
             private String[] strings = {
-                    "test.object.ObjectTest",
-                    "javaone.demo5.ManyObjectsDemo",
-                    "test.component.ComponentTest",
-                    "test.alignwith.AlignWithTest",
-                    "test.vmd.VMDTest",
-		    "----",
                     "javaone.demo1.IconNodeWidget",
                     "javaone.demo2.ActionDemo",
                     "javaone.demo3.ConnectionDemo",
