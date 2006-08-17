@@ -35,8 +35,8 @@ public class ScrollTest extends Scene {
         ScrollWidget scroll = new ScrollWidget (this);
         scroll.setBorder (BorderFactory.createResizeBorder (8, Color.BLUE, false));
         scroll.setPreferredLocation (new Point (50, 50));
-        scroll.setMinimalSize (new Dimension (100, 200));
-        scroll.setMaximalSize (new Dimension (500, 500));
+        scroll.setMinimumBounds (new Rectangle (100, 200));
+        scroll.setMaximumBounds (new Rectangle (500, 500));
         layer.addChild (scroll);
 
         Widget view = new Widget (this);
