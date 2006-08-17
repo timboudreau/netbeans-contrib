@@ -16,7 +16,6 @@ import org.netbeans.api.visual.action.MoveAction;
 import org.netbeans.api.visual.action.PopupMenuAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.graph.GraphPinScene;
-import org.netbeans.api.visual.uml.UMLClassWidget;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
