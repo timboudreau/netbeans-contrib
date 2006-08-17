@@ -21,42 +21,44 @@ import java.lang.reflect.Method;
  */
 public class RunDialog extends javax.swing.JFrame {
 
+    private static final String[] strings = {
+        "javaone.demo1.IconNodeWidget",
+        "javaone.demo2.ActionDemo",
+        "javaone.demo3.ConnectionDemo",
+        "javaone.demo4.GraphDemo",
+        "javaone.demo5.ManyObjectsDemo",
+        "javaone.demo6.LODDemo",
+        "test.alignwith.AlignWithTest",
+        "test.animator.AnimatorTest",
+        "test.animator.ColorAnimatorTest",
+        "test.object.ObjectTest",
+        "test.card.CardContainerWidget",
+        "test.component.ComponentTest",
+        "test.connect.ConnectScene",
+        "test.connectionlabels.ConnectionLabelsTest",
+        "test.devolve.DevolveTest",
+        "test.general.GraphSceneTest",
+        "test.huge.HugeTest",
+        "test.inplace.InplaceEditorTest",
+        "test.justify.JustifyTest",
+        "test.list.ListTest",
+        "test.lod.LevelOfDetailsTest",
+        "test.multiview.MultiViewTest",
+        "test.object.ObjectTest",
+        "test.repaint.RepaintTest",
+        "test.resize.ResizeTest",
+        "test.scroll.ScrollTest",
+        "test.scroll.SwingScrollTest",
+        "test.swingborder.SwingBorderTest",
+        "test.tool.ToolTest",
+        "test.vmd.VMDCollisionTest",
+        "test.vmd.VMDTest",
+    };
+
     /** Creates new form RunDialog */
     public RunDialog() {
         initComponents();
         list.setModel(new javax.swing.AbstractListModel() {
-            private String[] strings = {
-                    "javaone.demo1.IconNodeWidget",
-                    "javaone.demo2.ActionDemo",
-                    "javaone.demo3.ConnectionDemo",
-                    "javaone.demo4.GraphDemo",
-                    "javaone.demo5.ManyObjectsDemo",
-                    "javaone.demo6.LODDemo",
-                    "test.alignwith.AlignWithTest",
-                    "test.animator.AnimatorTest",
-                    "test.animator.ColorAnimatorTest",
-                    "test.object.ObjectTest",
-                    "test.card.CardContainerWidget",
-                    "test.component.ComponentTest",
-                    "test.connect.ConnectScene",
-                    "test.connectionlabels.ConnectionLabelsTest",
-                    "test.devolve.DevolveTest",
-                    "test.general.GraphSceneTest",
-                    "test.huge.HugeTest",
-                    "test.inplace.InplaceEditorTest",
-                    "test.list.ListTest",
-                    "test.lod.LevelOfDetailsTest",
-                    "test.multiview.MultiViewTest",
-                    "test.object.ObjectTest",
-                    "test.repaint.RepaintTest",
-                    "test.resize.ResizeTest",
-                    "test.scroll.ScrollTest",
-                    "test.scroll.SwingScrollTest",
-                    "test.swingborder.SwingBorderTest",
-                    "test.tool.ToolTest",
-                    "test.vmd.VMDCollisionTest",
-                    "test.vmd.VMDTest",
-            };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
