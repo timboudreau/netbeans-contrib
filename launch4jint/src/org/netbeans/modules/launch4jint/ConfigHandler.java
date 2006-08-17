@@ -19,11 +19,15 @@
 
 package org.netbeans.modules.launch4jint;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.openide.filesystems.FileLock;
@@ -271,6 +275,8 @@ public class ConfigHandler {
     }
     
     private Document updateConfig (Document doc) {
+        String version = getLaunch4jVersion();
+        
         if (doc == null) {
             doc = XMLUtil.createDocument("launch4jConfig", null, null, null);
         }
@@ -311,7 +317,14 @@ public class ConfigHandler {
         rewriteElem(root, elem);
         
         addEmptyElem(doc, root, "errTitle");
-        addEmptyElem(doc, root, "jarArgs");
+        // handle differencies between versions of configuration
+        if (version != null && version.startsWith("2")) {
+            removeElem(root, "cmdLine");
+            addEmptyElem(doc, root, "jarArgs");
+        } else {
+            removeElem(root, "jarArgs");
+            addEmptyElem(doc, root, "cmdLine");
+        }
         addEmptyElem(doc, root, "chdir");
         addEmptyElem(doc, root, "icon");
         addEmptyElem(doc, root, "stayAlive");
@@ -335,7 +348,11 @@ public class ConfigHandler {
         
         addEmptyElem(doc, jreElem, "maxVersion");
         addEmptyElem(doc, jreElem, "path");
-        addEmptyElem(doc, jreElem, "args");
+        // handle differencies between versions of configuration
+        if (version != null && version.startsWith("2")) {
+            addEmptyElem(doc, jreElem, "args");
+        }
+        
         elem = addEmptyElem(doc, jreElem, "initialHeapSize");
         if (elem.getFirstChild() == null) {
             elem.appendChild(doc.createTextNode("0"));
@@ -356,6 +373,13 @@ public class ConfigHandler {
         parent.appendChild(newElem);
     }
     
+    private static void removeElem (Element parent, String tagName) {
+        NodeList nodeList = parent.getElementsByTagName(tagName);
+        for (int i = nodeList.getLength() - 1; i >= 0; i--) {
+            parent.removeChild(nodeList.item(i));
+        }
+    }
+    
     private static Element addEmptyElem (Document doc, Element parent, String tagName) {
         Element result;
         NodeList nodeList = parent.getElementsByTagName(tagName);
@@ -374,6 +398,50 @@ public class ConfigHandler {
             return null;
         }
         return file.getAbsolutePath();
+    }
+
+    /** Return version of launch4j in string form or null if version 
+     * can't be obtained.
+     */
+    private static String getLaunch4jVersion () {
+        String jarPath = Launch4jFinder.getLaunch4jDir() + "/launch4j.jar";
+        JarFile jarFile = null;
+        try {
+            jarFile = new JarFile(jarPath, false);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        JarEntry propEntry = jarFile.getJarEntry("launch4j.properties");
+        
+        // versions before 3.x doesn't have properties file
+        if (propEntry == null) {
+            return "2.x";
+        }
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(jarFile.getInputStream(propEntry)));
+            try {
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    if (inputLine.startsWith("version=")) {
+                        int index = inputLine.indexOf('=');
+                        if (index > 0) {
+                            return inputLine.substring(index + 1);
+                        } else {
+                            return null;
+                        }
+                    }
+                }
+            } finally {
+                in.close();        
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+       
+        return null;
     }
     
 }
