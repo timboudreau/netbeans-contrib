@@ -54,7 +54,7 @@ public class ConnectScene extends GraphScene.StringGraph {
         LabelWidget label = new LabelWidget (this, node);
         label.setBorder (BorderFactory.createLineBorder (4));
         label.getActions ().addAction (createObjectHoverAction ());
-        label.getActions ().addAction (createSelectAction ());
+//        label.getActions ().addAction (createSelectAction ());
         label.getActions ().addAction (connectAction);
         mainLayer.addChild (label);
         return label;
@@ -162,7 +162,7 @@ public class ConnectScene extends GraphScene.StringGraph {
             Object object = findObject (replacementWidget);
             replacementNode = isNode (object) ? (String) object : null;
             if (replacementNode != null)
-                return ! originalNode.equals (replacementNode) ? ConnectorState.ACCEPT : ConnectorState.REJECT_AND_STOP;
+                return ConnectorState.ACCEPT;
             return object != null ? ConnectorState.REJECT_AND_STOP : ConnectorState.REJECT;
         }
 
@@ -173,7 +173,7 @@ public class ConnectScene extends GraphScene.StringGraph {
         public Widget resolveReplacementWidget (Scene scene, Point sceneLocation) {
             return null;
         }
-
+        
         public void reconnect (ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
             if (replacementWidget == null)
                 removeEdge (edge);
