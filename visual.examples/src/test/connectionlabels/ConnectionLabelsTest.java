@@ -19,7 +19,7 @@ import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
-import org.netbeans.api.visual.router.OrthogonalSearchRouter;
+import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.*;
 import test.SceneSupport;
 
@@ -58,7 +58,7 @@ public class ConnectionLabelsTest {
         ConnectionWidget edge = new ConnectionWidget (scene);
         edge.setSourceAnchor (AnchorFactory.createDirectionalAnchor (sourceNode, AnchorFactory.DirectionalAnchorKind.HORIZONTAL));
         edge.setTargetAnchor (AnchorFactory.createDirectionalAnchor (targetNode, AnchorFactory.DirectionalAnchorKind.HORIZONTAL));
-        edge.setRouter (new OrthogonalSearchRouter (new OrthogonalSearchRouter.WidgetsCollisionCollector (mainLayer)));
+        edge.setRouter (RouterFactory.createOrthogonalSearchRouter (mainLayer));
         connectionLayer.addChild (edge);
 
         LabelWidget label1 = new LabelWidget (scene, "Source Top Label");
