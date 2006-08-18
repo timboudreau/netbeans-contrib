@@ -12,10 +12,7 @@
  */
 package test.card;
 
-import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.action.PanAction;
-import org.netbeans.api.visual.action.SwitchCardAction;
-import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
@@ -52,7 +49,7 @@ public class CardContainerWidget extends Widget {
 
         container.setLayout (LayoutFactory.createCardLayout (container));
 
-        switchButton.getActions ().addAction (new SwitchCardAction (container));
+        switchButton.getActions ().addAction (ActionFactory.createSwitchCardAction (container));
     }
 
     public void addCard (Widget widget) {
@@ -63,14 +60,14 @@ public class CardContainerWidget extends Widget {
 
     public static void main (String[] args) {
         Scene scene  = new Scene();
-        scene.getActions ().addAction (new ZoomAction ());
-        scene.getActions ().addAction (new PanAction ());
+        scene.getActions ().addAction (ActionFactory.createZoomAction ());
+        scene.getActions ().addAction (ActionFactory.createPanAction ());
 
         LayerWidget layer = new LayerWidget (scene);
         scene.addChild (layer);
 
         CardContainerWidget container = new CardContainerWidget (scene);
-        container.getActions ().addAction (new MoveAction ());
+        container.getActions ().addAction (ActionFactory.createMoveAction ());
         container.setPreferredLocation (new Point (100, 100));
         layer.addChild (container);
 

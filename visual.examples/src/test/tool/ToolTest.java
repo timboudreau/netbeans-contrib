@@ -40,23 +40,23 @@ public class ToolTest extends Scene {
         label.setPreferredLocation (new Point (100, 100));
         layer.addChild (label);
 
-        WidgetAction popup = new MyPopupAction ();
+        WidgetAction popup = ActionFactory.createPopupMenuAction (new MyPopupProvider ());
 
         getActions ().addAction (popup);
 
         createActions (ACTION_SCENE).addAction (popup);
-        createActions (ACTION_SCENE).addAction (new ZoomAction ());
-        createActions (ACTION_SCENE).addAction (new PanAction ());
+        createActions (ACTION_SCENE).addAction (ActionFactory.createZoomAction ());
+        createActions (ACTION_SCENE).addAction (ActionFactory.createPanAction ());
 
         createActions (ACTION_MOVE).addAction (popup);
-        label.createActions (ACTION_MOVE).addAction (new MoveAction ());
+        label.createActions (ACTION_MOVE).addAction (ActionFactory.createMoveAction ());
     }
 
-    private final class MyPopupAction extends PopupMenuAction implements ActionListener {
+    private final class MyPopupProvider implements PopupMenuProvider, ActionListener {
 
         private JPopupMenu menu;
 
-        public MyPopupAction () {
+        public MyPopupProvider () {
             menu = new JPopupMenu ("Popup menu");
             JMenuItem item;
 

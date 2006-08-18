@@ -12,21 +12,17 @@
  */
 package test.connect;
 
-import org.netbeans.api.visual.action.ConnectAction;
-import org.netbeans.api.visual.action.ReconnectAction;
-import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.LabelWidget;
-import org.netbeans.api.visual.widget.LayerWidget;
-import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.*;
 import org.netbeans.api.visual.border.BorderFactory;
 import test.SceneSupport;
 
 import java.awt.event.MouseEvent;
+import java.awt.*;
 
 /**
  * @author David Kaspar
@@ -38,8 +34,8 @@ public class ConnectScene extends GraphScene.StringGraph {
     private LayerWidget interractionLayer = new LayerWidget (this);
 
     private WidgetAction createAction = new SceneCreateAction ();
-    private WidgetAction connectAction = new SceneConnectAction (interractionLayer);
-    private WidgetAction reconnectAction = new SceneReconnectAction ();
+    private WidgetAction connectAction = ActionFactory.createConnectAction (interractionLayer, new SceneConnectProvider ());
+    private WidgetAction reconnectAction = ActionFactory.createReconnectAction (new SceneReconnectProvider ());
 
     private long nodeCounter = 0;
     private long edgeCounter = 0;
@@ -100,22 +96,18 @@ public class ConnectScene extends GraphScene.StringGraph {
 
     }
 
-    private class SceneConnectAction extends ConnectAction {
+    private class SceneConnectProvider implements ConnectProvider {
 
         private String source = null;
         private String target = null;
 
-        public SceneConnectAction (Widget interractionLayer) {
-            super (interractionLayer);
-        }
-
-        protected boolean isSourceWidget (Widget sourceWidget) {
+        public boolean isSourceWidget (Widget sourceWidget) {
             Object object = findObject (sourceWidget);
             source = isNode (object) ? (String) object : null;
             return source != null;
         }
 
-        protected ConnectorState isTargetWidget (Widget sourceWidget, Widget targetWidget) {
+        public ConnectorState isTargetWidget (Widget sourceWidget, Widget targetWidget) {
             Object object = findObject (targetWidget);
             target = isNode (object) ? (String) object : null;
             if (target != null)
@@ -123,7 +115,15 @@ public class ConnectScene extends GraphScene.StringGraph {
             return object != null ? ConnectorState.REJECT_AND_STOP : ConnectorState.REJECT;
         }
 
-        protected void createConnection (Widget sourceWidget, Widget targetWidget) {
+        public boolean hasCustomTargetWidgetResolver (Scene scene) {
+            return false;
+        }
+
+        public Widget resolveTargetWidget (Scene scene, Point sceneLocation) {
+            return null;
+        }
+
+        public void createConnection (Widget sourceWidget, Widget targetWidget) {
             String edge = "edge" + edgeCounter ++;
             addEdge (edge);
             setEdgeSource (edge, source);
@@ -132,30 +132,33 @@ public class ConnectScene extends GraphScene.StringGraph {
 
     }
 
-    private class SceneReconnectAction extends ReconnectAction {
+    private class SceneReconnectProvider implements ReconnectProvider {
 
         String edge;
         String originalNode;
         String replacementNode;
 
-        public SceneReconnectAction () {
+        public void reconnectingStarted (ConnectionWidget connectionWidget, boolean reconnectingSource) {
         }
 
-        protected boolean isSourceReconnectable (ConnectionWidget connectionWidget) {
+        public void reconnectingFinished (ConnectionWidget connectionWidget, boolean reconnectingSource) {
+        }
+
+        public boolean isSourceReconnectable (ConnectionWidget connectionWidget) {
             Object object = findObject (connectionWidget);
             edge = isEdge (object) ? (String) object : null;
             originalNode = edge != null ? getEdgeSource (edge) : null;
             return originalNode != null;
         }
 
-        protected boolean isTargetReconnectable (ConnectionWidget connectionWidget) {
+        public boolean isTargetReconnectable (ConnectionWidget connectionWidget) {
             Object object = findObject (connectionWidget);
             edge = isEdge (object) ? (String) object : null;
             originalNode = edge != null ? getEdgeTarget (edge) : null;
             return originalNode != null;
         }
 
-        protected ConnectorState isReplacementWidget (ConnectionWidget connectionWidget, Widget replacementWidget, boolean recoonectingSource) {
+        public ConnectorState isReplacementWidget (ConnectionWidget connectionWidget, Widget replacementWidget, boolean recoonectingSource) {
             Object object = findObject (replacementWidget);
             replacementNode = isNode (object) ? (String) object : null;
             if (replacementNode != null)
@@ -163,7 +166,15 @@ public class ConnectScene extends GraphScene.StringGraph {
             return object != null ? ConnectorState.REJECT_AND_STOP : ConnectorState.REJECT;
         }
 
-        protected void setConnectionAnchor (ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
+        public boolean hasCustomReplacementWidgetResolver (Scene scene) {
+            return false;
+        }
+
+        public Widget resolveReplacementWidget (Scene scene, Point sceneLocation) {
+            return null;
+        }
+
+        public void reconnect (ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
             if (replacementWidget == null)
                 removeEdge (edge);
             else if (reconnectingSource)

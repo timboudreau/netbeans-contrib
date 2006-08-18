@@ -12,10 +12,7 @@
  */
 package test.animator;
 
-import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.action.PanAction;
-import org.netbeans.api.visual.action.WidgetAction;
-import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -35,13 +32,13 @@ public class AnimatorTest extends GraphScene.StringGraph {
 
     private LayerWidget layer;
 
-    private MoveAction moveAction = new MoveAction ();
+    private WidgetAction moveAction = ActionFactory.createMoveAction ();
 
     public AnimatorTest () {
         layer = new LayerWidget (this);
         addChild (layer);
-        getActions ().addAction (new ZoomAction ());
-        getActions ().addAction (new PanAction ());
+        getActions ().addAction (ActionFactory.createZoomAction ());
+        getActions ().addAction (ActionFactory.createPanAction ());
         getActions ().addAction (new MyAction ());
     }
 

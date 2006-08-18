@@ -12,9 +12,12 @@
  */
 package test.inplace;
 
-import org.netbeans.api.visual.action.*;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.TextFieldInplaceEditor;
+import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.layout.LayoutFactory;
+import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -22,9 +25,7 @@ import org.netbeans.api.visual.widget.general.IconNodeWidget;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 
 /**
  * @author David Kaspar
@@ -34,19 +35,17 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
     private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
 
     private LayerWidget mainLayer;
+
     private WidgetAction editorAction;
-    private boolean forceLayout;
-    private WidgetAction moveAction = new MoveAction ();
+    private WidgetAction moveAction = ActionFactory.createMoveAction ();
 
     public InplaceEditorTest () {
         addChild (mainLayer = new LayerWidget (this));
 
-        getActions ().addAction (new ZoomAction ());
-        getActions ().addAction (new PanAction ());
+        getActions ().addAction (ActionFactory.createZoomAction ());
+        getActions ().addAction (ActionFactory.createPanAction ());
 
-        editorAction = new MyInplaceEditorAction ();
-
-        forceLayout = true;
+        editorAction = ActionFactory.createInplaceEditorAction (new LabelTextFieldEditor ());
     }
 
     protected Widget attachNodeWidget (String node) {
@@ -73,30 +72,24 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
     protected void attachEdgeTargetAnchor (String edge, String oldTargetNode, String targetNode) {
     }
 
-    protected void notifyValidated () {
-        if (forceLayout) {
-            SwingUtilities.invokeLater (new Runnable() {
-                public void run () {
-                    mainLayer.reevaluateLayout (LayoutFactory.createHorizontalLayout (), false);
-                }
-            });
-            forceLayout = false;
-        }
-    }
+    private class LabelTextFieldEditor implements TextFieldInplaceEditor {
 
-    private class MyInplaceEditorAction extends InplaceEditorAction.TextFieldEditor {
+// NOTE - this will be supported by InplaceEditor itself
+//        public State keyPressed (Widget widget, WidgetKeyEvent event) {
+//            if (! isEditorVisible ()) {
+//                if (event.getKeyCode () == KeyEvent.VK_F2) {
+//                    Object object = findObject (widget);
+//                    if (object != null  &&  getSelectedObjects ().contains (object))
+//                        if (openEditor (widget))
+//                            return State.createLocked (widget, this);
+//                }
+//            }
+//
+//            return super.keyPressed (widget, event);
+//        }
 
-        public State keyPressed (Widget widget, WidgetKeyEvent event) {
-            if (! isEditorVisible ()) {
-                if (event.getKeyCode () == KeyEvent.VK_F2) {
-                    Object object = findObject (widget);
-                    if (object != null  &&  getSelectedObjects ().contains (object))
-                        if (openEditor (widget))
-                            return State.createLocked (widget, this);
-                }
-            }
-
-            return super.keyPressed (widget, event);
+        public boolean isEnabled (Widget widget) {
+            return true;
         }
 
         public String getText (Widget widget) {
@@ -111,12 +104,15 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
 
     public static void main (String[] args) {
         InplaceEditorTest scene = new InplaceEditorTest ();
+
         scene.addNode ("double");
         scene.addNode ("click");
         scene.addNode ("on");
         scene.addNode ("a label");
         scene.addNode ("to edit");
         scene.addNode ("it");
+
+        new SceneLayout.DevolveWidgetLayout (scene.mainLayer, LayoutFactory.createHorizontalLayout (), true).invokeLayout ();
 
         SceneSupport.show (scene);
     }

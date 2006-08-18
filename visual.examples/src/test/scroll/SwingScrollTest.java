@@ -12,8 +12,7 @@
  */
 package test.scroll;
 
-import org.netbeans.api.visual.action.ResizeAction;
-import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.*;
@@ -28,7 +27,7 @@ import java.awt.*;
 public class SwingScrollTest extends Scene {
 
     public SwingScrollTest () {
-        getActions ().addAction (new ZoomAction ());
+        getActions ().addAction (ActionFactory.createZoomAction ());
         LayerWidget layer = new LayerWidget (this);
         addChild (layer);
 
@@ -63,7 +62,7 @@ public class SwingScrollTest extends Scene {
 
         scroll.setView (view);
 
-        scroll.getActions ().addAction (new ResizeAction ());
+        scroll.getActions ().addAction (ActionFactory.createResizeAction ());
     }
 
     public static void main (String[] args) {

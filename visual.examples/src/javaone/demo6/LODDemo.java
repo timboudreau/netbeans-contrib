@@ -13,11 +13,10 @@
 
 package javaone.demo6;
 
+import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
-import org.netbeans.api.visual.action.PanAction;
-import org.netbeans.api.visual.action.ZoomAction;
 import test.SceneSupport;
 
 /**
@@ -27,8 +26,8 @@ public class LODDemo {
 
     public static void main (String[] args) {
         Scene scene = new Scene ();
-        scene.getActions().addAction(new ZoomAction (1.2, false));
-        scene.getActions().addAction(new PanAction ());
+        scene.getActions().addAction(ActionFactory.createZoomAction (1.2, false));
+        scene.getActions().addAction(ActionFactory.createPanAction ());
 
         scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 0));
         scene.addChild(new LabelWidget (scene, "Zoom inside the rectangle"));

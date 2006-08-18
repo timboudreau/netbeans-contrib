@@ -12,10 +12,7 @@
  */
 package test.alignwith;
 
-import org.netbeans.api.visual.action.AlignWithMoveAction;
-import org.netbeans.api.visual.action.InplaceEditorAction;
-import org.netbeans.api.visual.action.SelectAction;
-import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
@@ -43,10 +40,10 @@ public class AlignWithTest extends Scene {
         LayerWidget interractionLayer = new LayerWidget (this);
         addChild (interractionLayer);
 
-        moveAction = new AlignWithMoveAction (mainLayer, interractionLayer);
-        renameAction = new RenameAction ();
+        moveAction = ActionFactory.createAlignWithMoveAction (mainLayer, interractionLayer, null);
+        renameAction = ActionFactory.createInplaceEditorAction (new RenameEditor ());
 
-        getActions ().addAction (new CreateAction ());
+        getActions ().addAction (ActionFactory.createSelectAction (new CreateProvider ()));
 
         createLabel ("Click on the scene to create a new label", new Point (10, 10));
         createLabel ("Drag a label to move it and try to align it with other ones", new Point (10, 30));
@@ -67,15 +64,27 @@ public class AlignWithTest extends Scene {
         mainLayer.addChild (widget);
     }
 
-    private class CreateAction extends SelectAction {
+    private class CreateProvider implements SelectProvider {
 
-        public void doSelect (Widget widget, Point localLocation, boolean invertSelection) {
+        public boolean isAimingAllowed (Widget widget, Point localLocation, boolean invertSelection) {
+            return false;
+        }
+
+        public boolean isSelectionAllowed (Widget widget, Point localLocation, boolean invertSelection) {
+            return true;
+        }
+
+        public void select (Widget widget, Point localLocation, boolean invertSelection) {
             createLabel ("Double-click to rename me", localLocation);
         }
 
     }
 
-    private static class RenameAction extends InplaceEditorAction.TextFieldEditor {
+    private static class RenameEditor implements TextFieldInplaceEditor {
+
+        public boolean isEnabled (Widget widget) {
+            return true;
+        }
 
         public String getText (Widget widget) {
             return ((LabelWidget) widget).getLabel ();

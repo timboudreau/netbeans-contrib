@@ -33,17 +33,17 @@ public class ObjectTest extends GraphScene.StringGraph {
     private LayerWidget backgroundLayer;
     private LayerWidget mainLayer;
 
-    private MoveAction moveAction = new MoveAction ();
+    private WidgetAction moveAction = ActionFactory.createMoveAction ();
     private MyAction action = new MyAction ();
 
     public ObjectTest () {
         addChild (backgroundLayer = new LayerWidget (this));
         addChild (mainLayer = new LayerWidget (this));
 
-        getActions ().addAction (new ZoomAction ());
-        getActions ().addAction (new PanAction ());
+        getActions ().addAction (ActionFactory.createZoomAction ());
+        getActions ().addAction (ActionFactory.createPanAction ());
         getActions ().addAction (action);
-        getActions ().addAction (new RectangularSelectAction (this, backgroundLayer));
+        getActions ().addAction (ActionFactory.createRectangularSelectAction (this, backgroundLayer));
     }
 
     protected Widget attachNodeWidget (String node) {

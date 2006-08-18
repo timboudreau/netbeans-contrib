@@ -35,7 +35,7 @@ public class DevolveTest extends GraphScene.StringGraph {
     private LayerWidget mainLayer;
     private SceneLayout.DevolveWidgetLayout devolveLayout;
     private DevolveTest.MyAction action = new DevolveTest.MyAction ();
-    private WidgetAction moveAction = new MoveAction ();
+    private WidgetAction moveAction = ActionFactory.createMoveAction ();
 
     public DevolveTest () {
         LayerWidget backgroundLayer = new LayerWidget (this);
@@ -45,10 +45,10 @@ public class DevolveTest extends GraphScene.StringGraph {
 
         devolveLayout = new SceneLayout.DevolveWidgetLayout (mainLayer, LayoutFactory.createHorizontalLayout (), true);
 
-        getActions ().addAction (new ZoomAction ());
-        getActions ().addAction (new PanAction ());
+        getActions ().addAction (ActionFactory.createZoomAction ());
+        getActions ().addAction (ActionFactory.createPanAction ());
         getActions ().addAction (action);
-        getActions ().addAction (new RectangularSelectAction (this, backgroundLayer));
+        getActions ().addAction (ActionFactory.createRectangularSelectAction (this, backgroundLayer));
     }
 
     protected Widget attachNodeWidget (String node) {

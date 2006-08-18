@@ -13,17 +13,17 @@
 
 package javaone.demo4;
 
-import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
+import org.netbeans.api.visual.border.Border;
+import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.border.BorderFactory;
-import org.netbeans.api.visual.border.Border;
 
 /**
  * @author David Kaspar
@@ -35,7 +35,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
     private LayerWidget mainLayer;
     private LayerWidget connectionLayer;
 
-    private WidgetAction moveAction = new MoveAction ();
+    private WidgetAction moveAction = ActionFactory.createMoveAction ();
 
     public DemoGraphScene() {
         mainLayer = new LayerWidget (this);

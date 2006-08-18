@@ -12,7 +12,7 @@
  */
 package test.repaint;
 
-import org.netbeans.api.visual.action.MoveAction;
+import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.widget.*;
@@ -54,7 +54,7 @@ public class RepaintTest extends Scene {
 
         floatingImage = new ImageWidget (this, IMAGE);
         floatingImage.setPreferredLocation (new Point (200, 100));
-        floatingImage.getActions ().addAction (new MoveAction ());
+        floatingImage.getActions ().addAction (ActionFactory.createMoveAction ());
         mainLayer.addChild (floatingImage);
 
         LayerWidget connLayer = new LayerWidget (this);

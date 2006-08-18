@@ -39,19 +39,20 @@ public class ActionDemo {
         LabelWidget hello2 = createLabel (scene, "NetBeans", 300, 200);
         layer.addChild (hello2);
 
-        scene.getActions().addAction (new ZoomAction ());
-        scene.getActions().addAction (new PanAction ());
+        scene.getActions().addAction (ActionFactory.createZoomAction ());
+        scene.getActions().addAction (ActionFactory.createPanAction ());
 
-        hello1.getActions().addAction (new MoveAction ());
-        hello2.getActions().addAction (new MoveAction ());
+        hello1.getActions().addAction (ActionFactory.createMoveAction ());
+        hello2.getActions().addAction (ActionFactory.createMoveAction ());
 
-        MyHoverAction hoverAction = new MyHoverAction ();
+        WidgetAction hoverAction = ActionFactory.createHoverAction (new MyHoverProvider ());
         scene.getActions().addAction (hoverAction);
         hello1.getActions().addAction (hoverAction);
         hello2.getActions().addAction (hoverAction);
 
-        hello1.getActions().addAction(new MyPopupAction ());
-        hello2.getActions().addAction(new MyPopupAction ());
+        WidgetAction popupMenuAction = ActionFactory.createPopupMenuAction (new MyPopupProvider ());
+        hello1.getActions().addAction (popupMenuAction);
+        hello2.getActions().addAction (popupMenuAction);
 
         SceneSupport.show (scene.createView ());
     }
@@ -64,16 +65,16 @@ public class ActionDemo {
         return widget;
     }
 
-    private static class MyHoverAction extends MouseHoverAction.TwoStated {
+    private static class MyHoverProvider implements TwoStateHoverProvider {
 
-        protected void unsetHovering(Widget widget) {
+        public void unsetHovering(Widget widget) {
             if (widget != null) {
                 widget.setBackground (Color.WHITE);
                 widget.setForeground (Color.BLACK);
             }
         }
 
-        protected void setHovering(Widget widget) {
+        public void setHovering(Widget widget) {
             if (widget != null) {
                 widget.setBackground (new Color (52, 124, 150));
                 widget.setForeground (Color.WHITE);
@@ -82,7 +83,7 @@ public class ActionDemo {
 
     }
 
-    private static class MyPopupAction extends PopupMenuAction {
+    private static class MyPopupProvider implements PopupMenuProvider {
 
         public JPopupMenu getPopupMenu(Widget widget) {
             JPopupMenu menu = new JPopupMenu ();

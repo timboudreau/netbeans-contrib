@@ -12,7 +12,7 @@
  */
 package test.swingborder;
 
-import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
@@ -36,7 +36,7 @@ public class SwingBorderTest {
 
     public static void main (String[] args) {
         Scene scene = new Scene ();
-        scene.getActions ().addAction (new ZoomAction ());
+        scene.getActions ().addAction (ActionFactory.createZoomAction ());
         scene.setBackground (Color.LIGHT_GRAY);
         scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 4));
         addLabel (scene, new EtchedBorder (EtchedBorder.LOWERED));

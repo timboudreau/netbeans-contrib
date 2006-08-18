@@ -12,8 +12,9 @@
  */
 package test.general;
 
-import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.action.PopupMenuAction;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.PopupMenuProvider;
+import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.widget.ConnectionWidget;
@@ -30,8 +31,8 @@ public class StringGraphPinScene extends GraphPinScene.StringGraph {
     private LayerWidget mainLayer;
     private LayerWidget connectionLayer;
 
-    private MoveAction moveAction = new MoveAction ();
-    private PopupMenuAction popupMenuAction = new StringGraphPinScene.MyPopupMenuAction ();
+    private WidgetAction moveAction = ActionFactory.createMoveAction ();
+    private WidgetAction popupMenuAction = ActionFactory.createPopupMenuAction (new MyPopupMenuProvider ());
 
     public StringGraphPinScene () {
         mainLayer = new LayerWidget (this);
@@ -87,7 +88,7 @@ public class StringGraphPinScene extends GraphPinScene.StringGraph {
         return connectionLayer;
     }
 
-    private static class MyPopupMenuAction extends PopupMenuAction {
+    private static class MyPopupMenuProvider implements PopupMenuProvider {
 
         public JPopupMenu getPopupMenu (Widget widget) {
             JPopupMenu popupMenu = new JPopupMenu ();

@@ -12,10 +12,7 @@
  */
 package javaone.demo5;
 
-import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.action.PanAction;
-import org.netbeans.api.visual.action.ZoomAction;
-import org.netbeans.api.visual.action.MouseHoverAction;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.border.Border;
@@ -36,10 +33,10 @@ public class RadialGraphScene extends GraphScene.StringGraph {
     private LayerWidget edgesLayer = new LayerWidget (this);
 
     private Border lineBorder = BorderFactory.createLineBorder (1, Color.BLACK);
-    private MyHoverAction hoverAction = new MyHoverAction ();
-    private MoveAction moveAction = new MoveAction ();
-    private ZoomAction zoomAction = new ZoomAction ();
-    private PanAction panAction = new PanAction ();
+    private WidgetAction hoverAction = ActionFactory.createHoverAction (new MyHoverProvider ());
+    private WidgetAction moveAction = ActionFactory.createMoveAction ();
+    private WidgetAction zoomAction = ActionFactory.createZoomAction ();
+    private WidgetAction panAction = ActionFactory.createPanAction ();
 
     public RadialGraphScene () {
         addChild (nodesLayer);
@@ -80,14 +77,14 @@ public class RadialGraphScene extends GraphScene.StringGraph {
         widget.setTargetAnchor (AnchorFactory.createRectangularAnchor (findWidget (targetNode)));
     }
 
-    private static class MyHoverAction extends MouseHoverAction.TwoStated {
+    private static class MyHoverProvider implements TwoStateHoverProvider {
 
-        protected void unsetHovering (Widget widget) {
+        public void unsetHovering (Widget widget) {
             widget.setBackground (Color.WHITE);
             widget.setForeground (Color.BLACK);
         }
 
-        protected void setHovering (Widget widget) {
+        public void setHovering (Widget widget) {
             widget.setBackground (new Color (52, 124, 150));
             widget.setForeground (Color.WHITE);
         }

@@ -12,8 +12,8 @@
  */
 package test.component;
 
-import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.*;
@@ -27,11 +27,11 @@ import java.awt.*;
  */
 public class ComponentTest extends Scene {
 
-    private final MoveAction moveAction = new MoveAction ();
+    private final WidgetAction moveAction = ActionFactory.createMoveAction ();
     private int pos = 0;
 
     public ComponentTest () {
-        getActions ().addAction (new ZoomAction ());
+        getActions ().addAction (ActionFactory.createZoomAction ());
 
         LayerWidget layer = new LayerWidget (this);
         addChild (layer);

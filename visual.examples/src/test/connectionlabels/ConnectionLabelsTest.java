@@ -12,9 +12,7 @@
  */
 package test.connectionlabels;
 
-import org.netbeans.api.visual.action.MouseHoverAction;
-import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
@@ -36,7 +34,7 @@ public class ConnectionLabelsTest {
         scene.addChild (mainLayer);
         LayerWidget connectionLayer = new LayerWidget (scene);
         scene.addChild (connectionLayer);
-        WidgetAction action = new MyHoverAction (scene);
+        WidgetAction action = ActionFactory.createHoverAction (new MyHoverProvider (scene));
         scene.getActions ().addAction (action);
 
         LabelWidget sourceNode = new LabelWidget (scene, "Source");
@@ -44,7 +42,7 @@ public class ConnectionLabelsTest {
         sourceNode.setOpaque (true);
         mainLayer.addChild (sourceNode);
         sourceNode.getActions ().addAction (action);
-        sourceNode.getActions ().addAction (new MoveAction ());
+        sourceNode.getActions ().addAction (ActionFactory.createMoveAction ());
         sourceNode.setPreferredLocation (new Point (50, 100));
 
         LabelWidget targetNode = new LabelWidget (scene, "Target");
@@ -52,7 +50,7 @@ public class ConnectionLabelsTest {
         targetNode.setOpaque (true);
         mainLayer.addChild (targetNode);
         targetNode.getActions ().addAction (action);
-        targetNode.getActions ().addAction (new MoveAction ());
+        targetNode.getActions ().addAction (ActionFactory.createMoveAction ());
         targetNode.setPreferredLocation (new Point (350, 200));
 
         ConnectionWidget edge = new ConnectionWidget (scene);
@@ -69,7 +67,7 @@ public class ConnectionLabelsTest {
 
         LabelWidget label2 = new LabelWidget (scene, "Movable Edge Center Label");
         label2.setOpaque (true);
-        label2.getActions ().addAction (new MoveAction ());
+        label2.getActions ().addAction (ActionFactory.createMoveAction ());
         edge.addChild (label2);
         edge.setConstraint (label2, LayoutFactory.ConnectionWidgetLayoutAlignment.CENTER_RIGHT, 0.5f);
         label2.getActions ().addAction (action);
@@ -83,22 +81,22 @@ public class ConnectionLabelsTest {
         SceneSupport.show (scene);
     }
 
-    private static class MyHoverAction extends MouseHoverAction.TwoStated {
+    private static class MyHoverProvider implements TwoStateHoverProvider {
 
         private Scene scene;
 
-        public MyHoverAction (Scene scene) {
+        public MyHoverProvider (Scene scene) {
             this.scene = scene;
         }
 
-        protected void unsetHovering (Widget widget) {
+        public void unsetHovering (Widget widget) {
             if (widget != null) {
                 widget.setBackground (scene.getLookFeel ().getBackground (ObjectState.NORMAL));
                 widget.setForeground (scene.getLookFeel ().getForeground (ObjectState.NORMAL));
             }
         }
 
-        protected void setHovering (Widget widget) {
+        public void setHovering (Widget widget) {
             if (widget != null) {
                 ObjectState state = ObjectState.NORMAL.deriveSelected (true);
                 widget.setBackground (scene.getLookFeel ().getBackground (state));

@@ -12,12 +12,9 @@
  */
 package test.general;
 
-import org.netbeans.api.visual.action.MouseHoverAction;
-import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.action.PopupMenuAction;
+import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.graph.GraphScene;
-import test.general.UMLClassWidget;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -33,9 +30,9 @@ public class StringGraphScene extends GraphScene.StringGraph {
     private LayerWidget mainLayer;
     private LayerWidget connectionLayer;
 
-    private MoveAction moveAction = new MoveAction ();
-    private MouseHoverAction mouseHoverAction = new MyMouseHoverAction ();
-    private PopupMenuAction popupMenuAction = new MyPopupMenuAction ();
+    private WidgetAction moveAction = ActionFactory.createMoveAction ();
+    private WidgetAction mouseHoverAction = ActionFactory.createHoverAction (new MyHoverProvider ());
+    private WidgetAction popupMenuAction = ActionFactory.createPopupMenuAction (new MyPopupMenuProvider ());
 
     public StringGraphScene () {
         mainLayer = new LayerWidget (this);
@@ -86,19 +83,19 @@ public class StringGraphScene extends GraphScene.StringGraph {
         return connectionLayer;
     }
 
-    private static class MyMouseHoverAction extends MouseHoverAction.TwoStated {
+    private static class MyHoverProvider implements TwoStateHoverProvider {
 
-        protected void unsetHovering (Widget widget) {
+        public void unsetHovering (Widget widget) {
             widget.setBackground (Color.WHITE);
         }
 
-        protected void setHovering (Widget widget) {
+        public void setHovering (Widget widget) {
             widget.setBackground (Color.CYAN);
         }
 
     }
 
-    private static class MyPopupMenuAction extends PopupMenuAction {
+    private static class MyPopupMenuProvider implements PopupMenuProvider {
 
         public JPopupMenu getPopupMenu (Widget widget) {
             JPopupMenu popupMenu = new JPopupMenu ();

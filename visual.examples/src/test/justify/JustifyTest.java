@@ -12,12 +12,13 @@
  */
 package test.justify;
 
-import org.netbeans.api.visual.widget.Scene;
-import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.widget.LabelWidget;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.TextFieldInplaceEditor;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
-import org.netbeans.api.visual.action.InplaceEditorAction;
+import org.netbeans.api.visual.widget.LabelWidget;
+import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.api.visual.widget.Widget;
 import test.SceneSupport;
 
 import java.awt.*;
@@ -60,14 +61,17 @@ public class JustifyTest extends Scene {
     private LabelWidget createLabel (String text) {
         final LabelWidget label = new LabelWidget (this, text);
         label.setBorder (BorderFactory.createLineBorder (1, Color.RED));
-        label.getActions ().addAction (new InplaceEditorAction.TextFieldEditor () {
+        label.getActions ().addAction (ActionFactory.createInplaceEditorAction (new TextFieldInplaceEditor () {
+            public boolean isEnabled (Widget widget) {
+                return true;
+            }
             public String getText (Widget widget) {
                 return label.getLabel ();
             }
             public void setText (Widget widget, String text) {
                 label.setLabel (text);
             }
-        });
+        }));
         return label;
     }
 

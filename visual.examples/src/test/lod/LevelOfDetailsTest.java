@@ -12,9 +12,9 @@
  */
 package test.lod;
 
-import org.netbeans.api.visual.action.MouseHoverAction;
-import org.netbeans.api.visual.action.PanAction;
-import org.netbeans.api.visual.action.ZoomAction;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.TwoStateHoverProvider;
+import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
@@ -34,12 +34,12 @@ public class LevelOfDetailsTest {
         Scene scene = new Scene ();
         scene.setZoomFactor(0.2);
         scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 0));
-        scene.getActions().addAction(new ZoomAction (1.1));
-        scene.getActions().addAction(new PanAction ());
-        MouseHoverAction hover = new MouseHoverAction.TwoStated () {
-            protected void setHovering (Widget widget) { widget.setOpaque(true); widget.setBackground (Color.GREEN); }
-            protected void unsetHovering (Widget widget) { widget.setOpaque(false); widget.setBackground (Color.WHITE); }
-        };
+        scene.getActions().addAction(ActionFactory.createZoomAction (1.1, false));
+        scene.getActions().addAction(ActionFactory.createPanAction ());
+        WidgetAction hover = ActionFactory.createHoverAction (new TwoStateHoverProvider () {
+            public void setHovering (Widget widget) { widget.setOpaque(true); widget.setBackground (Color.GREEN); }
+            public void unsetHovering (Widget widget) { widget.setOpaque(false); widget.setBackground (Color.WHITE); }
+        });
         scene.getActions().addAction(hover);
 
         scene.addChild(createLabel (scene, "Use mouse-wheel for zooming, use middle button for panning.", 72));

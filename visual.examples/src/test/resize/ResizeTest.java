@@ -12,8 +12,8 @@
  */
 package test.resize;
 
-import org.netbeans.api.visual.action.MoveAction;
-import org.netbeans.api.visual.action.ResizeAction;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
@@ -29,8 +29,8 @@ import java.awt.*;
 public class ResizeTest extends Scene {
 
     private LayerWidget layer;
-    private ResizeAction resizeAction;
-    private MoveAction moveAction;
+    private WidgetAction resizeAction;
+    private WidgetAction moveAction;
 
     public ResizeTest () {
         setBackground (Color.LIGHT_GRAY);
@@ -38,8 +38,8 @@ public class ResizeTest extends Scene {
         layer = new LayerWidget (this);
         addChild (layer);
 
-        resizeAction = new ResizeAction ();
-        moveAction = new MoveAction ();
+        resizeAction = ActionFactory.createResizeAction ();
+        moveAction = ActionFactory.createMoveAction ();
 
         createLabel (100, 100).setBorder (BorderFactory.createResizeBorder (5));
         createLabel (200, 200).setBorder (BorderFactory.createResizeBorder (8, Color.BLACK, true));
