@@ -61,10 +61,10 @@ public class JustifyTest extends Scene {
         final LabelWidget label = new LabelWidget (this, text);
         label.setBorder (BorderFactory.createLineBorder (1, Color.RED));
         label.getActions ().addAction (new InplaceEditorAction.TextFieldEditor () {
-            protected String getText (Widget widget) {
+            public String getText (Widget widget) {
                 return label.getLabel ();
             }
-            protected void setText (Widget widget, String text) {
+            public void setText (Widget widget, String text) {
                 label.setLabel (text);
             }
         });

@@ -33,7 +33,7 @@ public class LevelOfDetailsTest {
     public static void main (String[] args) {
         Scene scene = new Scene ();
         scene.setZoomFactor(0.2);
-        scene.setLayout (LayoutFactory.createVerticalLayout ());
+        scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 0));
         scene.getActions().addAction(new ZoomAction (1.1));
         scene.getActions().addAction(new PanAction ());
         MouseHoverAction hover = new MouseHoverAction.TwoStated () {

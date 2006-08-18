@@ -77,11 +77,11 @@ public class AlignWithTest extends Scene {
 
     private static class RenameAction extends InplaceEditorAction.TextFieldEditor {
 
-        protected String getText (Widget widget) {
+        public String getText (Widget widget) {
             return ((LabelWidget) widget).getLabel ();
         }
 
-        protected void setText (Widget widget, String text) {
+        public void setText (Widget widget, String text) {
             ((LabelWidget) widget).setLabel (text);
         }
 

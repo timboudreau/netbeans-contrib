@@ -38,7 +38,7 @@ public class SwingBorderTest {
         Scene scene = new Scene ();
         scene.getActions ().addAction (new ZoomAction ());
         scene.setBackground (Color.LIGHT_GRAY);
-        scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 4));
+        scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 4));
         addLabel (scene, new EtchedBorder (EtchedBorder.LOWERED));
         addLabel (scene, new BevelBorder (BevelBorder.LOWERED));
         addLabel (scene, new TitledBorder ("Titled"));
