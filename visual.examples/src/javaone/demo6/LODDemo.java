@@ -13,11 +13,11 @@
 
 package javaone.demo6;
 
-import org.netbeans.api.visual.action.PanAction;
-import org.netbeans.api.visual.action.ZoomAction;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.api.visual.action.PanAction;
+import org.netbeans.api.visual.action.ZoomAction;
 import test.SceneSupport;
 
 /**
