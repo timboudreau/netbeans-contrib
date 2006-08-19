@@ -19,6 +19,7 @@
  */
 package ramos.localhistory;
 
+import javax.swing.JOptionPane;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -41,6 +42,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;   
+import java.util.Collection;
 
 
 /**
@@ -140,7 +142,13 @@ public final class LocalHistoryAction extends CookieAction
                    .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
       final LocalHistoryTopComponent win = LocalHistoryTopComponent.findInstance();
-      win.setFile(FileUtil.toFile(file));
+      Collection col = win.fillNodeList((FileUtil.toFile(file)));
+      if (col.size() == 0) {
+          WindowManager.getDefault().getMainWindow().setCursor(old);
+          JOptionPane.showMessageDialog(null,"No revisions in local history");
+          return;
+      }
+      win.setFile(FileUtil.toFile(file),col);
       win.open();
       win.requestActive();
       win.setDisplayName("Local History of " + file.getNameExt());
@@ -186,7 +194,7 @@ public final class LocalHistoryAction extends CookieAction
       public ContextAction(final Lookup context) {
          //System.out.println("init CA");
          //Node _classNode = context.getDefault().lookup(Node.class);
-         DataObject _classNode = context.lookup(DataObject.class);
+         DataObject _classNode = (DataObject) context.lookup(DataObject.class);
          //System.out.println("_classNode = "+_classNode);
          classNode = ((_classNode != null) && enable(_classNode)) ? _classNode
                                                                   : null;

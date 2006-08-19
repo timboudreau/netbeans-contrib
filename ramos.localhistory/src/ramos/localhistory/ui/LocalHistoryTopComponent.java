@@ -63,6 +63,7 @@ import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import java.util.Collection;
 
 public final class LocalHistoryTopComponent extends TopComponent
         implements ExplorerManager.Provider {
@@ -201,7 +202,97 @@ public final class LocalHistoryTopComponent extends TopComponent
    protected String preferredID() {
       return PREFERRED_ID;
    }
-   
+   public Collection fillNodeList(File file) {
+         FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
+      FileObject files[] = theDir.getChildren();
+      
+       String path = file.getAbsolutePath();
+      TreeSet<FilterNode> listFN = new TreeSet<FilterNode>(COMPARATOR);
+      FileObject arr$[] = files;
+      int len$ = arr$.length;
+      for(int i$ = 0; i$ < len$; i$++) {
+         final FileObject fo = arr$[i$];
+         if(fo.isFolder() || fo.getAttribute("path") == null || !fo.getAttribute("path").equals(path)) continue;
+         try {
+            listFN.add(new VersionNode(fo));
+         } catch(DataObjectNotFoundException ex) {
+            ex.printStackTrace();
+         }
+         
+      }
+      return listFN;
+    }
+   public void setFile(final File file, final Collection collection) {
+       try {
+         SaveCookie sc = (SaveCookie) DataObject.find(FileUtil.toFileObject(file)).
+                    getCookie(SaveCookie.class);
+         if (sc != null) sc.save();
+      } catch (IOException ex) {
+         ex.printStackTrace();
+      }
+      diffFiles = null;
+      updateRevertEnable();
+      diffLabel.setText(" 0 difference(s)  ");
+      currentFile = file;
+      String path = file.getAbsolutePath();
+      FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
+      FileObject files[] = theDir.getChildren();
+      
+      
+//      TreeSet<FilterNode> listFN = new TreeSet<FilterNode>(COMPARATOR);
+//      FileObject arr$[] = files;
+//      int len$ = arr$.length;
+//      for(int i$ = 0; i$ < len$; i$++) {
+//         final FileObject fo = arr$[i$];
+//         if(fo.isFolder() || fo.getAttribute("path") == null || !fo.getAttribute("path").equals(path)) continue;
+//         try {
+//            listFN.add(new VersionNode(fo));
+//         } catch(DataObjectNotFoundException ex) {
+//            ex.printStackTrace();
+//         }
+//         
+//      }
+//      if (listFN.size() == 0){ Toolkit.getDefaultToolkit().beep(); return;}
+      
+      Node array[] = (Node[])collection.toArray(new Node[collection.size()]);
+      Children children = new Children.Array();
+      children.add(array);
+      FilterNode filterRoot = null;
+      try {
+         filterRoot = new FilterNode(new MyFileVersionRoot(), children);
+      } catch (IntrospectionException ex) {
+         ex.printStackTrace();
+      }
+      manager.setRootContext(filterRoot);
+      String mimeType = FileUtil.toFileObject(currentFile).getMIMEType();
+      //String title = "Current Version";
+      StreamSource stream1 = StreamSource.createSource("old",
+              CURRENT_VERSION_TITLE,
+              mimeType,currentFile);
+      StreamSource stream2 = StreamSource.createSource("new",
+              CURRENT_VERSION_TITLE,
+              mimeType,currentFile);
+      DiffView diff = null;
+      try {
+         diff = Diff.getDefault().createDiff(stream1,stream2);
+         diffListener.setDiffView(diff);
+         
+      } catch (IOException ex) {
+         ex.printStackTrace();
+      }
+      Component diffComp = diff.getComponent();//NPE?
+      
+      if (oldDiff != null) diffContainer.remove(oldDiff);
+      diffContainer.add(diffComp,BorderLayout.CENTER);
+      oldDiff = diffComp;
+      //split.setRightComponent(diffComp);
+      
+      LocalHistoryTopComponent.this.revalidate();
+      split.setDividerLocation(140);
+      //      DiffProvider dp = Lookup.getDefault().lookup(DiffProvider.class);
+      //      Difference[] diffs = dp.computeDiff(null,null);
+      //      diffs[0].getFirstLineDiffs()[0].
+   }
    public void setFile(final File file) {
       try {
          SaveCookie sc = (SaveCookie) DataObject.find(FileUtil.toFileObject(file)).
@@ -278,8 +369,8 @@ public final class LocalHistoryTopComponent extends TopComponent
    }
    static class MyComparator implements Comparator<FilterNode> {
       public int compare(FilterNode fn1, FilterNode fn2) {
-         DataObject do1 = fn1.getLookup().lookup(DataObject.class);
-         DataObject do2 = fn2.getLookup().lookup(DataObject.class);
+         DataObject do1 = (DataObject) fn1.getLookup().lookup(DataObject.class);
+         DataObject do2 = (DataObject) fn2.getLookup().lookup(DataObject.class);
          FileObject fo1 = do1.getPrimaryFile();
          FileObject fo2 = do2.getPrimaryFile();
          return fo1.lastModified().compareTo(fo2.lastModified());
@@ -373,7 +464,7 @@ public final class LocalHistoryTopComponent extends TopComponent
             final FileObject currentFileObject = FileUtil.toFileObject(currentFile);
             final String mime = currentFileObject.getMIMEType();
             Node selectedNode1 = selNodes[0];
-            DataObject dataObject = selectedNode1.getLookup().lookup(DataObject.class);
+            DataObject dataObject = (DataObject) selectedNode1.getLookup().lookup(DataObject.class);
             final FileObject olderFileObject = dataObject.getPrimaryFile();
             File olderFile = FileUtil.toFile(olderFileObject);
             StreamSource stream1 = null;
@@ -385,7 +476,7 @@ public final class LocalHistoryTopComponent extends TopComponent
             StreamSource stream2 = null;
             if (selNodes.length == 2) {
                Node selectedNode2 = selNodes[1];
-               DataObject dataObject2 = selectedNode2.getLookup().lookup(DataObject.class);
+               DataObject dataObject2 = (DataObject) selectedNode2.getLookup().lookup(DataObject.class);
                FileObject olderFileObject2 = dataObject2.getPrimaryFile();
                File olderFile2 = FileUtil.toFile(olderFileObject2);
                try {
