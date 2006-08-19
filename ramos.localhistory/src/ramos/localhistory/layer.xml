@@ -26,13 +26,17 @@
         </folder>
        
     </folder>
+     <!--
     <folder name="Menu">
         <folder name="Window">
+         
             <file name="DeletedFilesAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/ramos-localhistory-ui-DeletedFilesAction.instance"/>
             </file>
+           
         </folder>
     </folder>
+     -->
     <folder name="Windows2">
         <folder name="Components">
             <file name="DeletedFilesTopComponent.settings" url="DeletedFilesTopComponentSettings.xml"/>
