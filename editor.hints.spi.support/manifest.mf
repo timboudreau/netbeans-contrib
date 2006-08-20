@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.editor.hints.spi.support
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Install: org/netbeans/modules/editor/hints/support/Installer.class
+OpenIDE-Module-Layer: org/netbeans/modules/editor/hints/support/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/editor/hints/support/Bundle.properties
+
