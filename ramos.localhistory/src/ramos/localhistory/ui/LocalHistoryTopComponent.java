@@ -27,6 +27,7 @@ import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -126,6 +127,8 @@ public final class LocalHistoryTopComponent extends TopComponent
       next.setActionCommand("Next");
       prev.addActionListener(diffListener);
       next.addActionListener(diffListener);
+//      next.setBorder(null);
+//      prev.setBorder(null);
       diffContainer.setBorder(DIFF_BORDER);
       diffContainer.add(dummyRightComponent,BorderLayout.CENTER);
       diffContainer.add(toolPanel,BorderLayout.NORTH);
@@ -416,8 +419,17 @@ public final class LocalHistoryTopComponent extends TopComponent
    private JLabel diffLabel = new JLabel(" 0 difference(s)");
    //private JPanel toolPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
    private Box toolPanel = Box.createHorizontalBox();
-   private JButton prev = new JButton("Prev");
-   private JButton next = new JButton("Next");
+   private JButton prev = new JButton(new ImageIcon(
+       Utilities.loadImage("ramos/localhistory/resources/diff-prev.png")));
+   
+   
+      
+   private JButton next = new JButton(new ImageIcon(
+       Utilities.loadImage("ramos/localhistory/resources/diff-next.png")));
+  
+   
+
+ 
    private Component oldDiff = null;
    private DiffListener diffListener = new DiffListener();
    private static final String ANNOTATION = "Annotation";
@@ -638,6 +650,7 @@ public final class LocalHistoryTopComponent extends TopComponent
       
       public Object getValue(String key) {
          if (key.equals(AbstractAction.NAME)) return "Revert";
+         //else if (key.equals(AbstractAction.SMALL_ICON)) return new ImageIcon("ramos/localhistory/resources/clock.png");
          else return super.getValue(key);
       }
       
