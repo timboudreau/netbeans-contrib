@@ -45,7 +45,7 @@ import org.netbeans.modules.editorhints.*;
 import org.netbeans.spi.editor.errorstripe.UpToDateStatus;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.HintsController;
-import org.netbeans.spi.editor.hits.support.ErrorParserSupport;
+import org.netbeans.spi.editor.hints.support.ErrorParserSupport;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;

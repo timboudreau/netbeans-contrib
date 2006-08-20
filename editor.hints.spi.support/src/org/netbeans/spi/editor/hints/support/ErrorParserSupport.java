@@ -16,32 +16,22 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-package org.netbeans.modules.editor.hints.support;
+package org.netbeans.spi.editor.hints.support;
 
-import org.netbeans.spi.editor.hints.support.ErrorParserSupport;
-import org.netbeans.spi.editor.mimelookup.Class2LayerFolder;
-import org.netbeans.spi.editor.mimelookup.InstanceProvider;
+import java.util.List;
+import javax.swing.text.Document;
+import org.netbeans.spi.editor.hints.ErrorDescription;
 
 /**
  *
- * @author Pavel Flaska
+ * @author Jan Lahoda
  */
-public class HintsProviderClass2LayerFolder implements Class2LayerFolder {
+public abstract class ErrorParserSupport {
 
-    /** Creates a new instance of HintsProviderClass2LayerFolder */
-    public HintsProviderClass2LayerFolder() {
+    /** Creates a new instance of ErrorParserSupport */
+    public ErrorParserSupport() {
     }
 
-    public Class getClazz() {
-        return ErrorParserSupport.class;
-    }
+    public abstract List<ErrorDescription> parseForErrors(Document doc);
 
-    public String getLayerFolderName() {
-        return "Hints"; // NOI18N
-    }
-
-    public InstanceProvider getInstanceProvider() {
-        return null;
-    }
-    
 }
