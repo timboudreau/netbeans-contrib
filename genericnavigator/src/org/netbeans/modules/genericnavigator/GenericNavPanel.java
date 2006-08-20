@@ -225,6 +225,9 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         if (ob != null) {
             try {
                 CharSequence sq = getFileData(ob);
+                if (sq == null || sq.length() < 5) {
+                    return;
+                }
                 PatternItem item = getPatternItem();
                 Pattern pattern = getPattern();
                 if (pattern != null) {
