@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
-import org.openide.TopManager;
+import org.openide.DialogDisplayer;
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
 import org.netbeans.modules.jndi.utils.SimpleListModel;
@@ -125,7 +125,7 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
                                                   if (event2.getSource() == DialogDescriptor.OK_OPTION) {
                                                       if ((panel.getName().length()==0) ||
                                                               (panel.getValue().length() == 0)) {
-                                                          TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                                                          DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
                                                           return;
                                                       }
                                                       String pr = panel.getName() + "=" + panel.getValue();
@@ -139,7 +139,7 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
                                               }
                                           }
                                                               );
-            dlg = TopManager.getDefault().createDialog(descriptor);
+            dlg = DialogDisplayer.getDefault().createDialog(descriptor);
             dlg.setVisible(true);
         } else if (event.getActionCommand().equals("DEL")) {
             int index = AbstractNewPanel.this.list.getSelectedIndex();
@@ -169,7 +169,7 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
                                                   if (event2.getSource() == DialogDescriptor.OK_OPTION) {
                                                       if ((panel.getName().length() == 0) ||
                                                               (panel.getValue().length() == 0)) {
-                                                          TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                                                          DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
                                                           return;
                                                       }
                                                       properties.removeElementAt(list.getSelectedIndex());
@@ -186,7 +186,7 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
                                               }
                                           }
                                                               );
-            dlg = TopManager.getDefault().createDialog(descriptor);
+            dlg = DialogDisplayer.getDefault().createDialog(descriptor);
             dlg.setVisible(true);
         }
     }

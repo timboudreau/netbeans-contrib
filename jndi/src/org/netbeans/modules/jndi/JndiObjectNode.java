@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.awt.datatransfer.*;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
-import org.openide.TopManager;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
@@ -41,6 +40,7 @@ import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.Sheet;
+import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExClipboard;
 import org.netbeans.modules.jndi.utils.JndiPropertyMutator;
@@ -182,7 +182,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
     /** Inserts generated text into the clipboard */
     public final void lookupCopy() {
         try {
-            ExClipboard clipboard = TopManager.getDefault().getClipboard();
+            ExClipboard clipboard = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
             StringSelection code = new StringSelection(createTemplate());
             clipboard.setContents(code,code);
             JndiRootNode.showLocalizedStatus("STS_CopyLookupCode");

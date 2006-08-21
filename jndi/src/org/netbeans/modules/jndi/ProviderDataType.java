@@ -19,14 +19,10 @@
 
 package org.netbeans.modules.jndi;
 
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.Vector;
 import java.awt.Dialog;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import javax.naming.Context;
 import org.openide.util.datatransfer.*;
 import org.openide.*;
 import org.openide.nodes.*;
@@ -80,14 +76,14 @@ public class ProviderDataType extends NewType {
                                                         String credentials = panel.getCredentials();
                                                         Vector rest = panel.getAditionalProperties();
                                                         if (provider==null || provider.equals("")){
-                                                            TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Template_Item"), NotifyDescriptor.Message.ERROR_MESSAGE));
+                                                            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Template_Item"), NotifyDescriptor.Message.ERROR_MESSAGE));
                                                             return;
                                                         }
                                                         if (ProviderDataType.this.settings.getProviders(false).get(provider)!=null){
-                                                            TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Template_Provider_Exists"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                                                            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Template_Provider_Exists"),NotifyDescriptor.Message.ERROR_MESSAGE));
                                                             return;
                                                         }
-                                                        FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+                                                        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
                                                         FileObject fo = fs.getRoot().getFileObject("JNDI");
                                                         ProviderProperties p = new ProviderProperties();
                                                         p.setFactory(provider);
@@ -110,7 +106,7 @@ public class ProviderDataType extends NewType {
                                                             ProviderDataType.this.node.getChildren ().add ( new Node[] {new ProviderNode (provider)});
                                                         }catch(java.io.IOException ioe){
                                                             ioe.printStackTrace();
-                                                            TopManager.getDefault().notify( new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Template_IOError"), NotifyDescriptor.Message.ERROR_MESSAGE));
+                                                            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Template_IOError"), NotifyDescriptor.Message.ERROR_MESSAGE));
                                                             return;
                                                         }
                                                         finally{
@@ -124,7 +120,7 @@ public class ProviderDataType extends NewType {
                                                     }
                                                 }
                                             });
-        dlg = TopManager.getDefault().createDialog(descriptor);
+        dlg = DialogDisplayer.getDefault().createDialog(descriptor);
         dlg.setVisible(true);
     }
 

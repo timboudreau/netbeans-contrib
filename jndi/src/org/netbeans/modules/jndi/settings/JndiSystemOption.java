@@ -19,7 +19,8 @@
 
 package org.netbeans.modules.jndi.settings;
 
-import org.openide.TopManager;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.options.SystemOption;
 import org.openide.nodes.Node;
@@ -60,6 +61,7 @@ public class JndiSystemOption extends SystemOption implements PropertyChangeList
     /** Creates new JndiSystemOption */
     public JndiSystemOption() {
         this.timeOut=DEFAULT_TIMEOUT;
+        redProviders = new ArrayList();
     }
 
     /** Returns the value of timeout for connect operation
@@ -132,7 +134,7 @@ public class JndiSystemOption extends SystemOption implements PropertyChangeList
     public void destroyProvider (String key) throws java.io.IOException {
         FileLock lock = null;
         try{
-            FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+            FileSystem fs = Repository.getDefault().getDefaultFileSystem();
             FileObject fo = fs.getRoot().getFileObject("JNDI");
             String filename = key.replace('.','_');
             fo = fo.getFileObject(filename,"impl");
@@ -159,11 +161,11 @@ public class JndiSystemOption extends SystemOption implements PropertyChangeList
             this.providers = new HashMap ();
         else
             this.providers.clear();
-        Repository repo = TopManager.getDefault().getRepository();
+        Repository repo = Repository.getDefault();
         FileSystem fs = repo.getDefaultFileSystem();
         FileObject fo = fs.getRoot().getFileObject("JNDI");
         if (fo == null) {
-            TopManager.getDefault().getErrorManager().log(NbBundle.getBundle(JndiProvidersNode.class).getString ("ERR_CanNotOpenJNDIFolder"));
+            ErrorManager.getDefault().log(NbBundle.getBundle(JndiProvidersNode.class).getString ("ERR_CanNotOpenJNDIFolder"));
             return;
 	}
         java.util.Enumeration files = fo.getData(false);
@@ -179,7 +181,7 @@ public class JndiSystemOption extends SystemOption implements PropertyChangeList
                     in.close();
                 }
             }catch(java.io.IOException ioe){
-		TopManager.getDefault().getErrorManager().log(NbBundle.getBundle(JndiProvidersNode.class).getString ("ERR_ErrorReadProvider"+fo.getName()));
+		ErrorManager.getDefault().log(NbBundle.getBundle(JndiProvidersNode.class).getString ("ERR_ErrorReadProvider"+fo.getName()));
             }
         }
     }
@@ -187,7 +189,7 @@ public class JndiSystemOption extends SystemOption implements PropertyChangeList
     public void propertyChange(java.beans.PropertyChangeEvent event) {
         ProviderProperties properties = (ProviderProperties) event.getSource ();
         String filename = properties.getFactory().replace('.','_');
-        FileObject fo = TopManager.getDefault().getRepository().getDefaultFileSystem().getRoot().getFileObject("JNDI");
+        FileObject fo = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("JNDI");
         if (fo == null){
             notifyFileError();
             return;
@@ -217,7 +219,7 @@ public class JndiSystemOption extends SystemOption implements PropertyChangeList
     /** Used for notification of error that raises during file operation
      */
     private void notifyFileError(){
-        TopManager.getDefault().notify ( new NotifyDescriptor.Message (JndiRootNode.getLocalizedString("EXC_Template_IOError"), NotifyDescriptor.Message.ERROR_MESSAGE));
+        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message (JndiRootNode.getLocalizedString("EXC_Template_IOError"), NotifyDescriptor.Message.ERROR_MESSAGE));
     }
     
 }

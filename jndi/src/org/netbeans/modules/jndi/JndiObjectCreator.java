@@ -123,13 +123,13 @@ final class JndiObjectCreator {
     
     
     public static String stringifyCompositeName (Name name) {
-	java.util.Enumeration enum = name.getAll ();
+	java.util.Enumeration enu = name.getAll ();
 	String strName = null;
-	while (enum.hasMoreElements()) {
+	while (enu.hasMoreElements()) {
             if (strName == null)
-                strName = enum.nextElement().toString();
+                strName = enu.nextElement().toString();
             else
-                strName = strName+"/"+enum.nextElement().toString(); // No I18N    
+                strName = strName+"/"+enu.nextElement().toString(); // No I18N    
         }
         if (strName == null)
             strName = "";	// No I18N

@@ -34,12 +34,13 @@ import java.awt.event.ActionEvent;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
+import org.openide.DialogDisplayer;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.actions.NewAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
+import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node.Cookie;
@@ -159,8 +160,8 @@ public final class JndiRootNode extends AbstractNode{
     public org.openide.util.actions.SystemAction[] createActions() {
         return new SystemAction[] {
                    SystemAction.get(NewAction.class),
-                   null,
-                   SystemAction.get (PropertiesAction.class)
+//                   null,
+//                   SystemAction.get (PropertiesAction.class)
                };
     }
 
@@ -352,7 +353,7 @@ public final class JndiRootNode extends AbstractNode{
         final NotifyDescriptor nd = new NotifyDescriptor.Exception(t, msg);
         Runnable run = new Runnable() {
                            public void run() {
-                               TopManager.getDefault().notify(nd);
+                               DialogDisplayer.getDefault().notify(nd);
                            }
                        };
         java.awt.EventQueue.invokeLater(run);
@@ -373,7 +374,7 @@ public final class JndiRootNode extends AbstractNode{
      *  @param String message
      */
     public static void showStatus (String message) {
-        TopManager.getDefault().setStatusText(message);
+        StatusDisplayer.getDefault().setStatusText(message);
     }
 
     /** shows an localized status

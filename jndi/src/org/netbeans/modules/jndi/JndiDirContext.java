@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import javax.naming.*;
 import javax.naming.directory.*;
 import javax.naming.spi.InitialContextFactory;
+import org.openide.ErrorManager;
 import org.openide.execution.NbClassLoader;
 
 /** This class extends InitialDirContext with methods for timeout handling
@@ -51,6 +52,7 @@ final class JndiDirContext implements DirContext {
 				this.delegate = factory.getInitialContext (env);
 			}			
 		} catch (Exception exception) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, exception);
 		}
 		if (this.delegate == null) {
 			throw new NoInitialContextException ();

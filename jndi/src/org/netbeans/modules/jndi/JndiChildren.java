@@ -28,6 +28,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NameClassPair;
 import javax.naming.Context;
 import javax.naming.Binding;
+import org.openide.ErrorManager;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.netbeans.modules.jndi.utils.APCTarget;
@@ -239,7 +240,7 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
                 this.waitNode = null;
             }
         }catch (Exception exception) {
-            // Ignore it
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, exception);
         }
     }
     

@@ -27,7 +27,7 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.naming.Context;
-import org.openide.TopManager;
+import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 
 /**
@@ -328,7 +328,7 @@ public class ProviderProperties extends Object {
             if ( (i == count -1) && (token.length() < 3)) break;
             StringTokenizer vktk = new StringTokenizer (token,"=");
             if (vktk.countTokens() != 2){
-                TopManager.getDefault().notify ( new NotifyDescriptor.Message (JndiRootNode.getLocalizedString("EXC_ParseError")+" "+token+" "+JndiRootNode.getLocalizedString("EXC_ParseError2"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message (JndiRootNode.getLocalizedString("EXC_ParseError")+" "+token+" "+JndiRootNode.getLocalizedString("EXC_ParseError2"),NotifyDescriptor.Message.ERROR_MESSAGE));
                 continue;
             }
             String key = vktk.nextToken().trim();

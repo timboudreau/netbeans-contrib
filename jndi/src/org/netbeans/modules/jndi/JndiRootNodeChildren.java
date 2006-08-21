@@ -26,11 +26,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import javax.naming.NamingException;
 import javax.naming.Context;
-import org.openide.TopManager;
 import org.openide.nodes.*;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
-import org.netbeans.modules.projects.CurrentProjectNode;
+//FIXME import org.netbeans.modules.projects.CurrentProjectNode;
 import org.openide.util.Lookup;
 
 /**
@@ -52,14 +51,14 @@ public class JndiRootNodeChildren extends Children.Keys implements PropertyChang
     /** Called by IDE when the children are needed
      */
     public void addNotify () {
-        CurrentProjectNode.getDefault().addPropertyChangeListener(this);
+        //FIXME CurrentProjectNode.getDefault().addPropertyChangeListener(this);
         this.update ();
     }
     
     /** Called by IDE when the children are disposing
      */
     public void removeNotify () {
-        CurrentProjectNode.getDefault().removePropertyChangeListener(this);
+        //FIXME CurrentProjectNode.getDefault().removePropertyChangeListener(this);
         this.setKeys (new Object[0]);
     }
     
@@ -131,11 +130,11 @@ public class JndiRootNodeChildren extends Children.Keys implements PropertyChang
      *  @param PropertyChangeEvent event
      */
     public void propertyChange (PropertyChangeEvent event) {
-        if (CurrentProjectNode.PROP_PROJECT_AFTER_OPEN.equals (event.getPropertyName())) {
+        //FIXME if (CurrentProjectNode.PROP_PROJECT_AFTER_OPEN.equals (event.getPropertyName())) {
             // Project has changed
             this.settings = null;
             this.update ();
-        }
+        //FIXME }
     }
 
     /** Create nodes for a given key.

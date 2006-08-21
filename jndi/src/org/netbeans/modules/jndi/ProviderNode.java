@@ -19,19 +19,20 @@
 
 package org.netbeans.modules.jndi;
 
+import java.security.AllPermission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
 import java.util.Vector;
 import java.io.IOException;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.naming.Context;
-import org.openide.TopManager;
+import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.execution.NbClassLoader;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.PropertiesAction;
-import org.openide.actions.DeleteAction;
-import org.openide.actions.ToolsAction;
 import org.openide.actions.DeleteAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -39,6 +40,7 @@ import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.Sheet;
 import org.openide.util.HelpCtx;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
+import org.openide.nodes.Node.Property;
 
 
 /** This class represents a provider (factory)
@@ -70,11 +72,22 @@ public class ProviderNode extends AbstractNode implements Cookie{
         else label = name.substring (index+1);
         this.setName (label);
         try{
-            Class.forName(name, true, TopManager.getDefault().currentClassLoader());
+            NbClassLoader nbcl = new NbClassLoader();
+            nbcl.setDefaultPermissions(getAllPermissions());
+            Class.forName(name, true, nbcl);
             this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DRIVER));
         }catch (ClassNotFoundException cnf){
             this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DISABLED_DRIVER));
         }
+    }
+    
+    private static PermissionCollection allPerimssions;
+    static synchronized PermissionCollection getAllPermissions() {
+        if (allPerimssions == null) {
+            allPerimssions = new Permissions();
+            allPerimssions.add(new AllPermission());
+        }
+        return allPerimssions;
     }
 
 
@@ -192,11 +205,11 @@ public class ProviderNode extends AbstractNode implements Cookie{
             Class.forName(this.name, true, new org.openide.execution.NbClassLoader());
             this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DRIVER));
             this.fireIconChange ();
-            TopManager.getDefault().notify( new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));
         }catch(ClassNotFoundException cnfe){
             this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DISABLED_DRIVER));
             this.fireIconChange ();
-            TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_NOT_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_NOT_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));
         }
     }
 

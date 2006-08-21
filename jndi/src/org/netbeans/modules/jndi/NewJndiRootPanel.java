@@ -47,7 +47,6 @@ import javax.swing.JList;
 import javax.naming.Context;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
-import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
 

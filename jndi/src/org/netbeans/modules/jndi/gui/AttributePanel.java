@@ -32,12 +32,12 @@ import javax.naming.CompositeName;
 import javax.naming.NamingException;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
-import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import org.netbeans.modules.jndi.JndiRootNode;
 import org.netbeans.modules.jndi.JndiNode;
 import org.netbeans.modules.jndi.utils.SimpleListModel;
 import org.netbeans.modules.jndi.utils.ExtAttribute;
+import org.openide.DialogDisplayer;
 /**
  * This class represents the Customizer for properties of jndi objects
  * @author  tzezula
@@ -173,9 +173,9 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
     private void initData(){
         try{
             Attributes attrs = this.ctx.getAttributes(this.offset);
-            java.util.Enumeration enum = attrs.getAll();
-            while (enum.hasMoreElements()) {
-                this.model.addElement(enum.nextElement());
+            java.util.Enumeration enu = attrs.getAll();
+            while (enu.hasMoreElements()) {
+                this.model.addElement(enu.nextElement());
             }
         }catch(NamingException ne){}
     }
@@ -203,7 +203,7 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
             ExtAttribute attr = new ExtAttribute();
             p.setModel(attr);
             DialogDescriptor dd = new DialogDescriptor(p,JndiRootNode.getLocalizedString("TITLE_CreateAttribute"));
-            dlg = TopManager.getDefault().createDialog(dd);
+            dlg = DialogDisplayer.getDefault().createDialog(dd);
             dlg.setVisible(true);
             if (dd.getValue() == DialogDescriptor.OK_OPTION) {
                 try{
@@ -245,7 +245,7 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
 		}
                 p.setModel(attr);
                 DialogDescriptor dd = new DialogDescriptor(p,JndiRootNode.getLocalizedString("TITLE_ModifyAttribute"));
-                dlg = TopManager.getDefault().createDialog(dd);
+                dlg = DialogDisplayer.getDefault().createDialog(dd);
                 dlg.setVisible(true);
                 if (dd.getValue() == DialogDescriptor.OK_OPTION) {
                     try{

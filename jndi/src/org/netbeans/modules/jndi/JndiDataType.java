@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.naming.*;
 import javax.naming.directory.*;
+import org.openide.awt.StatusDisplayer;
 
 import org.openide.util.datatransfer.*;
 import org.openide.*;
@@ -202,6 +203,7 @@ final class JndiDataType extends NewType {
                                                 }
                                                 catch (Exception generalExc){
                                                     // Thrown by some providers when bad url is given
+                                                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, generalExc);
                                                     synchronized (this) {
                                                         this.status = new ConnectOperationStatus (OTHER_EXCEPTION, generalExc);
                                                     }
@@ -221,7 +223,7 @@ final class JndiDataType extends NewType {
                                          try {
                                             okButton.setEnabled (false);  // Disable buttons for this transient time
                                             cancelButton.setEnabled (false);
-                                            org.openide.TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TITLE_WaitOnConnect"));
+                                            StatusDisplayer.getDefault().setStatusText(JndiRootNode.getLocalizedString("TITLE_WaitOnConnect"));
                                             Connector connector = new Connector();
                                             Thread t = new Thread(connector);
                                             t.start();
@@ -245,21 +247,21 @@ final class JndiDataType extends NewType {
                                                 statusCode = status.getOperationStatus();
                                             switch (statusCode) {
                                                 case SUCCESSFULL:
-                                                    org.openide.TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_Connected"));
+                                                    StatusDisplayer.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_Connected"));
                                                     dlg.setVisible(false);
                                                     dlg.dispose();
                                                     break;
                                                 case CLASS_NOT_FOUND_EXCEPTION:
-                                                    TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                    StatusDisplayer.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
                                                     NotFoundPanel errdescriptor = new NotFoundPanel(panel.getFactory());
-                                                    TopManager.getDefault().notify(new NotifyDescriptor.Message(errdescriptor,NotifyDescriptor.ERROR_MESSAGE));
+                                                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(errdescriptor,NotifyDescriptor.ERROR_MESSAGE));
                                                     break;
                                                 case JNDI_EXCEPTION:
-                                                    TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
-                                                    TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
+                                                    StatusDisplayer.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
                                                     break;
                                                 case TIMEOUT_TO_SHORT:
-                                                    TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_TimeoutToShort"), NotifyDescriptor.Message.ERROR_MESSAGE));
+                                                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_TimeoutToShort"), NotifyDescriptor.Message.ERROR_MESSAGE));
                                                     break;
                                                 case INTERRUPTED_EXCEPTION:
                                                 case NAMING_INTERRUPTED_EXCEPTION:
@@ -269,15 +271,15 @@ final class JndiDataType extends NewType {
                                                         msg = e.getClass().getName();
                                                     else
                                                         msg = e.getClass().getName() + ": " + e.getMessage();
-                                                    TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
-                                                    TopManager.getDefault().notify(new NotifyDescriptor.Exception(e,new TimeOutPanel(msg,JndiRootNode.getLocalizedString("NOTE_TimeOut"))));
+                                                    StatusDisplayer.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Exception(e,new TimeOutPanel(msg,JndiRootNode.getLocalizedString("NOTE_TimeOut"))));
                                                     break;
                                                 case NAMING_EXCEPTION:
-                                                    TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                    StatusDisplayer.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
                                                     JndiRootNode.notifyForeignException(status.getException());
                                                     break;
                                                 case OTHER_EXCEPTION:
-                                                    TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                    StatusDisplayer.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
                                                     JndiRootNode.notifyForeignException(status.getException());
                                                     break;
                                             }
@@ -294,7 +296,7 @@ final class JndiDataType extends NewType {
                               dlg.dispose();
                           }
                       }});
-            dlg = TopManager.getDefault().createDialog(descriptor);
+            dlg = DialogDisplayer.getDefault().createDialog(descriptor);
             dlg.setVisible(true);
         } else if (node instanceof JndiNode) {
 
@@ -325,7 +327,7 @@ final class JndiDataType extends NewType {
                                                   }
                                               }
                                              );
-            dlg = TopManager.getDefault().createDialog(descriptor);
+            dlg = DialogDisplayer.getDefault().createDialog(descriptor);
             dlg.setVisible(true);
         }
 

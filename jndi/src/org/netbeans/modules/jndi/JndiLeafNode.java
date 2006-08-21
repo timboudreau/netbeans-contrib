@@ -28,7 +28,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.openide.TopManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
@@ -126,9 +125,9 @@ public class JndiLeafNode extends JndiObjectNode {
         if (this.getContext() instanceof javax.naming.directory.DirContext){
             try{
                 Attributes attrs = ((DirContext)this.getContext()).getAttributes(this.getKey().name.getName());
-                java.util.Enumeration enum = attrs.getAll();
-                while (enum.hasMoreElements()){
-                    Attribute attr = (Attribute) enum.nextElement();
+                java.util.Enumeration enu = attrs.getAll();
+                while (enu.hasMoreElements()){
+                    Attribute attr = (Attribute) enu.nextElement();
                     String attrId = attr.getID();
                     sheet.get(JndiObjectNode.JNDI_PROPERTIES).put( new JndiProperty(attrId,String.class,attrId,null, attrToString(attr),this,true));
                 }

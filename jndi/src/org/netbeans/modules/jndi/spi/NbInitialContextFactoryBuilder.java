@@ -19,10 +19,13 @@
 
 package org.netbeans.modules.jndi.spi;
 
+import java.security.AllPermission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
 import javax.naming.spi.InitialContextFactoryBuilder;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import org.openide.TopManager;
+import org.openide.execution.NbClassLoader;
 /**
  *
  * @author  Tomas Zezula
@@ -38,7 +41,9 @@ public class NbInitialContextFactoryBuilder implements InitialContextFactoryBuil
         if (className == null)
             throw new IllegalArgumentException();
         try {
-            Class factoryClass = Class.forName(className,true,TopManager.getDefault().currentClassLoader());
+            NbClassLoader nbcl = new NbClassLoader();
+            nbcl.setDefaultPermissions(getAllPermissions());
+            Class factoryClass = Class.forName(className,true,nbcl);
             return (javax.naming.spi.InitialContextFactory) factoryClass.newInstance();
         }catch (ClassNotFoundException classNotFoundException) {
             NamingException ne = new NamingException ();
@@ -55,6 +60,15 @@ public class NbInitialContextFactoryBuilder implements InitialContextFactoryBuil
             ne.setRootCause (illegalAccessException);
             throw ne;
         }
+    }
+    
+    private static PermissionCollection allPerimssions;
+    static synchronized PermissionCollection getAllPermissions() {
+        if (allPerimssions == null) {
+            allPerimssions = new Permissions();
+            allPerimssions.add(new AllPermission());
+        }
+        return allPerimssions;
     }
     
 }

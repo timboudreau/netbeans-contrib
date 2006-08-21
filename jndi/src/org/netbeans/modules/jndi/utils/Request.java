@@ -19,7 +19,6 @@
 
 package org.netbeans.modules.jndi.utils;
 
-import org.openide.TopManager;
 import org.openide.ErrorManager;
 /**
  *
@@ -41,7 +40,7 @@ public class Request implements Runnable {
             this.target.postAction();
         }catch (Exception e) {
             this.target.actionFailed ();
-            ErrorManager em = TopManager.getDefault().getErrorManager();
+            ErrorManager em = ErrorManager.getDefault();
             em.notify (ErrorManager.INFORMATIONAL, e);
         }
     }

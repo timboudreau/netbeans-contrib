@@ -20,23 +20,22 @@ Microsystems, Inc. All Rights Reserved.
 
 <mconfig name="JNDI config">
 
-    <testbag testattribs="stable,validation,basic" executor="ide" name="testbag_JNDI" resultsprocessor="qa-functional">
+    <testbag testattribs="validation" executor="ide" name="testbag_JNDI" resultsprocessor="qa-functional">
         <testset dir="qa-functional/src">
             <patternset>
-                <include name="suite/Validation.class"/>
+                <include name="**/Validation.class"/>
             </patternset>
         </testset>
     </testbag>
 
-    <testbag testattribs="stable,validation,gui" executor="ide" name="testbag_GUI" resultsprocessor="qa-functional">
+    <testbag testattribs="validation" executor="ide" name="testbag_GUI" resultsprocessor="qa-functional">
         <testset dir="qa-functional/src">
             <patternset>
-                <include name="gui/RefFSTest/RefFSTest.class"/>
+                <include name="**/RefFSTest.class"/>
             </patternset>
         </testset>
     </testbag>
     
-    <resultsprocessor name="qa-functional" antfile="build.xml" target="test_report"/>
-    <compiler name="compile" default="true" antfile="build_qa-functional.xml" target="default-compiler"/>
-    <executor name="ide" antfile="build_qa-functional.xml" target="runidetest"/>
+    <compiler name="default-compiler" default="true" antfile="build-qa-functional.xml" target="qa-functional-compiler"/>
+    <executor name="ide" antfile="build-qa-functional.xml" target="runidetest"/>
 </mconfig>

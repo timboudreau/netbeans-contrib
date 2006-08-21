@@ -35,7 +35,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
-import org.openide.TopManager;
 import org.openide.actions.NewAction;
 import org.openide.actions.CopyAction;
 import org.openide.actions.DeleteAction;
@@ -43,6 +42,7 @@ import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
+import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.ExClipboard;
@@ -151,7 +151,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
                    SystemAction.get(PropertiesAction.class),
                };
     }
-
+    
     /** Refreshes this node.
      */
     public final void refresh() {
@@ -161,7 +161,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
     /** Copy the binding code*/
     public final void bindingCopy () {
         try{
-            ExClipboard clipboard = TopManager.getDefault().getClipboard();
+            ExClipboard clipboard = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
             StringSelection code = new StringSelection(JndiObjectCreator.generateBindingCode(((JndiChildren)this.getChildren()).getContext(),this.getOffsetAsString(), this.getClassName()));
             clipboard.setContents(code,code);
             JndiRootNode.showLocalizedStatus("STS_CopyBindingCode");
@@ -261,9 +261,9 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
         if (this.getContext() instanceof javax.naming.directory.DirContext){
             try{
                 Attributes attrs = ((DirContext)this.getContext()).getAttributes("");  //No I18N
-                java.util.Enumeration enum = attrs.getAll();
-                while (enum.hasMoreElements()){
-                    Attribute attr = (Attribute) enum.nextElement();
+                java.util.Enumeration enu = attrs.getAll();
+                while (enu.hasMoreElements()){
+                    Attribute attr = (Attribute) enu.nextElement();
                     String attrId = attr.getID();
                     sheet.get(JndiObjectNode.JNDI_PROPERTIES).put ( new JndiProperty (attrId,String.class,attrId,null,attrToString(attr),this,true));
                 }
