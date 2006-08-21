@@ -225,7 +225,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         }
         
         try{
-            Method distribute = dmClass.getDeclaredMethod("distribute", new Class[]{Target[].class, File.class, String.class});
+            Method distribute = dmClass.getDeclaredMethod("distribute", new Class[]{Target[].class, File.class, String.class});            
             ProgressObject po = (ProgressObject)distribute.invoke(this.ws70DM, new Object[]{targets, moduleArchive, ctxRoot});
             return po;
             
@@ -409,7 +409,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     
 
     public ProgressObject start(TargetModuleID[] tmID)
-        throws IllegalStateException {
+        throws IllegalStateException {        
         return ws70DM.start(tmID);
     }
 
@@ -681,9 +681,9 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     
     public boolean isRunning(){        
        try {
-             java.net.InetSocketAddress isa = new java.net.InetSocketAddress(java.net.InetAddress.getByName("localhost"), port);
+             java.net.InetSocketAddress isa = new java.net.InetSocketAddress(java.net.InetAddress.getByName(host), port);
              java.net.Socket socket = new java.net.Socket();
-             socket.connect(isa, 1);
+             socket.connect(isa);
              socket.close();             
              return true;
         } catch (IOException e) {            
