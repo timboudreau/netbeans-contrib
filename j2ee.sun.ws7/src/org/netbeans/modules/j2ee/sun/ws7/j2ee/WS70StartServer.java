@@ -426,7 +426,12 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
                                  new Status(ActionType.EXECUTE, cmdType,
                                             NbBundle.getMessage(WS70StartServer.class, "MSG_TARGET_SERVER_STARTED_DEBUG"),
                                             StateType.COMPLETED));
-                        }
+                    }else{
+                        pes.fireHandleProgressEvent(null,
+                                 new Status(ActionType.EXECUTE, cmdType,
+                                            NbBundle.getMessage(WS70StartServer.class, "MSG_TARGET_SERVER_STARTED_DEBUG"),
+                                            StateType.COMPLETED));                        
+                    }
                 }else{
                     if(dm.isRunning(configName)){  //stop target
                         ErrorManager.getDefault().log(
