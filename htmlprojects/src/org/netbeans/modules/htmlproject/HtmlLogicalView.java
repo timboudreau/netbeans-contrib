@@ -103,7 +103,6 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
         }
 
         private Node traverse (Node n, Class clazz, Object o) {
-            System.err.println("TRAVERSE " + n.getName() + " lkp " + n.getLookup());
             if (o.equals(n.getLookup().lookup(clazz))) {
                 return n;
             } else {
@@ -111,7 +110,6 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
                 for (int i = 0; i < more.length; i++) {
                     Node result = traverse (more[i], clazz, o);
                     if (result != null) {
-                        System.err.println("FOUND " + result);
                         return result;
                     }
                 }
@@ -406,8 +404,12 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
             File f = FileUtil.toFile (fileEvent.getFile());
             String nm = snipPath (f, projPath);
             try {
-                findChild(nm).destroy();
-                removeFile (f);
+                Node nd = findChild(nm);
+                //Can be null when deleting a project
+                if (nd != null) {
+                    nd.destroy();
+                    removeFile (f);
+                }
             } catch (IOException ex) {
                 ErrorManager.getDefault().notify (ex);
             }

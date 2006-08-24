@@ -13,21 +13,27 @@ enclosed by brackets [] replaced by your own identifying information:
 "Portions Copyrighted [year] [name of copyright owner]" */
 package org.netbeans.modules.htmlproject;
 
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Locale;
 import javax.swing.AbstractAction;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
-import org.openide.awt.HtmlBrowser.URLDisplayer;
-import org.openide.awt.StatusDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 class MutableAction extends AbstractAction {
     static final int CLOSE = 2;
@@ -70,6 +76,42 @@ class MutableAction extends AbstractAction {
         }
         putValue(NAME, nm);
     }
+    
+    private static final int DELETE_PROJECT = 1;
+    private static final int DELETE_PROJECT_AND_FOLDER = 2;
+    private static final int DO_NOTHING = 0;
+    public int confirmDelete() {
+        String file = FileUtil.toFile(proj.getProjectDirectory()).getPath();
+        String project = proj.getDisplayName();
+        
+        JPanel jp = new JPanel();
+        jp.setLayout (new GridLayout (2, 1));
+        final JLabel lbl = new JLabel (NbBundle.getMessage (MutableAction.class,
+                "LBL_ConfirmDelete", project)); //NOI18N
+        final JCheckBox box = new JCheckBox(NbBundle.getMessage (MutableAction.class,
+                "LBL_AlsoDeleteSources", file)); //NOI18N
+        jp.add (lbl);
+        jp.add (box);
+        boolean confirmed;
+        boolean mac = (Utilities.getOperatingSystem() & Utilities.OS_MAC) != 0;
+        if (mac) {
+            String del = NbBundle.getMessage(MutableAction.class, "LBL_Delete");//NOI18N
+            String nodel = NbBundle.getMessage(MutableAction.class, "LBL_DontDelete");//NOI18N
+            confirmed = del.equals(DialogDisplayer.getDefault().notify(new DialogDescriptor (jp,
+                    NbBundle.getMessage(MutableAction.class, "TTL_ConfirmDelete", //NOI18N
+                    nodel, del))));
+        } else {
+            confirmed = DialogDisplayer.getDefault().notify(new NotifyDescriptor.Confirmation(jp, 
+                NbBundle.getMessage(MutableAction.class, "TTL_ConfirmDelete"), //NOI18N
+                NotifyDescriptor.YES_NO_OPTION)) == NotifyDescriptor.YES_OPTION;
+        }
+        if (confirmed) {
+            return box.isSelected() ? DELETE_PROJECT_AND_FOLDER :
+                DELETE_PROJECT;
+        } else {
+            return DO_NOTHING;
+        }
+    }
 
     public void actionPerformed(ActionEvent ae) {
         switch(ix) {
@@ -79,8 +121,13 @@ class MutableAction extends AbstractAction {
                 break;
             case DELETE:
                 try {
-                    OpenProjects.getDefault().close(new Project[] { proj });
-                    DataObject.find(proj.getProjectDirectory()).delete();
+                    int val = confirmDelete();
+                    if (val != DO_NOTHING) {
+                        OpenProjects.getDefault().close(new Project[] { proj });
+                    }
+                    if (val == DELETE_PROJECT_AND_FOLDER) {
+                        DataObject.find(proj.getProjectDirectory()).delete();
+                    }
                 }  catch (DataObjectNotFoundException ex) {
                     ErrorManager.getDefault().notify(ex);
                 }  catch (IOException ex) {
