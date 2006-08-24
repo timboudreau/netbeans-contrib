@@ -156,6 +156,11 @@ class SearchPreview extends TopComponent implements ActionListener, ListSelectio
         }
         table.setDefaultRenderer(String.class, model);
         table.setDefaultRenderer(Boolean.TYPE, model);
+        
+        int rowMargin = table.getRowMargin();
+        int pureRowHeight = model.getTableCellRendererComponent(table, "dummy", false, false, 0, 0).getPreferredSize().height;
+        table.setRowHeight(pureRowHeight + rowMargin);
+        
         table.setDefaultEditor(Boolean.TYPE, editor);
         table.putClientProperty ("JTable.autoStartsEdit", Boolean.TRUE); //NOI18N
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE); //NOI18N
