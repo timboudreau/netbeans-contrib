@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,6 +33,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -97,9 +99,12 @@ class MutableAction extends AbstractAction {
         if (mac) {
             String del = NbBundle.getMessage(MutableAction.class, "LBL_Delete");//NOI18N
             String nodel = NbBundle.getMessage(MutableAction.class, "LBL_DontDelete");//NOI18N
-            confirmed = del.equals(DialogDisplayer.getDefault().notify(new DialogDescriptor (jp,
-                    NbBundle.getMessage(MutableAction.class, "TTL_ConfirmDelete", //NOI18N
-                    nodel, del))));
+            jp.setBorder (BorderFactory.createEmptyBorder (5,5,5,5));
+            confirmed = del.equals(DialogDisplayer.getDefault().notify(
+                    new DialogDescriptor (jp,
+                    NbBundle.getMessage(MutableAction.class, "TTL_ConfirmDelete" //NOI18N
+                    ), true, new Object[] {nodel, del}, del, DialogDescriptor.BOTTOM_ALIGN,
+                    HelpCtx.DEFAULT_HELP, null)));
         } else {
             confirmed = DialogDisplayer.getDefault().notify(new NotifyDescriptor.Confirmation(jp, 
                 NbBundle.getMessage(MutableAction.class, "TTL_ConfirmDelete"), //NOI18N
