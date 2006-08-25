@@ -91,14 +91,14 @@ public class ConnectionLabelsTest {
 
         public void unsetHovering (Widget widget) {
             if (widget != null) {
-                widget.setBackground (scene.getLookFeel ().getBackground (ObjectState.NORMAL));
-                widget.setForeground (scene.getLookFeel ().getForeground (ObjectState.NORMAL));
+                widget.setBackground (scene.getLookFeel ().getBackground (ObjectState.createNormal ()));
+                widget.setForeground (scene.getLookFeel ().getForeground (ObjectState.createNormal ()));
             }
         }
 
         public void setHovering (Widget widget) {
             if (widget != null) {
-                ObjectState state = ObjectState.NORMAL.deriveSelected (true);
+                ObjectState state = ObjectState.createNormal ().deriveSelected (true);
                 widget.setBackground (scene.getLookFeel ().getBackground (state));
                 widget.setForeground (scene.getLookFeel ().getForeground (state));
             }
