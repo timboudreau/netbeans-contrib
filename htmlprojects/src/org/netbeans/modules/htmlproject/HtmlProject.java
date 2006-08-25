@@ -168,15 +168,19 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
         return this;
     }
 
+    private HtmlLogicalView logicalView = null;
     public Node createLogicalView() {
-        Lookup lkp = null;
-        try {
-            lkp = DataObject.find(dir).getNodeDelegate().getLookup();
-        } catch (DataObjectNotFoundException ex) {
-            ErrorManager.getDefault().notify (ex);
+        if (logicalView == null) {
+            Lookup lkp = null;
+            try {
+                lkp = DataObject.find(dir).getNodeDelegate().getLookup();
+            } catch (DataObjectNotFoundException ex) {
+                ErrorManager.getDefault().notify (ex);
+            }
+            logicalView = new HtmlLogicalView (this, lkp == null ? //should never be null
+                Lookups.fixed(new Object[0]) : lkp);
         }
-        return new HtmlLogicalView (this, lkp == null ? //should never be null
-            Lookups.fixed(new Object[0]) : lkp);
+        return logicalView;
     }
 
     public Node findPath(Node node, Object object) {
