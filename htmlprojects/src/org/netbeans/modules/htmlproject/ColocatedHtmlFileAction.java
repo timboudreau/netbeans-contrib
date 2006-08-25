@@ -35,9 +35,9 @@ public class ColocatedHtmlFileAction extends AbstractAction {
     private final String trimmedPath;
     private final File f;
     private final FileObject projDir;
-    private final HtmlLogicalView.Kids kids;
+    private final Kids kids;
     /** Creates a new instance of ColocatedHtmlFileAction */
-    public ColocatedHtmlFileAction(File f, String trimmedPath, FileObject projDir, HtmlLogicalView.Kids kids) {
+    public ColocatedHtmlFileAction(File f, String trimmedPath, FileObject projDir, Kids kids) {
         this.f = f;
         this.trimmedPath = trimmedPath;
         this.projDir = projDir;
