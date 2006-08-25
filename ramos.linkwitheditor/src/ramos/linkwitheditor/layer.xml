@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="View">
+            <file name="ramos-linkwitheditor-LinkEditorWithAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+       
+        <folder name="View">
+            <attr name="org-netbeans-modules-versioning-system-cvss-ui-actions-ShowTextAnnotationsAction.shadow/ramos-linkwitheditor-separatorBefore.instance" boolvalue="true"/>
+            <file name="ramos-linkwitheditor-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="ramos-linkwitheditor-separatorBefore.instance/ramos-linkwitheditor-LinkEditorWithAction.shadow" boolvalue="true"/>
+            <file name="ramos-linkwitheditor-LinkEditorWithAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/View/ramos-linkwitheditor-LinkEditorWithAction.instance"/>
+            </file>
+            <attr name="ramos-linkwitheditor-LinkEditorWithAction.shadow/ramos-linkwitheditor-separatorAfter.instance" boolvalue="true"/>
+            <file name="ramos-linkwitheditor-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+        </folder>
+    </folder>
+   
+</filesystem>
