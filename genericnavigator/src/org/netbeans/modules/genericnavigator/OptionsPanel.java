@@ -273,8 +273,8 @@ public class OptionsPanel extends javax.swing.JPanel implements ExplorerManager.
                 l);
 
         l.desc = dlg;
-        adder.check();
         adder.addChangeListener (l);
+        adder.check();
 
         boolean ok = NotifyDescriptor.OK_OPTION.equals(
                 DialogDisplayer.getDefault().notify(dlg));

@@ -1,0 +1,4 @@
+\n\s*-\s*.*?(.*)
+
+UNICODE_CASE,DOTALL,
+1

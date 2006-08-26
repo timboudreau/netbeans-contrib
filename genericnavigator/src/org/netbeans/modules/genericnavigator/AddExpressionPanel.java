@@ -612,6 +612,7 @@ public class AddExpressionPanel extends javax.swing.JPanel implements DocumentLi
                 samplesPane.scrollRectToVisible(new Rectangle (0,0,1,1));
             }
         }
+        change();
     }
 
     private Map mime2txt = new HashMap();

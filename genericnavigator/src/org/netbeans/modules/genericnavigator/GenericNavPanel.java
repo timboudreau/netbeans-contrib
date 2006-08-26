@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -44,18 +45,13 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Document;
 import org.netbeans.spi.navigator.NavigatorPanel;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
-import org.openide.NotifyDescriptor;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -150,6 +146,11 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
     private String mimeType = null;
 
     public void panelDeactivated() {
+        Lookup lkp = Utilities.actionsGlobalContext();
+        if (lkp.lookup(DataObject.class) != null) {
+            String mimeType = ((DataObject) lkp.lookup(DataObject.class)).getPrimaryFile().getMIMEType();
+            System.err.println("PANEL DEACTIVATED " + mimeType);
+        }
         active = false;
         synchronized (this) {
             if (task != null) {
@@ -222,6 +223,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
 
     private void scanFile(List <Object> l, Lookup lkp) {
         DataObject ob = (DataObject) lkp.lookup(DataObject.class);
+        System.err.println("OBJECT OF TYPE " + ob.getPrimaryFile().getMIMEType());
         if (ob != null) {
             try {
                 CharSequence sq = getFileData(ob);
@@ -284,15 +286,22 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                     if (pattern == null) {
                         return null;
                     }
-                    FileChannel ch = new FileInputStream(f).getChannel();
-                    ch.read(buf);
-                    ch.close();
-                    buf.flip();
-                    CharBuffer seq = decoder.decode(buf);
+                    try {
+                        FileChannel ch = new FileInputStream(f).getChannel();
+                        ch.read(buf);
+                        ch.close();
+                        buf.flip();
+                        CharBuffer seq = decoder.decode(buf);
 
-                    String sq = Utilities.replaceString(seq.toString(),
-                            "\r\n", "\n"); //NOI18N
-                    return sq;
+                        String sq = Utilities.replaceString(seq.toString(),
+                                "\r\n", "\n"); //NOI18N
+                        return sq;
+                    } catch (FileNotFoundException fnfe) {
+                        //Timing issue:  If the user selects a file and chooses
+                        //Delete before we've read it, the file may not 
+                        //exist by the time we try to scan it
+                        return "";
+                    }
                 }
             }
         }

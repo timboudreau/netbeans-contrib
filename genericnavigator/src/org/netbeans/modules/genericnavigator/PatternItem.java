@@ -502,8 +502,8 @@ outer:  for (int i=0; tok.hasMoreTokens(); i++) {
                     String first = kids[i].getName();
                     FileObject[] subs = kids[i].getChildren();
                     for (int j = 0; j < subs.length; j++) {
-                        if (subs[i].isFolder()) {
-                            String second = subs[i].getName();
+                        if (subs[j].isFolder()) {
+                            String second = subs[j].getName();
                             mimeTypes.add (first + '/' + second); //NOI18N
                         }
                     }

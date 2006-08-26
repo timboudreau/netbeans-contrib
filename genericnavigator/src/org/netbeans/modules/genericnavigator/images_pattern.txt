@@ -1,0 +1,3 @@
+.*?<img(.*?)src="(.*?)".*?>
+MULTILINE,UNICODE_CASE,DOTALL,
+2
