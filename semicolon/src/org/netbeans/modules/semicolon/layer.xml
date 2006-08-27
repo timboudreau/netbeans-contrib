@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]" -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Actions">
@@ -13,8 +25,8 @@
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createAddI18nAction"/>
             </file>
             
-            <file name="org-netbeans-modules-semicolon-LineCompletionAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.createOpenBraceAction"/>
+            <file name="LineCompletionAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction"/>
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createSemicolonAction"/>
             </file>
             
@@ -22,7 +34,7 @@
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.DeletePreviousLineAction"/>
             </file>
             
-            <file name="org-netbeans-modules-semicolon-DeleteNextLineAction.instance">
+            <file name="DeleteNextLineAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.DeleteNextLineAction"/>
             </file>
         </folder>
@@ -30,7 +42,7 @@
     
     <folder name="Shortcuts">
         <file name="D-OPEN_BRACKET.shadow">
-            <attr name="originalFile" stringvalue="Actions/Build/OpenBraceAction.instance"/>
+            <attr name="originalFile" stringvalue="Actions/Edit/OpenBraceAction.instance"/>
         </file>
         <file name="D-SEMICOLON.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/LineCompletionAction.instance"/>
