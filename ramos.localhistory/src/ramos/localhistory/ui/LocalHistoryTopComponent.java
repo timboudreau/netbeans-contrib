@@ -67,9 +67,9 @@ import org.openide.windows.WindowManager;
 import java.util.Collection;
 
 public final class LocalHistoryTopComponent extends TopComponent
-        implements ExplorerManager.Provider {
+    implements ExplorerManager.Provider {
    static final class ResolvableHelper
-           implements Serializable {
+       implements Serializable {
       
       public Object readResolve() {
          return LocalHistoryTopComponent.getDefault();
@@ -82,12 +82,12 @@ public final class LocalHistoryTopComponent extends TopComponent
    }
    private static final String COLOR = "    ";
    /** path to the icon used by the component and its open action */
-  static final String ICON_PATH = "ramos/localhistory/resources/clock.png";
+   static final String ICON_PATH = "ramos/localhistory/resources/clock.png";
    public  LocalHistoryTopComponent() {
       //initComponents();
       //toolbar
       //make color labels
-// <editor-fold defaultstate="collapsed" desc="layouting">
+      // <editor-fold defaultstate="collapsed" desc="layouting">
       Border border = BorderFactory.createEtchedBorder();
       JLabel deleteColor = new JLabel(COLOR);
       deleteColor.setBorder(border);
@@ -101,7 +101,7 @@ public final class LocalHistoryTopComponent extends TopComponent
       changedColor.setBackground(Color.decode("#A0C8FF"));
       changedColor.setOpaque(true);
       changedColor.setBorder(border);
-      JLabel delete = new JLabel("  deleted   ");
+      JLabel delete = new JLabel("  removed   ");
       JLabel added = new JLabel("  added    ");
       JLabel changed = new JLabel("  changed   ");
       //toolPanel.setBorder(null);
@@ -111,6 +111,8 @@ public final class LocalHistoryTopComponent extends TopComponent
       //      revertPanel.add(Box.createGlue());
       toolPanel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
       toolPanel.add(new JButton(revertAction));
+      toolPanel.add(Box.createGlue());
+      toolPanel.add(new JButton(refreshAction));
       toolPanel.add(Box.createGlue());
       toolPanel.add(deleteColor);
       toolPanel.add(delete);
@@ -127,12 +129,19 @@ public final class LocalHistoryTopComponent extends TopComponent
       next.setActionCommand("Next");
       prev.addActionListener(diffListener);
       next.addActionListener(diffListener);
-//      next.setBorder(null);
-//      prev.setBorder(null);
+      next.setMargin(new java.awt.Insets(2,3,2,3));
+      prev.setMargin(new java.awt.Insets(2,3,2,3));
+      //prev.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+      //prev.setHorizontalAlignment(JButton.LEADING); // optional
+      //prev.setBorderPainted(false);
+      prev.setContentAreaFilled(false);
+      next.setContentAreaFilled(false);
+      //      next.setBorder(null);
+      //      prev.setBorder(null);
       diffContainer.setBorder(DIFF_BORDER);
       diffContainer.add(dummyRightComponent,BorderLayout.CENTER);
       diffContainer.add(toolPanel,BorderLayout.NORTH);
-// </editor-fold>
+      // </editor-fold>
       
       
       this.add(split);
@@ -206,10 +215,10 @@ public final class LocalHistoryTopComponent extends TopComponent
       return PREFERRED_ID;
    }
    public Collection fillNodeList(File file) {
-         FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
+      FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
       FileObject files[] = theDir.getChildren();
       
-       String path = file.getAbsolutePath();
+      String path = file.getAbsolutePath();
       TreeSet<FilterNode> listFN = new TreeSet<FilterNode>(COMPARATOR);
       FileObject arr$[] = files;
       int len$ = arr$.length;
@@ -224,11 +233,11 @@ public final class LocalHistoryTopComponent extends TopComponent
          
       }
       return listFN;
-    }
+   }
    public void setFile(final File file, final Collection collection) {
-       try {
+      try {
          SaveCookie sc = (SaveCookie) DataObject.find(FileUtil.toFileObject(file)).
-                    getCookie(SaveCookie.class);
+             getCookie(SaveCookie.class);
          if (sc != null) sc.save();
       } catch (IOException ex) {
          ex.printStackTrace();
@@ -242,20 +251,20 @@ public final class LocalHistoryTopComponent extends TopComponent
       FileObject files[] = theDir.getChildren();
       
       
-//      TreeSet<FilterNode> listFN = new TreeSet<FilterNode>(COMPARATOR);
-//      FileObject arr$[] = files;
-//      int len$ = arr$.length;
-//      for(int i$ = 0; i$ < len$; i$++) {
-//         final FileObject fo = arr$[i$];
-//         if(fo.isFolder() || fo.getAttribute("path") == null || !fo.getAttribute("path").equals(path)) continue;
-//         try {
-//            listFN.add(new VersionNode(fo));
-//         } catch(DataObjectNotFoundException ex) {
-//            ex.printStackTrace();
-//         }
-//         
-//      }
-//      if (listFN.size() == 0){ Toolkit.getDefaultToolkit().beep(); return;}
+      //      TreeSet<FilterNode> listFN = new TreeSet<FilterNode>(COMPARATOR);
+      //      FileObject arr$[] = files;
+      //      int len$ = arr$.length;
+      //      for(int i$ = 0; i$ < len$; i$++) {
+      //         final FileObject fo = arr$[i$];
+      //         if(fo.isFolder() || fo.getAttribute("path") == null || !fo.getAttribute("path").equals(path)) continue;
+      //         try {
+      //            listFN.add(new VersionNode(fo));
+      //         } catch(DataObjectNotFoundException ex) {
+      //            ex.printStackTrace();
+      //         }
+      //
+      //      }
+      //      if (listFN.size() == 0){ Toolkit.getDefaultToolkit().beep(); return;}
       
       Node array[] = (Node[])collection.toArray(new Node[collection.size()]);
       Children children = new Children.Array();
@@ -270,11 +279,11 @@ public final class LocalHistoryTopComponent extends TopComponent
       String mimeType = FileUtil.toFileObject(currentFile).getMIMEType();
       //String title = "Current Version";
       StreamSource stream1 = StreamSource.createSource("old",
-              CURRENT_VERSION_TITLE,
-              mimeType,currentFile);
+          CURRENT_VERSION_TITLE,
+          mimeType,currentFile);
       StreamSource stream2 = StreamSource.createSource("new",
-              CURRENT_VERSION_TITLE,
-              mimeType,currentFile);
+          CURRENT_VERSION_TITLE,
+          mimeType,currentFile);
       DiffView diff = null;
       try {
          diff = Diff.getDefault().createDiff(stream1,stream2);
@@ -299,7 +308,7 @@ public final class LocalHistoryTopComponent extends TopComponent
    public void setFile(final File file) {
       try {
          SaveCookie sc = (SaveCookie) DataObject.find(FileUtil.toFileObject(file)).
-                    getCookie(SaveCookie.class);
+             getCookie(SaveCookie.class);
          if (sc != null) sc.save();
       } catch (IOException ex) {
          ex.printStackTrace();
@@ -340,11 +349,11 @@ public final class LocalHistoryTopComponent extends TopComponent
       String mimeType = FileUtil.toFileObject(currentFile).getMIMEType();
       //String title = "Current Version";
       StreamSource stream1 = StreamSource.createSource("old",
-              CURRENT_VERSION_TITLE,
-              mimeType,currentFile);
+          CURRENT_VERSION_TITLE,
+          mimeType,currentFile);
       StreamSource stream2 = StreamSource.createSource("new",
-              CURRENT_VERSION_TITLE,
-              mimeType,currentFile);
+          CURRENT_VERSION_TITLE,
+          mimeType,currentFile);
       DiffView diff = null;
       try {
          diff = Diff.getDefault().createDiff(stream1,stream2);
@@ -408,11 +417,11 @@ public final class LocalHistoryTopComponent extends TopComponent
    private static final String DIFF_VIEW = "Diff View";
    private static final String HISTORY_VIEW = "History View";
    private static final Border DIFF_BORDER = BorderFactory.createCompoundBorder(
-           BorderFactory.createTitledBorder(DIFF_VIEW),
-           BorderFactory.createLineBorder(Color.gray));
+       BorderFactory.createTitledBorder(DIFF_VIEW),
+       BorderFactory.createLineBorder(Color.gray));
    private static final Border HISTORY_BORDER = BorderFactory.createCompoundBorder(
-           BorderFactory.createTitledBorder(HISTORY_VIEW),
-           BorderFactory.createLineBorder(Color.gray));
+       BorderFactory.createTitledBorder(HISTORY_VIEW),
+       BorderFactory.createLineBorder(Color.gray));
    private static final String X = "x";
    //toolbar
    JPanel diffContainer = new JPanel(new BorderLayout());
@@ -423,13 +432,13 @@ public final class LocalHistoryTopComponent extends TopComponent
        Utilities.loadImage("ramos/localhistory/resources/diff-prev.png")));
    
    
-      
+   
    private JButton next = new JButton(new ImageIcon(
        Utilities.loadImage("ramos/localhistory/resources/diff-next.png")));
-  
    
-
- 
+   
+   
+   
    private Component oldDiff = null;
    private DiffListener diffListener = new DiffListener();
    private static final String ANNOTATION = "Annotation";
@@ -588,7 +597,7 @@ public final class LocalHistoryTopComponent extends TopComponent
       @Override public Node.PropertySet[] getPropertySets() {
          PropertySet[] retValue = null;
          final PropertySupport.ReadWrite prop =
-                 new PropertySupport.ReadWrite(ANNOTATION, String.class, ANNOTATION, ANNOTATION){
+             new PropertySupport.ReadWrite(ANNOTATION, String.class, ANNOTATION, ANNOTATION){
             public Object getValue(){
                String retValue = "";
                String attr = (String) fo.getAttribute(ANNOTATION);
@@ -615,12 +624,13 @@ public final class LocalHistoryTopComponent extends TopComponent
       public String getShortDescription() {
          return "an older version";
       }
-
+      
       public Image getIcon(int type) {
          return Utilities.loadImage(ICON_PATH);
       }
       
    }
+   
    private class RevertAction extends AbstractAction{
       public RevertAction(){
          setEnabled(false);
@@ -659,6 +669,18 @@ public final class LocalHistoryTopComponent extends TopComponent
    }
    private FileObject[] diffFiles;
    private final RevertAction revertAction = new RevertAction();
+   private final RefreshHistory refreshAction = new RefreshHistory();
+   private final class RefreshHistory extends AbstractAction {
+      public void actionPerformed(ActionEvent e) {
+         setFile(currentFile);
+      }
+      public Object getValue(String key) {
+         if (key.equals(AbstractAction.NAME)) return "Refresh History";
+         //else if (key.equals(AbstractAction.SMALL_ICON)) return new ImageIcon("ramos/localhistory/resources/clock.png");
+         else return super.getValue(key);
+      }
+   }
+   
    
 }
 
