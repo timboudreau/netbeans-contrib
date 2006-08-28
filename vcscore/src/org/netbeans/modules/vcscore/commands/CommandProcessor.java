@@ -23,6 +23,9 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
 import java.beans.Customizer;
@@ -490,9 +493,12 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                     ErrorManager.getDefault().notify(ex);
                 }
                 if (initialFocusedComponent != null) {
-                    dialog.setFocusTraversalPolicy(
-                        new InitialComponentFocusTraversalPolicy(dialog.getFocusTraversalPolicy(),
-                            					 initialFocusedComponent));
+                    final java.awt.Component initialFC = initialFocusedComponent;
+                    dialog.addWindowListener(new WindowAdapter() {
+                        public void windowActivated(WindowEvent e) {
+                            initialFC.requestFocusInWindow();
+                        }
+                    });
                 }
             }
 
@@ -1158,44 +1164,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     //    return org.openide.util.NbBundle.getMessage(CommandProcessor.class, s, obj, obj2);
     //}
     
-    private static class InitialComponentFocusTraversalPolicy extends java.awt.FocusTraversalPolicy {
-        
-        private java.awt.FocusTraversalPolicy origPolicy;
-        private java.awt.Component initialComponent;
-        
-        public InitialComponentFocusTraversalPolicy(java.awt.FocusTraversalPolicy origPolicy, java.awt.Component initialComponent) {
-            if (origPolicy == null) {
-                origPolicy = new java.awt.ContainerOrderFocusTraversalPolicy();
-            }
-            this.origPolicy = origPolicy;
-            this.initialComponent = initialComponent;
-        }
-        
-        public Component getComponentAfter(java.awt.Container focusCycleRoot, Component aComponent) {
-            return origPolicy.getComponentAfter(focusCycleRoot, aComponent);
-        }
-        
-        public Component getComponentBefore(java.awt.Container focusCycleRoot, Component aComponent) {
-            return origPolicy.getComponentBefore(focusCycleRoot, aComponent);
-        }
-        
-        public Component getDefaultComponent(java.awt.Container focusCycleRoot) {
-            return origPolicy.getDefaultComponent(focusCycleRoot);
-        }
-        
-        public Component getFirstComponent(java.awt.Container focusCycleRoot) {
-            return origPolicy.getFirstComponent(focusCycleRoot);
-        }
-        
-        public Component getLastComponent(java.awt.Container focusCycleRoot) {
-            return origPolicy.getLastComponent(focusCycleRoot);
-        }
-        
-        public Component getInitialComponent(java.awt.Window window) {
-            return initialComponent;
-        }
-        
-    }
 
 }
 
