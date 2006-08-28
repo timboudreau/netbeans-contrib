@@ -20,7 +20,7 @@ Microsystems, Inc. All Rights Reserved.
 <project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
-        <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.modules.mdr</code-name-base>
             <module-dependencies>
                 <dependency>
@@ -108,6 +108,19 @@ Microsystems, Inc. All Rights Reserved.
                     <run-dependency/>
                 </dependency>
             </module-dependencies>
+          <test-dependencies>
+              <test-type>
+                  <name>unit</name>
+                  <test-dependency>
+                      <code-name-base>org.netbeans.modules.mdr</code-name-base>
+                      <recursive/>
+                      <compile-dependency/>
+                  </test-dependency>
+              </test-type>
+              <test-type>
+                  <name>qa-functional</name>
+              </test-type>
+            </test-dependencies>
             <public-packages/>
             <class-path-extension>
                 <runtime-relative-path>ext/mdr.jar</runtime-relative-path>

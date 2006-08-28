@@ -22,19 +22,4 @@ Microsystems, Inc. All Rights Reserved.
 
     <import file="../../../nbbuild/templates/xtest-unit.xml"/>
 
-    <path id="compiletest.classpath">
-        <pathelement location="../../dist/mdr.jar"/>
-        <pathelement location="../../external/mof.jar"/>
-        <pathelement location="../../external/jmi.jar"/>
-        <pathelement location="../../jmiutils/dist/jmiutils.jar"/>
-        <pathelement location="../../mdrapi/build/classes"/>
-        <pathelement location="${openide.dir}/core/openide.jar"/>
-    </path>
-
-    <target name="unit-compiler">
-        <buildTests srcDir="unit/src" compileexcludes="**/data/**">
-            <classpath refid="compiletest.classpath"/>
-        </buildTests>
-    </target>
-
 </project>
