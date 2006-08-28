@@ -222,8 +222,7 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
     public String getProductVersion() {
         return NbBundle.getMessage(WS70SunDeploymentFactory.class, "LBL_WS70SunDeploymentFactoryVersion");
     }
-    private static ClassLoader getWs7ClassLoader(String location){
-        
+    private static ClassLoader getWs7ClassLoader(String location){        
         WS7LibsClassLoader ws7Loader = null;               
         try{
             String libsLocation = location+"/lib"; //NOI18N            
@@ -232,9 +231,12 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
             ErrorManager.getDefault().log(ErrorManager.USER, "WS70 moduleclassloader is "+moduleClassLoader.toString());
             ws7Loader = new WS7LibsClassLoader(moduleClassLoader);
             File f = null;
-            f = new File(libsLocation+"/s1as-jsr160-server.jar");//NO I118N
+            
+            // removing s1as-jsr160-server.jar from this classloader as it is not
+            // needed by plugin
+/*            f = new File(libsLocation+"/s1as-jsr160-server.jar");//NO I118N
             ws7Loader.addURL(f);
-
+*/
             f = new File(libsLocation+"/sun-ws-jsr88-dm.jar");//NO I118N
             ws7Loader.addURL(f);            
             f = new File(libsLocation+"/s1as-jsr160-client.jar");//NO I118N
@@ -243,9 +245,11 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
             f = new File(libsLocation+"/jmxremote_optional.jar"); //NO I118N            
             ws7Loader.addURL(f);
             
-            f = new File(libsLocation+"/webserv-admin.jar"); //NO I118N
+            // removing webserv-admin.jar from this classloader as it is not
+            // needed by plugin anymore
+/*            f = new File(libsLocation+"/webserv-admin.jar"); //NO I118N
             ws7Loader.addURL(f);
-
+*/
             f = new File(libsLocation+"/webserv-admin-shared.jar"); //NO I118N
             ws7Loader.addURL(f);
             

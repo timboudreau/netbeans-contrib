@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.File;
 import java.util.Locale;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.spi.Target;
@@ -432,9 +433,12 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         try{
             Method startServer = dmClass.getDeclaredMethod("startServer", new Class[]{String.class}); //NOI18N
             Boolean retVal = (Boolean)startServer.invoke(this.ws70DM, new Object[]{configName});            
+        }catch(InvocationTargetException ite){
+            ite.printStackTrace();
+            throw (Exception)ite.getTargetException();
         }catch(Exception ex){
             ex.printStackTrace();
-            throw ex;            
+            throw ex;
         }                
    }
    public void stopServer(String configName) throws Exception {
@@ -442,7 +446,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             Method stopServer = dmClass.getDeclaredMethod("stopServer", new Class[]{String.class});//NOI18N
             Boolean retVal = (Boolean)stopServer.invoke(this.ws70DM, new Object[]{configName});            
             
-        }catch(Exception ex){            
+        }catch(InvocationTargetException ite){
+            ite.printStackTrace();
+            throw (Exception)ite.getTargetException();            
+        }catch(Exception ex){
             ex.printStackTrace();
             throw ex;
         }                
@@ -474,8 +481,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         try{                                                                  
             Method deployAndReconfig = dmClass.getDeclaredMethod("deployAndReconfig",  new Class[]{String.class});
             deployAndReconfig.invoke(this.ws70DM, new Object[]{configName});            
+        }catch(InvocationTargetException ite){            
+            throw (Exception)ite.getTargetException();            
         }catch(Exception ex){            
-            throw ex;            
+            throw ex;
         }                 
     }
     public void changeDebugStatus(String configName, 
@@ -483,6 +492,9 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         try{
             Method changeDebugStatus = dmClass.getDeclaredMethod("changeDebugStatus", new Class[]{String.class, boolean.class});//NOI18N
             changeDebugStatus.invoke(this.ws70DM, new Object[]{configName, Boolean.valueOf(enableDisable)});
+        }catch(InvocationTargetException ite){
+            ite.printStackTrace();
+            throw (Exception)ite.getTargetException();            
         }catch(Exception ex){
             ex.printStackTrace();
             throw ex;
@@ -531,9 +543,12 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             Method getResources = dmClass.getDeclaredMethod(methodName, new Class[]{String.class});
             List resources = (List)getResources.invoke(this.ws70DM, new Object[]{configName});
             return resources;            
+        }catch(InvocationTargetException ite){
+            ite.printStackTrace();
+            throw (Exception)ite.getTargetException();            
         }catch(Exception ex){
             ex.printStackTrace();
-            throw ex;            
+            throw ex;
         }        
     }    
 
@@ -557,9 +572,12 @@ public class WS70SunDeploymentManager implements DeploymentManager{
                 this.deployAndReconfig(configName);
             }
             
+        }catch(InvocationTargetException ite){
+            ite.printStackTrace();
+            throw (Exception)ite.getTargetException();            
         }catch(Exception ex){
             ex.printStackTrace();
-            throw ex;            
+            throw ex;
         }        
     }
     public void setUserResourceProp(String configName, String resourceType, 
@@ -574,9 +592,12 @@ public class WS70SunDeploymentManager implements DeploymentManager{
                 this.deployAndReconfig(configName);
             }
             
+        }catch(InvocationTargetException ite){
+            ite.printStackTrace();
+            throw (Exception)ite.getTargetException();            
         }catch(Exception ex){
             ex.printStackTrace();
-            throw ex;            
+            throw ex;
         }               
     }    
     
@@ -596,9 +617,12 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             delResource.invoke(this.ws70DM, new Object[]{configName, resName});
             this.deployAndReconfig(configName);
             
+        }catch(InvocationTargetException ite){
+            ite.printStackTrace();
+            throw (Exception)ite.getTargetException();            
         }catch(Exception ex){
             ex.printStackTrace();
-            throw ex;            
+            throw ex;
         }                
     }    
     public Map getUserResourceProps(String configName, String resourceType, String jndiName, String propType) throws IllegalStateException {
@@ -619,8 +643,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             Method addJdbcResource = dmClass.getDeclaredMethod("addJDBCResource", 
                     new Class[]{String.class, String.class, Map.class});
             addJdbcResource.invoke(this.ws70DM, new Object[]{configName, resName, resAttrs});            
+        }catch(InvocationTargetException ite){            
+            throw (Exception)ite.getTargetException();
         }catch(Exception ex){
-            throw ex;            
+            throw ex;
         }                   
         
     }        
@@ -630,8 +656,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             Method addCustomResource = dmClass.getDeclaredMethod("addCustomResource", 
                     new Class[]{String.class, String.class, Map.class});
             addCustomResource.invoke(this.ws70DM, new Object[]{configName, resName, resAttrs});            
+        }catch(InvocationTargetException ite){            
+            throw (Exception)ite.getTargetException();
         }catch(Exception ex){
-            throw ex;            
+            throw ex;
         }                   
         
     }
@@ -642,8 +670,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             Method addJNDIResource = dmClass.getDeclaredMethod("addJNDIResource", 
                     new Class[]{String.class, String.class, Map.class});
             addJNDIResource.invoke(this.ws70DM, new Object[]{configName, resName, resAttrs});            
+        }catch(InvocationTargetException ite){            
+            throw (Exception)ite.getTargetException();
         }catch(Exception ex){
-            throw ex;            
+            throw ex;
         }                   
     }
     public void addMailResource(String configName, String resName, 
@@ -652,8 +682,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             Method addMailResource = dmClass.getDeclaredMethod("addMailResource", 
                     new Class[]{String.class, String.class, Map.class});
             addMailResource.invoke(this.ws70DM, new Object[]{configName, resName, resAttrs});            
+        }catch(InvocationTargetException ite){            
+            throw (Exception)ite.getTargetException();
         }catch(Exception ex){
-            throw ex;            
+            throw ex;
         }                          
     }    
     public void setJVMOptions(String configName, List jvmOptions, Boolean debugOptions, 
@@ -663,8 +695,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
                     new Class[]{String.class, List.class, Boolean.class, String.class});
             setJVMOptions.invoke(this.ws70DM, new Object[]{configName, jvmOptions, debugOptions, profilerName});            
             this.deployAndReconfig(configName);            
+        }catch(InvocationTargetException ite){            
+            throw (Exception)ite.getTargetException();
         }catch(Exception ex){
-            throw ex;            
+            throw ex;
         }          
     }
     public void setJVMProps(String configName, Map jvmElements) throws Exception {
@@ -673,8 +707,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
                     new Class[]{String.class, Map.class});
             setJVMProps.invoke(this.ws70DM, new Object[]{configName, jvmElements});            
             this.deployAndReconfig(configName);
+        }catch(InvocationTargetException ite){            
+            throw (Exception)ite.getTargetException();
         }catch(Exception ex){
-            throw ex;            
+            throw ex;
         }                  
     }
 
@@ -712,8 +748,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             String configName = (String)getConfigName.invoke(target, new Object[]{});
             return configName;
             
+        }catch(InvocationTargetException ite){            
+            throw (Exception)ite.getTargetException();
         }catch(Exception ex){
-            throw ex;        
+            throw ex;
         }                             
     }
 
