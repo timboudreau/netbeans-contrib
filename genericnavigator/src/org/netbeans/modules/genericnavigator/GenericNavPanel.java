@@ -281,6 +281,9 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                 } else {
                     FileObject fob = dob.getPrimaryFile();
                     File f = FileUtil.toFile (fob);
+                    if (f == null) {
+                        return "";
+                    }
                     ByteBuffer buf = ByteBuffer.allocate ((int) f.length());
                     Pattern pattern = getPattern();
                     if (pattern == null) {
