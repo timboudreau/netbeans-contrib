@@ -19,11 +19,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -46,9 +45,9 @@ import javax.swing.plaf.basic.ComboPopup;
  *
  * @author Tim Boudreau
  */
-public class ComboButtonUI extends BasicComboBoxUI implements ListCellRenderer, PopupMenuListener, KeyListener {
-    private RendererButton rendererButton = new RendererButton();
-    private ComboButton box;
+class ComboButtonUI extends BasicComboBoxUI implements ListCellRenderer, PopupMenuListener, KeyListener {
+    RendererButton rendererButton;
+    final ComboButton box;
     public ComboButtonUI(ComboButton box) {
         this.box = box;
     }
@@ -62,9 +61,14 @@ public class ComboButtonUI extends BasicComboBoxUI implements ListCellRenderer, 
     }
     
     public void installUI( JComponent c ) {
+        rendererButton = createRendererButton();
         super.installUI(c);
         c.setBorder (BorderFactory.createEmptyBorder());
         box.removeKeyListener (superHandler);
+    }
+    
+    protected RendererButton createRendererButton() {
+         return new RendererButton();
     }
     
     public void uninstallUI( JComponent c ) {
@@ -80,7 +84,7 @@ public class ComboButtonUI extends BasicComboBoxUI implements ListCellRenderer, 
         return UIManager.getLookAndFeel().getID().indexOf("Windows") >= 0; //NOI18N
     }
     
-    private void configureButtonModel (boolean isSelected, boolean isLeadSelection, boolean isComboBoxItself, boolean hasFocus, boolean isPopupVisible) {
+    protected void configureButtonModel (boolean isSelected, boolean isLeadSelection, boolean isComboBoxItself, boolean hasFocus, boolean isPopupVisible) {
         if (isWindowsLAF()) {
             isPopupVisible |= isPendingPopup();
             boolean pressed = isComboBoxItself ? isPopupVisible : isSelected;
@@ -93,7 +97,7 @@ public class ComboButtonUI extends BasicComboBoxUI implements ListCellRenderer, 
         }
         rendererButton.setHasFocus(isComboBoxItself && hasFocus);
     }
-
+    
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         String text = value == null || 
                 (!box.isTextVisible() && index == -1) ? "" : value.toString(); //NOI18N
@@ -110,8 +114,16 @@ public class ComboButtonUI extends BasicComboBoxUI implements ListCellRenderer, 
         return rendererButton;
     }
     
+    protected void superInstallComponents() {
+        super.installComponents();
+    }
+    
     protected void installComponents() {
         comboBox.add( currentValuePane );
+    }
+    
+    protected Rectangle superRectangleForCurrentValue() {
+        return super.rectangleForCurrentValue();
     }
     
     protected Rectangle rectangleForCurrentValue() {
@@ -150,7 +162,7 @@ public class ComboButtonUI extends BasicComboBoxUI implements ListCellRenderer, 
     boolean isPendingPopup() {
         boolean result = isPendingPopup;
         isPendingPopup = false;
-        return isPendingPopup;
+        return result;
     }
     
     private int popupCount = 0;
@@ -256,7 +268,7 @@ public class ComboButtonUI extends BasicComboBoxUI implements ListCellRenderer, 
         return this;
     }
     
-    private static final class RendererButton extends JToggleButton {
+    static class RendererButton extends JToggleButton {
         public RendererButton () {
             setRolloverEnabled (true);
         }
@@ -275,7 +287,7 @@ public class ComboButtonUI extends BasicComboBoxUI implements ListCellRenderer, 
         public void firePropertyChange (String nm, Object old, Object nue) {}
     }
     
-    private static class CP extends BasicComboPopup {
+    static final class CP extends BasicComboPopup {
         CP (JComboBox box) {
             super (box);
         }

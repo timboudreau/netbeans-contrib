@@ -21,15 +21,18 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 /**
@@ -47,25 +50,51 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         
         JFrame jf = new JFrame();
         jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         jf.getContentPane().setLayout (new FlowLayout());
         jf.add (new JLabel ("This is a ComboButton: "));
-        ComboButton btn = new ComboButton();
+        FixedComboButton btn = new FixedComboButton();
         DefaultComboBoxModel mdl = new DefaultComboBoxModel();
-        for (int i=0; i < 10; i++) {
-            mdl.addElement ("Some sort of item " + i);
+        Action[] a = new Action[10];
+        for (int i=0; i < a.length; i++) {
+            a[i] = new A("Some sort of item " + i);
         }
-        btn.setModel(mdl);
+        btn.setActions (a);
+        btn.addActionListener(new AL());
+//        btn.setModel(mdl);
 //        btn.setTextVisible(true);
-        btn.setIconProvider(new IP(btn));
+//        btn.setIconProvider(new IP(btn));
         jf.add (btn);
         jf.add (new JTextField ("Something else to give focus to"));
         jf.pack();
         jf.setVisible(true);
+    }
+    
+    private static class AL implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            System.err.println("COMBO BOX FIRING ACTION " + e.getActionCommand());
+        }
         
+    }
+    
+    private static final class A extends AbstractAction {
+        public A(String s) {
+            putValue (Action.SMALL_ICON, new I());
+            putValue (Action.NAME, s);
+            putValue (Action.ACTION_COMMAND_KEY, s);
+            putValue (Action.SHORT_DESCRIPTION, "Description of " + s);
+        }
+        
+        public String toString() {
+            return (String) getValue(Action.NAME);
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            System.err.println("ACTION PERFORMED: " + e.getActionCommand() + " on " + this);
+        }
     }
     
     private static class IP implements IconProvider {
@@ -92,7 +121,7 @@ public class Main {
         r.nextBytes(b);
         int[] ints = new int[b.length];
         for (int i = 0; i < b.length; i++) {
-            ints[i] = b[i] < 0 ? 128 - b[i] : b[i];
+            ints[i] = Math.max (0, Math.min (255, b[i] < 0 ? 128 - b[i] : b[i]));
         }
         return new Color (ints[0], ints[1], ints[2]);
     }
