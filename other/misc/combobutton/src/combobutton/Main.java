@@ -1,0 +1,133 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ */
+package combobutton;
+
+import combobutton.ComboButton.IconProvider;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+
+/**
+ * Test app
+ *
+ * @author Tim Boudreau
+ */
+public class Main {
+    
+    /** Creates a new instance of Main */
+    public Main() {
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) throws Exception {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        
+        JFrame jf = new JFrame();
+        jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        jf.getContentPane().setLayout (new FlowLayout());
+        jf.add (new JLabel ("This is a ComboButton: "));
+        ComboButton btn = new ComboButton();
+        DefaultComboBoxModel mdl = new DefaultComboBoxModel();
+        for (int i=0; i < 10; i++) {
+            mdl.addElement ("Some sort of item " + i);
+        }
+        btn.setModel(mdl);
+//        btn.setTextVisible(true);
+        btn.setIconProvider(new IP(btn));
+        jf.add (btn);
+        jf.add (new JTextField ("Something else to give focus to"));
+        jf.pack();
+        jf.setVisible(true);
+        
+    }
+    
+    private static class IP implements IconProvider {
+        private Map m = new HashMap();
+        private ComboButton btn;
+        IP (ComboButton btn) {
+            this.btn = btn;
+        }
+        
+        public Icon getIcon(Object objectInModel, int index) {
+            index = index == -1 ? btn.getSelectedIndex() : index;
+            Integer key = new Integer (index);
+            Icon result = (Icon) m.get(key);
+            if (result == null) {
+                result = new I();
+                m.put (key, result);
+            }
+            return result;
+        }
+    }
+    
+    private static Color genColor() {
+        byte[] b = new byte[3];
+        r.nextBytes(b);
+        int[] ints = new int[b.length];
+        for (int i = 0; i < b.length; i++) {
+            ints[i] = b[i] < 0 ? 128 - b[i] : b[i];
+        }
+        return new Color (ints[0], ints[1], ints[2]);
+    }
+    
+    private static final Random r = new Random (System.currentTimeMillis());
+    
+    private static class I implements Icon, IconProvider {
+        private Color color;
+        public I() {
+            color = genColor();
+        }
+        
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Polygon p = new Polygon (new int[] {
+                x, x + 16, x,
+            }, new int[] {
+                y, y + 8, y + 16,
+            }, 3);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setColor (color);
+            g2d.fill (p);
+            g2d.setColor (Color.BLACK);
+            g2d.draw(p);
+        }
+
+        public int getIconWidth() {
+            return 16;
+        }
+
+        public int getIconHeight() {
+            return 16;
+        }
+
+        public Icon getIcon(Object objectInModel, int index) {
+            return this;
+        }        
+    }
+}
