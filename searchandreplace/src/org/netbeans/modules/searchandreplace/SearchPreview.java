@@ -55,12 +55,15 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -112,6 +115,7 @@ class SearchPreview extends TopComponent implements ActionListener, ListSelectio
     private final Search search;
 
     private JButton replaceButton = null;
+    private JLabel pathLabel = new JLabel();
 
     /** Creates a new instance of SearchPreview */
     public SearchPreview(Search search, Item[] items) {
@@ -133,9 +137,20 @@ class SearchPreview extends TopComponent implements ActionListener, ListSelectio
         contentScroll.setBorder (BorderFactory.createEmptyBorder());
         pane.setViewportBorder (BorderFactory.createEmptyBorder());
         pane.setBorder (BorderFactory.createEmptyBorder());
+        
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.add (pathLabel, BorderLayout.NORTH);
+        contentPanel.add (contentScroll, BorderLayout.CENTER);
+        
+        Border b = BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, 
+                UIManager.getColor("controlShadow")), 
+                BorderFactory.createEmptyBorder(5, 5, 1, 5));
+        
+        pathLabel.setBorder (b);
 
         JSplitPane split = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
-                pane, contentScroll);
+                pane, contentPanel);
         add (split, BorderLayout.CENTER);
         if (replaceText != null) {
             JPanel buttons = new JPanel();
@@ -239,6 +254,11 @@ class SearchPreview extends TopComponent implements ActionListener, ListSelectio
             if (row != -1) {
                 Item item = model.getItems()[row];
                 search.requestText(item, receiver);
+                String description = item.getDescription() + 
+                        File.separator + item.getName();
+                pathLabel.setText (description);
+                //in case it doesn't fit
+                pathLabel.setToolTipText (description);
             }
         }
     }

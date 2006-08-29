@@ -59,6 +59,13 @@ final class TextFetcher implements Runnable {
             }
             Point p = getLocation();
             FileObject fob = FileUtil.toFileObject(source.getFile());
+            String mimeType = fob.getMIMEType();
+            //We don't want the swing html editor kit, and even if we 
+            //do get it, it will frequently throw a random NPE 
+            //in StyleSheet.removeHTMLTags that appears to be a swing bug
+            if ("text/html".equals(mimeType)) {
+                mimeType = "text/plain";
+            }
             receiver.setText(text, fob.getMIMEType(), getLocation());
             done = true;
         }  else {

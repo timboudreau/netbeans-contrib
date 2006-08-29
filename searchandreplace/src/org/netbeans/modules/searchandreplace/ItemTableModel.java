@@ -70,7 +70,7 @@ final class ItemTableModel implements TableModel, ItemStateObserver, TableCellRe
     }
 
     public int getColumnCount() {
-        return canReplace ? 3 : 2;
+        return canReplace ? 2 : 1;
     }
 
     private final String NAME_STRING =
@@ -85,11 +85,6 @@ final class ItemTableModel implements TableModel, ItemStateObserver, TableCellRe
                     NbBundle.getMessage (SearchPreview.class,
                         "LBL_Replace") : //NOI18N
                     NbBundle.getMessage (SearchPreview.class, "LBL_Path"); //NOI18N
-            case 2:
-                if (canReplace) {
-                    return NbBundle.getMessage (SearchPreview.class,
-                            "LBL_Path"); //NOI18N
-                }
             default:
                 throw new IllegalArgumentException("" + columnIndex);
         }
@@ -101,10 +96,6 @@ final class ItemTableModel implements TableModel, ItemStateObserver, TableCellRe
                 return String.class;
             case 1:
                 return canReplace ? Boolean.TYPE : String.class;
-            case 2:
-                if (canReplace) {
-                    return String.class;
-                }
             default:
                 throw new IllegalArgumentException("" + columnIndex);
         }
@@ -138,11 +129,6 @@ final class ItemTableModel implements TableModel, ItemStateObserver, TableCellRe
                 return canReplace ? (Object) (item.isShouldReplace() ?
                         Boolean.TRUE : Boolean.FALSE)
                         : item.getDescription();
-            case 2:
-                if (canReplace) {
-                    return (clrString == null ? "" : clrString) + //NOI18N
-                            item.getDescription();
-                }
             default:
                 throw new IllegalArgumentException("" + columnIndex); //NOI18N
         }
