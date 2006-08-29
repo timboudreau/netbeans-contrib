@@ -45,8 +45,8 @@ public class AlignWithTest extends Scene {
 
         getActions ().addAction (ActionFactory.createSelectAction (new CreateProvider ()));
 
-        createLabel ("Click on the scene to create a new label", new Point (10, 10));
-        createLabel ("Drag a label to move it and try to align it with other ones", new Point (10, 30));
+        createLabel ("Click on the scene to create a new label", new Point (10, 20));
+        createLabel ("Drag a label to move it and try to align it with other ones", new Point (10, 40));
     }
 
     private void createLabel (String label, Point location) {
