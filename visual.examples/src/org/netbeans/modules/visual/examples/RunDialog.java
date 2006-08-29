@@ -37,6 +37,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.connectionlabels.ConnectionLabelsTest",
         "test.devolve.DevolveTest",
         "test.general.GraphSceneTest",
+        "test.graph.LoopEdgeTest",
         "test.huge.HugeTest",
         "test.inplace.InplaceEditorTest",
         "test.justify.JustifyTest",
