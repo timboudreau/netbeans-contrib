@@ -87,8 +87,6 @@ public class CommonPropertyVisualPanel extends javax.swing.JPanel implements WS7
 
         setLayout(new java.awt.GridBagLayout());
 
-        setMinimumSize(new java.awt.Dimension(627, 305));
-        setPreferredSize(new java.awt.Dimension(627, 305));
         getAccessibleContext().setAccessibleName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/serverresources/wizards/Bundle").getString("TITLE_CommonPropertyPanel"));
         getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommonPropertyVisualPanel.class, "CommonPropertyPanel_Description", this.helper.getData().getString(__JndiName)));
         descriptionTextArea.setEditable(false);
@@ -96,9 +94,7 @@ public class CommonPropertyVisualPanel extends javax.swing.JPanel implements WS7
         descriptionTextArea.setText(NbBundle.getMessage(CommonPropertyVisualPanel.class, "CommonPropertyPanel_Description", this.helper.getData().getString(__JndiName)));
         descriptionTextArea.setWrapStyleWord(true);
         descriptionTextArea.setFocusable(false);
-        descriptionTextArea.setMinimumSize(new java.awt.Dimension(500, 17));
         descriptionTextArea.setOpaque(false);
-        descriptionTextArea.setPreferredSize(new java.awt.Dimension(500, 17));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -121,7 +117,7 @@ public class CommonPropertyVisualPanel extends javax.swing.JPanel implements WS7
         add(propertyInfo, gridBagConstraints);
         propertyInfo.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/serverresources/wizards/Bundle").getString("ACS_propTableCommon_A11yDesc"));
 
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(453, 17));
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(descriptionTextArea.getWidth(), this.getHeight()));
         propertyTable.setModel(tableModel);
         jScrollPane1.setViewportView(propertyTable);
         propertyTable.getAccessibleContext().setAccessibleName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/serverresources/wizards/Bundle").getString("LBL_AddProperty"));

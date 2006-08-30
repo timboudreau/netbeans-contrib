@@ -159,9 +159,11 @@ public class CommonGeneralFinishVisualPanel extends javax.swing.JPanel implement
         jPanel1[j] = new javax.swing.JPanel();
         jPanel1[j].setLayout(new java.awt.GridBagLayout());
         
-        jPanel1[j].setMaximumSize(new java.awt.Dimension(480, itemHeight * size));
-        jPanel1[j].setMinimumSize(new java.awt.Dimension(480, itemHeight * size));
-        jPanel1[j].setPreferredSize(new java.awt.Dimension(480, itemHeight * size));
+        //Fixing  Issue# 80007
+        int panelWidth = (int)jPanel1[j].getMaximumSize().getWidth();        
+        jPanel1[j].setMaximumSize(new java.awt.Dimension(panelWidth, itemHeight * size));
+        jPanel1[j].setMinimumSize(new java.awt.Dimension(panelWidth, itemHeight * size));
+        jPanel1[j].setPreferredSize(new java.awt.Dimension(panelWidth, itemHeight * size));
         
 
         for (int k = 0; k < size; k++) {
@@ -217,8 +219,10 @@ public class CommonGeneralFinishVisualPanel extends javax.swing.JPanel implement
                 jLabel.setLabelFor(jTextField);
                 jTextField.getAccessibleContext().setAccessibleDescription(bundle.getString("ToolTip_" + fields[i].getName())); 
                 jTextField.setToolTipText(bundle.getString("ToolTip_" + fields[i].getName()));  //NOI18N
-                jTextField.setMinimumSize(new java.awt.Dimension(340, 21));
-                jTextField.setPreferredSize(new java.awt.Dimension(340, 21));
+                
+                //Fixing  Issue# 80007
+                //jTextField.setMinimumSize(new java.awt.Dimension(340, 21));
+                //jTextField.setPreferredSize(new java.awt.Dimension(340, 21));
                 final int index = i;
                 /*
                 jTextField.addActionListener(new java.awt.event.ActionListener() {
