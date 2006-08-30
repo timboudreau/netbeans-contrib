@@ -308,16 +308,20 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
     }
     
     static String snipPath (File f, String projPath) {
-        char[] c = f.getPath().substring(projPath.length()).toCharArray();
-        for (int i = 0; i < c.length; i++) {
-            c[i] = c[i] == '\\' ? '/' : c[i]; //NOI18N
+        String path = f.getPath();
+        if (path.length() > projPath.length()) {
+            char[] c = f.getPath().substring(projPath.length()).toCharArray();
+            for (int i = 0; i < c.length; i++) {
+                c[i] = c[i] == '\\' ? '/' : c[i]; //NOI18N
+            }
+            if (c.length == 0) {
+                return ""; //NOI18N
+            } else {
+                return new String(c, c[0] == '/' ? 1 : 0, c[0] == '/' ? c.length - 1 : //NOI18N
+                    c.length);
+            }
         }
-        if (c.length == 0) {
-            return ""; //NOI18N
-        } else {
-            return new String(c, c[0] == '/' ? 1 : 0, c[0] == '/' ? c.length - 1 : //NOI18N
-                c.length);
-        }
+        return path;
     }
 
     public void fileChanged(FileEvent e) {
