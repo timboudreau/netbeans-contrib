@@ -328,7 +328,7 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
         Node n = findChild (nm);
         if (n instanceof HtmlFileNode) {
             synchronized (this) {
-                task = post ((Runnable) n);
+                task = post (this);
             }
         }  else {
             System.err.println("CANNOT FIND CHILD NODE NAMED " + nm);
