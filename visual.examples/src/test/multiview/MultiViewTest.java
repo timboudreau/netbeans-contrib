@@ -48,7 +48,7 @@ public class MultiViewTest {
 
 //        contentPane.add (scene.createSateliteView (), BorderLayout.NORTH);
 //        contentPane.add (scene.createSateliteView (), BorderLayout.SOUTH);
-        contentPane.add (scene.createSateliteView (), BorderLayout.WEST);
+        contentPane.add (scene.createSatelliteView (), BorderLayout.WEST);
 //        contentPane.add (scene.createSateliteView (), BorderLayout.EAST);
 
         final JButton button = new JButton ("Preview");
@@ -56,7 +56,7 @@ public class MultiViewTest {
             public void actionPerformed (ActionEvent e) {
                 JPopupMenu popup = new JPopupMenu ();
                 popup.setLayout (new BorderLayout ());
-                JComponent sateliteView = scene.createSateliteView ();
+                JComponent sateliteView = scene.createSatelliteView ();
                 popup.add (sateliteView, BorderLayout.CENTER);
                 popup.show (button, (button.getSize ().width - sateliteView.getPreferredSize ().width) / 2, button.getSize ().height);
             }
